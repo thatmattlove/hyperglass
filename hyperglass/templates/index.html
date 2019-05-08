@@ -85,7 +85,9 @@
                 <div class="control has-icons-left">
                   <div class="select is-medium is-rounded">
                     <select id="network" name="network">
-                      <option value="" disabled></option>
+                      {% for net in device_networks %}
+                      <option value="{{ net }}">AS{{ net }}</option>
+                      {% endfor %}
                     </select>
                   </div>
                   <span class="icon is-left"><i class="icofont-cloudapp"></i></span>
@@ -93,7 +95,7 @@
                 <div class="control has-icons-left">
                   <div class="select is-medium is-rounded">
                     <select id="router">
-                      <option selected disabled>{{ text_location }}</option>
+                      <option id="text_location" selected disabled>{{ text_location }}</option>
                     </select>
                   </div>
                   <span class="icon is-left"><i class="icofont-globe"></i></span>

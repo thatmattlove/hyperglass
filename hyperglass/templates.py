@@ -29,7 +29,7 @@ class html:
         elif t == "test":
             template = env.get_template("templates/429.html")
         return template.render(
-            site_title=vars.brand.site_title(),
+            # General
             primary_asn=vars.gen.primary_asn(),
             google_analytics=vars.gen.google_analytics(),
             enable_recaptcha=vars.gen.enable_recaptcha(),
@@ -38,6 +38,10 @@ class html:
             enable_bgp_aspath=vars.gen.enable_bgp_aspath(),
             enable_ping=vars.gen.enable_ping(),
             enable_traceroute=vars.gen.enable_traceroute(),
+            cache_timeout=vars.gen.cache_timeout(),
+            message_rate_limit_query=vars.gen.message_rate_limit_query(),
+            # Branding
+            site_title=vars.brand.site_title(),
             title=vars.brand.title(),
             subtitle=vars.brand.subtitle(),
             title_mode=vars.brand.title_mode(),
@@ -60,10 +64,12 @@ class html:
             text_help_bgp_aspath=vars.brand.text_help_bgp_aspath(),
             text_help_ping=vars.brand.text_help_ping(),
             text_help_traceroute=vars.brand.text_help_traceroute(),
-            message_rate_limit_query=vars.gen.message_rate_limit_query(),
             text_limiter_title=vars.brand.text_limiter_title(),
             text_limiter_subtitle=vars.brand.text_limiter_subtitle(),
-            cache_timeout=vars.gen.cache_timeout(),
+            # Devices
+            device_networks=vars.dev.networks(),
+            # device_location=vars.dev.location(),
+            device_name=vars.dev.name(),
         )
 
 

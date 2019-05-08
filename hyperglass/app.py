@@ -87,19 +87,6 @@ def testRoute():
     return html
 
 
-# Flask GET route to provides a JSON list of all networks/ASNs from the config file
-@app.route("/networks", methods=["GET"])
-def get_networks():
-    results = []
-    results_dedup = set(results)
-    for r in routers_list:
-        if not r["asn"] in results_dedup:
-            results_dedup.add(r["asn"])
-            results.append(dict(network=r["asn"]))
-            results_json = json.dumps(results, sort_keys=True)
-    return results_json
-
-
 # Flask GET route provides a JSON list of all routers for the selected network/ASN
 @app.route("/routers/<asn>", methods=["GET"])
 def get_routers(asn):

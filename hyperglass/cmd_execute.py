@@ -10,7 +10,7 @@ import vars
 import cmd_parser as parser
 
 log = logging.getLogger(__name__)
-# Load TOML config file
+# Load TOML devices file
 devices = toml.load(open("./config/devices.toml"))
 # Filter config to router list
 routers_list = devices["router"]

@@ -4,7 +4,6 @@ var progress = ($('#progress'));
 var resultsbox = ($('#resultsbox'));
 resultsbox.hide();
 progress.hide();
-listNetworks ();
 clientIP ();
 
 function clientIP () {
@@ -13,19 +12,6 @@ function clientIP () {
   });
 };
 
-function listNetworks () {
-  let networklist = $('#network');
-  networklist.empty();
-  networklist.prop('selectedIndex', 0);
-  const url = '/networks';
-  $.getJSON(url, function (data) {
-    $.each(data, function (key, entry) {
-      networklist.append($('<option></option>').attr('value', entry.network).text('AS'+entry.network));
-    })
-  })
-}
-
-// Update the list of routers for the *default* selected network
 $( document ).ready(function(){
   var defaultasn = $ ( "#network" ).val();
   $.ajax({
@@ -45,6 +31,7 @@ $( document ).ready(function(){
 
 $('#network').on('change', () => {
   var asn = $("select[id=network").val()
+  $('#router').children(":not(#text_location)").remove();
   $.ajax({
     url: `/routers/${asn}`,
     type: 'get',

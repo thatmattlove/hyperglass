@@ -7,11 +7,38 @@ config = toml.load(open("./config/config.toml"))
 # Filter config to branding variables
 branding = config["branding"]
 
-# Filter config to generale variables
+# Filter config to general variables
 general = config["general"]
 
-# Functions to import config variables and return default values if undefined
+# Load TOML devices file
+devices = toml.load(open("./config/devices.toml"))
+# Filter config to router list
+routers_list = devices["router"]
+
+
+class dev:
+    """Functions to import device variables"""
+
+    def networks():
+        asn_dict = dict()
+        for r in routers_list:
+            asn = r["asn"]
+            if asn in asn_dict:
+                asn_dict[asn].append(r["location"])
+            else:
+                asn_dict[asn] = [r["location"]]
+        return asn_dict
+
+    def name():
+        list = []
+        for r in routers_list:
+            list.append(str(r["name"]))
+        return list
+
+
 class gen:
+    """Functions to import config variables and return default values if undefined"""
+
     def primary_asn():
         list = []
         for g in general:
@@ -144,6 +171,8 @@ class gen:
 
 
 class brand:
+    """Functions to import branding variables and return default values if undefined"""
+
     def site_title():
         list = []
         for t in branding:
