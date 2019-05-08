@@ -1,7 +1,7 @@
 # General site-wide parameters
 [[general]]
 primary_asn = ""
-debug = true
+debug = false
 google_analytics = ""
 message_error = ""
 message_blacklist = ""

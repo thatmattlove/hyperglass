@@ -5,7 +5,10 @@ copyright: ''
 nav:
     - Home: 'index.md'
     - Installation:
-      - 'installation.md'
+      - 'Installing Hyperglass': 'installation/installing-hyperglass.md'
+      - 'HTTP/WSGI': 'installation/wsgi.md'
+      - 'Reverse Proxy': 'installation/reverseproxy.md'
+      - 'Running Hyperglass as a Service': 'installation/supervisord.md'
     - Configuration:
       - 'Configuring Hyperglass': 'configuration.md'
       - 'General Parameters': 'configuration/general.md'
