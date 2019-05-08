@@ -1,0 +1,55 @@
+# General site-wide parameters
+[[general]]
+primary_asn = ""
+debug = true
+google_analytics = ""
+message_error = ""
+message_blacklist = ""
+message_rate_limit_query = ""
+enable_bgp_route = true
+enable_bgp_community = true
+enable_bgp_aspath = true
+enable_ping = true
+enable_traceroute = true
+rate_limit_query = ""
+rate_limit_site = ""
+cache_timeout = 120
+cache_directory = ""
+
+# Branding/Site Customization Parameters
+[[branding]]
+site_title = ""
+title_mode = ""
+title = ""
+subtitle = ""
+enable_footer = true
+enable_credit = true
+color_bg = ""
+color_btn_submit = ""
+color_tag_loctitle = ""
+color_tag_cmdtitle = ""
+color_tag_cmd = ""
+color_tag_loc = ""
+color_hero = ""
+color_progressbar = ""
+logo_path = ""
+logo_width = ""
+placeholder_prefix = ""
+show_peeringdb = true
+text_results = ""
+text_location = ""
+text_cache = ""
+text_limiter_title = ""
+text_limiter_subtitle = ""
+text_415_title = ""
+text_415_subtitle = ""
+text_415_button = ""
+text_help_bgp_route = ""
+text_help_bgp_community = ""
+text_help_bgp_aspath = ""
+text_help_ping = ""
+text_help_traceroute = ""
+primary_font_url = ""
+primary_font_name = ""
+mono_font_url = ""
+mono_font_name = ""

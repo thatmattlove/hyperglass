@@ -1,0 +1,54 @@
+# Routers
+[[router]]
+address = "10.0.0.1"
+asn = "65000"
+src_addr_ipv4 = "192.0.2.1"
+src_addr_ipv6 = "2001:db8::1"
+credential = "default"
+location = "pop01"
+name = "router01"
+port = "22"
+type = "cisco_xr"
+proxy = ""
+
+[[router]]
+address = "10.0.0.2"
+asn = "65000"
+src_addr_ipv4 = "192.0.2.2"
+src_addr_ipv6 = "2001:db8::2"
+credential = "default"
+location = "pop02"
+name = "router02"
+port = "22"
+type = "cisco_ios"
+proxy = "server01"
+
+[[router]]
+address = "10.0.0.3"
+asn = "65000"
+src_addr_ipv4 = "192.0.2.3"
+src_addr_ipv6 = "2001:db8::3"
+credential = "other"
+location = "pop03"
+name = "router03"
+port = "22"
+type = "juniper"
+proxy = ""
+
+
+# Router Credentials
+[credential.'default']
+username = "username"
+password = "password"
+
+[credential.'other']
+username = "otheruser"
+password = "otherpass"
+
+# SSH Proxy Servers
+[proxy.'server01']
+address = "10.0.1.1"
+username = "username"
+password = "password"
+type = "linux_ssh"
+ssh_command = "ssh -l {username} {host}"

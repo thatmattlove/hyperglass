@@ -1,0 +1,51 @@
+{% extends "templates/base.html" %}
+<!DOCTYPE html>
+
+<head>
+</head>
+
+{% block content %}
+<body>
+  <section class="hero is-danger is-fullheight is-clipped">
+    <div class="hero-head">
+      <nav class="navbar">
+        <div class="container">
+          <div class="navbar-brand">
+          </div>
+        </div>
+      </nav>
+      <div class="container has-text-centered">
+      </div>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div class="container has-text-centered">
+      <h1 class="title is-size-1">
+        {{ text_limiter_title }}
+      </h1>
+      <h2 class="subtitle is-size-3">
+        {{ text_limiter_subtitle }}
+      </h2>
+      <a href="/" class="button is-medium is-rounded is-inverted is-danger is-outlined">Try Again</a>
+    </div>
+    <div class="hero-body">
+    </div>
+    {% if enable_footer == true %}
+    <div class="hero-foot">
+      <div class="container">
+        <div class="content is-small has-text-centered">
+          {{ footer_content }}
+        </div>
+      </div>
+    </div>
+    <br>
+    {% endif %}
+  </section>
+</body>
+{% endblock %}
+
+</html>

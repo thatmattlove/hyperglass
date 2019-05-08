@@ -1,0 +1,41 @@
+site_name: 'hyperglass documentation'
+site_author: 'checktheroads | Matt Love'
+site_url: 'https://hyperglass.readthedocs.io'
+copyright: ''
+nav:
+    - Home: 'index.md'
+    - Installation:
+      - 'installation.md'
+    - Configuration:
+      - 'Configuring Hyperglass': 'configuration.md'
+      - 'General Parameters': 'configuration/general.md'
+      - 'Branding': 'configuration/branding.md'
+      - 'Devices': 'configuration/devices.md'
+      - 'Authentication': 'configuration/authentication.md'
+      - 'Commands': 'configuration/commands.md'
+      - 'Proxy': 'configuration/proxy.md'
+      - 'Blacklist': 'configuration/blacklist.md'
+    - Caching:
+      - 'caching.md'
+    - Rate Limiting:
+      - 'ratelimiting.md'
+    - Development:
+      - 'Introduction': 'development/index.md'
+
+    - Extras:
+      - 'Common AS_PATH Regular Expressions': 'extras/common_as_path_regex.md'
+# Theme Configuration
+theme:
+  name: 'readthedocs'
+# Extensions
+markdown_extensions:
+  - admonition
+  - pymdownx.mark
+  - toc:
+      permalink: true
+      toc_depth: 1-3
+# Social Links
+extra:
+  social:
+    - type: 'github'
+      link: 'https://github.com/checktheroads/hyperglass'

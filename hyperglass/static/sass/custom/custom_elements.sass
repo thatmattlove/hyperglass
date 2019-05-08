@@ -1,0 +1,60 @@
+// Custom Elements
+
+.hero.lg-hero-bg
+  background-color: $lg-hero-bg
+  color: findColorInvert($lg-hero-bg)
+
+.hero-foot.lg-hero-bg
+  background-color: $lg-hero-bg
+  color: findColorInvert($lg-hero-bg)
+
+.hero.lg-hero-bg .title, .subtitle
+  color: findColorInvert($lg-hero-bg)
+
+.hero.is-danger .title, .subtitle
+  color: findColorInvert($danger)
+
+.hero.lg-hero-bg .navbar-item
+  color: findColorInvert($lg-hero-bg)
+
+.button.lg-btn-submit
+  background-color: $lg-btn-submit
+  border-color: transparent
+  color: findColorInvert($lg-btn-submit)
+
+.tag.lg-tag-loctitle
+  background-color: $lg-tag-loctitle
+  color: findColorInvert($lg-tag-loctitle)
+
+.tag.lg-tag-cmd
+  background-color: $lg-tag-cmd
+  color: findColorInvert($lg-tag-cmd)
+  font-family: $family-monospace
+
+.tag.lg-tag-cmdtitle
+  background-color: $lg-tag-cmdtitle
+  color: findColorInvert($lg-tag-cmdtitle)
+  font-family: $family-monospace
+
+.tag.lg-tag-loc
+  background-color: $lg-tag-loc
+  color: findColorInvert($lg-tag-loc)
+
+.progress.lg-progressbar:indeterminate
+    background-image: linear-gradient(to right,$lg-progressbar 30%,$grey-lighter 30%)
+
+.message-body pre
+  background-color: transparent!important
+
+.query-output
+  font-family: $family-monospace
+  font-size: 0.875em
+  overflow-x: auto
+  white-space: pre
+  word-wrap: normal
+
+.dropdown-content.lg-help
+  width: 24rem
+
+.icon.lg-icon-help
+  color: $lg-btn-submit

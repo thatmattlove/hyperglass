@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<head>
+{% block head %}
+  <title>{{ site_title }}</title>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <link rel="apple-touch-icon" sizes="180x180" href="static/images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="static/images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="static/images/favicon/favicon-16x16.png">
+  <link rel="manifest" href="static/images/favicon/site.webmanifest">
+  <link rel="mask-icon" href="static/images/favicon/safari-pinned-tab.svg" color="#ff5e5b">
+  <link rel="shortcut icon" href="static/images/favicon.ico">
+  <meta name="msapplication-TileColor" content="#330036">
+  <meta name="msapplication-config" content="static/images/favicon/browserconfig.xml">
+  <meta name="theme-color" content="#330036">
+  <link href="static/css/icofont/icofont.min.css" rel="stylesheet" />
+  <link href="static/css/hyperglass.css" rel="stylesheet" />
+{% endblock %}
+</head>
+<body>
+  {% block content %}{% endblock %}
+  {% if enable_footer == true and enable_credit == true %}
+  <br>
+  {% endif %}
+</body>
+{% block scripts %}
+<script src="static/js/jquery-3.4.0.min.js"></script>
+<script src="static/js/hyperglass.js"></script>
+<!-- <script src="static/js/fontawesome-free-5.8.1-web/js/all.js"></script> -->
+{% if google_analytics|length > 0 %}
+<!--Google Analytics-->
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag('js', new Date());
+
+  gtag('config', '{{ google_analytics }}');
+</script>
+{% endif %}
+{% endblock %}
+</html>
