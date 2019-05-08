@@ -28,6 +28,8 @@ Documentation can be found [here](https://hyperglass.readthedocs.io), or in the 
 
 ## Preview
 
+For screenshots, see [here](blob/master/screenshots.md), or the `screenshots/` directory.
+
 ## Platform Support
 Theoretically, any vendor supported by Netmiko can be supported by Hyperglass. However, I am currently listing platforms I have personally tested and verified full functionality with:
 

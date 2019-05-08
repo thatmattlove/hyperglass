@@ -219,7 +219,9 @@
           </div>
         </div>
       </div>
-      {% include "templates/footer.html" %}
+      {% if enable_footer == true %}
+        {% include "templates/footer.html" %}
+      {% endif %}
     </section>
 {% endblock %}
 </body>
