@@ -26,6 +26,7 @@ general_error = "Error connecting to device."
 
 
 def cmd_execute(lg_data):
+    log.warning(lg_data)
     # Check POST data from JS, if location matches a configured router's
     # location, use the router's configured IP address to connect
     for r in routers_list:
@@ -47,6 +48,7 @@ def cmd_execute(lg_data):
             log.error(msg, code, lg_data)
             return (msg, code, lg_data)
     # Send "clean" request to cmd_construct to build the command that will be sent to the router
+    print(lg_router_address)
     msg, status, router, type, command = cmd_construct(
         lg_router_address, lg_data["cmd"], lg_data["ipprefix"]
     )

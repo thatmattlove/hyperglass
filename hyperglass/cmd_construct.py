@@ -21,6 +21,7 @@ routers_list = devices["router"]
 # Also handles input validation & error handling
 def cmd_construct(router, cmd, ipprefix):
     inputParams = router, cmd, ipprefix
+    log.warning(*inputParams)
     try:
         # Loop through routers config file, match input router with configured routers, set variables
         for r in routers_list:
@@ -56,7 +57,9 @@ def cmd_construct(router, cmd, ipprefix):
                                                 i=ipprefix
                                             )
                                             code = 200
-                                            log.info(msg, code, router, type, command)
+                                            log.warning(
+                                                msg, code, router, type, command
+                                            )
                                             return (msg, code, router, type, command)
                                 # Extended Communities, 32 bit format
                                 elif re.match("^[0-9]{1,10}$", ipprefix):
@@ -67,7 +70,9 @@ def cmd_construct(router, cmd, ipprefix):
                                                 i=ipprefix
                                             )
                                             code = 200
-                                            log.info(msg, code, router, type, command)
+                                            log.warning(
+                                                msg, code, router, type, command
+                                            )
                                             return (msg, code, router, type, command)
                                 # RFC 8092 Large Community Support
                                 elif re.match(
@@ -81,7 +86,9 @@ def cmd_construct(router, cmd, ipprefix):
                                                 i=ipprefix
                                             )
                                             code = 200
-                                            log.info(msg, code, router, type, command)
+                                            log.warning(
+                                                msg, code, router, type, command
+                                            )
                                             return (msg, code, router, type, command)
                                         else:
                                             msg = "{i} is an invalid BGP Community Format.".format(
@@ -100,7 +107,9 @@ def cmd_construct(router, cmd, ipprefix):
                                                 i=ipprefix
                                             )
                                             code = 200
-                                            log.info(msg, code, router, type, command)
+                                            log.warning(
+                                                msg, code, router, type, command
+                                            )
                                             return (msg, code, router, type, command)
                                 else:
                                     msg = "{i} is an invalid AS_PATH regex.".format(
@@ -121,7 +130,7 @@ def cmd_construct(router, cmd, ipprefix):
                                                     i=ipprefix
                                                 )
                                                 code = 200
-                                                log.info(
+                                                log.warning(
                                                     msg, code, router, type, command
                                                 )
                                                 return (
@@ -132,31 +141,25 @@ def cmd_construct(router, cmd, ipprefix):
                                                     command,
                                                 )
                                                 # Use netaddr library to verify if input is a valid IPv6 address or prefix
-                                            elif IPNetwork(ipprefix).ip.version == 6:
-                                                for a, c in ipv6_commands.items():
-                                                    if a == cmd:
-                                                        command = c.format(
-                                                            target=ipprefix
-                                                        )
-                                                        msg = "{i} is a valid IPv6 Adddress.".format(
-                                                            i=ipprefix
-                                                        )
-                                                        code = 200
-                                                        log.info(
-                                                            msg,
-                                                            code,
-                                                            router,
-                                                            type,
-                                                            command,
-                                                        )
-                                                        return (
-                                                            msg,
-                                                            code,
-                                                            router,
-                                                            type,
-                                                            command,
-                                                        )
-                                                        # Exception from netaddr library will return a user-facing error
+                                    elif IPNetwork(ipprefix).ip.version == 6:
+                                        for a, c in ipv6_commands.items():
+                                            if a == cmd:
+                                                command = c.format(target=ipprefix)
+                                                msg = "{i} is a valid IPv6 Adddress.".format(
+                                                    i=ipprefix
+                                                )
+                                                code = 200
+                                                log.warning(
+                                                    msg, code, router, type, command
+                                                )
+                                                return (
+                                                    msg,
+                                                    code,
+                                                    router,
+                                                    type,
+                                                    command,
+                                                )
+                                # Exception from netaddr library will return a user-facing error
                                 except:
                                     msg = "{i} is an invalid IP Address.".format(
                                         i=ipprefix
@@ -178,7 +181,7 @@ def cmd_construct(router, cmd, ipprefix):
                                                     i=ipprefix
                                                 )
                                                 code = 200
-                                                log.info(
+                                                log.warning(
                                                     msg, code, router, type, command
                                                 )
                                                 return (
@@ -199,7 +202,7 @@ def cmd_construct(router, cmd, ipprefix):
                                                     i=ipprefix
                                                 )
                                                 code = 200
-                                                log.info(
+                                                log.warning(
                                                     msg, code, router, type, command
                                                 )
                                                 return (

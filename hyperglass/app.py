@@ -68,7 +68,10 @@ cache = Cache(
 def clearCache():
     """Function to clear the Flask-Caching cache"""
     with app.app_context():
-        cache.clear()
+        try:
+            cache.clear()
+        except:
+            raise
 
 
 # Main / Flask route where html is rendered via Jinja2

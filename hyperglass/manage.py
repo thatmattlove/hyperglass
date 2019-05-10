@@ -1,6 +1,9 @@
 import os
 import sys
 import app
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def clearcache():
@@ -11,10 +14,8 @@ def clearcache():
 
 
 for arg in sys.argv:
-    try:
-        if arg == "clearcache":
+    if arg == "clearcache":
+        try:
             clearcache()
-            print("Successfully cleared cache.")
-    except:
-        print("Failed to clear cache.")
-        raise
+        except:
+            raise

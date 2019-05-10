@@ -85,6 +85,7 @@
                 <div class="control has-icons-left">
                   <div class="select is-medium is-rounded">
                     <select id="network" name="network">
+                      <!-- <option value="" disabled></option> -->
                       {% for net in device_networks %}
                       <option value="{{ net }}">AS{{ net }}</option>
                       {% endfor %}
