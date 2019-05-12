@@ -18,6 +18,7 @@ nav:
       - 'Commands': 'configuration/commands.md'
       - 'Proxy': 'configuration/proxy.md'
       - 'Blacklist': 'configuration/blacklist.md'
+      - 'Securing Router Access': 'configuration/securing-router-access.md'
     - Caching:
       - 'caching.md'
     - Rate Limiting:
