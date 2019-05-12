@@ -140,7 +140,7 @@ def lg():
             raise RuntimeError("Unable to add output to cache.", 415, *value_params)
         # If 200, return output
         if value_code == 200:
-            return cache.get(cache_key)
+            return Response(cache.get(cache_key))
         # If 400 error, return error message and code
         elif value_code in [405, 415]:
             return Response(cache.get(cache_key), value_code)
@@ -148,7 +148,7 @@ def lg():
     else:
         logger.info(f"Cache match for: {cache_key}, returning cached entry...")
         try:
-            return cache.get(cache_key)
+            return Response(cache.get(cache_key))
         except:
             id = 4152
             raise RuntimeError(
