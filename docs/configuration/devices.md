@@ -1,4 +1,4 @@
-Devices/routers are defined in `hyperglass/hyperglass/config/devices.toml`. `devices.toml` is effectively an array of hash tables/dictionaries/key value pairs:
+Devices/routers are defined in `hyperglass/hyperglass/configuration/devices.toml`. `devices.toml` is effectively an array of hash tables/dictionaries/key value pairs:
 
 ```toml
 [[router]]

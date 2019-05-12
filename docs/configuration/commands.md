@@ -1,4 +1,4 @@
-Commands are defined in `hyperglass/hyperglass/config/commands.toml`. Formatted as a nested array of tables, each table defines the commands that will be used to execute the queries on the routers.
+Commands are defined in `hyperglass/hyperglass/configuration/commands.toml`. Formatted as a nested array of tables, each table defines the commands that will be used to execute the queries on the routers.
 
 Each table contains three nested tables:
 

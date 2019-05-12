@@ -1,4 +1,4 @@
-Authentication parameters are stored in the `devices.toml` file, at `hyperglass/hyperglass/config/devices.toml`. The array of tables simply stores the username and password for a device. SSH Key authentication is not yet supported.
+Authentication parameters are stored in the `devices.toml` file, at `hyperglass/hyperglass/configuration/devices.toml`. The array of tables simply stores the username and password for a device. SSH Key authentication is not yet supported.
 
 Example:
 

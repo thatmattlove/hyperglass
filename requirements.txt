@@ -7,3 +7,4 @@ netmiko
 netaddr
 markdown2
 libsass
+loguru

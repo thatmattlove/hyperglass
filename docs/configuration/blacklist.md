@@ -1,4 +1,4 @@
-Blacklisted querys are defined in `hyperglass/hyperglass/config/blacklist.toml`.
+Blacklisted querys are defined in `hyperglass/hyperglass/configuration/blacklist.toml`.
 
 The blacklist is a simple TOML array (list) of host IPs or prefixes that you do not want end users to be able to query. For example, if you want to prevent users from looking up 198.18.0.0/15 or any contained host or prefix, you can add it to the blacklist:
 

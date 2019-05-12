@@ -1,17 +1,15 @@
 import sys
-import logging
-import toml
 import time
-from netmiko import ConnectHandler
-from netmiko import redispatch
 from netaddr import *
-from cmd_construct import cmd_construct
-import vars
-import cmd_parser as parser
+from loguru import logger
+from netmiko import redispatch
+from netmiko import ConnectHandler
+from hyperglass import configuration
+from hyperglass.command import construct
+from hyperglass.command import parse
 
-log = logging.getLogger(__name__)
 # Load TOML devices file
-devices = toml.load(open("./config/devices.toml"))
+devices = configuration.devices()
 # Filter config to router list
 routers_list = devices["router"]
 # Filter config to credential list
@@ -19,14 +17,16 @@ credentials_list = devices["credential"]
 # Filter config to proxy servers
 proxies_list = devices["proxy"]
 
-blacklist_config = toml.load(open("./config/blacklist.toml"))
+blacklist_config = configuration.blacklist()
 blacklist = IPSet(blacklist_config["blacklist"])
 
 general_error = "Error connecting to device."
 
+logger.add(sys.stderr)
 
-def cmd_execute(lg_data):
-    log.warning(lg_data)
+
+def execute(lg_data):
+    logger.info(lg_data)
     # Check POST data from JS, if location matches a configured router's
     # location, use the router's configured IP address to connect
     for r in routers_list:
@@ -39,17 +39,17 @@ def cmd_execute(lg_data):
             if IPNetwork(lg_data["ipprefix"]).ip in blacklist:
                 msg = "{i} is not allowed.".format(i=lg_data["ipprefix"])
                 code = 405
-                log.error(msg, code, lg_data)
+                logger.error(msg, code, lg_data)
                 return (msg, code, lg_data)
         # If netaddr library throws an exception, return a user-facing error.
         except:
             msg = "{i} is not a valid IP Address.".format(i=lg_data["ipprefix"])
             code = 415
-            log.error(msg, code, lg_data)
+            logger.error(msg, code, lg_data)
             return (msg, code, lg_data)
-    # Send "clean" request to cmd_construct to build the command that will be sent to the router
+    # Send "clean" request to constructor to build the command that will be sent to the router
     print(lg_router_address)
-    msg, status, router, type, command = cmd_construct(
+    msg, status, router, type, command = construct.construct(
         lg_router_address, lg_data["cmd"], lg_data["ipprefix"]
     )
     # Loop through proxy config, match configured proxy name for each router with a configured proxy
@@ -71,7 +71,7 @@ def cmd_execute(lg_data):
         else:
             msg = "Router does not have a proxy configured."
             code = 415
-            log.error(msg, code, lg_data)
+            logger.error(msg, code, lg_data)
             return (msg, code, lg_data)
 
     # Matches router with configured credential
@@ -90,7 +90,7 @@ def cmd_execute(lg_data):
         else:
             msg = "Credential {i} does not exist".format(i=configured_credential)
             code = 415
-            log.error(msg, code, lg_data)
+            logger.error(msg, code, lg_data)
             return (general_error, code, lg_data)
 
     # Connect to the router via netmiko library, return the command output
@@ -102,7 +102,7 @@ def cmd_execute(lg_data):
         except:
             msg = "Unable to reach target {l}".format(l=lg_data["router"])
             code = 415
-            log.error(msg, code, lg_data)
+            logger.error(msg, code, lg_data)
             return (general_error, code, lg_data)
 
     # Connect to the proxy server via netmiko library, then log into the router
@@ -141,7 +141,7 @@ def cmd_execute(lg_data):
                 p=nm_proxy["host"], d=nm_host["host"]
             )
             code = 415
-            log.error(msg, code, lg_data)
+            logger.error(msg, code, lg_data)
             return (general_error, code, lg_data)
 
     nm_host = {
@@ -163,11 +163,11 @@ def cmd_execute(lg_data):
         try:
             if connection_proxied is True:
                 output_proxied = getOutputProxy(configured_proxy)
-                parsed_output = parser.parse(output_proxied, type, lg_data["cmd"])
+                parsed_output = parse.parse(output_proxied, type, lg_data["cmd"])
                 return parsed_output, status, router, type, command
             elif connection_proxied is False:
                 output_direct = getOutputDirect()
-                parsed_output = parser.parse(output_direct, type, lg_data["cmd"])
+                parsed_output = parse.parse(output_direct, type, lg_data["cmd"])
                 return parsed_output, status, router, type, command
         except:
             raise

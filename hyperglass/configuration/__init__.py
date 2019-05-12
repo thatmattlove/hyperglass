@@ -1,19 +1,47 @@
-import toml
+import os
 import math
+import toml
 
-# Load TOML config file
-config = toml.load(open("./config/config.toml"))
+dir = os.path.dirname(os.path.abspath(__file__))
+
+
+def blacklist():
+    f = os.path.join(dir, "blacklist.toml")
+    t = toml.load(f)
+    return t
+
+
+def commands():
+    f = os.path.join(dir, "commands.toml")
+    t = toml.load(f)
+    return t
+
+
+def configuration():
+    f = os.path.join(dir, "configuration.toml")
+    t = toml.load(f)
+    return t
+
+
+def devices():
+    f = os.path.join(dir, "devices.toml")
+    t = toml.load(f)
+    return t
+
+
+def requires_ipv6_cidr():
+    f = os.path.join(dir, "requires_ipv6_cidr.toml")
+    t = toml.load(f)
+    return t
+
 
 # Filter config to branding variables
-branding = config["branding"]
+branding = configuration()["branding"]
 
 # Filter config to general variables
-general = config["general"]
+general = configuration()["general"]
 
-# Load TOML devices file
-devices = toml.load(open("./config/devices.toml"))
-# Filter config to router list
-routers_list = devices["router"]
+routers_list = devices()["router"]
 
 
 class dev:

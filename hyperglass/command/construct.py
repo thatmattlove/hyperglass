@@ -1,27 +1,30 @@
-import sys
-import logging
-import toml
 import re
+import sys
+import toml
+import logging
 from netaddr import *
+from loguru import logger
 
 # Local imports
-import vars
+from hyperglass import configuration
 
 log = logging.getLogger(__name__)
 # Load TOML config file
-devices = toml.load(open("./config/devices.toml"))
+devices = configuration.devices()
 
 # Load TOML commands file
-commands = toml.load(open("./config/commands.toml"))
+commands = configuration.commands()
 
 # Filter config to router list
 routers_list = devices["router"]
 
+logger.add(sys.stderr)
+
 # Receives JSON from Flask, constucts the command that will be passed to the router
 # Also handles input validation & error handling
-def cmd_construct(router, cmd, ipprefix):
-    inputParams = router, cmd, ipprefix
-    log.warning(*inputParams)
+def construct(router, cmd, ipprefix):
+    input_params = (router, cmd, ipprefix)
+    logger.info(*input_params)
     try:
         # Loop through routers config file, match input router with configured routers, set variables
         for r in routers_list:
@@ -44,8 +47,8 @@ def cmd_construct(router, cmd, ipprefix):
                             if cmd == "Query Type":
                                 msg = "You must select a query type."
                                 code = 415
-                                log.error(msg, code, *inputParams)
-                                return (msg, code, *inputParams)
+                                logger.error(msg, code, *input_params)
+                                return (msg, code)
                             # BGP Community Query
                             elif cmd in ["bgp_community"]:
                                 # Extended Communities, new-format
@@ -57,7 +60,7 @@ def cmd_construct(router, cmd, ipprefix):
                                                 i=ipprefix
                                             )
                                             code = 200
-                                            log.warning(
+                                            logger.warning(
                                                 msg, code, router, type, command
                                             )
                                             return (msg, code, router, type, command)
@@ -70,7 +73,7 @@ def cmd_construct(router, cmd, ipprefix):
                                                 i=ipprefix
                                             )
                                             code = 200
-                                            log.warning(
+                                            logger.warning(
                                                 msg, code, router, type, command
                                             )
                                             return (msg, code, router, type, command)
@@ -86,7 +89,7 @@ def cmd_construct(router, cmd, ipprefix):
                                                 i=ipprefix
                                             )
                                             code = 200
-                                            log.warning(
+                                            logger.warning(
                                                 msg, code, router, type, command
                                             )
                                             return (msg, code, router, type, command)
@@ -95,8 +98,8 @@ def cmd_construct(router, cmd, ipprefix):
                                                 i=ipprefix
                                             )
                                             code = 415
-                                            log.error(msg, code, *inputParams)
-                                            return (msg, code, *inputParams)
+                                            logger.error(msg, code, *input_params)
+                                            return (msg, code)
                             # BGP AS_PATH Query
                             elif cmd in ["bgp_aspath"]:
                                 if re.match(".*", ipprefix):
@@ -107,7 +110,7 @@ def cmd_construct(router, cmd, ipprefix):
                                                 i=ipprefix
                                             )
                                             code = 200
-                                            log.warning(
+                                            logger.warning(
                                                 msg, code, router, type, command
                                             )
                                             return (msg, code, router, type, command)
@@ -116,8 +119,8 @@ def cmd_construct(router, cmd, ipprefix):
                                         i=ipprefix
                                     )
                                     code = 415
-                                    log.error(msg, code, *inputParams)
-                                    return (msg, code, *inputParams)
+                                    logger.error(msg, code, *input_params)
+                                    return (msg, code)
                             # BGP Route Query
                             elif cmd in ["bgp_route"]:
                                 try:
@@ -130,7 +133,7 @@ def cmd_construct(router, cmd, ipprefix):
                                                     i=ipprefix
                                                 )
                                                 code = 200
-                                                log.warning(
+                                                logger.warning(
                                                     msg, code, router, type, command
                                                 )
                                                 return (
@@ -149,7 +152,7 @@ def cmd_construct(router, cmd, ipprefix):
                                                     i=ipprefix
                                                 )
                                                 code = 200
-                                                log.warning(
+                                                logger.warning(
                                                     msg, code, router, type, command
                                                 )
                                                 return (
@@ -165,8 +168,8 @@ def cmd_construct(router, cmd, ipprefix):
                                         i=ipprefix
                                     )
                                     code = 415
-                                    log.error(msg, code, *inputParams)
-                                    return (msg, code, *inputParams)
+                                    logger.error(msg, code, *input_params)
+                                    return (msg, code)
                             # Ping/Traceroute
                             elif cmd in ["ping", "traceroute"]:
                                 try:
@@ -181,7 +184,7 @@ def cmd_construct(router, cmd, ipprefix):
                                                     i=ipprefix
                                                 )
                                                 code = 200
-                                                log.warning(
+                                                logger.warning(
                                                     msg, code, router, type, command
                                                 )
                                                 return (
@@ -202,7 +205,7 @@ def cmd_construct(router, cmd, ipprefix):
                                                     i=ipprefix
                                                 )
                                                 code = 200
-                                                log.warning(
+                                                logger.warning(
                                                     msg, code, router, type, command
                                                 )
                                                 return (
@@ -217,15 +220,15 @@ def cmd_construct(router, cmd, ipprefix):
                                         i=ipprefix
                                     )
                                     code = 415
-                                    log.error(msg, code, *inputParams)
-                                    return (msg, code, *inputParams)
+                                    logger.error(msg, code, *input_params)
+                                    return (msg, code)
                             else:
                                 msg = "Command {i} not found.".format(i=cmd)
                                 code = 415
-                                log.error(msg, code, *inputParams)
-                                return (msg, code, *inputParams)
+                                logger.error(msg, code, *input_params)
+                                return (msg, code)
             except:
-                error_msg = log.error(
+                error_msg = logger.error(
                     "Input router IP {router} does not match the configured router IP of {ip}".format(
                         router=router, ip=r["address"]
                     )

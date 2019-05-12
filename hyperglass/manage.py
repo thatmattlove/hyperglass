@@ -1,21 +1,17 @@
 import os
 import sys
-import app
-import logging
+from loguru import logger
 
-log = logging.getLogger(__name__)
+# from hyperglass.hyperglass import app
 
-
-def clearcache():
-    try:
-        app.clearCache()
-    except:
-        raise
+logger.add(sys.stderr)
 
 
 for arg in sys.argv:
     if arg == "clearcache":
         try:
-            clearcache()
+            hyperglass.hyperglass.app.clearcache()
+            logger.info("Successfully cleared cache.")
         except:
             raise
+            logger.error("Failed to clear cache.")

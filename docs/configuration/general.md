@@ -1,4 +1,4 @@
-From `hyperglass/hyperglass/config/config.toml`:
+From `hyperglass/hyperglass/configuration/config.toml`:
 
 ### primary_asn
 

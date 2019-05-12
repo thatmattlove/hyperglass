@@ -1,4 +1,4 @@
-Proxy servers are defined in `hyperglass/hyperglass/config/devices.toml`. Each proxy definition is a unique TOML table, for example:
+Proxy servers are defined in `hyperglass/hyperglass/configuration/devices.toml`. Each proxy definition is a unique TOML table, for example:
 
 ```toml
 [proxy.'jumpbox1']
@@ -37,7 +37,7 @@ Plain text password for SSH authentication to the proxy server/jumpbox.
 
 Device type/vendor name as recognized by [Netmiko](https://github.com/ktbyers/netmiko). See [supported device types](#supported-device-types) for a full list.
 
-!!! info "Compatibility"
+!!! note "Compatibility"
     Hyperglass has only been tested with `linux_ssh` as of this writing.
 
 #### ssh_command

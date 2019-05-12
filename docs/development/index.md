@@ -13,26 +13,57 @@ Under the main `hyperglass/hyperglass/` directory, the following basic structure
 ```
 hyperglass/
 ├── __init__.py
-├── app.py
-├── cmd_construct.py
-├── cmd_execute.py
-├── cmd_parser.py
-├── config/
+├── command/
+├── configuration/
+├── gunicorn_config.py
+├── hyperglass.py
 ├── manage.py
+├── render/
 ├── static/
-├── templates/
-├── templates.py
-└── vars.py
+└── wsgi.py
 ```
+
+### Scripts
+
+#### `hyperglass.py`
+
+Main Flask application. Passes input to the `command.execute` module.
+
+#### `manage.py`
+
+Management script for perfoming one-off actions. For now, the only action implemented is a manual clearing of the Flask-cache cache. To clear the cache, run `python3 manage.py --clearcache`.
 
 ### Directories
 
-#### config
-
-The `config/` directory contains all TOML config files used by Hyperglass:
+#### command/
 
 ```
-hyperglass/config/
+hyperglass/command/
+├── __init__.py
+├── construct.py
+├── execute.py
+└── parse.py
+```
+
+##### `execute.py`
+
+Matches router name to router IP, OS, and credentials. Passes data to `cmd_construct.py`, uses the results to execute the Netmiko action. Also performs error handling in the event of a [blacklist](/configuration/blacklist) match.
+
+##### `construct.py`
+
+Constructs full commands to run on routers from `hyperglass/hyperglass/config/commands.toml`. Also performs error handling in the event of input errors.
+
+##### `parser.py`
+
+Parses output before presentation to the user. For the time being, only BGP output from Cisco IOS is parsed. This is because for BGP Community and AS_PATH lookups, Cisco IOS returns results for *all* address families, including VPNv4. This script ensures that only IPv4 and IPv6 address family output is returned.
+
+#### configuration/
+
+The `configuration/` directory contains all TOML config files used by Hyperglass:
+
+```
+hyperglass/configuration/
+├── __init__.py
 ├── blacklist.toml
 ├── commands.toml
 ├── config.toml
@@ -40,25 +71,27 @@ hyperglass/config/
 └── requires_ipv6_cidr.toml
 ```
 
-#### static
+As a module, `configuration` imports configuration from TOML configuration files, defines default values, and exports each as a variable that can be called in other scripts.
+
+#### static/
 
 The `static/` directory contains all static HTML/CSS/JS files used for serving the site:
 
 ```
 hyperglass/static/
-├── css
+├── css/
 │   ├── hyperglass.css
 │   └── icofont
-├── images
+├── images/
 │   ├── brand.svg
 │   ├── favicon
 │   ├── hyperglass-dark.png
 │   └── hyperglass-light.png
-├── js
+├── js/
 │   ├── hyperglass.js
 │   ├── jquery-3.4.0.min.js
 │   └── jquery-3.4.0.min.map
-└── sass
+└── sass/
     ├── base
     ├── components
     ├── custom
@@ -73,20 +106,24 @@ hyperglass/static/
 - `css/icofont/` Completely free alternative to FontAwesome - [Icofont](https://icofont.com/).
 - `js/hyerpglass.js` Basic Javascript helper to perform AJAX queries necessary to pull in dynamic information and render content.
 
-#### templates
+#### render/
 
-The `templates/` directory contains HTML and Sass Jinja2 templates:
+The `render/` directory contains the `render` module, which renders HTML and Sass templates, compiles Sass to CSS.
 
 ```
-templates/
-├── 415.html
-├── 429.html
-├── base.html
-├── footer.html
-├── footer.md
-├── hyperglass.scss
-└── index.html
+hyperglass/render/
+├── __init__.py
+└── templates/
+    ├── 415.html
+    ├── 429.html
+    ├── base.html
+    ├── footer.html
+    ├── footer.md
+    ├── hyperglass.scss
+    └── index.html
 ```
+
+`render/templates/` contains the Jinja2 templates themselves:
 
 - `415.html` General error page template.
 - `429.html` Site load rate limit page.
@@ -95,33 +132,3 @@ templates/
 - `footer.md` Text that appears in the footer, if enabled. Markdown will be rendered as HTML.
 - `hyperglass.scss` Generates SCSS file for Bulma and local customizations.
 - `index.html` Main page template.
-
-### Scripts
-
-#### `app.py`
-
-Main Flask application. Passes input to `cmd_execute.py`
-
-#### `cmd_execute.py`
-
-Matches router name to router IP, OS, and credentials. Passes data to `cmd_construct.py`, uses the results to execute the Netmiko action. Also performs error handling in the event of a [blacklist](/configuration/blacklist) match.
-
-#### `cmd_construct.py`
-
-Constructs full commands to run on routers from `hyperglass/hyperglass/config/commands.toml`. Also performs error handling in the event of input errors.
-
-#### `cmd_parser.py`
-
-Parses output before presentation to the user. For the time being, only BGP output from Cisco IOS is parsed. This is because for BGP Community and AS_PATH lookups, Cisco IOS returns results for *all* address families, including VPNv4. This script ensures that only IPv4 and IPv6 address family output is returned.
-
-#### `manage.py`
-
-Management script for perfoming one-off actions. For now, the only action implemented is a manual clearing of the Flask-cache cache.
-
-#### `templates.py`
-
-Renders HTML and Sass templates, compiles Sass to CSS.
-
-#### `vars.py`
-
-Imports configuration from TOML configuration files, defines default values, and exports each as a variable that can be called in other scripts.

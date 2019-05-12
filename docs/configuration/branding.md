@@ -10,7 +10,7 @@
 }
 </style>
 
-From `hyperglass/hyperglass/config/config.toml`:
+From `hyperglass/hyperglass/configuration/config.toml`:
 
 ### site_title
 
@@ -62,7 +62,7 @@ See [primary_asn](#primary_asn) parameter.
 | ------- | ------------- |
 | Boolean | `True`        |
 
-Enables or disables entire footer element, which contains text defined in `hyperglass/hyperglass/templates/footer.md`.
+Enables or disables entire footer element, which contains text defined in `hyperglass/hyperglass/render/templates/footer.md`.
 
 ### enable_credit
 

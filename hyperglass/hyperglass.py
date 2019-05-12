@@ -1,46 +1,45 @@
 # Module Imports
-import logging
-from flask import Flask, request, Response, jsonify, flash
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from flask_caching import Cache
+import sys
 import json
 import toml
+from loguru import logger
+from flask import Flask, request, Response, jsonify, flash
+from flask_caching import Cache
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 # Local Imports
-import vars
-from cmd_execute import cmd_execute
-import templates
+from hyperglass import render
+from hyperglass import configuration
+from hyperglass.command import execute
 
-log = logging.getLogger(__name__)
+logger.add(sys.stderr)
 
 # Load TOML config file
-devices = toml.load(open("./config/devices.toml"))
+devices = configuration.devices()
 # Filter config file to list of routers & subsequent configurations
 routers_list = devices["router"]
 # Filter config file to array of operating systems that require IPv6 BGP lookups in CIDR format
-ipv6_cidr_list = toml.load(open("./config/requires_ipv6_cidr.toml"))[
-    "requires_ipv6_cidr"
-]
+ipv6_cidr_list = configuration.requires_ipv6_cidr()
 # Main Flask definition
 app = Flask(__name__, static_url_path="/static")
 
 # Flask-Limiter Config
-rate_limit_query = vars.gen.rate_limit_query() + " per minute"
-rate_limit_site = vars.gen.rate_limit_site() + "per minute"
+rate_limit_query = configuration.gen.rate_limit_query() + " per minute"
+rate_limit_site = configuration.gen.rate_limit_site() + "per minute"
 limiter = Limiter(app, key_func=get_remote_address, default_limits=[rate_limit_site])
 
 # Render Main Flask-Limiter Error Message
 @app.errorhandler(429)
 def error429(e):
     """Renders full error page for too many site queries"""
-    html = templates.html.renderTemplate("429")
+    html = render.html.renderTemplate("429")
     return html, 429
 
 
 def error415():
     """Renders full error page for generic errors"""
-    html = templates.html.renderTemplate("415")
+    html = render.html.renderTemplate("415")
     return html, 415
 
 
@@ -59,8 +58,8 @@ cache = Cache(
     app,
     config={
         "CACHE_TYPE": "filesystem",
-        "CACHE_DIR": vars.gen.cache_directory(),
-        "CACHE_DEFAULT_TIMEOUT": vars.gen.cache_timeout(),
+        "CACHE_DIR": configuration.gen.cache_directory(),
+        "CACHE_DEFAULT_TIMEOUT": configuration.gen.cache_timeout(),
     },
 )
 
@@ -79,14 +78,14 @@ def clearCache():
 @limiter.limit(rate_limit_site)
 def site():
     """Main front-end web application"""
-    html = templates.html.renderTemplate("index")
+    html = render.html.renderTemplate("index")
     return html
 
 
 # Test route for various tests
 @app.route("/test", methods=["GET"])
 def testRoute():
-    html = templates.html.renderTemplate("test")
+    html = render.html.renderTemplate("test")
     return html
 
 
@@ -130,16 +129,18 @@ def lg():
     cache_key = str(lg_data)
     # Check if cached entry exists
     if cache.get(cache_key) is None:
-        cache_value = cmd_execute(lg_data)
-        log.debug(cache_value[1:])
+        cache_value = execute.execute(lg_data)
+        logger.info(cache_value[1:])
         value_output = cache_value[0]
         value_code = cache_value[1]
         value_params = cache_value[2:]
-        log.debug("No cache match for: ", cache_key, "\nAdding cache entry...")
+        logger.info("No cache match for: {cache_key}".format(cache_key=cache_key))
         # If it doesn't, create a cache entry
         try:
             cache.set(cache_key, value_output)
-            log.debug("\nAdded cache entry: ", *value_params)
+            logger.info(
+                "Added cache entry: {value_params}".format(value_params=value_params)
+            )
         except:
             raise RuntimeError("Unable to add output to cache.", 415, *value_params)
         # If 200, return output
@@ -150,7 +151,11 @@ def lg():
             return Response(cache.get(cache_key), value_code)
     # If it does, return the cached entry
     else:
-        log.debug("Cache match for: ", cache_key, "\nReturning cached entry...")
+        logger.info(
+            "Cache match for: {cache_key}, returning cached entry...".format(
+                cache_key=cache_key
+            )
+        )
         try:
             return cache.get(cache_key)
         except:
@@ -160,8 +165,3 @@ def lg():
             )
             # Upon exception, render generic error
             return Response(errorGeneral(id))
-
-
-if __name__ == "__main__":
-    templates.css.renderTemplate()
-    app.run(host="0.0.0.0", debug=vars.gen.debug(), port=5000)

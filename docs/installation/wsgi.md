@@ -11,4 +11,4 @@ Gunicorn is a WSGI server written in Python.
 
 ## Configure
 
-Locate your `gunicorn` executable with `which gunicorn`
+Locate your `gunicorn` executable with `which gunicorn`.

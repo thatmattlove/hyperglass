@@ -28,7 +28,7 @@ $ pip3 install -r requirements.txt
 ## Clone Example Configuration Files
 
 ```
-$ cd /opt/hyperglass/hyperglass/config/
+$ cd /opt/hyperglass/hyperglass/configuration/
 $ for f in *.example; do cp $f `basename $f .example`; done;
 ```
 
