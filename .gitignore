@@ -2,7 +2,7 @@ test.py
 .DS_Store
 *.sass-cache
 hyperglass/config/*.toml
-hyperglass/.flask_cache/
+hyperglass/.flask_cache
 #
 # Github Default from https://github.com/martinohanlon/flightlight/issues/1
 # Byte-compiled / optimized / DLL files
