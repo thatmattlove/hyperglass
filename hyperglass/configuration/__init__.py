@@ -32,7 +32,7 @@ def devices():
 def requires_ipv6_cidr():
     f = os.path.join(dir, "requires_ipv6_cidr.toml")
     t = toml.load(f)
-    return t
+    return t["requires_ipv6_cidr"]
 
 
 # Filter config to branding variables

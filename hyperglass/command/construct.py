@@ -3,12 +3,11 @@ import sys
 import toml
 import logging
 from netaddr import *
-from loguru import logger
+from logzero import logger
 
 # Local imports
 from hyperglass import configuration
 
-log = logging.getLogger(__name__)
 # Load TOML config file
 devices = configuration.devices()
 
@@ -18,13 +17,10 @@ commands = configuration.commands()
 # Filter config to router list
 routers_list = devices["router"]
 
-logger.add(sys.stderr)
-
 # Receives JSON from Flask, constucts the command that will be passed to the router
 # Also handles input validation & error handling
 def construct(router, cmd, ipprefix):
-    input_params = (router, cmd, ipprefix)
-    logger.info(*input_params)
+    logger.info(f"Constructing {cmd} command for {router} to {ipprefix}...")
     try:
         # Loop through routers config file, match input router with configured routers, set variables
         for r in routers_list:
@@ -47,8 +43,10 @@ def construct(router, cmd, ipprefix):
                             if cmd == "Query Type":
                                 msg = "You must select a query type."
                                 code = 415
-                                logger.error(msg, code, *input_params)
-                                return (msg, code)
+                                logger.error(
+                                    f"{msg}, {code}, {router}, {cmd}, {ipprefix}"
+                                )
+                                return (msg, code, router, cmd, ipprefix)
                             # BGP Community Query
                             elif cmd in ["bgp_community"]:
                                 # Extended Communities, new-format
@@ -56,26 +54,18 @@ def construct(router, cmd, ipprefix):
                                     for a, c in dual_commands.items():
                                         if a == cmd:
                                             command = c.format(target=ipprefix)
-                                            msg = "{i} matched new-format community.".format(
-                                                i=ipprefix
-                                            )
+                                            msg = f"{ipprefix} matched new-format community."
                                             code = 200
-                                            logger.warning(
-                                                msg, code, router, type, command
-                                            )
                                             return (msg, code, router, type, command)
                                 # Extended Communities, 32 bit format
                                 elif re.match("^[0-9]{1,10}$", ipprefix):
                                     for a, c in dual_commands.items():
                                         if a == cmd:
                                             command = c.format(target=ipprefix)
-                                            msg = "{i} matched 32 bit community.".format(
-                                                i=ipprefix
+                                            msg = (
+                                                f"{ipprefix} matched 32 bit community."
                                             )
                                             code = 200
-                                            logger.warning(
-                                                msg, code, router, type, command
-                                            )
                                             return (msg, code, router, type, command)
                                 # RFC 8092 Large Community Support
                                 elif re.match(
@@ -85,42 +75,32 @@ def construct(router, cmd, ipprefix):
                                     for a, c in dual_commands.items():
                                         if a == cmd:
                                             command = c.format(target=ipprefix)
-                                            msg = "{i} matched large community.".format(
-                                                i=ipprefix
-                                            )
+                                            msg = f"{ipprefix} matched large community."
                                             code = 200
-                                            logger.warning(
-                                                msg, code, router, type, command
-                                            )
                                             return (msg, code, router, type, command)
-                                        else:
-                                            msg = "{i} is an invalid BGP Community Format.".format(
-                                                i=ipprefix
-                                            )
-                                            code = 415
-                                            logger.error(msg, code, *input_params)
-                                            return (msg, code)
+                                else:
+                                    msg = f"{ipprefix} is an invalid BGP Community Format."
+                                    code = 415
+                                    logger.error(
+                                        f"{msg}, {code}, {router}, {cmd}, {ipprefix}"
+                                    )
+                                    return (msg, code, router, cmd, ipprefix)
                             # BGP AS_PATH Query
                             elif cmd in ["bgp_aspath"]:
                                 if re.match(".*", ipprefix):
                                     for a, c in dual_commands.items():
                                         if a == cmd:
                                             command = c.format(target=ipprefix)
-                                            msg = "{i} matched AS_PATH regex.".format(
-                                                i=ipprefix
-                                            )
+                                            msg = f"{ipprefix} matched AS_PATH regex."
                                             code = 200
-                                            logger.warning(
-                                                msg, code, router, type, command
-                                            )
                                             return (msg, code, router, type, command)
                                 else:
-                                    msg = "{i} is an invalid AS_PATH regex.".format(
-                                        i=ipprefix
-                                    )
+                                    msg = f"{ipprefix} is an invalid AS_PATH regex."
                                     code = 415
-                                    logger.error(msg, code, *input_params)
-                                    return (msg, code)
+                                    logger.error(
+                                        f"{msg}, {code}, {router}, {cmd}, {ipprefix}"
+                                    )
+                                    return (msg, code, router, cmd, ipprefix)
                             # BGP Route Query
                             elif cmd in ["bgp_route"]:
                                 try:
@@ -129,13 +109,8 @@ def construct(router, cmd, ipprefix):
                                         for a, c in ipv4_commands.items():
                                             if a == cmd:
                                                 command = c.format(target=ipprefix)
-                                                msg = "{i} is a valid IPv4 Adddress.".format(
-                                                    i=ipprefix
-                                                )
+                                                msg = f"{ipprefix} is a valid IPv4 Adddress."
                                                 code = 200
-                                                logger.warning(
-                                                    msg, code, router, type, command
-                                                )
                                                 return (
                                                     msg,
                                                     code,
@@ -148,13 +123,8 @@ def construct(router, cmd, ipprefix):
                                         for a, c in ipv6_commands.items():
                                             if a == cmd:
                                                 command = c.format(target=ipprefix)
-                                                msg = "{i} is a valid IPv6 Adddress.".format(
-                                                    i=ipprefix
-                                                )
+                                                msg = f"{ipprefix} is a valid IPv6 Adddress."
                                                 code = 200
-                                                logger.warning(
-                                                    msg, code, router, type, command
-                                                )
                                                 return (
                                                     msg,
                                                     code,
@@ -164,12 +134,12 @@ def construct(router, cmd, ipprefix):
                                                 )
                                 # Exception from netaddr library will return a user-facing error
                                 except:
-                                    msg = "{i} is an invalid IP Address.".format(
-                                        i=ipprefix
-                                    )
+                                    msg = f"{ipprefix} is an invalid IP Address."
                                     code = 415
-                                    logger.error(msg, code, *input_params)
-                                    return (msg, code)
+                                    logger.error(
+                                        f"{msg}, {code}, {router}, {cmd}, {ipprefix}"
+                                    )
+                                    return (msg, code, router, cmd, ipprefix)
                             # Ping/Traceroute
                             elif cmd in ["ping", "traceroute"]:
                                 try:
@@ -180,13 +150,8 @@ def construct(router, cmd, ipprefix):
                                                     target=ipprefix,
                                                     src_addr_ipv4=src_addr_ipv4,
                                                 )
-                                                msg = "{i} is a valid IPv4 Adddress.".format(
-                                                    i=ipprefix
-                                                )
+                                                msg = f"{ipprefix} is a valid IPv4 Adddress."
                                                 code = 200
-                                                logger.warning(
-                                                    msg, code, router, type, command
-                                                )
                                                 return (
                                                     msg,
                                                     code,
@@ -201,13 +166,8 @@ def construct(router, cmd, ipprefix):
                                                     target=ipprefix,
                                                     src_addr_ipv6=src_addr_ipv6,
                                                 )
-                                                msg = "{i} is a valid IPv6 Adddress.".format(
-                                                    i=ipprefix
-                                                )
+                                                msg = f"{ipprefix} is a valid IPv6 Adddress."
                                                 code = 200
-                                                logger.warning(
-                                                    msg, code, router, type, command
-                                                )
                                                 return (
                                                     msg,
                                                     code,
@@ -216,22 +176,23 @@ def construct(router, cmd, ipprefix):
                                                     command,
                                                 )
                                 except:
-                                    msg = "{i} is an invalid IP Address.".format(
-                                        i=ipprefix
-                                    )
+                                    msg = f"{ipprefix} is an invalid IP Address."
                                     code = 415
-                                    logger.error(msg, code, *input_params)
-                                    return (msg, code)
+                                    logger.error(
+                                        f"{msg}, {code}, {router}, {cmd}, {ipprefix}"
+                                    )
+                                    return (msg, code, router, cmd, ipprefix)
                             else:
-                                msg = "Command {i} not found.".format(i=cmd)
+                                msg = f"Command {cmd} not found."
                                 code = 415
-                                logger.error(msg, code, *input_params)
-                                return (msg, code)
+                                logger.error(
+                                    f"{msg}, {code}, {router}, {cmd}, {ipprefix}"
+                                )
+                                return (msg, code, router, cmd, ipprefix)
             except:
+                router_ip = r["address"]
                 error_msg = logger.error(
-                    "Input router IP {router} does not match the configured router IP of {ip}".format(
-                        router=router, ip=r["address"]
-                    )
+                    f"Input router IP {router} does not match the configured router IP of {router_ip}"
                 )
                 raise ValueError(error_msg)
     except:

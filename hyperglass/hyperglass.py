@@ -2,7 +2,7 @@
 import sys
 import json
 import toml
-from loguru import logger
+from logzero import logger
 from flask import Flask, request, Response, jsonify, flash
 from flask_caching import Cache
 from flask_limiter import Limiter
@@ -12,8 +12,6 @@ from flask_limiter.util import get_remote_address
 from hyperglass import render
 from hyperglass import configuration
 from hyperglass.command import execute
-
-logger.add(sys.stderr)
 
 # Load TOML config file
 devices = configuration.devices()
@@ -130,17 +128,14 @@ def lg():
     # Check if cached entry exists
     if cache.get(cache_key) is None:
         cache_value = execute.execute(lg_data)
-        logger.info(cache_value[1:])
         value_output = cache_value[0]
         value_code = cache_value[1]
         value_params = cache_value[2:]
-        logger.info("No cache match for: {cache_key}".format(cache_key=cache_key))
+        logger.info(f"No cache match for: {cache_key}")
         # If it doesn't, create a cache entry
         try:
             cache.set(cache_key, value_output)
-            logger.info(
-                "Added cache entry: {value_params}".format(value_params=value_params)
-            )
+            logger.info(f"Added cache entry: {value_params}")
         except:
             raise RuntimeError("Unable to add output to cache.", 415, *value_params)
         # If 200, return output
@@ -151,11 +146,7 @@ def lg():
             return Response(cache.get(cache_key), value_code)
     # If it does, return the cached entry
     else:
-        logger.info(
-            "Cache match for: {cache_key}, returning cached entry...".format(
-                cache_key=cache_key
-            )
-        )
+        logger.info(f"Cache match for: {cache_key}, returning cached entry...")
         try:
             return cache.get(cache_key)
         except:
