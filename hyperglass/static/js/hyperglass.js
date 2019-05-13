@@ -225,6 +225,7 @@ var submitForm = function() {
     }
     else if (xhr.status == 200){
       console.log(xhr.status, 'success')
+      var output = document.getElementById('output')
       output.innerHTML =
       '<br>' +
       '<div class="content">' +

@@ -34,20 +34,3 @@ def testserver():
 
 if __name__ == "__main__":
     main()
-
-# for arg in sys.argv:
-#     if arg == "clearcache":
-#         try:
-#             hyperglass.hyperglass.app.clearcache()
-#             logger.info("Successfully cleared cache.")
-#         except:
-#             raise
-#             logger.error("Failed to clear cache.")
-#     elif arg == "test":
-#         try:
-#             render.css.renderTemplate()
-#             app.run(host="0.0.0.0", debug=True, port=5000)
-#             logger.error("Started test server.")
-#         except:
-#             logger.error("Failed to start test server.")
-#             raise
