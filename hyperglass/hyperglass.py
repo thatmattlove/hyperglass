@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Module Imports
 import sys
 import json
