@@ -3,12 +3,15 @@ import sass
 import codecs
 import jinja2
 import subprocess
+from logzero import logger
 from markdown2 import Markdown
 from flask import render_template
 
+import hyperglass
 from hyperglass import configuration
 
 dir = os.path.dirname(os.path.abspath(__file__))
+hyperglass_root = os.path.dirname(hyperglass.__file__)
 file_loader = jinja2.FileSystemLoader(dir)
 env = jinja2.Environment(loader=file_loader)
 
@@ -79,6 +82,8 @@ class html:
 
 class css:
     def renderTemplate():
+        scss_file = os.path.join(hyperglass_root, "static/sass/hyperglass.scss")
+        css_file = os.path.join(hyperglass_root, "static/css/hyperglass.css")
         try:
             template = env.get_template("templates/hyperglass.scss")
             rendered_output = template.render(
@@ -94,14 +99,16 @@ class css:
                 mono_font_url=configuration.brand.mono_font_url(),
                 mono_font_name=configuration.brand.mono_font_name(),
             )
-            with open("static/sass/hyperglass.scss", "w") as scss_output:
+            with open(scss_file, "w") as scss_output:
                 scss_output.write(rendered_output)
         except:
+            logger.error("Error rendering Jinja2 template.")
             raise TypeError("Error rendering Jinja2 template.")
         try:
-            generated_sass = sass.compile(filename="static/sass/hyperglass.scss")
-            with open("static/css/hyperglass.css", "w") as css_output:
+            generated_sass = sass.compile(filename=scss_file)
+            with open(css_file, "w") as css_output:
                 css_output.write(generated_sass)
-                print("\n", "* Sass templates rendered to CSS files.", "\n")
+                logger.info("Rendered Sass templates to CSS files.")
         except:
+            logger.error("Error rendering Sass template.")
             raise TypeError("Error rendering Sass template.")

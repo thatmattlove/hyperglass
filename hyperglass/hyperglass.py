@@ -9,9 +9,9 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 # Local Imports
-from hyperglass import render
-from hyperglass import configuration
+import hyperglass.configuration as configuration
 from hyperglass.command import execute
+from hyperglass import render
 
 # Load TOML config file
 devices = configuration.devices()
@@ -26,6 +26,14 @@ app = Flask(__name__, static_url_path="/static")
 rate_limit_query = configuration.gen.rate_limit_query() + " per minute"
 rate_limit_site = configuration.gen.rate_limit_site() + "per minute"
 limiter = Limiter(app, key_func=get_remote_address, default_limits=[rate_limit_site])
+
+
+def renderCSS():
+    try:
+        render.css.renderTemplate()
+    except:
+        raise
+
 
 # Render Main Flask-Limiter Error Message
 @app.errorhandler(429)
