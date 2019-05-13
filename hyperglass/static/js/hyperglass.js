@@ -4,13 +4,6 @@ var progress = ($('#progress'));
 var resultsbox = ($('#resultsbox'));
 resultsbox.hide();
 progress.hide();
-clientIP ();
-
-function clientIP () {
-  $.getJSON("https://jsonip.com?callback=?", function(data) {
-    clientip = data.ip
-  });
-};
 
 $( document ).ready(function(){
   var defaultasn = $ ( "#network" ).val();
@@ -189,58 +182,37 @@ var submitForm = function() {
     </div>
 `)
 
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', '/lg', true);
-  resultsbox.show()
-  progress.show()
-  xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
-  xhr.send(JSON.stringify({router: router, cmd: cmd, ipprefix: ipprefix}))
-  console.log(JSON.stringify({router: router, cmd: cmd, ipprefix: ipprefix}));
+  /////////////////////////////////////////////////////////////
 
-  xhr_timer = window.setInterval(function() {
-    if (xhr.readyState == XMLHttpRequest.DONE) {
-      progress.hide();
-      window.clearTimeout(xhr_timer);
+  $.ajax({
+    url: `/lg`,
+    type: 'POST',
+    data: JSON.stringify({router: router, cmd: cmd, ipprefix: ipprefix}),
+    contentType: "application/json; charset=utf-8",
+    readyState: resultsbox.show() && progress.show(),
+    statusCode: {
+      200: function(response, code) {
+        console.log(code, response);
+        progress.hide();
+        $('#output').html(`<br><div class="content"><p class="query-output" id="output">${response}</p></div>`);
+      },
+      405: function(response, code) {
+        console.log(code, response);
+        progress.hide();
+        $('#ipprefix').addClass('is-warning');
+        $('#output').html(`<br><div class="notification is-warning" id="output">${response.responseText}</div>`);
+      },
+      415: function(response, code) {
+        console.log(code, response);
+        progress.hide();
+        $('#ipprefix').addClass('is-danger');
+        $('#output').html(`<br><div class="notification is-danger" id="output">${response.responseText}</div>`);
+      },
+      429: function(response, code) {
+        console.log(code, response);
+        progress.hide();
+        $("#ratelimit").addClass("is-active");
+      }
     }
-    var output = document.getElementById('output')
-    if (xhr.status == 415){
-      console.log(XMLHttpRequest.status, 'error')
-      var output = document.getElementById('output')
-      $('#ipprefix').addClass('is-danger')
-      output.innerHTML =
-      '<br>' +
-      '<div class="notification is-danger" id="output">' +
-      xhr.responseText +
-      '</div>'
-    }
-    if (xhr.status == 405){
-      console.log(XMLHttpRequest.status, 'error')
-      var output = document.getElementById('output')
-      $('#ipprefix').addClass('is-warning')
-      output.innerHTML =
-      '<br>' +
-      '<div class="notification is-warning" id="output">' +
-      xhr.responseText +
-      '</div>'
-    }
-    else if (xhr.status == 200){
-      console.log(xhr.status, 'success')
-      var output = document.getElementById('output')
-      output.innerHTML =
-      '<br>' +
-      '<div class="content">' +
-      '<p class="query-output" id="output">' +
-      xhr.responseText +
-      '</p>' +
-      '</div>'
-    }
-    else if (xhr.status == 429){
-      console.log(xhr.status, 'rate limit reached');
-      $("#ratelimit").addClass("is-active");
-    }
-  }, 500);
-
-  xhr.addEventListener("error", function(e) {
-    console.log("error: " + e);
-  });
+  })
 }
