@@ -1,6 +1,7 @@
 .DS_Store
 .sass-cache/
 .flask_cache
+.flask_cache/*
 gunicorn_config.py
 test.py
 __pycache__/
