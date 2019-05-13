@@ -8,3 +8,4 @@ netaddr
 markdown2
 libsass
 logzero
+click
