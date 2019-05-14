@@ -25,7 +25,7 @@ def clearcache():
 @main.command()
 def testserver():
     try:
-        render.css.renderTemplate()
+        hyperglass.render.css.renderTemplate()
         hyperglass.app.run(host="0.0.0.0", debug=True, port=5000)
         logger.error("Started test server.")
     except:

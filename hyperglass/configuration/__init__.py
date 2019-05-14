@@ -2,8 +2,10 @@
 import os
 import math
 import toml
+import hyperglass
 
 dir = os.path.dirname(os.path.abspath(__file__))
+hyperglass_root = os.path.dirname(hyperglass.__file__)
 
 
 def blacklist():
@@ -194,7 +196,8 @@ class gen:
         list = []
         for a in general:
             if len(a["cache_directory"]) == 0:
-                return ".flask_cache"
+                d = ".flask_cache"
+                return os.path.join(hyperglass_root, d)
             else:
                 return a["cache_directory"]
 
@@ -310,7 +313,8 @@ class brand:
         list = []
         for t in branding:
             if len(t["logo_path"]) == 0:
-                return "static/images/hyperglass-dark.png"
+                f = "static/images/hyperglass-dark.png"
+                return os.path.join(hyperglass_root, f)
             else:
                 return t["logo_path"]
 

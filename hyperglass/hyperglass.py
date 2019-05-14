@@ -160,11 +160,9 @@ def lg():
     else:
         logger.info(f"Cache match for: {cache_key}, returning cached entry...")
         try:
-            return Response(cache.get(cache_key), value_code)
+            return Response(cache.get(cache_key))
         except:
-            id = 4152
-            raise RuntimeError(
-                id + ":\s" + "Unable to return cached output.", 415, *value_params
-            )
+            raise
             # Upon exception, render generic error
-            return Response(errorGeneral(id))
+            log.error(f"Error returning cached entry for: {cache_key}")
+            return Response(errorGeneral(4152))
