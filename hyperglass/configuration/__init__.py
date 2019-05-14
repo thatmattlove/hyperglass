@@ -298,13 +298,13 @@ class brand:
             else:
                 return t["color_progressbar"]
 
-    def color_hero():
+    def color_bg():
         list = []
         for t in branding:
-            if len(t["color_hero"]) == 0:
+            if len(t["color_bg"]) == 0:
                 return "#fbfffe"
             else:
-                return t["color_hero"]
+                return t["color_bg"]
 
     def logo_path():
         list = []

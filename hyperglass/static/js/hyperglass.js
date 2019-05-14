@@ -5,18 +5,34 @@ var resultsbox = ($('#resultsbox'));
 resultsbox.hide();
 progress.hide();
 
-$( document ).ready(function(){
-  var defaultasn = $ ( "#network" ).val();
+// Bulma Toggable Dropdown - help text
+let dropdown = document.querySelector('#help-dropdown');
+dropdown.addEventListener('click', function(event) {
+  event.stopPropagation();
+  dropdown.classList.toggle('is-active');
+});
+
+// Adjust behavior of help text dropdown based on device screen size
+function adjustHeight() {
+  var actual_width = window.innerWidth;
+  if (actual_width < 1024) {
+    $('#help-dropdown').removeClass('is-right');
+    $('.lg-help').addClass('lg-help-mobile').removeClass('lg-help');
+  }
+}
+
+$(document).ready(function() {
+  var defaultasn = $("#network").val();
   $.ajax({
     url: `/routers/${defaultasn}`,
     context: document.body,
     type: 'get',
-    success: function (data) {
+    success: function(data) {
       selectedRouters = JSON.parse(data)
       console.log(selectedRouters)
       updateRouters(selectedRouters);
     },
-    error: function (err) {
+    error: function(err) {
       console.log(err)
     }
   })
@@ -28,24 +44,24 @@ $('#network').on('change', () => {
   $.ajax({
     url: `/routers/${asn}`,
     type: 'get',
-    success: function (data) {
+    success: function(data) {
       updateRouters(JSON.parse(data));
 
     },
-    error: function (err) {
+    error: function(err) {
       console.log(err)
     }
   })
 })
 
-function updateRouters (routers) {
-  routers.forEach(function (r) {
+function updateRouters(routers) {
+  routers.forEach(function(r) {
     $('#router').append($("<option>").attr('value', r.location).attr('type', r.type).text(r.location))
   })
 }
 
 // Submit Form Action
-$('#lgForm').on('submit', function () {
+$('#lgForm').on('submit', function() {
 
   // Regex to match any IPv4 host address or CIDR prefix
   var ipv4_any = new RegExp('^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?$');
@@ -100,7 +116,7 @@ $('#lgForm').on('submit', function () {
         </div>
       </article>
       `);
-    }
+  }
   // If traceroute, and lookup is an IPv4 address *with* CIDR prefix (e.g. 192.0.2.0/24, NOT 192.0.2.1), show an error.
   else if (ipv4_cidr.test(ipprefix) == true && cmd == 'traceroute') {
     $('#ipprefix_error').show()
@@ -116,7 +132,7 @@ $('#lgForm').on('submit', function () {
         </div>
       </article>
       `);
-    }
+  }
   // If ping, and lookup is an IPv6 address *with* CIDR prefix (e.g. 2001:db8::/48, NOT 2001:db8::1), show an error.
   else if (ipv6_cidr.test(ipprefix) == true && cmd == 'ping') {
     $('#ipprefix_error').show()
@@ -132,7 +148,7 @@ $('#lgForm').on('submit', function () {
         </div>
       </article>
       `);
-    }
+  }
   // If traceroute, and lookup is an IPv6 address *with* CIDR prefix (e.g. 2001:db8::/48, NOT 2001:db8::1), show an error.
   else if (ipv6_cidr.test(ipprefix) == true && cmd == 'traceroute') {
     $('#ipprefix_error').show()
@@ -148,9 +164,8 @@ $('#lgForm').on('submit', function () {
         </div>
       </article>
       `);
-    }
-    else submitForm();
-  });
+  } else submitForm();
+});
 
 var submitForm = function() {
   progress.hide();
@@ -187,7 +202,11 @@ var submitForm = function() {
   $.ajax({
     url: `/lg`,
     type: 'POST',
-    data: JSON.stringify({router: router, cmd: cmd, ipprefix: ipprefix}),
+    data: JSON.stringify({
+      router: router,
+      cmd: cmd,
+      ipprefix: ipprefix
+    }),
     contentType: "application/json; charset=utf-8",
     context: document.body,
     readyState: resultsbox.show() && progress.show(),

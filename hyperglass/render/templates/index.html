@@ -5,7 +5,7 @@
 </head>
 
 <body>
-{% block content %}
+  {% block content %}
   {% if modal_active %}
   <div class="modal is-active" id="ratelimit">
     {% else %}
@@ -27,206 +27,210 @@
         </article>
       </div>
     </div>
-    <section class="hero lg-hero-bg is-fullheight is-clipped">
-      <div class="hero-head">
-        <nav class="navbar">
-          <div class="container">
-            <div class="navbar-brand">
-            </div>
-            {% if show_peeringdb == true %}
-            <div id="navbarMenuHero" class="navbar-menu">
-              <div class="navbar-end">
-                <a class="navbar-item" href="https://as{{ primary_asn }}.peeringdb.com">
-                  <span>PeeringDB</span>
-                  <span class="icon">
-                    <i class="icofont-external"></i>
-                  </span>
-                </a>
-                </span>
-              </div>
-            </div>
-            {% endif %}
+    <nav class="navbar">
+      <div class="container is-fluid">
+        <div class="navbar-brand">
+        </div>
+        {% if show_peeringdb == true %}
+        <div class="navbar-menu">
+          <div class="navbar-end">
+            <a class="navbar-item" href="https://as{{ primary_asn }}.peeringdb.com">
+              <span>PeeringDB</span>
+              <span class="icon">
+                <i class="icofont-external"></i>
+              </span>
+            </a>
+            </span>
           </div>
-        </nav>
-        <div class="container has-text-centered">
-          {% if title_mode == 'both' %}
-          <img src="{{ logo_path }}" style="width: {{ logo_width }}px;">
-          <h1 class="title is-3">
-            {{ title }}
-          </h1>
-          <h2 class="subtitle is-5">
-            {{ subtitle }}
-          </h2>
-          <br>
-          {% elif title_mode == 'hide_subtitle' %}
-          <img src="{{ logo_path }}" style="width: {{ logo_width }}px;">
-          <h1 class="title is-3">
-            {{ title }}
-          </h1>
-          {% elif title_mode == 'logo_only' %}
-          <br>
-          <br>
-          <br>
-          <img src="{{ logo_path }}" style="width: {{ logo_width }}px;">
-          <br>
-          <br>
-          {% endif %}
-          <br>
-          <form onsubmit="return false" name="queryform" id="lgForm" action="?" method="POST">
-            <div class="container">
-              <div class="field has-addons has-addons-centered">
-                <div class="control has-icons-left is-expanded">
-                  <input type="text" class="input is-medium is-rounded" id="ipprefix" placeholder="{{ placeholder_prefix }}">
-                  <span class="icon is-small is-left"><i class="icofont-at"></i></span>
-                </div>
+        </div>
+        {% endif %}
+      </div>
+    </nav>
+    <section class="section">
+      <div class="container has-text-centered is-fluid">
+        {% if title_mode == 'all' %}
+        <img src="{{ logo_path }}" style="width: {{ logo_width }}px;">
+        <h1 class="title is-3" id="lg-title">
+          {{ title }}
+        </h1>
+        <h2 class="subtitle is-5" id="lg-subtitle">
+          {{ subtitle }}
+        </h2>
+        <br>
+        {% elif title_mode == 'text_only' %}
+        <h1 class="title is-1" id="lg-title">
+          {{ title }}
+        </h1>
+        <h2 class="subtitle is-3" id="lg-subtitle">
+          {{ subtitle }}
+        </h2>
+        <br>
+        {% elif title_mode == 'logo_title' %}
+        <img src="{{ logo_path }}" style="width: {{ logo_width }}px;">
+        <h1 class="title is-3">
+          {{ title }}
+        </h1>
+        {% elif title_mode == 'logo_only' %}
+        <br>
+        <br>
+        <br>
+        <img src="{{ logo_path }}" style="width: {{ logo_width }}px;">
+        <br>
+        <br>
+        {% endif %}
+        <br>
+        <form onsubmit="return false" name="queryform" id="lgForm" action="?" method="POST">
+          <div class="container is-fluid">
+            <div class="field has-addons has-addons-centered">
+              <div class="control has-icons-left is-expanded">
+                <input type="text" class="input is-medium is-rounded is-family-monospace" id="ipprefix" placeholder="{{ placeholder_prefix }}">
+                <span class="icon is-small is-left"><i class="icofont-at"></i></span>
               </div>
-              <br>
-              <div class="field has-addons has-addons-centered">
-                <div class="control has-icons-left">
-                  <div class="select is-medium is-rounded">
-                    <select id="network" name="network">
-                      <!-- <option value="" disabled></option> -->
-                      {% for net in device_networks %}
-                      <option value="{{ net }}">AS{{ net }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                  <span class="icon is-left"><i class="icofont-cloudapp"></i></span>
-                </div>
-                <div class="control has-icons-left">
-                  <div class="select is-medium is-rounded">
-                    <select id="router">
-                      <option id="text_location" selected disabled>{{ text_location }}</option>
-                    </select>
-                  </div>
-                  <span class="icon is-left"><i class="icofont-globe"></i></span>
-                </div>
-              </div>
-              <br>
             </div>
-            <div class="container">
-              <div class="field has-addons has-addons-centered is-grouped-centered">
-                <div class="control">
-                  <div class="dropdown is-right is-hoverable">
-                    <div class="dropdown-trigger">
-                      <button class="button is-rounded is-medium" aria-haspopup="true" aria-controls="dropdown-menu2">
-                        <span class="icon is-size-7 lg-icon-help">
-                          <i class="icofont-question" aria-hidden="true"></i>
-                        </span>
-                      </button>
-                    </div>
-                    <div class="dropdown-menu is-expanded" id="dropdown-menu2" role="menu">
-                      <div class="dropdown-content lg-help">
-                        {% if enable_bgp_route == true %}
-                        <div class="dropdown-item">
-                          <strong>BGP Route</strong>
-                          <p>{{ text_help_bgp_route }}</p>
-                        </div>
-                        {% endif %}
-                        {% if enable_bgp_community == true %}
-                        <div class="dropdown-item">
-                          <strong>BGP Community</strong>
-                          <p>{{ text_help_bgp_community }}</p>
-                        </div>
-                        {% endif %}
-                        {% if enable_bgp_aspath == true %}
-                        <div class="dropdown-item">
-                          <strong>BGP AS Path</strong>
-                          <p>{{ text_help_bgp_aspath }}</p>
-                        </div>
-                        {% endif %}
-                        {% if enable_ping == true %}
-                        <div class="dropdown-item">
-                          <strong>Ping</strong>
-                          <p>{{ text_help_ping }}</p>
-                        </div>
-                        {% endif %}
-                        {% if enable_traceroute == true %}
-                        <div class="dropdown-item">
-                          <strong>Traceroute</strong>
-                          <p>{{ text_help_traceroute }}</p>
-                        </div>
-                        {% endif %}
-                      </div>
-                    </div>
-                  </div>
+            <br>
+            <div class="field has-addons has-addons-centered">
+              <div class="control has-icons-left">
+                <div class="select is-medium is-rounded">
+                  <select id="network" name="network">
+                    <!-- <option value="" disabled></option> -->
+                    {% for net in device_networks %}
+                    <option value="{{ net }}">AS{{ net }}</option>
+                    {% endfor %}
+                  </select>
                 </div>
-                <div class="control">
-                  <div class="select is-medium is-rounded">
-                    <select id="cmd">
-                      <option selected disabled>
-                        Query Type
-                      </option>
+                <span class="icon is-left"><i class="icofont-cloudapp"></i></span>
+              </div>
+              <div class="control has-icons-left">
+                <div class="select is-medium is-rounded">
+                  <select id="router">
+                    <option id="text_location" selected disabled>{{ text_location }}</option>
+                  </select>
+                </div>
+                <span class="icon is-left"><i class="icofont-location-arrow"></i></span>
+              </div>
+            </div>
+            <br>
+          </div>
+          <div class="container is-fluid">
+            <div class="field has-addons has-addons-centered is-grouped-centered">
+              <div class="control">
+                <div class="dropdown is-right" id="help-dropdown">
+                  <div class="dropdown-trigger">
+                    <button class="button is-rounded is-medium" aria-haspopup="true" aria-controls="dropdown-menu2" onclick="adjustHeight()">
+                      <span class="icon is-size-7 lg-icon-help">
+                        <i class="icofont-question" aria-hidden="true"></i>
+                      </span>
+                    </button>
+                  </div>
+                  <div class="dropdown-menu is-expanded" id="dropdown-menu2" role="menu">
+                    <div class="dropdown-content lg-help">
                       {% if enable_bgp_route == true %}
-                      <option name="cmd" id="cmd_bgp_route" value="bgp_route">
-                        BGP Route
-                      </option>
+                      <div class="dropdown-item">
+                        <strong>BGP Route</strong>
+                        <p>{{ text_help_bgp_route }}</p>
+                      </div>
                       {% endif %}
                       {% if enable_bgp_community == true %}
-                      <option name="cmd" id="cmd_bgp_community" value="bgp_community">
-                        BGP Community
-                      </option>
+                      <div class="dropdown-item">
+                        <strong>BGP Community</strong>
+                        <p>{{ text_help_bgp_community }}</p>
+                      </div>
                       {% endif %}
                       {% if enable_bgp_aspath == true %}
-                      <option name="cmd" id="cmd_bgp_aspath" value="bgp_aspath">
-                        BGP AS Path
-                      </option>
+                      <div class="dropdown-item">
+                        <strong>BGP AS Path</strong>
+                        <p>{{ text_help_bgp_aspath }}</p>
+                      </div>
                       {% endif %}
                       {% if enable_ping == true %}
-                      <option name="cmd" id="cmd_ping" value="ping">
-                        Ping
-                      </option>
+                      <div class="dropdown-item">
+                        <strong>Ping</strong>
+                        <p>{{ text_help_ping }}</p>
+                      </div>
                       {% endif %}
                       {% if enable_traceroute == true %}
-                      <option name="cmd" id="cmd_traceroute" value="traceroute">
-                        Traceroute
-                      </option>
+                      <div class="dropdown-item">
+                        <strong>Traceroute</strong>
+                        <p>{{ text_help_traceroute }}</p>
+                      </div>
                       {% endif %}
-                    </select>
+                    </div>
                   </div>
                 </div>
-                <div class="control">
-                  <button class="button lg-btn-submit is-medium is-rounded" type="submit" name="cmd">
-                    <span class="icon">
-                      <i class="icofont-search-1"></i>
-                    </span>
-                  </button>
+              </div>
+              <div class="control">
+                <div class="select is-medium is-rounded">
+                  <select id="cmd">
+                    <option selected disabled>
+                      Query Type
+                    </option>
+                    {% if enable_bgp_route == true %}
+                    <option name="cmd" id="cmd_bgp_route" value="bgp_route">
+                      BGP Route
+                    </option>
+                    {% endif %}
+                    {% if enable_bgp_community == true %}
+                    <option name="cmd" id="cmd_bgp_community" value="bgp_community">
+                      BGP Community
+                    </option>
+                    {% endif %}
+                    {% if enable_bgp_aspath == true %}
+                    <option name="cmd" id="cmd_bgp_aspath" value="bgp_aspath">
+                      BGP AS Path
+                    </option>
+                    {% endif %}
+                    {% if enable_ping == true %}
+                    <option name="cmd" id="cmd_ping" value="ping">
+                      Ping
+                    </option>
+                    {% endif %}
+                    {% if enable_traceroute == true %}
+                    <option name="cmd" id="cmd_traceroute" value="traceroute">
+                      Traceroute
+                    </option>
+                    {% endif %}
+                  </select>
                 </div>
               </div>
-            </div>
-            <div class="columns is-centered">
-              <div class="column is-one-third" id="ipprefix_error">
-              </div>
-            </div>
-        </div>
-        </form>
-      </div>
-      <div class="hero-body">
-        <div class="container" id="resultsbox">
-          <div class="tile is-ancestor">
-            <div class="tile is-12 is-parent">
-              <div class="tile is-child box">
-                <p class="title" id="results">{{ text_results }}</p>
-                <p id="queryInfo">
-                </p>
-                <p id="progress">
-                  <br>
-                  <progress class="progress is-medium lg-progressbar" max="100">50%</progress>
-                </p>
-                <div id="output">
-                </div>
-                <hr>
-                <p class="is-size-7">{{ text_cache }}</p>
+              <div class="control">
+                <button class="button lg-btn-submit is-medium is-rounded" type="submit" name="cmd">
+                  <span class="icon">
+                    <i class="icofont-search-1"></i>
+                  </span>
+                </button>
               </div>
             </div>
           </div>
+          <div class="columns is-centered">
+            <div class="column is-one-third" id="ipprefix_error">
+            </div>
+          </div>
+      </div>
+      </form>
+    </section>
+    <section class="section">
+      <div class="container is-fluid">
+        <div class="box" id="resultsbox">
+          <p class="title" id="results">{{ text_results }}</p>
+          <p id="queryInfo">
+          </p>
+          <p id="progress">
+            <br>
+            <progress class="progress is-medium lg-progressbar" max="100">50%</progress>
+          </p>
+          <br>
+          <p class="query-output" id="output">
+          </p>
+          <hr>
+          <p class="is-size-7">{{ text_cache }}</p>
         </div>
       </div>
-      {% if enable_footer == true %}
-        {% include "templates/footer.html" %}
-      {% endif %}
     </section>
-{% endblock %}
+  </div>
 </body>
+{% if enable_footer == true %}
+{% include "templates/footer.html" %}
+{% endif %}
+{% endblock %}
 
 </html>

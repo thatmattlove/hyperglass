@@ -1,21 +1,26 @@
 // Custom Elements
 
-.hero.lg-hero-bg
-  background-color: $lg-hero-bg
-  color: findColorInvert($lg-hero-bg)
+.footer
+  position: absolute
+  width: 100%
+  bottom: 0
+  overflow: hidden
 
-.hero-foot.lg-hero-bg
-  background-color: $lg-hero-bg
-  color: findColorInvert($lg-hero-bg)
+#lg-title, #lg-subtitle
+  color: findColorInvert($body-background-color)
 
-.hero.lg-hero-bg .title, .subtitle
-  color: findColorInvert($lg-hero-bg)
-
-.hero.is-danger .title, .subtitle
+.is-danger #lg-title, .is-danger #lg-subtitle
   color: findColorInvert($danger)
 
-.hero.lg-hero-bg .navbar-item
-  color: findColorInvert($lg-hero-bg)
+.navbar-menu, .navbar-brand, .navbar-tabs
+  background-color: $body-background-color
+
+.navbar-item
+  color: findColorInvert($body-background-color)
+
+a.navbar-item:hover
+  color: $lg-btn-submit
+  background-color: transparent
 
 .button.lg-btn-submit
   background-color: $lg-btn-submit
@@ -48,13 +53,29 @@
 
 .query-output
   font-family: $family-monospace
-  font-size: 0.875em
+  font-size: 0.95em
+  width: 100%
+  -webkit-overflow-scrolling: touch
   overflow-x: auto
   white-space: pre
-  word-wrap: normal
 
 .dropdown-content.lg-help
   width: 24rem
 
+.dropdown-content.lg-help-mobile
+  width: 20rem
+
 .icon.lg-icon-help
   color: $lg-btn-submit
+
+#ipprefix::-webkit-input-placeholder
+  font-family: $family-sans-serif
+
+#ipprefix:-ms-input-placeholder
+  font-family: $family-sans-serif
+
+#ipprefix:-moz-placeholder
+  font-family: $family-sans-serif
+
+#ipprefix::-moz-placeholder
+  font-family: $family-sans-serif

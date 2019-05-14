@@ -18,7 +18,6 @@ env = jinja2.Environment(loader=file_loader)
 
 # Converts templates/footer.md from Markdown to HTML
 md = Markdown()
-# footer_file = os.path.join(dir, "templates/footer.md")
 footer_template = env.get_template("templates/footer.md")
 footer_jinja = footer_template.render(title=configuration.brand.title())
 footer = footer_jinja
@@ -53,7 +52,13 @@ class html:
             title=configuration.brand.title(),
             subtitle=configuration.brand.subtitle(),
             title_mode=configuration.brand.title_mode(),
-            color_hero=configuration.brand.color_hero(),
+            color_bg=configuration.brand.color_bg(),
+            color_btn_submit=configuration.brand.color_btn_submit(),
+            color_progressbar=configuration.brand.color_progressbar(),
+            color_tag_loctitle=configuration.brand.color_tag_loctitle(),
+            color_tag_cmdtitle=configuration.brand.color_tag_cmdtitle(),
+            color_tag_cmd=configuration.brand.color_tag_cmd(),
+            color_tag_loc=configuration.brand.color_tag_loc(),
             enable_credit=configuration.brand.enable_credit(),
             enable_footer=configuration.brand.enable_footer(),
             footer_content=md.convert(footer),
@@ -94,7 +99,7 @@ class css:
                 color_tag_cmdtitle=configuration.brand.color_tag_cmdtitle(),
                 color_tag_cmd=configuration.brand.color_tag_cmd(),
                 color_tag_loc=configuration.brand.color_tag_loc(),
-                color_hero=configuration.brand.color_hero(),
+                color_bg=configuration.brand.color_bg(),
                 primary_font_url=configuration.brand.primary_font_url(),
                 primary_font_name=configuration.brand.primary_font_name(),
                 mono_font_url=configuration.brand.mono_font_url(),
@@ -112,4 +117,4 @@ class css:
                 logger.info("Rendered Sass templates to CSS files.")
         except:
             logger.error("Error rendering Sass template.")
-            raise TypeError("Error rendering Sass template.")
+            raise

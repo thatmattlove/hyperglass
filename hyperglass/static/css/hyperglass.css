@@ -1,7 +1,9 @@
 /* Fonts */
 @import url("https://fonts.googleapis.com/css?family=Nunito:400,600,700");
 @import url("https://fonts.googleapis.com/css?family=Fira+Mono");
+/* Color Changes */
 /* Custom Colors */
+/* Element Changes */
 /*! bulma.io v0.7.4 | MIT License | github.com/jgthms/bulma */
 @keyframes spinAround {
   from {
@@ -275,7 +277,7 @@ th {
   text-align: left; }
 
 html {
-  background-color: white;
+  background-color: #fbfffe;
   font-size: 16px;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -6927,26 +6929,31 @@ label.panel-block {
       padding: 18rem 1.5rem; } }
 
 .footer {
-  background-color: #fafafa;
-  padding: 3rem 1.5rem 6rem; }
+  background-color: #fbfffe;
+  padding: 3rem 1.5rem 3rem; }
 
 /* Looking Glass Imports */
-.hero.lg-hero-bg {
-  background-color: #fbfffe;
+.footer {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  overflow: hidden; }
+
+#lg-title, #lg-subtitle {
   color: rgba(0, 0, 0, 0.7); }
 
-.hero-foot.lg-hero-bg {
-  background-color: #fbfffe;
-  color: rgba(0, 0, 0, 0.7); }
-
-.hero.lg-hero-bg .title, .subtitle {
-  color: rgba(0, 0, 0, 0.7); }
-
-.hero.is-danger .title, .subtitle {
+.is-danger #lg-title, .is-danger #lg-subtitle {
   color: #fff; }
 
-.hero.lg-hero-bg .navbar-item {
+.navbar-menu, .navbar-brand, .navbar-tabs {
+  background-color: #fbfffe; }
+
+.navbar-item {
   color: rgba(0, 0, 0, 0.7); }
+
+a.navbar-item:hover {
+  color: #40798c;
+  background-color: transparent; }
 
 .button.lg-btn-submit {
   background-color: #40798c;
@@ -6979,13 +6986,29 @@ label.panel-block {
 
 .query-output {
   font-family: "Fira Mono", monospace;
-  font-size: 0.875em;
+  font-size: 0.95em;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
   overflow-x: auto;
-  white-space: pre;
-  word-wrap: normal; }
+  white-space: pre; }
 
 .dropdown-content.lg-help {
   width: 24rem; }
 
+.dropdown-content.lg-help-mobile {
+  width: 20rem; }
+
 .icon.lg-icon-help {
   color: #40798c; }
+
+#ipprefix::-webkit-input-placeholder {
+  font-family: "Nunito", sans-serif; }
+
+#ipprefix:-ms-input-placeholder {
+  font-family: "Nunito", sans-serif; }
+
+#ipprefix:-moz-placeholder {
+  font-family: "Nunito", sans-serif; }
+
+#ipprefix::-moz-placeholder {
+  font-family: "Nunito", sans-serif; }
