@@ -6953,7 +6953,10 @@ body {
 .has-background-danger .title, .has-background-danger .subtitle, .has-background-danger p, .has-background-danger a {
   color: #fff; }
 
-.navbar-menu, .navbar-brand, .navbar-tabs {
+.footer p, a {
+  color: rgba(0, 0, 0, 0.7); }
+
+.navbar, .navbar-menu, .navbar-brand, .navbar-tabs {
   background-color: #fbfffe; }
 
 .navbar-item {
