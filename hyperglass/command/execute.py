@@ -116,6 +116,7 @@ def execute(lg_data):
             "username": matchProxy(router_proxy)[1],
             "password": matchProxy(router_proxy)[2],
             "device_type": matchProxy(router_proxy)[3],
+            "global_delay_factor": 0.5,
         }
         nm_connect_proxied = ConnectHandler(**nm_proxy)
         nm_ssh_command = matchProxy(router_proxy)[4].format(**nm_host) + "\n"
@@ -126,12 +127,12 @@ def execute(lg_data):
             # Accept SSH key warnings
             if "Are you sure you want to continue connecting" in proxy_output:
                 nm_connect_proxied.write_channel("yes" + "\n")
-                time.sleep(1)
+                # time.sleep(1)
                 nm_connect_proxied.write_channel(nm_host["password"] + "\n")
             # Send password on prompt
             elif "assword" in proxy_output:
                 nm_connect_proxied.write_channel(nm_host["password"] + "\n")
-                time.sleep(1)
+                # time.sleep(1)
                 proxy_output += nm_connect_proxied.read_channel()
             # Reclassify netmiko connection as configured device type
             redispatch(nm_connect_proxied, nm_host["device_type"])
@@ -150,6 +151,7 @@ def execute(lg_data):
         "device_type": type,
         "username": returnCred(findCred(router))[0],
         "password": returnCred(findCred(router))[1],
+        "global_delay_factor": 0.5,
     }
 
     # Loop through router list, determine if proxy exists
