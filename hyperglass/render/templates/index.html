@@ -221,16 +221,18 @@
           <br>
           <p class="query-output" id="output">
           </p>
+          {% if text_cache|length > 1 %}
           <hr>
           <p class="is-size-7">{{ text_cache }}</p>
+          {% endif %}
         </div>
       </div>
     </section>
+      {% if enable_footer == true %}
+      {% include "templates/footer.html" %}
+      {% endif %}
+      {% endblock %}
   </div>
 </body>
-{% if enable_footer == true %}
-{% include "templates/footer.html" %}
-{% endif %}
-{% endblock %}
 
 </html>

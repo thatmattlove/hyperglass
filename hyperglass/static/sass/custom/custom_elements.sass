@@ -1,19 +1,25 @@
 // Custom Elements
 
+html, body
+  height: 100%
+
+body
+  display: flex
+  flex-direction: column
+
 .footer
-  position: absolute
+  margin-top: auto
   width: 100%
+  flex-shrink: 0
   bottom: 0
   overflow: hidden
 
 #lg-title, #lg-subtitle
   color: findColorInvert($body-background-color)
 
-// .danger-text
-//   color: findColorInvert($danger)
-
-.has-background-danger p, a, .title, .subtitle
-  color: findColorInvert($danger)
+.has-background-danger
+  .title, .subtitle, p, a
+    color: findColorInvert($danger)
 
 .navbar-menu, .navbar-brand, .navbar-tabs
   background-color: $body-background-color
