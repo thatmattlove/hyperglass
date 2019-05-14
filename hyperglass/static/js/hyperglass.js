@@ -189,27 +189,24 @@ var submitForm = function() {
     type: 'POST',
     data: JSON.stringify({router: router, cmd: cmd, ipprefix: ipprefix}),
     contentType: "application/json; charset=utf-8",
+    context: document.body,
     readyState: resultsbox.show() && progress.show(),
     statusCode: {
       200: function(response, code) {
-        console.log(code, response);
         progress.hide();
         $('#output').html(`<br><div class="content"><p class="query-output" id="output">${response}</p></div>`);
       },
       405: function(response, code) {
-        console.log(code, response);
         progress.hide();
         $('#ipprefix').addClass('is-warning');
         $('#output').html(`<br><div class="notification is-warning" id="output">${response.responseText}</div>`);
       },
       415: function(response, code) {
-        console.log(code, response);
         progress.hide();
         $('#ipprefix').addClass('is-danger');
         $('#output').html(`<br><div class="notification is-danger" id="output">${response.responseText}</div>`);
       },
       429: function(response, code) {
-        console.log(code, response);
         progress.hide();
         $("#ratelimit").addClass("is-active");
       }
