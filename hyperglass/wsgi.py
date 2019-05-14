@@ -2,7 +2,6 @@
 import os
 import hyperglass
 from hyperglass.hyperglass import app
-from hyperglass import render
 
 application = app
 
