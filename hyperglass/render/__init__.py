@@ -19,7 +19,9 @@ env = jinja2.Environment(loader=file_loader)
 # Converts templates/footer.md from Markdown to HTML
 md = Markdown()
 footer_template = env.get_template("templates/footer.md")
-footer_jinja = footer_template.render(title=configuration.brand.title())
+footer_jinja = footer_template.render(
+    site_title=configuration.brand.site_title(), org_name=configuration.gen.org_name()
+)
 footer = footer_jinja
 
 # Functions for rendering Jinja2 templates & importing variables
@@ -38,6 +40,7 @@ class html:
         return template.render(
             # General
             primary_asn=configuration.gen.primary_asn(),
+            org_name=configuration.gen.org_name(),
             google_analytics=configuration.gen.google_analytics(),
             enable_recaptcha=configuration.gen.enable_recaptcha(),
             enable_bgp_route=configuration.gen.enable_bgp_route(),

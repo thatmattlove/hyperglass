@@ -78,6 +78,14 @@ class gen:
             else:
                 return g["primary_asn"]
 
+    def org_name():
+        list = []
+        for g in general:
+            if len(g["org_name"]) == 0:
+                return "The Company"
+            else:
+                return g["org_name"]
+
     def debug():
         list = []
         for a in general:

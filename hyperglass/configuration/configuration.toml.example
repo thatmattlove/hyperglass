@@ -1,6 +1,7 @@
 # General site-wide parameters
 [[general]]
 primary_asn = ""
+org_name = ""
 debug = false
 google_analytics = ""
 message_error = ""
