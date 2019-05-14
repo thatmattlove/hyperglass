@@ -141,26 +141,28 @@ def lg():
         cache_value = execute.execute(lg_data)
         value_output = cache_value[0]
         value_code = cache_value[1]
+        value_entry = cache_value[0:2]
         value_params = cache_value[2:]
         logger.info(f"No cache match for: {cache_key}")
         # If it doesn't, create a cache entry
         try:
-            cache.set(cache_key, value_output)
+            cache.set(cache_key, value_entry)
             logger.info(f"Added cache entry: {value_params}")
         except:
             raise RuntimeError("Unable to add output to cache.", 415, *value_params)
         # If 200, return output
         response = cache.get(cache_key)
         if value_code == 200:
-            return Response(cache.get(cache_key), value_code)
+            return Response(response[0], response[1])
         # If 400 error, return error message and code
         elif value_code in [405, 415]:
-            return Response(cache.get(cache_key), value_code)
+            return Response(response[0], response[1])
     # If it does, return the cached entry
     else:
         logger.info(f"Cache match for: {cache_key}, returning cached entry...")
+        response = cache.get(cache_key)
         try:
-            return Response(cache.get(cache_key))
+            return Response(response[0], response[1])
         except:
             raise
             # Upon exception, render generic error

@@ -309,6 +309,14 @@ class brand:
             else:
                 return t["color_bg"]
 
+    def color_danger():
+        list = []
+        for t in branding:
+            if len(t["color_danger"]) == 0:
+                return "#ff3860"
+            else:
+                return t["color_danger"]
+
     def logo_path():
         list = []
         for t in branding:

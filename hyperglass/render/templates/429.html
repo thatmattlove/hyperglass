@@ -1,28 +1,28 @@
 {% extends "templates/base.html" %}
 <!DOCTYPE html>
+<html>
 
 <head>
 </head>
 
 {% block content %}
-<body>
-  <section class="hero is-danger is-fullheight is-clipped">
-    <div class="hero-head">
-      <nav class="navbar">
-        <div class="container">
-          <div class="navbar-brand">
-          </div>
+
+<body class="has-background-danger">
+  <section class="section">
+    <nav class="navbar has-background-danger">
+      <div class="container">
+        <div class="navbar-brand">
         </div>
-      </nav>
-      <div class="container has-text-centered">
       </div>
-    </div>
+    </nav>
     <br>
     <br>
     <br>
     <br>
     <br>
     <br>
+  </section>
+  <section>
     <div class="container has-text-centered">
       <h1 class="title is-size-1">
         {{ text_limiter_title }}
@@ -30,22 +30,13 @@
       <h2 class="subtitle is-size-3">
         {{ text_limiter_subtitle }}
       </h2>
+      <br>
       <a href="/" class="button is-medium is-rounded is-inverted is-danger is-outlined">Try Again</a>
     </div>
-    <div class="hero-body">
-    </div>
-    {% if enable_footer == true %}
-    <div class="hero-foot">
-      <div class="container">
-        <div class="content is-small has-text-centered">
-          {{ footer_content }}
-        </div>
-      </div>
-    </div>
-    <br>
-    {% endif %}
   </section>
 </body>
-{% endblock %}
-
+  {% endblock %}
+  {% if enable_footer == true %}
+  {% include "templates/footer.html" %}
+  {% endif %}
 </html>

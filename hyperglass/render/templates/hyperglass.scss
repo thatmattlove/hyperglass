@@ -9,7 +9,8 @@ $family-monospace: "{{ mono_font_name }}", monospace;
 
 /* Color Changes */
 $body-background-color: {{ color_bg }};
-$footer-background-color: $body-background-color;
+$footer-background-color: transparent;
+$danger: {{ color_danger }};
 
 /* Custom Colors */
 $lg-btn-submit: {{ color_btn_submit }};

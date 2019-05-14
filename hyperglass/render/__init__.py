@@ -34,7 +34,7 @@ class html:
         elif t == "415":
             template = env.get_template("templates/415.html")
         elif t == "test":
-            template = env.get_template("templates/429.html")
+            template = env.get_template("templates/415.html")
         return template.render(
             # General
             primary_asn=configuration.gen.primary_asn(),
@@ -53,6 +53,7 @@ class html:
             subtitle=configuration.brand.subtitle(),
             title_mode=configuration.brand.title_mode(),
             color_bg=configuration.brand.color_bg(),
+            color_danger=configuration.brand.color_danger(),
             color_btn_submit=configuration.brand.color_btn_submit(),
             color_progressbar=configuration.brand.color_progressbar(),
             color_tag_loctitle=configuration.brand.color_tag_loctitle(),
@@ -100,6 +101,7 @@ class css:
                 color_tag_cmd=configuration.brand.color_tag_cmd(),
                 color_tag_loc=configuration.brand.color_tag_loc(),
                 color_bg=configuration.brand.color_bg(),
+                color_danger=configuration.brand.color_danger(),
                 primary_font_url=configuration.brand.primary_font_url(),
                 primary_font_name=configuration.brand.primary_font_name(),
                 mono_font_url=configuration.brand.mono_font_url(),
