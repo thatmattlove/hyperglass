@@ -33,5 +33,21 @@ def testserver():
         raise
 
 
+@main.command()
+def render():
+    try:
+        hyperglass.render.css.renderTemplate()
+        logger.info("Successfully rendered CSS templates.")
+    except:
+        raise
+        logger.error("Failed to render CSS templates.")
+    try:
+        hyperglass.render.html.renderTemplate("index")
+        logger.info("Successfully rendered HTML templates.")
+    except:
+        raise
+        logger.error("Failed to render HTML templates.")
+
+
 if __name__ == "__main__":
     main()
