@@ -34,9 +34,9 @@
       <a href="/" class="button is-medium is-rounded is-inverted is-danger is-outlined">Home</a>
     </div>
   </section>
+    {% if enable_footer == true %}
+    {% include "templates/footer.html" %}
+    {% endif %}
+    {% endblock %}
 </body>
-  {% endblock %}
-  {% if enable_footer == true %}
-  {% include "templates/footer.html" %}
-  {% endif %}
 </html>

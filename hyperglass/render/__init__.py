@@ -34,7 +34,7 @@ class html:
         elif t == "415":
             template = env.get_template("templates/415.html")
         elif t == "test":
-            template = env.get_template("templates/415.html")
+            template = env.get_template("templates/429.html")
         return template.render(
             # General
             primary_asn=configuration.gen.primary_asn(),
