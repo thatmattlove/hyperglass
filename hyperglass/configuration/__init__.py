@@ -334,6 +334,24 @@ class brand:
             else:
                 return t["logo_path"]
 
+    def favicon16_path():
+        list = []
+        for t in branding:
+            if len(t["favicon16_path"]) == 0:
+                f = "static/images/favicon/favicon-16x16.png"
+                return f
+            else:
+                return t["favicon16_path"]
+
+    def favicon32_path():
+        list = []
+        for t in branding:
+            if len(t["favicon32_path"]) == 0:
+                f = "static/images/favicon/favicon-32x32.png"
+                return f
+            else:
+                return t["favicon32_path"]
+
     def logo_width():
         list = []
         for t in branding:

@@ -68,6 +68,8 @@ class html:
             footer_content=md.convert(footer),
             logo_path=configuration.brand.logo_path(),
             logo_width=configuration.brand.logo_width(),
+            favicon16_path=configuration.brand.favicon16_path(),
+            favicon32_path=configuration.brand.favicon32_path(),
             placeholder_prefix=configuration.brand.placeholder_prefix(),
             show_peeringdb=configuration.brand.show_peeringdb(),
             text_results=configuration.brand.text_results(),
