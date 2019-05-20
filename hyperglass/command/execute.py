@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import sys
+import json
 import time
+import requests
 from netaddr import *
 from logzero import logger
 from netmiko import redispatch
@@ -52,12 +54,12 @@ def execute(lg_data):
             logger.error(f"{msg}, {code}, {lg_data}")
             return (msg, code, lg_data)
     # Send "clean" request to constructor to build the command that will be sent to the router
-    msg, status, router, type, command = construct.construct(
+    msg, status, router, type, command = construct.netmiko(
         lg_router_address, cmd, ipprefix
     )
-    # Loop through proxy config, match configured proxy name for each router with a configured proxy
-    # Return configured proxy parameters for netmiko
+
     def matchProxy(search_proxy):
+        """Loops through proxy config, matches configured proxy name for each router with a configured proxy. Returns configured proxy parameters for netmiko"""
         if configured_proxy in proxies_list:
             proxy_address = proxies_list[search_proxy]["address"]
             proxy_username = proxies_list[search_proxy]["username"]
@@ -77,15 +79,15 @@ def execute(lg_data):
             logger.error(f"{msg}, {code}, {lg_data}")
             return (msg, code, lg_data)
 
-    # Matches router with configured credential
     def findCred(router):
+        """Matches router with configured credential"""
         for r in routers_list:
             if r["address"] == router:
                 configured_credential = r["credential"]
                 return configured_credential
 
-    # Matches configured credential with real username/password
     def returnCred(configured_credential):
+        """Matches configured credential with real username/password"""
         if configured_credential in credentials_list:
             matched_username = credentials_list[configured_credential]["username"]
             matched_password = credentials_list[configured_credential]["password"]
@@ -96,8 +98,22 @@ def execute(lg_data):
             logger.error(f"{msg}, {code}, {lg_data}")
             return (general_error, code, lg_data)
 
-    # Connect to the router via netmiko library, return the command output
-    def getOutputDirect():
+    def frr_api_direct():
+        msg, status, router, query = construct.frr(lg_router_address, cmd, ipprefix)
+        try:
+            headers = {
+                "Content-Type": "application/json",
+                "X-API-Key": returnCred(findCred(router))[1],
+            }
+            json_query = json.dumps(query)
+            frr_endpoint = f"http://{router}/frr"
+            frr_output = requests.post(frr_endpoint, headers=headers, data=json_query)
+            return frr_output
+        except:
+            raise
+
+    def netmiko_direct():
+        """Connects to the router via netmiko library, return the command output"""
         try:
             nm_connect_direct = ConnectHandler(**nm_host)
             nm_output_direct = nm_connect_direct.send_command(command)
@@ -108,9 +124,8 @@ def execute(lg_data):
             logger.error(f"{msg}, {code}, {lg_data}")
             return (general_error, code, lg_data)
 
-    # Connect to the proxy server via netmiko library, then log into the router
-    # via standard SSH
-    def getOutputProxy(router_proxy):
+    def netmiko_proxied(router_proxy):
+        """Connects to the proxy server via netmiko library, then logs into the router via standard SSH"""
         nm_proxy = {
             "host": matchProxy(router_proxy)[0],
             "username": matchProxy(router_proxy)[1],
@@ -166,13 +181,18 @@ def execute(lg_data):
         logger.info(f"Executing {command} on {router}...")
         try:
             if connection_proxied is True:
-                output_proxied = getOutputProxy(configured_proxy)
+                output_proxied = netmiko_proxied(configured_proxy)
                 parsed_output = parse.parse(output_proxied, type, cmd)
                 return parsed_output, status, router, type, command
             elif connection_proxied is False:
-                output_direct = getOutputDirect()
-                parsed_output = parse.parse(output_direct, type, cmd)
-                return parsed_output, status, router, type, command
+                if type == "frr":
+                    output_direct = frr_api_direct()
+                    parsed_output = parse.parse(output_direct, type, cmd)
+                    return parsed_output, status, router, type, command
+                else:
+                    output_direct = netmiko_direct()
+                    parsed_output = parse.parse(output_direct, type, cmd)
+                    return parsed_output, status, router, type, command
         except:
             raise
     else:

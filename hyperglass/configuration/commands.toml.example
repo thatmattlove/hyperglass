@@ -39,3 +39,16 @@ traceroute = "traceroute inet {target} wait 1 source {src_addr_ipv4}"
 bgp_route = "show route protocol bgp table inet6.0 {target} detail"
 ping = "ping inet6 {target} count 5 source {src_addr_ipv6}"
 traceroute = "traceroute inet6 {target} wait 1 source {src_addr_ipv6}"
+
+[[frr]]
+[frr.dual]
+bgp_community = "{target}"
+bgp_aspath = "{target}"
+[frr.ipv4]
+bgp_route = "{target}"
+ping = "{target}"
+traceroute = "{target}"
+[frr.ipv6]
+bgp_route = "{target}"
+ping = "{target}"
+traceroute = "{target}"

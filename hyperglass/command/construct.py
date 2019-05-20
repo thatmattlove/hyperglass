@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import re
 import sys
+import json
 import toml
 import logging
 from netaddr import *
@@ -18,9 +19,144 @@ commands = configuration.commands()
 # Filter config to router list
 routers_list = devices["router"]
 
-# Receives JSON from Flask, constucts the command that will be passed to the router
-# Also handles input validation & error handling
-def construct(router, cmd, ipprefix):
+
+def frr(router, cmd, ipprefix):
+    logger.info(f"Constructing {cmd} command for FRR router {router} to {ipprefix}...")
+    try:
+        # Loop through routers config file, match input router with configured routers, set variables
+        for r in routers_list:
+            if router == r["address"]:
+                type = r["type"]
+                src_addr_ipv4 = r["src_addr_ipv4"]
+                src_addr_ipv6 = r["src_addr_ipv6"]
+            try:
+                # Loop through commands config file, set variables for matched commands
+                if cmd == "Query Type":
+                    msg = "You must select a query type."
+                    code = 415
+                    logger.error(f"{msg}, {code}, {router}, {cmd}, {ipprefix}")
+                    return (msg, code, router, cmd, ipprefix)
+                # BGP Community Query
+                elif cmd in ["bgp_community"]:
+                    # Extended Communities, new-format
+                    if re.match("^([0-9]{0,5})\:([0-9]{1,5})$", ipprefix):
+                        query = json.dumps(
+                            {"cmd": cmd, "afi": "dual", "target": ipprefix}
+                        )
+                        msg = f"{ipprefix} matched new-format community."
+                        code = 200
+                        return (msg, code, router, query)
+                    # Extended Communities, 32 bit format
+                    elif re.match("^[0-9]{1,10}$", ipprefix):
+                        query = json.dumps(
+                            {"cmd": cmd, "afi": "dual", "target": ipprefix}
+                        )
+                        msg = f"{ipprefix} matched 32 bit community."
+                        code = 200
+                        return (msg, code, router, query)
+                    # RFC 8092 Large Community Support
+                    elif re.match(
+                        "^([0-9]{1,10})\:([0-9]{1,10})\:[0-9]{1,10}$", ipprefix
+                    ):
+                        query = json.dumps(
+                            {"cmd": cmd, "afi": "dual", "target": ipprefix}
+                        )
+                        msg = f"{ipprefix} matched large community."
+                        code = 200
+                        return (msg, code, router, query)
+                    else:
+                        msg = f"{ipprefix} is an invalid BGP Community Format."
+                        code = 415
+                        logger.error(f"{msg}, {code}, {router}, {cmd}, {ipprefix}")
+                        return (msg, code, router, cmd, ipprefix)
+                # BGP AS_PATH Query
+                elif cmd in ["bgp_aspath"]:
+                    if re.match(".*", ipprefix):
+                        query = json.dumps(
+                            {"cmd": cmd, "afi": "dual", "target": ipprefix}
+                        )
+                        msg = f"{ipprefix} matched AS_PATH regex."
+                        code = 200
+                        return (msg, code, router, query)
+                    else:
+                        msg = f"{ipprefix} is an invalid AS_PATH regex."
+                        code = 415
+                        logger.error(f"{msg}, {code}, {router}, {cmd}, {ipprefix}")
+                        return (msg, code, router, query)
+                # BGP Route Query
+                elif cmd in ["bgp_route"]:
+                    try:
+                        # Use netaddr library to verify if input is a valid IPv4 address or prefix
+                        if IPNetwork(ipprefix).ip.version == 4:
+                            query = json.dumps(
+                                {"cmd": cmd, "afi": "ipv4", "target": ipprefix}
+                            )
+                            msg = f"{ipprefix} is a valid IPv4 Adddress."
+                            code = 200
+                            return (msg, code, router, query)
+                        # Use netaddr library to verify if input is a valid IPv6 address or prefix
+                        elif IPNetwork(ipprefix).ip.version == 6:
+                            query = json.dumps(
+                                {"cmd": cmd, "afi": "ipv6", "target": ipprefix}
+                            )
+                            msg = f"{ipprefix} is a valid IPv6 Adddress."
+                            code = 200
+                            return (msg, code, router, query)
+                    # Exception from netaddr library will return a user-facing error
+                    except:
+                        msg = f"{ipprefix} is an invalid IP Address."
+                        code = 415
+                        logger.error(f"{msg}, {code}, {router}, {cmd}, {ipprefix}")
+                        return (msg, code, router, cmd, ipprefix)
+                # Ping/Traceroute
+                elif cmd in ["ping", "traceroute"]:
+                    try:
+                        if IPNetwork(ipprefix).ip.version == 4:
+                            query = json.dumps(
+                                {
+                                    "cmd": cmd,
+                                    "afi": "ipv4",
+                                    "source": src_addr_ipv4,
+                                    "target": ipprefix,
+                                }
+                            )
+                            msg = f"{ipprefix} is a valid IPv4 Adddress."
+                            code = 200
+                            return (msg, code, router, query)
+                        elif IPNetwork(ipprefix).ip.version == 6:
+                            query = json.dumps(
+                                {
+                                    "cmd": cmd,
+                                    "afi": "ipv6",
+                                    "source": src_addr_ipv6,
+                                    "target": ipprefix,
+                                }
+                            )
+                            msg = f"{ipprefix} is a valid IPv6 Adddress."
+                            code = 200
+                            return (msg, code, router, query)
+                    except:
+                        msg = f"{ipprefix} is an invalid IP Address."
+                        code = 415
+                        logger.error(f"{msg}, {code}, {router}, {cmd}, {ipprefix}")
+                        return (msg, code, router, cmd, ipprefix)
+                else:
+                    msg = f"Command {cmd} not found."
+                    code = 415
+                    logger.error(f"{msg}, {code}, {router}, {cmd}, {ipprefix}")
+                    return (msg, code, router, cmd, ipprefix)
+            except:
+                router_ip = r["address"]
+                error_msg = logger.error(
+                    f"Input router IP {router} does not match the configured router IP of {router_ip}"
+                )
+                raise ValueError(error_msg)
+    except:
+        raise
+
+
+def netmiko(router, cmd, ipprefix):
+    """Receives JSON from Flask, constucts the command that will be passed to the router. Also handles input validation & error handling."""
     logger.info(f"Constructing {cmd} command for {router} to {ipprefix}...")
     try:
         # Loop through routers config file, match input router with configured routers, set variables
