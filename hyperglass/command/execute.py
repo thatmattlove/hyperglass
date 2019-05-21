@@ -38,6 +38,7 @@ def execute(lg_data):
     for r in routers_list:
         if r["location"] == router:
             lg_router_address = r["address"]
+            lg_router_port = r["port"]
 
     # Check blacklist.toml array for prefixes/IPs and return an error upon a match
     if cmd in ["bgp_route", "ping", "traceroute"]:
@@ -99,6 +100,7 @@ def execute(lg_data):
             return (general_error, code, lg_data)
 
     def frr_api_direct():
+        """Sends HTTP POST to router running the hyperglass-frr API"""
         msg, status, router, query = construct.frr(lg_router_address, cmd, ipprefix)
         try:
             headers = {
@@ -106,7 +108,7 @@ def execute(lg_data):
                 "X-API-Key": returnCred(findCred(router))[1],
             }
             json_query = json.dumps(query)
-            frr_endpoint = f"http://{router}/frr"
+            frr_endpoint = f"http://{router}:{lg_router_port}/frr"
             frr_output = requests.post(frr_endpoint, headers=headers, data=json_query)
             return frr_output
         except:
