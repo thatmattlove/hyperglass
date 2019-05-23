@@ -32,11 +32,18 @@ class device:
         for r in routers_list:
             if r["location"] == lg_router:
                 self.address = r["address"]
-                self.port = r["port"]
-                self.type = r["type"]
+                self.asn = r["asn"]
+                self.src_addr_ipv4 = r["src_addr_ipv4"]
+                self.src_addr_ipv6 = r["src_addr_ipv6"]
                 self.credential = r["credential"]
                 self.location = r["location"]
+                self.name = r["name"]
+                self.port = r["port"]
+                self.type = r["type"]
                 self.proxy = r["proxy"]
+
+    def __call__(self):
+        return vars(self)
 
 
 class credential:
@@ -60,20 +67,20 @@ class params:
     class http:
         def __init__(self):
             self.msg, self.status, self.router, self.query = construct.frr(
-                d.address, lg_cmd, lg_ipprefix
+                lg_cmd, lg_ipprefix, d()
             )
 
-        def all(self):
-            return self.msg, self.status, self.router, self.query
+        def __call__(self):
+            return vars(self)
 
     class ssh:
         def __init__(self):
-            self.msg, self.status, self.router, self.type, self.command = construct.netmiko(
-                d.address, lg_cmd, lg_ipprefix
+            self.msg, self.status, self.router, self.type, self.command = construct.ssh(
+                lg_cmd, lg_ipprefix, d()
             )
 
-        def all(self):
-            return self.msg, self.status, self.router, self.type, self.command
+        def __call__(self):
+            return vars(self)
 
         def nm_host(self):
             c = credential(d.credential)
@@ -104,15 +111,14 @@ class connect:
             """Sends HTTP POST to router running the hyperglass-frr API"""
             http = params().http()
             c = credential(d.credential)
-            logger.error(f"API Key: {c.password}")
             try:
                 headers = {"Content-Type": "application/json", "X-API-Key": c.password}
                 json_query = json.dumps(http.query)
                 frr_endpoint = f"http://{d.address}:{d.port}/frr"
-                frr_output = requests.post(
+                frr_response = requests.post(
                     frr_endpoint, headers=headers, data=json_query
                 )
-                return frr_output
+                return frr_response.text, frr_response.status_code
             except:
                 raise
 
@@ -130,6 +136,7 @@ class connect:
             ssh = params().ssh()
             nm_proxy = ssh.nm_proxy()
             nm_host = ssh.nm_host()
+            dp = proxy(d.proxy)
 
             nm_connect_proxied = ConnectHandler(**nm_proxy)
             nm_ssh_command = dp.ssh_command.format(**nm_host) + "\n"
@@ -188,9 +195,14 @@ def execute(lg_data):
         # If netaddr library throws an exception, return a user-facing error.
         except:
             msg = f"{lg_ipprefix} is not a valid IP Address."
-            code = 415
+            code = 405
             logger.error(f"{msg}, {code}, {lg_data}")
             return (msg, code, lg_data)
+    elif lg_cmd == "Query Type":
+        msg = "You must select a query type."
+        code = 405
+        logger.error(f"{msg}, {code}, {lg_data}")
+        return (msg, code, lg_data)
 
     global d
     d = device(lg_router)
@@ -198,23 +210,33 @@ def execute(lg_data):
     if d.type == "frr":
         http = params().http()
         try:
-            output = connect.restapi.frr()
-            parsed_output = parse.parse(output, d.type, lg_cmd)
-            return parsed_output, http.status, params().http().all()
+            if http.status in range(200, 300):
+                output, frr_status = connect.restapi.frr()
+                parsed_output = parse.parse(output, d.type, lg_cmd)
+                return parsed_output, frr_status, http()
+            elif http.status in range(400, 500):
+                return http.msg, http.status, http()
+            else:
+                logger.error(general_error, 500, http())
+                return general_error, 500, http()
         except:
             raise
     else:
         try:
             ssh = params().ssh()
-            if d.proxy:
-                global dp
-                dp = proxy(d.proxy)
-                output = connect.nm.proxied(d.proxy)
-                parsed_output = parse.parse(output, d.type, lg_cmd)
-                return parsed_output, ssh.status, ssh.router, ssh.command
-            elif not d.proxy:
-                output = connect.nm.direct()
-                parsed_output = parse.parse(output, d.type, lg_cmd)
-                return parsed_output, ssh.status, ssh.router, ssh.command
+            if ssh.status in range(200, 300):
+                if d.proxy:
+                    output = connect.nm.proxied(d.proxy)
+                    parsed_output = parse.parse(output, d.type, lg_cmd)
+                    return parsed_output, ssh.status, ssh.router, ssh.command
+                elif not d.proxy:
+                    output = connect.nm.direct()
+                    parsed_output = parse.parse(output, d.type, lg_cmd)
+                    return parsed_output, ssh.status, ssh.router, ssh.command
+            elif ssh.status in range(400, 500):
+                return ssh.msg, ssh.status, ssh()
+            else:
+                logger.error(general_error, 500, ssh())
+                return general_error, 500, ssh()
         except:
             raise
