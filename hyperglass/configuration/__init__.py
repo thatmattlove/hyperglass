@@ -66,6 +66,12 @@ class dev:
             list.append(str(r["name"]))
         return list
 
+    def display_name():
+        list = []
+        for r in routers_list:
+            list.appen(str(r["display_name"]))
+        return list
+
 
 class gen:
     """Functions to import config variables and return default values if undefined"""

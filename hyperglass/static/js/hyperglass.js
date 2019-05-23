@@ -4,6 +4,7 @@ var progress = ($('#progress'));
 var resultsbox = ($('#resultsbox'));
 resultsbox.hide();
 progress.hide();
+adjustDropdowns();
 
 // Bulma Toggable Dropdown - help text
 let dropdown = document.querySelector('#help-dropdown');
@@ -18,6 +19,15 @@ function adjustHeight() {
   if (actual_width < 1024) {
     $('#help-dropdown').removeClass('is-right');
     $('.lg-help').addClass('lg-help-mobile').removeClass('lg-help');
+  }
+}
+
+function adjustDropdowns() {
+  var actual_width = window.innerWidth;
+  if (actual_width < 1024) {
+    $('#lg-netlocdropdown').removeClass('has-addons').removeClass('has-addons-centered').addClass('is-grouped').addClass('is-grouped-centered').addClass('is-grouped-multiline');
+    $('#network').css('width', actual_width * 0.85);
+    $('#router').css('width', actual_width * 0.85);
   }
 }
 
@@ -56,7 +66,7 @@ $('#network').on('change', () => {
 
 function updateRouters(routers) {
   routers.forEach(function(r) {
-    $('#router').append($("<option>").attr('value', r.location).attr('type', r.type).text(r.location))
+    $('#router').append($("<option>").attr('value', r.location).attr('type', r.type).text(r.display_name))
   })
 }
 

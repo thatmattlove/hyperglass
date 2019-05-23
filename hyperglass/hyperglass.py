@@ -110,6 +110,7 @@ def get_routers(asn):
                     dict(
                         location=r["location"],
                         hostname=r["name"],
+                        display_name=r["display_name"],
                         type=r["type"],
                         requiresIP6Cidr=True,
                     )
@@ -119,6 +120,7 @@ def get_routers(asn):
                     dict(
                         location=r["location"],
                         hostname=r["name"],
+                        display_name=r["display_name"],
                         type=r["type"],
                         requiresIP6Cidr=False,
                     )

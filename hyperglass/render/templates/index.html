@@ -88,10 +88,10 @@
               </div>
             </div>
             <br>
-            <div class="field has-addons has-addons-centered">
-              <div class="control has-icons-left">
+            <div class="field has-addons has-addons-centered" id="lg-netlocdropdown">
+              <div class="control has-icons-left" id="network-control">
                 <div class="select is-medium is-rounded">
-                  <select id="network" name="network">
+                  <select id="network" name="network" style="width: 256px">
                     <!-- <option value="" disabled></option> -->
                     {% for net in device_networks %}
                     <option value="{{ net }}">AS{{ net }}</option>
@@ -100,9 +100,9 @@
                 </div>
                 <span class="icon is-left"><i class="icofont-cloudapp"></i></span>
               </div>
-              <div class="control has-icons-left">
+              <div class="control has-icons-left" id="router-control">
                 <div class="select is-medium is-rounded">
-                  <select id="router">
+                  <select id="router" style="width: 256px">
                     <option id="text_location" selected disabled>{{ text_location }}</option>
                   </select>
                 </div>
