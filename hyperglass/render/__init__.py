@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 import sass
-import codecs
 import jinja2
 import subprocess
 from logzero import logger
@@ -16,19 +15,23 @@ hyperglass_root = os.path.dirname(hyperglass.__file__)
 file_loader = jinja2.FileSystemLoader(dir)
 env = jinja2.Environment(loader=file_loader)
 
-# Converts templates/footer.md from Markdown to HTML
-md = Markdown()
-footer_template = env.get_template("templates/footer.md")
-footer_jinja = footer_template.render(
-    site_title=configuration.brand.site_title(), org_name=configuration.gen.org_name()
-)
-footer = footer_jinja
+branding = configuration.branding()
+general = configuration.general()
+networks = configuration.networks()
+
 
 # Functions for rendering Jinja2 templates & importing variables
 
 
 class html:
     def renderTemplate(t):
+
+        # Converts templates/footer.md from Markdown to HTML
+        md = Markdown()
+        footer_template = env.get_template("templates/footer.md")
+        footer_jinja = footer_template.render(
+            site_title=branding.site_title, org_name=general.org_name
+        )
         if t == "index":
             template = env.get_template("templates/index.html")
         elif t == "429":
@@ -39,56 +42,53 @@ class html:
             template = env.get_template("templates/429.html")
         return template.render(
             # General
-            primary_asn=configuration.gen.primary_asn(),
-            org_name=configuration.gen.org_name(),
-            google_analytics=configuration.gen.google_analytics(),
-            enable_recaptcha=configuration.gen.enable_recaptcha(),
-            enable_bgp_route=configuration.gen.enable_bgp_route(),
-            enable_bgp_community=configuration.gen.enable_bgp_community(),
-            enable_bgp_aspath=configuration.gen.enable_bgp_aspath(),
-            enable_ping=configuration.gen.enable_ping(),
-            enable_traceroute=configuration.gen.enable_traceroute(),
-            cache_timeout=configuration.gen.cache_timeout(),
-            message_rate_limit_query=configuration.gen.message_rate_limit_query(),
+            primary_asn=general.primary_asn,
+            org_name=general.org_name,
+            google_analytics=general.google_analytics,
+            enable_bgp_route=general.enable_bgp_route,
+            enable_bgp_community=general.enable_bgp_community,
+            enable_bgp_aspath=general.enable_bgp_aspath,
+            enable_ping=general.enable_ping,
+            enable_traceroute=general.enable_traceroute,
+            cache_timeout=general.cache_timeout,
+            message_rate_limit_query=general.message_rate_limit_query,
             # Branding
-            site_title=configuration.brand.site_title(),
-            title=configuration.brand.title(),
-            subtitle=configuration.brand.subtitle(),
-            title_mode=configuration.brand.title_mode(),
-            color_bg=configuration.brand.color_bg(),
-            color_danger=configuration.brand.color_danger(),
-            color_btn_submit=configuration.brand.color_btn_submit(),
-            color_progressbar=configuration.brand.color_progressbar(),
-            color_tag_loctitle=configuration.brand.color_tag_loctitle(),
-            color_tag_cmdtitle=configuration.brand.color_tag_cmdtitle(),
-            color_tag_cmd=configuration.brand.color_tag_cmd(),
-            color_tag_loc=configuration.brand.color_tag_loc(),
-            enable_credit=configuration.brand.enable_credit(),
-            enable_footer=configuration.brand.enable_footer(),
-            footer_content=md.convert(footer),
-            logo_path=configuration.brand.logo_path(),
-            logo_width=configuration.brand.logo_width(),
-            favicon16_path=configuration.brand.favicon16_path(),
-            favicon32_path=configuration.brand.favicon32_path(),
-            placeholder_prefix=configuration.brand.placeholder_prefix(),
-            show_peeringdb=configuration.brand.show_peeringdb(),
-            text_results=configuration.brand.text_results(),
-            text_location=configuration.brand.text_location(),
-            text_cache=configuration.brand.text_cache(),
-            text_415_title=configuration.brand.text_415_title(),
-            text_415_subtitle=configuration.brand.text_415_subtitle(),
-            text_415_button=configuration.brand.text_415_button(),
-            text_help_bgp_route=configuration.brand.text_help_bgp_route(),
-            text_help_bgp_community=configuration.brand.text_help_bgp_community(),
-            text_help_bgp_aspath=configuration.brand.text_help_bgp_aspath(),
-            text_help_ping=configuration.brand.text_help_ping(),
-            text_help_traceroute=configuration.brand.text_help_traceroute(),
-            text_limiter_title=configuration.brand.text_limiter_title(),
-            text_limiter_subtitle=configuration.brand.text_limiter_subtitle(),
+            site_title=branding.site_title,
+            title=branding.title,
+            subtitle=branding.subtitle,
+            title_mode=branding.title_mode,
+            color_bg=branding.color_bg,
+            color_danger=branding.color_danger,
+            color_btn_submit=branding.color_btn_submit,
+            color_progressbar=branding.color_progressbar,
+            color_tag_loctitle=branding.color_tag_loctitle,
+            color_tag_cmdtitle=branding.color_tag_cmdtitle,
+            color_tag_cmd=branding.color_tag_cmd,
+            color_tag_loc=branding.color_tag_loc,
+            enable_credit=branding.enable_credit,
+            enable_footer=branding.enable_footer,
+            footer_content=md.convert(footer_jinja),
+            logo_path=branding.logo_path,
+            logo_width=branding.logo_width,
+            favicon16_path=branding.favicon16_path,
+            favicon32_path=branding.favicon32_path,
+            placeholder_prefix=branding.placeholder_prefix,
+            show_peeringdb=branding.show_peeringdb,
+            text_results=branding.text_results,
+            text_location=branding.text_location,
+            text_cache=branding.text_cache,
+            text_415_title=branding.text_415_title,
+            text_415_subtitle=branding.text_415_subtitle,
+            text_415_button=branding.text_415_button,
+            text_help_bgp_route=branding.text_help_bgp_route,
+            text_help_bgp_community=branding.text_help_bgp_community,
+            text_help_bgp_aspath=branding.text_help_bgp_aspath,
+            text_help_ping=branding.text_help_ping,
+            text_help_traceroute=branding.text_help_traceroute,
+            text_limiter_title=branding.text_limiter_title,
+            text_limiter_subtitle=branding.text_limiter_subtitle,
             # Devices
-            device_networks=configuration.dev.networks(),
-            # device_location=configuration.dev.location(),
-            device_name=configuration.dev.name(),
+            device_networks=configuration.networks(),
         )
 
 
@@ -99,18 +99,18 @@ class css:
         try:
             template = env.get_template("templates/hyperglass.scss")
             rendered_output = template.render(
-                color_btn_submit=configuration.brand.color_btn_submit(),
-                color_progressbar=configuration.brand.color_progressbar(),
-                color_tag_loctitle=configuration.brand.color_tag_loctitle(),
-                color_tag_cmdtitle=configuration.brand.color_tag_cmdtitle(),
-                color_tag_cmd=configuration.brand.color_tag_cmd(),
-                color_tag_loc=configuration.brand.color_tag_loc(),
-                color_bg=configuration.brand.color_bg(),
-                color_danger=configuration.brand.color_danger(),
-                primary_font_url=configuration.brand.primary_font_url(),
-                primary_font_name=configuration.brand.primary_font_name(),
-                mono_font_url=configuration.brand.mono_font_url(),
-                mono_font_name=configuration.brand.mono_font_name(),
+                color_btn_submit=branding.color_btn_submit,
+                color_progressbar=branding.color_progressbar,
+                color_tag_loctitle=branding.color_tag_loctitle,
+                color_tag_cmdtitle=branding.color_tag_cmdtitle,
+                color_tag_cmd=branding.color_tag_cmd,
+                color_tag_loc=branding.color_tag_loc,
+                color_bg=branding.color_bg,
+                color_danger=branding.color_danger,
+                primary_font_url=branding.primary_font_url,
+                primary_font_name=branding.primary_font_name,
+                mono_font_url=branding.mono_font_url,
+                mono_font_name=branding.mono_font_name,
             )
             with open(scss_file, "w") as scss_output:
                 scss_output.write(rendered_output)

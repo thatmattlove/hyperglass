@@ -1,38 +1,18 @@
 #!/usr/bin/env python3
+
+# Module Imports
 import re
 import sys
 import json
 import toml
-import logging
-from netaddr import *
 from logzero import logger
+from netaddr import IPNetwork, IPAddress, IPSet
 
-# Local imports
+# Project Imports
 from hyperglass import configuration
 
-# Load TOML config file
-devices = configuration.devices()
 
-# Load TOML commands file
-commands = configuration.commands()
-
-# Filter config to router list
-routers_list = devices["router"]
-
-
-class codes:
-    """Class for easy calling & recalling of http success/error codes"""
-
-    def __init__(self):
-        # 200 OK: renders standard display text
-        self.success = 200
-        # 405 Method Not Allowed: Renders Bulma "warning" class notification message with message text
-        self.warning = 405
-        # 415 Unsupported Media Type: Renders Bulma "danger" class notification message with message text
-        self.danger = 415
-
-
-code = codes()
+code = configuration.codes()
 
 
 def frr(cmd, ipprefix, device):
@@ -138,19 +118,8 @@ def ssh(cmd, ipprefix, device):
     d_type = device["type"]
 
     logger.info(f"Constructing {cmd} command for {d_name} to {ipprefix}...")
-    # Loop through commands config file, set variables for matched commands
-    class command:
-        def __init__(self, type):
-            if type in commands:
-                self.dual = commands[type][0]["dual"]
-                self.ipv4 = commands[type][0]["ipv4"]
-                self.ipv6 = commands[type][0]["ipv6"]
-            else:
-                msg = f"{d_type} is an unsupported network operating system."
-                logger.error(f"{msg}, {code.danger}, {d_name}, {cmd}, {ipprefix}")
-                return (msg, code.danger, d_name, cmd, ipprefix)
 
-    c = command(d_type)
+    c = configuration.command(d_type)
     # BGP Community Query
     if cmd == "bgp_community":
         # Extended Communities, new-format

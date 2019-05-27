@@ -66,7 +66,7 @@ $('#network').on('change', () => {
 
 function updateRouters(routers) {
   routers.forEach(function(r) {
-    $('#router').append($("<option>").attr('value', r.location).attr('type', r.type).text(r.display_name))
+    $('#router').append($("<option>").attr('value', r.location).text(r.display_name))
   })
 }
 
@@ -83,13 +83,13 @@ $('#lgForm').on('submit', function() {
   var ipv6_cidr = new RegExp('^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/((1(1[0-9]|2[0-8]))|([0-9][0-9])|([0-9]))?$');
   var ipv6_host = new RegExp('^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))?$')
   var cmd = $('#cmd option:selected').val();
-  var routerType = $('#router option:selected').attr('type');
+  // var routerType = $('#router option:selected').attr('type');
   var ipprefix = $('#ipprefix').val();
   var router = $('#router option:selected').val();
   // Filters selectedRouters JSON object to only the selected router, returns all attributes passed from Flask's `get_routers`
   var routersJson = selectedRouters.filter(r => r.location === router);
   // Filters above to value of `requiresIP6Cidr` as passed from Flask's `get_routers`
-  var requiresIP6Cidr = routersJson[0].requiresIP6Cidr
+  var requiresIP6Cidr = routersJson[0].requires_ipv6_cidr
 
   // If BGP lookup, and lookup is an IPv6 address *without* CIDR prefix (e.g. 2001:db8::1, NOT 2001:db8::/48), and requiresIP6Cidr
   // is true, show an error.
@@ -185,7 +185,7 @@ var submitForm = function() {
   var router = $('#router option:selected').val();
   var routername = $('#router option:selected').text();
   var ipprefix = $('#ipprefix').val();
-  var routerType = $('#router option:selected').attr('type');
+  // var routerType = $('#router option:selected').attr('type');
 
   $('#output').text("")
   $('#queryInfo').text("")
@@ -226,14 +226,38 @@ var submitForm = function() {
         $('#output').html(`<br><div class="content"><p class="query-output" id="output">${response}</p></div>`);
       },
       405: function(response, code) {
+        resultsbox.hide()
         progress.hide();
+        $('#ipprefix_error').show()
         $('#ipprefix').addClass('is-warning');
-        $('#output').html(`<br><div class="notification is-warning" id="output">${response.responseText}</div>`);
+        $('#ipprefix_error').html(`
+          <br>
+          <article class="message is-warning is-small" style="display: block;">
+            <div class="message-header" style="display: block;">
+              Input Not Allowed
+            </div>
+            <div id="error" style="display: block;" class="message-body">
+              ${response.responseText}
+            </div>
+          </article>
+          `);
       },
       415: function(response, code) {
+        resultsbox.hide()
         progress.hide();
+        $('#ipprefix_error').show()
         $('#ipprefix').addClass('is-danger');
-        $('#output').html(`<br><div class="notification is-danger" id="output">${response.responseText}</div>`);
+        $('#ipprefix_error').html(`
+          <br>
+          <article class="message is-danger is-small" style="display: block;">
+            <div class="message-header" style="display: block;">
+              Invalid Input
+            </div>
+            <div id="error" style="display: block;" class="message-body">
+              ${response.responseText}
+            </div>
+          </article>
+          `);
       },
       429: function(response, code) {
         progress.hide();

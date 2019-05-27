@@ -1,66 +1,19 @@
 #!/usr/bin/env python3
 
+# Module Imports
 import sys
 import json
 import time
 import requests
-from netaddr import *
 from logzero import logger
 from netmiko import redispatch
 from netmiko import ConnectHandler
+from netaddr import IPNetwork, IPAddress, IPSet
+
+# Project Imports
 from hyperglass import configuration
 from hyperglass.command import parse
 from hyperglass.command import construct
-
-# Load TOML devices file
-devices = configuration.devices()
-# Filter config to router list
-routers_list = devices["router"]
-# Filter config to credential list
-credentials_list = devices["credential"]
-# Filter config to proxy servers
-proxies_list = devices["proxy"]
-
-blacklist_config = configuration.blacklist()
-blacklist = IPSet(blacklist_config["blacklist"])
-
-general_error = "Error connecting to device."
-
-
-class device:
-    def __init__(self, lg_router):
-        for r in routers_list:
-            if r["location"] == lg_router:
-                self.address = r["address"]
-                self.asn = r["asn"]
-                self.src_addr_ipv4 = r["src_addr_ipv4"]
-                self.src_addr_ipv6 = r["src_addr_ipv6"]
-                self.credential = r["credential"]
-                self.location = r["location"]
-                self.name = r["name"]
-                self.port = r["port"]
-                self.type = r["type"]
-                self.proxy = r["proxy"]
-
-    def __call__(self):
-        return vars(self)
-
-
-class credential:
-    def __init__(self, cred):
-        if cred in credentials_list:
-            self.username = credentials_list[cred]["username"]
-            self.password = credentials_list[cred]["password"]
-
-
-class proxy:
-    def __init__(self, proxy):
-        if proxy in proxies_list:
-            self.address = proxies_list[proxy]["address"]
-            self.username = proxies_list[proxy]["username"]
-            self.password = proxies_list[proxy]["password"]
-            self.type = proxies_list[proxy]["type"]
-            self.ssh_command = proxies_list[proxy]["ssh_command"]
 
 
 class params:
@@ -83,7 +36,7 @@ class params:
             return vars(self)
 
         def nm_host(self):
-            c = credential(d.credential)
+            c = configuration.credential(d.credential)
             attr = {
                 "host": self.router,
                 "device_type": self.type,
@@ -94,7 +47,7 @@ class params:
             return attr
 
         def nm_proxy(self):
-            p = proxy(d.proxy)
+            p = configuration.proxy(d.proxy)
             attr = {
                 "host": p.address,
                 "username": p.username,
@@ -110,7 +63,7 @@ class connect:
         def frr():
             """Sends HTTP POST to router running the hyperglass-frr API"""
             http = params().http()
-            c = credential(d.credential)
+            c = configuration.credential(d.credential)
             try:
                 headers = {"Content-Type": "application/json", "X-API-Key": c.password}
                 json_query = json.dumps(http.query)
@@ -136,7 +89,7 @@ class connect:
             ssh = params().ssh()
             nm_proxy = ssh.nm_proxy()
             nm_host = ssh.nm_host()
-            dp = proxy(d.proxy)
+            dp = configuration.proxy(d.proxy)
 
             nm_connect_proxied = ConnectHandler(**nm_proxy)
             nm_ssh_command = dp.ssh_command.format(**nm_host) + "\n"
@@ -163,10 +116,9 @@ class connect:
                     return host_output
             except:
                 msg = f'Proxy server {nm_proxy["host"]} unable to reach target {nm_host["host"]}'
-                code = 415
-                logger.error(f"{msg}, {code}, {lg_params}")
+                logger.error(f"{msg}, {code.danger}, {lg_params}")
                 raise
-                return (general_error, code, lg_params)
+                return (general.message_general_error, code.danger, lg_params)
 
 
 def execute(lg_data):
@@ -184,28 +136,53 @@ def execute(lg_data):
     global lg_params
     lg_params = lg_data
 
+    global general
+    general = configuration.general()
+
+    global code
+    code = configuration.codes()
+
     # Check blacklist.toml array for prefixes/IPs and return an error upon a match
     if lg_cmd in ["bgp_route", "ping", "traceroute"]:
         try:
+            blacklist = IPSet(configuration.blacklist())
             if IPNetwork(lg_ipprefix).ip in blacklist:
                 msg = f"{lg_ipprefix} is not allowed."
-                code = 405
-                logger.error(f"{msg}, {code}, {lg_data}")
-                return (msg, code, lg_data)
+                logger.error(f"{msg}, {code.warning}, {lg_data}")
+                return (msg, code.warning, lg_data)
         # If netaddr library throws an exception, return a user-facing error.
         except:
             msg = f"{lg_ipprefix} is not a valid IP Address."
-            code = 405
-            logger.error(f"{msg}, {code}, {lg_data}")
-            return (msg, code, lg_data)
+            logger.error(f"{msg}, {code.danger}, {lg_data}")
+            return (msg, code.danger, lg_data)
+    if lg_cmd == "bgp_route" and general.enable_max_prefix == True:
+        logger.debug(f"Enable Max Prefix: {general.enable_max_prefix}")
+        logger.debug(f"ipprefix_version: {IPNetwork(lg_ipprefix).version}")
+        logger.debug(f"ipprefix_len: {IPNetwork(lg_ipprefix).prefixlen}")
+        try:
+            if (
+                IPNetwork(lg_ipprefix).version == 4
+                and IPNetwork(lg_ipprefix).prefixlen > general.max_prefix_length_ipv4
+            ):
+                msg = f"Prefix length must be smaller than /{general.max_prefix_length_ipv4}. {IPNetwork(lg_ipprefix)} is too specific."
+                logger.error(f"{msg}, {code.warning}, {lg_data}")
+                return (msg, code.warning, lg_data)
+            if (
+                IPNetwork(lg_ipprefix).version == 6
+                and IPNetwork(lg_ipprefix).prefixlen > general.max_prefix_length_ipv6
+            ):
+                msg = f"Prefix length must be smaller than /{general.max_prefix_length_ipv4}. {IPNetwork(lg_ipprefix)} is too specific."
+                logger.error(f"{msg}, {code.warning}, {lg_data}")
+                return (msg, code.warning, lg_data)
+        except:
+            raise
     elif lg_cmd == "Query Type":
         msg = "You must select a query type."
-        code = 405
-        logger.error(f"{msg}, {code}, {lg_data}")
-        return (msg, code, lg_data)
+        logger.error(f"{msg}, {code.danger}, {lg_data}")
+        return (msg, code.danger, lg_data)
 
     global d
-    d = device(lg_router)
+    d = configuration.device(lg_router)
 
     if d.type == "frr":
         http = params().http()
@@ -217,8 +194,8 @@ def execute(lg_data):
             elif http.status in range(400, 500):
                 return http.msg, http.status, http()
             else:
-                logger.error(general_error, 500, http())
-                return general_error, 500, http()
+                logger.error(general.message_general_error, 500, http())
+                return general.message_general_error, 500, http()
         except:
             raise
     else:
@@ -236,7 +213,7 @@ def execute(lg_data):
             elif ssh.status in range(400, 500):
                 return ssh.msg, ssh.status, ssh()
             else:
-                logger.error(general_error, 500, ssh())
-                return general_error, 500, ssh()
+                logger.error(general.message_general_error, 500, ssh())
+                return general.message_general_error, 500, ssh()
         except:
             raise

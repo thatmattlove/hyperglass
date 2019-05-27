@@ -16,18 +16,13 @@ import hyperglass.configuration as configuration
 from hyperglass.command import execute
 from hyperglass import render
 
-# Load TOML config file
-devices = configuration.devices()
-# Filter config file to list of routers & subsequent configurations
-routers_list = devices["router"]
-# Filter config file to array of operating systems that require IPv6 BGP lookups in CIDR format
-ipv6_cidr_list = configuration.requires_ipv6_cidr()
 # Main Flask definition
 app = Flask(__name__, static_url_path="/static")
 
+general = configuration.general()
 # Flask-Limiter Config
-rate_limit_query = configuration.gen.rate_limit_query() + " per minute"
-rate_limit_site = configuration.gen.rate_limit_site() + "per minute"
+rate_limit_query = f"{general.rate_limit_query} per minute"
+rate_limit_site = f"{general.rate_limit_site} per minute"
 limiter = Limiter(app, key_func=get_remote_address, default_limits=[rate_limit_site])
 
 
@@ -67,8 +62,8 @@ cache = Cache(
     app,
     config={
         "CACHE_TYPE": "filesystem",
-        "CACHE_DIR": configuration.gen.cache_directory(),
-        "CACHE_DEFAULT_TIMEOUT": configuration.gen.cache_timeout(),
+        "CACHE_DIR": general.cache_directory,
+        "CACHE_DEFAULT_TIMEOUT": general.cache_timeout,
     },
 )
 
@@ -101,32 +96,9 @@ def testRoute():
 # Flask GET route provides a JSON list of all routers for the selected network/ASN
 @app.route("/routers/<asn>", methods=["GET"])
 def get_routers(asn):
-    results = []
-    # For any configured router matching the queried ASN, return only the address/hostname, location, and OS type of the matching routers
-    for r in routers_list:
-        if r["asn"] == asn:
-            if r["type"] in ipv6_cidr_list:
-                results.append(
-                    dict(
-                        location=r["location"],
-                        hostname=r["name"],
-                        display_name=r["display_name"],
-                        type=r["type"],
-                        requiresIP6Cidr=True,
-                    )
-                )
-            else:
-                results.append(
-                    dict(
-                        location=r["location"],
-                        hostname=r["name"],
-                        display_name=r["display_name"],
-                        type=r["type"],
-                        requiresIP6Cidr=False,
-                    )
-                )
-        results_json = json.dumps(results)
-    return results_json
+    nl = configuration.networks_list()
+    nl_json = json.dumps(nl[asn])
+    return nl_json
 
 
 # Flask POST route ingests data from the JS form submit, passes it to the backend looking glass application to perform the filtering/lookups
@@ -140,25 +112,32 @@ def lg():
     cache_key = str(lg_data)
     # Check if cached entry exists
     if cache.get(cache_key) is None:
-        cache_value = execute.execute(lg_data)
-        value_output = cache_value[0]
-        value_code = cache_value[1]
-        value_entry = cache_value[0:2]
-        value_params = cache_value[2:]
-        logger.info(f"No cache match for: {cache_key}")
-        # If it doesn't, create a cache entry
         try:
+            cache_value = execute.execute(lg_data)
+            value_output = cache_value[0]
+            value_code = cache_value[1]
+            value_entry = cache_value[0:2]
+            value_params = cache_value[2:]
+            logger.info(f"No cache match for: {cache_key}")
+            # If it doesn't, create a cache entry
             cache.set(cache_key, value_entry)
             logger.info(f"Added cache entry: {value_params}")
         except:
-            raise RuntimeError("Unable to add output to cache.", 415, *value_params)
+            logger.error(f"Unable to add output to cache: {cache_key}")
+            raise
         # If 200, return output
         response = cache.get(cache_key)
         if value_code == 200:
-            return Response(response[0], response[1])
+            try:
+                return Response(response[0], response[1])
+            except:
+                raise
         # If 400 error, return error message and code
         elif value_code in [405, 415]:
-            return Response(response[0], response[1])
+            try:
+                return Response(response[0], response[1])
+            except:
+                raise
     # If it does, return the cached entry
     else:
         logger.info(f"Cache match for: {cache_key}, returning cached entry...")
