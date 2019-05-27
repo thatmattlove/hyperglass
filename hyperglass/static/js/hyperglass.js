@@ -96,7 +96,6 @@ $('#lgForm').on('submit', function() {
   $('#ipprefix_error').hide()
   $('#ipprefix').removeClass('is-danger')
   if (cmd == 'bgp_route' && ipv6_host.test(ipprefix) == true && requiresIP6Cidr == true) {
-    console.log('matched requires ipv6 cidr')
     $('#ipprefix_error').show()
     $('#ipprefix').addClass('is-danger')
     $('#ipprefix_error').html(`
@@ -180,7 +179,8 @@ $('#lgForm').on('submit', function() {
 var submitForm = function() {
   progress.hide();
   var cmd = $('#cmd option:selected').val();
-  var cmdtitle = cmd.replace('_', ': ');
+  // var cmdtitle = cmd.replace('_', ': ');
+  var cmdtitle = $('#cmd option:selected').text();
   var network = $('#network option:selected').val();
   var router = $('#router option:selected').val();
   var routername = $('#router option:selected').text();
