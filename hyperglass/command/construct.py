@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Module Imports
 import re
 import sys
@@ -16,6 +14,7 @@ code = configuration.codes()
 
 
 def frr(cmd, ipprefix, device):
+    """Validates input and constructs API call to FRRouting Stack via hyperglass-frr API"""
     d_address = device["address"]
     d_src_addr_ipv4 = device["src_addr_ipv4"]
     d_src_addr_ipv6 = device["src_addr_ipv6"]
@@ -24,7 +23,6 @@ def frr(cmd, ipprefix, device):
     d_port = device["port"]
     d_type = device["type"]
 
-    logger.info(f"Constructing {cmd} command for FRR router {d_name} to {ipprefix}...")
     # BGP Community Query
     if cmd in ["bgp_community"]:
         # Extended Communities, new-format
@@ -108,7 +106,7 @@ def frr(cmd, ipprefix, device):
 
 
 def ssh(cmd, ipprefix, device):
-    """Receives JSON from Flask, constucts the command that will be passed to the router. Also handles input validation & error handling."""
+    """Validates input and constructs usable commands to run via netmiko"""
     d_address = device["address"]
     d_src_addr_ipv4 = device["src_addr_ipv4"]
     d_src_addr_ipv6 = device["src_addr_ipv6"]
@@ -116,8 +114,6 @@ def ssh(cmd, ipprefix, device):
     d_name = device["name"]
     d_port = device["port"]
     d_type = device["type"]
-
-    logger.info(f"Constructing {cmd} command for {d_name} to {ipprefix}...")
 
     c = configuration.command(d_type)
     # BGP Community Query

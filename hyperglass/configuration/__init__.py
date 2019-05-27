@@ -84,7 +84,7 @@ class codes:
 
 class command:
     def __init__(self, nos):
-        c = toml.load(os.path.join(dir, "configuration.toml"))
+        c = toml.load(os.path.join(dir, "commands.toml"))
         self.dual = c[nos][0]["dual"]
         self.ipv4 = c[nos][0]["ipv4"]
         self.ipv6 = c[nos][0]["ipv6"]
@@ -126,11 +126,12 @@ class device:
 
 class proxy:
     def __init__(self, proxy):
-        self.address = proxies_list[proxy]["address"]
-        self.username = proxies_list[proxy]["username"]
-        self.password = proxies_list[proxy]["password"]
-        self.type = proxies_list[proxy]["type"]
-        self.ssh_command = proxies_list[proxy]["ssh_command"]
+        p = devices["proxy"][proxy]
+        self.address = p["address"]
+        self.username = p["username"]
+        self.password = p["password"]
+        self.type = p["type"]
+        self.ssh_command = p["ssh_command"]
 
 
 class general:

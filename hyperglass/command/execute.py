@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Module Imports
 import sys
 import json
@@ -17,6 +15,8 @@ from hyperglass.command import construct
 
 
 class params:
+    """Sends input parameters to construct module for use by execution functions"""
+
     class http:
         def __init__(self):
             self.msg, self.status, self.router, self.query = construct.frr(
@@ -122,8 +122,10 @@ class connect:
 
 
 def execute(lg_data):
+    """Ingests user input, runs blacklist check, runs prefix length check (if enabled),
+    pulls all configuraiton variables for the input router."""
     logger.info(f"Received lookup request for: {lg_data}")
-    # Create individual variables for POSTed JSON from main app
+    # Create global variables for POSTed JSON from main app
     global lg_router
     lg_router = lg_data["router"]
 
@@ -136,43 +138,39 @@ def execute(lg_data):
     global lg_params
     lg_params = lg_data
 
+    # Initialize general configuration parameters class, create global variable for reuse.
     global general
     general = configuration.general()
 
+    # Initialize status code class, create global variable for reuse.
     global code
     code = configuration.codes()
 
-    # Check blacklist.toml array for prefixes/IPs and return an error upon a match
+    # Check blacklist list for prefixes/IPs and return an error upon a match
     if lg_cmd in ["bgp_route", "ping", "traceroute"]:
         try:
             blacklist = IPSet(configuration.blacklist())
             if IPNetwork(lg_ipprefix).ip in blacklist:
                 msg = f"{lg_ipprefix} is not allowed."
-                logger.error(f"{msg}, {code.warning}, {lg_data}")
                 return (msg, code.warning, lg_data)
         # If netaddr library throws an exception, return a user-facing error.
         except:
             msg = f"{lg_ipprefix} is not a valid IP Address."
-            logger.error(f"{msg}, {code.danger}, {lg_data}")
             return (msg, code.danger, lg_data)
+    # If enable_max_prefix feature enabled, require BGP Route queries be smaller than prefix size limit
     if lg_cmd == "bgp_route" and general.enable_max_prefix == True:
-        logger.debug(f"Enable Max Prefix: {general.enable_max_prefix}")
-        logger.debug(f"ipprefix_version: {IPNetwork(lg_ipprefix).version}")
-        logger.debug(f"ipprefix_len: {IPNetwork(lg_ipprefix).prefixlen}")
         try:
             if (
                 IPNetwork(lg_ipprefix).version == 4
                 and IPNetwork(lg_ipprefix).prefixlen > general.max_prefix_length_ipv4
             ):
                 msg = f"Prefix length must be smaller than /{general.max_prefix_length_ipv4}. {IPNetwork(lg_ipprefix)} is too specific."
-                logger.error(f"{msg}, {code.warning}, {lg_data}")
                 return (msg, code.warning, lg_data)
             if (
                 IPNetwork(lg_ipprefix).version == 6
                 and IPNetwork(lg_ipprefix).prefixlen > general.max_prefix_length_ipv6
             ):
                 msg = f"Prefix length must be smaller than /{general.max_prefix_length_ipv4}. {IPNetwork(lg_ipprefix)} is too specific."
-                logger.error(f"{msg}, {code.warning}, {lg_data}")
                 return (msg, code.warning, lg_data)
         except:
             raise
