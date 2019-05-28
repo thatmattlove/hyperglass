@@ -9,17 +9,21 @@ import hyperglass
 # Project Directories
 dir = os.path.dirname(os.path.abspath(__file__))
 hyperglass_root = os.path.dirname(hyperglass.__file__)
+
 # TOML Imports
 configuration = toml.load(os.path.join(dir, "configuration.toml"))
 devices = toml.load(os.path.join(dir, "devices.toml"))
 
 
 def blacklist():
+    """Returns list of subnets/IPs defined in blacklist.toml"""
     b = toml.load(os.path.join(dir, "blacklist.toml"))
     return b["blacklist"]
 
 
 def requires_ipv6_cidr(nos):
+    """Returns boolean for input NOS association with the NOS list defined
+    in requires_ipv6_cidr.toml"""
     r = toml.load(os.path.join(dir, "requires_ipv6_cidr.toml"))
     nos_list = r["requires_ipv6_cidr"]
     if nos in nos_list:
@@ -30,7 +34,8 @@ def requires_ipv6_cidr(nos):
 
 def networks():
     """Returns dictionary of ASNs as keys, list of associated locations as values.
-    Used for populating the /routers/<asn> Flask route."""
+    Imported as a Jinja2 variable on the main page that populates the network/ASN
+    select class."""
     asn_dict = {}
     rl = devices["router"]
     for r in rl.values():
@@ -43,6 +48,11 @@ def networks():
 
 
 def networks_list():
+    """Returns a dictionary of ASNs as keys, list of associated locations,
+    router hostnames, and router display names as keys. Used by Flask to
+    populate the /routers/<asn> route, which is ingested by a JS Ajax call
+    to populate the list of locations associated with the selected network/ASN
+    on the main page."""
     networks_dict = {}
     rl = devices["router"]
     for r in rl.values():
@@ -53,7 +63,6 @@ def networks_list():
                     location=r["location"],
                     hostname=r["name"],
                     display_name=r["display_name"],
-                    requires_ipv6_cidr=requires_ipv6_cidr(r["type"]),
                 )
             )
         else:
@@ -62,14 +71,13 @@ def networks_list():
                     location=r["location"],
                     hostname=r["name"],
                     display_name=r["display_name"],
-                    requires_ipv6_cidr=requires_ipv6_cidr(r["type"]),
                 )
             ]
     return networks_dict
 
 
 class codes:
-    """Class for easy calling & recalling of http success/error codes"""
+    """Reusable status code attributes"""
 
     def __init__(self):
         # 200 OK: renders standard display text
@@ -81,6 +89,8 @@ class codes:
 
 
 class command:
+    """Associates input NOS with matched commands defined in commands.toml"""
+
     def __init__(self, nos):
         c = toml.load(os.path.join(dir, "commands.toml"))
         self.dual = c[nos][0]["dual"]
@@ -92,6 +102,9 @@ class command:
 
 
 class credential:
+    """Associates input credential key name with configured credential username &
+    password in devices.toml."""
+
     def __init__(self, cred):
         c_list = devices["credential"]
         self.username = c_list[cred]["username"]
@@ -102,7 +115,7 @@ class credential:
 
 
 class device:
-    """Class to define & export all device variables"""
+    """Associates input device key name with configured device attributes in devices.toml"""
 
     def __init__(self, device):
         d = devices["router"][device]
@@ -123,6 +136,8 @@ class device:
 
 
 class proxy:
+    """Associates input proxy key name with configured proxy attributes in devices.toml"""
+
     def __init__(self, proxy):
         p = devices["proxy"][proxy]
         self.address = p["address"]
@@ -133,7 +148,7 @@ class proxy:
 
 
 class general:
-    """Class to define and export config variables and export default values if undefined"""
+    """Exports general config variables and sets default values if undefined"""
 
     def __init__(self):
         g = configuration["general"][0]
@@ -183,7 +198,7 @@ class general:
 
 
 class branding:
-    """Class to define and export branding variables and export default values if undefined"""
+    """Exports branding config variables and sets default values if undefined"""
 
     def __init__(self):
         b = configuration["branding"][0]

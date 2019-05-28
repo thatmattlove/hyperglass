@@ -16,6 +16,10 @@ from hyperglass.command import construct
 
 
 class ipcheck:
+    """Checks input IPv4 or IPv6 address against host & CIDR regex patters,
+    returns dictionary of discovered attributes. Used for input validation in
+    command.execute module."""
+
     def __init__(self):
         self.ipv4_host = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)?$"
         self.ipv4_cidr = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(3[0-2]|2[0-9]|1[0-9]|[0-9])?$"
@@ -37,7 +41,7 @@ class ipcheck:
 
 
 class params:
-    """Sends input parameters to construct module for use by execution functions"""
+    """Sends input parameters to command.construct module for use by execution functions"""
 
     class http:
         def __init__(self):
@@ -58,6 +62,7 @@ class params:
             return vars(self)
 
         def nm_host(self):
+            """Defines netmiko end-host dictionary"""
             c = configuration.credential(d.credential)
             attr = {
                 "host": self.router,
@@ -69,6 +74,7 @@ class params:
             return attr
 
         def nm_proxy(self):
+            """Defines netmiko SSH proxy dictionary"""
             p = configuration.proxy(d.proxy)
             attr = {
                 "host": p.address,
@@ -81,6 +87,8 @@ class params:
 
 
 class connect:
+    """Performs the actual connection to the end device"""
+
     class restapi:
         def frr():
             """Sends HTTP POST to router running the hyperglass-frr API"""
@@ -200,16 +208,18 @@ def execute(lg_data):
     # Checks if device type is on the requires_ipv6_cidr list
     requires_ipv6_cidr = configuration.requires_ipv6_cidr(d.type)
 
-    # Check blacklist list for prefixes/IPs and return an error upon a match
     if lg_cmd in ["bgp_route", "ping", "traceroute"]:
         blacklist = IPSet(configuration.blacklist())
         msg = general.msg_error_notallowed.format(i=lg_ipprefix)
+        # Check blacklist list for prefixes/IPs, return error upon a match
         if IPNetwork(lg_ipprefix).ip in blacklist:
             return (msg, code.warning, lg_data)
+        # Check if device requires IPv6 queries to be in CIDR format, return error if True
         if lg_cmd == "bgp_route" and IPNetwork(lg_ipprefix).version == 6:
             if requires_ipv6_cidr == True and ipc["type"] == "host":
                 msg = general.msg_error_ipv6cidr.format(d=d.display_name)
                 return (msg, code.warning, lg_data)
+        # Check if input prefix is in CIDR format, and if command is ping/traceroute, return error if True
         if lg_cmd in ["ping", "traceroute"] and ipc["type"] == "cidr":
             return (msg, code.warning, lg_data)
 
@@ -231,7 +241,7 @@ def execute(lg_data):
                 m=general.max_prefix_length_ipv6, i=IPNetwork(lg_ipprefix)
             )
             return (msg, code.warning, lg_data)
-
+    # Sends validated data to target execution library and returns output
     if d.type == "frr":
         http = params().http()
         try:

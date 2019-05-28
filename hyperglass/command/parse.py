@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 def parse(output, type, cmd):
     """Splits Cisco IOS BGP output by AFI, returns only IPv4 & IPv6 output for protocol-agnostic commands (Community & AS_PATH Lookups)"""
     try:

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# Module Imports
 import os
 import sass
 import jinja2
@@ -7,31 +7,35 @@ from logzero import logger
 from markdown2 import Markdown
 from flask import render_template
 
+# Project Imports
 import hyperglass
 from hyperglass import configuration
 
+# Module Directories
 dir = os.path.dirname(os.path.abspath(__file__))
 hyperglass_root = os.path.dirname(hyperglass.__file__)
 file_loader = jinja2.FileSystemLoader(dir)
 env = jinja2.Environment(loader=file_loader)
 
+# Configuration Imports
 branding = configuration.branding()
 general = configuration.general()
 networks = configuration.networks()
 
 
-# Functions for rendering Jinja2 templates & importing variables
-
-
 class html:
-    def renderTemplate(t):
+    """Performs HTML rendering actions"""
 
-        # Converts templates/footer.md from Markdown to HTML
+    def renderTemplate(t):
+        """Renders Jinja2 HTML templates"""
+
+        # Convert templates/footer.md from Markdown to HTML
         md = Markdown()
         footer_template = env.get_template("templates/footer.md")
         footer_jinja = footer_template.render(
             site_title=branding.site_title, org_name=general.org_name
         )
+        # Render template based on input template name
         if t == "index":
             template = env.get_template("templates/index.html")
         elif t == "429":
@@ -90,9 +94,14 @@ class html:
 
 
 class css:
+    """Performs CSS/Sass rendering actions"""
+
     def renderTemplate():
+        """Renders Jinja2 template to Sass file, then compiles Sass as CSS"""
+
         scss_file = os.path.join(hyperglass_root, "static/sass/hyperglass.scss")
         css_file = os.path.join(hyperglass_root, "static/css/hyperglass.css")
+        # Renders Jinja2 template as Sass file
         try:
             template = env.get_template("templates/hyperglass.scss")
             rendered_output = template.render(
@@ -114,6 +123,7 @@ class css:
         except:
             logger.error("Error rendering Jinja2 template.")
             raise TypeError("Error rendering Jinja2 template.")
+        # Compiles Sass to CSS
         try:
             generated_sass = sass.compile(filename=scss_file)
             with open(css_file, "w") as css_output:
