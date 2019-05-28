@@ -36,10 +36,8 @@ class html:
             template = env.get_template("templates/index.html")
         elif t == "429":
             template = env.get_template("templates/429.html")
-        elif t == "415":
-            template = env.get_template("templates/415.html")
-        elif t == "test":
-            template = env.get_template("templates/429.html")
+        elif t == "500":
+            template = env.get_template("templates/500.html")
         return template.render(
             # General
             primary_asn=general.primary_asn,
@@ -77,9 +75,9 @@ class html:
             text_results=branding.text_results,
             text_location=branding.text_location,
             text_cache=branding.text_cache,
-            text_415_title=branding.text_415_title,
-            text_415_subtitle=branding.text_415_subtitle,
-            text_415_button=branding.text_415_button,
+            text_500_title=branding.text_500_title,
+            text_500_subtitle=branding.text_500_subtitle,
+            text_500_button=branding.text_500_button,
             text_help_bgp_route=branding.text_help_bgp_route,
             text_help_bgp_community=branding.text_help_bgp_community,
             text_help_bgp_aspath=branding.text_help_bgp_aspath,

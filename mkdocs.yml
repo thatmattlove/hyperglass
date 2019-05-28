@@ -7,27 +7,21 @@ nav:
     - Installation:
       - 'Installing Hyperglass': 'installation/installing-hyperglass.md'
       - 'HTTP/WSGI': 'installation/wsgi.md'
-      - 'Reverse Proxy': 'installation/reverseproxy.md'
-      - 'Running Hyperglass as a Service': 'installation/supervisord.md'
+      - 'Systemd': 'installation/systemd.md'
+      - 'Reverse Proxy & SSL': 'installation/reverseproxy.md'
     - Configuration:
-      - 'Configuring Hyperglass': 'configuration.md'
+      - 'Configuring Hyperglass': 'configuration/index.md'
       - 'General Parameters': 'configuration/general.md'
       - 'Branding': 'configuration/branding.md'
       - 'Devices': 'configuration/devices.md'
-      - 'Authentication': 'configuration/authentication.md'
-      - 'Commands': 'configuration/commands.md'
-      - 'Proxy': 'configuration/proxy.md'
-      - 'Blacklist': 'configuration/blacklist.md'
-      - 'Securing Router Access': 'configuration/securing-router-access.md'
-    - Caching:
-      - 'caching.md'
-    - Rate Limiting:
-      - 'ratelimiting.md'
+    - Caching: 'caching.md'
+    - Rate Limiting: 'ratelimiting.md'
     - Development:
       - 'Introduction': 'development/index.md'
-
     - Extras:
       - 'Common AS_PATH Regular Expressions': 'extras/common_as_path_regex.md'
+      - 'Securing Router Access': 'extras/securing-router-access.md'
+      - 'Supported Device Types': 'extras/supported-device-types.md'
 # Theme Configuration
 theme:
   name: 'readthedocs'

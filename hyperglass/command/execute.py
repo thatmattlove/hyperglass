@@ -1,4 +1,5 @@
 # Module Imports
+import re
 import sys
 import json
 import time
@@ -12,6 +13,27 @@ from netaddr import IPNetwork, IPAddress, IPSet
 from hyperglass import configuration
 from hyperglass.command import parse
 from hyperglass.command import construct
+
+
+class ipcheck:
+    def __init__(self):
+        self.ipv4_host = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)?$"
+        self.ipv4_cidr = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(3[0-2]|2[0-9]|1[0-9]|[0-9])?$"
+        self.ipv6_host = "^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))?$"
+        self.ipv6_cidr = "^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/((1(1[0-9]|2[0-8]))|([0-9][0-9])|([0-9]))?$"
+
+    def test(self, prefix):
+        if IPNetwork(prefix).ip.version == 4:
+            if re.match(self.ipv4_host, prefix):
+                return {"protocol": "ipv4", "type": "host"}
+            elif re.match(self.ipv4_cidr, prefix):
+                return {"protocol": "ipv4", "type": "cidr"}
+
+        if IPNetwork(prefix).ip.version == 6:
+            if re.match(self.ipv6_host, prefix):
+                return {"protocol": "ipv6", "type": "host"}
+            if re.match(self.ipv6_cidr, prefix):
+                return {"protocol": "ipv6", "type": "cidr"}
 
 
 class params:
@@ -124,7 +146,9 @@ class connect:
 def execute(lg_data):
     """Ingests user input, runs blacklist check, runs prefix length check (if enabled),
     pulls all configuraiton variables for the input router."""
+
     logger.info(f"Received lookup request for: {lg_data}")
+
     # Create global variables for POSTed JSON from main app
     global lg_router
     lg_router = lg_data["router"]
@@ -138,49 +162,78 @@ def execute(lg_data):
     global lg_params
     lg_params = lg_data
 
-    # Initialize general configuration parameters class, create global variable for reuse.
-    global general
-    general = configuration.general()
-
     # Initialize status code class, create global variable for reuse.
     global code
     code = configuration.codes()
 
-    # Check blacklist list for prefixes/IPs and return an error upon a match
+    # Validate prefix input with netaddr library
     if lg_cmd in ["bgp_route", "ping", "traceroute"]:
+        # Initialize prefix regex check class
+        ipc = ipcheck().test(lg_ipprefix)
         try:
-            blacklist = IPSet(configuration.blacklist())
-            if IPNetwork(lg_ipprefix).ip in blacklist:
-                msg = f"{lg_ipprefix} is not allowed."
-                return (msg, code.warning, lg_data)
-        # If netaddr library throws an exception, return a user-facing error.
+            if IPNetwork(lg_ipprefix).ip.is_reserved():
+                msg = f"<b>{lg_ipprefix}</b> is not a valid IP address."
+                return (msg, code.danger, lg_data)
+            elif IPNetwork(lg_ipprefix).ip.is_netmask():
+                msg = f"<b>{lg_ipprefix}</b> is not a valid IP address."
+                return (msg, code.danger, lg_data)
+            elif IPNetwork(lg_ipprefix).ip.is_hostmask():
+                msg = f"<b>{lg_ipprefix}</b> is not a valid IP address."
+                return (msg, code.danger, lg_data)
+            elif IPNetwork(lg_ipprefix).ip.is_loopback():
+                msg = f"<b>{lg_ipprefix}</b> is not a valid IP address."
+                return (msg, code.danger, lg_data)
+            elif IPNetwork(lg_ipprefix).ip.is_unicast():
+                pass
+            else:
+                msg = f"<b>{lg_ipprefix}</b> is not a valid unicast IP address."
+                return (msg, code.danger, lg_data)
         except:
-            msg = f"{lg_ipprefix} is not a valid IP Address."
+            msg = f"<b>{lg_ipprefix}</b> is not a valid IP Address."
             return (msg, code.danger, lg_data)
-    # If enable_max_prefix feature enabled, require BGP Route queries be smaller than prefix size limit
-    if lg_cmd == "bgp_route" and general.enable_max_prefix == True:
-        try:
-            if (
-                IPNetwork(lg_ipprefix).version == 4
-                and IPNetwork(lg_ipprefix).prefixlen > general.max_prefix_length_ipv4
-            ):
-                msg = f"Prefix length must be smaller than /{general.max_prefix_length_ipv4}. {IPNetwork(lg_ipprefix)} is too specific."
-                return (msg, code.warning, lg_data)
-            if (
-                IPNetwork(lg_ipprefix).version == 6
-                and IPNetwork(lg_ipprefix).prefixlen > general.max_prefix_length_ipv6
-            ):
-                msg = f"Prefix length must be smaller than /{general.max_prefix_length_ipv4}. {IPNetwork(lg_ipprefix)} is too specific."
-                return (msg, code.warning, lg_data)
-        except:
-            raise
-    elif lg_cmd == "Query Type":
+
+    if lg_cmd == "Query Type":
         msg = "You must select a query type."
-        logger.error(f"{msg}, {code.danger}, {lg_data}")
-        return (msg, code.danger, lg_data)
+        return (msg, code.warning, lg_data)
+
+    # Initialize general configuration parameters class, create global variable for reuse.
+    global general
+    general = configuration.general()
 
     global d
     d = configuration.device(lg_router)
+
+    # Checks if device type is on the requires_ipv6_cidr list
+    requires_ipv6_cidr = configuration.requires_ipv6_cidr(d.type)
+
+    # Check blacklist list for prefixes/IPs and return an error upon a match
+    if lg_cmd in ["bgp_route", "ping", "traceroute"]:
+        blacklist = IPSet(configuration.blacklist())
+        if IPNetwork(lg_ipprefix).ip in blacklist:
+            msg = f"<b>{lg_ipprefix}</b> is not allowed."
+            return (msg, code.warning, lg_data)
+        if lg_cmd == "bgp_route" and IPNetwork(lg_ipprefix).version == 6:
+            if requires_ipv6_cidr == True and ipc["type"] == "host":
+                msg = f"<b>{d.display_name}</b> requires IPv6 BGP lookups to be in CIDR notation."
+                return (msg, code.warning, lg_data)
+        if lg_cmd in ["ping", "traceroute"] and ipc["type"] == "cidr":
+            msg = f"<code>{lg_cmd}</code> does not allow networks masks."
+            return (msg, code.warning, lg_data)
+
+    # If enable_max_prefix feature enabled, require BGP Route queries be smaller than prefix size limit
+    if lg_cmd == "bgp_route" and general.enable_max_prefix == True:
+        if (
+            IPNetwork(lg_ipprefix).version == 4
+            and IPNetwork(lg_ipprefix).prefixlen > general.max_prefix_length_ipv4
+        ):
+            msg = f"Prefix length must be smaller than /{general.max_prefix_length_ipv4}. <b>{IPNetwork(lg_ipprefix)}</b> is too specific."
+            return (msg, code.warning, lg_data)
+        if (
+            IPNetwork(lg_ipprefix).version == 6
+            and IPNetwork(lg_ipprefix).prefixlen > general.max_prefix_length_ipv6
+        ):
+            msg = f"Prefix length must be smaller than /{general.max_prefix_length_ipv4}. <b>{IPNetwork(lg_ipprefix)}</b> is too specific."
+            return (msg, code.warning, lg_data)
 
     if d.type == "frr":
         http = params().http()

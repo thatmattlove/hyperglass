@@ -4,7 +4,7 @@ From `hyperglass/hyperglass/configuration/config.toml`:
 
 | Type   | Default Value |
 | ------ | ------------- |
-| String | `"65000"`       |
+| String | `"65000"`     |
 
 Your network's _primary_ ASN. Number only, e.g. `65000`, **not** `AS65000`.
 
@@ -12,7 +12,7 @@ Your network's _primary_ ASN. Number only, e.g. `65000`, **not** `AS65000`.
 
 | Type    | Default Value |
 | ------- | ------------- |
-| Boolean | `False`         |
+| Boolean | `False`       |
 
 Enables Flask debugging. May be used to enable other module debugs in the future.
 
@@ -26,8 +26,8 @@ Google Analytics ID number. For more information on how to set up Google Analyti
 
 ### message_error
 
-| Type   | Default Value         |
-| ------ | --------------------- |
+| Type   | Default Value           |
+| ------ | ----------------------- |
 | String | `"{input} is invalid."` |
 
 Message presented to the user when invalid input is detected. `{input}` will be formatted as the input received from the main search field. For each command, input is validated via regular expression in the following patterns:
@@ -45,16 +45,16 @@ Message presented to the user when invalid input is detected. `{input}` will be 
 
 ### message_blacklist
 
-| Type   | Default Value             |
-| ------ | ------------------------- |
+| Type   | Default Value               |
+| ------ | --------------------------- |
 | String | `"{input} is not allowed."` |
 
 Message presented to the user when an IPv4 or IPv6 address matches the `blacklist.toml` array. `{input}` will be formatted as the input received from the main search field. For information on how this works, please see the [blacklist documentation](/configuration/blacklist).
 
 ### message_rate_limit_query
 
-| Type   | Default Value                                                                                |
-| ------ | -------------------------------------------------------------------------------------------- |
+| Type   | Default Value                                                                                   |
+| ------ | ----------------------------------------------------------------------------------------------- |
 | String | `"Query limit of {rate_limit_query} per minute reached. Please wait one minute and try again."` |
 
 Message presented to the user when the [query limit](#rate_limit_query) is reached. `{rate_limit_query}` will be formatted as the [`rate_limit_query`](#rate_limit_query) parameter. For information on how this works, please see the [rate limiting documentation](/ratelimiting/query).
@@ -63,7 +63,7 @@ Message presented to the user when the [query limit](#rate_limit_query) is reach
 
 | Type    | Default Value |
 | ------- | ------------- |
-| Boolean | `True`          |
+| Boolean | `True`        |
 
 Enables or disables the BGP Route query type.
 
@@ -71,7 +71,7 @@ Enables or disables the BGP Route query type.
 
 | Type    | Default Value |
 | ------- | ------------- |
-| Boolean | `True`          |
+| Boolean | `True`        |
 
 Enables or disables the BGP Community query type.
 
@@ -79,7 +79,7 @@ Enables or disables the BGP Community query type.
 
 | Type    | Default Value |
 | ------- | ------------- |
-| Boolean | `True`          |
+| Boolean | `True`        |
 
 Enables or disables the BGP AS Path query type.
 
@@ -87,7 +87,7 @@ Enables or disables the BGP AS Path query type.
 
 | Type    | Default Value |
 | ------- | ------------- |
-| Boolean | `True`          |
+| Boolean | `True`        |
 
 Enables or disables the Ping query type.
 
@@ -95,38 +95,64 @@ Enables or disables the Ping query type.
 
 | Type    | Default Value |
 | ------- | ------------- |
-| Boolean | `True`          |
+| Boolean | `True`        |
 
 Enables or disables the Traceroute query type.
 
 ### rate_limit_query
 
-| Type    | Default Value |
-| ------- | ------------- |
-| String  | `"5"`           |
+| Type   | Default Value |
+| ------ | ------------- |
+| String | `"5"`         |
 
 Sets the number of queries **per minute** allowed by `remote_address` of the request. For information on how this works, please see the [rate limiting documentation](/ratelimiting/query).
 
 ### rate_limit_site
 
-| Type    | Default Value |
-| ------- | ------------- |
-| String  | `"120"`         |
+| Type   | Default Value |
+| ------ | ------------- |
+| String | `"120"`       |
 
 Sets the number of site loads **per minute** allowed by `remote_address` of the request. For information on how this works, please see the [rate limiting documentation](/ratelimiting/site).
 
 ### cache_timeout
 
-| Type     | Default Value |
-| -------- | ------------- |
-| Integer  | `120`           |
+| Type    | Default Value |
+| ------- | ------------- |
+| Integer | `120`         |
 
 Sets the number of **seconds** to cache the back-end response. For information on how this works, please see the [caching documentation](/caching).
 
 ### cache_directory
 
-| Type     | Default Value                        |
-| -------- | ------------------------------------ |
-| String   | `"hyperglass/hyperglass/.flask_cache"` |
+| Type   | Default Value                          |
+| ------ | -------------------------------------- |
+| String | `"hyperglass/hyperglass/.flask_cache"` |
 
 Sets the directory where the back-end responses are cached. For information on how this works, please see the [caching documentation](/caching).
+
+### enable_max_prefix
+
+| Type    | Default Value |
+| ------- | ------------- |
+| Boolean | `false`       |
+
+Enables or disables a maximum allowed prefix size for BGP Route queries. If enabled, the prefix length of BGP Route queries must be shorter than the `max_prefix_length_ipv4` and `max_prefix_length_ipv6` parameters. For example, a BGP Route query for `192.0.2.0/25` would result in the following error message:
+
+<img src="/max_prefix_error.png" style="width: 70%"></img>
+
+### max_prefix_length_ipv4
+
+| Type    | Default Value |
+| ------- | ------------- |
+| Integer | `24`          |
+
+If `enable_max_prefix` is enabled, the maxiumum prefix length allowed for IPv4 BGP Route queries.
+
+### max_prefix_length_ipv6
+
+| Type    | Default Value |
+| ------- | ------------- |
+| Integer | `64`          |
+
+If `enable_max_prefix` is enabled, the maxiumum prefix length allowed for IPv6 BGP Route queries.

@@ -10,9 +10,10 @@
 }
 </style>
 
-From `hyperglass/hyperglass/configuration/config.toml`:
+From `hyperglass/hyperglass/configuration/configuration.toml` `[branding]` table.
 
-### site_title
+# Site Parameters
+#### site_title
 
 | Type   | Default Value  |
 | ------ | -------------- |
@@ -20,7 +21,7 @@ From `hyperglass/hyperglass/configuration/config.toml`:
 
 HTML `<title>` element that is shown in a browser's title bar.
 
-### title_mode
+#### title_mode
 
 | Type   | Default Value |
 | ------ | ------------- |
@@ -28,27 +29,17 @@ HTML `<title>` element that is shown in a browser's title bar.
 
 Controls the title section on the main page.
 
-#### Parameters
+- `"none"` Hides Title and Subtitle text, displays logo defined in [logo_path](#logo_path).
+- `"both"` Displays both Title and Subtitle text defined in [title](#title) and [subtitle](#subtitle) parameters.
+- `"hide_subtitle"` Displays only the Title text defined in the [title](#title) parameter.
 
-##### `"none"`
-
-Hides Title and Subtitle text, displays logo defined in [logo_path](#logo_path).
-
-##### `"both"`
-
-Displays both Title and Subtitle text defined in [title](#title) and [subtitle](#subtitle) parameters.
-
-##### `"hide_subtitle"`
-
-Displays only the Title text defined in the [title](#title) parameter.
-
-### title
+#### title
 
 | Type   | Default Value  |
 | ------ | -------------- |
 | String | `"hyperglass"` |
 
-### subtitle
+#### subtitle
 
 | Type   | Default Value        |
 | ------ | -------------------- |
@@ -56,7 +47,7 @@ Displays only the Title text defined in the [title](#title) parameter.
 
 See [primary_asn](#primary_asn) parameter.
 
-### enable_footer
+#### enable_footer
 
 | Type    | Default Value |
 | ------- | ------------- |
@@ -64,7 +55,7 @@ See [primary_asn](#primary_asn) parameter.
 
 Enables or disables entire footer element, which contains text defined in `hyperglass/hyperglass/render/templates/footer.md`.
 
-### enable_credit
+#### enable_credit
 
 | Type    | Default Value |
 | ------- | ------------- |
@@ -72,87 +63,7 @@ Enables or disables entire footer element, which contains text defined in `hyper
 
 Enables or disables hoverable icon on the left side of the footer, which links to the hyperglass repo.
 
-### color_btn_submit
-
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#40798c"`   | <span class="bd-color" style="background-color: #40798c;"></span> |
-
-Sets color of the submit button.
-
-### color_tag_loctitle
-
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#330036"`   | <span class="bd-color" style="background-color: #330036;"></span> |
-
-Sets color of the title portion of the location tag which appears at the top of the results box on the left side.
-
-### color_tag_cmdtitle
-
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#330036"`   | <span class="bd-color" style="background-color: #330036;"></span> |
-
-Sets color of the title portion of the command tag which appears at the top of the results box on the right side.
-
-### color_tag_cmd
-
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#ff5e5b"`   | <span class="bd-color" style="background-color: #ff5e5b;"></span> |
-
-Sets color of the command name portion of the command tag which appears at the top of the results box on the right side.
-
-### color_tag_loc
-
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#40798c"`   | <span class="bd-color" style="background-color: #40798c;"></span> |
-
-Sets color of the location name portion of the location tag which appears at the top of the results box on the left side.
-
-### color_hero
-
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#fbfffe"`   | <span class="bd-color" style="background-color: #fbfffe;"></span> |
-
-Sets the background color of the main page. The main page is a Bulma [fullheight hero class](https://bulma.io/documentation/layout/hero/) layout. This parameter will set the color of the entire hero `<section>` class, including navbar, head, body, and footer subclasses.
-
-### color_progressbar
-
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#40798c"`   | <span class="bd-color" style="background-color: #40798c;"></span> |
-
-Sets color of the progress bar that displays while the back-end application processes the request.
-
-### logo_path
-
-| Type   | Default Value                         |
-| ------ | ------------------------------------- |
-| String | `"static/images/hyperglass-dark.png"` |
-
-Sets the path to the logo file, which will be displayed if [title_mode](#title_mode) is set to `"logo_only"`. This file can be any browser-compatible format, such as JPEG, PNG, or SVG.
-
-### logo_width
-
-| Type   | Default Value |
-| ------ | ------------- |
-| String | `"384"`       |
-
-Sets the width of the logo defined in the [logo_path](#logo_path) parameter. This is helpful if your logo is a dimension that doesn't quite work with the default width.
-
-### placeholder_prefix
-
-| Type   | Default Value                         |
-| ------ | ------------------------------------- |
-| String | `"Prefix, IP, Community, or AS_PATH"` |
-
-Sets the placeholder text that appears in the main search box.
-
-### show_peeringdb
+#### show_peeringdb
 
 | Type    | Default Value |
 | ------- | ------------- |
@@ -160,7 +71,93 @@ Sets the placeholder text that appears in the main search box.
 
 Enables or disables the PeeringDB link in the upper right corner. If `True`, the [primary_asn](#primary_asn) will be automatically used to create the URL to your ASN's PeeringDB entry.
 
-### text_results
+# Colors
+
+#### color_btn_submit
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#40798c"`   | <span class="bd-color" style="background-color: #40798c;"></span> |
+
+Sets color of the submit button.
+
+#### color_tag_loctitle
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#330036"`   | <span class="bd-color" style="background-color: #330036;"></span> |
+
+Sets color of the title portion of the location tag which appears at the top of the results box on the left side.
+
+#### color_tag_cmdtitle
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#330036"`   | <span class="bd-color" style="background-color: #330036;"></span> |
+
+Sets color of the title portion of the command tag which appears at the top of the results box on the right side.
+
+#### color_tag_cmd
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#ff5e5b"`   | <span class="bd-color" style="background-color: #ff5e5b;"></span> |
+
+Sets color of the command name portion of the command tag which appears at the top of the results box on the right side.
+
+#### color_tag_loc
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#40798c"`   | <span class="bd-color" style="background-color: #40798c;"></span> |
+
+Sets color of the location name portion of the location tag which appears at the top of the results box on the left side.
+
+#### color_bg
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#fbfffe"`   | <span class="bd-color" style="background-color: #fbfffe;"></span> |
+
+Sets the background color of the main page.
+
+#### color_progressbar
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#40798c"`   | <span class="bd-color" style="background-color: #40798c;"></span> |
+
+Sets color of the progress bar that displays while the back-end application processes the request.
+
+# Logo
+
+#### logo_path
+
+| Type   | Default Value                         |
+| ------ | ------------------------------------- |
+| String | `"static/images/hyperglass-dark.png"` |
+
+Sets the path to the logo file, which will be displayed if [title_mode](#title_mode) is set to `"logo_only"`. This file can be any browser-compatible format, such as JPEG, PNG, or SVG.
+
+#### logo_width
+
+| Type   | Default Value |
+| ------ | ------------- |
+| String | `"384"`       |
+
+Sets the width of the logo defined in the [logo_path](#logo_path) parameter. This is helpful if your logo is a dimension that doesn't quite work with the default width.
+
+# UI Text
+
+#### placeholder_prefix
+
+| Type   | Default Value                         |
+| ------ | ------------------------------------- |
+| String | `"Prefix, IP, Community, or AS_PATH"` |
+
+Sets the placeholder text that appears in the main search box.
+
+#### text_results
 
 | Type   | Default Value |
 | ------ | ------------- |
@@ -168,7 +165,7 @@ Enables or disables the PeeringDB link in the upper right corner. If `True`, the
 
 Sets the header text of the results box.
 
-### text_location
+#### text_location
 
 | Type   | Default Value |
 | ------ | ------------- |
@@ -176,7 +173,7 @@ Sets the header text of the results box.
 
 Sets the placeholder text of the location selector.
 
-### text_cache
+#### text_cache
 
 | Type   | Default Value                                           |
 | ------ | ------------------------------------------------------- |
@@ -184,7 +181,7 @@ Sets the placeholder text of the location selector.
 
 Sets the text at the bottom of the results box that states the cache timeout. `{cache_timeout}` will be formatted with the value of [cache_timeout](/configuration/general/#cache_timeout).
 
-### text_limiter_title
+#### text_limiter_title
 
 | Type   | Default Value     |
 | ------ | ----------------- |
@@ -192,7 +189,7 @@ Sets the text at the bottom of the results box that states the cache timeout. `{
 
 Sets the title text for the site-wide rate limit page. Users are redirected to this page when they have accessed the site more than the [specified](/configuration/general/#rate_limit_site) limit.
 
-### text_limiter_subtitle
+#### text_limiter_subtitle
 
 | Type   | Default Value                                                                         |
 | ------ | ------------------------------------------------------------------------------------- |
@@ -200,7 +197,7 @@ Sets the title text for the site-wide rate limit page. Users are redirected to t
 
 Sets the subtitle text for the site-wide rate limit page. Users are redirected to this page when they have accessed the site more than the [specified](/configuration/general/#rate_limit_site) limit. `{rate_limit_site}` will be formatted with the value of [rate_limit_site](/configuration/general/#rate_limit_site).
 
-### text_415_title
+#### text_500_title
 
 | Type   | Default Value     |
 | ------ | ----------------- |
@@ -208,7 +205,7 @@ Sets the subtitle text for the site-wide rate limit page. Users are redirected t
 
 Sets the title text for the full general error page.
 
-### text_415_subtitle
+#### text_500_subtitle
 
 | Type   | Default Value             |
 | ------ | ------------------------- |
@@ -216,7 +213,7 @@ Sets the title text for the full general error page.
 
 Sets the subtitle text for the full general error page.
 
-### text_415_button
+#### text_500_button
 
 | Type   | Default Value     |
 | ------ | ----------------- |
@@ -224,7 +221,7 @@ Sets the subtitle text for the full general error page.
 
 Sets the button text for the full general error page.
 
-### text_help_bgp_route
+#### text_help_bgp_route
 
 | Type   | Default Value             |
 | ------ | ------------------------- |
@@ -232,7 +229,7 @@ Sets the button text for the full general error page.
 
 Sets the BGP Route query help text, displayed when the **?** icon is hovered.
 
-### text_help_bgp_community
+#### text_help_bgp_community
 
 | Type   | Default Value             |
 | ------ | ------------------------- |
@@ -243,7 +240,7 @@ Sets the BGP Community query help text, displayed when the **?** icon is hovered
 !!! note
     Since there are double quotes (`" "`) in the `<a>` HTML tags, single quotes (`' '`) are required for the TOML string.
 
-### text_help_bgp_aspath
+#### text_help_bgp_aspath
 
 | Type   | Default Value             |
 | ------ | ------------------------- |
@@ -254,7 +251,7 @@ Sets the BGP AS Path query help text, displayed when the **?** icon is hovered.
 !!! note
     Since there are double quotes (`" "`) in the `<a>` HTML tags, single quotes (`' '`) are required for the TOML string.
 
-### text_help_ping
+#### text_help_ping
 
 | Type   | Default Value             |
 | ------ | ------------------------- |
@@ -262,7 +259,7 @@ Sets the BGP AS Path query help text, displayed when the **?** icon is hovered.
 
 Sets the Ping query help text, displayed when the **?** icon is hovered.
 
-### text_help_traceroute
+#### text_help_traceroute
 
 | Type   | Default Value             |
 | ------ | ------------------------- |
@@ -273,7 +270,9 @@ Sets the Traceroute query help text, displayed when the **?** icon is hovered.
 !!! note
     Since there are double quotes (`" "`) in the `<a>` HTML tags, single quotes (`' '`) are required for the TOML string.
 
-### primary_font_url
+# Fonts
+
+#### primary_font_url
 
 | Type   | Default Value             |
 | ------ | ------------------------- |
@@ -281,7 +280,7 @@ Sets the Traceroute query help text, displayed when the **?** icon is hovered.
 
 Sets the web font URL for the primary font. This font is used for all titles, subtitles, and non-code/preformatted text. The value is passed as a Jinja2 variable to the head block in the base template.
 
-### primary_font_name
+#### primary_font_name
 
 | Type   | Default Value             |
 | ------ | ------------------------- |
@@ -289,7 +288,7 @@ Sets the web font URL for the primary font. This font is used for all titles, su
 
 Sets the web font name for the primary font. This font is used for all titles, subtitles, and non-code/preformatted text. The value is passed as a Jinja2 variable to generate `hyperglass/hyperglass/static/sass/hyperglass.scss`, which ultimately get passed to CSS.
 
-### mono_font_url
+#### mono_font_url
 
 | Type   | Default Value             |
 | ------ | ------------------------- |
@@ -297,7 +296,7 @@ Sets the web font name for the primary font. This font is used for all titles, s
 
 Sets the web font URL for the monospace/code/preformatted text font. This font is used for all query output text, as well as the command title and command name tag. The value is passed as a Jinja2 variable to the head block in the base template.
 
-### mono_font_name
+#### mono_font_name
 
 | Type   | Default Value             |
 | ------ | ------------------------- |

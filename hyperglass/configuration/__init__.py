@@ -165,7 +165,7 @@ class general:
         )
         self.enable_max_prefix = g.get("enable_max_prefix", False)
         self.max_prefix_length_ipv4 = g.get("max_prefix_length_ipv4", 24)
-        self.max_prefix_length_ipv6 = g.get("max_prefix_length_ipv6", 29)
+        self.max_prefix_length_ipv6 = g.get("max_prefix_length_ipv6", 64)
 
 
 class branding:
@@ -223,9 +223,9 @@ class branding:
             "text_limiter_subtitle",
             f"You have accessed this site more than {general().rate_limit_site} times in the last minute.",
         )
-        self.text_415_title = b.get("text_415_title", "Error")
-        self.text_415_subtitle = b.get("text_415_subtitle", "Something went wrong.")
-        self.text_415_button = b.get("text_415_button", "Home")
+        self.text_500_title = b.get("text_500_title", "Error")
+        self.text_500_subtitle = b.get("text_500_subtitle", "Something went wrong.")
+        self.text_500_button = b.get("text_500_button", "Home")
         self.text_help_bgp_route = b.get(
             "text_help_bgp_route",
             "Performs BGP table lookup based on IPv4/IPv6 prefix.",

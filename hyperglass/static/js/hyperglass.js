@@ -72,120 +72,18 @@ function updateRouters(routers) {
 
 // Submit Form Action
 $('#lgForm').on('submit', function() {
-
-  // Regex to match any IPv4 host address or CIDR prefix
-  var ipv4_any = new RegExp('^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/(3[0-2]|2[0-9]|1[0-9]|[0-9]))?$');
-  // Regex to match any IPv6 host address or CIDR prefix
-  var ipv6_any = new RegExp('^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))(\/((1(1[0-9]|2[0-8]))|([0-9][0-9])|([0-9])))?$');
-  // Regex to match an IPv4 CIDR prefix only (excludes a host address)
-  var ipv4_cidr = new RegExp('^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(3[0-2]|2[0-9]|1[0-9]|[0-9])?$');
-  // Regex to match an IPv6 CIDR prefix only (excludes a host address)
-  var ipv6_cidr = new RegExp('^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/((1(1[0-9]|2[0-8]))|([0-9][0-9])|([0-9]))?$');
-  var ipv6_host = new RegExp('^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))?$')
-  var cmd = $('#cmd option:selected').val();
-  // var routerType = $('#router option:selected').attr('type');
-  var ipprefix = $('#ipprefix').val();
-  var router = $('#router option:selected').val();
-  // Filters selectedRouters JSON object to only the selected router, returns all attributes passed from Flask's `get_routers`
-  var routersJson = selectedRouters.filter(r => r.location === router);
-  // Filters above to value of `requiresIP6Cidr` as passed from Flask's `get_routers`
-  var requiresIP6Cidr = routersJson[0].requires_ipv6_cidr
-
-  // If BGP lookup, and lookup is an IPv6 address *without* CIDR prefix (e.g. 2001:db8::1, NOT 2001:db8::/48), and requiresIP6Cidr
-  // is true, show an error.
-  $('#ipprefix_error').hide()
-  $('#ipprefix').removeClass('is-danger')
-  if (cmd == 'bgp_route' && ipv6_host.test(ipprefix) == true && requiresIP6Cidr == true) {
-    $('#ipprefix_error').show()
-    $('#ipprefix').addClass('is-danger')
-    $('#ipprefix_error').html(`
-      <br>
-      <article class="message is-danger is-small" style="display: block;">
-        <div class="message-header" style="display: block;">
-          Invalid Input
-        </div>
-        <div id="error" style="display: block;" class="message-body">
-          This router requires IPv6 BGP lookups to be and exact match in CIDR notation.
-        </div>
-      </article>
-      `);
-  }
-  // If ping, and lookup is an IPv4 address *with* CIDR prefix (e.g. 192.0.2.0/24, NOT 192.0.2.1), show an error.
-  else if (ipv4_cidr.test(ipprefix) == true && cmd == 'ping') {
-    $('#ipprefix_error').show()
-    $('#ipprefix').addClass('is-danger')
-    $('#ipprefix_error').html(`
-      <br>
-      <article class="message is-danger is-small" style="display: block;">
-        <div class="message-header" style="display: block;">
-          Invalid Input
-        </div>
-        <div id="error" style="display: block;" class="message-body">
-          <code>ping</code> does not allow network masks.
-        </div>
-      </article>
-      `);
-  }
-  // If traceroute, and lookup is an IPv4 address *with* CIDR prefix (e.g. 192.0.2.0/24, NOT 192.0.2.1), show an error.
-  else if (ipv4_cidr.test(ipprefix) == true && cmd == 'traceroute') {
-    $('#ipprefix_error').show()
-    $('#ipprefix').addClass('is-danger')
-    $('#ipprefix_error').html(`
-      <br>
-      <article class="message is-danger is-small" style="display: block;">
-        <div class="message-header" style="display: block;">
-          Invalid Input
-        </div>
-        <div id="error" style="display: block;" class="message-body">
-          <code>traceroute</code> does not allow network masks.
-        </div>
-      </article>
-      `);
-  }
-  // If ping, and lookup is an IPv6 address *with* CIDR prefix (e.g. 2001:db8::/48, NOT 2001:db8::1), show an error.
-  else if (ipv6_cidr.test(ipprefix) == true && cmd == 'ping') {
-    $('#ipprefix_error').show()
-    $('#ipprefix').addClass('is-danger')
-    $('#ipprefix_error').html(`
-      <br>
-      <article class="message is-danger is-small" style="display: block;">
-        <div class="message-header" style="display: block;">
-          Invalid Input
-        </div>
-        <div id="error" style="display: block;" class="message-body">
-          <code>ping</code> does not allow network masks.
-        </div>
-      </article>
-      `);
-  }
-  // If traceroute, and lookup is an IPv6 address *with* CIDR prefix (e.g. 2001:db8::/48, NOT 2001:db8::1), show an error.
-  else if (ipv6_cidr.test(ipprefix) == true && cmd == 'traceroute') {
-    $('#ipprefix_error').show()
-    $('#ipprefix').addClass('is-danger')
-    $('#ipprefix_error').html(`
-      <br>
-      <article class="message is-danger is-small" style="display: block;">
-        <div class="message-header" style="display: block;">
-          Invalid Input
-        </div>
-        <div id="error" style="display: block;" class="message-body">
-          <code>traceroute</code> does not allow network masks.
-        </div>
-      </article>
-      `);
-  } else submitForm();
+  submitForm();
 });
+
 
 var submitForm = function() {
   progress.hide();
   var cmd = $('#cmd option:selected').val();
-  // var cmdtitle = cmd.replace('_', ': ');
   var cmdtitle = $('#cmd option:selected').text();
   var network = $('#network option:selected').val();
   var router = $('#router option:selected').val();
   var routername = $('#router option:selected').text();
   var ipprefix = $('#ipprefix').val();
-  // var routerType = $('#router option:selected').attr('type');
 
   $('#output').text("")
   $('#queryInfo').text("")
@@ -207,7 +105,6 @@ var submitForm = function() {
     </div>
 `)
 
-  /////////////////////////////////////////////////////////////
 
   $.ajax({
     url: `/lg`,

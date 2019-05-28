@@ -1,0 +1,12 @@
+[Unit]
+Description=Hyperglass
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/hyperglass
+ExecStart=/usr/local/bin/gunicorn -c /opt/hyperglass/hyperglass/gunicorn_config.py hyperglass.wsgi
+
+[Install]
+WantedBy=multi-user.target
