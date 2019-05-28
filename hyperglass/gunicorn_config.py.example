@@ -1,8 +1,17 @@
 import multiprocessing
 
 command = "/usr/local/bin/gunicorn"
-pythonpath = "/opt/hyperglass/hyperglass"
+pythonpath = "/opt/hyperglass"
 bind = "[::1]:8001"
+preload = True
 workers = multiprocessing.cpu_count() * 2
 user = "www-data"
 timeout = 60
+keepalive = 10
+
+
+def on_starting(server):
+    import hyperglass
+
+    hyperglass.render.css.renderTemplate()
+    print(1)
