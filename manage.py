@@ -181,9 +181,11 @@ def fixpermissions(user, group):
     try:
         for root, dirs, files in os.walk(hyperglass_root):
             for d in dirs:
-                os.chown(d, uid, gid)
+                full_path = os.path.join(root, d)
+                os.chown(full_path, uid, gid)
             for f in files:
-                os.chown(f, uid, gid)
+                full_path = os.path.join(root, f)
+                os.chown(full_path, uid, gid)
             os.chown(root, uid, gid)
         click.secho(
             "✓ Successfully changed hyperglass/ ownership", fg="green", bold=True
@@ -194,9 +196,11 @@ def fixpermissions(user, group):
     try:
         for root, dirs, files in os.walk(hyperglass_root):
             for d in dirs:
-                os.chmod(d, 0o744)
+                full_path = os.path.join(root, d)
+                os.chmod(full_path, 0o744)
             for f in files:
-                os.chmod(f, 0o744)
+                full_path = os.path.join(root, f)
+                os.chmod(full_path, 0o744)
             os.chmod(root, 0o744)
         click.secho(
             "✓ Successfully changed hyperglass/ permissions", fg="green", bold=True
