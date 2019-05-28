@@ -11,6 +11,7 @@ from hyperglass import configuration
 
 
 code = configuration.codes()
+g = configuration.general()
 
 
 def frr(cmd, ipprefix, device):
@@ -39,7 +40,7 @@ def frr(cmd, ipprefix, device):
             msg = f"{ipprefix} matched large community."
             return (msg, code.success, d_address, query)
         else:
-            msg = f"<b>{ipprefix}</b> is an invalid BGP Community Format."
+            msg = g.msg_error_invaliddual.format(i=ipprefix, qt="BGP Community")
             logger.error(f"{msg}, {code.danger}, {d_name}, {query}")
             return (msg, code.danger, d_address, query)
     # BGP AS_PATH Query
@@ -49,7 +50,7 @@ def frr(cmd, ipprefix, device):
             msg = f"{ipprefix} matched AS_PATH regex."
             return (msg, code.success, d_address, query)
         else:
-            msg = f"<b>{ipprefix}</b> is an invalid AS_PATH regex."
+            msg = g.msg_error_invaliddual.format(i=ipprefix, qt="AS Path")
             logger.error(f"{msg}, {code.danger}, {d_name}, {cmd}, {ipprefix}")
             return (msg, code.danger, d_address, query)
     # BGP Route Query
@@ -67,7 +68,7 @@ def frr(cmd, ipprefix, device):
                 return (msg, code.success, d_address, query)
         # Exception from netaddr library will return a user-facing error
         except:
-            msg = f"<b>{ipprefix}</b> is an invalid IP Address."
+            msg = g.msg_error_invalidip.format(i=ipprefix)
             logger.error(f"{msg}, {code.danger}, {d_name}, {query}")
             return (msg, code.danger, d_address, query)
     # Ping/Traceroute
@@ -93,10 +94,10 @@ def frr(cmd, ipprefix, device):
                         "target": ipprefix,
                     }
                 )
-                msg = f"<b>{ipprefix}</b> is a valid IPv6 Adddress."
+                msg = f"{ipprefix} is a valid IPv6 Adddress."
                 return (msg, code.success, d_address, query)
         except:
-            msg = f"<b>{ipprefix}</b> is an invalid IP Address."
+            msg = g.msg_error_invalidip.format(i=ipprefix)
             logger.error(f"{msg}, {code.danger}, {d_name}, {query}")
             return (msg, code.danger, d_name, query)
     else:
@@ -137,7 +138,7 @@ def ssh(cmd, ipprefix, device):
             msg = f"{ipprefix} matched large community."
             return (msg, code.success, d_address, d_type, command)
         else:
-            msg = f"<b>{ipprefix}</b> is an invalid BGP Community Format."
+            msg = g.msg_error_invaliddual.format(i=ipprefix, qt="BGP Community")
             logger.error(f"{msg}, {code.danger}, {d_name}, {cmd}, {ipprefix}")
             return (msg, code.danger, d_name, cmd, ipprefix)
     # BGP AS_PATH Query
@@ -148,7 +149,7 @@ def ssh(cmd, ipprefix, device):
             msg = f"{ipprefix} matched AS_PATH regex."
             return (msg, code.success, d_address, d_type, command)
         else:
-            msg = f"<b>{ipprefix}</b> is an invalid AS_PATH regex."
+            msg = g.msg_error_invaliddual.format(i=ipprefix, qt="AS Path")
             logger.error(f"{msg}, {code.danger}, {d_name}, {cmd}, {ipprefix}")
             return (msg, code.danger, d_name, cmd, ipprefix)
     # BGP Route Query
@@ -168,7 +169,7 @@ def ssh(cmd, ipprefix, device):
                 return (msg, code.success, d_address, d_type, command)
         # Exception from netaddr library will return a user-facing error
         except:
-            msg = f"<b>{ipprefix}</b> is an invalid IP Address."
+            msg = g.msg_error_invalidip.format(i=ipprefix)
             logger.error(f"{msg}, {code.danger}, {d_name}, {cmd}, {ipprefix}")
             return (msg, code.danger, d_name, cmd, ipprefix)
     # Ping/Traceroute
@@ -185,7 +186,7 @@ def ssh(cmd, ipprefix, device):
                 msg = f"{ipprefix} is a valid IPv6 Adddress."
                 return (msg, code.success, d_address, d_type, command)
         except:
-            msg = f"<b>{ipprefix}</b> is an invalid IP Address."
+            msg = g.msg_error_invalidip.format(i=ipprefix)
             logger.error(f"{msg}, {code.danger}, {d_name}, {cmd}, {ipprefix}")
             return (msg, code.danger, d_name, cmd, ipprefix)
     else:

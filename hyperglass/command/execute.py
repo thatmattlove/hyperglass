@@ -166,39 +166,33 @@ def execute(lg_data):
     global code
     code = configuration.codes()
 
+    # Initialize general configuration parameters class, create global variable for reuse.
+    global general
+    general = configuration.general()
+
     # Validate prefix input with netaddr library
     if lg_cmd in ["bgp_route", "ping", "traceroute"]:
-        # Initialize prefix regex check class
-        ipc = ipcheck().test(lg_ipprefix)
+        msg = general.msg_error_invalidip.format(i=lg_ipprefix)
         try:
+            # Initialize prefix regex check class
+            ipc = ipcheck().test(lg_ipprefix)
             if IPNetwork(lg_ipprefix).ip.is_reserved():
-                msg = f"<b>{lg_ipprefix}</b> is not a valid IP address."
                 return (msg, code.danger, lg_data)
             elif IPNetwork(lg_ipprefix).ip.is_netmask():
-                msg = f"<b>{lg_ipprefix}</b> is not a valid IP address."
                 return (msg, code.danger, lg_data)
             elif IPNetwork(lg_ipprefix).ip.is_hostmask():
-                msg = f"<b>{lg_ipprefix}</b> is not a valid IP address."
                 return (msg, code.danger, lg_data)
             elif IPNetwork(lg_ipprefix).ip.is_loopback():
-                msg = f"<b>{lg_ipprefix}</b> is not a valid IP address."
                 return (msg, code.danger, lg_data)
             elif IPNetwork(lg_ipprefix).ip.is_unicast():
                 pass
             else:
-                msg = f"<b>{lg_ipprefix}</b> is not a valid unicast IP address."
                 return (msg, code.danger, lg_data)
         except:
-            msg = f"<b>{lg_ipprefix}</b> is not a valid IP Address."
             return (msg, code.danger, lg_data)
 
     if lg_cmd == "Query Type":
-        msg = "You must select a query type."
-        return (msg, code.warning, lg_data)
-
-    # Initialize general configuration parameters class, create global variable for reuse.
-    global general
-    general = configuration.general()
+        return (general.msg_error_querytype, code.warning, lg_data)
 
     global d
     d = configuration.device(lg_router)
@@ -209,15 +203,14 @@ def execute(lg_data):
     # Check blacklist list for prefixes/IPs and return an error upon a match
     if lg_cmd in ["bgp_route", "ping", "traceroute"]:
         blacklist = IPSet(configuration.blacklist())
+        msg = general.msg_error_notallowed.format(i=lg_ipprefix)
         if IPNetwork(lg_ipprefix).ip in blacklist:
-            msg = f"<b>{lg_ipprefix}</b> is not allowed."
             return (msg, code.warning, lg_data)
         if lg_cmd == "bgp_route" and IPNetwork(lg_ipprefix).version == 6:
             if requires_ipv6_cidr == True and ipc["type"] == "host":
-                msg = f"<b>{d.display_name}</b> requires IPv6 BGP lookups to be in CIDR notation."
+                msg = general.msg_error_ipv6cidr.format(d=d.display_name)
                 return (msg, code.warning, lg_data)
         if lg_cmd in ["ping", "traceroute"] and ipc["type"] == "cidr":
-            msg = f"<code>{lg_cmd}</code> does not allow networks masks."
             return (msg, code.warning, lg_data)
 
     # If enable_max_prefix feature enabled, require BGP Route queries be smaller than prefix size limit
@@ -226,13 +219,17 @@ def execute(lg_data):
             IPNetwork(lg_ipprefix).version == 4
             and IPNetwork(lg_ipprefix).prefixlen > general.max_prefix_length_ipv4
         ):
-            msg = f"Prefix length must be smaller than /{general.max_prefix_length_ipv4}. <b>{IPNetwork(lg_ipprefix)}</b> is too specific."
+            msg = general.msg_max_prefix.format(
+                m=general.max_prefix_length_ipv4, i=IPNetwork(lg_ipprefix)
+            )
             return (msg, code.warning, lg_data)
         if (
             IPNetwork(lg_ipprefix).version == 6
             and IPNetwork(lg_ipprefix).prefixlen > general.max_prefix_length_ipv6
         ):
-            msg = f"Prefix length must be smaller than /{general.max_prefix_length_ipv4}. <b>{IPNetwork(lg_ipprefix)}</b> is too specific."
+            msg = general.msg_max_prefix.format(
+                m=general.max_prefix_length_ipv6, i=IPNetwork(lg_ipprefix)
+            )
             return (msg, code.warning, lg_data)
 
     if d.type == "frr":

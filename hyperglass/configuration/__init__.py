@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Module Imports
 import os
 import math
@@ -143,10 +141,26 @@ class general:
         self.org_name = g.get("org_name", "The Company")
         self.debug = g.get("debug", False)
         self.google_analytics = g.get("google_analytics", "")
-        self.message_error = g.get("message_error", "{input} is invalid.")
-        self.message_blacklist = g.get("message_blacklist", "{input} is not allowed.")
-        self.message_general_error = g.get(
-            "message_general_error", "Error connecting to device."
+        self.msg_error_querytype = g.get(
+            "msg_error_querytype", "You must select a query type."
+        )
+        self.msg_error_notallowed = g.get(
+            "msg_error_notallowed", "<b>{i}</b> is not allowed."
+        )
+        self.msg_error_ipv6cidr = g.get(
+            "msg_error_ipv6cidr",
+            "<b>{d}</b> requires IPv6 BGP lookups to be in CIDR notation.",
+        )
+        self.msg_error_invalidip = g.get(
+            "msg_error_invalidip", "<b>{i}</b> is not a valid IP address."
+        )
+        self.msg_error_invaliddual = g.get(
+            "msg_error_invaliddual", "<b>{i}</b> is an invalid {qt}."
+        )
+        self.msg_error_general = g.get("msg_error_general", "A general error occurred.")
+        self.msg_max_prefix = g.get(
+            "msg_max_prefix",
+            "Prefix length must be smaller than /{m}. <b>{i}</b> is too specific.",
         )
         self.rate_limit_query = g.get("rate_limit_query", "5")
         self.message_rate_limit_query = g.get(
@@ -192,13 +206,8 @@ class branding:
             "logo_path",
             os.path.join(hyperglass_root, "static/images/hyperglass-dark.png"),
         )
-        self.favicon16_path = b.get(
-            "favicon16_path", "static/images/favicon/favicon-16x16.png"
-        )
-        self.favicon32_path = b.get(
-            "favicon32_path", "static/images/favicon/favicon-32x32.png"
-        )
         self.logo_width = b.get("logo_width", "384")
+        self.favicon_dir = b.get("favicon_path", "static/images/favicon/")
         self.placeholder_prefix = b.get(
             "placeholder_prefix", "IP, Prefix, Community, or AS_PATH"
         )
