@@ -2,9 +2,10 @@
 
 var progress = ($('#progress'));
 var resultsbox = ($('#resultsbox'));
-resultsbox.hide();
-progress.hide();
+var ipprefix_error = ($('#ipprefix_error'));
+var ipprefix_input = ($('#ipprefix'));
 adjustDropdowns();
+clearPage();
 
 // Bulma Toggable Dropdown - help text
 let dropdown = document.querySelector('#help-dropdown');
@@ -12,6 +13,18 @@ dropdown.addEventListener('click', function(event) {
   event.stopPropagation();
   dropdown.classList.toggle('is-active');
 });
+
+function bgpHelpASPath() {
+  $("#help_bgp_aspath").addClass("is-active");
+}
+
+function bgpHelpCommunity() {
+  $("#help_bgp_community").addClass("is-active");
+}
+
+function closeModal() {
+  $(".modal").removeClass("is-active");
+}
 
 // Adjust behavior of help text dropdown based on device screen size
 function adjustHeight() {
@@ -29,6 +42,34 @@ function adjustDropdowns() {
     $('#network').css('width', actual_width * 0.85);
     $('#router').css('width', actual_width * 0.85);
   }
+}
+
+function clearErrors() {
+  progress.hide();
+  ipprefix_error.hide();
+  if (ipprefix_input.hasClass("is-warning")) {
+    ipprefix_input.removeClass("is-warning");
+  };
+  if (ipprefix_input.hasClass("is-danger")) {
+    ipprefix_input.removeClass("is-danger");
+  };
+}
+
+function clearPage() {
+  progress.hide();
+  resultsbox.hide();
+  ipprefix_error.hide();
+  if (ipprefix_input.hasClass("is-warning")) {
+    ipprefix_input.removeClass("is-warning");
+  };
+  if (ipprefix_input.hasClass("is-danger")) {
+    ipprefix_input.removeClass("is-danger");
+  };
+}
+
+function prepResults() {
+  progress.show();
+  resultsbox.show();
 }
 
 $(document).ready(function() {
@@ -55,8 +96,8 @@ $('#network').on('change', () => {
     url: `/routers/${asn}`,
     type: 'get',
     success: function(data) {
+      cleanPage();
       updateRouters(JSON.parse(data));
-
     },
     error: function(err) {
       console.log(err)
@@ -75,9 +116,10 @@ $('#lgForm').on('submit', function() {
   submitForm();
 });
 
-
-var submitForm = function() {
-  progress.hide();
+function submitForm() {
+  clearErrors();
+  // progress.hide();
+  // ipprefix_error.hide();
   var cmd = $('#cmd option:selected').val();
   var cmdtitle = $('#cmd option:selected').text();
   var network = $('#network option:selected').val();
@@ -85,9 +127,8 @@ var submitForm = function() {
   var routername = $('#router option:selected').text();
   var ipprefix = $('#ipprefix').val();
 
-  $('#output').text("")
-  $('#queryInfo').text("")
-
+  $('#output').text("");
+  $('#queryInfo').text("");
   $('#queryInfo').html(`
     <div class="field is-grouped is-grouped-multiline">
       <div class="control">
@@ -103,8 +144,7 @@ var submitForm = function() {
         </div>
       </div>
     </div>
-`)
-
+`);
 
   $.ajax({
     url: `/lg`,
@@ -116,18 +156,17 @@ var submitForm = function() {
     }),
     contentType: "application/json; charset=utf-8",
     context: document.body,
-    readyState: resultsbox.show() && progress.show(),
+    readyState: prepResults(),
     statusCode: {
       200: function(response, code) {
         progress.hide();
         $('#output').html(`<br><div class="content"><p class="query-output" id="output">${response}</p></div>`);
       },
       405: function(response, code) {
-        resultsbox.hide()
-        progress.hide();
-        $('#ipprefix_error').show()
-        $('#ipprefix').addClass('is-warning');
-        $('#ipprefix_error').html(`
+        clearPage();
+        ipprefix_error.show()
+        ipprefix_input.addClass('is-warning');
+        ipprefix_error.html(`
           <br>
           <article class="message is-warning is-small" style="display: block;">
             <div class="message-header" style="display: block;">
@@ -140,11 +179,10 @@ var submitForm = function() {
           `);
       },
       415: function(response, code) {
-        resultsbox.hide()
-        progress.hide();
-        $('#ipprefix_error').show()
-        $('#ipprefix').addClass('is-danger');
-        $('#ipprefix_error').html(`
+        clearPage();
+        ipprefix_error.show()
+        ipprefix_input.addClass('is-danger');
+        ipprefix_error.html(`
           <br>
           <article class="message is-danger is-small" style="display: block;">
             <div class="message-header" style="display: block;">
@@ -157,7 +195,7 @@ var submitForm = function() {
           `);
       },
       429: function(response, code) {
-        progress.hide();
+        clearPage();
         $("#ratelimit").addClass("is-active");
       }
     }

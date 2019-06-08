@@ -34,9 +34,12 @@
       <a href="/" class="button is-medium is-rounded is-inverted is-danger is-outlined">Try Again</a>
     </div>
   </section>
-    {% if enable_footer == true %}
+  {% if enable_footer == true %}
     {% include "templates/footer.html" %}
-    {% endif %}
-    {% endblock %}
+  {% endif %}
+  {% if enable_credit == true %}
+    {% include "templates/credit.html" %}
+  {% endif %}
+{% endblock %}
 </body>
 </html>

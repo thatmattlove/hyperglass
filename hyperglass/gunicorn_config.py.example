@@ -1,3 +1,8 @@
+"""
+https://github.com/checktheroads/hyperglass
+Guncorn configuration
+"""
+
 import multiprocessing
 
 command = "/usr/local/bin/gunicorn"
@@ -11,7 +16,8 @@ keepalive = 10
 
 
 def on_starting(server):
+    """Renders CSS templates at initial code execution with single worker"""
     import hyperglass
 
-    hyperglass.render.css.renderTemplate()
+    hyperglass.render.css()
     print(1)

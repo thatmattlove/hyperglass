@@ -1,0 +1,10 @@
++++
+title = "BGP Communities"
++++
+{{ site_title }} makes use of the following BGP communities:
+
+| Community | Description |
+| :-------- | :---------- |
+| `65000:1` | Example 1   |
+| `65000:2` | Example 2   |
+| `65000:3` | Example 3   |

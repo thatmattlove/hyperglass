@@ -1,12 +1,7 @@
 <footer class="footer">
   <div class="container">
     <div class="content is-small has-text-centered">
-      {{ footer_content }}
+      {{ footer["content"] }}
     </div>
-    {% if enable_credit == true %}
-    <div class="content is-small has-text-centered">
-      {% include "templates/credit.html" %}
-    </div>
-    {% endif %}
   </div>
 </footer>

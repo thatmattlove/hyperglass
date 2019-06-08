@@ -1,0 +1,12 @@
++++
+title = "Supported AS Path Patterns"
++++
+{{ site_title }} accepts the following `AS_PATH` regular expression patterns:
+
+| Expression               |                                                 Match |
+| :----------------------- | ----------------------------------------------------: |
+| `_65000$`                |                                 Originated by AS65000 |
+| `^65000\_`               |                                 Received from AS65000 |
+| `_65000_`                |                                           Via AS65000 |
+| `_65000_65001_`          |                               Via AS65000 and AS65001 |
+| `_65000(_.+_)65001$`     |     Anything from AS65001 that passed through AS65000 |

@@ -1,195 +1,123 @@
+# https://github.com/checktheroads/hyperglass
+"""
+Accepts filtered & validated input from execute.py, constructs SSH command for Netmiko library or \
+API call parameters for hyperglass-frr
+"""
 # Module Imports
-import re
-import sys
 import json
-import toml
-from logzero import logger
-from netaddr import IPNetwork, IPAddress, IPSet
+import inspect
+from netaddr import IPNetwork, IPAddress  # pylint: disable=unused-import
+
+# Dear PyLint, the netaddr library is a special snowflake. You might not see `IPAddress` get used, \
+# but when you use something like `IPNetwork("192.0.2.1/24").ip`, the returned value is \
+# IPAddress("192.0.2.1"), so I do actually need this import. <3, -ML
 
 # Project Imports
 from hyperglass import configuration
 
 # Configuration Imports
-code = configuration.codes()
-g = configuration.general()
+codes = configuration.codes()
+config = configuration.general()
 
 
-def frr(cmd, ipprefix, device):
-    """Validates input and constructs API call to FRRouting Stack via hyperglass-frr API"""
-    d_address = device["address"]
-    d_src_addr_ipv4 = device["src_addr_ipv4"]
-    d_src_addr_ipv6 = device["src_addr_ipv6"]
-    d_location = device["location"]
-    d_name = device["name"]
-    d_port = device["port"]
-    d_type = device["type"]
-
-    # BGP Community Query
-    if cmd in ["bgp_community"]:
-        # Extended Communities, new-format
-        query = json.dumps({"cmd": cmd, "afi": "dual", "target": ipprefix})
-        if re.match("^([0-9]{0,5})\:([0-9]{1,5})$", ipprefix):
-            msg = f"{ipprefix} matched new-format community."
-            return (msg, code.success, d_address, query)
-        # Extended Communities, 32 bit format
-        elif re.match("^[0-9]{1,10}$", ipprefix):
-            msg = f"{ipprefix} matched 32 bit community."
-            return (msg, code.success, d_address, query)
-        # RFC 8092 Large Community Support
-        elif re.match("^([0-9]{1,10})\:([0-9]{1,10})\:[0-9]{1,10}$", ipprefix):
-            msg = f"{ipprefix} matched large community."
-            return (msg, code.success, d_address, query)
-        else:
-            msg = g.msg_error_invaliddual.format(i=ipprefix, qt="BGP Community")
-            logger.error(f"{msg}, {code.danger}, {d_name}, {query}")
-            return (msg, code.danger, d_address, query)
-    # BGP AS_PATH Query
-    elif cmd in ["bgp_aspath"]:
-        if re.match(".*", ipprefix):
-            query = json.dumps({"cmd": cmd, "afi": "dual", "target": ipprefix})
-            msg = f"{ipprefix} matched AS_PATH regex."
-            return (msg, code.success, d_address, query)
-        else:
-            msg = g.msg_error_invaliddual.format(i=ipprefix, qt="AS Path")
-            logger.error(f"{msg}, {code.danger}, {d_name}, {cmd}, {ipprefix}")
-            return (msg, code.danger, d_address, query)
-    # BGP Route Query
-    elif cmd in ["bgp_route"]:
-        try:
-            # Use netaddr library to verify if input is a valid IPv4 address or prefix
-            if IPNetwork(ipprefix).ip.version == 4:
-                query = json.dumps({"cmd": cmd, "afi": "ipv4", "target": ipprefix})
-                msg = f"{ipprefix} is a valid IPv4 Adddress."
-                return (msg, code.success, d_address, query)
-            # Use netaddr library to verify if input is a valid IPv6 address or prefix
-            elif IPNetwork(ipprefix).ip.version == 6:
-                query = json.dumps({"cmd": cmd, "afi": "ipv6", "target": ipprefix})
-                msg = f"{ipprefix} is a valid IPv6 Adddress."
-                return (msg, code.success, d_address, query)
-        # Exception from netaddr library will return a user-facing error
-        except:
-            msg = g.msg_error_invalidip.format(i=ipprefix)
-            logger.error(f"{msg}, {code.danger}, {d_name}, {query}")
-            return (msg, code.danger, d_address, query)
-    # Ping/Traceroute
-    elif cmd in ["ping", "traceroute"]:
-        try:
-            if IPNetwork(ipprefix).ip.version == 4:
-                query = json.dumps(
-                    {
-                        "cmd": cmd,
-                        "afi": "ipv4",
-                        "source": d_src_addr_ipv4,
-                        "target": ipprefix,
-                    }
-                )
-                msg = f"{ipprefix} is a valid IPv4 Adddress."
-                return (msg, code.success, d_address, query)
-            elif IPNetwork(ipprefix).ip.version == 6:
-                query = json.dumps(
-                    {
-                        "cmd": cmd,
-                        "afi": "ipv6",
-                        "source": d_src_addr_ipv6,
-                        "target": ipprefix,
-                    }
-                )
-                msg = f"{ipprefix} is a valid IPv6 Adddress."
-                return (msg, code.success, d_address, query)
-        except:
-            msg = g.msg_error_invalidip.format(i=ipprefix)
-            logger.error(f"{msg}, {code.danger}, {d_name}, {query}")
-            return (msg, code.danger, d_name, query)
-    else:
-        msg = f"Command {cmd} not found."
-        logger.error(f"{msg}, {code.danger}, {d_name}, {query}")
-        return (msg, code.danger, d_name, query)
+def current_function():
+    """Returns name of current function"""
+    this_function = inspect.stack()[1][3]
+    return this_function
 
 
-def ssh(cmd, ipprefix, device):
-    """Validates input and constructs usable commands to run via netmiko"""
-    d_address = device["address"]
-    d_src_addr_ipv4 = device["src_addr_ipv4"]
-    d_src_addr_ipv6 = device["src_addr_ipv6"]
-    d_location = device["location"]
-    d_name = device["name"]
-    d_port = device["port"]
-    d_type = device["type"]
+class Construct:
+    """Constructor for FRRouting API"""
 
-    c = configuration.command(d_type)
-    # BGP Community Query
-    if cmd == "bgp_community":
-        # Extended Communities, new-format
-        if re.match("^([0-9]{0,5})\:([0-9]{1,5})$", ipprefix):
-            mc = c.dual[cmd]
-            command = mc.format(target=ipprefix)
-            msg = f"{ipprefix} matched new-format community."
-            return (msg, code.success, d_address, d_type, command)
-        # Extended Communities, 32 bit format
-        elif re.match("^[0-9]{1,10}$", ipprefix):
-            mc = c.dual[cmd]
-            command = mc.format(target=ipprefix)
-            msg = f"{ipprefix} matched 32 bit community."
-            return (msg, code.success, d_address, d_type, command)
-        # RFC 8092 Large Community Support
-        elif re.match("^([0-9]{1,10})\:([0-9]{1,10})\:[0-9]{1,10}$", ipprefix):
-            mc = c.dual[cmd]
-            command = mc.format(target=ipprefix)
-            msg = f"{ipprefix} matched large community."
-            return (msg, code.success, d_address, d_type, command)
-        else:
-            msg = g.msg_error_invaliddual.format(i=ipprefix, qt="BGP Community")
-            logger.error(f"{msg}, {code.danger}, {d_name}, {cmd}, {ipprefix}")
-            return (msg, code.danger, d_name, cmd, ipprefix)
-    # BGP AS_PATH Query
-    elif cmd == "bgp_aspath":
-        if re.match(".*", ipprefix):
-            mc = c.dual[cmd]
-            command = mc.format(target=ipprefix)
-            msg = f"{ipprefix} matched AS_PATH regex."
-            return (msg, code.success, d_address, d_type, command)
-        else:
-            msg = g.msg_error_invaliddual.format(i=ipprefix, qt="AS Path")
-            logger.error(f"{msg}, {code.danger}, {d_name}, {cmd}, {ipprefix}")
-            return (msg, code.danger, d_name, cmd, ipprefix)
-    # BGP Route Query
-    elif cmd == "bgp_route":
-        try:
-            # Use netaddr library to verify if input is a valid IPv4 address or prefix
-            if IPNetwork(ipprefix).ip.version == 4:
-                mc = c.ipv4[cmd]
-                command = mc.format(target=ipprefix)
-                msg = f"{ipprefix} is a valid IPv4 Adddress."
-                return (msg, code.success, d_address, d_type, command)
-                # Use netaddr library to verify if input is a valid IPv6 address or prefix
-            elif IPNetwork(ipprefix).ip.version == 6:
-                mc = c.ipv6[cmd]
-                command = mc.format(target=ipprefix)
-                msg = f"{ipprefix} is a valid IPv6 Adddress."
-                return (msg, code.success, d_address, d_type, command)
-        # Exception from netaddr library will return a user-facing error
-        except:
-            msg = g.msg_error_invalidip.format(i=ipprefix)
-            logger.error(f"{msg}, {code.danger}, {d_name}, {cmd}, {ipprefix}")
-            return (msg, code.danger, d_name, cmd, ipprefix)
-    # Ping/Traceroute
-    elif cmd in ["ping", "traceroute"]:
-        try:
-            if IPNetwork(ipprefix).ip.version == 4:
-                mc = c.ipv4[cmd]
-                command = mc.format(target=ipprefix, src_addr_ipv4=d_src_addr_ipv4)
-                msg = f"{ipprefix} is a valid IPv4 Adddress."
-                return (msg, code.success, d_address, d_type, command)
-            elif IPNetwork(ipprefix).ip.version == 6:
-                mc = c.ipv6[cmd]
-                command = mc.format(target=ipprefix, src_addr_ipv6=d_src_addr_ipv6)
-                msg = f"{ipprefix} is a valid IPv6 Adddress."
-                return (msg, code.success, d_address, d_type, command)
-        except:
-            msg = g.msg_error_invalidip.format(i=ipprefix)
-            logger.error(f"{msg}, {code.danger}, {d_name}, {cmd}, {ipprefix}")
-            return (msg, code.danger, d_name, cmd, ipprefix)
-    else:
-        msg = f"Command {cmd} not found."
-        logger.error(f"{msg}, {code.danger}, {d_name}, {cmd}, {ipprefix}")
-        return (msg, code.danger, d_name, cmd, ipprefix)
+    def __init__(self, device):
+        self.device = device
+        self.d_address = self.device["address"]
+        self.d_src_addr_ipv4 = self.device["src_addr_ipv4"]
+        self.d_src_addr_ipv6 = self.device["src_addr_ipv6"]
+        self.d_name = self.device["name"]
+        self.d_type = self.device["type"]
+        self.command = configuration.command(self.d_type)
+
+    def get_src(self, ver):
+        """Returns source IP based on IP version."""
+        src = None
+        if ver == 4:
+            src = self.d_src_addr_ipv4
+        if ver == 6:
+            src = self.d_src_addr_ipv6
+        return src
+
+    def ping(self, transport, target):
+        """Constructs ping query parameters from pre-validated input"""
+        cmd = current_function()
+        query = None
+        ip_version = IPNetwork(target).ip.version
+        afi = f"ipv{ip_version}"
+        source = self.get_src(ip_version)
+        if transport == "rest":
+            query = json.dumps(
+                {"cmd": cmd, "afi": afi, "source": source, "target": target}
+            )
+        if transport == "scrape":
+            conf_command = self.command[afi][cmd]
+            fmt_command = conf_command.format(target=target, source=source)
+            query = (self.d_address, self.d_type, fmt_command)
+        return query
+
+    def traceroute(self, transport, target):
+        """Constructs traceroute query parameters from pre-validated input"""
+        cmd = current_function()
+        query = None
+        ip_version = IPNetwork(target).ip.version
+        afi = f"ipv{ip_version}"
+        source = self.get_src(ip_version)
+        if transport == "rest":
+            query = json.dumps(
+                {"cmd": cmd, "afi": afi, "source": source, "target": target}
+            )
+
+        if transport == "scrape":
+            conf_command = self.command[afi][cmd]
+            fmt_command = conf_command.format(target=target, source=source)
+            query = (self.d_address, self.d_type, fmt_command)
+        return query
+
+    def bgp_route(self, transport, target):
+        """Constructs bgp_route query parameters from pre-validated input"""
+        cmd = current_function()
+        query = None
+        ip_version = IPNetwork(target).ip.version
+        afi = f"ipv{ip_version}"
+        if transport == "rest":
+            query = json.dumps({"cmd": cmd, "afi": afi, "target": target})
+        if transport == "scrape":
+            conf_command = self.command[afi][cmd]
+            fmt_command = conf_command.format(target=target)
+            query = (self.d_address, self.d_type, fmt_command)
+        return query
+
+    def bgp_community(self, transport, target):
+        """Constructs bgp_community query parameters from pre-validated input"""
+        cmd = current_function()
+        afi = "dual"
+        query = None
+        if transport == "rest":
+            query = json.dumps({"cmd": cmd, "afi": afi, "target": target})
+        if transport == "scrape":
+            conf_command = self.command[afi][cmd]
+            fmt_command = conf_command.format(target=target)
+            query = (self.d_address, self.d_type, fmt_command)
+        return query
+
+    def bgp_aspath(self, transport, target):
+        """Constructs bgp_aspath query parameters from pre-validated input"""
+        cmd = current_function()
+        afi = "dual"
+        query = None
+        if transport == "rest":
+            query = json.dumps({"cmd": cmd, "afi": afi, "target": target})
+        if transport == "scrape":
+            conf_command = self.command[afi][cmd]
+            fmt_command = conf_command.format(target=target)
+            query = (self.d_address, self.d_type, fmt_command)
+        return query

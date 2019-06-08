@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 
-# Module Imports
+# Standard Imports
 import os
 import grp
 import pwd
 import sys
 import glob
-import click
 import random
 import shutil
 import string
+
+# Module Imports
+import click
 from passlib.hash import pbkdf2_sha256
 
 # Project Imports
 from hyperglass import hyperglass
-from hyperglass import render as render
+from hyperglass import render
 
 # Initialize shutil copy function
 cp = shutil.copyfile
@@ -29,7 +31,7 @@ def hg():
 def clearcache():
     """Clears the Flask-Caching cache"""
     try:
-        hyperglass.clearCache()
+        hyperglass.clear_cache()
         click.secho("✓ Successfully cleared cache.", fg="green", bold=True)
     except:
         click.secho("✗ Failed to clear cache.", fg="red", bold=True)
@@ -54,10 +56,11 @@ Use this hash as the password for the device using the API module. For example, 
 
 
 @hg.command()
-def testserver():
+def devserver():
     """Starts Flask development server for testing without WSGI/Reverse Proxy"""
     try:
-        hyperglass.render.css.renderTemplate()
+        hyperglass.render.css()
+        # hyperglass.metrics.start_http_server(9100)
         hyperglass.app.run(host="0.0.0.0", debug=True, port=5000)
         click.secho("✓ Started test server.", fg="green", bold=True)
     except:
@@ -69,16 +72,21 @@ def testserver():
 def render():
     """Renders Jinja2 and Sass templates to HTML & CSS files"""
     try:
-        hyperglass.render.css.renderTemplate()
+        hyperglass.render.css()
         click.secho("✓ Successfully rendered CSS templates.", fg="green", bold=True)
     except:
         click.secho("✗ Failed to render CSS templates.", fg="red", bold=True)
         raise
+
+
+@hg.command()
+def content():
+    """Renders Jinja2 and Sass templates to HTML & CSS files"""
     try:
-        hyperglass.render.html.renderTemplate("index")
-        click.secho("✓ Successfully rendered HTML templates.", fg="green", bold=True)
+        hyperglass.render.markdown()
+        click.secho("✓ Successfully rendered content templates.", fg="green", bold=True)
     except:
-        click.secho("✗ Failed to render HTML templates.", fg="red", bold=True)
+        click.secho("✗ Failed to render content templates.", fg="red", bold=True)
         raise
 
 

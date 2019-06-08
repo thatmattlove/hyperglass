@@ -1,5 +1,11 @@
+# Non-dictionary parameters
+requires_ipv6_cidr = [
+"cisco_ios",
+"cisco_nxos"
+]
+
 # General site-wide parameters
-[[general]]
+[general]
 # primary_asn = ""
 # org_name = ""
 # google_analytics = ""
@@ -11,9 +17,13 @@
 # enable_max_prefix = ""
 # max_prefix_length_ipv4 = ""
 # max_prefix_length_ipv6 = ""
+[general.bgp_aspath]
+# mode = "asplain"
+[general.bgp_aspath.asplain]
+[general.bgp_aspath.asdot]
 
-# Branding/Site Customization Parameters
-[[branding]]
+# Branding/Visual Customization Parameters
+[branding]
 # site_title = ""
 # title = ""
 # subtitle = ""

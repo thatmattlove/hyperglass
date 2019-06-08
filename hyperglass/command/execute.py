@@ -1,277 +1,219 @@
+# https://github.com/checktheroads/hyperglass
+"""
+Accepts input from front end application, validates the input and returns errors if input is \
+invalid. Passes validated parameters to construct.py, which is used to build & run the Netmiko \
+connectoins or hyperglass-frr API calls, returns the output back to the front end.
+"""
 # Module Imports
-import re
-import sys
 import json
 import time
 import requests
+import requests.exceptions
 from logzero import logger
-from netmiko import redispatch
-from netmiko import ConnectHandler
-from netaddr import IPNetwork, IPAddress, IPSet
+from netmiko import (
+    ConnectHandler,
+    redispatch,
+    NetMikoAuthenticationException,
+    NetMikoTimeoutException,
+    NetmikoAuthError,
+    NetmikoTimeoutError,
+)
 
 # Project Imports
 from hyperglass import configuration
-from hyperglass.command import parse
-from hyperglass.command import construct
+from hyperglass.command.construct import Construct
+from hyperglass.command.validate import Validate
+
+codes = configuration.codes()
+config = configuration.general()
 
 
-class ipcheck:
-    """Checks input IPv4 or IPv6 address against host & CIDR regex patters,
-    returns dictionary of discovered attributes. Used for input validation in
-    command.execute module."""
+class Rest:
+    """Executes connections to REST API devices"""
 
-    def __init__(self):
-        self.ipv4_host = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)?$"
-        self.ipv4_cidr = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(3[0-2]|2[0-9]|1[0-9]|[0-9])?$"
-        self.ipv6_host = "^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))?$"
-        self.ipv6_cidr = "^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/((1(1[0-9]|2[0-8]))|([0-9][0-9])|([0-9]))?$"
+    # pylint: disable=too-few-public-methods
+    # Dear PyLint, sometimes, people need to make their code scalable for future use. <3, -ML
 
-    def test(self, prefix):
-        if IPNetwork(prefix).ip.version == 4:
-            if re.match(self.ipv4_host, prefix):
-                return {"protocol": "ipv4", "type": "host"}
-            elif re.match(self.ipv4_cidr, prefix):
-                return {"protocol": "ipv4", "type": "cidr"}
+    def __init__(self, transport, device, cmd, target):
+        self.transport = transport
+        self.device = device
+        self.cmd = cmd
+        self.target = target
+        self.cred = configuration.credential(self.device["credential"])
+        self.query = getattr(Construct(self.device), self.cmd)(
+            self.transport, self.target
+        )
 
-        if IPNetwork(prefix).ip.version == 6:
-            if re.match(self.ipv6_host, prefix):
-                return {"protocol": "ipv6", "type": "host"}
-            if re.match(self.ipv6_cidr, prefix):
-                return {"protocol": "ipv6", "type": "cidr"}
-
-
-class params:
-    """Sends input parameters to command.construct module for use by execution functions"""
-
-    class http:
-        def __init__(self):
-            self.msg, self.status, self.router, self.query = construct.frr(
-                lg_cmd, lg_ipprefix, d()
-            )
-
-        def __call__(self):
-            return vars(self)
-
-    class ssh:
-        def __init__(self):
-            self.msg, self.status, self.router, self.type, self.command = construct.ssh(
-                lg_cmd, lg_ipprefix, d()
-            )
-
-        def __call__(self):
-            return vars(self)
-
-        def nm_host(self):
-            """Defines netmiko end-host dictionary"""
-            c = configuration.credential(d.credential)
-            attr = {
-                "host": self.router,
-                "device_type": self.type,
-                "username": c.username,
-                "password": c.password,
-                "global_delay_factor": 0.5,
+    def frr(self):
+        """Sends HTTP POST to router running the hyperglass-frr API"""
+        try:
+            headers = {
+                "Content-Type": "application/json",
+                "X-API-Key": self.cred["password"],
             }
-            return attr
-
-        def nm_proxy(self):
-            """Defines netmiko SSH proxy dictionary"""
-            p = configuration.proxy(d.proxy)
-            attr = {
-                "host": p.address,
-                "username": p.username,
-                "password": p.password,
-                "device_type": p.type,
-                "global_delay_factor": 0.5,
-            }
-            return attr
-
-
-class connect:
-    """Performs the actual connection to the end device"""
-
-    class restapi:
-        def frr():
-            """Sends HTTP POST to router running the hyperglass-frr API"""
-            http = params().http()
-            c = configuration.credential(d.credential)
-            try:
-                headers = {"Content-Type": "application/json", "X-API-Key": c.password}
-                json_query = json.dumps(http.query)
-                frr_endpoint = f"http://{d.address}:{d.port}/frr"
-                frr_response = requests.post(
-                    frr_endpoint, headers=headers, data=json_query
-                )
-                return frr_response.text, frr_response.status_code
-            except:
-                raise
-
-    class nm:
-        def direct():
-            """Connects to the router via netmiko library, return the command output"""
-            ssh = params().ssh()
-            nm_host = ssh.nm_host()
-            nm_connect_direct = ConnectHandler(**nm_host)
-            nm_output_direct = nm_connect_direct.send_command(ssh.command)
-            return nm_output_direct
-
-        def proxied(device_proxy):
-            """Connects to the proxy server via netmiko library, then logs into the router via standard SSH"""
-            ssh = params().ssh()
-            nm_proxy = ssh.nm_proxy()
-            nm_host = ssh.nm_host()
-            dp = configuration.proxy(d.proxy)
-
-            nm_connect_proxied = ConnectHandler(**nm_proxy)
-            nm_ssh_command = dp.ssh_command.format(**nm_host) + "\n"
-
-            nm_connect_proxied.write_channel(nm_ssh_command)
-            time.sleep(1)
-            proxy_output = nm_connect_proxied.read_channel()
-
-            try:
-                # Accept SSH key warnings
-                if "Are you sure you want to continue connecting" in proxy_output:
-                    nm_connect_proxied.write_channel("yes" + "\n")
-                    nm_connect_proxied.write_channel(nm_host["password"] + "\n")
-                # Send password on prompt
-                elif "assword" in proxy_output:
-                    nm_connect_proxied.write_channel(nm_host["password"] + "\n")
-                    proxy_output += nm_connect_proxied.read_channel()
-                # Reclassify netmiko connection as configured device type
-                redispatch(nm_connect_proxied, nm_host["device_type"])
-
-                host_output = nm_connect_proxied.send_command(ssh.command)
-
-                if host_output:
-                    return host_output
-            except:
-                msg = f'Proxy server {nm_proxy["host"]} unable to reach target {nm_host["host"]}'
-                logger.error(f"{msg}, {code.danger}, {lg_params}")
-                raise
-                return (general.message_general_error, code.danger, lg_params)
-
-
-def execute(lg_data):
-    """Ingests user input, runs blacklist check, runs prefix length check (if enabled),
-    pulls all configuraiton variables for the input router."""
-
-    logger.info(f"Received lookup request for: {lg_data}")
-
-    # Create global variables for POSTed JSON from main app
-    global lg_router
-    lg_router = lg_data["router"]
-
-    global lg_cmd
-    lg_cmd = lg_data["cmd"]
-
-    global lg_ipprefix
-    lg_ipprefix = lg_data["ipprefix"]
-
-    global lg_params
-    lg_params = lg_data
-
-    # Initialize status code class, create global variable for reuse.
-    global code
-    code = configuration.codes()
-
-    # Initialize general configuration parameters class, create global variable for reuse.
-    global general
-    general = configuration.general()
-
-    # Validate prefix input with netaddr library
-    if lg_cmd in ["bgp_route", "ping", "traceroute"]:
-        msg = general.msg_error_invalidip.format(i=lg_ipprefix)
-        try:
-            # Initialize prefix regex check class
-            ipc = ipcheck().test(lg_ipprefix)
-            if IPNetwork(lg_ipprefix).ip.is_reserved():
-                return (msg, code.danger, lg_data)
-            elif IPNetwork(lg_ipprefix).ip.is_netmask():
-                return (msg, code.danger, lg_data)
-            elif IPNetwork(lg_ipprefix).ip.is_hostmask():
-                return (msg, code.danger, lg_data)
-            elif IPNetwork(lg_ipprefix).ip.is_loopback():
-                return (msg, code.danger, lg_data)
-            elif IPNetwork(lg_ipprefix).ip.is_unicast():
-                pass
-            else:
-                return (msg, code.danger, lg_data)
-        except:
-            return (msg, code.danger, lg_data)
-
-    if lg_cmd == "Query Type":
-        return (general.msg_error_querytype, code.warning, lg_data)
-
-    global d
-    d = configuration.device(lg_router)
-
-    # Checks if device type is on the requires_ipv6_cidr list
-    requires_ipv6_cidr = configuration.requires_ipv6_cidr(d.type)
-
-    if lg_cmd in ["bgp_route", "ping", "traceroute"]:
-        blacklist = IPSet(configuration.blacklist())
-        msg = general.msg_error_notallowed.format(i=lg_ipprefix)
-        # Check blacklist list for prefixes/IPs, return error upon a match
-        if IPNetwork(lg_ipprefix).ip in blacklist:
-            return (msg, code.warning, lg_data)
-        # Check if device requires IPv6 queries to be in CIDR format, return error if True
-        if lg_cmd == "bgp_route" and IPNetwork(lg_ipprefix).version == 6:
-            if requires_ipv6_cidr == True and ipc["type"] == "host":
-                msg = general.msg_error_ipv6cidr.format(d=d.display_name)
-                return (msg, code.warning, lg_data)
-        # Check if input prefix is in CIDR format, and if command is ping/traceroute, return error if True
-        if lg_cmd in ["ping", "traceroute"] and ipc["type"] == "cidr":
-            return (msg, code.warning, lg_data)
-
-    # If enable_max_prefix feature enabled, require BGP Route queries be smaller than prefix size limit
-    if lg_cmd == "bgp_route" and general.enable_max_prefix == True:
-        if (
-            IPNetwork(lg_ipprefix).version == 4
-            and IPNetwork(lg_ipprefix).prefixlen > general.max_prefix_length_ipv4
-        ):
-            msg = general.msg_max_prefix.format(
-                m=general.max_prefix_length_ipv4, i=IPNetwork(lg_ipprefix)
+            json_query = json.dumps(self.query)
+            frr_endpoint = f'http://{self.device["address"]}:{self.device["port"]}/frr'
+            frr_response = requests.post(frr_endpoint, headers=headers, data=json_query)
+            response = frr_response.text
+            status = frr_response.status_code
+        except requests.exceptions.RequestException as requests_exception:
+            logger.error(
+                f'Error connecting to device {self.device["name"]}: {requests_exception}'
             )
-            return (msg, code.warning, lg_data)
-        if (
-            IPNetwork(lg_ipprefix).version == 6
-            and IPNetwork(lg_ipprefix).prefixlen > general.max_prefix_length_ipv6
-        ):
-            msg = general.msg_max_prefix.format(
-                m=general.max_prefix_length_ipv6, i=IPNetwork(lg_ipprefix)
+            response = config["msg_error_general"]
+            status = codes["danger"]
+        return response, status
+
+
+class Netmiko:
+    """Executes connections to Netmiko devices"""
+
+    # pylint: disable=too-many-instance-attributes
+    # Dear PyLint, I actually need all these. <3, -ML
+
+    def __init__(self, transport, device, cmd, target):
+        self.device = device
+        self.target = target
+        self.cred = configuration.credential(self.device["credential"])
+        self.params = getattr(Construct(device), cmd)(transport, target)
+        self.router = self.params[0]
+        self.nos = self.params[1]
+        self.command = self.params[2]
+        self.nm_host = {
+            "host": self.router,
+            "device_type": self.nos,
+            "username": self.cred["username"],
+            "password": self.cred["password"],
+            "global_delay_factor": 0.5,
+        }
+
+    def direct(self):
+        """Connects to the router via netmiko library, return the command output"""
+        try:
+            nm_connect_direct = ConnectHandler(**self.nm_host)
+            response = nm_connect_direct.send_command(self.command)
+            status = codes["success"]
+        except (
+            NetMikoAuthenticationException,
+            NetMikoTimeoutException,
+            NetmikoAuthError,
+            NetmikoTimeoutError,
+        ) as netmiko_exception:
+            response = config["msg_error_general"]
+            status = codes["danger"]
+            logger.error(f"{netmiko_exception}, {status}")
+        return response, status
+
+    def proxied(self):
+        """
+        Connects to the proxy server via netmiko library, then logs into the router via \
+        standard SSH
+        """
+        proxy_name = self.device["proxy"]
+        device_proxy = configuration.proxy(proxy_name)
+        nm_proxy = {
+            "host": device_proxy["address"],
+            "username": device_proxy["username"],
+            "password": device_proxy["password"],
+            "device_type": device_proxy["type"],
+            "global_delay_factor": 0.5,
+        }
+        nm_connect_proxied = ConnectHandler(**nm_proxy)
+        nm_ssh_command = device_proxy["ssh_command"].format(**self.nm_host) + "\n"
+        nm_connect_proxied.write_channel(nm_ssh_command)
+        time.sleep(1)
+        proxy_output = nm_connect_proxied.read_channel()
+        try:
+            # Accept SSH key warnings
+            if "Are you sure you want to continue connecting" in proxy_output:
+                nm_connect_proxied.write_channel("yes" + "\n")
+                nm_connect_proxied.write_channel(self.nm_host["password"] + "\n")
+            # Send password on prompt
+            elif "assword" in proxy_output:
+                nm_connect_proxied.write_channel(self.nm_host["password"] + "\n")
+                proxy_output += nm_connect_proxied.read_channel()
+            # Reclassify netmiko connection as configured device type
+            redispatch(nm_connect_proxied, self.nm_host["device_type"])
+            response = nm_connect_proxied.send_command(self.command)
+            status = codes["success"]
+        except (
+            NetMikoAuthenticationException,
+            NetMikoTimeoutException,
+            NetmikoAuthError,
+            NetmikoTimeoutError,
+        ) as netmiko_exception:
+            response = config["msg_error_general"]
+            status = codes["danger"]
+            logger.error(
+                f'{netmiko_exception}, {status},Proxy: {self.nm_host["proxy"]}'
             )
-            return (msg, code.warning, lg_data)
-    # Sends validated data to target execution library and returns output
-    if d.type == "frr":
-        http = params().http()
-        try:
-            if http.status in range(200, 300):
-                output, frr_status = connect.restapi.frr()
-                parsed_output = parse.parse(output, d.type, lg_cmd)
-                return parsed_output, frr_status, http()
-            elif http.status in range(400, 500):
-                return http.msg, http.status, http()
+        return response, status
+
+
+class Execute:
+    """
+    Ingests user input, runs blacklist check, runs prefix length check (if enabled), pulls all \
+    configuraiton variables for the input router.
+    """
+
+    def __init__(self, lg_data):
+        self.input_data = lg_data
+        self.input_router = lg_data["router"]
+        self.input_cmd = lg_data["cmd"]
+        self.input_target = lg_data["ipprefix"]
+        self.device_config = configuration.device(self.input_router)
+
+    def parse(self, output):
+        """Splits BGP output by AFI, returns only IPv4 & IPv6 output for protocol-agnostic \
+        commands (Community & AS_PATH Lookups)"""
+        nos = self.device_config["type"]
+        parsed = output
+        if self.input_cmd in ["bgp_community", "bgp_aspath"]:
+            if nos in ["cisco_ios"]:
+                delimiter = "For address family: "
+                parsed_ipv4 = output.split(delimiter)[1]
+                parsed_ipv6 = output.split(delimiter)[2]
+                parsed = delimiter + parsed_ipv4 + delimiter + parsed_ipv6
+            if nos in ["cisco_xr"]:
+                delimiter = "Address Family: "
+                parsed_ipv4 = output.split(delimiter)[1]
+                parsed_ipv6 = output.split(delimiter)[2]
+                parsed = delimiter + parsed_ipv4 + delimiter + parsed_ipv6
+        return parsed
+
+    def response(self):
+        """
+        Initializes Execute.filter(), if input fails to pass filter, returns errors to front end. \
+        Otherwise, executes queries.
+        """
+        # Return error if no query type is specified
+        if self.input_cmd == "Query Type":
+            msg = config["msg_error_querytype"]
+            status = codes["warning"]
+            return msg, status, self.input_data
+        validity, msg, status = getattr(Validate(self.device_config), self.input_cmd)(
+            self.input_target
+        )
+        if not validity:
+            return msg, status, self.input_data
+        connection = None
+        output = config["msg_error_general"]
+        info = self.input_data
+        if self.device_config["type"] == "frr":
+            connection = Rest(
+                "rest", self.device_config, self.input_cmd, self.input_target
+            )
+            raw_output, status = connection.frr()
+            output = self.parse(raw_output)
+        if self.device_config["type"] in configuration.scrape_list():
+            connection = Netmiko(
+                "scrape", self.device_config, self.input_cmd, self.input_target
+            )
+            if self.device_config["proxy"]:
+                raw_output, status = connection.proxied()
             else:
-                logger.error(general.message_general_error, 500, http())
-                return general.message_general_error, 500, http()
-        except:
-            raise
-    else:
-        try:
-            ssh = params().ssh()
-            if ssh.status in range(200, 300):
-                if d.proxy:
-                    output = connect.nm.proxied(d.proxy)
-                    parsed_output = parse.parse(output, d.type, lg_cmd)
-                    return parsed_output, ssh.status, ssh.router, ssh.command
-                elif not d.proxy:
-                    output = connect.nm.direct()
-                    parsed_output = parse.parse(output, d.type, lg_cmd)
-                    return parsed_output, ssh.status, ssh.router, ssh.command
-            elif ssh.status in range(400, 500):
-                return ssh.msg, ssh.status, ssh()
-            else:
-                logger.error(general.message_general_error, 500, ssh())
-                return general.message_general_error, 500, ssh()
-        except:
-            raise
+                raw_output, status = connection.direct()
+            output = self.parse(raw_output)
+        else:
+            logger.error(f"{output}, {status}, {info}")
+        return output, status, info
