@@ -1,0 +1,19 @@
+# Bulma
+hyperglass/static/sass/base/* linguist-vendored
+hyperglass/static/sass/components/* linguist-vendored
+hyperglass/static/sass/elements/* linguist-vendored
+hyperglass/static/sass/grid/* linguist-vendored
+hyperglass/static/sass/layout/* linguist-vendored
+hyperglass/static/sass/utilities/* linguist-vendored
+
+# jquery
+hyperglass/hyperglass/static/js/jquery-* linguist-vendored
+
+# clipboard.js
+hyperglass/static/js/clipboard* linguist-vendored
+
+# icofont
+hyperglass/static/css/icofont/* linguist-vendored
+
+# docs
+docs/ linguist-documentation
