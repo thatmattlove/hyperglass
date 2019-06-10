@@ -44,7 +44,7 @@ Theoretically, any vendor supported by Netmiko can be supported by hyperglass. H
 -   Cisco IOS-XR: Netmiko `cisco_xr` vendor class
 -   Cisco Classic IOS/IOS-XE: Netmiko `cisco_ios` vendor class
 -   Juniper JunOS: Netmiko `junos` vendor class
--   FRRouting: hyperglass-frr API
+-   FRRouting: [hyperglass-frr](https://github.com/checktheroads/hyperglass-frr) API
 
 ### Proxies
 
