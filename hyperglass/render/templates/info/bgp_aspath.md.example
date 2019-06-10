@@ -1,0 +1,6 @@
++++
+link = '<a href="#" onclick="bgpHelpASPath()">Supported BGP AS Path Expressions</a>'
++++
+Performs BGP table lookup based on `AS_PATH` regular expression.
+
+{{ info["bgp_aspath"]["link"] }}

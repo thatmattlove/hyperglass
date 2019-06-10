@@ -5,9 +5,12 @@ Imports configuration varibles from configuration files and returns default valu
 # Standard Imports
 import os
 import math
+import logging
 
 # Module Imports
 import toml
+import logzero
+from logzero import logger
 
 # Project Imports
 import hyperglass
@@ -17,20 +20,33 @@ working_dir = os.path.dirname(os.path.abspath(__file__))
 hyperglass_root = os.path.dirname(hyperglass.__file__)
 
 # TOML Imports
-configuration = toml.load(os.path.join(working_dir, "configuration.toml"))
+config = toml.load(os.path.join(working_dir, "configuration.toml"))
 devices = toml.load(os.path.join(working_dir, "devices.toml"))
+
+
+def debug_state():
+    """Returns string for logzero log level"""
+    state = config.get("debug", False)
+    return state
+
+
+# Logzero Configuration
+if debug_state():
+    logzero.loglevel(logging.DEBUG)
+else:
+    logzero.loglevel(logging.INFO)
 
 
 def blacklist():
     """Returns list of subnets/IPs defined in blacklist.toml"""
-    blacklist_config = toml.load(os.path.join(working_dir, "blacklist.toml"))
+    blacklist_config = config["blacklist"]
     return blacklist_config["blacklist"]
 
 
 def requires_ipv6_cidr(nos):
     """Returns boolean for input NOS association with the NOS list defined in \
     requires_ipv6_cidr.toml"""
-    nos_list = configuration["requires_ipv6_cidr"]
+    nos_list = config["requires_ipv6_cidr"]
     return bool(nos in nos_list)
 
 
@@ -48,7 +64,17 @@ def networks():
     return asn_dict
 
 
-def networks_list():
+def locations():
+    """Returns list of all location identifiers"""
+    loc_list = []
+    routers_list = devices["router"]
+    for router_config in routers_list.values():
+        loc = router_config["location"]
+        loc_list.append(loc)
+    return loc_list
+
+
+def locations_list():
     """Returns a dictionary of ASNs as keys, list of associated locations, router hostnames, and \
     router display names as keys. Used by Flask to populate the /routers/<asn> route, which is \
     ingested by a JS Ajax call to populate the list of locations associated with the selected \
@@ -99,6 +125,12 @@ def codes_reason():
     return code_desc_dict
 
 
+def rest_list():
+    """Returns list of supported hyperglass API types"""
+    rest = ["frr"]
+    return rest
+
+
 def scrape_list():
     """Returns list of configured network operating systems"""
     config_commands = toml.load(os.path.join(working_dir, "commands.toml"))
@@ -106,6 +138,14 @@ def scrape_list():
     for nos in config_commands:
         scrape.append(nos)
     return scrape
+
+
+def supported_nos():
+    """Combines scrape_list & rest_list for full list of supported network operating systems"""
+    scrape = scrape_list()
+    rest = rest_list()
+    supported = scrape + rest
+    return supported
 
 
 def command(nos):
@@ -158,165 +198,254 @@ def proxy(prx):
     )
 
 
-def general():
-    """Exports general config variables and sets default values if undefined"""
-    gen = configuration["general"]
-    re_bgp_aspath_mode = gen["bgp_aspath"].get("mode", "asplain")
-    if re_bgp_aspath_mode == "asplain":
-        re_bgp_aspath_default = r"^(\^|^\_)(\d+\_|\d+\$|\d+\(\_\.\+\_\))+$"
-    if re_bgp_aspath_mode == "asdot":
-        re_bgp_aspath_default = (
-            r"^(\^|^\_)((\d+\.\d+)\_|(\d+\.\d+)\$|(\d+\.\d+)\(\_\.\+\_\))+$"
-        )
-    return dict(
-        primary_asn=gen.get("primary_asn", "65000"),
-        org_name=gen.get("org_name", "The Company"),
-        debug=gen.get("debug", False),
-        google_analytics=gen.get("google_analytics", ""),
-        msg_error_querytype=gen.get(
-            "msg_error_querytype", "You must select a query type."
-        ),
-        msg_error_notallowed=gen.get(
-            "msg_error_notallowed", "<b>{i}</b> is not allowed."
-        ),
-        msg_error_ipv6cidr=gen.get(
-            "msg_error_ipv6cidr",
-            "<b>{d}</b> requires IPv6 BGP lookups to be in CIDR notation.",
-        ),
-        msg_error_invalidip=gen.get(
-            "msg_error_invalidip", "<b>{i}</b> is not a valid IP address."
-        ),
-        msg_error_invaliddual=gen.get(
-            "msg_error_invaliddual", "<b>{i}</b> is an invalid {qt}."
-        ),
-        msg_error_general=gen.get("msg_error_general", "A general error occurred."),
-        msg_error_directed_cidr=gen.get(
-            "msg_error_directed_cidr", "<b>{cmd}</b> queries can not be in CIDR format."
-        ),
-        msg_max_prefix=gen.get(
-            "msg_max_prefix",
-            "Prefix length must be smaller than /{m}. <b>{i}</b> is too specific.",
-        ),
-        rate_limit_query=gen.get("rate_limit_query", "5"),
-        message_rate_limit_query=gen.get(
-            "message_rate_limit_query",
-            (
-                f'Query limit of {gen.get("rate_limit_query", "5")} per minute reached. '
-                "Please wait one minute and try again."
-            ),
-        ),
-        enable_bgp_route=gen.get("enable_bgp_route", True),
-        enable_bgp_community=gen.get("enable_bgp_community", True),
-        enable_bgp_aspath=gen.get("enable_bgp_aspath", True),
-        enable_ping=gen.get("enable_ping", True),
-        enable_traceroute=gen.get("enable_traceroute", True),
-        rate_limit_site=gen.get("rate_limit_site", "120"),
-        cache_timeout=gen.get("cache_timeout", 120),
-        cache_directory=gen.get(
-            "cache_directory", os.path.join(hyperglass_root, ".flask_cache")
-        ),
-        enable_max_prefix=gen.get("enable_max_prefix", False),
-        max_prefix_length_ipv4=gen.get("max_prefix_length_ipv4", 24),
-        max_prefix_length_ipv6=gen.get("max_prefix_length_ipv6", 64),
-        re_bgp_community_new=gen.get(
-            "re_bgp_community_new", r"^([0-9]{0,5})\:([0-9]{1,5})$"
-        ),
-        re_bgp_community_32bit=gen.get("re_bgp_community_32bit", r"^[0-9]{1,10}$"),
-        re_bgp_community_large=gen.get(
-            "re_bgp_community_large", r"^([0-9]{1,10})\:([0-9]{1,10})\:[0-9]{1,10}$"
-        ),
-        re_bgp_aspath=gen["bgp_aspath"][re_bgp_aspath_mode].get(
-            "regex", re_bgp_aspath_default
-        ),
+def params():
+    """Builds combined nested dictionary of all parameters defined in configuration.toml, and if \
+    undefined, uses a default value"""
+    # pylint: disable=too-many-statements
+    # Dear PyLint, this function is intended to be long AF, because hyperglass is inteded to be \
+    # customizable AF. It would also be silly AF to break this into multiple functions, and you'd \
+    # probably still complain. <3 -ML
+    general = {}
+    branding = {}
+    features = {}
+    messages = {}
+    general["primary_asn"] = config["general"].get("primary_asn", "65000")
+    general["org_name"] = config["general"].get("org_name", "The Company")
+    general["google_analytics"] = config["general"].get("google_analytics", "")
+    features["rate_limit"] = config["features"]["rate_limit"]
+    features["rate_limit"]["query"] = config["features"]["rate_limit"]["query"]
+    features["rate_limit"]["query"]["rate"] = config["features"]["rate_limit"][
+        "query"
+    ].get("rate", 5)
+    features["rate_limit"]["query"]["period"] = config["features"]["rate_limit"].get(
+        "period", "minute"
     )
-
-
-def branding():
-    """Exports branding config variables and sets default values if undefined"""
-    brand = configuration["branding"]
-    gen = general()
-    return dict(
-        site_title=brand.get("site_title", "hyperglass"),
-        title=brand.get("title", "hyperglass"),
-        subtitle=brand.get("subtitle", f'AS{gen["primary_asn"]}'),
-        title_mode=brand.get("title_mode", "logo_only"),
-        enable_footer=brand.get("enable_footer", True),
-        enable_credit=brand.get("enable_credit", True),
-        color_btn_submit=brand.get("color_btn_submit", "#40798c"),
-        color_tag_loctitle=brand.get("color_tag_loctitle", "#330036"),
-        color_tag_cmdtitle=brand.get("color_tag_cmdtitle", "#330036"),
-        color_tag_cmd=brand.get("color_tag_cmd", "#ff5e5b"),
-        color_tag_loc=brand.get("color_tag_loc", "#40798c"),
-        color_progressbar=brand.get("color_progressbar", "#40798c"),
-        color_bg=brand.get("color_bg", "#fbfffe"),
-        color_danger=brand.get("color_danger", "#ff3860"),
-        logo_path=brand.get(
-            "logo_path",
-            os.path.join(hyperglass_root, "static/images/hyperglass-dark.png"),
-        ),
-        logo_width=brand.get("logo_width", "384"),
-        favicon_dir=brand.get("favicon_path", "static/images/favicon/"),
-        placeholder_prefix=brand.get(
-            "placeholder_prefix", "IP, Prefix, Community, or AS_PATH"
-        ),
-        show_peeringdb=brand.get("show_peeringdb", True),
-        text_results=brand.get("text_results", "Results"),
-        text_location=brand.get("text_location", "Select Location..."),
-        text_cache=brand.get(
-            "text_cache",
-            f'Results will be cached for {math.ceil(gen["cache_timeout"] / 60)} minutes.',
-        ),
-        primary_font_name=brand.get("primary_font_name", "Nunito"),
-        primary_font_url=brand.get(
-            "primary_font_url",
-            "https://fonts.googleapis.com/css?family=Nunito:400,600,700",
-        ),
-        mono_font_name=brand.get("mono_font_name", "Fira Mono"),
-        mono_font_url=brand.get(
-            "mono_font_url", "https://fonts.googleapis.com/css?family=Fira+Mono"
-        ),
-        text_limiter_title=brand.get("text_limiter_title", "Limit Reached"),
-        text_limiter_subtitle=brand.get(
-            "text_limiter_subtitle",
-            (
-                f'You have accessed this site more than {gen["rate_limit_site"]} '
-                "times in the last minute."
-            ),
-        ),
-        text_500_title=brand.get("text_500_title", "Error"),
-        text_500_subtitle=brand.get("text_500_subtitle", "Something went wrong."),
-        text_500_button=brand.get("text_500_button", "Home"),
-        text_help_bgp_route=brand.get(
-            "text_help_bgp_route",
-            "Performs BGP table lookup based on IPv4/IPv6 prefix.",
-        ),
-        text_help_bgp_community=brand.get(
-            "text_help_bgp_community",
-            (
-                'Performs BGP table lookup based on <a href="https://tools.ietf.org/html/rfc4360">'
-                'Extended</a> or <a href="https://tools.ietf.org/html/rfc8195">Large</a> '
-                "community value.<br>"
-                '<a href="#" onclick="bgpHelpCommunity()">BGP Communities</a>'
-            ),
-        ),
-        text_help_bgp_aspath=brand.get(
-            "text_help_bgp_aspath",
-            (
-                "Performs BGP table lookup based on <code>AS_PATH</code> regular expression."
-                '<br>For commonly used BGP regular expressions, <a href="https://hyperglass.'
-                'readthedocs.io/en/latest/Extras/common_as_path_regex/">click here</a>.<br>'
-                '<a href="#" onclick="bgpHelpASPath()">Allowed BGP AS Path Expressions</a>'
-            ),
-        ),
-        text_help_ping=brand.get(
-            "text_help_ping", "Sends 5 ICMP echo requests to the target."
-        ),
-        text_help_traceroute=brand.get(
-            "text_help_traceroute",
-            (
-                "Performs UDP Based traceroute to the target.<br>For information about how to"
-                'interpret traceroute results, <a href="https://www.nanog.org/meetings/nanog45/'
-                'presentations/Sunday/RAS_traceroute_N45.pdf">click here</a>.'
-            ),
-        ),
+    features["rate_limit"]["query"]["title"] = config["features"]["rate_limit"][
+        "query"
+    ].get("title", "Query Limit Reached")
+    features["rate_limit"]["query"]["message"] = config["features"]["rate_limit"][
+        "query"
+    ].get(
+        "message",
+        f"""Query limit of {features["rate_limit"]["query"]["rate"]} per \
+        {features["rate_limit"]["query"]["period"]} reached. Please wait one minute and try \
+        again.""",
     )
+    features["rate_limit"]["query"]["button"] = config["features"]["rate_limit"][
+        "query"
+    ].get("button", "Try Again")
+
+    features["rate_limit"]["message"] = config["features"]["rate_limit"].get(
+        "message",
+        f"""Query limit of {features["rate_limit"]["query"]} per minute reached. \
+        Please wait one minute and try again.""",
+    )
+    features["rate_limit"]["site"] = config["features"]["rate_limit"]["site"]
+    features["rate_limit"]["site"]["rate"] = config["features"]["rate_limit"].get(
+        "rate", 60
+    )
+    features["rate_limit"]["site"]["period"] = config["features"]["rate_limit"].get(
+        "period", "minute"
+    )
+    features["rate_limit"]["site"]["title"] = config["features"]["rate_limit"][
+        "site"
+    ].get("title", "Limit Reached")
+    features["rate_limit"]["site"]["subtitle"] = config["features"]["rate_limit"][
+        "site"
+    ].get(
+        "subtitle",
+        f'You have accessed this site more than {features["rate_limit"]["site"]["rate"]} '
+        f'times in the last {features["rate_limit"]["site"]["period"]}.',
+    )
+    features["cache"] = config["features"]["cache"]
+    features["cache"]["timeout"] = config["features"]["cache"].get("timeout", 120)
+    features["cache"]["directory"] = config["features"]["cache"].get(
+        "directory", os.path.join(hyperglass_root, ".flask_cache")
+    )
+    features["cache"]["show_text"] = config["features"]["cache"].get("show_text", True)
+    features["cache"]["text"] = config["features"]["cache"].get(
+        "text",
+        f'Results will be cached for {math.ceil(features["cache"]["timeout"] / 60)} minutes.',
+    )
+    features["bgp_route"] = config["features"]["bgp_route"]
+    features["bgp_route"]["enable"] = config["features"]["bgp_route"].get(
+        "enable", True
+    )
+    features["bgp_community"] = config["features"]["bgp_community"]
+    features["bgp_community"]["enable"] = config["features"]["bgp_community"].get(
+        "enable", True
+    )
+    features["bgp_community"]["regex"] = config["features"]["bgp_community"]["regex"]
+    features["bgp_community"]["regex"]["decimal"] = config["features"]["bgp_community"][
+        "regex"
+    ].get("decimal", r"^[0-9]{1,10}$")
+    features["bgp_community"]["regex"]["extended_as"] = config["features"][
+        "bgp_community"
+    ]["regex"].get("extended_as", r"^([0-9]{0,5})\:([0-9]{1,5})$")
+    features["bgp_community"]["regex"]["large"] = config["features"]["bgp_community"][
+        "regex"
+    ].get("large", r"^([0-9]{1,10})\:([0-9]{1,10})\:[0-9]{1,10}$")
+    features["bgp_aspath"] = config["features"]["bgp_aspath"]
+    features["bgp_aspath"]["enable"] = config["features"]["bgp_aspath"].get(
+        "enable", True
+    )
+    features["bgp_aspath"]["regex"] = config["features"]["bgp_aspath"]["regex"]
+    features["bgp_aspath"]["regex"]["mode"] = config["features"]["bgp_aspath"][
+        "regex"
+    ].get("mode", "asplain")
+    features["bgp_aspath"]["regex"]["asplain"] = config["features"]["bgp_aspath"][
+        "regex"
+    ].get("asplain", r"^(\^|^\_)(\d+\_|\d+\$|\d+\(\_\.\+\_\))+$")
+    features["bgp_aspath"]["regex"]["asdot"] = config["features"]["bgp_aspath"][
+        "regex"
+    ].get("asdot", r"^(\^|^\_)((\d+\.\d+)\_|(\d+\.\d+)\$|(\d+\.\d+)\(\_\.\+\_\))+$")
+    features["bgp_aspath"]["regex"]["pattern"] = config["features"]["bgp_aspath"][
+        "regex"
+    ].get(features["bgp_aspath"]["regex"]["mode"], None)
+    features["ping"] = config["features"]["ping"]
+    features["ping"]["enable"] = config["features"]["ping"].get("enable", True)
+    features["traceroute"] = config["features"]["traceroute"]
+    features["traceroute"]["enable"] = config["features"]["traceroute"].get(
+        "enable", True
+    )
+    features["max_prefix"] = config["features"]["max_prefix"]
+    features["max_prefix"]["enable"] = config["features"]["max_prefix"].get(
+        "enable", False
+    )
+    features["max_prefix"]["ipv4"] = config["features"]["max_prefix"].get("ipv4", 24)
+    features["max_prefix"]["ipv6"] = config["features"]["max_prefix"].get("ipv6", 64)
+    features["max_prefix"]["message"] = config["features"]["max_prefix"].get(
+        "message",
+        "Prefix length must be smaller than /{m}. <b>{i}</b> is too specific.",
+    )
+    messages["no_query_type"] = config["messages"].get(
+        "no_query_type", "Query Type must be specified."
+    )
+    messages["no_location"] = config["messages"].get(
+        "no_location", "A location must be selected."
+    )
+    messages["no_input"] = config["messages"].get(
+        "no_input", "A target must be specified"
+    )
+    messages["not_allowed"] = config["messages"].get(
+        "not_allowed", "<b>{i}</b> is not allowed."
+    )
+    messages["requires_ipv6_cidr"] = config["messages"].get(
+        "requires_ipv6_cidr",
+        "<b>{d}</b> requires IPv6 BGP lookups to be in CIDR notation.",
+    )
+    messages["invalid_ip"] = config["messages"].get(
+        "invalid_ip", "<b>{i}</b> is not a valid IP address."
+    )
+    messages["invalid_dual"] = config["messages"].get(
+        "invalid_dual", "<b>{i}</b> is an invalid {qt}."
+    )
+    messages["general"] = config["messages"].get("general", "An error occurred.")
+    messages["directed_cidr"] = config["messages"].get(
+        "directed_cidr", "<b>{q}</b> queries can not be in CIDR format."
+    )
+    branding["site_name"] = config["branding"].get("site_name", "hyperglass")
+    branding["footer"] = config["branding"]["footer"]
+    branding["footer"]["enable"] = config["branding"]["footer"].get("enable", True)
+    branding["credit"] = config["branding"]["credit"]
+    branding["credit"]["enable"] = config["branding"]["credit"].get("enable", True)
+    branding["peering_db"] = config["branding"]["peering_db"]
+    branding["peering_db"]["enable"] = config["branding"]["peering_db"].get(
+        "enable", True
+    )
+    branding["text"] = config["branding"]["text"]
+    branding["text"]["query_type"] = config["branding"]["text"].get(
+        "query_type", "Query Type"
+    )
+    branding["text"]["title_mode"] = config["branding"]["text"].get(
+        "title_mode", "logo_only"
+    )
+    branding["text"]["title"] = config["branding"]["text"].get("title", "hyperglass")
+    branding["text"]["subtitle"] = config["branding"]["text"].get(
+        "subtitle", f'AS{general["primary_asn"]}'
+    )
+    branding["text"]["results"] = config["branding"]["text"].get("results", "Results")
+    branding["text"]["location"] = config["branding"]["text"].get(
+        "location", "Select Location..."
+    )
+    branding["text"]["query_placeholder"] = config["branding"]["text"].get(
+        "query_placeholder", "IP, Prefix, Community, or AS Path"
+    )
+    branding["text"]["bgp_route"] = config["branding"]["text"].get(
+        "bgp_route", "BGP Route"
+    )
+    branding["text"]["bgp_community"] = config["branding"]["text"].get(
+        "bgp_community", "BGP Community"
+    )
+    branding["text"]["bgp_aspath"] = config["branding"]["text"].get(
+        "bgp_aspath", "BGP AS Path"
+    )
+    branding["text"]["ping"] = config["branding"]["text"].get("ping", "Ping")
+    branding["text"]["traceroute"] = config["branding"]["text"].get(
+        "traceroute", "Traceroute"
+    )
+    branding["text"]["404"]["title"] = config["branding"]["text"]["404"].get(
+        "title", "Error"
+    )
+    branding["text"]["404"]["subtitle"] = config["branding"]["text"]["404"].get(
+        "subtitle", "Page Not Found"
+    )
+    branding["text"]["500"]["title"] = config["branding"]["text"]["500"].get(
+        "title", "Error"
+    )
+    branding["text"]["500"]["subtitle"] = config["branding"]["text"]["500"].get(
+        "subtitle", "Something Went Wrong"
+    )
+    branding["text"]["500"]["button"] = config["branding"]["text"]["500"].get(
+        "button", "Home"
+    )
+    branding["logo"] = config["branding"]["logo"]
+    branding["logo"]["path"] = config["branding"]["logo"].get(
+        "path", "static/images/hyperglass-dark.png"
+    )
+    branding["logo"]["width"] = config["branding"]["logo"].get("width", 384)
+    branding["logo"]["favicons"] = config["branding"]["logo"].get(
+        "favicons", "static/images/favicon/"
+    )
+    branding["color"] = config["branding"]["color"]
+    branding["color"]["background"] = config["branding"]["color"].get(
+        "background", "#fbfffe"
+    )
+    branding["color"]["button_submit"] = config["branding"]["color"].get(
+        "button_submit", "#40798c"
+    )
+    branding["color"]["danger"] = config["branding"]["color"].get("danger", "#ff3860")
+    branding["color"]["progress_bar"] = config["branding"]["color"].get(
+        "progress_bar", "#40798c"
+    )
+    branding["color"]["tag"]["type"] = config["branding"]["color"]["tag"].get(
+        "type", "#ff5e5b"
+    )
+    branding["color"]["tag"]["type_title"] = config["branding"]["color"]["tag"].get(
+        "type_title", "#330036"
+    )
+    branding["color"]["tag"]["location"] = config["branding"]["color"]["tag"].get(
+        "location", "#40798c"
+    )
+    branding["color"]["tag"]["location_title"] = config["branding"]["color"]["tag"].get(
+        "location_title", "#330036"
+    )
+    branding["font"] = config["branding"]["font"]
+    branding["font"]["primary"] = config["branding"]["font"]["primary"]
+    branding["font"]["primary"]["name"] = config["branding"]["font"]["primary"].get(
+        "name", "Nunito"
+    )
+    branding["font"]["primary"]["url"] = config["branding"]["font"]["primary"].get(
+        "url", "https://fonts.googleapis.com/css?family=Nunito:400,600,700"
+    )
+    branding["font"]["mono"] = config["branding"]["font"]["mono"]
+    branding["font"]["mono"]["name"] = config["branding"]["font"]["mono"].get(
+        "name", "Fira Mono"
+    )
+    branding["font"]["mono"]["url"] = config["branding"]["font"]["mono"].get(
+        "url", "https://fonts.googleapis.com/css?family=Fira+Mono"
+    )
+    params_dict = dict(
+        general=general, branding=branding, features=features, messages=messages
+    )
+    return params_dict

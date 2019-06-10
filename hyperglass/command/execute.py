@@ -4,12 +4,17 @@ Accepts input from front end application, validates the input and returns errors
 invalid. Passes validated parameters to construct.py, which is used to build & run the Netmiko \
 connectoins or hyperglass-frr API calls, returns the output back to the front end.
 """
-# Module Imports
+# Standard Imports
 import json
 import time
+import logging
+from pprint import pprint
+
+# Module Imports
 import requests
 import requests.exceptions
 from logzero import logger
+import logzero
 from netmiko import (
     ConnectHandler,
     redispatch,
@@ -25,7 +30,14 @@ from hyperglass.command.construct import Construct
 from hyperglass.command.validate import Validate
 
 codes = configuration.codes()
-config = configuration.general()
+config = configuration.params()
+# config = configuration.general()
+
+# Logzero Configuration
+if configuration.debug_state():
+    logzero.loglevel(logging.DEBUG)
+else:
+    logzero.loglevel(logging.INFO)
 
 
 class Rest:
@@ -34,18 +46,22 @@ class Rest:
     # pylint: disable=too-few-public-methods
     # Dear PyLint, sometimes, people need to make their code scalable for future use. <3, -ML
 
-    def __init__(self, transport, device, cmd, target):
+    def __init__(self, transport, device, query_type, target):
         self.transport = transport
         self.device = device
-        self.cmd = cmd
+        self.query_type = query_type
         self.target = target
         self.cred = configuration.credential(self.device["credential"])
-        self.query = getattr(Construct(self.device), self.cmd)(
+        self.query = getattr(Construct(self.device), self.query_type)(
             self.transport, self.target
         )
 
     def frr(self):
         """Sends HTTP POST to router running the hyperglass-frr API"""
+        # Debug
+        logger.debug(f"FRR host params:\n{pprint(self.device)}")
+        logger.debug(f"Raw query parameters: {self.query}")
+        # End Debug
         try:
             headers = {
                 "Content-Type": "application/json",
@@ -53,14 +69,23 @@ class Rest:
             }
             json_query = json.dumps(self.query)
             frr_endpoint = f'http://{self.device["address"]}:{self.device["port"]}/frr'
+            # Debug
+            logger.debug(f"HTTP Headers:\n{pprint(headers)}")
+            logger.debug(f"JSON query:\n{json_query}")
+            logger.debug(f"FRR endpoint: {frr_endpoint}")
+            # End Debug
             frr_response = requests.post(frr_endpoint, headers=headers, data=json_query)
             response = frr_response.text
             status = frr_response.status_code
+            # Debug
+            logger.debug(f"FRR response text:\n{response}")
+            logger.debug(f"FRR status code: {status}")
+            # End Debug
         except requests.exceptions.RequestException as requests_exception:
             logger.error(
                 f'Error connecting to device {self.device["name"]}: {requests_exception}'
             )
-            response = config["msg_error_general"]
+            response = config["messages"]["general"]
             status = codes["danger"]
         return response, status
 
@@ -71,16 +96,16 @@ class Netmiko:
     # pylint: disable=too-many-instance-attributes
     # Dear PyLint, I actually need all these. <3, -ML
 
-    def __init__(self, transport, device, cmd, target):
+    def __init__(self, transport, device, query_type, target):
         self.device = device
         self.target = target
         self.cred = configuration.credential(self.device["credential"])
-        self.params = getattr(Construct(device), cmd)(transport, target)
-        self.router = self.params[0]
+        self.params = getattr(Construct(device), query_type)(transport, target)
+        self.location = self.params[0]
         self.nos = self.params[1]
         self.command = self.params[2]
         self.nm_host = {
-            "host": self.router,
+            "host": self.location,
             "device_type": self.nos,
             "username": self.cred["username"],
             "password": self.cred["password"],
@@ -89,17 +114,24 @@ class Netmiko:
 
     def direct(self):
         """Connects to the router via netmiko library, return the command output"""
+        # Debug
+        logger.debug(f"Netmiko host: {pprint(self.nm_host)}")
+        logger.debug(f"Connecting to host via Netmiko library...")
+        # End Debug
         try:
             nm_connect_direct = ConnectHandler(**self.nm_host)
             response = nm_connect_direct.send_command(self.command)
             status = codes["success"]
+            logger.debug(
+                f"Response for direction connection with command {self.command}:\n{response}"
+            )
         except (
             NetMikoAuthenticationException,
             NetMikoTimeoutException,
             NetmikoAuthError,
             NetmikoTimeoutError,
         ) as netmiko_exception:
-            response = config["msg_error_general"]
+            response = config["messages"]["general"]
             status = codes["danger"]
             logger.error(f"{netmiko_exception}, {status}")
         return response, status
@@ -120,29 +152,40 @@ class Netmiko:
         }
         nm_connect_proxied = ConnectHandler(**nm_proxy)
         nm_ssh_command = device_proxy["ssh_command"].format(**self.nm_host) + "\n"
+        # Debug
+        logger.debug(f"Netmiko proxy {proxy_name}:\n{pprint(nm_proxy)}")
+        logger.debug(f"Proxy SSH command: {nm_ssh_command}")
+        # End Debug
         nm_connect_proxied.write_channel(nm_ssh_command)
         time.sleep(1)
         proxy_output = nm_connect_proxied.read_channel()
+        logger.debug(f"Proxy output:\n{proxy_output}")
         try:
             # Accept SSH key warnings
             if "Are you sure you want to continue connecting" in proxy_output:
+                logger.debug(f"Received OpenSSH key warning")
                 nm_connect_proxied.write_channel("yes" + "\n")
                 nm_connect_proxied.write_channel(self.nm_host["password"] + "\n")
             # Send password on prompt
             elif "assword" in proxy_output:
+                logger.debug(f"Received password prompt")
                 nm_connect_proxied.write_channel(self.nm_host["password"] + "\n")
                 proxy_output += nm_connect_proxied.read_channel()
             # Reclassify netmiko connection as configured device type
+            logger.debug(
+                f'Redispatching netmiko with device class {self.nm_host["device_type"]}'
+            )
             redispatch(nm_connect_proxied, self.nm_host["device_type"])
             response = nm_connect_proxied.send_command(self.command)
             status = codes["success"]
+            logger.debug(f"Netmiko proxied response:\n{response}")
         except (
             NetMikoAuthenticationException,
             NetMikoTimeoutException,
             NetmikoAuthError,
             NetmikoTimeoutError,
         ) as netmiko_exception:
-            response = config["msg_error_general"]
+            response = config["messages"]["general"]
             status = codes["danger"]
             logger.error(
                 f'{netmiko_exception}, {status},Proxy: {self.nm_host["proxy"]}'
@@ -158,23 +201,24 @@ class Execute:
 
     def __init__(self, lg_data):
         self.input_data = lg_data
-        self.input_router = lg_data["router"]
-        self.input_cmd = lg_data["cmd"]
-        self.input_target = lg_data["ipprefix"]
-        self.device_config = configuration.device(self.input_router)
+        self.input_location = lg_data["location"]
+        self.input_type = lg_data["type"]
+        self.input_target = lg_data["target"]
 
-    def parse(self, output):
+    def parse(self, output, nos):
         """Splits BGP output by AFI, returns only IPv4 & IPv6 output for protocol-agnostic \
         commands (Community & AS_PATH Lookups)"""
-        nos = self.device_config["type"]
+        logger.debug(f"Parsing output...")
         parsed = output
-        if self.input_cmd in ["bgp_community", "bgp_aspath"]:
+        if self.input_type in ["bgp_community", "bgp_aspath"]:
             if nos in ["cisco_ios"]:
+                logger.debug(f"Parsing output for device type {nos}")
                 delimiter = "For address family: "
                 parsed_ipv4 = output.split(delimiter)[1]
                 parsed_ipv6 = output.split(delimiter)[2]
                 parsed = delimiter + parsed_ipv4 + delimiter + parsed_ipv6
             if nos in ["cisco_xr"]:
+                logger.debug(f"Parsing output for device type {nos}")
                 delimiter = "Address Family: "
                 parsed_ipv4 = output.split(delimiter)[1]
                 parsed_ipv6 = output.split(delimiter)[2]
@@ -186,34 +230,42 @@ class Execute:
         Initializes Execute.filter(), if input fails to pass filter, returns errors to front end. \
         Otherwise, executes queries.
         """
-        # Return error if no query type is specified
-        if self.input_cmd == "Query Type":
-            msg = config["msg_error_querytype"]
-            status = codes["warning"]
-            return msg, status, self.input_data
-        validity, msg, status = getattr(Validate(self.device_config), self.input_cmd)(
+        device_config = configuration.device(self.input_location)
+        # Debug
+        logger.debug(f"Received query for {self.input_data}")
+        logger.debug(f"Matched device config:\n{pprint(device_config)}")
+        # End Debug
+        validity, msg, status = getattr(Validate(device_config), self.input_type)(
             self.input_target
         )
         if not validity:
+            logger.debug(f"Invalid query")
             return msg, status, self.input_data
         connection = None
-        output = config["msg_error_general"]
+        output = config["messages"]["general"]
         info = self.input_data
-        if self.device_config["type"] == "frr":
-            connection = Rest(
-                "rest", self.device_config, self.input_cmd, self.input_target
-            )
+        logger.debug(f"Validity: {validity}, Message: {msg}, Status: {status}")
+        if device_config["type"] in configuration.rest_list():
+            connection = Rest("rest", device_config, self.input_type, self.input_target)
             raw_output, status = connection.frr()
-            output = self.parse(raw_output)
-        if self.device_config["type"] in configuration.scrape_list():
+            output = self.parse(raw_output, device_config["type"])
+            return output, status, info
+        if device_config["type"] in configuration.scrape_list():
+            logger.debug(f"Initializing Netmiko...")
             connection = Netmiko(
-                "scrape", self.device_config, self.input_cmd, self.input_target
+                "scrape", device_config, self.input_type, self.input_target
             )
-            if self.device_config["proxy"]:
+            if device_config["proxy"]:
                 raw_output, status = connection.proxied()
             else:
                 raw_output, status = connection.direct()
-            output = self.parse(raw_output)
-        else:
-            logger.error(f"{output}, {status}, {info}")
+            output = self.parse(raw_output, device_config["type"])
+            logger.debug(
+                f'Parsed output for device type {device_config["type"]}:\n{output}'
+            )
+            return output, status, info
+        if device_config["type"] not in configuration.supported_nos():
+            logger.error(
+                f"Device not supported, or no commands for device configured. {status}, {info}"
+            )
         return output, status, info

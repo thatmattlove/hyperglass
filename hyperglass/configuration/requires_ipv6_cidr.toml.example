@@ -1,4 +1,0 @@
-requires_ipv6_cidr = [
-"cisco_ios",
-"cisco_nxos"
-]

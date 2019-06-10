@@ -11,11 +11,12 @@ nav:
       - 'Reverse Proxy & SSL': 'installation/reverseproxy.md'
     - Configuration:
       - 'Configuring Hyperglass': 'configuration/index.md'
-      - 'General Parameters': 'configuration/general.md'
-      - 'Branding': 'configuration/branding.md'
       - 'Devices': 'configuration/devices.md'
+      - 'Branding': 'configuration/branding.md'
+      - 'Features': 'configuration/features.md'
     - Caching: 'caching.md'
     - Rate Limiting: 'ratelimiting.md'
+    - Monitoring: 'monitoring.md'
     - Development:
       - 'Introduction': 'development/index.md'
     - Extras:

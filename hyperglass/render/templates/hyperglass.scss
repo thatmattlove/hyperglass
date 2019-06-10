@@ -1,24 +1,24 @@
 @charset "utf-8";
 
 /* Fonts */
-@import url('{{ primary_font_url }}');
-@import url('{{ mono_font_url }}');
+@import url('{{ branding["font"]["primary"]["url"] }}');
+@import url('{{ branding["font"]["mono"]["url"] }}');
 
-$family-sans-serif: "{{ primary_font_name }}", sans-serif;
-$family-monospace: "{{ mono_font_name }}", monospace;
+$family-sans-serif: "{{ branding["font"]["primary"]["name"] }}", sans-serif;
+$family-monospace: "{{ branding["font"]["mono"]["name"] }}", monospace;
 
 /* Color Changes */
-$body-background-color: {{ color_bg }};
+$body-background-color: {{ branding["color"]["background"] }};
 $footer-background-color: transparent;
-$danger: {{ color_danger }};
+$danger: {{ branding["color"]["danger"] }};
 
 /* Custom Colors */
-$lg-btn-submit: {{ color_btn_submit }};
-$lg-tag-loctitle: {{ color_tag_loctitle }};
-$lg-tag-cmdtitle: {{ color_tag_cmdtitle }};
-$lg-tag-cmd: {{ color_tag_cmd }};
-$lg-progressbar: {{ color_progressbar }};
-$lg-tag-loc: {{ color_tag_loc }};
+$lg-btn-submit: {{ branding["color"]["button_submit"] }};
+$lg-tag-loc_title: {{ branding["color"]["tag"]["location_title"] }};
+$lg-tag-type_title: {{ branding["color"]["tag"]["type_title"] }};
+$lg-tag-type: {{ branding["color"]["tag"]["type"] }};
+$lg-progressbar: {{ branding["color"]["progress_bar"] }};
+$lg-tag-loc: {{ branding["color"]["tag"]["location"] }};
 
 /* Element Changes */
 $footer-padding: 3rem 1.5rem 3rem ;
@@ -31,5 +31,5 @@ $footer-padding: 3rem 1.5rem 3rem ;
 @import "grid/_all";
 @import "layout/_all";
 
-/* Looking Glass Imports */
+/* Hyperglass Imports */
 @import "custom/custom_elements";

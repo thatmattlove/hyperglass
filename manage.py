@@ -12,14 +12,23 @@ import string
 
 # Module Imports
 import click
+import json
 from passlib.hash import pbkdf2_sha256
+import requests
 
 # Project Imports
-from hyperglass import hyperglass
 from hyperglass import render
 
 # Initialize shutil copy function
 cp = shutil.copyfile
+
+
+def construct_test(test_query, location, test_target):
+    """Constructs JSON POST data for test_hyperglass function"""
+    constructed_query = json.dumps(
+        {"type": test_query, "location": location, "target": test_target}
+    )
+    return constructed_query
 
 
 @click.group()
@@ -27,7 +36,401 @@ def hg():
     pass
 
 
-@hg.command()
+@hg.command("pre-check", help="Check hyperglass config & readiness")
+def pre_check():
+    if sys.version_info < (3, 7):
+        click.secho(
+            f"Hyperglass requires Python 3.7 or higher. Curren version: Python {sys.version.split()[0]}",
+            fg="red",
+            bold=True,
+        )
+    if sys.version_info >= (3, 7):
+        click.secho(
+            f"✓ Python Version Check passed (Current version: Python {sys.version.split()[0]})",
+            fg="green",
+            bold=True,
+        )
+    try:
+        from hyperglass import configuration
+
+        config = configuration.params()
+        status = True
+        while status:
+            if config["general"]["primary_asn"] == "65000" or "":
+                status = False
+                reason = f'Primary ASN is not defined (Current: "{config["general"]["primary_asn"]}")'
+                remediation = f"""
+To define the Primary ASN paramter, modify your `configuration.toml` and add the following \
+configuration:\n
+[general]
+primary_asn = "<Your Primary AS Number>"
+\nIf you do not define a Primary ASN, \"{config["general"]["primary_asn"]}\" will be used."""
+                break
+            if config["general"]["org_name"] == "The Company" or "":
+                status = False
+                reason = f'Org Name is not defined (Current: "{config["general"]["org_name"]}")'
+                remediation = f"""
+To define an Org Name paramter, modify your `configuration.toml` and add the following \
+configuration:\n
+[general]
+org_name = "<Your Org Name>"
+\nIf you do not define an Org Name, \"{config["general"]["org_name"]}\" will be displayed."""
+                break
+        click.secho(reason, fg="red", bold=True)
+        click.secho(remediation, fg="blue")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}", fg="red")
+
+
+@hg.command("test", help="Full test of all backend features")
+@click.option("-l", "--location", type=str, required=True, help="Location to query")
+@click.option(
+    "-4",
+    "--target-ipv4",
+    "target_ipv4",
+    type=str,
+    default="1.1.1.0/24",
+    required=False,
+    show_default=True,
+    help="IPv4 Target Address",
+)
+@click.option(
+    "-6",
+    "--target-ipv6",
+    "target_ipv6",
+    type=str,
+    default="2606:4700:4700::/48",
+    required=False,
+    show_default=True,
+    help="IPv6 Target Address",
+)
+@click.option(
+    "-c",
+    "--community",
+    "test_community",
+    type=str,
+    required=False,
+    show_default=True,
+    default="65000:1",
+    help="BGP Community",
+)
+@click.option(
+    "-a",
+    "--aspath",
+    "test_aspath",
+    type=str,
+    required=False,
+    show_default=True,
+    default="^65001$",
+    help="BGP AS Path",
+)
+@click.option(
+    "-r",
+    "--requires-ipv6-cidr",
+    "requires_ipv6_cidr",
+    type=str,
+    required=False,
+    help="Location for testing IPv6 CIDR requirement",
+)
+@click.option(
+    "-b",
+    "--blacklist",
+    "test_blacklist",
+    type=str,
+    default="100.64.0.1",
+    required=False,
+    show_default=True,
+    help="Address to use for blacklist check",
+)
+@click.option(
+    "-h",
+    "--host",
+    "test_host",
+    type=str,
+    default="localhost",
+    required=False,
+    show_default=True,
+    help="Name or IP address of hyperglass server",
+)
+@click.option(
+    "-p",
+    "--port",
+    "test_port",
+    type=int,
+    default=5000,
+    required=False,
+    show_default=True,
+    help="Port hyperglass is running on",
+)
+def test_hyperglass(
+    location,
+    target_ipv4,
+    target_ipv6,
+    requires_ipv6_cidr,
+    test_blacklist,
+    test_community,
+    test_aspath,
+    test_host,
+    test_port,
+):
+    """Fully tests hyperglass backend by making use of requests library to mimic the JS Ajax POST \
+    performed by the front end."""
+    test_target = None
+    invalid_ip = "this_ain't_an_ip!"
+    invalid_community = "192.0.2.1"
+    invalid_aspath = ".*"
+    ipv4_host = "1.1.1.1"
+    ipv4_cidr = "1.1.1.0/24"
+    ipv6_host = "2606:4700:4700::1111"
+    ipv6_cidr = "2606:4700:4700::/48"
+    test_headers = {"Content-Type": "application/json"}
+    test_endpoint = f"http://{test_host}:{test_port}/lg"
+    # No Query Type Test
+    try:
+        click.secho("Starting No Query Type test...", fg="black")
+        test_query = construct_test("", location, target_ipv4)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code in range(400, 500):
+            click.secho("✓ No Query Type test passed", fg="green", bold=True)
+        if not hg_response.status_code in range(400, 500):
+            click.secho("✗ No Query Type test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # No Location Test
+    try:
+        click.secho("Starting No Location test...", fg="black")
+        test_query = construct_test("bgp_route", "", target_ipv6)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code in range(400, 500):
+            click.secho("✓ No Location test passed", fg="green", bold=True)
+        if not hg_response.status_code in range(400, 500):
+            click.secho("✗ No Location test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # No Location Test
+    try:
+        click.secho("Starting No Target test...", fg="black")
+        test_query = construct_test("bgp_route", location, "")
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code in range(400, 500):
+            click.secho("✓ No Target test passed", fg="green", bold=True)
+        if not hg_response.status_code in range(400, 500):
+            click.secho("✗ No Target test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # Valid BGP IPv4 Route Test
+    try:
+        click.secho("Starting Valid BGP IPv4 Route test...", fg="black")
+        test_query = construct_test("bgp_route", location, target_ipv4)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code == 200:
+            click.secho("✓ Valid BGP IPv4 Route test passed", fg="green", bold=True)
+        if not hg_response.status_code == 200:
+            click.secho("✗ Valid BGP IPv4 Route test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # Valid BGP IPv6 Route Test
+    try:
+        click.secho("Starting Valid BGP IPv6 Route test...", fg="black")
+        test_query = construct_test("bgp_route", location, target_ipv6)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code == 200:
+            click.secho("✓ Valid BGP IPv6 Route test passed", fg="green", bold=True)
+        if not hg_response.status_code == 200:
+            click.secho("✗ Valid BGP IPv6 Route test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # Invalid BGP Route Test
+    try:
+        click.secho("Starting Invalid BGP IPv4 Route test...", fg="black")
+        test_query = construct_test("bgp_route", location, invalid_ip)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code in range(400, 500):
+            click.secho("✓ Invalid BGP IPv4 Route test passed", fg="green", bold=True)
+        if not hg_response.status_code in range(400, 500):
+            click.secho("✗ Invalid BGP IPv4 Route test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # Requires IPv6 CIDR Test
+    if requires_ipv6_cidr:
+        try:
+            click.secho("Starting Requires IPv6 CIDR test...", fg="black")
+            test_query = construct_test("bgp_route", requires_ipv6_cidr, ipv6_host)
+            hg_response = requests.post(
+                test_endpoint, headers=test_headers, data=test_query
+            )
+            if hg_response.status_code in range(400, 500):
+                click.secho("✓ Requires IPv6 CIDR test passed", fg="green", bold=True)
+            if not hg_response.status_code in range(400, 500):
+                click.secho("✗ Requires IPv6 CIDR test failed", fg="red", bold=True)
+                click.secho(
+                    f"Status Code: {hg_response.status_code}", fg="red", bold=True
+                )
+                click.secho(hg_response.text, fg="red")
+        except Exception as e:
+            click.secho(f"Exception occurred:\n{e}")
+    # Valid BGP Community Test
+    try:
+        click.secho("Starting Valid BGP Community test...", fg="black")
+        test_query = construct_test("bgp_community", location, test_community)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code == 200:
+            click.secho("✓ Valid BGP Community test passed", fg="green", bold=True)
+        if not hg_response.status_code == 200:
+            click.secho("✗ Valid BGP Community test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # Invalid BGP Community Test
+    try:
+        click.secho("Starting Invalid BGP Community test...", fg="black")
+        test_query = construct_test("bgp_community", location, target_ipv4)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code in range(400, 500):
+            click.secho("✓ Invalid BGP Community test passed", fg="green", bold=True)
+        if not hg_response.status_code in range(400, 500):
+            click.secho("✗ Invalid BGP Community test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # Valid BGP AS_PATH Test
+    try:
+        click.secho("Starting Valid BGP AS_PATH test...", fg="black")
+        test_query = construct_test("bgp_aspath", location, test_aspath)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code == 200:
+            click.secho("✓ Valid BGP AS_PATH test passed", fg="green", bold=True)
+        if not hg_response.status_code == 200:
+            click.secho("✗ Valid BGP AS_PATH test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # Invalid BGP AS_PATH Test
+    try:
+        click.secho("Starting invalid BGP AS_PATH test...", fg="black")
+        test_query = construct_test("bgp_aspath", location, invalid_aspath)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code in range(400, 500):
+            click.secho("✓ Invalid BGP AS_PATH test passed", fg="green", bold=True)
+        if not hg_response.status_code in range(400, 500):
+            click.secho("✗ Invalid BGP AS_PATH test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # Valid IPv4 Ping Test
+    try:
+        click.secho("Starting Valid IPv4 Ping test...", fg="black")
+        test_query = construct_test("ping", location, ipv4_host)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code == 200:
+            click.secho("✓ Valid IPv4 Ping test passed", fg="green", bold=True)
+        if not hg_response.status_code == 200:
+            click.secho("✗ Valid IPv4 Ping test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # Valid IPv6 Ping Test
+    try:
+        click.secho("Starting Valid IPv6 Ping test...", fg="black")
+        test_query = construct_test("ping", location, ipv6_host)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code == 200:
+            click.secho("✓ Valid IPv6 Ping test passed", fg="green", bold=True)
+        if not hg_response.status_code == 200:
+            click.secho("✗ Valid IPv6 Ping test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # Invalid IPv4 Ping Test
+    try:
+        click.secho("Starting Invalid IPv4 Ping test...", fg="black")
+        test_query = construct_test("ping", location, ipv4_cidr)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code in range(400, 500):
+            click.secho("✓ Invalid IPv4 Ping test passed", fg="green", bold=True)
+        if not hg_response.status_code in range(400, 500):
+            click.secho("✗ Invalid IPv4 Ping test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # Invalid IPv6 Ping Test
+    try:
+        click.secho("Starting Invalid IPv6 Ping test...", fg="black")
+        test_query = construct_test("ping", location, ipv6_cidr)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code in range(400, 500):
+            click.secho("✓ Invalid IPv6 Ping test passed", fg="green", bold=True)
+        if not hg_response.status_code in range(400, 500):
+            click.secho("✗ Invalid IPv6 Ping test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+    # Blacklist Test
+    try:
+        click.secho("Starting Blacklist test...", fg="black")
+        test_query = construct_test("bgp_route", location, test_blacklist)
+        hg_response = requests.post(
+            test_endpoint, headers=test_headers, data=test_query
+        )
+        if hg_response.status_code in range(400, 500):
+            click.secho("✓ Blacklist test passed", fg="green", bold=True)
+        if not hg_response.status_code in range(400, 500):
+            click.secho("✗ Blacklist test failed", fg="red", bold=True)
+            click.secho(f"Status Code: {hg_response.status_code}", fg="red", bold=True)
+            click.secho(hg_response.text, fg="red")
+    except Exception as e:
+        click.secho(f"Exception occurred:\n{e}")
+
+
+@hg.command("clear-cache", help="Clear Flask cache")
 def clearcache():
     """Clears the Flask-Caching cache"""
     try:
@@ -38,8 +441,11 @@ def clearcache():
         raise
 
 
-@hg.command()
-def generatekey(string_length=16):
+@hg.command("generate-key", help="Generate API key & hash")
+@click.option(
+    "-l", "--length", "string_length", type=int, default=16, show_default=True
+)
+def generatekey(string_length):
     """Generates 16 character API Key for hyperglass-frr API, and a corresponding PBKDF2 SHA256 Hash"""
     ld = string.ascii_letters + string.digits
     api_key = "".join(random.choice(ld) for i in range(string_length))
@@ -55,42 +461,37 @@ Use this hash as the password for the device using the API module. For example, 
     )
 
 
-@hg.command()
-def devserver():
+@hg.command("dev-server", help="Start Flask development server")
+# @click.option("--debug", type=bool, default="False", help="Enable Flask Debug Mode")
+@click.option("--host", type=str, default="0.0.0.0", help="Listening IP")
+@click.option("--port", type=int, default=5000, help="TCP Port")
+def flask_dev_server(host, port):
     """Starts Flask development server for testing without WSGI/Reverse Proxy"""
     try:
-        hyperglass.render.css()
-        # hyperglass.metrics.start_http_server(9100)
-        hyperglass.app.run(host="0.0.0.0", debug=True, port=5000)
-        click.secho("✓ Started test server.", fg="green", bold=True)
+        from hyperglass import hyperglass
+        from hyperglass import configuration
+
+        debug_state = configuration.debug_state()
+        render.css()
+        click.secho(f"✓ Starting Flask development server", fg="green", bold=True)
+        hyperglass.app.run(host=host, debug=debug_state, port=port)
     except:
         click.secho("✗ Failed to start test server.", fg="red", bold=True)
         raise
 
 
-@hg.command()
-def render():
+@hg.command("compile-sass", help="Compile Sass templates to CSS")
+def compile_sass():
     """Renders Jinja2 and Sass templates to HTML & CSS files"""
     try:
-        hyperglass.render.css()
+        render.css()
         click.secho("✓ Successfully rendered CSS templates.", fg="green", bold=True)
     except:
         click.secho("✗ Failed to render CSS templates.", fg="red", bold=True)
         raise
 
 
-@hg.command()
-def content():
-    """Renders Jinja2 and Sass templates to HTML & CSS files"""
-    try:
-        hyperglass.render.markdown()
-        click.secho("✓ Successfully rendered content templates.", fg="green", bold=True)
-    except:
-        click.secho("✗ Failed to render content templates.", fg="red", bold=True)
-        raise
-
-
-@hg.command()
+@hg.command("migrate-configs", help="Copy TOML examples to usable config files")
 def migrateconfig():
     """Copies example configuration files to usable config files"""
     try:
@@ -118,7 +519,7 @@ def migrateconfig():
         raise
 
 
-@hg.command()
+@hg.command("migrate-gunicorn", help="Copy Gunicorn example to usable config file")
 def migrategunicorn():
     """Copies example Gunicorn config file to a usable config"""
     try:
@@ -148,9 +549,11 @@ def migrategunicorn():
         raise
 
 
-@hg.command()
-@click.option("--dir", default="/etc/systemd/system")
-def migratesystemd(dir):
+@hg.command("migrate-systemd", help="Copy Systemd example to OS")
+@click.option(
+    "-d", "--directory", default="/etc/systemd/system", help="Destination Directory"
+)
+def migratesystemd(directory):
     """Copies example systemd service file to /etc/systemd/system/"""
     try:
         click.secho("Migrating example systemd service...", fg="cyan")
@@ -158,7 +561,7 @@ def migratesystemd(dir):
         ex_file_base = "hyperglass.service.example"
         ex_file = os.path.join(hyperglass_root, ex_file_base)
         basefile, extension = os.path.splitext(ex_file_base)
-        newfile = os.path.join(dir, basefile)
+        newfile = os.path.join(directory, basefile)
         if os.path.exists(newfile):
             click.secho(f"{newfile} already exists", fg="blue")
         else:
@@ -178,7 +581,10 @@ def migratesystemd(dir):
         raise
 
 
-@hg.command()
+@hg.command(
+    "update-permissions",
+    help="Fix ownership & permissions of hyperglass project directory",
+)
 @click.option("--user", default="www-data")
 @click.option("--group", default="www-data")
 def fixpermissions(user, group):

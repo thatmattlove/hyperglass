@@ -12,14 +12,50 @@
 
 From `hyperglass/hyperglass/configuration/configuration.toml` `[branding]` table.
 
-# Site Parameters
-#### site_title
+# `[branding]` - Site Parameters
+#### site_name
 
 | Type   | Default Value  |
 | ------ | -------------- |
 | String | `"hyperglass"` |
 
 HTML `<title>` element that is shown in a browser's title bar.
+
+## `[branding.footer]` - Footer Configuration
+#### enable
+
+| Type    | Default Value |
+| ------- | ------------- |
+| Boolean | `true`        |
+
+Enables or disables entire footer element.
+
+The footer text itself can be customized by adding a [Markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) document to `hyperglass/hyperglass/render/templates/info/details/footer.md`. The example file, `footer.md.example`, can be copied to `footer.md` and modified. All Markdown files in this directory are excluded from change control and will not be overwritten when hyperglass is updated.
+
+!!! note "Syntax"
+    The custom content Markdown files *must* have TOML Front Matter, even if there are no attributes used.
+
+## `[branding.credit]` - Credit Configuration
+#### enable
+
+| Type    | Default Value |
+| ------- | ------------- |
+| Boolean | `true`        |
+
+Enables or disables text below the footer element, which links to the hyperglass repo:
+
+> Powered by Hyperglass. Source code licensed BSD 3-Clause Clear.
+
+## `[branding.peering_db]` - PeeringDB Configuration
+#### enable
+
+| Type    | Default Value |
+| ------- | ------------- |
+| Boolean | `true`        |
+
+Enables or disables the PeeringDB link in the upper right corner. If `true`, the [primary_asn](#primary_asn) will be automatically used to create the URL to your ASN's PeeringDB entry.
+
+## `[branding.text]` - Site-Wide Text Customizations
 
 #### title_mode
 
@@ -47,91 +83,113 @@ Controls the title section on the main page.
 
 See [primary_asn](#primary_asn) parameter.
 
-#### enable_footer
+#### query_type
 
-| Type    | Default Value |
-| ------- | ------------- |
-| Boolean | `True`        |
+| Type   | Default Value        |
+| ------ | -------------------- |
+| String | `"Query Type"`       |
 
-Enables or disables entire footer element, which contains text defined in `hyperglass/hyperglass/render/templates/footer.md`.
+Placeholder text that appears in the Query Type dropdown.
 
-#### enable_credit
+#### results
 
-| Type    | Default Value |
-| ------- | ------------- |
-| Boolean | `True`        |
+| Type   | Default Value        |
+| ------ | -------------------- |
+| String | `"Results"`       |
 
-Enables or disables hoverable icon on the left side of the footer, which links to the hyperglass repo.
+Title text used for the results message box which contains the results of the query.
 
-#### show_peeringdb
+#### location
 
-| Type    | Default Value |
-| ------- | ------------- |
-| Boolean | `True`        |
+| Type   | Default Value          |
+| ------ | ---------------------- |
+| String | `"Select Location..."` |
 
-Enables or disables the PeeringDB link in the upper right corner. If `True`, the [primary_asn](#primary_asn) will be automatically used to create the URL to your ASN's PeeringDB entry.
+Placeholder text that appears in the Location dropdown.
 
-# Colors
+#### query_placeholder
 
-#### color_btn_submit
+| Type   | Default Value                         |
+| ------ | ------------------------------------- |
+| String | `"IP, Prefix, Community, or AS Path"` |
 
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#40798c"`   | <span class="bd-color" style="background-color: #40798c;"></span> |
+Placeholder text that appears in the main search box.
 
-Sets color of the submit button.
+#### bgp_route
 
-#### color_tag_loctitle
+| Type   | Default Value |
+| ------ | ------------- |
+| String | `"BGP Route"` |
 
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#330036"`   | <span class="bd-color" style="background-color: #330036;"></span> |
+Dropdown text used for the BGP Route query type.
 
-Sets color of the title portion of the location tag which appears at the top of the results box on the left side.
+#### bgp_community
 
-#### color_tag_cmdtitle
+| Type   | Default Value     |
+| ------ | ----------------- |
+| String | `"BGP Community"` |
 
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#330036"`   | <span class="bd-color" style="background-color: #330036;"></span> |
+Dropdown text used for the BGP Community query type.
 
-Sets color of the title portion of the command tag which appears at the top of the results box on the right side.
+#### bgp_aspath
 
-#### color_tag_cmd
+| Type   | Default Value   |
+| ------ | --------------- |
+| String | `"BGP AS Path"` |
 
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#ff5e5b"`   | <span class="bd-color" style="background-color: #ff5e5b;"></span> |
+Dropdown text used for the BGP AS Path query type.
 
-Sets color of the command name portion of the command tag which appears at the top of the results box on the right side.
+#### ping
 
-#### color_tag_loc
+| Type   | Default Value |
+| ------ | ------------- |
+| String | `"Ping"`      |
 
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#40798c"`   | <span class="bd-color" style="background-color: #40798c;"></span> |
+Dropdown text used for the Ping query type.
 
-Sets color of the location name portion of the location tag which appears at the top of the results box on the left side.
+#### traceroute
 
-#### color_bg
+| Type   | Default Value  |
+| ------ | -------------- |
+| String | `"Traceroute"` |
 
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#fbfffe"`   | <span class="bd-color" style="background-color: #fbfffe;"></span> |
+Dropdown text used for the Traceroute query type.
 
-Sets the background color of the main page.
+### `[branding.text.404]` - 404 Error Page Text Customization
 
-#### color_progressbar
+The 404 error page will be displayed if a user attempts to visit any non-existent URI, e.g. `http://lg.domain.tld/this_isnt_real`
 
-| Type   | Default Value | Preview                                                           |
-| ------ | ------------- | ----------------------------------------------------------------- |
-| String | `"#40798c"`   | <span class="bd-color" style="background-color: #40798c;"></span> |
+#### title
 
-Sets color of the progress bar that displays while the back-end application processes the request.
+| Type   | Default Value |
+| ------ | ------------- |
+| String | `"Error"`     |
 
-# Logo
+#### subtitle
 
-#### logo_path
+| Type   | Default Value      |
+| ------ | ------------------ |
+| String | `"Page Not Found"` |
+
+### `[branding.text.500]` - 500 Error Page Text Customization
+
+The 500 error page will be displayed if there is a backend problem or if an exception is raised. If you get this page, you should probably enable debug mode to find out why.
+
+#### title
+
+| Type   | Default Value |
+| ------ | ------------- |
+| String | `"Error"`     |
+
+#### subtitle
+
+| Type   | Default Value            |
+| ------ | ------------------------ |
+| String | `"Something Went Wrong"` |
+
+## `[branding.logo]` - Logo & Favicon Configuration
+
+#### path
 
 | Type   | Default Value                         |
 | ------ | ------------------------------------- |
@@ -139,7 +197,10 @@ Sets color of the progress bar that displays while the back-end application proc
 
 Sets the path to the logo file, which will be displayed if [title_mode](#title_mode) is set to `"logo_only"`. This file can be any browser-compatible format, such as JPEG, PNG, or SVG.
 
-#### logo_width
+!!! note "Custom Files"
+    The `hyperglass/hyperglass/static/custom/` directory is excluded from change control, and will not be overwritten when hyperglass is updated. Custom image files should be placed here.
+
+#### width
 
 | Type   | Default Value |
 | ------ | ------------- |
@@ -147,31 +208,127 @@ Sets the path to the logo file, which will be displayed if [title_mode](#title_m
 
 Sets the width of the logo defined in the [logo_path](#logo_path) parameter. This is helpful if your logo is a dimension that doesn't quite work with the default width.
 
-# UI Text
-
-#### placeholder_prefix
+#### favicons
 
 | Type   | Default Value                         |
 | ------ | ------------------------------------- |
-| String | `"Prefix, IP, Community, or AS_PATH"` |
+| String | `"static/images/favicon/"` |
 
-Sets the placeholder text that appears in the main search box.
+Sets the path to the favicons directory (must have a trailing `/`). For full browser and platform comatability, it is recommended to use [RealFaviconGenerator](https://realfavicongenerator.net/) and place all the generated files in `static/custom/images/favicon/` (and update the `favicons` parameter).
 
-#### text_results
+## `[branding.color]` - Color Customization
+
+#### background
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#fbfffe"`   | <span class="bd-color" style="background-color: #fbfffe;"></span> |
+
+Sets the background color of the main page.
+
+
+#### button_submit
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#40798c"`   | <span class="bd-color" style="background-color: #40798c;"></span> |
+
+Sets color of the submit button.
+
+#### danger
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#ff3860"`   | <span class="bd-color" style="background-color: #ff3860;"></span> |
+
+Sets color of the Bulma "danger" class, which is used for some user-facing error, and as the background color for the 404, 500 and Rate Limit error pages.
+
+#### progress_bar
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#40798c"`   | <span class="bd-color" style="background-color: #40798c;"></span> |
+
+Sets color of the progress bar that displays while the back-end application processes the request.
+
+### `[branding.color.tag]` - Tag Color Customization
+
+Bulma tags are used to show attributes for the active query being run.
+
+#### type_title
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#330036"`   | <span class="bd-color" style="background-color: #330036;"></span> |
+
+Sets color of the title portion of the query type tag which appears at the top of the results box on the right side.
+
+#### type
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#ff5e5b"`   | <span class="bd-color" style="background-color: #ff5e5b;"></span> |
+
+Sets color of the type portion of the query type tag which appears at the top of the results box on the right side.
+
+#### location_title
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#330036"`   | <span class="bd-color" style="background-color: #330036;"></span> |
+
+Sets color of the title portion of the location tag which appears at the top of the results box on the left side.
+
+#### location
+
+| Type   | Default Value | Preview                                                           |
+| ------ | ------------- | ----------------------------------------------------------------- |
+| String | `"#40798c"`   | <span class="bd-color" style="background-color: #40798c;"></span> |
+
+Sets color of the location name portion of the location tag which appears at the top of the results box on the left side.
+
+## `[branding.font]` - Font Customization
+
+Hyperglass makes use of two font families - a primary family and a monospace family. The primary family is used for all paragraph, title/subtitle, and non-code/preformatted text, and the monospace font is used for any code/preformatted blocks as well as the query results.
+
+The values are passed as a Jinja2 variable to generate `hyperglass/hyperglass/static/sass/hyperglass.scss`, which will be compiled from Sass to CSS.
+
+### `[branding.font.primary]` - Primary Font Customization
+
+#### name
 
 | Type   | Default Value |
 | ------ | ------------- |
-| String | `"Results"`   |
+| String | `"Nunito"`    |
 
-Sets the header text of the results box.
+Sets the web font name for the primary font.
 
-#### text_location
+#### url
+
+| Type   | Default Value                                                  |
+| ------ | -------------------------------------------------------------- |
+| String | `"https://fonts.googleapis.com/css?family=Nunito:400,600,700"` |
+
+Sets the web font URL for the primary font.
+
+### `[branding.font.mono]` - Monospace Font Customization
+
+#### name
 
 | Type   | Default Value |
 | ------ | ------------- |
-| String | `"Location"`  |
+| String | `"Fira Mono"` |
 
-Sets the placeholder text of the location selector.
+Sets the web font name for the monospace/code/preformatted text font.
+
+#### url
+
+| Type   | Default Value                                         |
+| ------ | ----------------------------------------------------- |
+| String | `"https://fonts.googleapis.com/css?family=Fira+Mono"` |
+
+Sets the web font URL for the monospace/code/preformatted text font.
+
 
 #### text_cache
 
@@ -196,110 +353,3 @@ Sets the title text for the site-wide rate limit page. Users are redirected to t
 | String | `"You have accessed this site more than {rate_limit_site} times in the last minute."` |
 
 Sets the subtitle text for the site-wide rate limit page. Users are redirected to this page when they have accessed the site more than the [specified](/configuration/general/#rate_limit_site) limit. `{rate_limit_site}` will be formatted with the value of [rate_limit_site](/configuration/general/#rate_limit_site).
-
-#### text_500_title
-
-| Type   | Default Value     |
-| ------ | ----------------- |
-| String | `"Error"`         |
-
-Sets the title text for the full general error page.
-
-#### text_500_subtitle
-
-| Type   | Default Value             |
-| ------ | ------------------------- |
-| String | `"Something went wrong."` |
-
-Sets the subtitle text for the full general error page.
-
-#### text_500_button
-
-| Type   | Default Value     |
-| ------ | ----------------- |
-| String | `"Home"`          |
-
-Sets the button text for the full general error page.
-
-#### text_help_bgp_route
-
-| Type   | Default Value             |
-| ------ | ------------------------- |
-| String | `"Performs BGP table lookup based on IPv4/IPv6 prefix."` |
-
-Sets the BGP Route query help text, displayed when the **?** icon is hovered.
-
-#### text_help_bgp_community
-
-| Type   | Default Value             |
-| ------ | ------------------------- |
-| String | `'Performs BGP table lookup based on <a href="https://tools.ietf.org/html/rfc4360">Extended</a> or <a href="https://tools.ietf.org/html/rfc8195">Large</a> community value.'` |
-
-Sets the BGP Community query help text, displayed when the **?** icon is hovered.
-
-!!! note
-    Since there are double quotes (`" "`) in the `<a>` HTML tags, single quotes (`' '`) are required for the TOML string.
-
-#### text_help_bgp_aspath
-
-| Type   | Default Value             |
-| ------ | ------------------------- |
-| String | `'Performs BGP table lookup based on <code>AS_PATH</code> regular expression.<br>For commonly used BGP regular expressions, <a href="https://hyperglass.readthedocs.io/en/latest/Extras/common_as_path_regex/">click here</a>.'` |
-
-Sets the BGP AS Path query help text, displayed when the **?** icon is hovered.
-
-!!! note
-    Since there are double quotes (`" "`) in the `<a>` HTML tags, single quotes (`' '`) are required for the TOML string.
-
-#### text_help_ping
-
-| Type   | Default Value             |
-| ------ | ------------------------- |
-| String | `"Sends 5 ICMP echo requests to the target."` |
-
-Sets the Ping query help text, displayed when the **?** icon is hovered.
-
-#### text_help_traceroute
-
-| Type   | Default Value             |
-| ------ | ------------------------- |
-| String | `'Performs UDP Based traceroute to the target.<br>For information about how to interpret traceroute results, <a href="https://www.nanog.org/meetings/nanog45/presentations/Sunday/RAS_traceroute_N45.pdf">click here</a>.'` |
-
-Sets the Traceroute query help text, displayed when the **?** icon is hovered.
-
-!!! note
-    Since there are double quotes (`" "`) in the `<a>` HTML tags, single quotes (`' '`) are required for the TOML string.
-
-# Fonts
-
-#### primary_font_url
-
-| Type   | Default Value             |
-| ------ | ------------------------- |
-| String | `"https://fonts.googleapis.com/css?family=Nunito:400,600,700"` |
-
-Sets the web font URL for the primary font. This font is used for all titles, subtitles, and non-code/preformatted text. The value is passed as a Jinja2 variable to the head block in the base template.
-
-#### primary_font_name
-
-| Type   | Default Value             |
-| ------ | ------------------------- |
-| String | `"Nunito"` |
-
-Sets the web font name for the primary font. This font is used for all titles, subtitles, and non-code/preformatted text. The value is passed as a Jinja2 variable to generate `hyperglass/hyperglass/static/sass/hyperglass.scss`, which ultimately get passed to CSS.
-
-#### mono_font_url
-
-| Type   | Default Value             |
-| ------ | ------------------------- |
-| String | `"https://fonts.googleapis.com/css?family=Fira+Mono"` |
-
-Sets the web font URL for the monospace/code/preformatted text font. This font is used for all query output text, as well as the command title and command name tag. The value is passed as a Jinja2 variable to the head block in the base template.
-
-#### mono_font_name
-
-| Type   | Default Value             |
-| ------ | ------------------------- |
-| String | `"Fira Mono"` |
-
-Sets the web font URL for the monospace/code/preformatted text font. This font is used for all query output text, as well as the command title and command name tag. The value is passed as a Jinja2 variable to generate `hyperglass/hyperglass/static/sass/hyperglass.scss`, which ultimately get passed to CSS.

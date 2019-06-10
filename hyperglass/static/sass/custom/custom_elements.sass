@@ -1,5 +1,8 @@
 // Custom Elements
 
+.select:not(.is-multiple):not(.is-loading)::after
+  border-color: $grey-light
+
 html, body
   height: 100%
 
@@ -52,22 +55,22 @@ a.navbar-item:hover
   border-color: transparent
   color: findColorInvert($lg-btn-submit)
 
-.tag.lg-tag-loctitle
-  background-color: $lg-tag-loctitle
-  color: findColorInvert($lg-tag-loctitle)
+.tag.lg-tag-loc-title
+  background-color: $lg-tag-loc_title
+  color: findColorInvert($lg-tag-loc_title)
   font-family: $family-monospace
 
 .tag.lg-tag-loc
   background-color: $lg-tag-loc
   color: findColorInvert($lg-tag-loc)
 
-.tag.lg-tag-cmdtitle
-  background-color: $lg-tag-cmdtitle
-  color: findColorInvert($lg-tag-cmdtitle)
+.tag.lg-tag-type-title
+  background-color: $lg-tag-type_title
+  color: findColorInvert($lg-tag-type_title)
 
-.tag.lg-tag-cmd
-  background-color: $lg-tag-cmd
-  color: findColorInvert($lg-tag-cmd)
+.tag.lg-tag-type
+  background-color: $lg-tag-type
+  color: findColorInvert($lg-tag-type)
   font-family: $family-monospace
 
 .progress.lg-progressbar:indeterminate
@@ -91,16 +94,16 @@ a.navbar-item:hover
   width: 20rem
 
 .icon.lg-icon-help
-  color: $lg-btn-submit
+  color: $grey-light
 
-#ipprefix::-webkit-input-placeholder
+#target::-webkit-input-placeholder
   font-family: $family-sans-serif
 
-#ipprefix:-ms-input-placeholder
+#target:-ms-input-placeholder
   font-family: $family-sans-serif
 
-#ipprefix:-moz-placeholder
+#target:-moz-placeholder
   font-family: $family-sans-serif
 
-#ipprefix::-moz-placeholder
+#target::-moz-placeholder
   font-family: $family-sans-serif

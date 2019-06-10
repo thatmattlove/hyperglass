@@ -1,9 +1,9 @@
-// Get the list of routers for the selected Network
+// Get the list of locations for the selected Network
 
 var progress = ($('#progress'));
 var resultsbox = ($('#resultsbox'));
-var ipprefix_error = ($('#ipprefix_error'));
-var ipprefix_input = ($('#ipprefix'));
+var target_error = ($('#target_error'));
+var target_input = ($('#target'));
 adjustDropdowns();
 clearPage();
 
@@ -12,6 +12,21 @@ let dropdown = document.querySelector('#help-dropdown');
 dropdown.addEventListener('click', function(event) {
   event.stopPropagation();
   dropdown.classList.toggle('is-active');
+});
+
+var btn_copy = document.getElementById('btn-copy');
+var clipboard = new ClipboardJS(btn_copy);
+clipboard.on('success', function(e) {
+    console.log(e);
+    $('#btn-copy').addClass('is-success');
+    $('#copy-icon').removeClass('icofont-ui-copy').addClass('icofont-check');
+    setTimeout(function(){
+      $('#btn-copy').removeClass('is-success');
+      $('#copy-icon').removeClass('icofont-check').addClass('icofont-ui-copy');
+    }, 1000)
+});
+clipboard.on('error', function(e) {
+    console.log(e);
 });
 
 function bgpHelpASPath() {
@@ -40,30 +55,30 @@ function adjustDropdowns() {
   if (actual_width < 1024) {
     $('#lg-netlocdropdown').removeClass('has-addons').removeClass('has-addons-centered').addClass('is-grouped').addClass('is-grouped-centered').addClass('is-grouped-multiline');
     $('#network').css('width', actual_width * 0.85);
-    $('#router').css('width', actual_width * 0.85);
+    $('#location').css('width', actual_width * 0.85);
   }
 }
 
 function clearErrors() {
   progress.hide();
-  ipprefix_error.hide();
-  if (ipprefix_input.hasClass("is-warning")) {
-    ipprefix_input.removeClass("is-warning");
+  target_error.hide();
+  if (target_input.hasClass("is-warning")) {
+    target_input.removeClass("is-warning");
   };
-  if (ipprefix_input.hasClass("is-danger")) {
-    ipprefix_input.removeClass("is-danger");
+  if (target_input.hasClass("is-danger")) {
+    target_input.removeClass("is-danger");
   };
 }
 
 function clearPage() {
   progress.hide();
   resultsbox.hide();
-  ipprefix_error.hide();
-  if (ipprefix_input.hasClass("is-warning")) {
-    ipprefix_input.removeClass("is-warning");
+  target_error.hide();
+  if (target_input.hasClass("is-warning")) {
+    target_input.removeClass("is-warning");
   };
-  if (ipprefix_input.hasClass("is-danger")) {
-    ipprefix_input.removeClass("is-danger");
+  if (target_input.hasClass("is-danger")) {
+    target_input.removeClass("is-danger");
   };
 }
 
@@ -75,7 +90,7 @@ function prepResults() {
 $(document).ready(function() {
   var defaultasn = $("#network").val();
   $.ajax({
-    url: `/routers/${defaultasn}`,
+    url: `/locations/${defaultasn}`,
     context: document.body,
     type: 'get',
     success: function(data) {
@@ -91,9 +106,9 @@ $(document).ready(function() {
 
 $('#network').on('change', () => {
   var asn = $("select[id=network").val()
-  $('#router').children(":not(#text_location)").remove();
+  $('#location').children(":not(#text_location)").remove();
   $.ajax({
-    url: `/routers/${asn}`,
+    url: `/locations/${asn}`,
     type: 'get',
     success: function(data) {
       cleanPage();
@@ -105,9 +120,9 @@ $('#network').on('change', () => {
   })
 })
 
-function updateRouters(routers) {
-  routers.forEach(function(r) {
-    $('#router').append($("<option>").attr('value', r.location).text(r.display_name))
+function updateRouters(locations) {
+  locations.forEach(function(r) {
+    $('#location').append($("<option>").attr('value', r.location).text(r.display_name))
   })
 }
 
@@ -118,14 +133,12 @@ $('#lgForm').on('submit', function() {
 
 function submitForm() {
   clearErrors();
-  // progress.hide();
-  // ipprefix_error.hide();
-  var cmd = $('#cmd option:selected').val();
-  var cmdtitle = $('#cmd option:selected').text();
+  var type = $('#type option:selected').val();
+  var type_title = $('#type option:selected').text();
   var network = $('#network option:selected').val();
-  var router = $('#router option:selected').val();
-  var routername = $('#router option:selected').text();
-  var ipprefix = $('#ipprefix').val();
+  var location = $('#location option:selected').val();
+  var location_name = $('#location option:selected').text();
+  var target = $('#target').val();
 
   $('#output').text("");
   $('#queryInfo').text("");
@@ -133,14 +146,14 @@ function submitForm() {
     <div class="field is-grouped is-grouped-multiline">
       <div class="control">
         <div class="tags has-addons">
-          <span class="tag lg-tag-loctitle">AS${network}</span>
-          <span class="tag lg-tag-loc">${routername}</span>
+          <span class="tag lg-tag-loc-title">AS${network}</span>
+          <span class="tag lg-tag-loc">${location_name}</span>
         </div>
       </div>
       <div class="control">
         <div class="tags has-addons">
-          <span class="tag lg-tag-cmdtitle">${cmdtitle}</span>
-          <span class="tag lg-tag-cmd">${ipprefix}</span>
+          <span class="tag lg-tag-type-title">${type_title}</span>
+          <span class="tag lg-tag-type">${target}</span>
         </div>
       </div>
     </div>
@@ -150,9 +163,9 @@ function submitForm() {
     url: `/lg`,
     type: 'POST',
     data: JSON.stringify({
-      router: router,
-      cmd: cmd,
-      ipprefix: ipprefix
+      location: location,
+      type: type,
+      target: target
     }),
     contentType: "application/json; charset=utf-8",
     context: document.body,
@@ -164,9 +177,9 @@ function submitForm() {
       },
       405: function(response, code) {
         clearPage();
-        ipprefix_error.show()
-        ipprefix_input.addClass('is-warning');
-        ipprefix_error.html(`
+        target_error.show()
+        target_input.addClass('is-warning');
+        target_error.html(`
           <br>
           <article class="message is-warning is-small" style="display: block;">
             <div class="message-header" style="display: block;">
@@ -180,9 +193,9 @@ function submitForm() {
       },
       415: function(response, code) {
         clearPage();
-        ipprefix_error.show()
-        ipprefix_input.addClass('is-danger');
-        ipprefix_error.html(`
+        target_error.show()
+        target_input.addClass('is-danger');
+        target_error.html(`
           <br>
           <article class="message is-danger is-small" style="display: block;">
             <div class="message-header" style="display: block;">

@@ -11,35 +11,37 @@
     <div class="modal-content">
       <article class="message is-danger">
         <div class="message-header">
-          <p>Query Limit Reached</p>
+          <p>{{ features["rate_limit"]["query"]["title"] }}</p>
         </div>
         <div class="message-body">
-          <p>{{ message_rate_limit_query }}</p>
+          <p>{{ features["rate_limit"]["query"]["message"] }}</p>
           <br>
           <div class="buttons is-right">
-            <a href="/" class="button is-danger is-rounded is-outlined">Try Again</a>
+            <a href="/" class="button is-danger is-rounded is-outlined">{{ features["rate_limit"]["query"]["button"] }}</a>
           </div>
         </div>
       </article>
     </div>
   </div>
-  {% if enable_bgp_aspath == true %}
+  {% if features["bgp_aspath"]["enable"] == true %}
   <div class="modal" id="help_bgp_aspath">
     <div class="modal-background" onclick="closeModal()"></div>
     <div class="modal-content is-clipped">
       <div class="box">
-        {% include "templates/bgp_aspath.html" %}
+        <p class="title">{{ details["bgp_aspath"]["title"] }}</p>
+        {{ details["bgp_aspath"]["content"] }}
       </div>
     </div>
     <button class="modal-close is-large" aria-label="close" onclick="closeModal()"></button>
   </div>
   {% endif %}
-  {% if enable_bgp_community == true %}
+  {% if features["bgp_community"]["enable"] == true %}
   <div class="modal" id="help_bgp_community">
     <div class="modal-background" onclick="closeModal()"></div>
     <div class="modal-content">
       <div class="box">
-        {% include "templates/bgp_community.html" %}
+        <p class="title">{{ details["bgp_community"]["title"] }}</p>
+        {{ details["bgp_community"]["content"] }}
       </div>
     </div>
     <button class="modal-close is-large" aria-label="close" onclick="closeModal()"></button>
@@ -49,10 +51,10 @@
     <div class="container is-fluid">
       <div class="navbar-brand">
       </div>
-      {% if show_peeringdb == true %}
+      {% if branding["peering_db"]["enable"] == true %}
       <div class="navbar-menu">
         <div class="navbar-end">
-          <a class="navbar-item" href="https://as{{ primary_asn }}.peeringdb.com" target="_blank">
+          <a class="navbar-item" href="https://as{{ general["primary_asn"] }}.peeringdb.com" target="_blank">
             <span>PeeringDB</span>
             <span class="icon">
               <i class="icofont-external"></i>
@@ -66,33 +68,33 @@
   </nav>
   <section class="section">
     <div class="container has-text-centered is-fluid">
-      {% if title_mode == 'all' %}
-      <img src="{{ logo_path }}" style="width: {{ logo_width }}px;">
+      {% if branding["text"]["title_mode"] == 'all' %}
+      <img src="{{ branding["logo"]["path"] }}" style="width: {{ branding["logo"]["width"] }}px;">
       <h1 class="title is-3" id="lg-title">
-        {{ title }}
+        {{ branding["text"]["title"] }}
       </h1>
       <h2 class="subtitle is-5" id="lg-subtitle">
-        {{ subtitle }}
+        {{ branding["text"]["subtitle"] }}
       </h2>
       <br>
-      {% elif title_mode == 'text_only' %}
+      {% elif branding["text"]["title_mode"] == 'text_only' %}
       <h1 class="title is-1" id="lg-title">
-        {{ title }}
+        {{ branding["text"]["title"] }}
       </h1>
       <h2 class="subtitle is-3" id="lg-subtitle">
-        {{ subtitle }}
+        {{ branding["text"]["subtitle"] }}
       </h2>
       <br>
-      {% elif title_mode == 'logo_title' %}
-      <img src="{{ logo_path }}" style="width: {{ logo_width }}px;">
+      {% elif branding["text"]["title_mode"] == 'logo_title' %}
+      <img src="{{ branding["logo"]["path"] }}" style="width: {{ branding["logo"]["width"] }}px;">
       <h1 class="title is-3" id="lg-title">
-        {{ title }}
+        {{ branding["text"]["title"] }}
       </h1>
-      {% elif title_mode == 'logo_only' %}
+      {% elif branding["text"]["title_mode"] == 'logo_only' %}
       <br>
       <br>
       <br>
-      <img src="{{ logo_path }}" style="width: {{ logo_width }}px;">
+      <img src="{{ branding["logo"]["path"] }}" style="width: {{ branding["logo"]["width"] }}px;">
       <br>
       <br>
       {% endif %}
@@ -101,7 +103,7 @@
         <div class="container is-fluid">
           <div class="field has-addons has-addons-centered">
             <div class="control has-icons-left is-expanded">
-              <input type="text" class="input is-medium is-rounded is-family-monospace" id="ipprefix" placeholder="{{ placeholder_prefix }}">
+              <input type="text" class="input is-medium is-rounded is-family-monospace" id="target" placeholder="{{ branding["text"]["query_placeholder"] }}">
               <span class="icon is-small is-left"><i class="icofont-at"></i></span>
             </div>
           </div>
@@ -110,18 +112,17 @@
             <div class="control has-icons-left" id="network-control">
               <div class="select is-medium is-rounded">
                 <select id="network" name="network" style="width: 256px">
-                  <!-- <option value="" disabled></option> -->
-                  {% for net in device_networks %}
+                  {% for net in networks %}
                   <option value="{{ net }}">AS{{ net }}</option>
                   {% endfor %}
                 </select>
               </div>
               <span class="icon is-left"><i class="icofont-cloudapp"></i></span>
             </div>
-            <div class="control has-icons-left" id="router-control">
+            <div class="control has-icons-left" id="location-control">
               <div class="select is-medium is-rounded">
-                <select id="router" style="width: 256px">
-                  <option id="text_location" selected disabled>{{ text_location }}</option>
+                <select id="location" style="width: 256px">
+                  <option id="text_location" selected disabled>{{ branding["text"]["location"] }}</option>
                 </select>
               </div>
               <span class="icon is-left"><i class="icofont-location-arrow"></i></span>
@@ -135,41 +136,41 @@
               <div class="dropdown is-right" id="help-dropdown">
                 <div class="dropdown-trigger">
                   <button type="button" class="button is-rounded is-medium" aria-haspopup="true" aria-controls="dropdown-menu2" onclick="adjustHeight()">
-                    <span class="icon is-size-7 lg-icon-help">
-                      <i class="icofont-question" aria-hidden="true"></i>
+                    <span class="icon is-size-6 lg-icon-help">
+                      <i class="icofont-info-circle" aria-hidden="true"></i>
                     </span>
                   </button>
                 </div>
                 <div class="dropdown-menu is-expanded" id="dropdown-menu2" role="menu">
                   <div class="dropdown-content lg-help">
-                    {% if enable_bgp_route == true %}
+                    {% if features["bgp_route"]["enable"] == true %}
                     <div class="dropdown-item">
-                      <strong>BGP Route</strong>
-                      <p>{{ text_help_bgp_route }}</p>
+                      <strong>{{ branding["text"]["bgp_route"] }}</strong>
+                      <p>{{ info["bgp_route"]["content"] }}</p>
                     </div>
                     {% endif %}
-                    {% if enable_bgp_community == true %}
+                    {% if features["bgp_community"]["enable"] == true %}
                     <div class="dropdown-item">
-                      <strong>BGP Community</strong>
-                      <p>{{ text_help_bgp_community }}</p>
+                      <strong>{{ branding["text"]["bgp_community"] }}</strong>
+                      <p>{{ info["bgp_community"]["content"] }}</p>
                     </div>
                     {% endif %}
-                    {% if enable_bgp_aspath == true %}
+                    {% if features["bgp_aspath"]["enable"] == true %}
                     <div class="dropdown-item">
-                      <strong>BGP AS Path</strong>
-                      <p>{{ text_help_bgp_aspath }}</p>
+                      <strong>{{ branding["text"]["bgp_aspath"] }}</strong>
+                      <p>{{ info["bgp_aspath"]["content"] }}</p>
                     </div>
                     {% endif %}
-                    {% if enable_ping == true %}
+                    {% if features["ping"]["enable"] == true %}
                     <div class="dropdown-item">
-                      <strong>Ping</strong>
-                      <p>{{ text_help_ping }}</p>
+                      <strong>{{ branding["text"]["ping"] }}</strong>
+                      <p>{{ info["ping"]["content"] }}</p>
                     </div>
                     {% endif %}
-                    {% if enable_traceroute == true %}
+                    {% if features["traceroute"]["enable"] == true %}
                     <div class="dropdown-item">
-                      <strong>Traceroute</strong>
-                      <p>{{ text_help_traceroute }}</p>
+                      <strong>{{ branding["text"]["traceroute"] }}</strong>
+                      <p>{{ info["traceroute"]["content"] }}</p>
                     </div>
                     {% endif %}
                   </div>
@@ -178,40 +179,40 @@
             </div>
             <div class="control">
               <div class="select is-medium is-rounded">
-                <select id="cmd">
+                <select id="type">
                   <option selected disabled>
-                    Query Type
+                    {{ branding["text"]["query_type"] }}
                   </option>
-                  {% if enable_bgp_route == true %}
-                  <option name="cmd" id="cmd_bgp_route" value="bgp_route">
-                    BGP Route
-                  </option>
-                  {% endif %}
-                  {% if enable_bgp_community == true %}
-                  <option name="cmd" id="cmd_bgp_community" value="bgp_community">
-                    BGP Community
+                  {% if features["bgp_route"]["enable"] == true %}
+                  <option name="type" id="type_bgp_route" value="bgp_route">
+                    {{ branding["text"]["bgp_route"] }}
                   </option>
                   {% endif %}
-                  {% if enable_bgp_aspath == true %}
-                  <option name="cmd" id="cmd_bgp_aspath" value="bgp_aspath">
-                    BGP AS Path
+                  {% if features["bgp_community"]["enable"] == true %}
+                  <option name="type" id="type_bgp_community" value="bgp_community">
+                    {{ branding["text"]["bgp_community"] }}
                   </option>
                   {% endif %}
-                  {% if enable_ping == true %}
-                  <option name="cmd" id="cmd_ping" value="ping">
-                    Ping
+                  {% if features["bgp_aspath"]["enable"] == true %}
+                  <option name="type" id="type_bgp_aspath" value="bgp_aspath">
+                    {{ branding["text"]["bgp_aspath"] }}
                   </option>
                   {% endif %}
-                  {% if enable_traceroute == true %}
-                  <option name="cmd" id="cmd_traceroute" value="traceroute">
-                    Traceroute
+                  {% if features["ping"]["enable"] == true %}
+                  <option name="type" id="type_ping" value="ping">
+                    {{ branding["text"]["ping"] }}
+                  </option>
+                  {% endif %}
+                  {% if features["traceroute"]["enable"] == true %}
+                  <option name="type" id="type_traceroute" value="traceroute">
+                    {{ branding["text"]["traceroute"] }}
                   </option>
                   {% endif %}
                 </select>
               </div>
             </div>
             <div class="control">
-              <button class="button lg-btn-submit is-medium is-rounded" type="submit" name="cmd">
+              <button class="button lg-btn-submit is-medium is-rounded" type="submit" name="type">
                 <span class="icon">
                   <i class="icofont-search-1"></i>
                 </span>
@@ -220,7 +221,7 @@
           </div>
         </div>
         <div class="columns is-centered">
-          <div class="column is-one-third" id="ipprefix_error">
+          <div class="column is-one-third" id="target_error">
           </div>
         </div>
     </div>
@@ -229,7 +230,12 @@
   <section class="section">
     <div class="container is-fluid">
       <div class="box" id="resultsbox">
-        <p class="title" id="results">{{ text_results }}</p>
+        <a class="button is-pulled-right" id="btn-copy" data-clipboard-target="#output">
+          <span class="icon is-small">
+            <i id="copy-icon" class="icofont-ui-copy"></i>
+          </span>
+        </a>
+        <p class="title" id="results">{{ branding["text"]["results"] }}</p>
         <p id="queryInfo">
         </p>
         <p id="progress">
@@ -239,19 +245,19 @@
         <br>
         <p class="query-output" id="output">
         </p>
-        {% if text_cache|length > 1 %}
+        {% if features["cache"]["show_text"] == true %}
         <hr>
-        <p class="is-size-7">{{ text_cache }}</p>
+        <p class="is-size-7">{{ features["cache"]["text"] }}</p>
         {% endif %}
       </div>
     </div>
   </section>
-  {% if enable_footer == true %}
-  {% include "templates/footer.html" %}
-  {% endif %}
-  {% if enable_credit == true %}
-  {% include "templates/credit.html" %}
-  {% endif %}
+    {% if branding["footer"]["enable"] == true %}
+      {% include "templates/footer.html" %}
+    {% endif %}
+    {% if branding["credit"]["enable"] == true %}
+      {% include "templates/credit.html" %}
+    {% endif %}
   {% endblock %}
 </body>
 

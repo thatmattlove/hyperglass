@@ -3,18 +3,33 @@
 Accepts raw input data from execute.py, passes it through specific filters based on query type, \
 returns validity boolean and specific error message.
 """
-# Module Imports
+# Standard Imports
 import re
 import inspect
+import logging
+from pprint import pprint
+
+# Module Imports
+import logzero
 from logzero import logger
 from netaddr.core import AddrFormatError
 from netaddr import IPNetwork, IPAddress, IPSet  # pylint: disable=unused-import
+
+# Dear PyLint, the netaddr library is a special snowflake. You might not see `IPAddress` get used, \
+# but when you use something like `IPNetwork("192.0.2.1/24").ip`, the returned value is \
+# IPAddress("192.0.2.1"), so I do actually need this import. <3, -ML
 
 # Project Imports
 from hyperglass import configuration
 
 # Configuration Imports
-config = configuration.general()
+config = configuration.params()
+
+# Logzero Configuration
+if configuration.debug_state():
+    logzero.loglevel(logging.DEBUG)
+else:
+    logzero.loglevel(logging.INFO)
 
 
 class IPType:
@@ -61,8 +76,10 @@ class IPType:
         ip_version = IPNetwork(target).ip.version
         state = False
         if ip_version == 4 and re.match(self.ipv4_host, target):
+            logger.debug(f"{target} is an IPv{ip_version} host.")
             state = True
         if ip_version == 6 and re.match(self.ipv6_host, target):
+            logger.debug(f"{target} is an IPv{ip_version} host.")
             state = True
         return state
 
@@ -89,9 +106,12 @@ def ip_validate(target):
             or valid_ip.is_loopback()
         ):
             validity = False
+            logger.debug(f"IP {valid_ip} is invalid")
         if valid_ip.is_unicast():
             validity = True
+            logger.debug(f"IP {valid_ip} is valid")
     except AddrFormatError:
+        logger.debug(f"IP {target} is invalid")
         validity = False
     return validity
 
@@ -99,6 +119,7 @@ def ip_validate(target):
 def ip_blacklist(target):
     """Check blacklist list for prefixes/IPs, return boolean based on list membership"""
     blacklist = IPSet(configuration.blacklist())
+    logger.debug(f"Blacklist: {blacklist}")
     membership = False
     if target in blacklist:
         membership = True
@@ -124,44 +145,49 @@ def ip_attributes(target):
     return valid_attributes
 
 
-def ip_type_check(cmd, target, device):
+def ip_type_check(query_type, target, device):
     """Checks multiple IP address related validation parameters"""
     prefix_attr = ip_attributes(target)
+    logger.debug(f"IP Attributes:\n{pprint(prefix_attr)}")
     requires_ipv6_cidr = configuration.requires_ipv6_cidr(device["type"])
     validity = False
-    msg = config["msg_error_notallowed"].format(i=target)
+    msg = config["messages"]["not_allowed"].format(i=target)
     # If target is a member of the blacklist, return an error.
     if ip_blacklist(target):
         validity = False
+        logger.debug(f"Failed blacklist check")
         return (validity, msg)
     # If enable_max_prefix feature enabled, require that BGP Route queries be smaller than\
     # configured size limit.
-    if cmd == "bgp_route" and config["enable_max_prefix"]:
-        max_length = config[f'max_prefix_length_{prefix_attr["afi"]}']
+    if query_type == "bgp_route" and config["features"]["max_prefix"]["enable"]:
+        max_length = config["features"]["max_prefix"][prefix_attr["afi"]]
         if prefix_attr["length"] > max_length:
             validity = False
-            msg = config["msg_max_prefix"].format(
+            msg = config["features"]["max_prefix"]["message"].format(
                 m=max_length, i=prefix_attr["network"]
             )
+            logger.debug(f"Failed max prefix length check")
             return (validity, msg)
     # If device NOS is listed in requires_ipv6_cidr.toml, and query is an IPv6 host address, \
     # return an error.
     if (
-        cmd == "bgp_route"
+        query_type == "bgp_route"
         and prefix_attr["version"] == 6
         and requires_ipv6_cidr
         and IPType().is_host(target)
     ):
-        msg = config["msg_error_ipv6cidr"].format(d=device["display_name"])
+        msg = config["messages"]["requires_ipv6_cidr"].format(d=device["display_name"])
         validity = False
+        logger.debug(f"Failed requires IPv6 CIDR check")
         return (validity, msg)
     # If query type is ping or traceroute, and query target is in CIDR format, return an error.
-    if cmd in ["ping", "traceroute"] and IPType().is_cidr(target):
-        msg = config["msg_error_directed_cidr"].format(cmd=cmd.capitalize())
+    if query_type in ["ping", "traceroute"] and IPType().is_cidr(target):
+        msg = config["messages"]["directed_cidr"].format(q=query_type.capitalize())
         validity = False
+        logger.debug(f"Failed CIDR format for ping/traceroute check")
         return (validity, msg)
     validity = True
-    msg = f"{target} is a valid {cmd} query."
+    msg = f"{target} is a valid {query_type} query."
     return (validity, msg)
 
 
@@ -183,9 +209,10 @@ class Validate:
 
     def ping(self, target):
         """Ping Query: Input Validation & Error Handling"""
-        cmd = current_function()
+        query_type = current_function()
+        logger.debug(f"Validating {query_type} query for target {target}...")
         validity = False
-        msg = config["msg_error_invalidip"].format(i=target)
+        msg = config["messages"]["invalid_ip"].format(i=target)
         status = self.codes["warning"]
         # Perform basic validation of an IP address, return error if not a valid IP.
         if not ip_validate(target):
@@ -193,19 +220,21 @@ class Validate:
             logger.error(f"{msg}, {status}")
             return (validity, msg, status)
         # Perform further validation of a valid IP address, return an error upon failure.
-        valid_query, msg = ip_type_check(cmd, target, self.device)
+        valid_query, msg = ip_type_check(query_type, target, self.device)
         if valid_query:
             validity = True
-            msg = f"{target} is a valid {cmd} query."
+            msg = f"{target} is a valid {query_type} query."
             status = self.codes["success"]
+            logger.debug(f"{msg}, {status}")
             return (validity, msg, status)
         return (validity, msg, status)
 
     def traceroute(self, target):
         """Traceroute Query: Input Validation & Error Handling"""
-        cmd = current_function()
+        query_type = current_function()
+        logger.debug(f"Validating {query_type} query for target {target}...")
         validity = False
-        msg = config["msg_error_invalidip"].format(i=target)
+        msg = config["messages"]["invalid_ip"].format(i=target)
         status = self.codes["warning"]
         # Perform basic validation of an IP address, return error if not a valid IP.
         if not ip_validate(target):
@@ -213,19 +242,21 @@ class Validate:
             logger.error(f"{msg}, {status}")
             return (validity, msg, status)
         # Perform further validation of a valid IP address, return an error upon failure.
-        valid_query, msg = ip_type_check(cmd, target, self.device)
+        valid_query, msg = ip_type_check(query_type, target, self.device)
         if valid_query:
             validity = True
-            msg = f"{target} is a valid {cmd} query."
+            msg = f"{target} is a valid {query_type} query."
             status = self.codes["success"]
+            logger.debug(f"{msg}, {status}")
             return (validity, msg, status)
         return (validity, msg, status)
 
     def bgp_route(self, target):
         """BGP Route Query: Input Validation & Error Handling"""
-        cmd = current_function()
+        query_type = current_function()
+        logger.debug(f"Validating {query_type} query for target {target}...")
         validity = False
-        msg = config["msg_error_invalidip"].format(i=target)
+        msg = config["messages"]["invalid_ip"].format(i=target)
         status = self.codes["warning"]
         # Perform basic validation of an IP address, return error if not a valid IP.
         if not ip_validate(target):
@@ -233,49 +264,56 @@ class Validate:
             logger.error(f"{msg}, {status}")
             return (validity, msg, status)
         # Perform further validation of a valid IP address, return an error upon failure.
-        valid_query, msg = ip_type_check(cmd, target, self.device)
+        valid_query, msg = ip_type_check(query_type, target, self.device)
         if valid_query:
             validity = True
-            msg = f"{target} is a valid {cmd} query."
+            msg = f"{target} is a valid {query_type} query."
             status = self.codes["success"]
+            logger.debug(f"{msg}, {status}")
             return (validity, msg, status)
         return (validity, msg, status)
 
     def bgp_community(self, target):
         """BGP Community Query: Input Validation & Error Handling"""
+        query_type = current_function()
+        logger.debug(f"Validating {query_type} query for target {target}...")
         validity = False
-        msg = config["msg_error_invaliddual"].format(i=target, qt="BGP Community")
+        msg = config["messages"]["invalid_dual"].format(i=target, qt="BGP Community")
         status = self.codes["danger"]
         # Validate input communities against configured or default regex pattern
         # Extended Communities, new-format
-        if re.match(config["re_bgp_community_new"], target):
+        if re.match(config["features"][query_type]["regex"]["extended_as"], target):
             validity = True
-            msg = f"{target} matched new-format community."
+            msg = f"{target} matched extended AS format community."
             status = self.codes["success"]
         # Extended Communities, 32 bit format
-        if re.match(config["re_bgp_community_32bit"], target):
+        if re.match(config["features"][query_type]["regex"]["decimal"], target):
             validity = True
-            msg = f"{target} matched 32 bit community."
+            msg = f"{target} matched decimal format community."
             status = self.codes["success"]
         # RFC 8092 Large Community Support
-        if re.match(config["re_bgp_community_large"], target):
+        if re.match(config["features"][query_type]["regex"]["large"], target):
             validity = True
             msg = f"{target} matched large community."
             status = self.codes["success"]
         if not validity:
             logger.error(f"{msg}, {status}")
+        logger.debug(f"{msg}, {status}")
         return (validity, msg, status)
 
     def bgp_aspath(self, target):
         """BGP AS Path Query: Input Validation & Error Handling"""
+        query_type = current_function()
+        logger.debug(f"Validating {query_type} query for target {target}...")
         validity = False
-        msg = config["msg_error_invaliddual"].format(i=target, qt="AS Path")
+        msg = config["messages"]["invalid_dual"].format(i=target, qt="AS Path")
         status = self.codes["danger"]
         # Validate input AS_PATH regex pattern against configured or default regex pattern
-        if re.match(config["re_bgp_aspath"], target):
+        if re.match(config["features"][query_type]["regex"]["pattern"], target):
             validity = True
             msg = f"{target} matched AS_PATH regex."
             status = self.codes["success"]
         if not validity:
             logger.error(f"{msg}, {status}")
+        logger.debug(f"{msg}, {status}")
         return (validity, msg, status)

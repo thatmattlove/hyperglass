@@ -25,19 +25,19 @@
   <section>
     <div class="container has-text-centered">
       <h1 class="title is-size-1">
-        {{ text_limiter_title }}
+        {{ features["rate_limit"]["site"]["title"] }}
       </h1>
       <h2 class="subtitle is-size-3">
-        {{ text_limiter_subtitle }}
+        {{ features["rate_limit"]["site"]["subtitle"] }}
       </h2>
       <br>
-      <a href="/" class="button is-medium is-rounded is-inverted is-danger is-outlined">Try Again</a>
+      <a href="/" class="button is-medium is-rounded is-inverted is-danger is-outlined">{{ features["rate_limit"]["site"]["button"] }}</a>
     </div>
   </section>
-  {% if enable_footer == true %}
+  {% if branding["footer"]["enable"] == true %}
     {% include "templates/footer.html" %}
   {% endif %}
-  {% if enable_credit == true %}
+  {% if branding["credit"]["enable"] == true %}
     {% include "templates/credit.html" %}
   {% endif %}
 {% endblock %}

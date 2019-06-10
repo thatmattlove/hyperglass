@@ -1,7 +1,7 @@
 +++
 title = "Supported AS Path Patterns"
 +++
-{{ site_title }} accepts the following `AS_PATH` regular expression patterns:
+{{ branding.site_name }} accepts the following `AS_PATH` regular expression patterns:
 
 | Expression               |                                                 Match |
 | :----------------------- | ----------------------------------------------------: |
