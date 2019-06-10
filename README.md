@@ -1,6 +1,8 @@
 <img src="hyperglass/static/images/hyperglass-dark.png" width=300></img>
 
-**hyperglass** is a modern network looking glass application. A looking glass is typically implemented by network service providers as a way of providing customers, peers, and partners with a way to easily view elements of, or run tests from the provider's network. **hyperglass** is intended to make implementing a looking glass too easy not to do, with the big-picture goal of improving the internet community as a whole by making looking glasses more common across autonomous systems of any size.
+**hyperglass** is a modern network looking glass application. A looking glass is typically implemented by network service providers as a way of providing customers, peers, and partners with a way to easily view elements of, or run tests from the provider's network.
+
+**hyperglass** is intended to make implementing a looking glass too easy not to do, with the big-picture goal of improving the internet community as a whole by making looking glasses more common across autonomous systems of any size.
 
 <br>
 
