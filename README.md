@@ -1,6 +1,6 @@
 <img src="hyperglass/static/images/hyperglass-dark.png" width=300></img>
 
-**Hyperglass** is a network looking glass application. A looking glass is typically implemented by network service providers as a way of providing customers, peers, and partners with a way to easily view elements of, or run tests from the provider's network.
+**hyperglass** is a modern network looking glass application. A looking glass is typically implemented by network service providers as a way of providing customers, peers, and partners with a way to easily view elements of, or run tests from the provider's network.
 
 <br>
 
@@ -11,16 +11,19 @@
 
 ## Features
 
--   BGP Route, BGP Community, BGP AS_PATH, Ping, Traceroute
+-   BGP Route, BGP Community, BGP AS Path, Ping, Traceroute
 -   Full IPv6 support
--   [Netmiko](https://github.com/ktbyers/netmiko)-based connection handling
--   Customizable commands for each function by vendor
--   Clean, google-esq GUI based on the [Bumla](https://bulma.io) framework
+-   [Netmiko](https://github.com/ktbyers/netmiko)-based connection handling for traditional network devices
+-   [FRRouting](https://frrouting.org/) support via [hyperglass-frr](https://github.com/checktheroads/hyperglass-frr) REST API
+-   Customizable commands for each query type by vendor
+-   Clean, modern, google-esq GUI based on the [Bumla](https://bulma.io) framework
 -   Customizable colors, logo, web fonts, error messages, UI text
--   TOML-based config file for all customizable parameters (no databases!)
--   Configurable IP/Prefix "blacklist" to prevent lookup of internal/private prefixes
+-   Simple TOML config file for all customizable parameters (no databases!)
+-   Optional SSH Proxy to further direct secure router access
+-   Configurable IP/Prefix "blacklist" to prevent lookup of sensitive prefixes
 -   Configurable rate limiting, powered by [Flask-Limiter](https://github.com/alisaifee/flask-limiter)
 -   Query response caching with configurable cache timeout, powered by [Flask-Caching](https://github.com/sh4nks/flask-caching)
+-   [Prometheus](https://prometheus.io/) metrics for query statistics tracking
 
 ## Documentation
 
@@ -32,13 +35,14 @@ For screenshots, see [here](screenshots.md), or the `screenshots/` directory.
 
 ## Platform Support
 
-Theoretically, any vendor supported by Netmiko can be supported by Hyperglass. However, I am currently listing platforms I have personally tested and verified full functionality with:
+Theoretically, any vendor supported by Netmiko can be supported by hyperglass. However, hyperglass is preconfigured to support the following platforms:
 
 ### Routers
 
--   Cisco IOS-XR: `cisco_xr`
--   Cisco Classic IOS/IOS-XE: `cisco_ios`
--   Juniper JunOS: `junos`
+-   Cisco IOS-XR: Netmiko `cisco_xr` vendor class
+-   Cisco Classic IOS/IOS-XE: Netmiko `cisco_ios` vendor class
+-   Juniper JunOS: Netmiko `junos` vendor class
+-   FRRouting: hyperglass-frr API
 
 ### Proxies
 
@@ -46,7 +50,7 @@ Theoretically, any vendor supported by Netmiko can be supported by Hyperglass. H
 
 ## Acknowledgements
 
--   This project originally started as a fork of vraulsan's [looking-glass](https://github.com/vraulsan/looking-glass) project. The guts of the Flask components still remain from that project, but almost everything else has been rewritten. Nevertheless, the inspiration for building hyperglass came from here.
+-   This project originally started as a fork of [vraulsan](https://github.com/vraulsan)'s [looking-glass](https://github.com/vraulsan/looking-glass) project. The guts of the Flask components still remain from that project, but almost everything else has been rewritten. Nevertheless, the inspiration for building hyperglass came from here.
 
 ## License
 
