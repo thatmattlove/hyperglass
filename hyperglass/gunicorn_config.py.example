@@ -2,8 +2,9 @@
 https://github.com/checktheroads/hyperglass
 Guncorn configuration
 """
-
+import os
 import multiprocessing
+from logzero import logger
 
 command = "/usr/local/bin/gunicorn"
 pythonpath = "/opt/hyperglass"
@@ -14,10 +15,36 @@ user = "www-data"
 timeout = 60
 keepalive = 10
 
+# Prometheus Multiprocessing directory, set as environment variable
+prometheus_multiproc_dir = ".prometheus_multiproc_dir"
 
-def on_starting(server):
-    """Renders CSS templates at initial code execution with single worker"""
-    import hyperglass
 
-    hyperglass.render.css()
-    print(1)
+def on_starting(server):  # pylint: disable=unused-argument
+    """Pre-startup Gunicorn Tasks"""
+    try:
+        # Renders Jinja2 -> Sass, compiles Sass -> CSS prior to worker load
+        import hyperglass.render
+
+        hyperglass.render.css()
+        print(1)
+    except ImportError as error_exception:
+        logger.error(f"Exception occurred:\n{error_exception}")
+    #
+    os.mkdir(prometheus_multiproc_dir)
+    os.environ["prometheus_multiproc_dir"] = prometheus_multiproc_dir
+
+
+def worker_exit(server, worker):  # pylint: disable=unused-argument
+    """Prometheus multiprocessing WSGI support"""
+    from prometheus_client import multiprocess
+
+    multiprocess.mark_process_dead(worker.pid)
+
+
+def on_exit(server):
+    try:
+        import shutil
+    except ImportError as error_exception:
+        logger.error(f"Exception occurred:\n{error_exception}")
+
+    shutil.rmtree(prometheus_multiproc_dir)

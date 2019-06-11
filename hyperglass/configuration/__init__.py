@@ -40,7 +40,7 @@ else:
 def blacklist():
     """Returns list of subnets/IPs defined in blacklist.toml"""
     blacklist_config = config["blacklist"]
-    return blacklist_config["blacklist"]
+    return blacklist_config
 
 
 def requires_ipv6_cidr(nos):

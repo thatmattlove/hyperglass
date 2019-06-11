@@ -14,21 +14,10 @@ $ pip3 install gunicorn
 Migrate the example Gunicorn configuration file:
 ```console
 $ cd /opt/hyperglass/
-$ python3 manage.py migrategunicorn
+$ python3 manage.py migrate-gunicorn
 ```
 
-Open `hyperglass/gunicorn_config.py`, and adjust the parameters to match your local system. For example, make sure the `command` parameter matches the location of your `gunicorn` executable (`which gunicorn`), the `pythonpath` parameter matches the location where hyperglass is installed, and that the `user` parameter matches the user you're running hyperglass as:
-
-```python
-import multiprocessing
-
-command = "/usr/local/bin/gunicorn"
-pythonpath = "/opt/hyperglass/hyperglass"
-bind = "[::1]:8001"
-workers = multiprocessing.cpu_count() * 2
-user = "www-data"
-timeout = 60
-```
+Open `hyperglass/hyperglass/gunicorn_config.py`, and adjust the parameters to match your local system. For example, make sure the `command` parameter matches the location of your `gunicorn` executable (`which gunicorn`), the `pythonpath` parameter matches the location where hyperglass is installed, and that the `user` parameter matches the user you're running hyperglass as:
 
 ### Permissions
 
@@ -36,7 +25,7 @@ Gunicorn requires read/write/executable access to the entire `hyperglass/hypergl
 
 ```console
 # cd /opt/hyperglass/
-# python3 manage.py fixpermissions --user <user> --group <group>
+# python3 manage.py update-permissions --user <user> --group <group>
 ```
 
 !!! note "File Ownership"

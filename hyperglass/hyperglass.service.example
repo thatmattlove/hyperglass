@@ -1,5 +1,5 @@
 [Unit]
-Description=Hyperglass
+Description=hyperglass
 After=network.target
 
 [Service]

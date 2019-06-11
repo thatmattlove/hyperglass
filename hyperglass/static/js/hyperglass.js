@@ -18,10 +18,10 @@ var btn_copy = document.getElementById('btn-copy');
 var clipboard = new ClipboardJS(btn_copy);
 clipboard.on('success', function(e) {
     console.log(e);
-    $('#btn-copy').addClass('is-success');
+    $('#btn-copy').addClass('is-success').addClass('is-outlined');
     $('#copy-icon').removeClass('icofont-ui-copy').addClass('icofont-check');
     setTimeout(function(){
-      $('#btn-copy').removeClass('is-success');
+      $('#btn-copy').removeClass('is-success').removeClass('is-outlined');
       $('#copy-icon').removeClass('icofont-check').addClass('icofont-ui-copy');
     }, 1000)
 });

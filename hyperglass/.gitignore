@@ -3,6 +3,7 @@
 .flask_cache
 .flask_cache/*
 gunicorn_config.py
+gunicorn_dev_config.py
 test.py
 __pycache__/
 parsing/

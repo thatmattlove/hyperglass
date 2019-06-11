@@ -10,7 +10,7 @@ nav:
       - 'Systemd': 'installation/systemd.md'
       - 'Reverse Proxy & SSL': 'installation/reverseproxy.md'
     - Configuration:
-      - 'Configuring Hyperglass': 'configuration/index.md'
+      - 'Configuring Hyperglass': 'configuration/configuration.md'
       - 'Devices': 'configuration/devices.md'
       - 'Branding': 'configuration/branding.md'
       - 'Features': 'configuration/features.md'

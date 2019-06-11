@@ -495,7 +495,7 @@ def compile_sass():
 def migrateconfig():
     """Copies example configuration files to usable config files"""
     try:
-        click.secho("Migrating example config files...", fg="cyan")
+        click.secho("Migrating example config files...", fg="black")
         hyperglass_root = os.path.dirname(hyperglass.__file__)
         config_dir = os.path.join(hyperglass_root, "configuration/")
         examples = glob.iglob(os.path.join(config_dir, "*.example"))
@@ -523,7 +523,11 @@ def migrateconfig():
 def migrategunicorn():
     """Copies example Gunicorn config file to a usable config"""
     try:
-        click.secho("Migrating example Gunicorn configuration...", fg="cyan")
+        import hyperglass
+    except ImportError as error_exception:
+        click.secho(f"Error while importing hyperglass:\n{error_exception}", fg="red")
+    try:
+        click.secho("Migrating example Gunicorn configuration...", fg="black")
         hyperglass_root = os.path.dirname(hyperglass.__file__)
         ex_file = os.path.join(hyperglass_root, "gunicorn_config.py.example")
         basefile, extension = os.path.splitext(ex_file)
@@ -533,15 +537,14 @@ def migrategunicorn():
         else:
             try:
                 cp(ex_file, newfile)
-                click.secho(f"✓ Migrated {newfile}", fg="green")
+                click.secho(
+                    f"✓ Successfully migrated Gunicorn configuration to: {newfile}",
+                    fg="green",
+                    bold=True,
+                )
             except:
                 click.secho(f"✗ Failed to migrate {newfile}", fg="red")
                 raise
-        click.secho(
-            "✓ Successfully migrated example Gunicorn configuration",
-            fg="green",
-            bold=True,
-        )
     except:
         click.secho(
             "✗ Error migrating example Gunicorn configuration", fg="red", bold=True
@@ -556,7 +559,7 @@ def migrategunicorn():
 def migratesystemd(directory):
     """Copies example systemd service file to /etc/systemd/system/"""
     try:
-        click.secho("Migrating example systemd service...", fg="cyan")
+        click.secho("Migrating example systemd service...", fg="black")
         hyperglass_root = os.path.dirname(hyperglass.__file__)
         ex_file_base = "hyperglass.service.example"
         ex_file = os.path.join(hyperglass_root, ex_file_base)
@@ -567,15 +570,14 @@ def migratesystemd(directory):
         else:
             try:
                 cp(ex_file, newfile)
-                click.secho(f"✓ Migrated {newfile}", fg="green")
+                click.secho(
+                    f"✓ Successfully migrated systemd service to: {newfile}",
+                    fg="green",
+                    bold=True,
+                )
             except:
                 click.secho(f"✗ Failed to migrate {newfile}", fg="red")
                 raise
-        click.secho(
-            f"✓ Successfully migrated example systemd service to: {newfile}",
-            fg="green",
-            bold=True,
-        )
     except:
         click.secho("✗ Error migrating example systemd service", fg="red", bold=True)
         raise

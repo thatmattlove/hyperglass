@@ -14,7 +14,7 @@ from flask import Flask, request, Response
 from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
-from prometheus_client import generate_latest, Counter
+from prometheus_client import generate_latest, Counter, CollectorRegistry, multiprocess
 
 # Project Imports
 from hyperglass.command import execute
@@ -81,7 +81,9 @@ count_ratelimit = Counter(
 def metrics():
     """Prometheus metrics"""
     content_type_latest = str("text/plain; version=0.0.4; charset=utf-8")
-    return Response(generate_latest(), mimetype=content_type_latest)
+    registry = CollectorRegistry()
+    multiprocess.MultiProcessCollector(registry)
+    return Response(generate_latest(registry), mimetype=content_type_latest)
 
 
 @app.errorhandler(404)
