@@ -16,9 +16,6 @@ import json
 from passlib.hash import pbkdf2_sha256
 import requests
 
-# Project Imports
-from hyperglass import render
-
 # Initialize shutil copy function
 cp = shutil.copyfile
 
@@ -434,7 +431,9 @@ def test_hyperglass(
 def clearcache():
     """Clears the Flask-Caching cache"""
     try:
-        hyperglass.clear_cache()
+        import hyperglass.hyperglass
+
+        hyperglass.hyperglass.clear_cache()
         click.secho("✓ Successfully cleared cache.", fg="green", bold=True)
     except:
         click.secho("✗ Failed to clear cache.", fg="red", bold=True)
@@ -462,7 +461,6 @@ Use this hash as the password for the device using the API module. For example, 
 
 
 @hg.command("dev-server", help="Start Flask development server")
-# @click.option("--debug", type=bool, default="False", help="Enable Flask Debug Mode")
 @click.option("--host", type=str, default="0.0.0.0", help="Listening IP")
 @click.option("--port", type=int, default=5000, help="TCP Port")
 def flask_dev_server(host, port):
@@ -470,6 +468,7 @@ def flask_dev_server(host, port):
     try:
         from hyperglass import hyperglass
         from hyperglass import configuration
+        from hyperglass import render
 
         debug_state = configuration.debug_state()
         render.css()
@@ -484,6 +483,8 @@ def flask_dev_server(host, port):
 def compile_sass():
     """Renders Jinja2 and Sass templates to HTML & CSS files"""
     try:
+        from hyperglass import render
+
         render.css()
         click.secho("✓ Successfully rendered CSS templates.", fg="green", bold=True)
     except:
