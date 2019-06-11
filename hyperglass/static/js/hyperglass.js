@@ -175,6 +175,21 @@ function submitForm() {
         progress.hide();
         $('#output').html(`<br><div class="content"><p class="query-output" id="output">${response}</p></div>`);
       },
+      401: function(response, code) {
+        clearPage();
+        target_error.show()
+        target_input.addClass('is-danger');
+        target_error.html(`
+          <br>
+          <article class="message is-danger is-small" style="display: block;">
+            <div class="message-header" style="display: block;">
+              Authentication Error
+            </div>
+            <div id="error" style="display: block;" class="message-body">
+              ${response.responseText}
+            </div>
+          </article>
+          `);
       405: function(response, code) {
         clearPage();
         target_error.show()
