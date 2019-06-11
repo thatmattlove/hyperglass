@@ -68,7 +68,12 @@ class Construct:
         source = self.get_src(ip_version)
         if transport == "rest":
             query = json.dumps(
-                {"cmd": query_type, "afi": afi, "source": source, "target": target}
+                {
+                    "query_type": query_type,
+                    "afi": afi,
+                    "source": source,
+                    "target": target,
+                }
             )
         if transport == "scrape":
             conf_command = self.command[afi][query_type]
@@ -87,7 +92,12 @@ class Construct:
         source = self.get_src(ip_version)
         if transport == "rest":
             query = json.dumps(
-                {"cmd": query_type, "afi": afi, "source": source, "target": target}
+                {
+                    "query_type": query_type,
+                    "afi": afi,
+                    "source": source,
+                    "target": target,
+                }
             )
 
         if transport == "scrape":
@@ -105,7 +115,7 @@ class Construct:
         ip_version = IPNetwork(target).ip.version
         afi = f"ipv{ip_version}"
         if transport == "rest":
-            query = json.dumps({"cmd": query_type, "afi": afi, "target": target})
+            query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
         if transport == "scrape":
             conf_command = self.command[afi][query_type]
             fmt_command = conf_command.format(target=target)
@@ -120,7 +130,7 @@ class Construct:
         afi = "dual"
         query = None
         if transport == "rest":
-            query = json.dumps({"cmd": query_type, "afi": afi, "target": target})
+            query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
         if transport == "scrape":
             conf_command = self.command[afi][query_type]
             fmt_command = conf_command.format(target=target)
@@ -135,7 +145,7 @@ class Construct:
         afi = "dual"
         query = None
         if transport == "rest":
-            query = json.dumps({"cmd": query_type, "afi": afi, "target": target})
+            query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
         if transport == "scrape":
             conf_command = self.command[afi][query_type]
             fmt_command = conf_command.format(target=target)
