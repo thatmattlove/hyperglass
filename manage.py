@@ -78,7 +78,9 @@ org_name = "<Your Org Name>"
                 click.secho(reason, fg="red", bold=True)
                 click.secho(remediation, fg="blue")
             click.secho(
-                "All critical hyperglass parameters are defined!", fg="green", bold=True
+                "✓ All critical hyperglass parameters are defined!",
+                fg="green",
+                bold=True,
             )
             break
     except Exception as e:
