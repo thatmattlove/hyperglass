@@ -16,7 +16,7 @@ timeout = 60
 keepalive = 10
 
 # Prometheus Multiprocessing directory, set as environment variable
-prometheus_multiproc_dir = ".prometheus_multiproc_dir"
+prometheus_multiproc_dir = "/tmp/prometheus_multiproc_dir"
 
 
 def on_starting(server):  # pylint: disable=unused-argument
@@ -29,7 +29,7 @@ def on_starting(server):  # pylint: disable=unused-argument
         print(1)
     except ImportError as error_exception:
         logger.error(f"Exception occurred:\n{error_exception}")
-    #
+    # Prometheus multiprocessing directory
     os.mkdir(prometheus_multiproc_dir)
     os.environ["prometheus_multiproc_dir"] = prometheus_multiproc_dir
 
