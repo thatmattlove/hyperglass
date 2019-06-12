@@ -1,33 +1,122 @@
 # Non-dictionary parameters
+debug = true
 requires_ipv6_cidr = [
 "cisco_ios",
 "cisco_nxos"
 ]
-
+# IP Blacklist
+blacklist = [
+"198.18.0.0/15",
+"100.64.0.0/10",
+"2001:db8::/32",
+"10.0.0.0/8",
+"192.168.0.0/16",
+"172.16.0.0/12"
+]
 # General site-wide parameters
 [general]
 # primary_asn = ""
 # org_name = ""
 # google_analytics = ""
-# enable_bgp_route = ""
-# enable_bgp_community = ""
-# enable_bgp_aspath = ""
-# enable_ping = ""
-# enable_traceroute = ""
-# enable_max_prefix = ""
-# max_prefix_length_ipv4 = ""
-# max_prefix_length_ipv6 = ""
-[general.bgp_aspath]
-# mode = "asplain"
-[general.bgp_aspath.asplain]
-[general.bgp_aspath.asdot]
+
+# Feature customization
+[features]
+[features.rate_limit.query]
+# rate = 5
+# title = ""
+# message = ""
+# button = ""
+[features.rate_limit.site]
+# rate = 120
+# title = ""
+# subtitle = ""
+[features.cache]
+# timeout = 120
+# directory = ""
+# show_text = true
+# text = ""
+[features.bgp_route]
+# enable = true
+[features.bgp_community]
+# enable = true
+[features.bgp_community.regex]
+# decimal = ""
+# extended_as = ""
+# large = ""
+[features.bgp_aspath]
+# enable = true
+[features.bgp_aspath.regex]
+# mode = ""
+# asplain = ""
+# asdot = ""
+[features.ping]
+# enable = true
+[features.traceroute]
+# enable = true
+[features.max_prefix]
+# enable = false
+# ipv4 = 24
+# ipv6 = 64
+# message = ""
+
+# User messages
+[messages]
+# no_query_type = ""
+# no_location = ""
+# no_input = ""
+# not_allowed = ""
+# requires_ipv6_cidr = ""
+# invalid_ip = ""
+# invalid_dual = ""
+# general = ""
+# directed_cidr = ""
 
 # Branding/Visual Customization Parameters
 [branding]
-# site_title = ""
+# site_name = ""
+[branding.footer]
+# enable = true
+[branding.credit]
+# enable = true
+[branding.peering_db]
+# enable = true
+[branding.text]
+# title_mode = "text_only"
 # title = ""
 # subtitle = ""
-# title_mode = ""
-# logo_path = ""
-# logo_width = ""
-# favicon_dir = ""
+# query_type = ""
+# results = ""
+# location = ""
+# query_placeholder = ""
+# bgp_route = ""
+# bgp_community = ""
+# bgp_aspath = ""
+# ping = ""
+# traceroute = ""
+[branding.text.404]
+# title = ""
+# subtitle = ""
+[branding.text.500]
+# title = ""
+# subtitle = ""
+# button = ""
+[branding.logo]
+# path = ""
+# width = ""
+# favicons = ""
+[branding.color]
+# background = ""
+# button_submit = ""
+# danger = ""
+# progress_bar = ""
+[branding.color.tag]
+# type = ""
+# location = ""
+# location_title = ""
+# type_title = ""
+[branding.font.primary]
+# name = ""
+# url = ""
+[branding.font.mono]
+# name = ""
+# url = ""
