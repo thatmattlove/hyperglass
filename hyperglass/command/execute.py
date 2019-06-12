@@ -201,9 +201,9 @@ class Execute:
 
     def __init__(self, lg_data):
         self.input_data = lg_data
-        self.input_location = lg_data["location"]
-        self.input_type = lg_data["type"]
-        self.input_target = lg_data["target"]
+        self.input_location = self.input_data["location"]
+        self.input_type = self.input_data["type"]
+        self.input_target = self.input_data["target"]
 
     def parse(self, output, nos):
         """Splits BGP output by AFI, returns only IPv4 & IPv6 output for protocol-agnostic \
