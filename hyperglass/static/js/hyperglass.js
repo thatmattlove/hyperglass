@@ -190,6 +190,7 @@ function submitForm() {
             </div>
           </article>
           `);
+        },
       405: function(response, code) {
         clearPage();
         target_error.show()
