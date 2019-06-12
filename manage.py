@@ -35,13 +35,13 @@ def hg():
 
 @hg.command("pre-check", help="Check hyperglass config & readiness")
 def pre_check():
-    if sys.version_info < (3, 7):
+    if sys.version_info < (3, 6):
         click.secho(
-            f"Hyperglass requires Python 3.7 or higher. Curren version: Python {sys.version.split()[0]}",
+            f"Hyperglass requires Python 3.6 or higher. Curren version: Python {sys.version.split()[0]}",
             fg="red",
             bold=True,
         )
-    if sys.version_info >= (3, 7):
+    if sys.version_info >= (3, 6):
         click.secho(
             f"✓ Python Version Check passed (Current version: Python {sys.version.split()[0]})",
             fg="green",
