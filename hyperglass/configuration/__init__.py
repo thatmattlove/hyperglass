@@ -260,7 +260,7 @@ def params():
     features["cache"] = config["features"]["cache"]
     features["cache"]["timeout"] = config["features"]["cache"].get("timeout", 120)
     features["cache"]["directory"] = config["features"]["cache"].get(
-        "directory", os.path.join(hyperglass_root, ".flask_cache")
+        "directory", os.path.join(hyperglass_root, "/tmp/hyperglass_cache")
     )
     features["cache"]["show_text"] = config["features"]["cache"].get("show_text", True)
     features["cache"]["text"] = config["features"]["cache"].get(
