@@ -496,13 +496,9 @@ def compile_sass():
 def migrateconfig():
     """Copies example configuration files to usable config files"""
     try:
-        import hyperglass
-    except ImportError as error_exception:
-        click.secho(f"Error importing hyperglass:\n{error_exception}")
-    try:
         click.secho("Migrating example config files...", fg="black")
-        hyperglass_root = os.path.dirname(hyperglass.__file__)
-        config_dir = os.path.join(hyperglass_root, "configuration/")
+        working_directory = os.path.dirname(os.path.abspath(__file__))
+        config_dir = os.path.join(working_directory, "configuration/")
         examples = glob.iglob(os.path.join(config_dir, "*.example"))
         for f in examples:
             basefile, extension = os.path.splitext(f)
