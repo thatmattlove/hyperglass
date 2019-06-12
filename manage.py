@@ -560,9 +560,9 @@ def migratesystemd(directory):
     """Copies example systemd service file to /etc/systemd/system/"""
     try:
         click.secho("Migrating example systemd service...", fg="black")
-        hyperglass_root = os.path.dirname(hyperglass.__file__)
+        working_directory = os.path.dirname(os.path.abspath(__file__))
         ex_file_base = "hyperglass.service.example"
-        ex_file = os.path.join(hyperglass_root, ex_file_base)
+        ex_file = os.path.join(working_directory, f"hyperglass/{ex_file_base}")
         basefile, extension = os.path.splitext(ex_file_base)
         newfile = os.path.join(directory, basefile)
         if os.path.exists(newfile):
@@ -591,6 +591,10 @@ def migratesystemd(directory):
 @click.option("--group", default="www-data")
 def fixpermissions(user, group):
     """Effectively runs `chmod` and `chown` on the hyperglass/hyperglass directory"""
+    try:
+        import hyperglass
+    except ImportError as error_exception:
+        click.secho(f"Error importing hyperglass:\n{error_exception}")
     hyperglass_root = os.path.dirname(hyperglass.__file__)
     uid = pwd.getpwnam(user).pw_uid
     gid = grp.getgrnam(group).gr_gid
