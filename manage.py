@@ -63,6 +63,8 @@ configuration:\n
 primary_asn = "<Your Primary AS Number>"
 \nIf you do not define a Primary ASN, \"{config["general"]["primary_asn"]}\" will be used."""
                 break
+                click.secho(reason, fg="red", bold=True)
+                click.secho(remediation, fg="blue")
             if config["general"]["org_name"] == "The Company" or "":
                 status = False
                 reason = f'Org Name is not defined (Current: "{config["general"]["org_name"]}")'
@@ -73,8 +75,11 @@ configuration:\n
 org_name = "<Your Org Name>"
 \nIf you do not define an Org Name, \"{config["general"]["org_name"]}\" will be displayed."""
                 break
-        click.secho(reason, fg="red", bold=True)
-        click.secho(remediation, fg="blue")
+                click.secho(reason, fg="red", bold=True)
+                click.secho(remediation, fg="blue")
+            click.secho(
+                "All critical hyperglass parameters are defined!", fg="green", bold=True
+            )
     except Exception as e:
         click.secho(f"Exception occurred:\n{e}", fg="red")
 
