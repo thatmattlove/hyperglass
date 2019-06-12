@@ -1,5 +1,5 @@
 # Non-dictionary parameters
-debug = true
+debug = false
 requires_ipv6_cidr = [
 "cisco_ios",
 "cisco_nxos"
