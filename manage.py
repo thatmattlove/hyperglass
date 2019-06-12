@@ -498,7 +498,7 @@ def migrateconfig():
     try:
         click.secho("Migrating example config files...", fg="black")
         working_directory = os.path.dirname(os.path.abspath(__file__))
-        config_dir = os.path.join(working_directory, "configuration/")
+        config_dir = os.path.join(working_directory, "hyperglass/configuration/")
         examples = glob.iglob(os.path.join(config_dir, "*.example"))
         for f in examples:
             basefile, extension = os.path.splitext(f)
