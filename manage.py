@@ -506,15 +506,14 @@ def migrateconfig():
         examples = glob.iglob(os.path.join(config_dir, "*.example"))
         for f in examples:
             basefile, extension = os.path.splitext(f)
-            newfile = basefile
-            if os.path.exists(newfile):
-                click.secho(f"{newfile} already exists", fg="blue")
+            if os.path.exists(basefile):
+                click.secho(f"{basefile} already exists", fg="blue")
             else:
                 try:
-                    cp(f, newfile)
-                    click.secho(f"✓ Migrated {newfile}", fg="green")
+                    cp(f, basefile)
+                    click.secho(f"✓ Migrated {basefile}", fg="green")
                 except:
-                    click.secho(f"✗ Failed to migrate {newfile}", fg="red")
+                    click.secho(f"✗ Failed to migrate {basefile}", fg="red")
                     raise
         click.secho(
             "✓ Successfully migrated example config files", fg="green", bold=True
