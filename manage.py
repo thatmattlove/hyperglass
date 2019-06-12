@@ -496,6 +496,8 @@ def compile_sass():
 def migrateconfig():
     """Copies example configuration files to usable config files"""
     try:
+        import hyperglass
+
         click.secho("Migrating example config files...", fg="black")
         hyperglass_root = os.path.dirname(hyperglass.__file__)
         config_dir = os.path.join(hyperglass_root, "configuration/")
