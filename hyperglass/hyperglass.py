@@ -76,6 +76,10 @@ count_ratelimit = Counter(
     "count_ratelimit", "Rate Limit Counter", ["message", "source"]
 )
 
+count_notfound = Counter(
+    count_notfound, "404 Not Founc Counter", ["message", "path", "source"]
+)
+
 
 @app.route("/metrics")
 def metrics():
@@ -88,10 +92,12 @@ def metrics():
 
 @app.errorhandler(404)
 def handle_404(e):
-    """Renders full error page for too many site queries"""
+    """Renders full error page for invalid URI"""
     html = render.html("404")
-    count_ratelimit.labels(e, get_ipaddr()).inc()
-    logger.error(e)
+    path = request.path
+    client_addr = get_ipaddr()
+    count_notfound.labels(e, path, client_addr).inc()
+    logger.error(f"Error: {e}, Path: {path}, Source: {client_addr}")
     return html, 404
 
 
@@ -99,16 +105,18 @@ def handle_404(e):
 def handle_429(e):
     """Renders full error page for too many site queries"""
     html = render.html("429")
-    count_ratelimit.labels(e, get_ipaddr()).inc()
-    logger.error(e)
+    client_addr = get_ipaddr()
+    count_ratelimit.labels(e, client_addr).inc()
+    logger.error(f"Error: {e}, Source: {client_addr}")
     return html, 429
 
 
 @app.errorhandler(500)
 def handle_500(e):
     """General Error Page"""
-    count_errors.labels(500, e, get_ipaddr(), None, None, None).inc()
-    logger.error(e)
+    client_addr = get_ipaddr()
+    count_errors.labels(500, e, client_addr, None, None, None).inc()
+    logger.error(f"Error: {e}, Source: {client_addr}")
     html = render.html("500")
     return html, 500
 
@@ -174,7 +182,7 @@ def hyperglass_main():
     ]:
         logger.debug("No query specified")
         return Response(config["messages"]["no_query_type"], codes["danger"])
-    client_addr = request.remote_addr
+    client_addr = get_ipaddr()
     count_data.labels(
         client_addr, lg_data["type"], lg_data["location"], lg_data["target"]
     ).inc()
