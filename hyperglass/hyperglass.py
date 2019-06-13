@@ -77,7 +77,7 @@ count_ratelimit = Counter(
 )
 
 count_notfound = Counter(
-    count_notfound, "404 Not Founc Counter", ["message", "path", "source"]
+    "count_notfound", "404 Not Found Counter", ["message", "path", "source"]
 )
 
 
