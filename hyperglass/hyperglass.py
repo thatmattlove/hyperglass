@@ -8,10 +8,10 @@ import logging
 from pprint import pprint
 
 # Module Imports
+import redis
 import logzero
 from logzero import logger
 from flask import Flask, request, Response
-from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
 from prometheus_client import generate_latest, Counter, CollectorRegistry, multiprocess
@@ -20,6 +20,17 @@ from prometheus_client import generate_latest, Counter, CollectorRegistry, multi
 from hyperglass.command import execute
 from hyperglass import configuration
 from hyperglass import render
+
+# Make sure redis is started
+try:
+    r_cache = redis.Redis(
+        host="localhost", port="6379", charset="utf-8", decode_responses=True, db=0
+    )
+    if r_cache.set("testkey", "testvalue", ex=1):
+        logger.debug("Redis is working properly")
+except (redis.exceptions.ConnectionError):
+    logger.error("Redis is not running")
+    raise EnvironmentError("Redis is not running")
 
 # Main Flask definition
 app = Flask(__name__, static_url_path="/static")
@@ -44,22 +55,17 @@ site_rate = config["features"]["rate_limit"]["site"]["rate"]
 site_period = config["features"]["rate_limit"]["site"]["period"]
 rate_limit_query = f"{query_rate} per {query_period}"
 rate_limit_site = f"{site_rate} per {site_period}"
-limiter = Limiter(app, key_func=get_ipaddr, default_limits=[rate_limit_site])
 logger.debug(f"Query rate limit: {rate_limit_query}")
 logger.debug(f"Site rate limit: {rate_limit_site}")
 
-# Flask-Caching Config
-cache_directory = config["features"]["cache"]["directory"]
-cache_timeout = config["features"]["cache"]["timeout"]
-cache = Cache(
-    app,
-    config={
-        "CACHE_TYPE": "filesystem",
-        "CACHE_DIR": cache_directory,
-        "CACHE_DEFAULT_TIMEOUT": cache_timeout,
-    },
+# Redis Config for Flask-Limiter storage
+r_limiter = redis.Redis(
+    host="localhost", port="6379", charset="utf-8", decode_responses=True, db=1
 )
-logger.debug(f"Cache directory: {cache_directory}, Cache timeout: {cache_timeout}")
+# Adds Flask config variable for Flask-Limiter
+app.config.update(RATELIMIT_STORAGE_URL="redis://localhost:6379/1")
+
+limiter = Limiter(app, key_func=get_ipaddr, default_limits=[rate_limit_site])
 
 # Prometheus Config
 count_data = Counter(
@@ -190,25 +196,27 @@ def hyperglass_main():
     # Stringify the form response containing serialized JSON for the request, use as key for k/v
     # cache store so each command output value is unique
     cache_key = str(lg_data)
+    # Define cache entry expiry time
+    cache_timeout = config["features"]["cache"]["timeout"]
+    logger.debug(f"Cache Timeout: {cache_timeout}")
     # Check if cached entry exists
-    if cache.get(cache_key) is None:
+    if not r_cache.hgetall(cache_key):
         try:
             logger.debug(f"Sending query {cache_key} to execute module...")
             cache_value = execute.Execute(lg_data).response()
-            logger.debug(f"Validated response...")
-            value_code = cache_value[1]
-            value_entry = cache_value[0:2]
-            logger.debug(
-                f"Status Code: {value_code}, Output: {cache_value[1]}, Info: {cache_value[2]}"
-            )
+            logger.debug("Validated response...")
+            value_output = cache_value["output"]
+            value_code = cache_value["status"]
+            logger.debug(f"Status Code: {value_code}, Output: {value_output}")
             # If it doesn't, create a cache entry
-            cache.set(cache_key, value_entry)
+            r_cache.hmset(cache_key, cache_value)
+            r_cache.expire(cache_key, cache_timeout)
             logger.debug(f"Added cache entry for query: {cache_key}")
             # If 200, return output
-            response = cache.get(cache_key)
+            response = r_cache.hgetall(cache_key)
             if value_code == 200:
                 logger.debug(f"Returning {value_code} response")
-                return Response(response[0], response[1])
+                return Response(response["output"], response["status"])
             # If 400 error, return error message and code
             # Note: 200 & 400 errors are separated mainly for potential future use
             if value_code in [405, 415]:
@@ -221,12 +229,12 @@ def hyperglass_main():
                     lg_data["target"],
                 ).inc()
                 logger.debug(f"Returning {value_code} response")
-                return Response(response[0], response[1])
+                return Response(response["output"], response["status"])
         except:
             logger.error(f"Unable to add output to cache: {cache_key}")
             raise
     # If it does, return the cached entry
     else:
         logger.debug(f"Cache match for: {cache_key}, returning cached entry")
-        response = cache.get(cache_key)
-    return Response(response[0], response[1])
+        response = r_cache.hgetall(cache_key)
+    return Response(response["output"], response["status"])

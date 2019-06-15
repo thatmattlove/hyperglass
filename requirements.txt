@@ -11,3 +11,4 @@ logzero
 click
 passlib
 prometheus_client
+redis

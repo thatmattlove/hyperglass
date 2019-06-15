@@ -240,7 +240,8 @@ class Execute:
         )
         if not validity:
             logger.debug(f"Invalid query")
-            return msg, status, self.input_data
+            ## return msg, status, self.input_data
+            return {"output": msg, "status": status}
         connection = None
         output = config["messages"]["general"]
         info = self.input_data
@@ -249,7 +250,8 @@ class Execute:
             connection = Rest("rest", device_config, self.input_type, self.input_target)
             raw_output, status = connection.frr()
             output = self.parse(raw_output, device_config["type"])
-            return output, status, info
+            ## return output, status, info
+            return {"output": output, "status": status}
         if device_config["type"] in configuration.scrape_list():
             logger.debug(f"Initializing Netmiko...")
             connection = Netmiko(
@@ -263,9 +265,11 @@ class Execute:
             logger.debug(
                 f'Parsed output for device type {device_config["type"]}:\n{output}'
             )
-            return output, status, info
+            ## return output, status, info
+            return {"output": output, "status": status}
         if device_config["type"] not in configuration.supported_nos():
             logger.error(
                 f"Device not supported, or no commands for device configured. {status}, {info}"
             )
-        return output, status, info
+        ## return output, status, info
+        return {"output": output, "status": status}

@@ -241,12 +241,12 @@ def params():
         Please wait one minute and try again.""",
     )
     features["rate_limit"]["site"] = config["features"]["rate_limit"]["site"]
-    features["rate_limit"]["site"]["rate"] = config["features"]["rate_limit"].get(
-        "rate", 60
-    )
-    features["rate_limit"]["site"]["period"] = config["features"]["rate_limit"].get(
-        "period", "minute"
-    )
+    features["rate_limit"]["site"]["rate"] = config["features"]["rate_limit"][
+        "site"
+    ].get("rate", 60)
+    features["rate_limit"]["site"]["period"] = config["features"]["rate_limit"][
+        "site"
+    ].get("period", "minute")
     features["rate_limit"]["site"]["title"] = config["features"]["rate_limit"][
         "site"
     ].get("title", "Limit Reached")
@@ -257,6 +257,9 @@ def params():
         f'You have accessed this site more than {features["rate_limit"]["site"]["rate"]} '
         f'times in the last {features["rate_limit"]["site"]["period"]}.',
     )
+    features["rate_limit"]["site"]["button"] = config["features"]["rate_limit"][
+        "site"
+    ].get("button", "Try Again")
     features["cache"] = config["features"]["cache"]
     features["cache"]["timeout"] = config["features"]["cache"].get("timeout", 120)
     features["cache"]["directory"] = config["features"]["cache"].get(

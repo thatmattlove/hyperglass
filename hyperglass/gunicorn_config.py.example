@@ -3,6 +3,7 @@ https://github.com/checktheroads/hyperglass
 Guncorn configuration
 """
 import os
+import shutil
 import multiprocessing
 from logzero import logger
 
@@ -30,6 +31,7 @@ def on_starting(server):  # pylint: disable=unused-argument
     except ImportError as error_exception:
         logger.error(f"Exception occurred:\n{error_exception}")
     # Prometheus multiprocessing directory
+    shutil.rmtree(prometheus_multiproc_dir)
     os.mkdir(prometheus_multiproc_dir)
     os.environ["prometheus_multiproc_dir"] = prometheus_multiproc_dir
 
@@ -42,9 +44,4 @@ def worker_exit(server, worker):  # pylint: disable=unused-argument
 
 
 def on_exit(server):
-    try:
-        import shutil
-    except ImportError as error_exception:
-        logger.error(f"Exception occurred:\n{error_exception}")
-
     shutil.rmtree(prometheus_multiproc_dir)
