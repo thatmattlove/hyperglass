@@ -1,6 +1,7 @@
 [Unit]
 Description=hyperglass
 After=network.target
+Requires=redis-server.service
 
 [Service]
 User=www-data
