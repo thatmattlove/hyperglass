@@ -66,5 +66,6 @@ def worker_exit(server, worker):  # pylint: disable=unused-argument
 
 
 def on_exit(server):
+    """Pre-shutdown Gunicorn Tasks"""
     if os.path.exists(prometheus_multiproc_dir):
         shutil.rmtree(prometheus_multiproc_dir)

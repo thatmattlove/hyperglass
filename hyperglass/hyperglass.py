@@ -127,10 +127,10 @@ def handle_500(e):
 
 
 def clear_cache():
-    """Function to clear the Flask-Caching cache"""
+    """Function to clear the Redis cache"""
     with app.app_context():
         try:
-            cache.clear()
+            r_cache.flushdb()
         except Exception as error_exception:
             logger.error(f"Error clearing cache: {error_exception}")
             raise

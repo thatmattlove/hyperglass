@@ -16,6 +16,9 @@
 # I find this to be needlessly obtuse, and therefore log fstrings directly:
 #     logger.error(f"Error: {var1}, {var2}, {var3}")
 # Perhaps this is "incorrect", but it works well and is more elegant, in my uneducated opinion.
+#
+# "duplicate-code" was disabled due to PyLint complaining about using the same logzero debug
+# configuration in two files. Apparently having a consistent logging configuration is "bad".
 
 
 [MASTER]
@@ -154,7 +157,8 @@ disable=print-statement,
         comprehension-escape,
         bad-continuation,
         cyclic-import,
-        logging-fstring-interpolation
+        logging-fstring-interpolation,
+        duplicate-code
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
