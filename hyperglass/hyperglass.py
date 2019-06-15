@@ -5,7 +5,6 @@ Main Hyperglass Front End
 # Standard Imports
 import json
 import logging
-from pprint import pprint
 
 # Module Imports
 import redis
@@ -31,7 +30,7 @@ else:
 config = configuration.params()
 codes = configuration.codes()
 codes_reason = configuration.codes_reason()
-logger.debug(f"Configuration Parameters:\n {pprint(config)}")
+logger.debug(f"Configuration Parameters:\n {config}")
 
 # Redis Config
 redis_config = {
