@@ -21,20 +21,6 @@ from hyperglass.command import execute
 from hyperglass import configuration
 from hyperglass import render
 
-# Make sure redis is started
-try:
-    r_cache = redis.Redis(
-        host="localhost", port="6379", charset="utf-8", decode_responses=True, db=0
-    )
-    if r_cache.set("testkey", "testvalue", ex=1):
-        logger.debug("Redis is working properly")
-except (redis.exceptions.ConnectionError):
-    logger.error("Redis is not running")
-    raise EnvironmentError("Redis is not running")
-
-# Main Flask definition
-app = Flask(__name__, static_url_path="/static")
-
 # Logzero Configuration
 if configuration.debug_state():
     logzero.loglevel(logging.DEBUG)
@@ -42,11 +28,24 @@ else:
     logzero.loglevel(logging.INFO)
 
 # Initialize general configuration parameters for reuse
-# brand = configuration.branding()
 config = configuration.params()
 codes = configuration.codes()
 codes_reason = configuration.codes_reason()
 logger.debug(f"Configuration Parameters:\n {pprint(config)}")
+
+# Redis Config
+redis_config = {
+    "host": config["general"]["redis_host"],
+    "port": config["general"]["redis_port"],
+    "charset": "utf-8",
+    "decode_responses": True,
+}
+
+# Main Flask definition
+app = Flask(__name__, static_url_path="/static")
+
+# Redis Cache Config
+r_cache = redis.Redis(**redis_config, db=config["features"]["rate_limit"]["redis_id"])
 
 # Flask-Limiter Config
 query_rate = config["features"]["rate_limit"]["query"]["rate"]
@@ -59,12 +58,12 @@ logger.debug(f"Query rate limit: {rate_limit_query}")
 logger.debug(f"Site rate limit: {rate_limit_site}")
 
 # Redis Config for Flask-Limiter storage
-r_limiter = redis.Redis(
-    host="localhost", port="6379", charset="utf-8", decode_responses=True, db=1
-)
+r_limiter_db = config["features"]["rate_limit"]["redis_id"]
+r_limiter_url = f'redis://{redis_config["host"]}:{redis_config["port"]}/{r_limiter_db}'
+r_limiter = redis.Redis(**redis_config, db=config["features"]["rate_limit"]["redis_id"])
 # Adds Flask config variable for Flask-Limiter
-app.config.update(RATELIMIT_STORAGE_URL="redis://localhost:6379/1")
-
+app.config.update(RATELIMIT_STORAGE_URL=r_limiter_url)
+# Initializes Flask-Limiter
 limiter = Limiter(app, key_func=get_ipaddr, default_limits=[rate_limit_site])
 
 # Prometheus Config
@@ -204,10 +203,11 @@ def hyperglass_main():
         try:
             logger.debug(f"Sending query {cache_key} to execute module...")
             cache_value = execute.Execute(lg_data).response()
-            logger.debug("Validated response...")
             value_output = cache_value["output"]
             value_code = cache_value["status"]
-            logger.debug(f"Status Code: {value_code}, Output: {value_output}")
+            logger.debug(
+                f"Validated response...\nStatus Code: {value_code}, Output: {value_output}"
+            )
             # If it doesn't, create a cache entry
             r_cache.hmset(cache_key, cache_value)
             r_cache.expire(cache_key, cache_timeout)
@@ -218,11 +218,11 @@ def hyperglass_main():
                 logger.debug(f"Returning {value_code} response")
                 return Response(response["output"], response["status"])
             # If 400 error, return error message and code
-            # Note: 200 & 400 errors are separated mainly for potential future use
+            # ["code", "reason", "source", "type", "loc_id", "target"],
             if value_code in [405, 415]:
                 count_errors.labels(
-                    response[1],
-                    codes_reason[response[1]],
+                    response["status"],
+                    codes_reason[response["status"]],
                     client_addr,
                     lg_data["type"],
                     lg_data["location"],

@@ -212,7 +212,12 @@ def params():
     general["primary_asn"] = config["general"].get("primary_asn", "65000")
     general["org_name"] = config["general"].get("org_name", "The Company")
     general["google_analytics"] = config["general"].get("google_analytics", "")
+    general["redis_host"] = config["general"].get("redis_host", "localhost")
+    general["redis_port"] = config["general"].get("redis_port", 6379)
     features["rate_limit"] = config["features"]["rate_limit"]
+    features["rate_limit"]["redis_id"] = config["features"]["rate_limit"].get(
+        "redis_id", 1
+    )
     features["rate_limit"]["query"] = config["features"]["rate_limit"]["query"]
     features["rate_limit"]["query"]["rate"] = config["features"]["rate_limit"][
         "query"
@@ -261,10 +266,8 @@ def params():
         "site"
     ].get("button", "Try Again")
     features["cache"] = config["features"]["cache"]
+    features["cache"]["redis_id"] = config["features"]["cache"].get("redis_id", 0)
     features["cache"]["timeout"] = config["features"]["cache"].get("timeout", 120)
-    features["cache"]["directory"] = config["features"]["cache"].get(
-        "directory", os.path.join(hyperglass_root, "/tmp/hyperglass_cache")
-    )
     features["cache"]["show_text"] = config["features"]["cache"].get("show_text", True)
     features["cache"]["text"] = config["features"]["cache"].get(
         "text",
