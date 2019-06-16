@@ -37,7 +37,15 @@ def hg():
 
 
 @hg.command("pylint-badge", help="Runs Pylint and generates a badge for GitHub")
-def pylint_badge():
+@click.option(
+    "-i",
+    "--integer-only",
+    "int_only",
+    type=bool,
+    default=False,
+    help="Output Pylint score as integer",
+)
+def pylint_badge(int_only):
     try:
         import re
         import anybadge
@@ -56,9 +64,12 @@ def pylint_badge():
         ab_thresholds = {1: "red", 10: "green"}
         badge = anybadge.Badge("pylint", pylint_score, thresholds=ab_thresholds)
         badge.write_badge("pylint.svg")
-        click.secho(
-            f"Created Pylint badge for score: {pylint_score}", fg="blue", bold=True
-        )
+        if not int_only:
+            click.secho(
+                f"Created Pylint badge for score: {pylint_score}", fg="blue", bold=True
+            )
+        if int_only:
+            click.secho(pylint_score)
     except ImportError as error_exception:
         click.secho(f"Import error:\n{error_exception}", fg="red", bold=True)
 
