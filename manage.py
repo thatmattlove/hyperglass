@@ -19,6 +19,9 @@ import requests
 # Initialize shutil copy function
 cp = shutil.copyfile
 
+# Define working directory
+working_directory = os.path.dirname(os.path.abspath(__file__))
+
 
 def construct_test(test_query, location, test_target):
     """Constructs JSON POST data for test_hyperglass function"""
@@ -47,6 +50,9 @@ def pylint_badge():
         ).group(1)
         if not pylint_score == "10.00":
             raise RuntimeError(f"Pylint score {pylint_score} not acceptable.")
+        badge_file = os.path.join(working_directory, "pylint.svg")
+        if os.path.exists(badge_file):
+            shutil.rmtree(badge_file)
         ab_thresholds = {1: "red", 10: "green"}
         badge = anybadge.Badge("pylint", pylint_score, thresholds=ab_thresholds)
         badge.write_badge("pylint.svg")
@@ -529,7 +535,6 @@ def migrateconfig():
     """Copies example configuration files to usable config files"""
     try:
         click.secho("Migrating example config files...", fg="black")
-        working_directory = os.path.dirname(os.path.abspath(__file__))
         config_dir = os.path.join(working_directory, "hyperglass/configuration/")
         examples = glob.iglob(os.path.join(config_dir, "*.example"))
         for f in examples:
@@ -592,7 +597,6 @@ def migratesystemd(directory):
     """Copies example systemd service file to /etc/systemd/system/"""
     try:
         click.secho("Migrating example systemd service...", fg="black")
-        working_directory = os.path.dirname(os.path.abspath(__file__))
         ex_file_base = "hyperglass.service.example"
         ex_file = os.path.join(working_directory, f"hyperglass/{ex_file_base}")
         basefile, extension = os.path.splitext(ex_file_base)
