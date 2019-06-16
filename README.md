@@ -1,4 +1,4 @@
-<img src="hyperglass/static/images/hyperglass-dark.png" width=300></img>
+<img src="logo.png" width=300></img>
 
 **hyperglass** is a modern network looking glass application. A looking glass is typically implemented by network service providers as a way of providing customers, peers, and partners with a way to easily view elements of, or run tests from the provider's network.
 
@@ -14,7 +14,7 @@
 ## Features
 
 -   BGP Route, BGP Community, BGP AS Path, Ping, Traceroute
--   Full IPv6 support
+-   Full frontend and backend IPv6 support
 -   [Netmiko](https://github.com/ktbyers/netmiko)-based connection handling for traditional network devices
 -   [FRRouting](https://frrouting.org/) support via [hyperglass-frr](https://github.com/checktheroads/hyperglass-frr) REST API
 -   Customizable commands for each query type by vendor
@@ -24,7 +24,7 @@
 -   Optional SSH Proxy to further direct secure router access
 -   Configurable IP/Prefix "blacklist" to prevent lookup of sensitive prefixes
 -   Configurable rate limiting, powered by [Flask-Limiter](https://github.com/alisaifee/flask-limiter)
--   Query response caching with configurable cache timeout, powered by [Flask-Caching](https://github.com/sh4nks/flask-caching)
+-   Query response caching with configurable cache timeout
 -   [Prometheus](https://prometheus.io/) metrics for query statistics tracking
 
 ## Documentation
@@ -33,7 +33,7 @@ Documentation can be found [here](https://hyperglass.readthedocs.io), or in the 
 
 ## Preview
 
-For screenshots, see [here](screenshots.md), or the `screenshots/` directory.
+For screenshots, see [here](https://hyperglass.readthedocs.io/screenshots/).
 
 ## Platform Support
 
