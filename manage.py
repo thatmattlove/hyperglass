@@ -52,7 +52,7 @@ def pylint_badge():
             raise RuntimeError(f"Pylint score {pylint_score} not acceptable.")
         badge_file = os.path.join(working_directory, "pylint.svg")
         if os.path.exists(badge_file):
-            shutil.rmtree(badge_file)
+            os.remove(badge_file)
         ab_thresholds = {1: "red", 10: "green"}
         badge = anybadge.Badge("pylint", pylint_score, thresholds=ab_thresholds)
         badge.write_badge("pylint.svg")
