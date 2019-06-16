@@ -4,3 +4,8 @@ repos:
     hooks:
     - id: black
       language_version: python3
+-   repo: https://github.com/sebdah/git-pylint-commit-hook
+    rev: 2.5.1
+    hooks:
+    - id: pylint
+      language_version: python3
