@@ -69,7 +69,7 @@ def pylint_badge(int_only):
                 f"Created Pylint badge for score: {pylint_score}", fg="blue", bold=True
             )
         if int_only:
-            click.secho(pylint_score)
+            click.echo(pylint_score)
     except ImportError as error_exception:
         click.secho(f"Import error:\n{error_exception}", fg="red", bold=True)
 

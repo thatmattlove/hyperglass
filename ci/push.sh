@@ -18,6 +18,7 @@ run_pylint() {
 
 check_pylint() {
   PYLINT_SCORE=$(run_pylint)
+  echo "Pylint score: $PYLINT_SCORE"
   if  [ "$PYLINT_SCORE" != "10.00" ]
   then
     git add pylint.svg
