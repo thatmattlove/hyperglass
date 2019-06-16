@@ -1,0 +1,14 @@
+language: python
+python:
+  - "3.6"
+before_install:
+  - sudo apt-get update -q
+  - sudo apt-get install -y redis
+  - pip3 install black
+install:
+  - pip3 install -r requirements.txt
+  - pip3 install gunicorn
+  - pip3 install pylint
+before_script:
+  - black hyperglass/
+  - pylint hyperglass/

@@ -33,6 +33,30 @@ def hg():
     pass
 
 
+@hg.command("pylint-badge", help="Runs Pylint and generates a badge for GitHub")
+def pylint_badge():
+    try:
+        import re
+        import anybadge
+        from pylint import epylint
+
+        pylint_stdout, pylint_stderr = epylint.py_run("hyperglass", return_std=True)
+        pylint_score = re.search(
+            r"Your code has been rated at (\d+\.\d+)\/10 \(previous run:.*",
+            pylint_stdout.getvalue(),
+        ).group(1)
+        if not pylint_score == "10.00":
+            raise RuntimeError(f"Pylint score {pylint_score} not acceptable.")
+        ab_thresholds = {1: "red", 10: "green"}
+        badge = anybadge.Badge("pylint", pylint_score, thresholds=ab_thresholds)
+        badge.write_badge("pylint.svg")
+        click.secho(
+            f"Created Pylint badge for score: {pylint_score}", fg="blue", bold=True
+        )
+    except ImportError as error_exception:
+        click.secho(f"Import error:\n{error_exception}", fg="red", bold=True)
+
+
 @hg.command("pre-check", help="Check hyperglass config & readiness")
 def pre_check():
     if sys.version_info < (3, 6):

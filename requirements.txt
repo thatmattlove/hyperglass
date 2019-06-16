@@ -1,6 +1,5 @@
 Flask
 Flask-Limiter
-flask-caching
 Jinja2
 toml
 netmiko
