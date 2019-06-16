@@ -9,6 +9,7 @@ check_format() {
   black hyperglass
   git add hyperglass/ *.py
   git commit --message "Black Formatting - travis #$TRAVIS_BUILD_NUMBER"
+  echo "Completed Black Formatting"
 }
 
 run_pylint() {
@@ -17,10 +18,11 @@ run_pylint() {
 
 check_pylint() {
   PYLINT_SCORE=$(run_pylint)
-  if  [ "$PYLINT_SCORE" != "10.00" ];
+  if  [ "$PYLINT_SCORE" != "10.00" ]
   then
     git add pylint.svg
     git commit --message "Pylint Badge - travis #$TRAVIS_BUILD_NUMBER"
+    echo "Completed Pylint Check & Badge Creation"
   fi
 }
 
