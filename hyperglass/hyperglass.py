@@ -1,7 +1,7 @@
 # https://github.com/checktheroads/hyperglass
-'''
+"""
 Main Hyperglass Front End
-'''
+"""
 # Standard Imports
 import json
 import logging
