@@ -43,7 +43,7 @@ def construct_test(test_query, location, test_target):
     return constructed_query
 
 
-def ci_test(
+def ci_hyperglass_test(
     location,
     target_ipv4,
     target_ipv6,
@@ -208,7 +208,7 @@ def flask_dev_server(host, port):
 def ci_test():
     if ci_config():
         flask_dev_server("localhost", 5000)
-        ci_test(
+        ci_hyperglass_test(
             "pop2",
             "1.1.1.0/24",
             "2606:4700:4700::/48",
