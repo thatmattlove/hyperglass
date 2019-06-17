@@ -18,5 +18,5 @@ script:
 - sleep 20
 - python3 ./tests/ci_test.py
 after_success:
-- git remote add origin https://${GH_TOKEN}@github.com/checktheroads/hyperglass.git > /dev/null 2>&1
+- git remote add origin git@github.com/checktheroads/hyperglass.git > /dev/null 2>&1
 - git push --quiet --set-upstream origin master
