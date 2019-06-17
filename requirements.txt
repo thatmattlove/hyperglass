@@ -11,3 +11,4 @@ click
 passlib
 prometheus_client
 redis
+requests

@@ -261,7 +261,7 @@ def test_hyperglass(
             click.secho(hg_response.text, fg="red")
     except Exception as e:
         click.secho(f"Exception occurred:\n{e}")
-    # No Location Test
+    # No Target Test
     try:
         click.secho("Starting No Target test...", fg="black")
         test_query = construct_test("bgp_route", location, "")
