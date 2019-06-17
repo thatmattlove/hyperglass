@@ -55,8 +55,7 @@ def pylint_badge(int_only):
         pylint_output = pylint_stdout.getvalue()
         click.secho(pylint_output, fg="red")
         pylint_score = re.search(
-            r"Your code has been rated at (\d+\.\d+)\/10 \(previous run:.*",
-            pylint_output,
+            r"Your code has been rated at (\d+\.\d+)\/10.*", pylint_output
         ).group(1)
         if not pylint_score == "10.00":
             raise RuntimeError(f"Pylint score {pylint_score} not acceptable.")

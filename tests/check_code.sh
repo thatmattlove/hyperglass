@@ -7,6 +7,7 @@ setup_git() {
 
 check_format() {
   black hyperglass
+  git checkout origin/master
   git add hyperglass/ *.py
   git commit --message "Black Formatting - travis #$TRAVIS_BUILD_NUMBER"
   echo "Completed Black Formatting"
@@ -17,6 +18,7 @@ check_pylint() {
   echo "Pylint score: $PYLINT_SCORE"
   if  [ "$PYLINT_SCORE" == "10.00" ]
   then
+    git checkout origin/master
     git add pylint.svg
     git commit --message "Pylint Badge - travis #$TRAVIS_BUILD_NUMBER"
     echo "Completed Pylint Check & Badge Creation"
