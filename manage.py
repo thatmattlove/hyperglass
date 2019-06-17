@@ -52,9 +52,11 @@ def pylint_badge(int_only):
         from pylint import epylint
 
         pylint_stdout, pylint_stderr = epylint.py_run("hyperglass", return_std=True)
+        pylint_output = pylint_stdout.getvalue()
+        logger.debug(pylint_output)
         pylint_score = re.search(
             r"Your code has been rated at (\d+\.\d+)\/10 \(previous run:.*",
-            pylint_stdout.getvalue(),
+            pylint_output,
         ).group(1)
         if not pylint_score == "10.00":
             raise RuntimeError(f"Pylint score {pylint_score} not acceptable.")
