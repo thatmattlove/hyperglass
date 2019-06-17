@@ -13,13 +13,13 @@ check_format() {
 }
 
 run_pylint() {
-  python3 manage.py pylint-badge --integer-only True
+  echo $(python3 manage.py pylint-badge --integer-only True)
 }
 
 check_pylint() {
   PYLINT_SCORE=$(run_pylint)
   echo "Pylint score: $PYLINT_SCORE"
-  if  [ "$PYLINT_SCORE" != "10.00" ]
+  if  [ "$PYLINT_SCORE" == "10.00" ]
   then
     git add pylint.svg
     git commit --message "Pylint Badge - travis #$TRAVIS_BUILD_NUMBER"
@@ -27,11 +27,5 @@ check_pylint() {
   fi
 }
 
-# upload_files() {
-#   git remote add origin-pages https://${GH_TOKEN}@github.com/MVSE-outreach/resources.git > /dev/null 2>&1
-#   git push --quiet --set-upstream origin-pages gh-pages
-# }
-
 check_format
 check_pylint
-# setup_git

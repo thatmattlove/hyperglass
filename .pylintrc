@@ -20,9 +20,6 @@
 # "duplicate-code" was disabled due to PyLint complaining about using the same logzero debug
 # configuration in two files. Apparently having a consistent logging configuration is "bad".
 
-[pre-commit-hook]
-limit=10.0
-
 [MASTER]
 
 # A comma-separated list of package or module names from where C extensions may

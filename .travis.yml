@@ -5,10 +5,12 @@ before_install:
   - sudo apt-get update -q
   - sudo apt-get install -y redis
   - pip3 install black
+  - pip3 install pylint
 install:
   - pip3 install -r requirements.txt
-  - pip3 install gunicorn
-  - pip3 install pylint
 before_script:
-  - black hyperglass/
-  - pylint hyperglass/
+  - bash ./ci/check_code.sh
+script:
+  - python3 ./ci/ci_test.py
+after_script:
+  - bash ./ci/ci_commit.sh

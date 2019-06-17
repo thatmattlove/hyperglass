@@ -1,16 +1,29 @@
 # Routers
-[router.'router1']
-address = "192.0.2.1"
-asn = "65000"
-src_addr_ipv4 = "192.0.2.1"
-src_addr_ipv6 = "2001:db8::1"
+[router.'test-r1']
+address = "127.0.1.1"
+asn = "65001"
+src_addr_ipv4 = "127.0.0.1"
+src_addr_ipv6 = "::1"
 credential = "default"
 location = "pop1"
-name = "router1.pop1"
-display_name = "Router"
+name = "test-r1.pop1"
+display_name = "Test Router 1"
 port = "22"
 type = "cisco_ios"
 proxy = "proxy1"
+
+[router.'test-r2']
+address = "127.0.1.2"
+asn = "65001"
+src_addr_ipv4 = "127.0.0.2"
+src_addr_ipv6 = "::1"
+credential = "default"
+location = "pop2"
+name = "test-r2.pop2"
+display_name = "Test Router 2"
+port = "22"
+type = "cisco_xr"
+proxy = ""
 
 # Router Credentials
 [credential.'default']
