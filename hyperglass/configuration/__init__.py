@@ -64,14 +64,13 @@ def networks():
     return asn_dict
 
 
-def locations():
-    """Returns list of all location identifiers"""
-    loc_list = []
+def hostnames():
+    """Returns list of all router hostnames for input validation"""
+    hostname_list = []
     routers_list = devices["router"]
-    for router_config in routers_list.values():
-        loc = router_config["location"]
-        loc_list.append(loc)
-    return loc_list
+    for router in routers_list:
+        hostname_list.append(router)
+    return hostname_list
 
 
 def locations_list():
@@ -81,22 +80,22 @@ def locations_list():
     network/ASN on the main page."""
     networks_dict = {}
     routers_list = devices["router"]
-    for router_config in routers_list.values():
-        asn = router_config["asn"]
+    for router in routers_list:
+        asn = routers_list[router]["asn"]
         if asn in networks_dict:
             networks_dict[asn].append(
                 dict(
-                    location=router_config["location"],
-                    hostname=router_config["name"],
-                    display_name=router_config["display_name"],
+                    location=routers_list[router]["location"],
+                    hostname=router,
+                    display_name=routers_list[router]["display_name"],
                 )
             )
         else:
             networks_dict[asn] = [
                 dict(
-                    location=router_config["location"],
-                    hostname=router_config["name"],
-                    display_name=router_config["display_name"],
+                    location=routers_list[router]["location"],
+                    hostname=router,
+                    display_name=routers_list[router]["display_name"],
                 )
             ]
     return networks_dict
@@ -178,7 +177,6 @@ def device(dev):
         src_addr_ipv6=device_config.get("src_addr_ipv6"),
         credential=device_config.get("credential"),
         location=device_config.get("location"),
-        name=device_config.get("name"),
         display_name=device_config.get("display_name"),
         port=device_config.get("port"),
         type=device_config.get("type"),
