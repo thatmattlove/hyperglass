@@ -11,8 +11,8 @@ install:
   - pip3 install -r requirements.txt
 before_script:
   - bash ./ci/check_code.sh
+  - python3 ./ci/ci_test_prepare.py &
 script:
-  - python3 ./ci/ci_test_prepare.py > /dev/null
   - python3 ./ci/ci_test.py
 after_script:
   - bash ./ci/ci_commit.shs
