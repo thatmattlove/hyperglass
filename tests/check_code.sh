@@ -12,12 +12,8 @@ check_format() {
   echo "Completed Black Formatting"
 }
 
-run_pylint() {
-  echo $(python3 manage.py pylint-badge --integer-only True)
-}
-
 check_pylint() {
-  PYLINT_SCORE=$(run_pylint)
+  PYLINT_SCORE=$(python3 manage.py pylint-badge --integer-only True)
   echo "Pylint score: $PYLINT_SCORE"
   if  [ "$PYLINT_SCORE" == "10.00" ]
   then
@@ -27,5 +23,6 @@ check_pylint() {
   fi
 }
 
+setup_git
 check_format
 check_pylint

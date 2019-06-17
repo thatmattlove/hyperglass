@@ -6,11 +6,10 @@ before_install:
 - sudo apt-get update -q
 - sudo apt-get install -y redis-server redis-tools
 - sudo systemctl start redis-server
-- pip3 install -r ./tests/requirements_dev.txt
 install:
 - pip3 install -r requirements.txt
 before_script:
-# - git remote add origin git@github.com/checktheroads/hyperglass.git > /dev/null 2>&1
+- pip3 install -r ./tests/requirements_dev.txt
 - pip3 install anybadge
 - sh ./tests/check_code.sh
 - python3 ./tests/ci_prepare.py
@@ -19,4 +18,4 @@ script:
 - sleep 20
 - python3 ./tests/ci_test.py
 after_success:
-- git push --quiet --set-upstream origin master
+- git push origin master
