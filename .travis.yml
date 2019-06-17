@@ -1,21 +1,25 @@
 language: python
 python:
-  - "3.6"
+- '3.6'
 before_install:
-  - sudo add-apt-repository universe -y
-  - sudo apt-get update -q
-  - sudo apt-get install -y redis-server redis-tools
-  - sudo systemctl start redis-server
-  - pip3 install -r ./ci/requirements_dev.txt
+- sudo add-apt-repository universe -y
+- sudo apt-get update -q
+- sudo apt-get install -y redis-server redis-tools
+- sudo systemctl start redis-server
+- pip3 install -r ./tests/requirements_dev.txt
 install:
-  - pip3 install -r requirements.txt
+- pip3 install -r requirements.txt
 after_install:
-  - bash ./ci/check_code.sh
+- bash ./tests/check_code.sh
 before_script:
-  - python3 ./ci/ci_prepare.py
+- python3 ./tests/ci_prepare.py
 script:
-  - nohup python3 ./ci/ci_dev_server.py &
-  - sleep 20
-  - python3 ./ci/ci_test.py
+- nohup python3 ./tests/ci_dev_server.py &
+- sleep 20
+- python3 ./tests/ci_test.py
 after_script:
-  - bash ./ci/ci_commit.sh
+- git remote add origin https://${GH_TOKEN}@github.com/checktheroads/hyperglass.git > /dev/null 2>&1
+- git push --quiet --set-upstream origin master
+env:
+  global:
+    secure: ZI4mHAZsCa33AQmS/1AoKED0aK7tFVXkqh1xQdbermgUG2c529gA2uylTazgVxqspF9ZbwoAdymkTwot12FfUrF+z2tqmlG7dWKcAm8TT6Kepe7K1fV2+XxViTqZTOmCo4KTcm4TUiunOCvR8VP6wNBQFhh+xTuNQUvvfqHX6QV5scGvG3eBX5MW0PP0zxSxy01UwnhKeyouHZFdf6dI7iz0TMi0myO+IPJ+Wt+feRGIx+Pt2Q/gtx/Obt/diyxyQNFgaC8GYYQ5LNUidRincFgXLPEmmn+MfOAkyY0eALgYPMmvxrywskV56lW5jepHBvua442An5Nmq2WINNl/g0WrtgGvEvP7lu7uMY//n+mAl1Gi4OmTY91whjIuRlujZ2s2jT0PwHJ5I84wckgKIT3EJD6bzSgNP+bL0+C7GosAWe6xUw9me8wJivNkGmiLf8j5d9AoB4wLRQwPqiChJP8Emhi9JR5g2fTvnx4lTSnIyReAB+m806YpMgdR3cZCgQYHWwYL67T0my35orByWUijgwZNwPhVOctAhtnVAhN5UE2Ho/lgK8uNuM8eWi4dGHLFUYHMipzfZMP8SQtvddkyBvNQZfDW1FP15z9C1V6bmsR1CYjM4g9z1qziPSWhL/gcap1PqIMQnIYIZV9Fny38TP+GJu2IRNAGnqNtDdU=
