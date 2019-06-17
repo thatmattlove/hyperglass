@@ -184,9 +184,9 @@ def ci_config():
 def flask_dev_server(host, port):
     """Starts Flask development server for testing without WSGI/Reverse Proxy"""
     try:
-        from hyperglass import hyperglass
-        from hyperglass import configuration
-        from hyperglass import render
+        from ..hyperglass import hyperglass
+        from ..hyperglass import configuration
+        from ..hyperglass import render
 
         render.css()
         logger.info("Starting Flask development server")
