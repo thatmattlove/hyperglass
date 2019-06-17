@@ -10,7 +10,8 @@ before_install:
 install:
 - pip3 install -r requirements.txt
 after_install:
-- bash ./tests/check_code.sh
+- git remote add origin git@github.com/checktheroads/hyperglass.git > /dev/null 2>&1
+- sh ./tests/check_code.sh
 before_script:
 - python3 ./tests/ci_prepare.py
 script:
@@ -18,5 +19,4 @@ script:
 - sleep 20
 - python3 ./tests/ci_test.py
 after_success:
-- git remote add origin git@github.com/checktheroads/hyperglass.git > /dev/null 2>&1
 - git push --quiet --set-upstream origin master
