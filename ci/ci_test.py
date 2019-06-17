@@ -5,7 +5,7 @@ Runs tests against test hyperglass instance
 import os
 import sys
 import json
-import pprint
+from pprint import pprint
 import requests
 from logzero import logger
 
@@ -174,7 +174,8 @@ def ci_hyperglass_test(
 
 
 if __name__ == "__main__":
-    logger.debug(pprint(get_hyperglass_config()))
+    hg_config = get_hyperglass_config()
+    logger.debug(pprint(hg_config))
     ci_hyperglass_test(
         "pop2", "1.1.1.0/24", "2606:4700:4700::/48", "pop1", "100.64.0.1"
     )
