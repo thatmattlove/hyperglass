@@ -23,10 +23,12 @@ def ci_config():
     for f in config_files:
         if os.path.exists(f):
             logger.debug(f"{f} already exists")
-            raise RuntimeError(f"{f} already exists")
+            os.remove(f)
+            logger.debug(f"Deleted {f}")
     for f in test_files:
         try:
             shutil.copy(f, config_dir)
+            logger.debug(f"Copied {f}")
             logger.info("Successfully migrated test config files")
             status = True
         except:
