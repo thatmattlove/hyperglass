@@ -5,8 +5,9 @@
 **hyperglass** is intended to make implementing a looking glass too easy not to do, with the big-picture goal of improving the internet community as a whole by making looking glasses more common across autonomous systems of any size.
 
 <br>
-![Build Status](https://travis-ci.com/checktheroads/hyperglass.svg?token=qWu7QJN7YkwTDsUawGBx&branch=master)
-![Pylint](https://github.com/checktheroads/hyperglass/blob/master/pylint.svg)
+
+[![Build Status](https://travis-ci.com/checktheroads/hyperglass.svg)](https://travis-ci.com/checktheroads/hyperglass)
+![Pylint](https://raw.githubusercontent.com/checktheroads/hyperglass/master/pylint.svg)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 ![GitHub issues](https://img.shields.io/github/issues/checktheroads/hyperglass.svg)
 
