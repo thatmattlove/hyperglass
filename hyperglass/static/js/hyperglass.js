@@ -111,7 +111,7 @@ $('#network').on('change', () => {
     url: `/locations/${asn}`,
     type: 'get',
     success: function(data) {
-      cleanPage();
+      clearPage();
       updateRouters(JSON.parse(data));
     },
     error: function(err) {
