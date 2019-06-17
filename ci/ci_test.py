@@ -207,23 +207,23 @@ def flask_dev_server(host, port):
         raise
 
 
-def ci_test():
+def ci_prepare():
     if ci_config():
         flask_dev_server("localhost", 5000)
-        ci_hyperglass_test(
-            "pop2",
-            "1.1.1.0/24",
-            "2606:4700:4700::/48",
-            "pop1",
-            "100.64.0.1",
-            "65001:1",
-            "_65001$",
-            "localhost",
-            5000,
-        )
     else:
         raise
 
 
 if __name__ == "__main__":
-    ci_test()
+    ci_prepare()
+    ci_hyperglass_test(
+        "pop2",
+        "1.1.1.0/24",
+        "2606:4700:4700::/48",
+        "pop1",
+        "100.64.0.1",
+        "65001:1",
+        "_65001$",
+        "localhost",
+        5000,
+    )
