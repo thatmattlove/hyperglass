@@ -45,6 +45,7 @@ def ci_hyperglass_test(
             test_endpoint, headers=test_headers, data=test_query
         )
         if not hg_response.status_code in range(400, 500):
+            logger.error(hg_response.text)
             raise RuntimeError("No Query Type test failed")
     except:
         logger.error("Exception occurred while running No Query Type test...")
@@ -57,6 +58,7 @@ def ci_hyperglass_test(
             test_endpoint, headers=test_headers, data=test_query
         )
         if not hg_response.status_code in range(400, 500):
+            logger.error(hg_response.text)
             raise RuntimeError("No Location test failed")
     except:
         logger.error("Exception occurred while running No Location test...")
@@ -69,6 +71,7 @@ def ci_hyperglass_test(
             test_endpoint, headers=test_headers, data=test_query
         )
         if not hg_response.status_code in range(400, 500):
+            logger.error(hg_response.text)
             raise RuntimeError("No Target test failed")
     except:
         logger.error("Exception occurred while running No Target test...")
@@ -81,6 +84,7 @@ def ci_hyperglass_test(
             test_endpoint, headers=test_headers, data=test_query
         )
         if not hg_response.status_code in range(400, 500):
+            logger.error(hg_response.text)
             raise RuntimeError("Invalid BGP IPv4 Route test failed")
     except:
         logger.error("Exception occurred while running Invalid BGP IPv4 Route test...")
@@ -93,6 +97,7 @@ def ci_hyperglass_test(
                 test_endpoint, headers=test_headers, data=test_query
             )
             if not hg_response.status_code in range(400, 500):
+                logger.error(hg_response.text)
                 raise RuntimeError("Requires IPv6 CIDR test failed")
         except:
             logger.error("Exception occurred while running Requires IPv6 CIDR test...")
@@ -105,6 +110,7 @@ def ci_hyperglass_test(
             test_endpoint, headers=test_headers, data=test_query
         )
         if not hg_response.status_code in range(400, 500):
+            logger.error(hg_response.text)
             raise RuntimeError("Invalid BGP Community test failed")
     except:
         logger.error("Exception occurred while running Invalid BGP Community test...")
@@ -117,6 +123,7 @@ def ci_hyperglass_test(
             test_endpoint, headers=test_headers, data=test_query
         )
         if not hg_response.status_code in range(400, 500):
+            logger.error(hg_response.text)
             raise RuntimeError("Invalid BGP AS_PATH test failed")
     except:
         logger.error("Exception occurred while running Invalid BGP AS_PATH test...")
@@ -129,6 +136,7 @@ def ci_hyperglass_test(
             test_endpoint, headers=test_headers, data=test_query
         )
         if not hg_response.status_code in range(400, 500):
+            logger.error(hg_response.text)
             raise RuntimeError("Invalid IPv4 Ping test failed")
     except:
         logger.error("Exception occurred while running Invalid IPv4 Ping test...")
@@ -141,6 +149,7 @@ def ci_hyperglass_test(
             test_endpoint, headers=test_headers, data=test_query
         )
         if not hg_response.status_code in range(400, 500):
+            logger.error(hg_response.text)
             raise RuntimeError("Invalid IPv6 Ping test failed")
     except:
         logger.error("Exception occurred while running Invalid IPv6 Ping test...")
@@ -153,6 +162,7 @@ def ci_hyperglass_test(
             test_endpoint, headers=test_headers, data=test_query
         )
         if not hg_response.status_code in range(400, 500):
+            logger.error(hg_response.text)
             raise RuntimeError("Blacklist test failed")
     except:
         logger.error("Exception occurred while running Blacklist test...")
