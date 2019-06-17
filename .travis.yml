@@ -12,7 +12,7 @@ install:
 before_script:
   - bash ./ci/check_code.sh
 script:
-  - python3 ./ci/ci_test_prepare.py
+  - nohup python3 ./ci/ci_test_prepare.py &
   - python3 ./ci/ci_test.py
 after_script:
   - bash ./ci/ci_commit.shs
