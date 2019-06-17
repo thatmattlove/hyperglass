@@ -14,23 +14,21 @@ def ci_config():
     logger.info("Migrating test config files...")
     config_dir = os.path.join(working_directory, "hyperglass/configuration/")
     test_files = glob.iglob(os.path.join(working_directory, "*.toml"))
+    config_files = glob.iglob(os.path.join(config_dir, "*.toml"))
     logger.debug(config_dir)
     status = False
-    for f in test_files:
-        logger.debug(f)
+    for f in config_files:
         if os.path.exists(f):
             logger.debug(f"{f} already exists")
             raise RuntimeError(f"{f} already exists")
-        else:
-            try:
-                shutil.copy(f, config_dir)
-                logger.info("Successfully migrated test config files")
-                status = True
-                logger.debug(status)
-                return status
-            except:
-                logger.error(f"Failed to migrate {f}")
-                raise
+    for f in test_files:
+        try:
+            shutil.copy(f, config_dir)
+            logger.info("Successfully migrated test config files")
+            status = True
+        except:
+            logger.error(f"Failed to migrate {f}")
+            raise
     return status
 
 
