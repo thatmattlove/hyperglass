@@ -1,11 +1,34 @@
 import os
 import sys
 import glob
+import shutil
 import inspect
 import requests
 from logzero import logger
 
 working_directory = os.path.dirname(os.path.abspath(__file__))
+
+
+def ci_config():
+    """Copies test configuration files to usable config files"""
+    try:
+        logger.info("Migrating test config files...")
+        config_dir = os.path.join(working_directory, "hyperglass/configuration/")
+        ci_dir = os.path.join(working_directory, "ci/")
+        test_files = glob.iglob(os.path.join(ci_dir, "*.toml"))
+        for f in test_files:
+            if os.path.exists(f):
+                raise RuntimeError(f"{f} already exists")
+            else:
+                try:
+                    shutil.copyfile(f, config_dir)
+                    logger.info("Migrated test config files")
+                except:
+                    logger.error(f"Failed to migrate {f}")
+                    raise
+    except:
+        logger.error("Error migrating test config files")
+        raise
 
 
 def construct_test(test_query, location, test_target):
@@ -158,28 +181,6 @@ def ci_test(
             raise RuntimeError("Blacklist test failed")
     except:
         logger.error("Exception occurred while running Blacklist test...")
-        raise
-
-
-def ci_config():
-    """Copies test configuration files to usable config files"""
-    try:
-        logger.info("Migrating test config files...")
-        config_dir = os.path.join(working_directory, "hyperglass/configuration/")
-        ci_dir = os.path.join(working_directory, "ci/")
-        test_files = glob.iglob(os.path.join(ci_dir, "*.toml"))
-        for f in test_files:
-            if os.path.exists(f):
-                raise RuntimeError(f"{f} already exists")
-            else:
-                try:
-                    cp(f, config_dir)
-                    logger.info("Migrated test config files")
-                except:
-                    logger.error(f"Failed to migrate {f}")
-                    raise
-    except:
-        logger.error("Error migrating test config files")
         raise
 
 
