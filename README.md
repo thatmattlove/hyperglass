@@ -29,7 +29,7 @@
 
 ## Documentation
 
-Documentation can be found [here](https://hyperglass.readthedocs.io), or in the `docs/` directory.
+[Documentation can be found here](https://hyperglass.readthedocs.io).
 
 ## Preview
 
