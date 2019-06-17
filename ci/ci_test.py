@@ -16,16 +16,19 @@ def ci_config():
         config_dir = os.path.join(working_directory, "hyperglass/configuration/")
         ci_dir = os.path.join(working_directory, "ci/")
         test_files = glob.iglob(os.path.join(ci_dir, "*.toml"))
+        status = False
         for f in test_files:
             if os.path.exists(f):
                 raise RuntimeError(f"{f} already exists")
             else:
                 try:
                     shutil.copyfile(f, config_dir)
-                    logger.info("Migrated test config files")
+                    logger.info("Successfully migrated test config files")
+                    status = True
                 except:
                     logger.error(f"Failed to migrate {f}")
                     raise
+        return status
     except:
         logger.error("Error migrating test config files")
         raise
@@ -202,17 +205,23 @@ def flask_dev_server(host, port):
         raise
 
 
+def ci_test():
+    if ci_config():
+        flask_dev_server("localhost", 5000)
+        ci_test(
+            "pop2",
+            "1.1.1.0/24",
+            "2606:4700:4700::/48",
+            "pop1",
+            "100.64.0.1",
+            "65001:1",
+            "_65001$",
+            "localhost",
+            5000,
+        )
+    else:
+        raise RuntimeError("Unable to run tests due to config migration failure")
+
+
 if __name__ == "__main__":
-    ci_config()
-    flask_dev_server("localhost", 5000)
-    ci_test(
-        "pop2",
-        "1.1.1.0/24",
-        "2606:4700:4700::/48",
-        "pop1",
-        "100.64.0.1",
-        "65001:1",
-        "_65001$",
-        "localhost",
-        5000,
-    )
+    ci_test()
