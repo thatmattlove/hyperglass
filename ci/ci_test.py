@@ -20,13 +20,7 @@ def construct_test(test_query, location, test_target):
 
 
 def ci_hyperglass_test(
-    location,
-    target_ipv4,
-    target_ipv6,
-    requires_ipv6_cidr,
-    test_blacklist,
-    test_host,
-    test_port,
+    location, target_ipv4, target_ipv6, requires_ipv6_cidr, test_blacklist
 ):
     """Tests hyperglass backend by making use of requests library to mimic the JS Ajax POST \
     performed by the front end."""
@@ -36,7 +30,7 @@ def ci_hyperglass_test(
     ipv6_host = "2606:4700:4700::1111"
     ipv6_cidr = "2606:4700:4700::/48"
     test_headers = {"Content-Type": "application/json"}
-    test_endpoint = f"http://{test_host}:{test_port}/lg"
+    test_endpoint = "http://localhost:5000/lg"
     # No Query Type Test
     try:
         logger.info("Starting No Query Type test...")
@@ -171,11 +165,5 @@ def ci_hyperglass_test(
 
 if __name__ == "__main__":
     ci_hyperglass_test(
-        "pop2",
-        "1.1.1.0/24",
-        "2606:4700:4700::/48",
-        "pop1",
-        "100.64.0.1",
-        "localhost",
-        5000,
+        "pop2", "1.1.1.0/24", "2606:4700:4700::/48", "pop1", "100.64.0.1"
     )
