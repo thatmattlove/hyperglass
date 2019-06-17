@@ -216,7 +216,7 @@ def ci_test():
             5000,
         )
     else:
-        raise RuntimeError("Unable to run tests due to config migration failure")
+        raise
 
 
 if __name__ == "__main__":
