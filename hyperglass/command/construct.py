@@ -44,7 +44,6 @@ class Construct:
         self.d_address = self.device["address"]
         self.d_src_addr_ipv4 = self.device["src_addr_ipv4"]
         self.d_src_addr_ipv6 = self.device["src_addr_ipv6"]
-        self.d_name = self.device["name"]
         self.d_type = self.device["type"]
         self.command = configuration.command(self.d_type)
 
