@@ -3,12 +3,22 @@
 Runs tests against test hyperglass instance
 """
 import os
+import sys
 import json
+import pprint
 import requests
 from logzero import logger
 
 working_directory = os.path.dirname(os.path.abspath(__file__))
 parent_directory = os.path.dirname(working_directory)
+
+
+def get_hyperglass_config():
+    sys.path.insert(0, parent_directory)
+    from hyperglass import configuration
+
+    hg_config = configuration.params()
+    return hg_config
 
 
 def construct_test(test_query, location, test_target):
@@ -164,6 +174,7 @@ def ci_hyperglass_test(
 
 
 if __name__ == "__main__":
+    logger.debug(pprint(get_hyperglass_config()))
     ci_hyperglass_test(
         "pop2", "1.1.1.0/24", "2606:4700:4700::/48", "pop1", "100.64.0.1"
     )
