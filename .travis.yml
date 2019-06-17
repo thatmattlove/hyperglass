@@ -2,8 +2,7 @@ language: python
 python:
   - "3.6"
 before_install:
-  - sudo apt-get update -q
-  - sudo apt-get install -y redis
+  - bash ./ci/ci_dependencies.sh
   - pip3 install black
   - pip3 install pylint
 install:
@@ -13,4 +12,4 @@ before_script:
 script:
   - python3 ./ci/ci_test.py
 after_script:
-  - bash ./ci/ci_commit.sh
+  - bash ./ci/ci_commit.shs
