@@ -1,4 +1,4 @@
-#!/bin/sh
+  #!/bin/sh
 
 setup_git() {
   git config --global user.email "travis@travis-ci.org"
@@ -16,13 +16,10 @@ check_format() {
 check_pylint() {
   PYLINT_SCORE=$(python3 manage.py pylint-badge --integer-only True)
   echo "Pylint score: $PYLINT_SCORE"
-  if  [ "$PYLINT_SCORE" == "10.00" ]
-  then
-    git checkout origin/master
-    git add pylint.svg
-    git commit --message "Pylint Badge - travis #$TRAVIS_BUILD_NUMBER"
-    echo "Completed Pylint Check & Badge Creation"
-  fi
+  git checkout origin/master
+  git add pylint.svg
+  git commit --message "Pylint Badge - travis #$TRAVIS_BUILD_NUMBER"
+  echo "Completed Pylint Check & Badge Creation"
 }
 
 setup_git
