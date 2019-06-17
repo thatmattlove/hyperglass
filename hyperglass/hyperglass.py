@@ -6,8 +6,6 @@ Main Hyperglass Front End
 import json
 import logging
 
-import netaddr
-
 # Module Imports
 import redis
 import logzero
