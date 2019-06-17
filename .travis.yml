@@ -9,10 +9,9 @@ before_install:
 - pip3 install -r ./tests/requirements_dev.txt
 install:
 - pip3 install -r requirements.txt
-after_install:
+before_script:
 - git remote add origin git@github.com/checktheroads/hyperglass.git > /dev/null 2>&1
 - sh ./tests/check_code.sh
-before_script:
 - python3 ./tests/ci_prepare.py
 script:
 - nohup python3 ./tests/ci_dev_server.py &
