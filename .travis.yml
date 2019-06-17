@@ -12,8 +12,10 @@ install:
 after_install:
   - bash ./ci/check_code.sh
 before_script:
-  - bash ./ci/ci_prepare.sh
+  - python3 ./ci/ci_prepare.py
 script:
+  - nohup python3 ./ci/ci_dev_server.py &
+  - sleep 20
   - python3 ./ci/ci_test.py
 after_script:
   - bash ./ci/ci_commit.sh
