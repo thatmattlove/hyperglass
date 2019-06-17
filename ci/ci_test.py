@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-
+"""
+Runs tests against test hyperglass instance
+"""
 import os
-import sys
-import glob
 import json
-import shutil
-import inspect
-import requests
 from logzero import logger
 
 working_directory = os.path.dirname(os.path.abspath(__file__))
@@ -27,18 +24,13 @@ def ci_hyperglass_test(
     target_ipv6,
     requires_ipv6_cidr,
     test_blacklist,
-    test_community,
-    test_aspath,
     test_host,
     test_port,
 ):
-    """Fully tests hyperglass backend by making use of requests library to mimic the JS Ajax POST \
+    """Tests hyperglass backend by making use of requests library to mimic the JS Ajax POST \
     performed by the front end."""
-    test_target = None
     invalid_ip = "this_ain't_an_ip!"
-    invalid_community = "192.0.2.1"
     invalid_aspath = ".*"
-    ipv4_host = "1.1.1.1"
     ipv4_cidr = "1.1.1.0/24"
     ipv6_host = "2606:4700:4700::1111"
     ipv6_cidr = "2606:4700:4700::/48"
@@ -173,8 +165,6 @@ if __name__ == "__main__":
         "2606:4700:4700::/48",
         "pop1",
         "100.64.0.1",
-        "65001:1",
-        "_65001$",
         "localhost",
         5000,
     )

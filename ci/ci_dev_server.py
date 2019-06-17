@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-
+"""
+Starts hyperglass with the Flask development server
+"""
 import os
 import sys
-import glob
-import shutil
-import requests
+import json
 from logzero import logger
 
 working_directory = os.path.dirname(os.path.abspath(__file__))
@@ -24,9 +24,8 @@ def flask_dev_server(host, port):
     try:
         sys.path.insert(0, parent_directory)
 
-        from hyperglass import hyperglass
-        from hyperglass import configuration
         from hyperglass import render
+        from hyperglass import hyperglass
 
         render.css()
         logger.info("Starting Flask development server")
@@ -37,7 +36,4 @@ def flask_dev_server(host, port):
 
 
 if __name__ == "__main__":
-    if ci_config():
-        flask_dev_server("localhost", 5000)
-    else:
-        raise
+    flask_dev_server("localhost", 5000)

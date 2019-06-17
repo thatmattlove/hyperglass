@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
-
+"""
+Prepares the test environment prior to starting hyperglass.
+"""
 import os
 import glob
 import shutil
 from logzero import logger
+
+working_directory = os.path.dirname(os.path.abspath(__file__))
+parent_directory = os.path.dirname(working_directory)
 
 
 def ci_copy_config():
@@ -16,19 +21,19 @@ def ci_copy_config():
     logger.debug(working_directory)
     logger.debug(parent_directory)
     status = False
-    for f in config_files:
-        if os.path.exists(f):
-            logger.debug(f"{f} already exists")
-            os.remove(f)
-            logger.debug(f"Deleted {f}")
-    for f in test_files:
+    for file in config_files:
+        if os.path.exists(file):
+            logger.debug(f"{file} already exists")
+            os.remove(file)
+            logger.debug(f"Deleted {file}")
+    for file in test_files:
         try:
-            shutil.copy(f, config_dir)
-            logger.debug(f"Copied {f}")
+            shutil.copy(file, config_dir)
+            logger.debug(f"Copied {file}")
             logger.info("Successfully migrated test config files")
             status = True
         except:
-            logger.error(f"Failed to migrate {f}")
+            logger.error(f"Failed to migrate {file}")
             raise
     return status
 
