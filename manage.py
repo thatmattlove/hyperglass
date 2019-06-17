@@ -501,7 +501,7 @@ def generatekey(string_length):
     click.secho(
         f"""
 Your API Key is: {api_key}
-Place your API Key in the `configuration.py` of your API module. For example, in: `hyperglass-frr/configuration.py`
+Place your API Key in the `configuration.toml` of your API module. For example, in: `hyperglass_frr/hyperglass-frr/configuration.toml`
 
 Your Key Hash is: {key_hash}
 Use this hash as the password for the device using the API module. For example, in: `hyperglass/hyperglass/configuration/devices.toml`
