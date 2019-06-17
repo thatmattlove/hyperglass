@@ -6,8 +6,11 @@
 
 <br>
 [![Build Status](https://travis-ci.com/checktheroads/hyperglass.svg?token=qWu7QJN7YkwTDsUawGBx&branch=master)](https://travis-ci.com/checktheroads/hyperglass)
+
 ![Pylint](https://github.com/checktheroads/hyperglass/blob/master/pylint.svg)
+
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+
 ![GitHub issues](https://img.shields.io/github/issues/checktheroads/hyperglass.svg)
 
 ## Features
@@ -32,7 +35,7 @@ Documentation can be found [here](https://hyperglass.readthedocs.io), or in the 
 
 ## Preview
 
-For screenshots, see [here](https://hyperglass.readthedocs.io/screenshots/).
+For screenshots, see [here](https://hyperglass.readthedocs.io/en/latest/screenshots/).
 
 ## Platform Support
 
