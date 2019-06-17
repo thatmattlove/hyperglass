@@ -4,6 +4,7 @@ Runs tests against test hyperglass instance
 """
 import os
 import json
+import requests
 from logzero import logger
 
 working_directory = os.path.dirname(os.path.abspath(__file__))
