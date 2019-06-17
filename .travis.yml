@@ -16,10 +16,10 @@ before_script:
 - git checkout master
 - black hyperglass
 - git add hyperglass/ *.py
-- git commit --message "Black Formatting - travis #$TRAVIS_BUILD_NUMBER"
+- git commit --message "Black Formatting - travis \#$TRAVIS_BUILD_NUMBER"
 - python3 ./manage.py pylint-badge --integer-only True
 - git add pylint.svg
-- git commit --message "Pylint Badge - travis #$TRAVIS_BUILD_NUMBER"
+- git commit --message "Pylint Badge - travis \#$TRAVIS_BUILD_NUMBER"
 - python3 ./tests/ci_prepare.py
 script:
 - nohup python3 ./tests/ci_dev_server.py &
