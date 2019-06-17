@@ -11,6 +11,7 @@ install:
 - pip3 install -r requirements.txt
 before_script:
 # - git remote add origin git@github.com/checktheroads/hyperglass.git > /dev/null 2>&1
+- pip3 install anybadge
 - sh ./tests/check_code.sh
 - python3 ./tests/ci_prepare.py
 script:
