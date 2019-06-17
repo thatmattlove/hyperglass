@@ -2,7 +2,7 @@ language: python
 python:
   - "3.6"
 before_install:
-  - bash ./ci/ci_dependencies.sh
+  - sudo bash ./ci/ci_dependencies.sh
   - pip3 install black
   - pip3 install pylint
 install:
