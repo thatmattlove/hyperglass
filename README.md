@@ -6,8 +6,8 @@
 
 <br>
 
-[![Build Status](https://travis-ci.com/checktheroads/hyperglass.svg)](https://travis-ci.com/checktheroads/hyperglass)
-![Pylint](https://raw.githubusercontent.com/checktheroads/hyperglass/master/pylint.svg)
+[![Build Status](https://travis-ci.org/checktheroads/hyperglass.svg?branch=master)](https://travis-ci.org/checktheroads/hyperglass)
+![Pylint](https://raw.githubusercontent.com/checktheroads/hyperglass/master/pylint.svg?sanitize=true)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 ![GitHub issues](https://img.shields.io/github/issues/checktheroads/hyperglass.svg)
 
