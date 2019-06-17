@@ -172,7 +172,7 @@ def hyperglass_main():
         logger.debug("No input specified")
         return Response(config["messages"]["no_input"], codes["danger"])
     # Return error if no location is selected
-    if lg_data["location"] not in configuration.locations():
+    if lg_data["location"] not in configuration.hostnames():
         logger.debug("No selection specified")
         return Response(config["messages"]["no_location"], codes["danger"])
     # Return error if no query type is selected

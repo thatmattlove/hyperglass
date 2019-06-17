@@ -122,7 +122,7 @@ $('#network').on('change', () => {
 
 function updateRouters(locations) {
   locations.forEach(function(r) {
-    $('#location').append($("<option>").attr('value', r.location).text(r.display_name))
+    $('#location').append($("<option>").attr('value', r.hostname).text(r.display_name))
   })
 }
 
