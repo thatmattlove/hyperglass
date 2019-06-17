@@ -11,7 +11,15 @@ install:
 before_script:
 - pip3 install -r ./tests/requirements_dev.txt
 - pip3 install anybadge
-- sh ./tests/check_code.sh
+- git config --global user.email "travis@travis-ci.org"
+- git config --global user.name "Travis CI"
+- git checkout master
+- black hyperglass
+- git add hyperglass/ *.py
+- git commit --message "Black Formatting - travis #$TRAVIS_BUILD_NUMBER"
+- python3 ./manage.py pylint-badge --integer-only True
+- git add pylint.svg
+- git commit --message "Pylint Badge - travis #$TRAVIS_BUILD_NUMBER"
 - python3 ./tests/ci_prepare.py
 script:
 - nohup python3 ./tests/ci_dev_server.py &
