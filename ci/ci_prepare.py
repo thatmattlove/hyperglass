@@ -25,11 +25,12 @@ def ci_copy_config():
         if os.path.exists(file):
             logger.debug(f"{file} already exists")
             os.remove(file)
-            logger.debug(f"Deleted {file}")
+            logger.info(f"Deleted {file}")
     for file in test_files:
         try:
             shutil.copy(file, config_dir)
             logger.debug(f"Copied {file}")
+            logger.debug(os.listdir(config_dir))
             logger.info("Successfully migrated test config files")
             status = True
         except:
