@@ -14,6 +14,7 @@ before_script:
     - pip3 install -r ./tests/requirements_dev.txt
     - pip3 install anybadge
     - ./tests/ci_git_prep.sh
+    - echo "Current Branch in Travis Context - $CURRENT_BRANCH"
     - black hyperglass
     - python3 ./manage.py pylint-badge --integer-only True
     - ./tests/ci_git_commit.sh
