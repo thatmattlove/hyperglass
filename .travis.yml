@@ -23,4 +23,4 @@ script:
     - sleep 20
     - python3 ./tests/ci_test.py
 after_success:
-    - git push origin $TRAVIS_BRANCH
+    - git push origin $CURRENT_BRANCH
