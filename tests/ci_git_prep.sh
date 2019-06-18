@@ -1,11 +1,4 @@
 #!/bin/sh
-echo "Travis thinks the branch is $TRAVIS_BRANCH"
-git config --global user.email "travis@travis-ci.org"
-git config --global user.name "Travis CI"
-git checkout $TRAVIS_BRANCH
-exit 0
-
-
 git_setup() {
   git config user.email "travis@travis-ci.org"
   git config user.name "Travis CI"
