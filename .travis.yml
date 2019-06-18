@@ -13,6 +13,7 @@ install:
 before_script:
     - pip3 install -r ./tests/requirements_dev.txt
     - pip3 install anybadge
+    - git fetch
     - git checkout master
     - black hyperglass
     - python3 ./manage.py pylint-badge --integer-only True
