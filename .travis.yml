@@ -16,7 +16,7 @@ before_script:
     - git checkout master
     - black hyperglass
     - python3 ./manage.py pylint-badge --integer-only True
-    - sh ./tests/ci_git.sh
+    - ./tests/ci_git.sh
     - python3 ./tests/ci_prepare.py
 script:
     - nohup python3 ./tests/ci_dev_server.py &
