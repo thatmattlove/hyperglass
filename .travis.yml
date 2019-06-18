@@ -1,24 +1,26 @@
+---
+
 language: python
 python:
-- '3.6'
+    - '3.6'
 before_install:
-- sudo add-apt-repository universe -y
-- sudo apt-get update -q
-- sudo apt-get install -y redis-server redis-tools
-- sudo systemctl start redis-server
+    - sudo add-apt-repository universe -y
+    - sudo apt-get update -q
+    - sudo apt-get install -y redis-server redis-tools
+    - sudo systemctl start redis-server
 install:
-- pip3 install -r requirements.txt
+    - pip3 install -r requirements.txt
 before_script:
-- pip3 install -r ./tests/requirements_dev.txt
-- pip3 install anybadge
-- git checkout master
-- black hyperglass
-- python3 ./manage.py pylint-badge --integer-only True
-- sh ./tests/ci_git.sh
-- python3 ./tests/ci_prepare.py
+    - pip3 install -r ./tests/requirements_dev.txt
+    - pip3 install anybadge
+    - git checkout master
+    - black hyperglass
+    - python3 ./manage.py pylint-badge --integer-only True
+    - ./tests/ci_git.sh
+    - python3 ./tests/ci_prepare.py
 script:
-- nohup python3 ./tests/ci_dev_server.py &
-- sleep 20
-- python3 ./tests/ci_test.py
+    - nohup python3 ./tests/ci_dev_server.py &
+    - sleep 20
+    - python3 ./tests/ci_test.py
 after_success:
-- git push origin master
+    - git push origin master

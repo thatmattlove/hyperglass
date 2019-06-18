@@ -5,4 +5,4 @@ git_commit() {
   git push --quiet --set-upstream origin master
 }
 
-git_commit()
+git_commit

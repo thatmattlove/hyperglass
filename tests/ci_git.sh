@@ -1,7 +1,7 @@
   #!/bin/sh
 
 commit_black() {
-  git add hyperglass/ *.py
+  git add hyperglass/*.py
   git commit --message "Black Formatting - travis $TRAVIS_BUILD_NUMBER"
 }
 
@@ -19,6 +19,4 @@ setup_git
 commit_black
 commit_pylint
 
-if [ $? -ne 0 ]; then
-  exit 0
-fi
+exit 0
