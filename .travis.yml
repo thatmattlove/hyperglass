@@ -16,11 +16,11 @@ before_script:
     - ./tests/ci_git_prep.sh
     - black hyperglass
     - python3 ./manage.py pylint-badge --integer-only True
-    - ./tests/ci_git.sh
+    - ./tests/ci_git_commit.sh
     - python3 ./tests/ci_prepare.py
 script:
     - nohup python3 ./tests/ci_dev_server.py &
     - sleep 20
     - python3 ./tests/ci_test.py
 after_success:
-    - git push origin master
+    - git push origin $TRAVIS_BRANCH
