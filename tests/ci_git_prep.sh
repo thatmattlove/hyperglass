@@ -21,6 +21,7 @@ echo "Detected Branch: $CURRENT_BRANCH"
 
 echo "Setting git config parameters..."
 git_setup
+echo "git branches:\n$(git branch -a)"
 echo "Initiating git fetch..."
 git fetch --depth=1 $GH_TOKEN@github.com:$TRAVIS_PULL_REQUEST_SLUG.git refs/heads/$CURRENT_BRANCH:refs/remotes/origin/$CURRENT_BRANCH > /dev/null 2>&1
 echo "Running git checkout..."
