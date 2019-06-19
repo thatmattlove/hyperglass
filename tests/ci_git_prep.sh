@@ -23,4 +23,3 @@ echo "Detected Branch: $CURRENT_BRANCH"
 git_setup
 git checkout $CURRENT_BRANCH
 export $CURRENT_BRANCH
-exit 0
