@@ -12,15 +12,10 @@ install:
     - pip3 install -r requirements.txt
 before_script:
     - pip3 install -r ./tests/requirements_dev.txt
-    - pip3 install anybadge
-    - git checkout master
-    - black hyperglass
-    - python3 ./manage.py pylint-badge --integer-only True
-    - ./tests/ci_git.sh
+    - black --check hyperglass
+    - python3 ./manage.py pylint-check --integer-only True
     - python3 ./tests/ci_prepare.py
 script:
     - nohup python3 ./tests/ci_dev_server.py &
     - sleep 20
     - python3 ./tests/ci_test.py
-after_success:
-    - git push origin master

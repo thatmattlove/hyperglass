@@ -35,8 +35,7 @@ def construct_test(test_query, location, test_target):
 def hg():
     pass
 
-
-@hg.command("pylint-badge", help="Runs Pylint and generates a badge for GitHub")
+@hg.command("pylint-check", help="Runs Pylint and generates a badge for GitHub")
 @click.option(
     "-i",
     "--integer-only",
@@ -45,7 +44,8 @@ def hg():
     default=False,
     help="Output Pylint score as integer",
 )
-def pylint_badge(int_only):
+@click.option("-b", "--badge", "create_badge", type=bool, default=False, help="Create Pylint badge")
+def pylint_check(int_only, create_badge):
     try:
         import re
         import anybadge
@@ -58,12 +58,13 @@ def pylint_badge(int_only):
         ).group(1)
         if not pylint_score == "10.00":
             raise RuntimeError(f"Pylint score {pylint_score} not acceptable.")
-        badge_file = os.path.join(working_directory, "pylint.svg")
-        if os.path.exists(badge_file):
-            os.remove(badge_file)
-        ab_thresholds = {1: "red", 10: "green"}
-        badge = anybadge.Badge("pylint", pylint_score, thresholds=ab_thresholds)
-        badge.write_badge("pylint.svg")
+        if create_badge:
+            badge_file = os.path.join(working_directory, "pylint.svg")
+            if os.path.exists(badge_file):
+                os.remove(badge_file)
+            ab_thresholds = {1: "red", 10: "green"}
+            badge = anybadge.Badge("pylint", pylint_score, thresholds=ab_thresholds)
+            badge.write_badge("pylint.svg")
         if not int_only:
             click.secho(
                 f"Created Pylint badge for score: {pylint_score}", fg="blue", bold=True
