@@ -7,9 +7,9 @@
 <br>
 
 [![Build Status](https://travis-ci.org/checktheroads/hyperglass.svg?branch=master)](https://travis-ci.org/checktheroads/hyperglass)
+![GitHub issues](https://img.shields.io/github/issues/checktheroads/hyperglass.svg)
 ![Pylint](https://raw.githubusercontent.com/checktheroads/hyperglass/master/pylint.svg?sanitize=true)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-![GitHub issues](https://img.shields.io/github/issues/checktheroads/hyperglass.svg)
 
 ## Features
 
@@ -27,13 +27,9 @@
 -   Query response caching with configurable cache timeout
 -   [Prometheus](https://prometheus.io/) metrics for query statistics tracking
 
-## Documentation
+## [Documentation](https://hyperglass.readthedocs.io)
 
-[Documentation can be found here](https://hyperglass.readthedocs.io).
-
-## Preview
-
-For screenshots, see [here](https://hyperglass.readthedocs.io/en/latest/screenshots/).
+## [Preview](https://hyperglass.readthedocs.io/en/latest/screenshots/)
 
 ## Platform Support
 
@@ -49,6 +45,10 @@ Theoretically, any vendor supported by Netmiko can be supported by hyperglass. H
 ### Proxies
 
 -   Linux: `linux_ssh`
+
+## Coming Soon
+
+-   [BIRD](https://bird.network.cz/) Support
 
 ## Acknowledgements
 
