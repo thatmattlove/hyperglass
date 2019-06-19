@@ -21,5 +21,5 @@ export CURRENT_BRANCH=$(detect_branch)
 echo "Detected Branch: $CURRENT_BRANCH"
 
 git_setup
-git fetch
-git checkout $CURRENT_BRANCH
+git fetch origin
+git checkout origin/$CURRENT_BRANCH
