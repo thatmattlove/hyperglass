@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "Travis Pull Request State: $TRAVIS_PULL_REQUEST"
+echo "Travis Pull Request: $TRAVIS_PULL_REQUEST"
 echo "Travis Branch: $TRAVIS_BRANCH"
 
 git_setup() {
@@ -17,9 +17,13 @@ detect_branch() {
 }
 
 export CURRENT_BRANCH=$(detect_branch)
-
 echo "Detected Branch: $CURRENT_BRANCH"
 
+echo "Setting git config parameters..."
 git_setup
-git fetch origin
+echo "Initiating git fetch..."
+git fetch --depth=1 git@github.com:$TRAVIS_PULL_REQUEST_SLUG.git refs/heads/$CURRENT_BRANCH:refs/remotes/origin/$CURRENT_BRANCH
+echo "Running git checkout..."
 git checkout origin/$CURRENT_BRANCH
+
+exit 0
