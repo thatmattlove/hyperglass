@@ -16,10 +16,10 @@ detect_branch() {
   fi
 }
 
-CURRENT_BRANCH=$(detect_branch)
+export CURRENT_BRANCH=$(detect_branch)
 
 echo "Detected Branch: $CURRENT_BRANCH"
 
 git_setup
+git fetch
 git checkout $CURRENT_BRANCH
-export $CURRENT_BRANCH
