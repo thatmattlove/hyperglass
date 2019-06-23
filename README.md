@@ -17,6 +17,7 @@
 -   Full frontend and backend IPv6 support
 -   [Netmiko](https://github.com/ktbyers/netmiko)-based connection handling for traditional network devices
 -   [FRRouting](https://frrouting.org/) support via [hyperglass-frr](https://github.com/checktheroads/hyperglass-frr) REST API
+-   [BIRD](https://bird.network.cz/) support via [hyperglass-bird](https://github.com/checktheroads/hyperglass-bird) REST API
 -   Customizable commands for each query type by vendor
 -   Clean, modern, google-esq GUI based on the [Bumla](https://bulma.io) framework
 -   Customizable colors, logo, web fonts, error messages, UI text
@@ -41,6 +42,7 @@ Theoretically, any vendor supported by Netmiko can be supported by hyperglass. H
 -   Cisco Classic IOS/IOS-XE: Netmiko `cisco_ios` vendor class
 -   Juniper JunOS: Netmiko `junos` vendor class
 -   FRRouting: [hyperglass-frr](https://github.com/checktheroads/hyperglass-frr) API
+-   BIRD: [hyperglass-bird](https://github.com/checktheroads/hyperglass-bird) API
 
 ### Proxies
 
@@ -48,7 +50,7 @@ Theoretically, any vendor supported by Netmiko can be supported by hyperglass. H
 
 ## Coming Soon
 
--   [BIRD](https://bird.network.cz/) Support
+-   [GoBGP](https://github.com/osrg/gobgp) Support
 
 ## Acknowledgements
 
