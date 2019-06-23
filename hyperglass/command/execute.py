@@ -8,7 +8,6 @@ connectoins or hyperglass-frr API calls, returns the output back to the front en
 import json
 import time
 import logging
-from pprint import pprint
 
 # Module Imports
 import requests
@@ -59,7 +58,7 @@ class Rest:
     def frr(self):
         """Sends HTTP POST to router running the hyperglass-frr API"""
         # Debug
-        logger.debug(f"FRR host params:\n{pprint(self.device)}")
+        logger.debug(f"FRR host params:\n{self.device}")
         logger.debug(f"Raw query parameters: {self.query}")
         # End Debug
         try:
@@ -70,7 +69,7 @@ class Rest:
             json_query = json.dumps(self.query)
             frr_endpoint = f'http://{self.device["address"]}:{self.device["port"]}/frr'
             # Debug
-            logger.debug(f"HTTP Headers:\n{pprint(headers)}")
+            logger.debug(f"HTTP Headers:\n{headers}")
             logger.debug(f"JSON query:\n{json_query}")
             logger.debug(f"FRR endpoint: {frr_endpoint}")
             # End Debug
@@ -115,7 +114,7 @@ class Netmiko:
     def direct(self):
         """Connects to the router via netmiko library, return the command output"""
         # Debug
-        logger.debug(f"Netmiko host: {pprint(self.nm_host)}")
+        logger.debug(f"Netmiko host: {self.nm_host}")
         logger.debug(f"Connecting to host via Netmiko library...")
         # End Debug
         try:
@@ -153,7 +152,7 @@ class Netmiko:
         nm_connect_proxied = ConnectHandler(**nm_proxy)
         nm_ssh_command = device_proxy["ssh_command"].format(**self.nm_host) + "\n"
         # Debug
-        logger.debug(f"Netmiko proxy {proxy_name}:\n{pprint(nm_proxy)}")
+        logger.debug(f"Netmiko proxy {proxy_name}:\n{nm_proxy}")
         logger.debug(f"Proxy SSH command: {nm_ssh_command}")
         # End Debug
         nm_connect_proxied.write_channel(nm_ssh_command)
@@ -233,7 +232,7 @@ class Execute:
         device_config = configuration.device(self.input_location)
         # Debug
         logger.debug(f"Received query for {self.input_data}")
-        logger.debug(f"Matched device config:\n{pprint(device_config)}")
+        logger.debug(f"Matched device config:\n{device_config}")
         # End Debug
         validity, msg, status = getattr(Validate(device_config), self.input_type)(
             self.input_target
