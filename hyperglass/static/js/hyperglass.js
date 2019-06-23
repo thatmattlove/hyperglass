@@ -17,16 +17,16 @@ dropdown.addEventListener('click', function(event) {
 var btn_copy = document.getElementById('btn-copy');
 var clipboard = new ClipboardJS(btn_copy);
 clipboard.on('success', function(e) {
-    console.log(e);
-    $('#btn-copy').addClass('is-success').addClass('is-outlined');
-    $('#copy-icon').removeClass('icofont-ui-copy').addClass('icofont-check');
-    setTimeout(function(){
-      $('#btn-copy').removeClass('is-success').removeClass('is-outlined');
-      $('#copy-icon').removeClass('icofont-check').addClass('icofont-ui-copy');
-    }, 1000)
+  console.log(e);
+  $('#btn-copy').addClass('is-success').addClass('is-outlined');
+  $('#copy-icon').removeClass('icofont-ui-copy').addClass('icofont-check');
+  setTimeout(function() {
+    $('#btn-copy').removeClass('is-success').removeClass('is-outlined');
+    $('#copy-icon').removeClass('icofont-check').addClass('icofont-ui-copy');
+  }, 1000)
 });
 clipboard.on('error', function(e) {
-    console.log(e);
+  console.log(e);
 });
 
 function bgpHelpASPath() {
@@ -181,30 +181,20 @@ function submitForm() {
         target_input.addClass('is-danger');
         target_error.html(`
           <br>
-          <article class="message is-danger is-small" style="display: block;">
-            <div class="message-header" style="display: block;">
-              Authentication Error
-            </div>
-            <div id="error" style="display: block;" class="message-body">
-              ${response.responseText}
-            </div>
-          </article>
+          <div class="notification is-danger">
+            ${response.responseText}
+          </div>
           `);
-        },
+      },
       405: function(response, code) {
         clearPage();
         target_error.show()
         target_input.addClass('is-warning');
         target_error.html(`
           <br>
-          <article class="message is-warning is-small" style="display: block;">
-            <div class="message-header" style="display: block;">
-              Input Not Allowed
-            </div>
-            <div id="error" style="display: block;" class="message-body">
-              ${response.responseText}
-            </div>
-          </article>
+          <div class="notification is-warning">
+            ${response.responseText}
+          </div>
           `);
       },
       415: function(response, code) {
@@ -213,19 +203,24 @@ function submitForm() {
         target_input.addClass('is-danger');
         target_error.html(`
           <br>
-          <article class="message is-danger is-small" style="display: block;">
-            <div class="message-header" style="display: block;">
-              Invalid Input
-            </div>
-            <div id="error" style="display: block;" class="message-body">
-              ${response.responseText}
-            </div>
-          </article>
+          <div class="notification is-danger">
+            ${response.responseText}
+          </div>
           `);
       },
       429: function(response, code) {
         clearPage();
         $("#ratelimit").addClass("is-active");
+      },
+      504: function(response, code) {
+        clearPage();
+        target_error.show()
+        target_error.html(`
+          <br>
+          <div class="notification is-danger">
+            ${response.responseText}
+          </div>
+          `);
       }
     }
   })
