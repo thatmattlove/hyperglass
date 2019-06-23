@@ -216,7 +216,6 @@ def hyperglass_main():
                 logger.debug(f"Returning {value_code} response")
                 return Response(response["output"], response["status"])
             # If 400 error, return error message and code
-            # ["code", "reason", "source", "type", "loc_id", "target"],
             if value_code in [405, 415]:
                 count_errors.labels(
                     response["status"],
