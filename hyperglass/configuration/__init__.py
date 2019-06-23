@@ -106,10 +106,12 @@ def codes():
     code_dict = {
         # 200: renders standard display text
         "success": 200,
-        # 405: Renders Bulma "warning" class notification message with message text
+        # 405: Renders Bulma "warning" class notification with message text
         "warning": 405,
-        # 415: Renders Bulma "danger" class notification message with message text
+        # 415: Renders Bulma "danger" class notification with message text
         "danger": 415,
+        # 504: Renders Bulma "danger" class notifiction, used for Ping/Traceroute errors
+        "error": 504,
     }
     return code_dict
 
@@ -117,16 +119,17 @@ def codes():
 def codes_reason():
     """Reusable status code descriptions"""
     code_desc_dict = {
-        200: "Valid Query",
-        405: "Query Not Allowed",
-        415: "Query Invalid",
+        "200": "Valid Query",
+        "405": "Query Not Allowed",
+        "415": "Query Invalid",
+        "504": "Unable to reach Ping target",
     }
     return code_desc_dict
 
 
 def rest_list():
     """Returns list of supported hyperglass API types"""
-    rest = ["frr"]
+    rest = ["frr", "bird"]
     return rest
 
 
@@ -402,6 +405,9 @@ def params():
     )
     branding["text"]["500"]["button"] = config["branding"]["text"]["500"].get(
         "button", "Home"
+    )
+    branding["text"]["504"]["message"] = config["branding"]["text"]["504"].get(
+        "message", "Unable to reach <b>{target}</b>."
     )
     branding["logo"] = config["branding"]["logo"]
     branding["logo"]["path"] = config["branding"]["logo"].get(

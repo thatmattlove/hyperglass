@@ -100,6 +100,8 @@ blacklist = [
 # title = ""
 # subtitle = ""
 # button = ""
+[branding.text.504]
+# message = ""
 [branding.logo]
 # path = ""
 # width = ""
