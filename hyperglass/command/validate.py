@@ -7,7 +7,6 @@ returns validity boolean and specific error message.
 import re
 import inspect
 import logging
-from pprint import pprint
 
 # Module Imports
 import logzero
@@ -148,7 +147,7 @@ def ip_attributes(target):
 def ip_type_check(query_type, target, device):
     """Checks multiple IP address related validation parameters"""
     prefix_attr = ip_attributes(target)
-    logger.debug(f"IP Attributes:\n{pprint(prefix_attr)}")
+    logger.debug(f"IP Attributes:\n{prefix_attr}")
     requires_ipv6_cidr = configuration.requires_ipv6_cidr(device["type"])
     validity = False
     msg = config["messages"]["not_allowed"].format(i=target)
