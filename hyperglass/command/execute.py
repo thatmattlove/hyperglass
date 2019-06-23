@@ -73,7 +73,9 @@ class Rest:
             logger.debug(f"JSON query:\n{json_query}")
             logger.debug(f"FRR endpoint: {frr_endpoint}")
             # End Debug
-            frr_response = requests.post(frr_endpoint, headers=headers, data=json_query)
+            frr_response = requests.post(
+                frr_endpoint, headers=headers, data=json_query, timeout=3
+            )
             response = frr_response.text
             status = frr_response.status_code
             # Debug
@@ -82,7 +84,44 @@ class Rest:
             # End Debug
         except requests.exceptions.RequestException as requests_exception:
             logger.error(
-                f'Error connecting to device {self.device["name"]}: {requests_exception}'
+                f"Error connecting to device {self.device}: {requests_exception}"
+            )
+            response = config["messages"]["general"]
+            status = codes["danger"]
+        return response, status
+
+    def bird(self):
+        """Sends HTTP POST to router running the hyperglass-bird API"""
+        # Debug
+        logger.debug(f"BIRD host params:\n{self.device}")
+        logger.debug(f"Raw query parameters: {self.query}")
+        # End Debug
+        try:
+            headers = {
+                "Content-Type": "application/json",
+                "X-API-Key": self.cred["password"],
+            }
+            json_query = json.dumps(self.query)
+            bird_endpoint = (
+                f'http://{self.device["address"]}:{self.device["port"]}/bird'
+            )
+            # Debug
+            logger.debug(f"HTTP Headers:\n{headers}")
+            logger.debug(f"JSON query:\n{json_query}")
+            logger.debug(f"BIRD endpoint: {bird_endpoint}")
+            # End Debug
+            bird_response = requests.post(
+                bird_endpoint, headers=headers, data=json_query, timeout=3
+            )
+            response = bird_response.text
+            status = bird_response.status_code
+            # Debug
+            logger.debug(f"BIRD response text:\n{response}")
+            logger.debug(f"BIRD status code: {status}")
+            # End Debug
+        except requests.exceptions.RequestException as requests_exception:
+            logger.error(
+                f"Error connecting to device {self.device}: {requests_exception}"
             )
             response = config["messages"]["general"]
             status = codes["danger"]
@@ -247,7 +286,7 @@ class Execute:
         logger.debug(f"Validity: {validity}, Message: {msg}, Status: {status}")
         if device_config["type"] in configuration.rest_list():
             connection = Rest("rest", device_config, self.input_type, self.input_target)
-            raw_output, status = connection.frr()
+            raw_output, status = getattr(connection, device_config["type"])()
             output = self.parse(raw_output, device_config["type"])
             ## return output, status, info
             return {"output": output, "status": status}
