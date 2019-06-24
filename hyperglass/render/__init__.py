@@ -108,7 +108,7 @@ Sends 5 ICMP echo requests to the target.
 +++
 +++
 Performs UDP Based traceroute to the target.<br>For information about how to interpret traceroute \
-results, [click here](https://hyperglass.readthedocs.io/nanog_traceroute.pdf).
+results, [click here](https://hyperglass.readthedocs.io/en/latest/assets/traceroute_nanog.pdf).
 """,
 }
 
