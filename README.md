@@ -2,14 +2,22 @@
 
 **hyperglass** is a modern network looking glass application. A looking glass is typically implemented by network service providers as a way of providing customers, peers, and partners with a way to easily view elements of, or run tests from the provider's network.
 
-**hyperglass** is intended to make implementing a looking glass too easy not to do, with the lofty goal of improving the internet community at large by making looking glasses more common across autonomous systems of any size.
+<hr>
 
-<br>
+<div align="center">
+
+[**Documentation**](https://hyperglass.readthedocs.io)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Screenshots**](https://hyperglass.readthedocs.io/en/latest/screenshots/)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Live Demo**](https://hyperglass.allroads.io/)
 
 [![Build Status](https://travis-ci.org/checktheroads/hyperglass.svg?branch=master)](https://travis-ci.org/checktheroads/hyperglass)
 ![GitHub issues](https://img.shields.io/github/issues/checktheroads/hyperglass.svg)
 ![Pylint](https://raw.githubusercontent.com/checktheroads/hyperglass/master/pylint.svg?sanitize=true)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+
+</div>
+
+<hr>
+
+**hyperglass** is intended to make implementing a looking glass too easy not to do, with the lofty goal of improving the internet community at large by making looking glasses more common across autonomous systems of any size.
 
 ## Features
 
@@ -28,31 +36,33 @@
 -   Query response caching with configurable cache timeout
 -   [Prometheus](https://prometheus.io/) metrics for query statistics tracking
 
-### [Documentation](https://hyperglass.readthedocs.io)
-
-### [Preview](https://hyperglass.readthedocs.io/en/latest/screenshots/)
-
-### [Demo](https://hyperglass.allroads.io/)
-
 ## Platform Support
 
-Theoretically, any vendor supported by Netmiko can be supported by hyperglass. However, hyperglass is preconfigured to support the following platforms:
+hyperglass is preconfigured to support the following platforms:
 
-### Routers
+-   **Cisco IOS-XR**: Netmiko `cisco_xr` vendor class
+-   **Cisco Classic IOS/IOS-XE**: Netmiko `cisco_ios` vendor class
+-   **Juniper JunOS**: Netmiko `junos` vendor class
+-   **FRRouting**: [`hyperglass-frr`](https://github.com/checktheroads/hyperglass-frr) API
+-   **BIRD**: [`hyperglass-bird`](https://github.com/checktheroads/hyperglass-bird) API
 
--   Cisco IOS-XR: Netmiko `cisco_xr` vendor class
--   Cisco Classic IOS/IOS-XE: Netmiko `cisco_ios` vendor class
--   Juniper JunOS: Netmiko `junos` vendor class
--   FRRouting: [hyperglass-frr](https://github.com/checktheroads/hyperglass-frr) API
--   BIRD: [hyperglass-bird](https://github.com/checktheroads/hyperglass-bird) API
-
-### Proxies
-
--   Linux: `linux_ssh`
+Theoretically, any vendor supported by Netmiko can be supported by hyperglass. To request support for a specifc platform, please [submit a Github Issue](https://github.com/checktheroads/hyperglass/issues/new) with the **enhancement** label.
 
 ## Coming Soon
 
 -   [GoBGP](https://github.com/osrg/gobgp) Support
+
+## Community
+
+For now, hyperglass news will be made available via Twitter:
+
+-   [@checktheroads](https://twitter.com/checktheroads)
+
+**hyperglass is developed with the express intention of being free to the networking community**.
+
+*However, the hyperglass demo does cost [/checktheroads](https://github.com/checktheroads) about $15/month for 3 Digital Ocean droplets. If you're feeling particularly helpful and want to help offset that cost, small donations are welcome.*
+
+[![Donate](https://img.shields.io/badge/Donate-blue.svg?logo=paypal)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZQFH3BB2B5M3E&source=url)
 
 ## Acknowledgements
 
