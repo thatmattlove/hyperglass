@@ -34,7 +34,7 @@
 -   Configurable IP/Prefix "blacklist" to prevent lookup of sensitive prefixes
 -   Configurable rate limiting, powered by [Flask-Limiter](https://github.com/alisaifee/flask-limiter)
 -   Query response caching with configurable cache timeout
--   [Prometheus](https://prometheus.io/) metrics for query statistics tracking
+-   [Prometheus](https://prometheus.io/) metrics for query statistics tracking ([Check out the live demo!](https://hyperglass.allroads.io/grafana))
 
 ## Platform Support
 
