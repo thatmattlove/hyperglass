@@ -70,4 +70,4 @@ For now, hyperglass news will be made available via Twitter:
 
 ## License
 
-[Clear BSD License](https://github.com/checktheroads/hyperglass/master/LICENSE)
+[Clear BSD License](https://github.com/checktheroads/hyperglass/blob/master/LICENSE)
