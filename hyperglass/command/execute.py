@@ -7,7 +7,6 @@ connectoins or hyperglass-frr API calls, returns the output back to the front en
 # Standard Imports
 import json
 import time
-import logging
 
 # Module Imports
 import requests
@@ -24,19 +23,16 @@ from netmiko import (
 )
 
 # Project Imports
-from hyperglass import configuration
+from hyperglass.constants import code, Supported
 from hyperglass.command.construct import Construct
 from hyperglass.command.validate import Validate
-
-codes = configuration.codes()
-config = configuration.params()
-# config = configuration.general()
-
-# Logzero Configuration
-if configuration.debug_state():
-    logzero.loglevel(logging.DEBUG)
-else:
-    logzero.loglevel(logging.INFO)
+from hyperglass.configuration import (
+    params,
+    devices,
+    credentials,
+    proxies,
+    logzero_config,
+)
 
 
 class Rest:
@@ -50,7 +46,7 @@ class Rest:
         self.device = device
         self.query_type = query_type
         self.target = target
-        self.cred = configuration.credential(self.device["credential"])
+        self.cred = getattr(credentials, self.device.credential)
         self.query = getattr(Construct(self.device), self.query_type)(
             self.transport, self.target
         )
@@ -64,30 +60,30 @@ class Rest:
         try:
             headers = {
                 "Content-Type": "application/json",
-                "X-API-Key": self.cred["password"],
+                "X-API-Key": self.cred.password.get_secret_value(),
             }
             json_query = json.dumps(self.query)
-            frr_endpoint = f'http://{self.device["address"]}:{self.device["port"]}/frr'
-            # Debug
-            logger.debug(f"HTTP Headers:\n{headers}")
-            logger.debug(f"JSON query:\n{json_query}")
+            frr_endpoint = (
+                f"http://{self.device.address.exploded}:{self.device.port}/frr"
+            )
+            logger.debug(f"HTTP Headers: {headers}")
+            logger.debug(f"JSON query: {json_query}")
             logger.debug(f"FRR endpoint: {frr_endpoint}")
-            # End Debug
             frr_response = requests.post(
                 frr_endpoint, headers=headers, data=json_query, timeout=7
             )
             response = frr_response.text
             status = frr_response.status_code
             # Debug
-            logger.debug(f"FRR response text:\n{response}")
             logger.debug(f"FRR status code: {status}")
+            logger.debug(f"FRR response text:\n{response}")
             # End Debug
-        except requests.exceptions.RequestException as requests_exception:
+        except requests.exceptions.RequestException as rest_error:
             logger.error(
-                f"Error connecting to device {self.device}: {requests_exception}"
+                f"Error connecting to device {self.device.location}: {rest_error}"
             )
-            response = config["messages"]["general"]
-            status = codes["danger"]
+            response = params.messages.general
+            status = code.invalid
         return response, status
 
     def bird(self):
@@ -99,32 +95,30 @@ class Rest:
         try:
             headers = {
                 "Content-Type": "application/json",
-                "X-API-Key": self.cred["password"],
+                "X-API-Key": self.cred.password.get_secret_value(),
             }
             json_query = json.dumps(self.query)
             bird_endpoint = (
-                f'http://{self.device["address"]}:{self.device["port"]}/bird'
+                f"http://{self.device.address.exploded}:{self.device.port}/bird"
             )
-            # Debug
-            logger.debug(f"HTTP Headers:\n{headers}")
-            logger.debug(f"JSON query:\n{json_query}")
+            logger.debug(f"HTTP Headers: {headers}")
+            logger.debug(f"JSON query: {json_query}")
             logger.debug(f"BIRD endpoint: {bird_endpoint}")
-            # End Debug
             bird_response = requests.post(
                 bird_endpoint, headers=headers, data=json_query, timeout=7
             )
             response = bird_response.text
             status = bird_response.status_code
             # Debug
-            logger.debug(f"BIRD response text:\n{response}")
             logger.debug(f"BIRD status code: {status}")
+            logger.debug(f"BIRD response text:\n{response}")
             # End Debug
         except requests.exceptions.RequestException as requests_exception:
             logger.error(
                 f"Error connecting to device {self.device}: {requests_exception}"
             )
-            response = config["messages"]["general"]
-            status = codes["danger"]
+            response = params.messages.general
+            status = code.invalid
         return response, status
 
 
@@ -137,61 +131,57 @@ class Netmiko:
     def __init__(self, transport, device, query_type, target):
         self.device = device
         self.target = target
-        self.cred = configuration.credential(self.device["credential"])
-        self.params = getattr(Construct(device), query_type)(transport, target)
-        self.location = self.params[0]
-        self.nos = self.params[1]
-        self.command = self.params[2]
+        self.cred = getattr(credentials, self.device.credential)
+        self.location, self.nos, self.command = getattr(Construct(device), query_type)(
+            transport, target
+        )
         self.nm_host = {
             "host": self.location,
             "device_type": self.nos,
-            "username": self.cred["username"],
-            "password": self.cred["password"],
+            "username": self.cred.username,
+            "password": self.cred.password.get_secret_value(),
             "global_delay_factor": 0.5,
         }
 
     def direct(self):
-        """Connects to the router via netmiko library, return the command output"""
-        # Debug
-        logger.debug(f"Netmiko host: {self.nm_host}")
-        logger.debug(f"Connecting to host via Netmiko library...")
-        # End Debug
+        """
+        Connects to the router via netmiko library, return the command
+        output.
+        """
+        logger.debug(f"Connecting to {self.device.location} via Netmiko library...")
         try:
             nm_connect_direct = ConnectHandler(**self.nm_host)
             response = nm_connect_direct.send_command(self.command)
-            status = codes["success"]
-            logger.debug(
-                f"Response for direction connection with command {self.command}:\n{response}"
-            )
+            status = code.valid
+            logger.debug(f"Response for direct command {self.command}:\n{response}")
         except (
             NetMikoAuthenticationException,
             NetMikoTimeoutException,
             NetmikoAuthError,
             NetmikoTimeoutError,
         ) as netmiko_exception:
-            response = config["messages"]["general"]
-            status = codes["danger"]
+            response = params.messages.general
+            status = code.invalid
             logger.error(f"{netmiko_exception}, {status}")
         return response, status
 
     def proxied(self):
         """
-        Connects to the proxy server via netmiko library, then logs into the router via \
-        standard SSH
+        Connects to the proxy server via netmiko library, then logs
+        into the router via SSH.
         """
-        proxy_name = self.device["proxy"]
-        device_proxy = configuration.proxy(proxy_name)
+        device_proxy = getattr(proxies, self.device.proxy)
         nm_proxy = {
-            "host": device_proxy["address"],
-            "username": device_proxy["username"],
-            "password": device_proxy["password"],
-            "device_type": device_proxy["type"],
+            "host": device_proxy.address.exploded,
+            "username": device_proxy.username,
+            "password": device_proxy.password.get_secret_value(),
+            "device_type": device_proxy.nos,
             "global_delay_factor": 0.5,
         }
         nm_connect_proxied = ConnectHandler(**nm_proxy)
-        nm_ssh_command = device_proxy["ssh_command"].format(**self.nm_host) + "\n"
+        nm_ssh_command = device_proxy.ssh_command.format(**self.nm_host) + "\n"
         # Debug
-        logger.debug(f"Netmiko proxy {proxy_name}:\n{nm_proxy}")
+        logger.debug(f"Netmiko proxy {self.device.proxy}")
         logger.debug(f"Proxy SSH command: {nm_ssh_command}")
         # End Debug
         nm_connect_proxied.write_channel(nm_ssh_command)
@@ -215,7 +205,7 @@ class Netmiko:
             )
             redispatch(nm_connect_proxied, self.nm_host["device_type"])
             response = nm_connect_proxied.send_command(self.command)
-            status = codes["success"]
+            status = code.valid
             logger.debug(f"Netmiko proxied response:\n{response}")
         except (
             NetMikoAuthenticationException,
@@ -223,18 +213,17 @@ class Netmiko:
             NetmikoAuthError,
             NetmikoTimeoutError,
         ) as netmiko_exception:
-            response = config["messages"]["general"]
-            status = codes["danger"]
-            logger.error(
-                f'{netmiko_exception}, {status},Proxy: {self.nm_host["proxy"]}'
-            )
+            response = params.messages.general
+            status = code.invalid
+            logger.error(f"{netmiko_exception}, {status},Proxy: {self.device.proxy}")
         return response, status
 
 
 class Execute:
     """
-    Ingests user input, runs blacklist check, runs prefix length check (if enabled), pulls all \
-    configuraiton variables for the input router.
+    Ingests user input, runs blacklist check, runs prefix length check
+    (if enabled), pulls all configuraiton variables for the input
+    router.
     """
 
     def __init__(self, lg_data):
@@ -244,18 +233,20 @@ class Execute:
         self.input_target = self.input_data["target"]
 
     def parse(self, output, nos):
-        """Splits BGP output by AFI, returns only IPv4 & IPv6 output for protocol-agnostic \
-        commands (Community & AS_PATH Lookups)"""
-        logger.debug(f"Parsing output...")
+        """
+        Splits BGP output by AFI, returns only IPv4 & IPv6 output for
+        protocol-agnostic commands (Community & AS_PATH Lookups).
+        """
+        logger.debug("Parsing output...")
         parsed = output
-        if self.input_type in ["bgp_community", "bgp_aspath"]:
-            if nos in ["cisco_ios"]:
+        if self.input_type in ("bgp_community", "bgp_aspath"):
+            if nos in ("cisco_ios",):
                 logger.debug(f"Parsing output for device type {nos}")
                 delimiter = "For address family: "
                 parsed_ipv4 = output.split(delimiter)[1]
                 parsed_ipv6 = output.split(delimiter)[2]
                 parsed = delimiter + parsed_ipv4 + delimiter + parsed_ipv6
-            if nos in ["cisco_xr"]:
+            elif nos in ("cisco_xr",):
                 logger.debug(f"Parsing output for device type {nos}")
                 delimiter = "Address Family: "
                 parsed_ipv4 = output.split(delimiter)[1]
@@ -265,49 +256,40 @@ class Execute:
 
     def response(self):
         """
-        Initializes Execute.filter(), if input fails to pass filter, returns errors to front end. \
-        Otherwise, executes queries.
+        Initializes Execute.filter(), if input fails to pass filter,
+        returns errors to front end. Otherwise, executes queries.
         """
-        device_config = configuration.device(self.input_location)
-        # Debug
+        device_config = getattr(devices, self.input_location)
         logger.debug(f"Received query for {self.input_data}")
         logger.debug(f"Matched device config:\n{device_config}")
-        # End Debug
+        # Run query parameters through validity checks
         validity, msg, status = getattr(Validate(device_config), self.input_type)(
             self.input_target
         )
         if not validity:
-            logger.debug(f"Invalid query")
-            ## return msg, status, self.input_data
+            logger.debug("Invalid query")
             return {"output": msg, "status": status}
         connection = None
-        output = config["messages"]["general"]
+        output = params.messages.general
         info = self.input_data
         logger.debug(f"Validity: {validity}, Message: {msg}, Status: {status}")
-        if device_config["type"] in configuration.rest_list():
+        if Supported.is_rest(device_config.nos):
             connection = Rest("rest", device_config, self.input_type, self.input_target)
-            raw_output, status = getattr(connection, device_config["type"])()
-            output = self.parse(raw_output, device_config["type"])
-            ## return output, status, info
-            return {"output": output, "status": status}
-        if device_config["type"] in configuration.scrape_list():
+            raw_output, status = getattr(connection, device_config.nos)()
+            output = self.parse(raw_output, device_config.nos)
+            # return {"output": output, "status": status}
+        elif Supported.is_scrape(device_config.nos):
             logger.debug(f"Initializing Netmiko...")
             connection = Netmiko(
                 "scrape", device_config, self.input_type, self.input_target
             )
-            if device_config["proxy"]:
+            if device_config.proxy:
                 raw_output, status = connection.proxied()
-            else:
+            elif not device_config.proxy:
                 raw_output, status = connection.direct()
-            output = self.parse(raw_output, device_config["type"])
+            output = self.parse(raw_output, device_config.nos)
             logger.debug(
-                f'Parsed output for device type {device_config["type"]}:\n{output}'
+                f"Parsed output for device type {device_config.nos}:\n{output}"
             )
-            ## return output, status, info
-            return {"output": output, "status": status}
-        if device_config["type"] not in configuration.supported_nos():
-            logger.error(
-                f"Device not supported, or no commands for device configured. {status}, {info}"
-            )
-        ## return output, status, info
+            # return {"output": output, "status": status}
         return {"output": output, "status": status}

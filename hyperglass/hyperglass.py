@@ -1,41 +1,31 @@
-# https://github.com/checktheroads/hyperglass
 """
 Main Hyperglass Front End
 """
 # Standard Imports
 import json
-import logging
 
 # Module Imports
 import redis
 import logzero
 from logzero import logger
-from flask import Flask, request, Response
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
-from prometheus_client import generate_latest, Counter, CollectorRegistry, multiprocess
+from flask import Flask, Response, request
+from prometheus_client import CollectorRegistry, Counter, generate_latest, multiprocess
 
 # Project Imports
-from hyperglass.command import execute
-from hyperglass import configuration
 from hyperglass import render
+from hyperglass.exceptions import ConfigError
+from hyperglass.command.execute import Execute
+from hyperglass.constants import Supported, code
+from hyperglass.configuration import params, devices, logzero_config
 
-# Logzero Configuration
-if configuration.debug_state():
-    logzero.loglevel(logging.DEBUG)
-else:
-    logzero.loglevel(logging.INFO)
-
-# Initialize general configuration parameters for reuse
-config = configuration.params()
-codes = configuration.codes()
-codes_reason = configuration.codes_reason()
-logger.debug(f"Configuration Parameters:\n {config}")
+logger.debug(f"Configuration Parameters:\n {params.dict()}")
 
 # Redis Config
 redis_config = {
-    "host": config["general"]["redis_host"],
-    "port": config["general"]["redis_port"],
+    "host": params.general.redis_host,
+    "port": params.general.redis_port,
     "charset": "utf-8",
     "decode_responses": True,
 }
@@ -44,22 +34,23 @@ redis_config = {
 app = Flask(__name__, static_url_path="/static")
 
 # Redis Cache Config
-r_cache = redis.Redis(**redis_config, db=config["features"]["rate_limit"]["redis_id"])
+r_cache = redis.Redis(**redis_config, db=params.features.rate_limit.redis_id)
 
 # Flask-Limiter Config
-query_rate = config["features"]["rate_limit"]["query"]["rate"]
-query_period = config["features"]["rate_limit"]["query"]["period"]
-site_rate = config["features"]["rate_limit"]["site"]["rate"]
-site_period = config["features"]["rate_limit"]["site"]["period"]
+query_rate = params.features.rate_limit.query.rate
+query_period = params.features.rate_limit.query.period
+site_rate = params.features.rate_limit.site.rate
+site_period = params.features.rate_limit.site.period
+#
 rate_limit_query = f"{query_rate} per {query_period}"
 rate_limit_site = f"{site_rate} per {site_period}"
 logger.debug(f"Query rate limit: {rate_limit_query}")
 logger.debug(f"Site rate limit: {rate_limit_site}")
 
 # Redis Config for Flask-Limiter storage
-r_limiter_db = config["features"]["rate_limit"]["redis_id"]
+r_limiter_db = params.features.rate_limit.redis_id
 r_limiter_url = f'redis://{redis_config["host"]}:{redis_config["port"]}/{r_limiter_db}'
-r_limiter = redis.Redis(**redis_config, db=config["features"]["rate_limit"]["redis_id"])
+r_limiter = redis.Redis(**redis_config, db=params.features.rate_limit.redis_id)
 # Adds Flask config variable for Flask-Limiter
 app.config.update(RATELIMIT_STORAGE_URL=r_limiter_url)
 # Initializes Flask-Limiter
@@ -151,10 +142,12 @@ def test_route():
 
 @app.route("/locations/<asn>", methods=["GET"])
 def get_locations(asn):
-    """Flask GET route provides a JSON list of all locations for the selected network/ASN"""
-    locations_list = configuration.locations_list()
-    locations_list_json = json.dumps(locations_list[asn])
-    logger.debug(f"Locations list:\n{locations_list}")
+    """
+    Flask GET route provides a JSON list of all locations for the
+    selected network/ASN.
+    """
+    locations_list_json = json.dumps(devices.locations[asn])
+    logger.debug(f"Locations list:{devices.locations[asn]}")
     return locations_list_json
 
 
@@ -162,30 +155,29 @@ def get_locations(asn):
 # Invoke Flask-Limiter with configured rate limit
 @limiter.limit(rate_limit_query, error_message="Query")
 def hyperglass_main():
-    """Main backend application initiator. Ingests Ajax POST data from form submit, passes it to
-    the backend application to perform the filtering/lookups"""
+    """
+    Main backend application initiator. Ingests Ajax POST data from
+    form submit, passes it to the backend application to perform the
+    filtering/lookups.
+    """
     # Get JSON data from Ajax POST
     lg_data = request.get_json()
     logger.debug(f"Unvalidated input: {lg_data}")
     # Return error if no target is specified
     if not lg_data["target"]:
         logger.debug("No input specified")
-        return Response(config["messages"]["no_input"], codes["danger"])
+        return Response(params.messages.no_input, code.invalid)
     # Return error if no location is selected
-    if lg_data["location"] not in configuration.hostnames():
+    if lg_data["location"] not in devices.hostnames:
         logger.debug("No selection specified")
-        return Response(config["messages"]["no_location"], codes["danger"])
+        return Response(params.messages.no_location, code.invalid)
     # Return error if no query type is selected
-    if lg_data["type"] not in [
-        "bgp_route",
-        "bgp_community",
-        "bgp_aspath",
-        "ping",
-        "traceroute",
-    ]:
+    if not Supported.is_supported_query(lg_data["type"]):
         logger.debug("No query specified")
-        return Response(config["messages"]["no_query_type"], codes["danger"])
+        return Response(params.messages.no_query_type, code.invalid)
+    # Get client IP address for Prometheus logging & rate limiting
     client_addr = get_ipaddr()
+    # Increment Prometheus counter
     count_data.labels(
         client_addr, lg_data["type"], lg_data["location"], lg_data["target"]
     ).inc()
@@ -194,17 +186,17 @@ def hyperglass_main():
     # cache store so each command output value is unique
     cache_key = str(lg_data)
     # Define cache entry expiry time
-    cache_timeout = config["features"]["cache"]["timeout"]
+    cache_timeout = params.features.cache.timeout
     logger.debug(f"Cache Timeout: {cache_timeout}")
     # Check if cached entry exists
     if not r_cache.hgetall(cache_key):
         try:
             logger.debug(f"Sending query {cache_key} to execute module...")
-            cache_value = execute.Execute(lg_data).response()
+            cache_value = Execute(lg_data).response()
             value_output = cache_value["output"]
             value_code = cache_value["status"]
             logger.debug(
-                f"Validated response...\nStatus Code: {value_code}, Output: {value_output}"
+                f"Validated response...\nStatus Code: {value_code}\nOutput:\n{value_output}"
             )
             # If it doesn't, create a cache entry
             r_cache.hmset(cache_key, cache_value)
@@ -216,10 +208,10 @@ def hyperglass_main():
                 logger.debug(f"Returning {value_code} response")
                 return Response(response["output"], response["status"])
             # If 400 error, return error message and code
-            if value_code in [405, 415]:
+            elif value_code in [405, 415]:
                 count_errors.labels(
                     response["status"],
-                    codes_reason[response["status"]],
+                    code.get_reason(response["status"]),
                     client_addr,
                     lg_data["type"],
                     lg_data["location"],

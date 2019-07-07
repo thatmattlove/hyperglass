@@ -1,4 +1,4 @@
-{% extends "templates/base.html" %}
+{% extends "templates/base.html.j2" %}
 <!DOCTYPE html>
 <html>
 
@@ -23,19 +23,19 @@
   <section>
     <div class="container has-text-centered">
       <h1 class="title is-size-1">
-        {{ branding["text"]["404"]["title"] }}
+        {{ branding.text.error404.title }}
       </h1>
       <h2 class="subtitle is-size-3">
-        {{ branding["text"]["404"]["subtitle"] }}
+        {{ branding.text.error404.subtitle }}
       </h2>
       <br>
     </div>
   </section>
-  {% if branding["footer"]["enable"] == true %}
-    {% include "templates/footer.html" %}
+  {% if branding.footer.enable == true %}
+    {% include "templates/footer.html.j2" %}
   {% endif %}
-  {% if branding["credit"]["enable"] == true %}
-    {% include "templates/credit.html" %}
+  {% if branding.credit.enable == true %}
+    {% include "templates/credit.html.j2" %}
   {% endif %}
 {% endblock %}
 </body>

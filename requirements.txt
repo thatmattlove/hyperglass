@@ -12,3 +12,5 @@ libsass==0.18.0
 markdown2==2.3.7
 passlib==1.7.1
 prometheus_client==0.7.0
+pydantic==0.29
+pyyaml==5.1.1

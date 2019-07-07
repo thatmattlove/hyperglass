@@ -1,4 +1,4 @@
-{% extends "templates/base.html" %}
+{% extends "templates/base.html.j2" %}
 <!DOCTYPE html>
 <html>
 
@@ -25,20 +25,20 @@
   <section>
     <div class="container has-text-centered">
       <h1 class="title is-size-1">
-        {{ branding["text"]["500"]["title"] }}
+        {{ features.rate_limit.site.title }}
       </h1>
       <h2 class="subtitle is-size-3">
-        {{ branding["text"]["500"]["subtitle"] }}
+        {{ features.rate_limit.site.subtitle }}
       </h2>
       <br>
-      <a href="/" class="button is-medium is-rounded is-inverted is-danger is-outlined">{{ branding["text"]["500"]["button"] }}</a>
+      <a href="/" class="button is-medium is-rounded is-inverted is-danger is-outlined">{{ features.rate_limit.site.button }}</a>
     </div>
   </section>
-  {% if branding["footer"]["enable"] == true %}
-    {% include "templates/footer.html" %}
+  {% if branding.footer.enable == true %}
+    {% include "templates/footer.html.j2" %}
   {% endif %}
-  {% if branding["credit"]["enable"] == true %}
-    {% include "templates/credit.html" %}
+  {% if branding.credit.enable == true %}
+    {% include "templates/credit.html.j2" %}
   {% endif %}
 {% endblock %}
 </body>

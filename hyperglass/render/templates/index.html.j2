@@ -1,4 +1,4 @@
-{% extends "templates/base.html" %}
+{% extends "templates/base.html.j2" %}
 <!DOCTYPE html>
 
 <head>
@@ -11,19 +11,19 @@
     <div class="modal-content">
       <article class="message is-danger">
         <div class="message-header">
-          <p>{{ features["rate_limit"]["query"]["title"] }}</p>
+          <p>{{ features.rate_limit.query.title }}</p>
         </div>
         <div class="message-body">
-          <p>{{ features["rate_limit"]["query"]["message"] }}</p>
+          <p>{{ features.rate_limit.query.message }}</p>
           <br>
           <div class="buttons is-right">
-            <a href="/" class="button is-danger is-rounded is-outlined">{{ features["rate_limit"]["query"]["button"] }}</a>
+            <a href="/" class="button is-danger is-rounded is-outlined">{{ features.rate_limit.query.button }}</a>
           </div>
         </div>
       </article>
     </div>
   </div>
-  {% if features["bgp_aspath"]["enable"] == true %}
+  {% if features.bgp_aspath.enable == true %}
   <div class="modal" id="help_bgp_aspath">
     <div class="modal-background" onclick="closeModal()"></div>
     <div class="modal-content is-clipped">
@@ -35,7 +35,7 @@
     <button class="modal-close is-large" aria-label="close" onclick="closeModal()"></button>
   </div>
   {% endif %}
-  {% if features["bgp_community"]["enable"] == true %}
+  {% if features.bgp_community.enable == true %}
   <div class="modal" id="help_bgp_community">
     <div class="modal-background" onclick="closeModal()"></div>
     <div class="modal-content">
@@ -51,10 +51,10 @@
     <div class="container is-fluid">
       <div class="navbar-brand">
       </div>
-      {% if branding["peering_db"]["enable"] == true %}
+      {% if branding.peering_db.enable == true %}
       <div class="navbar-menu">
         <div class="navbar-end">
-          <a class="navbar-item" href="https://as{{ general["primary_asn"] }}.peeringdb.com" target="_blank">
+          <a class="navbar-item" href="https://as{{ general.primary_asn }}.peeringdb.com" target="_blank">
             <span>PeeringDB</span>
             <span class="icon">
               <i class="icofont-external"></i>
@@ -68,33 +68,33 @@
   </nav>
   <section class="section">
     <div class="container has-text-centered is-fluid">
-      {% if branding["text"]["title_mode"] == 'all' %}
-      <img src="{{ branding["logo"]["path"] }}" style="width: {{ branding["logo"]["width"] }}px;">
+      {% if branding.text.title_mode == 'all' %}
+      <img src="{{ branding.logo.path }}" style="width: {{ branding.logo.width }}px;">
       <h1 class="title is-3" id="lg-title">
-        {{ branding["text"]["title"] }}
+        {{ branding.text.title }}
       </h1>
       <h2 class="subtitle is-5" id="lg-subtitle">
-        {{ branding["text"]["subtitle"] }}
+        {{ branding.text.subtitle }}
       </h2>
       <br>
-      {% elif branding["text"]["title_mode"] == 'text_only' %}
+      {% elif branding.text.title_mode == 'text_only' %}
       <h1 class="title is-1" id="lg-title">
-        {{ branding["text"]["title"] }}
+        {{ branding.text.title }}
       </h1>
       <h2 class="subtitle is-3" id="lg-subtitle">
-        {{ branding["text"]["subtitle"] }}
+        {{ branding.text.subtitle }}
       </h2>
       <br>
-      {% elif branding["text"]["title_mode"] == 'logo_title' %}
-      <img src="{{ branding["logo"]["path"] }}" style="width: {{ branding["logo"]["width"] }}px;">
+      {% elif branding.text.title_mode == 'logo_title' %}
+      <img src="{{ branding.logo.path }}" style="width: {{ branding.logo.width }}px;">
       <h1 class="title is-3" id="lg-title">
-        {{ branding["text"]["title"] }}
+        {{ branding.text.title }}
       </h1>
-      {% elif branding["text"]["title_mode"] == 'logo_only' %}
+      {% elif branding.text.title_mode == 'logo_only' %}
       <br>
       <br>
       <br>
-      <img src="{{ branding["logo"]["path"] }}" style="width: {{ branding["logo"]["width"] }}px;">
+      <img src="{{ branding.logo.path }}" style="width: {{ branding.logo.width }}px;">
       <br>
       <br>
       {% endif %}
@@ -103,7 +103,7 @@
         <div class="container is-fluid">
           <div class="field has-addons has-addons-centered">
             <div class="control has-icons-left is-expanded">
-              <input type="text" class="input is-medium is-rounded is-family-monospace" id="target" placeholder="{{ branding["text"]["query_placeholder"] }}">
+              <input type="text" class="input is-medium is-rounded is-family-monospace" id="target" placeholder="{{ branding.text.query_placeholder }}">
               <span class="icon is-small is-left"><i class="icofont-at"></i></span>
             </div>
           </div>
@@ -122,7 +122,7 @@
             <div class="control has-icons-left" id="location-control">
               <div class="select is-medium is-rounded">
                 <select id="location" style="width: 256px">
-                  <option id="text_location" selected disabled>{{ branding["text"]["location"] }}</option>
+                  <option id="text_location" selected disabled>{{ branding.text.location }}</option>
                 </select>
               </div>
               <span class="icon is-left"><i class="icofont-location-arrow"></i></span>
@@ -143,33 +143,33 @@
                 </div>
                 <div class="dropdown-menu is-expanded" id="dropdown-menu2" role="menu">
                   <div class="dropdown-content lg-help">
-                    {% if features["bgp_route"]["enable"] == true %}
+                    {% if features.bgp_route.enable == true %}
                     <div class="dropdown-item">
-                      <strong>{{ branding["text"]["bgp_route"] }}</strong>
+                      <strong>{{ branding.text.bgp_route }}</strong>
                       <p>{{ info["bgp_route"]["content"] }}</p>
                     </div>
                     {% endif %}
-                    {% if features["bgp_community"]["enable"] == true %}
+                    {% if features.bgp_community.enable == true %}
                     <div class="dropdown-item">
-                      <strong>{{ branding["text"]["bgp_community"] }}</strong>
+                      <strong>{{ branding.text.bgp_community }}</strong>
                       <p>{{ info["bgp_community"]["content"] }}</p>
                     </div>
                     {% endif %}
-                    {% if features["bgp_aspath"]["enable"] == true %}
+                    {% if features.bgp_aspath.enable == true %}
                     <div class="dropdown-item">
-                      <strong>{{ branding["text"]["bgp_aspath"] }}</strong>
+                      <strong>{{ branding.text.bgp_aspath }}</strong>
                       <p>{{ info["bgp_aspath"]["content"] }}</p>
                     </div>
                     {% endif %}
-                    {% if features["ping"]["enable"] == true %}
+                    {% if features.ping.enable == true %}
                     <div class="dropdown-item">
-                      <strong>{{ branding["text"]["ping"] }}</strong>
+                      <strong>{{ branding.text.ping }}</strong>
                       <p>{{ info["ping"]["content"] }}</p>
                     </div>
                     {% endif %}
-                    {% if features["traceroute"]["enable"] == true %}
+                    {% if features.traceroute.enable == true %}
                     <div class="dropdown-item">
-                      <strong>{{ branding["text"]["traceroute"] }}</strong>
+                      <strong>{{ branding.text.traceroute }}</strong>
                       <p>{{ info["traceroute"]["content"] }}</p>
                     </div>
                     {% endif %}
@@ -181,31 +181,31 @@
               <div class="select is-medium is-rounded">
                 <select id="type">
                   <option selected disabled>
-                    {{ branding["text"]["query_type"] }}
+                    {{ branding.text.query_type }}
                   </option>
-                  {% if features["bgp_route"]["enable"] == true %}
+                  {% if features.bgp_route.enable == true %}
                   <option name="type" id="type_bgp_route" value="bgp_route">
-                    {{ branding["text"]["bgp_route"] }}
+                    {{ branding.text.bgp_route }}
                   </option>
                   {% endif %}
-                  {% if features["bgp_community"]["enable"] == true %}
+                  {% if features.bgp_community.enable == true %}
                   <option name="type" id="type_bgp_community" value="bgp_community">
-                    {{ branding["text"]["bgp_community"] }}
+                    {{ branding.text.bgp_community }}
                   </option>
                   {% endif %}
-                  {% if features["bgp_aspath"]["enable"] == true %}
+                  {% if features.bgp_aspath.enable == true %}
                   <option name="type" id="type_bgp_aspath" value="bgp_aspath">
-                    {{ branding["text"]["bgp_aspath"] }}
+                    {{ branding.text.bgp_aspath }}
                   </option>
                   {% endif %}
-                  {% if features["ping"]["enable"] == true %}
+                  {% if features.ping.enable == true %}
                   <option name="type" id="type_ping" value="ping">
-                    {{ branding["text"]["ping"] }}
+                    {{ branding.text.ping }}
                   </option>
                   {% endif %}
-                  {% if features["traceroute"]["enable"] == true %}
+                  {% if features.traceroute.enable == true %}
                   <option name="type" id="type_traceroute" value="traceroute">
-                    {{ branding["text"]["traceroute"] }}
+                    {{ branding.text.traceroute }}
                   </option>
                   {% endif %}
                 </select>
@@ -235,7 +235,7 @@
             <i id="copy-icon" class="icofont-ui-copy"></i>
           </span>
         </a>
-        <p class="title" id="results">{{ branding["text"]["results"] }}</p>
+        <p class="title" id="results">{{ branding.text.results }}</p>
         <p id="queryInfo">
         </p>
         <p id="progress">
@@ -245,18 +245,18 @@
         <br>
         <p class="query-output" id="output">
         </p>
-        {% if features["cache"]["show_text"] == true %}
+        {% if features.cache.show_text == true %}
         <hr>
-        <p class="is-size-7">{{ features["cache"]["text"] }}</p>
+        <p class="is-size-7">{{ features.cache.text }}</p>
         {% endif %}
       </div>
     </div>
   </section>
-    {% if branding["footer"]["enable"] == true %}
-      {% include "templates/footer.html" %}
+    {% if branding.footer.enable == true %}
+      {% include "templates/footer.html.j2" %}
     {% endif %}
-    {% if branding["credit"]["enable"] == true %}
-      {% include "templates/credit.html" %}
+    {% if branding.credit.enable == true %}
+      {% include "templates/credit.html.j2" %}
     {% endif %}
   {% endblock %}
 </body>

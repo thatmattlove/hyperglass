@@ -35,6 +35,7 @@ def construct_test(test_query, location, test_target):
 def hg():
     pass
 
+
 @hg.command("pylint-check", help="Runs Pylint and generates a badge for GitHub")
 @click.option(
     "-i",
@@ -44,7 +45,14 @@ def hg():
     default=False,
     help="Output Pylint score as integer",
 )
-@click.option("-b", "--badge", "create_badge", type=bool, default=False, help="Create Pylint badge")
+@click.option(
+    "-b",
+    "--badge",
+    "create_badge",
+    type=bool,
+    default=False,
+    help="Create Pylint badge",
+)
 def pylint_check(int_only, create_badge):
     try:
         import re
@@ -520,7 +528,7 @@ def flask_dev_server(host, port):
         from hyperglass import configuration
         from hyperglass import render
 
-        debug_state = configuration.debug_state()
+        debug_state = configuration.params.general.debug
         render.css()
         click.secho(f"✓ Starting Flask development server", fg="green", bold=True)
         hyperglass.app.run(host=host, debug=debug_state, port=port)
