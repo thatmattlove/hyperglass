@@ -11,6 +11,7 @@ before_install:
 install:
     - pip3 install -r requirements.txt
 before_script:
+    - pip3 uninstall -r ./tests/requirements_dev.txt
     - pip3 install -r ./tests/requirements_dev.txt
     - black --check hyperglass
     - python3 ./manage.py pylint-check --integer-only True
