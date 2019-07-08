@@ -2,14 +2,14 @@
 Global Constants for hyperglass
 """
 
-__all__: ("code", "Supported")
-
 
 class Status:
     """
     Defines codes, messages, and method names for status codes used by
     hyperglass.
     """
+
+    # pylint: disable=too-few-public-methods
 
     codes_dict = {
         200: ("valid", "Valid Query"),
@@ -22,8 +22,8 @@ class Status:
         """
         Dynamically generates class attributes for codes in codes_dict.
         """
-        for (code, text) in Status.codes_dict.items():
-            setattr(self, text[0], code)
+        for (_code, text) in Status.codes_dict.items():
+            setattr(self, text[0], _code)
 
     @staticmethod
     def get_reason(search_code):
@@ -31,9 +31,11 @@ class Status:
         Maps and returns input code integer to associated reason text.
         Mainly used for populating Prometheus fields.
         """
-        for (code, text) in Status.codes_dict.items():
-            if code == search_code:
-                return text[1]
+        reason = None
+        for (_code, text) in Status.codes_dict.items():
+            if _code == search_code:
+                reason = text[1]
+        return reason
 
 
 code = Status()
@@ -136,7 +138,7 @@ class Supported:
         Returns boolean state of input Network Operating System against
         rest OR scrape tuples.
         """
-        return bool(nos in (Supported.rest + Supported.scrape))
+        return bool(nos in Supported.rest + Supported.scrape)
 
     @staticmethod
     def is_scrape(nos):
