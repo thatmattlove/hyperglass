@@ -2,3 +2,4 @@ black
 pylint
 requests
 logzero
+anybadge
