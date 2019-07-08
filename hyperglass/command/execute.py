@@ -25,12 +25,12 @@ from netmiko import (
 from hyperglass.constants import code, Supported
 from hyperglass.command.construct import Construct
 from hyperglass.command.validate import Validate
-from hyperglass.configuration import (
+from hyperglass.configuration import (  # pylint: disable=unused-import
     params,
     devices,
     credentials,
     proxies,
-    logzero_config,  # pylint: disable=unused-import
+    logzero_config,
 )
 
 
