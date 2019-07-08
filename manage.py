@@ -39,28 +39,26 @@ def hg():
 
 @hg.command("pylint-check", help="Runs Pylint and generates a badge for GitHub")
 @click.option(
-    "-i",
-    "--integer-only",
-    "int_only",
-    is_flag=True,
-    help="Output Pylint score as integer",
+    "-m", "--number", "num_only", is_flag=True, help="Output Pylint score as integer"
 )
 @click.option("-b", "--badge", "create_badge", is_flag=True, help="Create Pylint badge")
 @click.option(
     "-e", "--print-errors", "errors", is_flag=True, help="Print pylint errors"
 )
-def pylint_check(int_only, create_badge, errors):
+def pylint_check(num_only, create_badge, errors):
     try:
         import re
         import anybadge
         from pylint import epylint
 
-        pylint_stdout, pylint_stderr = epylint.py_run("hyperglass", return_std=True)
+        pylint_stdout, pylint_stderr = epylint.py_run(
+            "--rcfile .pylintrc hyperglass", return_std=True
+        )
         pylint_output = pylint_stdout.getvalue()
         pylint_score = re.search(
             r"Your code has been rated at (\d+\.\d+)\/10.*", pylint_output
         ).group(1)
-        if int_only:
+        if num_only:
             click.echo(pylint_score)
         if errors:
             click.echo(pylint_output)
