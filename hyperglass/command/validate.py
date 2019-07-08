@@ -3,18 +3,20 @@ Accepts raw input data from execute.py, passes it through specific
 filters based on query type, returns validity boolean and specific
 error message.
 """
-# Standard Imports
+# Standard Library Imports
 import re
 import inspect
 import ipaddress
 
-# Module Imports
-import logzero
+# Third Party Imports
 from logzero import logger
 
 # Project Imports
 from hyperglass.constants import code
-from hyperglass.configuration import params, logzero_config
+from hyperglass.configuration import (  # pylint: disable=unused-import
+    params,
+    logzero_config,
+)
 
 
 class IPType:
@@ -107,7 +109,11 @@ def ip_blacklist(target):
     if params.features.blacklist.enable:
         target_ver = ipaddress.ip_network(target).version
         user_blacklist = params.features.blacklist.networks
-        networks = [net for net in user_blacklist if net.version == target_ver]
+        networks = [
+            net
+            for net in user_blacklist
+            if ipaddress.ip_network(net).version == target_ver
+        ]
         logger.debug(f"IPv{target_ver} Blacklist Networks: {networks}")
         while not membership:
             for net in networks:
@@ -185,14 +191,6 @@ def ip_type_check(query_type, target, device):
     return (validity, msg)
 
 
-def current_function():
-    """
-    Returns name of current function for easy initialization & calling.
-    """
-    this_function = inspect.stack()[1][3]
-    return this_function
-
-
 class Validate:
     """
     Accepts raw input and associated device parameters from execute.py
@@ -206,7 +204,7 @@ class Validate:
 
     def ping(self, target):
         """Ping Query: Input Validation & Error Handling"""
-        query_type = current_function()
+        query_type = "ping"
         logger.debug(f"Validating {query_type} query for target {target}...")
         validity = False
         msg = params.messages.invalid_ip.format(i=target)
@@ -228,7 +226,7 @@ class Validate:
 
     def traceroute(self, target):
         """Traceroute Query: Input Validation & Error Handling"""
-        query_type = current_function()
+        query_type = "traceroute"
         logger.debug(f"Validating {query_type} query for target {target}...")
         validity = False
         msg = params.messages.invalid_ip.format(i=target)
@@ -250,7 +248,7 @@ class Validate:
 
     def bgp_route(self, target):
         """BGP Route Query: Input Validation & Error Handling"""
-        query_type = current_function()
+        query_type = "bgp_route"
         logger.debug(f"Validating {query_type} query for target {target}...")
         validity = False
         msg = params.messages.invalid_ip.format(i=target)
@@ -270,9 +268,10 @@ class Validate:
             return (validity, msg, status)
         return (validity, msg, status)
 
-    def bgp_community(self, target):
+    @staticmethod
+    def bgp_community(target):
         """BGP Community Query: Input Validation & Error Handling"""
-        query_type = current_function()
+        query_type = "bgp_community"
         logger.debug(f"Validating {query_type} query for target {target}...")
         validity = False
         msg = params.messages.invalid_dual.format(i=target, qt="BGP Community")
@@ -298,9 +297,10 @@ class Validate:
         logger.debug(f"{msg}, {status}")
         return (validity, msg, status)
 
-    def bgp_aspath(self, target):
+    @staticmethod
+    def bgp_aspath(target):
         """BGP AS Path Query: Input Validation & Error Handling"""
-        query_type = current_function()
+        query_type = "bgp_aspath"
         logger.debug(f"Validating {query_type} query for target {target}...")
         validity = False
         msg = params.messages.invalid_dual.format(i=target, qt="AS Path")
