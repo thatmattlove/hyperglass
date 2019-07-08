@@ -3,6 +3,7 @@ Main Hyperglass Front End
 """
 # Standard Imports
 import json
+from ast import literal_eval
 
 # Module Imports
 import redis
@@ -192,37 +193,35 @@ def hyperglass_main():
     cache_timeout = params.features.cache.timeout
     logger.debug(f"Cache Timeout: {cache_timeout}")
     # Check if cached entry exists
-    if not r_cache.hgetall(cache_key):
+    if not r_cache.get(cache_key):
         try:
             logger.debug(f"Sending query {cache_key} to execute module...")
             cache_value = Execute(lg_data).response()
-            value_output = cache_value["output"]
-            value_code = cache_value["status"]
             logger.debug(
-                f"Validated response...\nStatus Code: {value_code}\nOutput:\n{value_output}"
+                f"Validated response...\nStatus Code: {cache_value[1]}\nOutput:\n{cache_value[0]}"
             )
             # If it doesn't, create a cache entry
-            r_cache.hmset(cache_key, cache_value)
+            r_cache.set(cache_key, str(cache_value))
             r_cache.expire(cache_key, cache_timeout)
             logger.debug(f"Added cache entry for query: {cache_key}")
-            response = r_cache.hgetall(cache_key)
-            logger.debug(f"Status code: {value_code}")
-            # If error, increment Prometheus metrics
-            if value_code in [405, 415, 504]:
-                count_errors.labels(
-                    response["status"],
-                    code.get_reason(response["status"]),
-                    client_addr,
-                    lg_data["type"],
-                    lg_data["location"],
-                    lg_data["target"],
-                ).inc()
-            return Response(*response)
         except:
             logger.error(f"Unable to add output to cache: {cache_key}")
             raise HyperglassError(f"Error with cache key {cache_key}")
     # If it does, return the cached entry
-    else:
-        logger.debug(f"Cache match for: {cache_key}, returning cached entry")
-        response = r_cache.hgetall(cache_key)
+    logger.debug(f"Cache match for: {cache_key}, returning cached entry")
+    cache_response = r_cache.get(cache_key)
+    response = literal_eval(cache_response)
+    response_output, response_status = response
+    logger.debug(f"Cache Output: {response_output}")
+    logger.debug(f"Cache Status Code: {response_status}")
+    # If error, increment Prometheus metrics
+    if response_status in [405, 415, 504]:
+        count_errors.labels(
+            response_status,
+            code.get_reason(response_status),
+            client_addr,
+            lg_data["type"],
+            lg_data["location"],
+            lg_data["target"],
+        ).inc()
     return Response(*response)
