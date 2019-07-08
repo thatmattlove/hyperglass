@@ -54,6 +54,14 @@ def hg():
     default=False,
     help="Create Pylint badge",
 )
+@click.option(
+    "-e",
+    "--print-errors",
+    "errors",
+    type=bool,
+    default=False,
+    help="Print pylint errors",
+)
 def pylint_check(int_only, create_badge):
     try:
         import re
@@ -80,6 +88,8 @@ def pylint_check(int_only, create_badge):
             )
         if int_only:
             click.echo(pylint_score)
+        if errors:
+            click.echo(pylint_output)
     except ImportError as error_exception:
         click.secho(f"Import error:\n{error_exception}", fg="red", bold=True)
 
