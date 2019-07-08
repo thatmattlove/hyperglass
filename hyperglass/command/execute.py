@@ -277,7 +277,7 @@ class Execute:
         )
         if not validity:
             logger.debug("Invalid query")
-            return {"output": msg, "status": status}
+            return (msg, status)
         connection = None
         output = params.messages.general
 
