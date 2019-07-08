@@ -3,8 +3,6 @@ Imports configuration varibles from configuration files and returns
 default values if undefined.
 """
 
-__all__ = ("params", "commands", "devices", "credentials", "proxies", "logzero_config")
-
 # Standard Library Imports
 import math
 from pathlib import Path
@@ -28,9 +26,7 @@ try:
     with open(working_dir.joinpath("hyperglass.yaml")) as config_yaml:
         user_config = yaml.safe_load(config_yaml)
 except FileNotFoundError as no_config_error:
-    logger.error(no_config_error)
-    logger.error("Default configuration will be used")
-    pass
+    logger.error(f"{no_config_error} - Default configuration will be used")
 # Import device commands file
 try:
     with open(working_dir.joinpath("commands.yaml")) as commands_yaml:
@@ -42,7 +38,6 @@ except FileNotFoundError:
             "Defaults will be used."
         )
     )
-    pass
 # Import device configuration file
 try:
     with open(working_dir.joinpath("devices.yaml")) as devices_yaml:
