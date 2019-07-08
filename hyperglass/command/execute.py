@@ -292,4 +292,4 @@ class Execute:
                 f"Parsed output for device type {device_config.nos}:\n{output}"
             )
             # return {"output": output, "status": status}
-        return {"output": output, "status": status}
+        return (output, status)
