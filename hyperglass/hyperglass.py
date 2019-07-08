@@ -6,7 +6,6 @@ import json
 
 # Module Imports
 import redis
-import logzero
 from logzero import logger
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
@@ -15,10 +14,14 @@ from prometheus_client import CollectorRegistry, Counter, generate_latest, multi
 
 # Project Imports
 from hyperglass import render
-from hyperglass.exceptions import ConfigError
+from hyperglass.exceptions import HyperglassError
 from hyperglass.command.execute import Execute
 from hyperglass.constants import Supported, code
-from hyperglass.configuration import params, devices, logzero_config
+from hyperglass.configuration import (  # pylint: disable=unused-import
+    params,
+    devices,
+    logzero_config,
+)
 
 logger.debug(f"Configuration Parameters:\n {params.dict()}")
 
@@ -34,7 +37,7 @@ redis_config = {
 app = Flask(__name__, static_url_path="/static")
 
 # Redis Cache Config
-r_cache = redis.Redis(**redis_config, db=params.features.rate_limit.redis_id)
+r_cache = redis.Redis(db=params.features.rate_limit.redis_id, **redis_config)
 
 # Flask-Limiter Config
 query_rate = params.features.rate_limit.query.rate
@@ -122,7 +125,7 @@ def clear_cache():
         r_cache.flushdb()
     except Exception as error_exception:
         logger.error(f"Error clearing cache: {error_exception}")
-        raise
+        raise HyperglassError(f"Error clearing cache: {error_exception}")
 
 
 @app.route("/", methods=["GET"])
@@ -202,13 +205,10 @@ def hyperglass_main():
             r_cache.hmset(cache_key, cache_value)
             r_cache.expire(cache_key, cache_timeout)
             logger.debug(f"Added cache entry for query: {cache_key}")
-            # If 200, return output
             response = r_cache.hgetall(cache_key)
-            if value_code == 200:
-                logger.debug(f"Returning {value_code} response")
-                return Response(response["output"], response["status"])
-            # If 400 error, return error message and code
-            elif value_code in [405, 415]:
+            logger.debug(f"Status code: {value_code}")
+            # If error, increment Prometheus metrics
+            if value_code in [405, 415, 504]:
                 count_errors.labels(
                     response["status"],
                     code.get_reason(response["status"]),
@@ -217,13 +217,12 @@ def hyperglass_main():
                     lg_data["location"],
                     lg_data["target"],
                 ).inc()
-                logger.debug(f"Returning {value_code} response")
-                return Response(response["output"], response["status"])
+            return Response(*response)
         except:
             logger.error(f"Unable to add output to cache: {cache_key}")
-            raise
+            raise HyperglassError(f"Error with cache key {cache_key}")
     # If it does, return the cached entry
     else:
         logger.debug(f"Cache match for: {cache_key}, returning cached entry")
         response = r_cache.hgetall(cache_key)
-    return Response(response["output"], response["status"])
+    return Response(*response)
