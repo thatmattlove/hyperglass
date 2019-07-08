@@ -229,8 +229,10 @@ def test_hyperglass(
     test_host,
     test_port,
 ):
-    """Fully tests hyperglass backend by making use of requests library to mimic the JS Ajax POST \
-    performed by the front end."""
+    """
+    Fully tests hyperglass backend by making use of requests library to
+    mimic the JS Ajax POST performed by the front end.
+    """
     test_target = None
     invalid_ip = "this_ain't_an_ip!"
     invalid_community = "192.0.2.1"
@@ -504,7 +506,10 @@ def clearcache():
     "-l", "--length", "string_length", type=int, default=16, show_default=True
 )
 def generatekey(string_length):
-    """Generates 16 character API Key for hyperglass-frr API, and a corresponding PBKDF2 SHA256 Hash"""
+    """
+    Generates 16 character API Key for hyperglass-frr API, and a
+    corresponding PBKDF2 SHA256 Hash.
+    """
     ld = string.ascii_letters + string.digits
     nl = "\n"
     api_key = "".join(random.choice(ld) for i in range(string_length))
