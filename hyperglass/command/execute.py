@@ -1,18 +1,17 @@
-# https://github.com/checktheroads/hyperglass
 """
-Accepts input from front end application, validates the input and returns errors if input is \
-invalid. Passes validated parameters to construct.py, which is used to build & run the Netmiko \
-connectoins or hyperglass-frr API calls, returns the output back to the front end.
+Accepts input from front end application, validates the input and
+returns errors if input is invalid. Passes validated parameters to
+construct.py, which is used to build & run the Netmiko connectoins or
+hyperglass-frr API calls, returns the output back to the front end.
 """
-# Standard Imports
+# Standard Lib Imports
 import json
 import time
 
-# Module Imports
+# Third Party Imports
 import requests
 import requests.exceptions
 from logzero import logger
-import logzero
 from netmiko import (
     ConnectHandler,
     redispatch,
@@ -31,7 +30,7 @@ from hyperglass.configuration import (
     devices,
     credentials,
     proxies,
-    logzero_config,
+    logzero_config,  # pylint: disable=unused-import
 )
 
 
@@ -53,10 +52,9 @@ class Rest:
 
     def frr(self):
         """Sends HTTP POST to router running the hyperglass-frr API"""
-        # Debug
         logger.debug(f"FRR host params:\n{self.device}")
         logger.debug(f"Raw query parameters: {self.query}")
-        # End Debug
+
         try:
             headers = {
                 "Content-Type": "application/json",
@@ -66,18 +64,19 @@ class Rest:
             frr_endpoint = (
                 f"http://{self.device.address.exploded}:{self.device.port}/frr"
             )
+
             logger.debug(f"HTTP Headers: {headers}")
             logger.debug(f"JSON query: {json_query}")
             logger.debug(f"FRR endpoint: {frr_endpoint}")
+
             frr_response = requests.post(
                 frr_endpoint, headers=headers, data=json_query, timeout=7
             )
             response = frr_response.text
             status = frr_response.status_code
-            # Debug
+
             logger.debug(f"FRR status code: {status}")
             logger.debug(f"FRR response text:\n{response}")
-            # End Debug
         except requests.exceptions.RequestException as rest_error:
             logger.error(
                 f"Error connecting to device {self.device.location}: {rest_error}"
@@ -88,10 +87,9 @@ class Rest:
 
     def bird(self):
         """Sends HTTP POST to router running the hyperglass-bird API"""
-        # Debug
         logger.debug(f"BIRD host params:\n{self.device}")
         logger.debug(f"Raw query parameters: {self.query}")
-        # End Debug
+
         try:
             headers = {
                 "Content-Type": "application/json",
@@ -101,18 +99,19 @@ class Rest:
             bird_endpoint = (
                 f"http://{self.device.address.exploded}:{self.device.port}/bird"
             )
+
             logger.debug(f"HTTP Headers: {headers}")
             logger.debug(f"JSON query: {json_query}")
             logger.debug(f"BIRD endpoint: {bird_endpoint}")
+
             bird_response = requests.post(
                 bird_endpoint, headers=headers, data=json_query, timeout=7
             )
             response = bird_response.text
             status = bird_response.status_code
-            # Debug
+
             logger.debug(f"BIRD status code: {status}")
             logger.debug(f"BIRD response text:\n{response}")
-            # End Debug
         except requests.exceptions.RequestException as requests_exception:
             logger.error(
                 f"Error connecting to device {self.device}: {requests_exception}"
@@ -149,6 +148,7 @@ class Netmiko:
         output.
         """
         logger.debug(f"Connecting to {self.device.location} via Netmiko library...")
+
         try:
             nm_connect_direct = ConnectHandler(**self.nm_host)
             response = nm_connect_direct.send_command(self.command)
@@ -180,14 +180,16 @@ class Netmiko:
         }
         nm_connect_proxied = ConnectHandler(**nm_proxy)
         nm_ssh_command = device_proxy.ssh_command.format(**self.nm_host) + "\n"
-        # Debug
+
         logger.debug(f"Netmiko proxy {self.device.proxy}")
         logger.debug(f"Proxy SSH command: {nm_ssh_command}")
-        # End Debug
+
         nm_connect_proxied.write_channel(nm_ssh_command)
         time.sleep(1)
         proxy_output = nm_connect_proxied.read_channel()
+
         logger.debug(f"Proxy output:\n{proxy_output}")
+
         try:
             # Accept SSH key warnings
             if "Are you sure you want to continue connecting" in proxy_output:
@@ -206,6 +208,7 @@ class Netmiko:
             redispatch(nm_connect_proxied, self.nm_host["device_type"])
             response = nm_connect_proxied.send_command(self.command)
             status = code.valid
+
             logger.debug(f"Netmiko proxied response:\n{response}")
         except (
             NetMikoAuthenticationException,
@@ -215,6 +218,7 @@ class Netmiko:
         ) as netmiko_exception:
             response = params.messages.general
             status = code.invalid
+
             logger.error(f"{netmiko_exception}, {status},Proxy: {self.device.proxy}")
         return response, status
 
@@ -238,16 +242,19 @@ class Execute:
         protocol-agnostic commands (Community & AS_PATH Lookups).
         """
         logger.debug("Parsing output...")
+
         parsed = output
         if self.input_type in ("bgp_community", "bgp_aspath"):
             if nos in ("cisco_ios",):
                 logger.debug(f"Parsing output for device type {nos}")
+
                 delimiter = "For address family: "
                 parsed_ipv4 = output.split(delimiter)[1]
                 parsed_ipv6 = output.split(delimiter)[2]
                 parsed = delimiter + parsed_ipv4 + delimiter + parsed_ipv6
             elif nos in ("cisco_xr",):
                 logger.debug(f"Parsing output for device type {nos}")
+
                 delimiter = "Address Family: "
                 parsed_ipv4 = output.split(delimiter)[1]
                 parsed_ipv6 = output.split(delimiter)[2]
@@ -260,8 +267,10 @@ class Execute:
         returns errors to front end. Otherwise, executes queries.
         """
         device_config = getattr(devices, self.input_location)
+
         logger.debug(f"Received query for {self.input_data}")
         logger.debug(f"Matched device config:\n{device_config}")
+
         # Run query parameters through validity checks
         validity, msg, status = getattr(Validate(device_config), self.input_type)(
             self.input_target
@@ -271,15 +280,16 @@ class Execute:
             return {"output": msg, "status": status}
         connection = None
         output = params.messages.general
-        info = self.input_data
+
         logger.debug(f"Validity: {validity}, Message: {msg}, Status: {status}")
+
         if Supported.is_rest(device_config.nos):
             connection = Rest("rest", device_config, self.input_type, self.input_target)
             raw_output, status = getattr(connection, device_config.nos)()
             output = self.parse(raw_output, device_config.nos)
-            # return {"output": output, "status": status}
         elif Supported.is_scrape(device_config.nos):
             logger.debug(f"Initializing Netmiko...")
+
             connection = Netmiko(
                 "scrape", device_config, self.input_type, self.input_target
             )
@@ -288,8 +298,8 @@ class Execute:
             elif not device_config.proxy:
                 raw_output, status = connection.direct()
             output = self.parse(raw_output, device_config.nos)
+
             logger.debug(
                 f"Parsed output for device type {device_config.nos}:\n{output}"
             )
-            # return {"output": output, "status": status}
         return (output, status)
