@@ -1,0 +1,11 @@
+general:
+    primary_asn: 65001
+    org_name: Travis CI Test
+features:
+rate_limit:
+    query:
+        rate: 1000
+    site:
+        rate: 1000
+    cache:
+        timeout: 1
