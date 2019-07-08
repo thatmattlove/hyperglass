@@ -51,8 +51,11 @@ def pylint_check(num_only, create_badge, errors):
         import anybadge
         from pylint import epylint
 
-        click.echo("Current directory: " + Path.cwd().resolve())
-        click.echo("Pylint Version: " + epylint.py_run("--version", return_std=True))
+        pylint_ver = epylint.py_run("hyperglass --version", return_std=True)[
+            0
+        ].getvalue()
+        click.echo("Current directory: " + str(Path.cwd().resolve()))
+        click.echo("Pylint Version: " + pylint_ver)
         pylint_stdout, pylint_stderr = epylint.py_run(
             "hyperglass --verbose --rcfile=.pylintrc", return_std=True
         )
