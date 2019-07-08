@@ -52,7 +52,7 @@ def pylint_check(num_only, create_badge, errors):
         from pylint import epylint
 
         pylint_stdout, pylint_stderr = epylint.py_run(
-            "--rcfile .pylintrc hyperglass", return_std=True
+            "hyperglass --rcfile=.pylintrc", return_std=True
         )
         pylint_output = pylint_stdout.getvalue()
         pylint_score = re.search(
