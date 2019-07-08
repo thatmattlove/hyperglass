@@ -7,21 +7,15 @@ Validates input for overridden parameters.
 """
 import re
 from math import ceil
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Union
 from ipaddress import IPv4Address, IPv6Address
-from pathlib import Path
-
 from pydantic import (
     BaseSettings,
-    ConstrainedStr,
-    DirectoryPath,
-    FilePath,
     IPvAnyNetwork,
     IPvAnyAddress,
     UrlStr,
     constr,
     validator,
-    create_model,
     SecretStr,
 )
 from pydantic.color import Color
@@ -71,6 +65,7 @@ class Router(BaseSettings):
 class Routers(BaseSettings):
     """Base model for devices class."""
 
+    @staticmethod
     def build_network_lists(valid_devices):
         """
         Builds locations dict, which is converted to JSON and passed to
@@ -108,7 +103,7 @@ class Routers(BaseSettings):
         return (locations_dict, networks_dict)
 
     @classmethod
-    def import_params(Routers, input_params):
+    def import_params(cls, input_params):
         """
         Imports passed dict from YAML config, removes unsupported
         characters from device names, dynamically sets attributes for
@@ -132,6 +127,8 @@ class Routers(BaseSettings):
     class Config:
         """Pydantic Config"""
 
+        # pylint: disable=too-few-public-methods
+
         validate_all = True
         validate_assignment = True
 
@@ -147,7 +144,7 @@ class Credentials(BaseSettings):
     """Base model for credentials class"""
 
     @classmethod
-    def import_params(Credentials, input_params):
+    def import_params(cls, input_params):
         """
         Imports passed dict from YAML config, removes unsupported
         characters from device names, dynamically sets attributes for
@@ -161,6 +158,8 @@ class Credentials(BaseSettings):
 
     class Config:
         """Pydantic Config"""
+
+        # pylint: disable=too-few-public-methods
 
         validate_all = True
         validate_assignment = True
@@ -187,7 +186,7 @@ class Proxies(BaseSettings):
     """Base model for proxies class"""
 
     @classmethod
-    def import_params(Proxies, input_params):
+    def import_params(cls, input_params):
         """
         Imports passed dict from YAML config, removes unsupported
         characters from device names, dynamically sets attributes for
@@ -201,6 +200,8 @@ class Proxies(BaseSettings):
 
     class Config:
         """Pydantic Config"""
+
+        # pylint: disable=too-few-public-methods
 
         validate_all = True
         validate_assignment = True
@@ -476,6 +477,7 @@ class Params(BaseSettings):
     class Config:
         """Pydantic Config"""
 
+        # pylint: disable=too-few-public-methods
         validate_all = True
         validate_assignment = True
 
@@ -512,7 +514,7 @@ class Commands(BaseSettings):
     """Base class for commands class"""
 
     @classmethod
-    def import_params(Commands, input_params):
+    def import_params(cls, input_params):
         """
         Imports passed dict from YAML config, dynamically sets
         attributes for the commands class.
@@ -621,6 +623,8 @@ class Commands(BaseSettings):
 
     class Config:
         """Pydantic Config"""
+
+        # pylint: disable=too-few-public-methods
 
         validate_all = False
         validate_assignment = True
