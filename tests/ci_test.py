@@ -5,20 +5,24 @@ Runs tests against test hyperglass instance
 import os
 import sys
 import json
-from pprint import pprint
 import requests
-from logzero import logger
+import logzero
 
 working_directory = os.path.dirname(os.path.abspath(__file__))
 parent_directory = os.path.dirname(working_directory)
 
-
-def get_hyperglass_config():
-    sys.path.insert(0, parent_directory)
-    from hyperglass import configuration
-
-    hg_config = configuration.params()
-    return hg_config
+# Logzero Configuration
+logger = logzero.logger
+log_level = 10
+log_format = (
+    "%(color)s[%(module)s:%(funcName)s:%(lineno)d "
+    "%(levelname)s]%(end_color)s %(message)s"
+)
+date_format = "%Y-%m-%d %H:%M:%S"
+logzero_formatter = logzero.LogFormatter(fmt=log_format, datefmt=date_format)
+logzero_config = logzero.setup_default_logger(
+    formatter=logzero_formatter, level=log_level
+)
 
 
 def construct_test(test_query, location, test_target):
@@ -174,8 +178,6 @@ def ci_hyperglass_test(
 
 
 if __name__ == "__main__":
-    hg_config = get_hyperglass_config()
-    logger.debug(pprint(hg_config))
     ci_hyperglass_test(
         "pop2", "1.1.1.0/24", "2606:4700:4700::/48", "pop1", "100.64.0.1"
     )
