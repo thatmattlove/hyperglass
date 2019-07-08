@@ -1,23 +1,21 @@
-# https://github.com/checktheroads/hyperglass
 """
-Accepts filtered & validated input from execute.py, constructs SSH command for Netmiko library or \
-API call parameters for hyperglass-frr
+Accepts filtered & validated input from execute.py, constructs SSH
+command for Netmiko library or API call parameters for supported
+hyperglass API modules.
 """
 # Standard Imports
 import json
 import operator
 
 # Module Imports
-import logzero
 from logzero import logger
 from netaddr import IPNetwork, IPAddress  # pylint: disable=unused-import
 
-# Dear PyLint, the netaddr library is a special snowflake. You might not see `IPAddress` get used, \
-# but when you use something like `IPNetwork("192.0.2.1/24").ip`, the returned value is \
-# IPAddress("192.0.2.1"), so I do actually need this import. <3, -ML
-
 # Project Imports
-from hyperglass.configuration import params, commands, logzero_config
+from hyperglass.configuration import (  # pylint: disable=unused-import
+    commands,
+    logzero_config,
+)
 
 
 class Construct:
@@ -41,7 +39,14 @@ class Construct:
         logger.debug(f"IPv{ver} Source: {src}")
         return src
 
-    def device_commands(self, nos, afi, query_type):
+    @staticmethod
+    def device_commands(nos, afi, query_type):
+        """
+        Constructs class attribute path from input parameters, returns
+        class attribute value for command. This is required because
+        class attributes are set dynamically when devices.yaml is
+        imported, so the attribute path is unknown until runtime.
+        """
         cmd_path = f"{nos}.{afi}.{query_type}"
         return operator.attrgetter(cmd_path)(commands)
 
