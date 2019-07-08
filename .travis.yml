@@ -13,7 +13,6 @@ install:
 before_script:
     - pip3 uninstall -y -r ./tests/requirements_dev.txt
     - pip3 install -r ./tests/requirements_dev.txt
-    - pylint --version
     - black --check hyperglass
     - python3 ./manage.py pylint-check -e
     - python3 ./tests/ci_prepare.py

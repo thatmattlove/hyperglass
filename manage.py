@@ -51,16 +51,20 @@ def pylint_check(num_only, create_badge, errors):
         import anybadge
         from pylint import epylint
 
+        click.echo("Current directory: " + Path.cwd().resolve())
+        click.echo("Pylint Version: " + epylint.py_run("--version", return_std=True))
         pylint_stdout, pylint_stderr = epylint.py_run(
             "hyperglass --verbose --rcfile=.pylintrc", return_std=True
         )
         pylint_output = pylint_stdout.getvalue()
+        pylint_error = pylint_stderr.getvalue()
         pylint_score = re.search(
             r"Your code has been rated at (\d+\.\d+)\/10.*", pylint_output
         ).group(1)
         if num_only:
             click.echo(pylint_score)
         if errors:
+            click.echo(pylint_error)
             click.echo(pylint_output)
         if not pylint_score == "10.00":
             raise RuntimeError(f"Pylint score {pylint_score} not acceptable.")
