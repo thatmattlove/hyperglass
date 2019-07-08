@@ -9,6 +9,7 @@ import glob
 import random
 import shutil
 import string
+from pathlib import Path
 
 # Module Imports
 import click
@@ -505,16 +506,52 @@ def clearcache():
 def generatekey(string_length):
     """Generates 16 character API Key for hyperglass-frr API, and a corresponding PBKDF2 SHA256 Hash"""
     ld = string.ascii_letters + string.digits
+    nl = "\n"
     api_key = "".join(random.choice(ld) for i in range(string_length))
     key_hash = pbkdf2_sha256.hash(api_key)
-    click.secho(
-        f"""
-Your API Key is: {api_key}
-Place your API Key in the `configuration.toml` of your API module. For example, in: `hyperglass_frr/hyperglass-frr/configuration.toml`
-
-Your Key Hash is: {key_hash}
-Use this hash as the password for the device using the API module. For example, in: `hyperglass/hyperglass/configuration/devices.toml`
-"""
+    line_len = len(key_hash)
+    ak_info = "  Your API Key is: "
+    ak_help1 = "  Put this in the"
+    ak_help2 = " configuration.yaml "
+    ak_help3 = "of your API module."
+    kh_info = "  Your Key Hash is: "
+    kh_help1 = "  Use this as the password for the corresponding device in"
+    kh_help2 = " devices.yaml"
+    kh_help3 = "."
+    ak_info_len = len(ak_info + api_key)
+    ak_help_len = len(ak_help1 + ak_help2 + ak_help3)
+    kh_info_len = len(kh_info + key_hash)
+    kh_help_len = len(kh_help1 + kh_help2 + kh_help3)
+    ak_kh = [ak_info_len, ak_help_len, kh_info_len, kh_help_len]
+    ak_kh.sort()
+    longest_line = ak_kh[-1] + 2
+    s_box = {"fg": "white", "dim": True, "bold": True}
+    s_txt = {"fg": "white"}
+    s_ak = {"fg": "green", "bold": True}
+    s_kh = {"fg": "blue", "bold": True}
+    s_file = {"fg": "yellow"}
+    click.echo(
+        click.style("┌" + ("─" * longest_line) + "┐", **s_box)
+        + click.style(nl + "│", **s_box)
+        + click.style(ak_info, **s_txt)
+        + click.style(api_key, **s_ak)
+        + click.style(" " * (longest_line - ak_info_len) + "│", **s_box)
+        + click.style(nl + "│", **s_box)
+        + click.style(ak_help1, **s_txt)
+        + click.style(ak_help2, **s_file)
+        + click.style(ak_help3, **s_txt)
+        + click.style(" " * (longest_line - ak_help_len) + "│", **s_box)
+        + click.style(nl + "├" + ("─" * longest_line) + "┤", **s_box)
+        + click.style(nl + "│", **s_box)
+        + click.style(kh_info, **s_txt)
+        + click.style(key_hash, **s_kh)
+        + click.style(" " * (longest_line - kh_info_len) + "│", **s_box)
+        + click.style(nl + "│", **s_box)
+        + click.style(kh_help1, **s_txt)
+        + click.style(kh_help2, **s_file)
+        + click.style(kh_help3, **s_txt)
+        + click.style(" " * (longest_line - kh_help_len) + "│", **s_box)
+        + click.style(nl + "└" + ("─" * longest_line) + "┘", **s_box)
     )
 
 
@@ -524,17 +561,31 @@ Use this hash as the password for the device using the API module. For example, 
 def flask_dev_server(host, port):
     """Starts Flask development server for testing without WSGI/Reverse Proxy"""
     try:
-        from hyperglass import hyperglass
-        from hyperglass import configuration
         from hyperglass import render
-
-        debug_state = configuration.params.general.debug
+        from hyperglass import hyperglass
+        from hyperglass.configuration import params
+    except ImportError as import_error:
+        raise click.ClickException(
+            click.style("✗ Error importing hyperlgass: ", fg="red", bold=True)
+            + click.style(import_error, fg="blue")
+        )
+    try:
         render.css()
-        click.secho(f"✓ Starting Flask development server", fg="green", bold=True)
-        hyperglass.app.run(host=host, debug=debug_state, port=port)
-    except:
-        click.secho("✗ Failed to start test server.", fg="red", bold=True)
-        raise
+    except Exception as e:
+        raise click.ClickException(
+            click.style("✗ Error compiling Sass: ", fg="red", bold=True)
+            + click.style(e, fg="blue")
+        )
+    try:
+        click.secho(
+            f"✓ Starting hyperglass development server...", fg="green", bold=True
+        )
+        hyperglass.app.run(host=host, debug=params.general.debug, port=port)
+    except Exception as e:
+        raise click.ClickException(
+            click.style("✗ Failed to start test server: ", fg="red", bold=True)
+            + click.style(e, fg="red")
+        )
 
 
 @hg.command("compile-sass", help="Compile Sass templates to CSS")
@@ -542,12 +593,18 @@ def compile_sass():
     """Renders Jinja2 and Sass templates to HTML & CSS files"""
     try:
         from hyperglass import render
-
+    except ImportError as import_error:
+        raise click.ClickException(
+            click.style("✗ Error importing hyperlgass: ", fg="red", bold=True)
+            + click.style(import_error, fg="blue")
+        )
+    try:
         render.css()
-        click.secho("✓ Successfully rendered CSS templates.", fg="green", bold=True)
-    except:
-        click.secho("✗ Failed to render CSS templates.", fg="red", bold=True)
-        raise
+    except Exception as e:
+        raise click.ClickException(
+            click.style("✗ Error compiling Sass: ", fg="red", bold=True)
+            + click.style(e, fg="blue")
+        )
 
 
 @hg.command("migrate-configs", help="Copy TOML examples to usable config files")
