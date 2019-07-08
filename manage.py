@@ -42,27 +42,14 @@ def hg():
     "-i",
     "--integer-only",
     "int_only",
-    type=bool,
-    default=False,
+    is_flag=True,
     help="Output Pylint score as integer",
 )
+@click.option("-b", "--badge", "create_badge", is_flag=True, help="Create Pylint badge")
 @click.option(
-    "-b",
-    "--badge",
-    "create_badge",
-    type=bool,
-    default=False,
-    help="Create Pylint badge",
+    "-e", "--print-errors", "errors", is_flag=True, help="Print pylint errors"
 )
-@click.option(
-    "-e",
-    "--print-errors",
-    "errors",
-    type=bool,
-    default=False,
-    help="Print pylint errors",
-)
-def pylint_check(int_only, create_badge):
+def pylint_check(int_only, create_badge, errors):
     try:
         import re
         import anybadge
@@ -73,6 +60,10 @@ def pylint_check(int_only, create_badge):
         pylint_score = re.search(
             r"Your code has been rated at (\d+\.\d+)\/10.*", pylint_output
         ).group(1)
+        if int_only:
+            click.echo(pylint_score)
+        if errors:
+            click.echo(pylint_output)
         if not pylint_score == "10.00":
             raise RuntimeError(f"Pylint score {pylint_score} not acceptable.")
         if create_badge:
@@ -82,14 +73,10 @@ def pylint_check(int_only, create_badge):
             ab_thresholds = {1: "red", 10: "green"}
             badge = anybadge.Badge("pylint", pylint_score, thresholds=ab_thresholds)
             badge.write_badge("pylint.svg")
-        if not int_only:
-            click.secho(
-                f"Created Pylint badge for score: {pylint_score}", fg="blue", bold=True
+            click.echo(
+                click.style("Created Pylint badge for score: ", fg="white")
+                + click.style(pylint_score, fg="blue", bold=True)
             )
-        if int_only:
-            click.echo(pylint_score)
-        if errors:
-            click.echo(pylint_output)
     except ImportError as error_exception:
         click.secho(f"Import error:\n{error_exception}", fg="red", bold=True)
 

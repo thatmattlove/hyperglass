@@ -15,7 +15,7 @@ before_script:
     - pip3 install -r ./tests/requirements_dev.txt
     - pylint --version
     - black --check hyperglass
-    - python3 ./manage.py pylint-check --integer-only True
+    - python3 ./manage.py pylint-check -e
     - python3 ./tests/ci_prepare.py
 script:
     - nohup python3 ./tests/ci_dev_server.py &
