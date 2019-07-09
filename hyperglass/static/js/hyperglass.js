@@ -8,25 +8,25 @@ adjustDropdowns();
 clearPage();
 
 // Bulma Toggable Dropdown - help text
-let dropdown = document.querySelector('#help-dropdown');
-dropdown.addEventListener('click', function(event) {
-  event.stopPropagation();
-  dropdown.classList.toggle('is-active');
+$('#help-dropdown').click(function(event) {
+    event.stopPropagation();
+    $(this).addClass('is-active');
 });
 
+// ClipboardJS Elements
 var btn_copy = document.getElementById('btn-copy');
 var clipboard = new ClipboardJS(btn_copy);
 clipboard.on('success', function(e) {
-  console.log(e);
-  $('#btn-copy').addClass('is-success').addClass('is-outlined');
-  $('#copy-icon').removeClass('icofont-ui-copy').addClass('icofont-check');
-  setTimeout(function() {
-    $('#btn-copy').removeClass('is-success').removeClass('is-outlined');
-    $('#copy-icon').removeClass('icofont-check').addClass('icofont-ui-copy');
-  }, 1000)
+    console.log(e);
+    $('#btn-copy').addClass('is-success').addClass('is-outlined');
+    $('#copy-icon').removeClass('icofont-ui-copy').addClass('icofont-check');
+    setTimeout(function() {
+        $('#btn-copy').removeClass('is-success').removeClass('is-outlined');
+        $('#copy-icon').removeClass('icofont-check').addClass('icofont-ui-copy');
+    }, 1000);
 });
 clipboard.on('error', function(e) {
-  console.log(e);
+    console.log(e);
 });
 
 function bgpHelpASPath() {
@@ -60,26 +60,26 @@ function adjustDropdowns() {
 }
 
 function clearErrors() {
-  progress.hide();
-  target_error.hide();
-  if (target_input.hasClass("is-warning")) {
-    target_input.removeClass("is-warning");
-  };
-  if (target_input.hasClass("is-danger")) {
-    target_input.removeClass("is-danger");
-  };
+    progress.hide();
+    target_error.hide();
+    if (target_input.hasClass("is-warning")) {
+        target_input.removeClass("is-warning");
+    }
+    if (target_input.hasClass("is-danger")) {
+        target_input.removeClass("is-danger");
+    }
 }
 
 function clearPage() {
-  progress.hide();
-  resultsbox.hide();
-  target_error.hide();
-  if (target_input.hasClass("is-warning")) {
-    target_input.removeClass("is-warning");
-  };
-  if (target_input.hasClass("is-danger")) {
-    target_input.removeClass("is-danger");
-  };
+    progress.hide();
+    resultsbox.hide();
+    target_error.hide();
+    if (target_input.hasClass("is-warning")) {
+        target_input.removeClass("is-warning");
+    }
+    if (target_input.hasClass("is-danger")) {
+        target_input.removeClass("is-danger");
+    }
 }
 
 function prepResults() {
@@ -88,43 +88,51 @@ function prepResults() {
 }
 
 $(document).ready(function() {
-  var defaultasn = $("#network").val();
-  $.ajax({
-    url: `/locations/${defaultasn}`,
-    context: document.body,
-    type: 'get',
-    success: function(data) {
-      selectedRouters = JSON.parse(data)
-      console.log(selectedRouters)
-      updateRouters(selectedRouters);
-    },
-    error: function(err) {
-      console.log(err)
-    }
-  })
-})
+    var defaultasn = $("#network").val();
+    $.ajax({
+        url: '/locations/'+defaultasn,
+        context: document.body,
+        type: 'get',
+        success: function(data) {
+            selectedRouters = JSON.parse(data);
+            console.log(selectedRouters);
+            updateRouters(selectedRouters);
+        },
+        error: function(err) {
+            console.log(err);
+        }
+    });
+});
 
-$('#network').on('change', () => {
-  var asn = $("select[id=network").val()
+$('#network').on('change', (function(event) {
+  var asn = $("select[id=network").val();
   $('#location').children(":not(#text_location)").remove();
   $.ajax({
-    url: `/locations/${asn}`,
-    type: 'get',
-    success: function(data) {
-      clearPage();
-      updateRouters(JSON.parse(data));
-    },
-    error: function(err) {
-      console.log(err)
-    }
-  })
-})
+      url: '/locations/'+asn,
+      type: 'get',
+      success: function(data) {
+          clearPage();
+          updateRouters(JSON.parse(data));
+      },
+      error: function(err) {
+          console.log(err);
+      }
+  });
+}));
 
 function updateRouters(locations) {
-  locations.forEach(function(r) {
-    $('#location').append($("<option>").attr('value', r.hostname).text(r.display_name))
-  })
+    locations.forEach(function(r) {
+        $('#location').append($("<option>").attr('value', r.hostname).text(r.display_name));
+    });
 }
+
+$('#helplink_bgpc').click(function(event) {
+    $('#help_bgp_community').addClass("is-active");
+});
+
+$('#helplink_bgpa').click(function(event) {
+    $('#help_bgp_aspath').addClass("is-active");
+});
 
 // Submit Form Action
 $('#lgForm').on('submit', function() {
@@ -140,88 +148,114 @@ function submitForm() {
   var location_name = $('#location option:selected').text();
   var target = $('#target').val();
 
+  var tags = [
+      '<div class="field is-grouped is-grouped-multiline">',
+        '<div class="control">',
+          '<div class="tags has-addons">',
+            '<span class="tag lg-tag-loc-title">AS',
+            network,
+            '</span>',
+            '<span class="tag lg-tag-loc">',
+            location_name,
+            '</span>',
+          '</div>',
+         '</div>',
+        '<div class="control">',
+        '<div class="tags has-addons">',
+          '<span class="tag lg-tag-type-title">',
+          type_title,
+          '</span>',
+          '<span class="tag lg-tag-type">',
+          target,
+          '</span>',
+         '</div>',
+        '</div>',
+      '</div>'
+  ].join('');
+
   $('#output').text("");
   $('#queryInfo').text("");
-  $('#queryInfo').html(`
-    <div class="field is-grouped is-grouped-multiline">
-      <div class="control">
-        <div class="tags has-addons">
-          <span class="tag lg-tag-loc-title">AS${network}</span>
-          <span class="tag lg-tag-loc">${location_name}</span>
-        </div>
-      </div>
-      <div class="control">
-        <div class="tags has-addons">
-          <span class="tag lg-tag-type-title">${type_title}</span>
-          <span class="tag lg-tag-type">${target}</span>
-        </div>
-      </div>
-    </div>
-`);
+  $('#queryInfo').html(tags);
 
-  $.ajax({
-    url: `/lg`,
-    type: 'POST',
-    data: JSON.stringify({
-      location: location,
-      type: type,
-      target: target
-    }),
-    contentType: "application/json; charset=utf-8",
-    context: document.body,
-    readyState: prepResults(),
-    statusCode: {
-      200: function(response, code) {
-        progress.hide();
-        $('#output').html(`<br><div class="content"><p class="query-output" id="output">${response}</p></div>`);
-      },
-      401: function(response, code) {
-        clearPage();
-        target_error.show()
-        target_input.addClass('is-danger');
-        target_error.html(`
-          <br>
-          <div class="notification is-danger">
-            ${response.responseText}
-          </div>
-          `);
-      },
-      405: function(response, code) {
-        clearPage();
-        target_error.show()
-        target_input.addClass('is-warning');
-        target_error.html(`
-          <br>
-          <div class="notification is-warning">
-            ${response.responseText}
-          </div>
-          `);
-      },
-      415: function(response, code) {
-        clearPage();
-        target_error.show()
-        target_input.addClass('is-danger');
-        target_error.html(`
-          <br>
-          <div class="notification is-danger">
-            ${response.responseText}
-          </div>
-          `);
-      },
-      429: function(response, code) {
-        clearPage();
-        $("#ratelimit").addClass("is-active");
-      },
-      504: function(response, code) {
-        clearPage();
-        target_error.show()
-        target_error.html(`
-          <br>
-          <div class="notification is-danger">
-            ${response.responseText}
-          </div>
-          `);
+  $.ajax(
+      {
+          url: '/lg',
+          type: 'POST',
+          data: JSON.stringify(
+              {
+                  location: location,
+                  type: type,
+                  target: target
+              }
+          ),
+          contentType: "application/json; charset=utf-8",
+          context: document.body,
+          readyState: prepResults(),
+          statusCode: {
+              200: function(response, code) {
+                  response_html = [
+                      '<br>',
+                      '<div class="content">',
+                      '<p class="query-output" id="output">',
+                      response,
+                      '</p>',
+                      '</div>',
+                  ];
+                  progress.hide();
+                  $('#output').html(response_html);
+              },
+              401: function(response, code) {
+                  response_html = [
+                      '<br>',
+                      '<div class="notification is-danger">',
+                      response.responseText,
+                      '</div>',
+                  ].join('');
+                  clearPage();
+                  target_error.show();
+                  target_input.addClass('is-danger');
+                  target_error.html(response_html);
+              },
+              405: function(response, code) {
+                  response_html = [
+                      '<br>',
+                      '<div class="notification is-warning">',
+                      response.responseText,
+                      '</div>',
+                  ].join('');
+                  clearPage();
+                  target_error.show();
+                  target_input.addClass('is-warning');
+                  target_error.html(response_html);
+              },
+              415: function(response, code) {
+                  response_html = [
+                      '<br>',
+                      '<div class="notification is-danger">',
+                      response.responseText,
+                      '</div>',
+                  ].join('');
+                  clearPage();
+                  target_error.show();
+                  target_input.addClass('is-danger');
+                  target_error.html(response_html);
+              },
+              429: function(response, code) {
+                  clearPage();
+                  $("#ratelimit").addClass("is-active");
+              },
+              504: function(response, code) {
+                  response_html = [
+                      '<br>',
+                      '<div class="notification is-danger">',
+                      response.responseText,
+                      '</div>',
+                  ].join('');
+                  clearPage();
+                  target_error.show();
+                  target_error.html(response_html);
+              }
+          }
       }
-    }
-  })
+  );
 }
