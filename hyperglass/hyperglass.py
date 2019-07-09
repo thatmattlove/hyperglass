@@ -186,8 +186,9 @@ def hyperglass_main():
         client_addr, lg_data["type"], lg_data["location"], lg_data["target"]
     ).inc()
     logger.debug(f"Client Address: {client_addr}")
-    # Stringify the form response containing serialized JSON for the request, use as key for k/v
-    # cache store so each command output value is unique
+    # Stringify the form response containing serialized JSON for the
+    # request, use as key for k/v cache store so each command output
+    # value is unique
     cache_key = str(lg_data)
     # Define cache entry expiry time
     cache_timeout = params.features.cache.timeout
@@ -197,9 +198,11 @@ def hyperglass_main():
         try:
             logger.debug(f"Sending query {cache_key} to execute module...")
             cache_value = Execute(lg_data).response()
-            logger.debug(
-                f"Validated response...\nStatus Code: {cache_value[1]}\nOutput:\n{cache_value[0]}"
-            )
+
+            logger.debug("Validated Response...")
+            logger.debug(f"Status: {cache_value[1]}")
+            logger.debug(f"Output:\n {cache_value[0]}")
+
             # If it doesn't, create a cache entry
             r_cache.set(cache_key, str(cache_value))
             r_cache.expire(cache_key, cache_timeout)
