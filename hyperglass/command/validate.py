@@ -113,7 +113,9 @@ def ip_blacklist(target):
             for net in user_blacklist
             if ipaddress.ip_network(net).version == target_ver
         ]
-        logger.debug(f"IPv{target_ver} Blacklist Networks: {networks}")
+        logger.debug(
+            f"IPv{target_ver} Blacklist Networks: {[str(n) for n in networks]}"
+        )
         while not membership:
             for net in networks:
                 if ipaddress.ip_network(target).subnet_of(net):
