@@ -24,83 +24,76 @@ file_loader = jinja2.FileSystemLoader(str(working_directory))
 env = jinja2.Environment(loader=file_loader)
 
 default_details = {
-    "footer": """
-+++
-+++
-By using {{ branding.site_name }}, you agree to be bound by the following terms of use: All \
-queries executed on this page are logged for analysis and troubleshooting. Users are prohibited \
-from automating queries, or attempting to process queries in bulk. This service is provided on a \
-best effort basis, and {{ general.org_name }} makes no availability or performance warranties or \
-guarantees whatsoever.
-""",
-    "bgp_aspath": r"""
-+++
-title = "Supported AS Path Patterns"
-+++
-{{ branding.site_name }} accepts the following `AS_PATH` regular expression patterns:
-
-| Expression           | Match                                         |
-| :------------------- | :-------------------------------------------- |
-| `_65000$`            | Originated by 65000                           |
-| `^65000_`            | Received from 65000                           |
-| `_65000_`            | Via 65000                                     |
-| `_65000_65001_`      | Via 65000 and 65001                           |
-| `_65000(_.+_)65001$` | Anything from 65001 that passed through 65000 |
-""",
-    "bgp_community": """
-+++
-title = "BGP Communities"
-+++
-{{ branding.site_name }} makes use of the following BGP communities:
-
-| Community | Description |
-| :-------- | :---------- |
-| `65000:1` | Example 1   |
-| `65000:2` | Example 2   |
-| `65000:3` | Example 3   |
-""",
+    "footer": (
+        "---\n"
+        "By using {{ branding.site_name }}, you agree to be bound by the following "
+        "terms of use: All queries executed on this page are logged for analysis and "
+        "troubleshooting. Users are prohibited from automating queries, or attempting "
+        "to process queries in bulk. This service is provided on a best effort basis, "
+        "and {{ general.org_name }} makes no availability or performance warranties "
+        "or guarantees whatsoever."
+    ),
+    "bgp_aspath": (
+        "title: Supported AS Path Patterns\n"
+        "---\n"
+        "{{ branding.site_name }} accepts the following `AS_PATH` regular expression "
+        "patterns:\n"
+        "| Expression           | Match                                         |\n"
+        "| :------------------- | :-------------------------------------------- |\n"
+        "| `_65000$`            | Originated by 65000                           |\n"
+        "| `^65000_`            | Received from 65000                           |\n"
+        "| `_65000_`            | Via 65000                                     |\n"
+        "| `_65000_65001_`      | Via 65000 and 65001                           |\n"
+        "| `_65000(_.+_)65001$` | Anything from 65001 that passed through 65000 |\n"
+    ),
+    "bgp_community": (
+        "title: BGP Communities\n"
+        "---\n"
+        "{{ branding.site_name }} makes use of the following BGP communities:\n"
+        "| Community | Description |\n"
+        "| :-------- | :---------- |\n"
+        "| `65000:1` | Example 1   |\n"
+        "| `65000:2` | Example 2   |\n"
+        "| `65000:3` | Example 3   |\n"
+    ),
 }
 
 default_info = {
     "bgp_route": """
-+++
-+++
+---
 Performs BGP table lookup based on IPv4/IPv6 prefix.
 """,
-    "bgp_community": """
-+++
-link = '<a href="#" onclick="bgpHelpCommunity()">{{ general["org_name"] }} BGP Communities</a>'
-+++
-Performs BGP table lookup based on [Extended](https://tools.ietf.org/html/rfc4360) or \
-[Large](https://tools.ietf.org/html/rfc8195) community value.
-
-{{ info["bgp_community"]["link"] }}
-""",
-    "bgp_aspath": """
-+++
-link = '<a href="#" onclick="bgpHelpASPath()">Supported BGP AS Path Expressions</a>'
-+++
-Performs BGP table lookup based on `AS_PATH` regular expression.
-
-{{ info["bgp_aspath"]["link"] }}
-""",
-    "ping": """
-+++
-+++
-Sends 5 ICMP echo requests to the target.
-""",
-    "traceroute": """
-+++
-+++
-Performs UDP Based traceroute to the target.<br>For information about how to interpret traceroute \
-results, [click here](https://hyperglass.readthedocs.io/en/latest/assets/traceroute_nanog.pdf).
-""",
+    "bgp_community": (
+        'link: <a href="#" id="help_link_bgpc">{{ general.org_name }} '
+        "BGP Communities</a>\n"
+        "---\n"
+        "Performs BGP table lookup based on "
+        "[Extended](https://tools.ietf.org/html/rfc4360) "
+        "or [Large](https://tools.ietf.org/html/rfc8195) community value."
+        '<br>{{ info["bgp_community"]["link"] }}'
+    ),
+    "bgp_aspath": (
+        'link: <a href="#" id="help_link_bgpa">Supported BGP AS Path Expressions</a>\n'
+        "---\n"
+        "Performs BGP table lookup based on `AS_PATH` regular expression."
+        '<br>{{ info["bgp_aspath"]["link"] }}'
+    ),
+    "ping": ("---\n", "Sends 5 ICMP echo requests to the target."),
+    "traceroute": (
+        "---\n"
+        "Performs UDP Based traceroute to the target.<br>For information about how to"
+        "interpret traceroute results, [click here]"
+        "(https://hyperglass.readthedocs.io/en/latest/assets/traceroute_nanog.pdf)."
+    ),
 }
 
 
 def info(file_name):
-    """Converts Markdown documents to HTML, renders Jinja2 variables, renders TOML frontmatter \
-    variables, returns dictionary of variables and HTML content"""
+    """
+    Converts Markdown documents to HTML, renders Jinja2 variables,
+    renders TOML frontmatter variables, returns dictionary of variables
+    and HTML content.
+    """
     html_classes = {"table": "table"}
     markdown = Markdown(
         extras={
@@ -139,8 +132,11 @@ def info(file_name):
 
 
 def details(file_name):
-    """Converts Markdown documents to HTML, renders Jinja2 variables, renders TOML frontmatter \
-    variables, returns dictionary of variables and HTML content"""
+    """
+    Converts Markdown documents to HTML, renders Jinja2 variables,
+    renders TOML frontmatter variables, returns dictionary of variables
+    and HTML content.
+    """
     html_classes = {"table": "table"}
     markdown = Markdown(
         extras={
