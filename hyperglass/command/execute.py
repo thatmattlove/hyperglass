@@ -38,7 +38,8 @@ class Rest:
     """Executes connections to REST API devices"""
 
     # pylint: disable=too-few-public-methods
-    # Dear PyLint, sometimes, people need to make their code scalable for future use. <3, -ML
+    # Dear PyLint, sometimes, people need to make their code scalable
+    # for future use. <3, -ML
 
     def __init__(self, transport, device, query_type, target):
         self.transport = transport
