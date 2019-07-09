@@ -108,7 +108,7 @@ def info(file_name):
     if file.exists():
         with file.open(mode="r") as file_raw:
             file_read = file_raw.read()
-            _, frontmatter, content = file_read.split("+++")
+            frontmatter, content = file_read.split("---")
             frontmatter_dict[file_name] = toml.loads(frontmatter)
         md_template_fm = jinja2.Environment(loader=jinja2.BaseLoader).from_string(
             frontmatter
@@ -151,7 +151,7 @@ def details(file_name):
     if file.exists():
         with file.open(mode="r") as file_raw:
             file_read = file_raw.read()
-            _, frontmatter, content = file_read.split("+++")
+            frontmatter, content = file_read.split("---")
         md_template_fm = jinja2.Environment(loader=jinja2.BaseLoader).from_string(
             frontmatter
         )
