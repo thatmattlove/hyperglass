@@ -339,7 +339,9 @@ class Messages(BaseSettings):
     no_location: str = "A location must be selected."
     no_input: str = "A target must be specified"
     not_allowed: str = "<b>{i}</b> is not allowed."
-    requires_ipv6_cidr: str = "<b>{d}</b> requires IPv6 BGP lookups to be in CIDR notation."
+    requires_ipv6_cidr: str = (
+        "<b>{d}</b> requires IPv6 BGP lookups" "to be in CIDR notation."
+    )
     invalid_ip: str = "<b>{i}</b> is not a valid IP address."
     invalid_dual: str = "invalid_dual <b>{i}</b> is an invalid {qt}."
     general: str = "An error occurred."
@@ -378,7 +380,9 @@ class Features(BaseSettings):
 
             mode: constr(regex="asplain|asdot") = "asplain"
             asplain: str = r"^(\^|^\_)(\d+\_|\d+\$|\d+\(\_\.\+\_\))+$"
-            asdot: str = r"^(\^|^\_)((\d+\.\d+)\_|(\d+\.\d+)\$|(\d+\.\d+)\(\_\.\+\_\))+$"
+            asdot: str = (
+                r"^(\^|^\_)((\d+\.\d+)\_|(\d+\.\d+)\$|(\d+\.\d+)\(\_\.\+\_\))+$"
+            )
 
         regex: Regex = Regex()
 
@@ -421,7 +425,9 @@ class Features(BaseSettings):
         enable: bool = False
         ipv4: int = 24
         ipv6: int = 64
-        message: str = "Prefix length must be smaller than /{m}. <b>{i}</b> is too specific."
+        message: str = (
+            "Prefix length must be smaller than /{m}. <b>{i}</b> is too specific."
+        )
 
     class RateLimit(BaseSettings):
         """Class model for params.features.rate_limit"""
