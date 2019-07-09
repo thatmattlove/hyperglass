@@ -6,10 +6,10 @@ hyperglass API modules.
 # Standard Imports
 import json
 import operator
+import ipaddress
 
 # Module Imports
 from logzero import logger
-from netaddr import IPNetwork, IPAddress  # pylint: disable=unused-import
 
 # Project Imports
 from hyperglass.configuration import (  # pylint: disable=unused-import
@@ -55,7 +55,7 @@ class Construct:
         query_type = "ping"
         logger.debug(f"Constructing {query_type} query for {target} via {transport}...")
         query = None
-        ip_version = IPNetwork(target).ip.version
+        ip_version = ipaddress.ip_network(target).version
         afi = f"ipv{ip_version}"
         source = self.get_src(ip_version)
         if transport == "rest":
@@ -81,7 +81,7 @@ class Construct:
         query_type = "traceroute"
         logger.debug(f"Constructing {query_type} query for {target} via {transport}...")
         query = None
-        ip_version = IPNetwork(target).ip.version
+        ip_version = ipaddress.ip_network(target).version
         afi = f"ipv{ip_version}"
         source = self.get_src(ip_version)
         if transport == "rest":
@@ -108,7 +108,7 @@ class Construct:
         query_type = "bgp_route"
         logger.debug(f"Constructing {query_type} query for {target} via {transport}...")
         query = None
-        ip_version = IPNetwork(target).ip.version
+        ip_version = ipaddress.ip_network(target).version
         afi = f"ipv{ip_version}"
         if transport == "rest":
             query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
