@@ -1,3 +1,5 @@
+---
+template: bgp_aspath
 link: <a href="#" id="help_link_bgpa">Supported BGP AS Path Expressions</a>
 ---
 Performs BGP table lookup based on `AS_PATH` regular expression.
