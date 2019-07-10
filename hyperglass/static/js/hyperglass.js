@@ -8,10 +8,12 @@ adjustDropdowns();
 clearPage();
 
 // Bulma Toggable Dropdown - help text
-$('#help-dropdown').click(function(event) {
-    event.stopPropagation();
-    $(this).toggleClass('is-active');
-});
+$('#help-dropdown').click(
+    function(event) {
+        event.stopPropagation();
+        $(this).toggleClass('is-active');
+    }
+);
 
 // ClipboardJS Elements
 var btn_copy = document.getElementById('btn-copy');
@@ -29,26 +31,22 @@ clipboard.on('error', function(e) {
     console.log(e);
 });
 
-function bgpHelpASPath() {
-  $("#help_bgp_aspath").addClass("is-active");
-}
-
-function bgpHelpCommunity() {
-  $("#help_bgp_community").addClass("is-active");
-}
-
-function closeModal() {
-  $(".modal").removeClass("is-active");
-}
+$('.modal-background, .modal-close').click(
+    function(event) {
+        event.stopPropagation();
+        $('.modal').removeClass("is-active");
+    }
+);
 
 // Adjust behavior of help text dropdown based on device screen size
-function adjustHeight() {
-  var actual_width = window.innerWidth;
-  if (actual_width < 1024) {
-    $('#help-dropdown').removeClass('is-right');
-    $('.lg-help').addClass('lg-help-mobile').removeClass('lg-help');
-  }
-}
+$('#help-dropdown-button').click(
+    function(event) {
+        if (window.innerWidth < 1024) {
+          $('#help-dropdown').removeClass('is-right');
+          $('.lg-help').addClass('lg-help-mobile').removeClass('lg-help');
+      }
+    }
+);
 
 function adjustDropdowns() {
   var actual_width = window.innerWidth;

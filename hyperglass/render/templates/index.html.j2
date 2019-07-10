@@ -25,26 +25,26 @@
   </div>
   {% if features.bgp_aspath.enable == true %}
   <div class="modal" id="help_bgp_aspath">
-    <div class="modal-background" onclick="closeModal()"></div>
+    <div class="modal-background"></div>
     <div class="modal-content is-clipped">
       <div class="box">
         <p class="title">{{ details["bgp_aspath"]["title"] }}</p>
         {{ details["bgp_aspath"]["content"] }}
       </div>
     </div>
-    <button class="modal-close is-large" aria-label="close" onclick="closeModal()"></button>
+    <button class="modal-close is-large" aria-label="close"></button>
   </div>
   {% endif %}
   {% if features.bgp_community.enable == true %}
   <div class="modal" id="help_bgp_community">
-    <div class="modal-background" onclick="closeModal()"></div>
+    <div class="modal-background"></div>
     <div class="modal-content">
       <div class="box">
         <p class="title">{{ details["bgp_community"]["title"] }}</p>
         {{ details["bgp_community"]["content"] }}
       </div>
     </div>
-    <button class="modal-close is-large" aria-label="close" onclick="closeModal()"></button>
+    <button class="modal-close is-large" aria-label="close"></button>
   </div>
   {% endif %}
   <nav class="navbar">
@@ -135,7 +135,7 @@
             <div class="control">
               <div class="dropdown is-right" id="help-dropdown">
                 <div class="dropdown-trigger">
-                  <button type="button" class="button is-rounded is-medium" aria-haspopup="true" aria-controls="dropdown-menu2" onclick="adjustHeight()">
+                  <button type="button" class="button is-rounded is-medium" aria-haspopup="true" aria-controls="dropdown-menu2" id="help-dropdown-button">
                     <span class="icon is-size-6 lg-icon-help">
                       <i class="icofont-info-circle" aria-hidden="true"></i>
                     </span>
