@@ -15,8 +15,8 @@ def ci_copy_config():
     """Copies test configuration files to usable config files"""
     logger.info("Migrating test config files...")
     config_dir = os.path.join(parent_directory, "hyperglass/configuration/")
-    test_files = glob.iglob(os.path.join(working_directory, "*.toml"))
-    config_files = glob.iglob(os.path.join(config_dir, "*.toml"))
+    test_files = glob.iglob(os.path.join(working_directory, "*.yaml"))
+    config_files = glob.iglob(os.path.join(config_dir, "*.yaml"))
     logger.debug(config_dir)
     logger.debug(working_directory)
     logger.debug(parent_directory)
