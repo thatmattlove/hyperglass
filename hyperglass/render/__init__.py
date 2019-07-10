@@ -119,7 +119,6 @@ def generate_markdown(section, file_name):
             yaml_raw = file_raw.read()
     else:
         yaml_raw = defaults[file_name]
-        logger.error(yaml_raw.split("---", 2))
     _, frontmatter, content = yaml_raw.split("---", 2)
     html_classes = {"table": "table"}
     markdown = Markdown(
