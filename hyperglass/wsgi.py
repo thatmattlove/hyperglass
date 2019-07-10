@@ -2,7 +2,10 @@
 https://github.com/checktheroads/hyperglass
 Gunicorn WSGI Target
 """
+# Standard Library Imports
 import os
+
+# Project Imports
 import hyperglass.hyperglass
 
 application = hyperglass.hyperglass.app

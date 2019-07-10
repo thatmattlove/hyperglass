@@ -5,22 +5,28 @@ Imports config variables and overrides default class attributes.
 
 Validates input for overridden parameters.
 """
+# Standard Library Imports
 import re
+from ipaddress import IPv4Address
+from ipaddress import IPv6Address
 from math import ceil
-from typing import List, Union
-from ipaddress import IPv4Address, IPv6Address
-from pydantic import (
-    BaseSettings,
-    IPvAnyNetwork,
-    IPvAnyAddress,
-    UrlStr,
-    constr,
-    validator,
-    SecretStr,
-)
+from typing import List
+from typing import Union
+
+# Third Party Imports
+from pydantic import BaseSettings
+from pydantic import IPvAnyAddress
+from pydantic import IPvAnyNetwork
+from pydantic import SecretStr
+from pydantic import UrlStr
+from pydantic import constr
+from pydantic import validator
 from pydantic.color import Color
-from hyperglass.exceptions import UnsupportedDevice, ConfigError
+
+# Project Imports
 from hyperglass.constants import Supported
+from hyperglass.exceptions import ConfigError
+from hyperglass.exceptions import UnsupportedDevice
 
 
 def clean_name(_name):
@@ -31,8 +37,7 @@ def clean_name(_name):
     """
     _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", _name)
     _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
-    _lower = _scrubbed.lower()
-    return _lower
+    return _scrubbed.lower()
 
 
 class Router(BaseSettings):
@@ -50,14 +55,14 @@ class Router(BaseSettings):
     proxy: Union[str, None] = None
 
     @validator("nos")
-    def supported_nos(cls, v):
+    def supported_nos(cls, v):  # noqa: N805
         """Validates that passed nos string is supported by hyperglass"""
         if not Supported.is_supported(v):
             raise UnsupportedDevice(f'"{v}" device type is not supported.')
         return v
 
     @validator("credential", "proxy", "location")
-    def clean_credential(cls, v):
+    def clean_credential(cls, v):  # noqa: N805
         """Remove or replace unsupported characters from field values"""
         return clean_name(v)
 
@@ -118,10 +123,10 @@ class Routers(BaseSettings):
             routers.update({dev: router_params.dict()})
             hostnames.append(dev)
         locations_dict, networks_dict = Routers.build_network_lists(routers)
-        setattr(Routers, "routers", routers)
-        setattr(Routers, "hostnames", hostnames)
-        setattr(Routers, "locations", locations_dict)
-        setattr(Routers, "networks", networks_dict)
+        Routers.routers = routers
+        Routers.hostnames = hostnames
+        Routers.locations = locations_dict
+        Routers.networks = networks_dict
         return Routers()
 
     class Config:
@@ -175,7 +180,7 @@ class Proxy(BaseSettings):
     ssh_command: str
 
     @validator("nos")
-    def supported_nos(cls, v):
+    def supported_nos(cls, v):  # noqa: N805
         """Validates that passed nos string is supported by hyperglass"""
         if not v == "linux_ssh":
             raise UnsupportedDevice(f'"{v}" device type is not supported.')

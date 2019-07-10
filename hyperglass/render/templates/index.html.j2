@@ -28,8 +28,8 @@
     <div class="modal-background"></div>
     <div class="modal-content is-clipped">
       <div class="box">
-        <p class="title">{{ details["bgp_aspath"]["title"] }}</p>
-        {{ details["bgp_aspath"]["content"] }}
+        <p class="title">{{ details["bgp_aspath"]["title"] | safe }}</p>
+        {{ details["bgp_aspath"]["content"] | safe }}
       </div>
     </div>
     <button class="modal-close is-large" aria-label="close"></button>
@@ -40,8 +40,8 @@
     <div class="modal-background"></div>
     <div class="modal-content">
       <div class="box">
-        <p class="title">{{ details["bgp_community"]["title"] }}</p>
-        {{ details["bgp_community"]["content"] }}
+        <p class="title">{{ details["bgp_community"]["title"] | safe }}</p>
+        {{ details["bgp_community"]["content"] | safe }}
       </div>
     </div>
     <button class="modal-close is-large" aria-label="close"></button>
@@ -145,32 +145,32 @@
                   <div class="dropdown-content lg-help">
                     {% if features.bgp_route.enable == true %}
                     <div class="dropdown-item">
-                      <strong>{{ branding.text.bgp_route }}</strong>
-                      <p>{{ info["bgp_route"]["content"] }}</p>
+                      <strong>{{ branding.text.bgp_route | safe }}</strong>
+                      <p>{{ info["bgp_route"]["content"] | safe }}</p>
                     </div>
                     {% endif %}
                     {% if features.bgp_community.enable == true %}
                     <div class="dropdown-item">
-                      <strong>{{ branding.text.bgp_community }}</strong>
-                      <p>{{ info["bgp_community"]["content"] }}</p>
+                      <strong>{{ branding.text.bgp_community | safe }}</strong>
+                      <p>{{ info["bgp_community"]["content"] | safe }}</p>
                     </div>
                     {% endif %}
                     {% if features.bgp_aspath.enable == true %}
                     <div class="dropdown-item">
-                      <strong>{{ branding.text.bgp_aspath }}</strong>
-                      <p>{{ info["bgp_aspath"]["content"] }}</p>
+                      <strong>{{ branding.text.bgp_aspath | safe }}</strong>
+                      <p>{{ info["bgp_aspath"]["content"] | safe }}</p>
                     </div>
                     {% endif %}
                     {% if features.ping.enable == true %}
                     <div class="dropdown-item">
-                      <strong>{{ branding.text.ping }}</strong>
-                      <p>{{ info["ping"]["content"] }}</p>
+                      <strong>{{ branding.text.ping | safe }}</strong>
+                      <p>{{ info["ping"]["content"] | safe }}</p>
                     </div>
                     {% endif %}
                     {% if features.traceroute.enable == true %}
                     <div class="dropdown-item">
-                      <strong>{{ branding.text.traceroute }}</strong>
-                      <p>{{ info["traceroute"]["content"] }}</p>
+                      <strong>{{ branding.text.traceroute | safe }}</strong>
+                      <p>{{ info["traceroute"]["content"] | safe }}</p>
                     </div>
                     {% endif %}
                   </div>

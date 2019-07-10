@@ -4,18 +4,16 @@ filters based on query type, returns validity boolean and specific
 error message.
 """
 # Standard Library Imports
-import re
 import ipaddress
+import re
 
 # Third Party Imports
 from logzero import logger
 
 # Project Imports
+from hyperglass.configuration import logzero_config  # noqa: F401
+from hyperglass.configuration import params
 from hyperglass.constants import code
-from hyperglass.configuration import (  # pylint: disable=unused-import
-    params,
-    logzero_config,
-)
 
 
 class IPType:
@@ -137,7 +135,7 @@ def ip_attributes(target):
     afi = f"ipv{ip_version}"
     afi_pretty = f"IPv{ip_version}"
     length = network.prefixlen
-    valid_attributes = {
+    return {
         "prefix": target,
         "network": network,
         "version": ip_version,
@@ -145,7 +143,6 @@ def ip_attributes(target):
         "afi": afi,
         "afi_pretty": afi_pretty,
     }
-    return valid_attributes
 
 
 def ip_type_check(query_type, target, device):
@@ -157,7 +154,7 @@ def ip_type_check(query_type, target, device):
     # If target is a member of the blacklist, return an error.
     if ip_blacklist(target):
         validity = False
-        logger.debug(f"Failed blacklist check")
+        logger.debug("Failed blacklist check")
         return (validity, msg)
     # If enable_max_prefix feature enabled, require that BGP Route
     # queries be smaller than configured size limit.
@@ -168,7 +165,7 @@ def ip_type_check(query_type, target, device):
             msg = params.features.max_prefixmessage.format(
                 m=max_length, i=prefix_attr["network"]
             )
-            logger.debug(f"Failed max prefix length check")
+            logger.debug("Failed max prefix length check")
             return (validity, msg)
     # If device NOS is listed in requires_ipv6_cidr.toml, and query is
     # an IPv6 host address, return an error.
@@ -180,14 +177,14 @@ def ip_type_check(query_type, target, device):
     ):
         msg = params.messages.requires_ipv6_cidr.format(d=device.display_name)
         validity = False
-        logger.debug(f"Failed requires IPv6 CIDR check")
+        logger.debug("Failed requires IPv6 CIDR check")
         return (validity, msg)
     # If query type is ping or traceroute, and query target is in CIDR
     # format, return an error.
     if query_type in ("ping", "traceroute") and IPType().is_cidr(target):
         msg = params.messages.directed_cidr.format(q=query_type.capitalize())
         validity = False
-        logger.debug(f"Failed CIDR format for ping/traceroute check")
+        logger.debug("Failed CIDR format for ping/traceroute check")
         return (validity, msg)
     validity = True
     msg = f"{target} is a valid {query_type} query."
@@ -317,7 +314,7 @@ class Validate:
         status = code.invalid
         # Validate input AS_PATH regex pattern against configured or
         # default regex pattern.
-        mode = getattr(params.features.bgp_aspath.regex, "mode")
+        mode = params.features.bgp_aspath.regex.mode
         pattern = getattr(params.features.bgp_aspath.regex, mode)
         if re.match(pattern, target):
             validity = True

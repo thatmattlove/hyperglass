@@ -1,27 +1,29 @@
 """
 Renders Jinja2 & Sass templates for use by the front end application
 """
-# Standard Imports
+# Standard Library Imports
 from pathlib import Path
 
-# Module Imports
+# Third Party Imports
+import jinja2
 import sass
 import yaml
-import jinja2
-import logzero
 from logzero import logger
 from markdown2 import Markdown
-from flask import render_template
 
 # Project Imports
+from hyperglass.configuration import devices
+from hyperglass.configuration import logzero_config  # noqa: F401
+from hyperglass.configuration import params
 from hyperglass.exceptions import HyperglassError
-from hyperglass.configuration import params, devices, logzero_config
 
 # Module Directories
 working_directory = Path(__file__).resolve().parent
 hyperglass_root = working_directory.parent
 file_loader = jinja2.FileSystemLoader(str(working_directory))
-env = jinja2.Environment(loader=file_loader)
+env = jinja2.Environment(
+    loader=file_loader, autoescape=True, extensions=["jinja2.ext.autoescape"]
+)
 
 default_details = {
     "footer": """
@@ -111,7 +113,7 @@ def generate_markdown(section, file_name):
     """
     Renders markdown as HTML. If file_name exists in appropriate
     directory, it will be imported and used. If not, the default values
-    will be used. Also renders the Front Matter values within each 
+    will be used. Also renders the Front Matter values within each
     template.
     """
     if section == "info":
@@ -136,7 +138,11 @@ def generate_markdown(section, file_name):
         }
     )
     frontmatter_rendered = (
-        jinja2.Environment(loader=jinja2.BaseLoader)
+        jinja2.Environment(
+            loader=jinja2.BaseLoader,
+            autoescape=True,
+            extensions=["jinja2.ext.autoescape"],
+        )
         .from_string(frontmatter)
         .render(params)
     )
@@ -145,7 +151,11 @@ def generate_markdown(section, file_name):
     elif not frontmatter_rendered:
         frontmatter_loaded = {"frontmatter": None}
     content_rendered = (
-        jinja2.Environment(loader=jinja2.BaseLoader)
+        jinja2.Environment(
+            loader=jinja2.BaseLoader,
+            autoescape=True,
+            extensions=["jinja2.ext.autoescape"],
+        )
         .from_string(content)
         .render(params, info=frontmatter_loaded)
     )
@@ -202,6 +212,6 @@ def css():
         with css_file.open(mode="w") as css_output:
             css_output.write(generated_sass)
             logger.debug(f"Compiled Sass file {scss_file} to CSS file {css_file}.")
-    except:
+    except sass.CompileError as sassy:
         logger.error(f"Error compiling Sass in file {scss_file}.")
-        raise
+        raise HyperglassError(sassy)

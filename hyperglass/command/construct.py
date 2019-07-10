@@ -3,19 +3,17 @@ Accepts filtered & validated input from execute.py, constructs SSH
 command for Netmiko library or API call parameters for supported
 hyperglass API modules.
 """
-# Standard Imports
+# Standard Library Imports
+import ipaddress
 import json
 import operator
-import ipaddress
 
-# Module Imports
+# Third Party Imports
 from logzero import logger
 
 # Project Imports
-from hyperglass.configuration import (  # pylint: disable=unused-import
-    commands,
-    logzero_config,
-)
+from hyperglass.configuration import commands
+from hyperglass.configuration import logzero_config  # noqa: F401
 
 
 class Construct:

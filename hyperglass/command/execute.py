@@ -4,7 +4,7 @@ returns errors if input is invalid. Passes validated parameters to
 construct.py, which is used to build & run the Netmiko connectoins or
 hyperglass-frr API calls, returns the output back to the front end.
 """
-# Standard Lib Imports
+# Standard Library Imports
 import json
 import time
 
@@ -12,34 +12,27 @@ import time
 import requests
 import requests.exceptions
 from logzero import logger
-from netmiko import (
-    ConnectHandler,
-    redispatch,
-    NetMikoAuthenticationException,
-    NetMikoTimeoutException,
-    NetmikoAuthError,
-    NetmikoTimeoutError,
-)
+from netmiko import ConnectHandler
+from netmiko import NetMikoAuthenticationException
+from netmiko import NetmikoAuthError
+from netmiko import NetmikoTimeoutError
+from netmiko import NetMikoTimeoutException
+from netmiko import redispatch
 
 # Project Imports
-from hyperglass.constants import code, Supported
 from hyperglass.command.construct import Construct
 from hyperglass.command.validate import Validate
-from hyperglass.configuration import (  # pylint: disable=unused-import
-    params,
-    devices,
-    credentials,
-    proxies,
-    logzero_config,
-)
+from hyperglass.configuration import credentials
+from hyperglass.configuration import devices
+from hyperglass.configuration import logzero_config  # noqa: F401
+from hyperglass.configuration import params
+from hyperglass.configuration import proxies
+from hyperglass.constants import Supported
+from hyperglass.constants import code
 
 
 class Rest:
     """Executes connections to REST API devices"""
-
-    # pylint: disable=too-few-public-methods
-    # Dear PyLint, sometimes, people need to make their code scalable
-    # for future use. <3, -ML
 
     def __init__(self, transport, device, query_type, target):
         self.transport = transport
@@ -125,9 +118,6 @@ class Rest:
 class Netmiko:
     """Executes connections to Netmiko devices"""
 
-    # pylint: disable=too-many-instance-attributes
-    # Dear PyLint, I actually need all these. <3, -ML
-
     def __init__(self, transport, device, query_type, target):
         self.device = device
         self.target = target
@@ -194,12 +184,12 @@ class Netmiko:
         try:
             # Accept SSH key warnings
             if "Are you sure you want to continue connecting" in proxy_output:
-                logger.debug(f"Received OpenSSH key warning")
+                logger.debug("Received OpenSSH key warning")
                 nm_connect_proxied.write_channel("yes" + "\n")
                 nm_connect_proxied.write_channel(self.nm_host["password"] + "\n")
             # Send password on prompt
             elif "assword" in proxy_output:
-                logger.debug(f"Received password prompt")
+                logger.debug("Received password prompt")
                 nm_connect_proxied.write_channel(self.nm_host["password"] + "\n")
                 proxy_output += nm_connect_proxied.read_channel()
             # Reclassify netmiko connection as configured device type
@@ -289,7 +279,7 @@ class Execute:
             raw_output, status = getattr(connection, device_config.nos)()
             output = self.parse(raw_output, device_config.nos)
         elif Supported.is_scrape(device_config.nos):
-            logger.debug(f"Initializing Netmiko...")
+            logger.debug("Initializing Netmiko...")
 
             connection = Netmiko(
                 "scrape", device_config, self.input_type, self.input_target

@@ -4,19 +4,17 @@ default values if undefined.
 """
 
 # Standard Library Imports
-import math
 from pathlib import Path
 
-# Third Party Module Imports
-import yaml
+# Third Party Imports
 import logzero
+import yaml
 from logzero import logger
 from pydantic import ValidationError
 
 # Project Imports
 from hyperglass.configuration import models
-from hyperglass.exceptions import ConfigError, UnsupportedDevice
-from hyperglass.constants import Supported
+from hyperglass.exceptions import ConfigError
 
 # Project Directories
 working_dir = Path(__file__).resolve().parent

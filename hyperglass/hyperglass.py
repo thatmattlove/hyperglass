@@ -1,28 +1,32 @@
 """
 Main Hyperglass Front End
 """
-# Standard Imports
+# Standard Library Imports
 import json
 from ast import literal_eval
 
-# Module Imports
+# Third Party Imports
 import redis
-from logzero import logger
+from flask import Flask
+from flask import Response
+from flask import request
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
-from flask import Flask, Response, request
-from prometheus_client import CollectorRegistry, Counter, generate_latest, multiprocess
+from logzero import logger
+from prometheus_client import CollectorRegistry
+from prometheus_client import Counter
+from prometheus_client import generate_latest
+from prometheus_client import multiprocess
 
 # Project Imports
 from hyperglass import render
-from hyperglass.exceptions import HyperglassError
 from hyperglass.command.execute import Execute
-from hyperglass.constants import Supported, code
-from hyperglass.configuration import (  # pylint: disable=unused-import
-    params,
-    devices,
-    logzero_config,
-)
+from hyperglass.configuration import devices
+from hyperglass.configuration import logzero_config  # noqa: F401
+from hyperglass.configuration import params
+from hyperglass.constants import Supported
+from hyperglass.constants import code
+from hyperglass.exceptions import HyperglassError
 
 logger.debug(f"Configuration Parameters:\n {params.dict()}")
 
@@ -133,8 +137,7 @@ def clear_cache():
 @limiter.limit(rate_limit_site, error_message="Site")
 def site():
     """Main front-end web application"""
-    html = render.html("index")
-    return html
+    return render.html("index")
 
 
 @app.route("/test", methods=["GET"])
@@ -195,26 +198,25 @@ def hyperglass_main():
     logger.debug(f"Cache Timeout: {cache_timeout}")
     # Check if cached entry exists
     if not r_cache.get(cache_key):
-        try:
-            logger.debug(f"Sending query {cache_key} to execute module...")
-            cache_value = Execute(lg_data).response()
+        logger.debug(f"Sending query {cache_key} to execute module...")
+        # Pass request to execution module
+        cache_value = Execute(lg_data).response()
 
-            logger.debug("Validated Response...")
-            logger.debug(f"Status: {cache_value[1]}")
-            logger.debug(f"Output:\n {cache_value[0]}")
+        logger.debug("Validated Response...")
+        logger.debug(f"Status: {cache_value[1]}")
+        logger.debug(f"Output:\n {cache_value[0]}")
+        # Create a cache entry
+        r_cache.set(cache_key, str(cache_value))
+        r_cache.expire(cache_key, cache_timeout)
 
-            # If it doesn't, create a cache entry
-            r_cache.set(cache_key, str(cache_value))
-            r_cache.expire(cache_key, cache_timeout)
-            logger.debug(f"Added cache entry for query: {cache_key}")
-        except:
-            logger.error(f"Unable to add output to cache: {cache_key}")
-            raise HyperglassError(f"Error with cache key {cache_key}")
+        logger.debug(f"Added cache entry for query: {cache_key}")
+        logger.error(f"Unable to add output to cache: {cache_key}")
     # If it does, return the cached entry
-    logger.debug(f"Cache match for: {cache_key}, returning cached entry")
     cache_response = r_cache.get(cache_key)
     response = literal_eval(cache_response)
     response_output, response_status = response
+
+    logger.debug(f"Cache match for: {cache_key}, returning cached entry")
     logger.debug(f"Cache Output: {response_output}")
     logger.debug(f"Cache Status Code: {response_status}")
     # If error, increment Prometheus metrics
