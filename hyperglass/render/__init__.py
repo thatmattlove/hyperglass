@@ -108,6 +108,12 @@ interpret traceroute results, [click here]\
 
 
 def generate_markdown(section, file_name):
+    """
+    Renders markdown as HTML. If file_name exists in appropriate
+    directory, it will be imported and used. If not, the default values
+    will be used. Also renders the Front Matter values within each 
+    template.
+    """
     if section == "info":
         file = working_directory.joinpath(f"templates/info/{file_name}.md")
         defaults = default_info
