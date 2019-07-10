@@ -24,97 +24,103 @@ file_loader = jinja2.FileSystemLoader(str(working_directory))
 env = jinja2.Environment(loader=file_loader)
 
 default_details = {
-    "footer": [
-        "---",
-        "template: footer",
-        "---",
-        "By using {{ branding.site_name }}, you agree to be bound by the following ",
-        "terms of use: All queries executed on this page are logged for analysis and ",
-        "troubleshooting. Users are prohibited from automating queries, or attempting ",
-        "to process queries in bulk. This service is provided on a best effort basis, ",
-        "and {{ general.org_name }} makes no availability or performance warranties ",
-        "or guarantees whatsoever.",
-    ],
-    "bgp_aspath": [
-        "---",
-        "template: bgp_aspath",
-        "title: Supported AS Path Patterns",
-        "---",
-        "{{ branding.site_name }} accepts the following `AS_PATH` regular expression ",
-        "patterns:",
-        "| Expression           | Match                                         |",
-        "| :------------------- | :-------------------------------------------- |",
-        "| `_65000$`            | Originated by 65000                           |",
-        "| `^65000_`            | Received from 65000                           |",
-        "| `_65000_`            | Via 65000                                     |",
-        "| `_65000_65001_`      | Via 65000 and 65001                           |",
-        "| `_65000(_.+_)65001$` | Anything from 65001 that passed through 65000 |",
-    ],
-    "bgp_community": [
-        "---",
-        "template: bgp_community",
-        "title: BGP Communities",
-        "---",
-        "{{ branding.site_name }} makes use of the following BGP communities:",
-        "| Community | Description |",
-        "| :-------- | :---------- |",
-        "| `65000:1` | Example 1   |",
-        "| `65000:2` | Example 2   |",
-        "| `65000:3` | Example 3   |",
-    ],
+    "footer": """
+---
+template: footer
+---
+By using {{ branding.site_name }}, you agree to be bound by the following terms of \
+use: All queries executed on this page are logged for analysis and troubleshooting. \
+Users are prohibited from automating queries, or attempting to process queries in \
+bulk. This service is provided on a best effort basis, and {{ general.org_name }} \
+makes no availability or performance warranties or guarantees whatsoever.
+""",
+    "bgp_aspath": r"""
+---
+template: bgp_aspath
+title: Supported AS Path Patterns
+---
+{{ branding.site_name }} accepts the following `AS_PATH` regular expression patterns:
+
+| Expression           | Match                                         |
+| :------------------- | :-------------------------------------------- |
+| `_65000$`            | Originated by 65000                           |
+| `^65000_`            | Received from 65000                           |
+| `_65000_`            | Via 65000                                     |
+| `_65000_65001_`      | Via 65000 and 65001                           |
+| `_65000(_.+_)65001$` | Anything from 65001 that passed through 65000 |
+""",
+    "bgp_community": """
+---
+template: bgp_community
+title: BGP Communities
+---
+{{ branding.site_name }} makes use of the following BGP communities:
+
+| Community | Description |
+| :-------- | :---------- |
+| `65000:1` | Example 1   |
+| `65000:2` | Example 2   |
+| `65000:3` | Example 3   |
+""",
 }
 
 default_info = {
-    "bgp_route": [
-        "---",
-        "template: bgp_route",
-        "---",
-        "Performs BGP table lookup based on IPv4/IPv6 prefix.",
-    ],
-    "bgp_community": [
-        "---",
-        "template: bgp_community",
-        (
-            'link: <a href="#" id="help_link_bgpc">{{ general.org_name }} '
-            "BGP Communities</a>"
-        ),
-        "---",
-        "Performs BGP table lookup based on ",
-        "[Extended](https://tools.ietf.org/html/rfc4360) ",
-        "or [Large](https://tools.ietf.org/html/rfc8195) community value.",
-        '<br>{{ info["link"] }}',
-    ],
-    "bgp_aspath": [
-        "---",
-        "template: bgp_aspath",
-        'link: <a href="#" id="help_link_bgpa">Supported BGP AS Path Expressions</a>',
-        "---",
-        "Performs BGP table lookup based on `AS_PATH` regular expression.",
-        '<br>{{ info["link"] }}',
-    ],
-    "ping": [
-        "---",
-        "template: ping",
-        "---",
-        "Sends 5 ICMP echo requests to the target.",
-    ],
-    "traceroute": [
-        "---",
-        "template: traceroute",
-        "---",
-        "Performs UDP Based traceroute to the target.<br>For information about how to",
-        "interpret traceroute results, [click here]",
-        "(https://hyperglass.readthedocs.io/en/latest/assets/traceroute_nanog.pdf).",
-    ],
+    "bgp_route": """
+---
+template: bgp_route
+---
+Performs BGP table lookup based on IPv4/IPv6 prefix.
+""",
+    "bgp_community": """
+---
+template: bgp_community
+link: <a href="#" id="helplink_bgpc">{{ general.org_name }} BGP Communities</a>
+---
+Performs BGP table lookup based on [Extended](https://tools.ietf.org/html/rfc4360) \
+or [Large](https://tools.ietf.org/html/rfc8195) community value.
+
+{{ info["link"] }}
+""",
+    "bgp_aspath": """
+---
+template: bgp_aspath
+link: <a href="#" id="helplink_bgpa">Supported BGP AS Path Expressions</a>
+---
+Performs BGP table lookup based on `AS_PATH` regular expression.
+
+{{ info["link"] }}
+""",
+    "ping": """
+---
+template: ping
+---
+Sends 5 ICMP echo requests to the target.
+""",
+    "traceroute": """
+---
+template: traceroute
+---
+Performs UDP Based traceroute to the target.<br>For information about how to \
+interpret traceroute results, [click here]\
+(https://hyperglass.readthedocs.io/en/latest/assets/traceroute_nanog.pdf).
+""",
 }
 
 
-def info(file_name):
-    """
-    Converts Markdown documents to HTML, renders Jinja2 variables,
-    renders TOML frontmatter variables, returns dictionary of variables
-    and HTML content.
-    """
+def generate_markdown(section, file_name):
+    if section == "info":
+        file = working_directory.joinpath(f"templates/info/{file_name}.md")
+        defaults = default_info
+    elif section == "details":
+        file = working_directory.joinpath(f"templates/info/details/{file_name}.md")
+        defaults = default_details
+    if file.exists():
+        with file.open(mode="r") as file_raw:
+            yaml_raw = file_raw.read()
+    else:
+        yaml_raw = defaults[file_name]
+        logger.error(yaml_raw.split("---", 2))
+    _, frontmatter, content = yaml_raw.split("---", 2)
     html_classes = {"table": "table"}
     markdown = Markdown(
         extras={
@@ -124,16 +130,6 @@ def info(file_name):
             "html-classes": html_classes,
         }
     )
-    file = working_directory.joinpath(f"templates/info/{file_name}.md")
-    frontmatter_dict = {}
-    if file.exists():
-        with file.open(mode="r") as file_raw:
-            file_read = file_raw.read()
-            _, frontmatter, content = file_read.split("---")
-    else:
-        fm_end = default_info[file_name][1:].index("---")
-        frontmatter = "\n".join(default_info[file_name][1:][:fm_end])
-        content = "".join(default_info[file_name][1:][fm_end + 1 :])
     frontmatter_rendered = (
         jinja2.Environment(loader=jinja2.BaseLoader)
         .from_string(frontmatter)
@@ -141,68 +137,17 @@ def info(file_name):
     )
     if frontmatter_rendered:
         frontmatter_loaded = yaml.safe_load(frontmatter_rendered)
-    if not frontmatter_rendered:
+    elif not frontmatter_rendered:
         frontmatter_loaded = {"frontmatter": None}
     content_rendered = (
         jinja2.Environment(loader=jinja2.BaseLoader)
         .from_string(content)
         .render(params, info=frontmatter_loaded)
     )
-    logger.error(frontmatter)
-    logger.error(frontmatter_loaded)
-    frontmatter_dict = dict(
-        content=markdown.convert(content_rendered), **frontmatter_loaded
-    )
-    if not frontmatter_dict:
+    help_dict = dict(content=markdown.convert(content_rendered), **frontmatter_loaded)
+    if not help_dict:
         raise HyperglassError(f"Error reading YAML frontmatter for {file_name}")
-    return frontmatter_dict
-
-
-def details(file_name):
-    """
-    Converts Markdown documents to HTML, renders Jinja2 variables,
-    renders TOML frontmatter variables, returns dictionary of variables
-    and HTML content.
-    """
-    frontmatter_dict = None
-    html_classes = {"table": "table"}
-    markdown = Markdown(
-        extras={
-            "break-on-newline": True,
-            "code-friendly": True,
-            "tables": True,
-            "html-classes": html_classes,
-        }
-    )
-    file = working_directory.joinpath(f"templates/info/details/{file_name}.md")
-    if file.exists():
-        with file.open(mode="r") as file_raw:
-            file_read = file_raw.read()
-            _, frontmatter, content = file_read.split("---")
-    else:
-        fm_end = default_details[file_name][1:].index("---")
-        frontmatter = "\n".join(default_details[file_name][1:][:fm_end])
-        content = "".join(default_details[file_name][1:][fm_end + 1 :])
-    frontmatter_rendered = (
-        jinja2.Environment(loader=jinja2.BaseLoader)
-        .from_string(frontmatter)
-        .render(params)
-    )
-    if frontmatter_rendered:
-        frontmatter_loaded = yaml.safe_load(frontmatter_rendered)
-    if not frontmatter_rendered:
-        frontmatter_loaded = {"frontmatter": None}
-    content_rendered = (
-        jinja2.Environment(loader=jinja2.BaseLoader)
-        .from_string(content)
-        .render(params, details=frontmatter_loaded)
-    )
-    frontmatter_dict = dict(
-        content=markdown.convert(content_rendered), **frontmatter_loaded
-    )
-    if not frontmatter_dict:
-        raise HyperglassError(f"Error reading YAML frontmatter for {file_name}")
-    return frontmatter_dict
+    return help_dict
 
 
 def html(template_name):
@@ -210,12 +155,12 @@ def html(template_name):
     details_name_list = ["footer", "bgp_aspath", "bgp_community"]
     details_dict = {}
     for details_name in details_name_list:
-        details_data = details(details_name)
+        details_data = generate_markdown("details", details_name)
         details_dict.update({details_name: details_data})
     info_list = ["bgp_route", "bgp_aspath", "bgp_community", "ping", "traceroute"]
     info_dict = {}
     for info_name in info_list:
-        info_data = info(info_name)
+        info_data = generate_markdown("info", info_name)
         info_dict.update({info_name: info_data})
     try:
         template_file = f"templates/{template_name}.html.j2"
