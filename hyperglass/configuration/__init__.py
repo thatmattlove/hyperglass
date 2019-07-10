@@ -24,12 +24,14 @@ try:
     with open(working_dir.joinpath("hyperglass.yaml")) as config_yaml:
         user_config = yaml.safe_load(config_yaml)
 except FileNotFoundError as no_config_error:
+    user_config = None
     logger.error(f"{no_config_error} - Default configuration will be used")
 # Import device commands file
 try:
     with open(working_dir.joinpath("commands.yaml")) as commands_yaml:
         user_commands = yaml.safe_load(commands_yaml)
 except FileNotFoundError:
+    user_commands = None
     logger.info(
         (
             f'No commands found in {working_dir.joinpath("commands.yaml")}. '
@@ -52,8 +54,14 @@ except FileNotFoundError as no_devices_error:
 
 # Map imported user config files to expected schema:
 try:
-    params = models.Params(**user_config)
-    commands = models.Commands.import_params(user_commands)
+    if user_config:
+        params = models.Params(**user_config)
+    elif not user_config:
+        params = models.Params()
+    if user_commands:
+        commands = models.Commands.import_params(user_commands)
+    elif not user_commands:
+        commands = models.Commands()
     devices = models.Routers.import_params(user_devices["router"])
     credentials = models.Credentials.import_params(user_devices["credential"])
     proxies = models.Proxies.import_params(user_devices["proxy"])
