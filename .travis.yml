@@ -14,8 +14,7 @@ install:
 before_script:
     - pip3 uninstall -y -r ./tests/requirements_dev.txt
     - pip3 install -r ./tests/requirements_dev.txt
-    - black --check hyperglass
-    - python3 ./manage.py pylint-check -e
+    - flake8 hyperglass
     - python3 ./tests/ci_prepare.py
 script:
     - nohup python3 ./tests/ci_dev_server.py &
