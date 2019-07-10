@@ -10,7 +10,7 @@ clearPage();
 // Bulma Toggable Dropdown - help text
 $('#help-dropdown').click(function(event) {
     event.stopPropagation();
-    $(this).addClass('is-active');
+    $(this).toggleClass('is-active');
 });
 
 // ClipboardJS Elements
