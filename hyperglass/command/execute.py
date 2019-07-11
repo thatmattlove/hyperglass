@@ -7,10 +7,11 @@ hyperglass-frr API calls, returns the output back to the front end.
 # Standard Library Imports
 import json
 import time
+import asyncio
 
 # Third Party Imports
-import requests
-import requests.exceptions
+import http3
+import http3.exceptions
 from logzero import logger
 from netmiko import ConnectHandler
 from netmiko import NetMikoAuthenticationException
@@ -44,34 +45,49 @@ class Rest:
             self.transport, self.target
         )
 
-    def frr(self):
+    async def frr(self):
         """Sends HTTP POST to router running the hyperglass-frr API"""
         logger.debug(f"FRR host params:\n{self.device}")
-        logger.debug(f"Raw query parameters: {self.query}")
+        logger.debug(f"Query parameters: {self.query}")
 
         try:
             headers = {
                 "Content-Type": "application/json",
                 "X-API-Key": self.cred.password.get_secret_value(),
             }
-            json_query = json.dumps(self.query)
             frr_endpoint = (
                 f"http://{self.device.address.exploded}:{self.device.port}/frr"
             )
 
             logger.debug(f"HTTP Headers: {headers}")
-            logger.debug(f"JSON query: {json_query}")
             logger.debug(f"FRR endpoint: {frr_endpoint}")
 
-            frr_response = requests.post(
-                frr_endpoint, headers=headers, data=json_query, timeout=7
+            http_client = http3.AsyncClient()
+            frr_response = await http_client.post(
+                frr_endpoint, headers=headers, json=self.query, timeout=7
             )
             response = frr_response.text
             status = frr_response.status_code
 
             logger.debug(f"FRR status code: {status}")
             logger.debug(f"FRR response text:\n{response}")
-        except requests.exceptions.RequestException as rest_error:
+        except (
+            http3.exceptions.ConnectTimeout,
+            http3.exceptions.CookieConflict,
+            http3.exceptions.DecodingError,
+            http3.exceptions.InvalidURL,
+            http3.exceptions.PoolTimeout,
+            http3.exceptions.ProtocolError,
+            http3.exceptions.ReadTimeout,
+            http3.exceptions.RedirectBodyUnavailable,
+            http3.exceptions.RedirectLoop,
+            http3.exceptions.ResponseClosed,
+            http3.exceptions.ResponseNotRead,
+            http3.exceptions.StreamConsumed,
+            http3.exceptions.Timeout,
+            http3.exceptions.TooManyRedirects,
+            http3.exceptions.WriteTimeout,
+        ) as rest_error:
             logger.error(
                 f"Error connecting to device {self.device.location}: {rest_error}"
             )
@@ -82,34 +98,47 @@ class Rest:
     def bird(self):
         """Sends HTTP POST to router running the hyperglass-bird API"""
         logger.debug(f"BIRD host params:\n{self.device}")
-        logger.debug(f"Raw query parameters: {self.query}")
+        logger.debug(f"Query parameters: {self.query}")
 
         try:
             headers = {
                 "Content-Type": "application/json",
                 "X-API-Key": self.cred.password.get_secret_value(),
             }
-            json_query = json.dumps(self.query)
             bird_endpoint = (
                 f"http://{self.device.address.exploded}:{self.device.port}/bird"
             )
 
             logger.debug(f"HTTP Headers: {headers}")
-            logger.debug(f"JSON query: {json_query}")
             logger.debug(f"BIRD endpoint: {bird_endpoint}")
 
-            bird_response = requests.post(
-                bird_endpoint, headers=headers, data=json_query, timeout=7
+            http_client = http3.AsyncClient()
+            bird_response = http_client.post(
+                bird_endpoint, headers=headers, json=self.query, timeout=7
             )
             response = bird_response.text
             status = bird_response.status_code
 
             logger.debug(f"BIRD status code: {status}")
             logger.debug(f"BIRD response text:\n{response}")
-        except requests.exceptions.RequestException as requests_exception:
-            logger.error(
-                f"Error connecting to device {self.device}: {requests_exception}"
-            )
+        except (
+            http3.exceptions.ConnectTimeout,
+            http3.exceptions.CookieConflict,
+            http3.exceptions.DecodingError,
+            http3.exceptions.InvalidURL,
+            http3.exceptions.PoolTimeout,
+            http3.exceptions.ProtocolError,
+            http3.exceptions.ReadTimeout,
+            http3.exceptions.RedirectBodyUnavailable,
+            http3.exceptions.RedirectLoop,
+            http3.exceptions.ResponseClosed,
+            http3.exceptions.ResponseNotRead,
+            http3.exceptions.StreamConsumed,
+            http3.exceptions.Timeout,
+            http3.exceptions.TooManyRedirects,
+            http3.exceptions.WriteTimeout,
+        ) as rest_error:
+            logger.error(f"Error connecting to device {self.device}: {rest_error}")
             response = params.messages.general
             status = code.invalid
         return response, status
@@ -252,7 +281,7 @@ class Execute:
                 parsed = delimiter + parsed_ipv4 + delimiter + parsed_ipv6
         return parsed
 
-    def response(self):
+    async def response(self):
         """
         Initializes Execute.filter(), if input fails to pass filter,
         returns errors to front end. Otherwise, executes queries.
@@ -276,7 +305,7 @@ class Execute:
 
         if Supported.is_rest(device_config.nos):
             connection = Rest("rest", device_config, self.input_type, self.input_target)
-            raw_output, status = getattr(connection, device_config.nos)()
+            raw_output, status = await getattr(connection, device_config.nos)()
             output = self.parse(raw_output, device_config.nos)
         elif Supported.is_scrape(device_config.nos):
             logger.debug("Initializing Netmiko...")
