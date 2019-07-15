@@ -2,14 +2,14 @@
 Global Constants for hyperglass
 """
 
+protocol_map = {80: "http", 8080: "http", 443: "https", 8443: "https"}
+
 
 class Status:
     """
     Defines codes, messages, and method names for status codes used by
     hyperglass.
     """
-
-    # pylint: disable=too-few-public-methods
 
     codes_dict = {
         200: ("valid", "Valid Query"),
@@ -163,3 +163,21 @@ class Supported:
         query_type tuple.
         """
         return bool(query_type in Supported.query_types)
+
+    @staticmethod
+    def map_transport(nos):
+        """
+        Returns "scrape" if input nos is in Supported.scrape tuple, or
+        "rest" if input nos is in Supported.rest tuple.
+        """
+        transport = None
+        if nos in Supported.scrape:
+            transport = "scrape"
+        elif nos in Supported.rest:
+            transport = "rest"
+        return transport
+
+    @staticmethod
+    def map_rest(nos):
+        uri_map = {"frr": "frr", "bird": "bird"}
+        return uri_map.get(nos)

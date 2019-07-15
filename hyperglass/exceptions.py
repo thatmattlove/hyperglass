@@ -24,6 +24,28 @@ class ConfigError(HyperglassError):
         return self.message
 
 
+class CantConnect(HyperglassError):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
+class ParseError(HyperglassError):
+    """
+    Raised when an ouput parser encounters an error.
+    """
+
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
 class UnsupportedDevice(HyperglassError):
     """
     Raised when an input NOS is not in the supported NOS list.

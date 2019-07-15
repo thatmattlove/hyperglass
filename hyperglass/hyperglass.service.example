@@ -7,7 +7,7 @@ Requires=redis-server.service
 User=www-data
 Group=www-data
 WorkingDirectory=/opt/hyperglass
-ExecStart=/usr/local/bin/gunicorn -c /opt/hyperglass/hyperglass/gunicorn_config.py hyperglass.wsgi
+ExecStart=/usr/local/bin/python3 -m sanic hyperglass.web.app
 
 [Install]
 WantedBy=multi-user.target

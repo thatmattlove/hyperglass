@@ -22,8 +22,9 @@ class Construct:
     input parameters.
     """
 
-    def __init__(self, device):
+    def __init__(self, device, transport):
         self.device = device
+        self.transport = transport
 
     def get_src(self, ver):
         """
@@ -48,15 +49,17 @@ class Construct:
         cmd_path = f"{nos}.{afi}.{query_type}"
         return operator.attrgetter(cmd_path)(commands)
 
-    def ping(self, transport, target):
+    def ping(self, target):
         """Constructs ping query parameters from pre-validated input"""
         query_type = "ping"
-        logger.debug(f"Constructing {query_type} query for {target} via {transport}...")
+        logger.debug(
+            f"Constructing {query_type} query for {target} via {self.transport}..."
+        )
         query = None
         ip_version = ipaddress.ip_network(target).version
         afi = f"ipv{ip_version}"
         source = self.get_src(ip_version)
-        if transport == "rest":
+        if self.transport == "rest":
             query = json.dumps(
                 {
                     "query_type": query_type,
@@ -65,24 +68,25 @@ class Construct:
                     "target": target,
                 }
             )
-        elif transport == "scrape":
+        elif self.transport == "scrape":
             conf_command = self.device_commands(self.device.nos, afi, query_type)
-            fmt_command = conf_command.format(target=target, source=source)
-            query = (self.device.address.exploded, self.device.nos, fmt_command)
+            query = conf_command.format(target=target, source=source)
         logger.debug(f"Constructed query: {query}")
         return query
 
-    def traceroute(self, transport, target):
+    def traceroute(self, target):
         """
         Constructs traceroute query parameters from pre-validated input.
         """
         query_type = "traceroute"
-        logger.debug(f"Constructing {query_type} query for {target} via {transport}...")
+        logger.debug(
+            f"Constructing {query_type} query for {target} via {self.transport}..."
+        )
         query = None
         ip_version = ipaddress.ip_network(target).version
         afi = f"ipv{ip_version}"
         source = self.get_src(ip_version)
-        if transport == "rest":
+        if self.transport == "rest":
             query = json.dumps(
                 {
                     "query_type": query_type,
@@ -92,62 +96,64 @@ class Construct:
                 }
             )
 
-        elif transport == "scrape":
+        elif self.transport == "scrape":
             conf_command = self.device_commands(self.device.nos, afi, query_type)
-            fmt_command = conf_command.format(target=target, source=source)
-            query = (self.device.address.exploded, self.device.nos, fmt_command)
+            query = conf_command.format(target=target, source=source)
         logger.debug(f"Constructed query: {query}")
         return query
 
-    def bgp_route(self, transport, target):
+    def bgp_route(self, target):
         """
         Constructs bgp_route query parameters from pre-validated input.
         """
         query_type = "bgp_route"
-        logger.debug(f"Constructing {query_type} query for {target} via {transport}...")
+        logger.debug(
+            f"Constructing {query_type} query for {target} via {self.transport}..."
+        )
         query = None
         ip_version = ipaddress.ip_network(target).version
         afi = f"ipv{ip_version}"
-        if transport == "rest":
+        if self.transport == "rest":
             query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
-        if transport == "scrape":
+        elif self.transport == "scrape":
             conf_command = self.device_commands(self.device.nos, afi, query_type)
-            fmt_command = conf_command.format(target=target)
-            query = (self.device.address.exploded, self.device.nos, fmt_command)
+            query = conf_command.format(target=target)
         logger.debug(f"Constructed query: {query}")
         return query
 
-    def bgp_community(self, transport, target):
+    def bgp_community(self, target):
         """
         Constructs bgp_community query parameters from pre-validated
         input.
         """
         query_type = "bgp_community"
-        logger.debug(f"Constructing {query_type} query for {target} via {transport}...")
+        logger.debug(
+            f"Constructing {query_type} query for {target} via {self.transport}..."
+        )
         afi = "dual"
         query = None
-        if transport == "rest":
+        if self.transport == "rest":
             query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
-        if transport == "scrape":
+        elif self.transport == "scrape":
             conf_command = self.device_commands(self.device.nos, afi, query_type)
-            fmt_command = conf_command.format(target=target)
-            query = (self.device.address.exploded, self.device.nos, fmt_command)
+            query = conf_command.format(target=target)
         logger.debug(f"Constructed query: {query}")
         return query
 
-    def bgp_aspath(self, transport, target):
+    def bgp_aspath(self, target):
         """
         Constructs bgp_aspath query parameters from pre-validated input.
         """
         query_type = "bgp_aspath"
-        logger.debug(f"Constructing {query_type} query for {target} via {transport}...")
+        logger.debug(
+            f"Constructing {query_type} query for {target} via {self.transport}..."
+        )
         afi = "dual"
         query = None
-        if transport == "rest":
+        if self.transport == "rest":
             query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
-        if transport == "scrape":
+        elif self.transport == "scrape":
             conf_command = self.device_commands(self.device.nos, afi, query_type)
-            fmt_command = conf_command.format(target=target)
-            query = (self.device.address.exploded, self.device.nos, fmt_command)
+            query = conf_command.format(target=target)
         logger.debug(f"Constructed query: {query}")
         return query
