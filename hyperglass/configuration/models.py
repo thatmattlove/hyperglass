@@ -174,6 +174,7 @@ class Proxy(BaseSettings):
     """Model for per-proxy config in devices.yaml"""
 
     address: Union[IPvAnyAddress, str]
+    port: int = 22
     username: str
     password: SecretStr
     nos: str
@@ -348,7 +349,7 @@ class Messages(BaseSettings):
         "<b>{d}</b> requires IPv6 BGP lookups" "to be in CIDR notation."
     )
     invalid_ip: str = "<b>{i}</b> is not a valid IP address."
-    invalid_dual: str = "invalid_dual <b>{i}</b> is an invalid {qt}."
+    invalid_dual: str = "<b>{i}</b> is an invalid {qt}."
     general: str = "An error occurred."
     directed_cidr: str = "<b>{q}</b> queries can not be in CIDR format."
 

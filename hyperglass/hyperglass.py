@@ -1,22 +1,24 @@
-"""
-Main Hyperglass Front End
-"""
+"""Hyperglass Front End"""
+
 # Standard Library Imports
-import json
+import time
 from ast import literal_eval
+from pathlib import Path
 
 # Third Party Imports
-import redis
-from flask import Flask
-from flask import Response
-from flask import request
-from flask_limiter import Limiter
-from flask_limiter.util import get_ipaddr
+import aredis
 from logzero import logger
 from prometheus_client import CollectorRegistry
 from prometheus_client import Counter
 from prometheus_client import generate_latest
 from prometheus_client import multiprocess
+from sanic import Sanic
+from sanic import response
+from sanic.exceptions import NotFound
+from sanic.exceptions import ServerError
+from sanic_limiter import Limiter
+from sanic_limiter import RateLimitExceeded
+from sanic_limiter import get_remote_address
 
 # Project Imports
 from hyperglass import render
@@ -34,17 +36,19 @@ logger.debug(f"Configuration Parameters:\n {params.dict()}")
 redis_config = {
     "host": params.general.redis_host,
     "port": params.general.redis_port,
-    "charset": "utf-8",
     "decode_responses": True,
 }
 
-# Main Flask definition
-app = Flask(__name__, static_url_path="/static")
+# Main Sanic app definition
+static_dir = Path(__file__).parent / "static"
+logger.debug(f"Static Files: {static_dir}")
+app = Sanic(__name__)
+app.static("/static", str(static_dir))
 
 # Redis Cache Config
-r_cache = redis.Redis(db=params.features.rate_limit.redis_id, **redis_config)
+r_cache = aredis.StrictRedis(db=params.features.cache.redis_id, **redis_config)
 
-# Flask-Limiter Config
+# Sanic-Limiter Config
 query_rate = params.features.rate_limit.query.rate
 query_period = params.features.rate_limit.query.period
 site_rate = params.features.rate_limit.site.rate
@@ -55,14 +59,20 @@ rate_limit_site = f"{site_rate} per {site_period}"
 logger.debug(f"Query rate limit: {rate_limit_query}")
 logger.debug(f"Site rate limit: {rate_limit_site}")
 
-# Redis Config for Flask-Limiter storage
+# Redis Config for Sanic-Limiter storage
 r_limiter_db = params.features.rate_limit.redis_id
-r_limiter_url = f'redis://{redis_config["host"]}:{redis_config["port"]}/{r_limiter_db}'
-r_limiter = redis.Redis(**redis_config, db=params.features.rate_limit.redis_id)
-# Adds Flask config variable for Flask-Limiter
+r_limiter_url = "redis://{host}:{port}/{db}".format(
+    host=params.general.redis_host,
+    port=params.general.redis_port,
+    db=params.features.rate_limit.redis_id,
+)
+r_limiter = aredis.StrictRedis(db=params.features.rate_limit.redis_id, **redis_config)
+
+# Adds Sanic config variable for Sanic-Limiter
 app.config.update(RATELIMIT_STORAGE_URL=r_limiter_url)
-# Initializes Flask-Limiter
-limiter = Limiter(app, key_func=get_ipaddr, default_limits=[rate_limit_site])
+
+# Initializes Sanic-Limiter
+limiter = Limiter(app, key_func=get_remote_address, global_limits=[rate_limit_site])
 
 # Prometheus Config
 count_data = Counter(
@@ -85,49 +95,50 @@ count_notfound = Counter(
 
 
 @app.route("/metrics")
-def metrics():
+@limiter.exempt
+async def metrics(request):
     """Prometheus metrics"""
-    content_type_latest = str("text/plain; version=0.0.4; charset=utf-8")
     registry = CollectorRegistry()
     multiprocess.MultiProcessCollector(registry)
-    return Response(generate_latest(registry), mimetype=content_type_latest)
+    latest = generate_latest(registry)
+    return response.text(latest)
 
 
-@app.errorhandler(404)
-def handle_404(e):
+@app.exception(NotFound)
+async def handle_404(request, exception):
     """Renders full error page for invalid URI"""
     html = render.html("404")
     path = request.path
-    client_addr = get_ipaddr()
-    count_notfound.labels(e, path, client_addr).inc()
-    logger.error(f"Error: {e}, Path: {path}, Source: {client_addr}")
-    return html, 404
+    client_addr = get_remote_address(request)
+    count_notfound.labels(exception, path, client_addr).inc()
+    logger.error(f"Error: {exception}, Path: {path}, Source: {client_addr}")
+    return response.html(html, status=404)
 
 
-@app.errorhandler(429)
-def handle_429(e):
+@app.exception(RateLimitExceeded)
+async def handle_429(request, exception):
     """Renders full error page for too many site queries"""
     html = render.html("429")
-    client_addr = get_ipaddr()
-    count_ratelimit.labels(e, client_addr).inc()
-    logger.error(f"Error: {e}, Source: {client_addr}")
-    return html, 429
+    client_addr = get_remote_address(request)
+    count_ratelimit.labels(exception, client_addr).inc()
+    logger.error(f"Error: {exception}, Source: {client_addr}")
+    return response.html(html, status=429)
 
 
-@app.errorhandler(500)
-def handle_500(e):
+@app.exception(ServerError)
+async def handle_500(request, exception):
     """General Error Page"""
-    client_addr = get_ipaddr()
-    count_errors.labels(500, e, client_addr, None, None, None).inc()
-    logger.error(f"Error: {e}, Source: {client_addr}")
+    client_addr = get_remote_address(request)
+    count_errors.labels(500, exception, client_addr, None, None, None).inc()
+    logger.error(f"Error: {exception}, Source: {client_addr}")
     html = render.html("500")
-    return html, 500
+    return response.html(html, status=500)
 
 
-def clear_cache():
+async def clear_cache():
     """Function to clear the Redis cache"""
     try:
-        r_cache.flushdb()
+        await r_cache.flushdb()
     except Exception as error_exception:
         logger.error(f"Error clearing cache: {error_exception}")
         raise HyperglassError(f"Error clearing cache: {error_exception}")
@@ -135,60 +146,59 @@ def clear_cache():
 
 @app.route("/", methods=["GET"])
 @limiter.limit(rate_limit_site, error_message="Site")
-def site():
+async def site(request):
     """Main front-end web application"""
-    return render.html("index")
+    return response.html(render.html("index"))
 
 
 @app.route("/test", methods=["GET"])
-def test_route():
+async def test_route(request):
     """Test route for various tests"""
     html = render.html("500")
-    return html, 500
+    return response.html(html, status=500), 500
 
 
 @app.route("/locations/<asn>", methods=["GET"])
-def get_locations(asn):
+async def get_locations(request, asn):
     """
-    Flask GET route provides a JSON list of all locations for the
-    selected network/ASN.
+    GET route provides a JSON list of all locations for the selected
+    network/ASN.
     """
-    locations_list_json = json.dumps(devices.locations[asn])
-    logger.debug(f"Locations list:{devices.locations[asn]}")
-    return locations_list_json
+    return response.json(devices.locations[asn])
 
 
 @app.route("/lg", methods=["POST"])
-# Invoke Flask-Limiter with configured rate limit
 @limiter.limit(rate_limit_query, error_message="Query")
-def hyperglass_main():
+async def hyperglass_main(request):
     """
     Main backend application initiator. Ingests Ajax POST data from
     form submit, passes it to the backend application to perform the
     filtering/lookups.
     """
     # Get JSON data from Ajax POST
-    lg_data = request.get_json()
+    lg_data = request.json
     logger.debug(f"Unvalidated input: {lg_data}")
     # Return error if no target is specified
     if not lg_data["target"]:
         logger.debug("No input specified")
-        return Response(params.messages.no_input, code.invalid)
+        return response.html(params.messages.no_input, status=code.invalid)
     # Return error if no location is selected
     if lg_data["location"] not in devices.hostnames:
         logger.debug("No selection specified")
-        return Response(params.messages.no_location, code.invalid)
+        return response.html(params.messages.no_location, status=code.invalid)
     # Return error if no query type is selected
     if not Supported.is_supported_query(lg_data["type"]):
         logger.debug("No query specified")
-        return Response(params.messages.no_query_type, code.invalid)
+        return response.html(params.messages.no_query_type, status=code.invalid)
     # Get client IP address for Prometheus logging & rate limiting
-    client_addr = get_ipaddr()
+    client_addr = get_remote_address(request)
     # Increment Prometheus counter
     count_data.labels(
         client_addr, lg_data["type"], lg_data["location"], lg_data["target"]
     ).inc()
+
     logger.debug(f"Client Address: {client_addr}")
+
     # Stringify the form response containing serialized JSON for the
     # request, use as key for k/v cache store so each command output
     # value is unique
@@ -197,24 +207,26 @@ def hyperglass_main():
     cache_timeout = params.features.cache.timeout
     logger.debug(f"Cache Timeout: {cache_timeout}")
     # Check if cached entry exists
-    if not r_cache.get(cache_key):
+    if not await r_cache.get(cache_key):
         logger.debug(f"Sending query {cache_key} to execute module...")
         # Pass request to execution module
-        cache_value = Execute(lg_data).response()
-
-        logger.debug("Validated Response...")
-        logger.debug(f"Status: {cache_value[1]}")
-        logger.debug(f"Output:\n {cache_value[0]}")
+        starttime = time.time()
+        cache_value = await Execute(lg_data).response()
+        endtime = time.time()
+        elapsedtime = round(endtime - starttime, 4)
+        logger.debug(
+            f"Execution for query {cache_key} took {elapsedtime} seconds to run."
+        )
         # Create a cache entry
-        r_cache.set(cache_key, str(cache_value))
-        r_cache.expire(cache_key, cache_timeout)
+        await r_cache.set(cache_key, str(cache_value))
+        await r_cache.expire(cache_key, cache_timeout)
 
         logger.debug(f"Added cache entry for query: {cache_key}")
-        logger.error(f"Unable to add output to cache: {cache_key}")
     # If it does, return the cached entry
-    cache_response = r_cache.get(cache_key)
-    response = literal_eval(cache_response)
-    response_output, response_status = response
+    cache_response = await r_cache.get(cache_key)
+    # Serialize stringified tuple response from cache
+    serialized_response = literal_eval(cache_response)
+    response_output, response_status = serialized_response
 
     logger.debug(f"Cache match for: {cache_key}, returning cached entry")
     logger.debug(f"Cache Output: {response_output}")
@@ -229,4 +241,4 @@ def hyperglass_main():
             lg_data["location"],
             lg_data["target"],
         ).inc()
-    return Response(*response)
+    return response.html(response_output, status=response_status)

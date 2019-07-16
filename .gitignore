@@ -1,5 +1,6 @@
 test.py
 .DS_Store
+.idea
 *.sass-cache
 #
 # Github Default from https://github.com/martinohanlon/flightlight/issues/1

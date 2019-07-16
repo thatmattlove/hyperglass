@@ -81,7 +81,7 @@ link: <a href="#" id="helplink_bgpc">{{ general.org_name }} BGP Communities</a>
 Performs BGP table lookup based on [Extended](https://tools.ietf.org/html/rfc4360) \
 or [Large](https://tools.ietf.org/html/rfc8195) community value.
 
-{{ info["link"] }}
+{{ info["link"] | safe }}
 """,
     "bgp_aspath": """
 ---
@@ -90,7 +90,7 @@ link: <a href="#" id="helplink_bgpa">Supported BGP AS Path Expressions</a>
 ---
 Performs BGP table lookup based on `AS_PATH` regular expression.
 
-{{ info["link"] }}
+{{ info["link"] | safe }}
 """,
     "ping": """
 ---

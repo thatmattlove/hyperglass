@@ -86,11 +86,8 @@ def ip_validate(target):
     try:
         valid_ip = ipaddress.ip_network(target)
         if valid_ip.is_reserved or valid_ip.is_unspecified or valid_ip.is_loopback:
-            validity = False
-            logger.debug(f"IP {valid_ip} is invalid")
-        if valid_ip.is_global:
-            validity = True
-            logger.debug(f"IP {valid_ip} is valid")
+            raise ValueError
+        validity = True
     except (ipaddress.AddressValueError, ValueError):
         logger.debug(f"IP {target} is invalid")
         validity = False
@@ -299,8 +296,6 @@ class Validate:
             validity = True
             msg = f"{target} matched large community."
             status = code.valid
-        if not validity:
-            logger.error(f"{msg}, {status}")
         logger.debug(f"{msg}, {status}")
         return (validity, msg, status)
 
@@ -320,7 +315,5 @@ class Validate:
             validity = True
             msg = f"{target} matched AS_PATH regex."
             status = code.valid
-        if not validity:
-            logger.error(f"{msg}, {status}")
         logger.debug(f"{msg}, {status}")
         return (validity, msg, status)
