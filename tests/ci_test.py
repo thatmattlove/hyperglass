@@ -28,14 +28,6 @@ logzero_config = logzero.setup_default_logger(
 )
 
 
-def construct_test(test_query, location, test_target):
-    """Constructs JSON POST data for test_hyperglass function"""
-    constructed_query = json.dumps(
-        {"type": test_query, "location": location, "target": test_target}
-    )
-    return constructed_query
-
-
 async def ci_hyperglass_test(
     location, target_ipv4, target_ipv6, requires_ipv6_cidr, test_blacklist
 ):
@@ -54,7 +46,7 @@ async def ci_hyperglass_test(
     # No Query Type Test
     try:
         logger.info("Starting No Query Type test...")
-        test_query = construct_test("", location, target_ipv4)
+        test_query = {"type": "", "location": location, "target": target_ipv4}
         hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
@@ -67,7 +59,7 @@ async def ci_hyperglass_test(
     # No Location Test
     try:
         logger.info("Starting No Location test...")
-        test_query = construct_test("bgp_route", "", target_ipv6)
+        test_query = {"type": "bgp_route", "location": "", "target": target_ipv6}
         hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
@@ -80,7 +72,7 @@ async def ci_hyperglass_test(
     # No Target Test
     try:
         logger.info("Starting No Target test...")
-        test_query = construct_test("bgp_route", location, "")
+        test_query = {"type": "bgp_route", "location": location, "target": ""}
         hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
@@ -93,7 +85,7 @@ async def ci_hyperglass_test(
     # Invalid BGP Route Test
     try:
         logger.info("Starting Invalid BGP IPv4 Route test...")
-        test_query = construct_test("bgp_route", location, invalid_ip)
+        test_query = {"type": "bgp_route", "location": location, "target": invalid_ip}
         hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
@@ -106,7 +98,11 @@ async def ci_hyperglass_test(
     if requires_ipv6_cidr:
         try:
             logger.info("Starting Requires IPv6 CIDR test...")
-            test_query = construct_test("bgp_route", requires_ipv6_cidr, ipv6_host)
+            test_query = {
+                "type": "bgp_route",
+                "location": requires_ipv6_cidr,
+                "target": ipv6_host,
+            }
             hg_response = await http_client.post(
                 test_endpoint, headers=test_headers, json=test_query
             )
@@ -119,7 +115,11 @@ async def ci_hyperglass_test(
     # Invalid BGP Community Test
     try:
         logger.info("Starting Invalid BGP Community test...")
-        test_query = construct_test("bgp_community", location, target_ipv4)
+        test_query = {
+            "type": "bgp_community",
+            "location": location,
+            "target": target_ipv4,
+        }
         hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
@@ -132,7 +132,11 @@ async def ci_hyperglass_test(
     # Invalid BGP AS_PATH Test
     try:
         logger.info("Starting invalid BGP AS_PATH test...")
-        test_query = construct_test("bgp_aspath", location, invalid_aspath)
+        test_query = {
+            "type": "bgp_aspath",
+            "location": location,
+            "target": invalid_aspath,
+        }
         hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
@@ -145,7 +149,7 @@ async def ci_hyperglass_test(
     # Invalid IPv4 Ping Test
     try:
         logger.info("Starting Invalid IPv4 Ping test...")
-        test_query = construct_test("ping", location, ipv4_cidr)
+        test_query = {"target": "ping", "location": location, "target": ipv4_cidr}
         hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
@@ -158,7 +162,7 @@ async def ci_hyperglass_test(
     # Invalid IPv6 Ping Test
     try:
         logger.info("Starting Invalid IPv6 Ping test...")
-        test_query = construct_test("ping", location, ipv6_cidr)
+        test_query = {"type": "ping", "location": location, "target": ipv6_cidr}
         hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
@@ -171,7 +175,11 @@ async def ci_hyperglass_test(
     # Blacklist Test
     try:
         logger.info("Starting Blacklist test...")
-        test_query = construct_test("bgp_route", location, test_blacklist)
+        test_query = {
+            "type": "bgp_route",
+            "location": location,
+            "target": test_blacklist,
+        }
         hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
