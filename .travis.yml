@@ -14,6 +14,7 @@ install:
 before_script:
     - pip3 uninstall -y -r ./tests/requirements_dev.txt
     - pip3 install -r ./tests/requirements_dev.txt
+    - isort -rc hyperglass
     - flake8 hyperglass
     - python3 ./tests/ci_prepare.py
 script:
