@@ -2,13 +2,13 @@
 
 language: python
 python:
-    - '3.6'
     - '3.7'
 before_install:
     - sudo add-apt-repository universe -y
     - sudo apt-get update -q
     - sudo apt-get install -y redis-server redis-tools
     - sudo systemctl start redis-server
+    - sudo systemctl status redis-server
 install:
     - pip3 install -r requirements.txt
 before_script:
