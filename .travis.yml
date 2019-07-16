@@ -7,7 +7,9 @@ before_install:
     - sudo add-apt-repository universe -y
     - sudo apt-get update -q
     - sudo apt-get install -y redis-server redis-tools
-    - sudo systemctl start redis-server
+    - sudo mkdir -p /var/run/redis
+    - sudo chown redis /var/run/redis
+    - sudo systemctl restart redis-server
     - sudo systemctl status redis-server
 install:
     - pip3 install -r requirements.txt
