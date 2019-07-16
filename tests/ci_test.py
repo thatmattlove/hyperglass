@@ -52,7 +52,7 @@ def ci_hyperglass_test(
     try:
         logger.info("Starting No Query Type test...")
         test_query = construct_test("", location, target_ipv4)
-        hg_response = http_client.post(
+        hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
         if not hg_response.status_code in range(400, 500):
@@ -65,7 +65,7 @@ def ci_hyperglass_test(
     try:
         logger.info("Starting No Location test...")
         test_query = construct_test("bgp_route", "", target_ipv6)
-        hg_response = http_client.post(
+        hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
         if not hg_response.status_code in range(400, 500):
@@ -78,7 +78,7 @@ def ci_hyperglass_test(
     try:
         logger.info("Starting No Target test...")
         test_query = construct_test("bgp_route", location, "")
-        hg_response = http_client.post(
+        hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
         if not hg_response.status_code in range(400, 500):
@@ -91,7 +91,7 @@ def ci_hyperglass_test(
     try:
         logger.info("Starting Invalid BGP IPv4 Route test...")
         test_query = construct_test("bgp_route", location, invalid_ip)
-        hg_response = http_client.post(
+        hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
         if not hg_response.status_code in range(400, 500):
@@ -104,7 +104,7 @@ def ci_hyperglass_test(
         try:
             logger.info("Starting Requires IPv6 CIDR test...")
             test_query = construct_test("bgp_route", requires_ipv6_cidr, ipv6_host)
-            hg_response = http_client.post(
+            hg_response = await http_client.post(
                 test_endpoint, headers=test_headers, json=test_query
             )
             if not hg_response.status_code in range(400, 500):
@@ -117,7 +117,7 @@ def ci_hyperglass_test(
     try:
         logger.info("Starting Invalid BGP Community test...")
         test_query = construct_test("bgp_community", location, target_ipv4)
-        hg_response = http_client.post(
+        hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
         if not hg_response.status_code in range(400, 500):
@@ -130,7 +130,7 @@ def ci_hyperglass_test(
     try:
         logger.info("Starting invalid BGP AS_PATH test...")
         test_query = construct_test("bgp_aspath", location, invalid_aspath)
-        hg_response = http_client.post(
+        hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
         if not hg_response.status_code in range(400, 500):
@@ -143,7 +143,7 @@ def ci_hyperglass_test(
     try:
         logger.info("Starting Invalid IPv4 Ping test...")
         test_query = construct_test("ping", location, ipv4_cidr)
-        hg_response = http_client.post(
+        hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
         if not hg_response.status_code in range(400, 500):
@@ -156,7 +156,7 @@ def ci_hyperglass_test(
     try:
         logger.info("Starting Invalid IPv6 Ping test...")
         test_query = construct_test("ping", location, ipv6_cidr)
-        hg_response = http_client.post(
+        hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
         if not hg_response.status_code in range(400, 500):
@@ -169,7 +169,7 @@ def ci_hyperglass_test(
     try:
         logger.info("Starting Blacklist test...")
         test_query = construct_test("bgp_route", location, test_blacklist)
-        hg_response = http_client.post(
+        hg_response = await http_client.post(
             test_endpoint, headers=test_headers, json=test_query
         )
         if not hg_response.status_code in range(400, 500):
