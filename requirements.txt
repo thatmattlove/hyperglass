@@ -2,6 +2,7 @@ aredis==1.1.5
 click==6.7
 hiredis==1.0.0
 http3==0.6.7
+jinja2==2.10.1
 libsass==0.18.0
 logzero==1.5.0
 markdown2==2.3.7
