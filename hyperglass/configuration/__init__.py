@@ -65,6 +65,7 @@ try:
     devices = models.Routers.import_params(user_devices["router"])
     credentials = models.Credentials.import_params(user_devices["credential"])
     proxies = models.Proxies.import_params(user_devices["proxy"])
+    networks = models.Networks.import_params(user_devices["network"])
 except ValidationError as validation_errors:
     errors = validation_errors.errors()
     for error in errors:

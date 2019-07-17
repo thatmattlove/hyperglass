@@ -132,7 +132,35 @@ class Routers(BaseSettings):
     class Config:
         """Pydantic Config"""
 
-        # pylint: disable=too-few-public-methods
+        validate_all = True
+        validate_assignment = True
+
+
+class Network(BaseSettings):
+    """Model for per-network/asn config in devices.yaml"""
+
+    asn: int
+    display_name: str
+
+
+class Networks(BaseSettings):
+    """Base model for networks class"""
+
+    @classmethod
+    def import_params(cls, input_params):
+        """
+        Imports passed dict from YAML config, removes unsupported
+        characters from device names, dynamically sets attributes for
+        the credentials class.
+        """
+        obj = Networks()
+        for (netname, params) in input_params.items():
+            netname = clean_name(netname)
+            setattr(Networks, netname, Network(**params))
+        return obj
+
+    class Config:
+        """Pydantic Config"""
 
         validate_all = True
         validate_assignment = True
@@ -163,8 +191,6 @@ class Credentials(BaseSettings):
 
     class Config:
         """Pydantic Config"""
-
-        # pylint: disable=too-few-public-methods
 
         validate_all = True
         validate_assignment = True
@@ -206,8 +232,6 @@ class Proxies(BaseSettings):
 
     class Config:
         """Pydantic Config"""
-
-        # pylint: disable=too-few-public-methods
 
         validate_all = True
         validate_assignment = True
@@ -489,7 +513,6 @@ class Params(BaseSettings):
     class Config:
         """Pydantic Config"""
 
-        # pylint: disable=too-few-public-methods
         validate_all = True
         validate_assignment = True
 
@@ -635,8 +658,6 @@ class Commands(BaseSettings):
 
     class Config:
         """Pydantic Config"""
-
-        # pylint: disable=too-few-public-methods
 
         validate_all = False
         validate_assignment = True
