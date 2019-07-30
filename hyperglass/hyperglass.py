@@ -1,6 +1,7 @@
 """Hyperglass Front End"""
 
 # Standard Library Imports
+import os
 import time
 from ast import literal_eval
 from pathlib import Path
@@ -12,6 +13,7 @@ from prometheus_client import CollectorRegistry
 from prometheus_client import Counter
 from prometheus_client import generate_latest
 from prometheus_client import multiprocess
+from prometheus_client import CONTENT_TYPE_LATEST
 from sanic import Sanic
 from sanic import response
 from sanic.exceptions import NotFound
@@ -26,6 +28,7 @@ from hyperglass.command.execute import Execute
 from hyperglass.configuration import devices
 from hyperglass.configuration import logzero_config  # noqa: F401
 from hyperglass.configuration import params
+from hyperglass.configuration import display_networks
 from hyperglass.constants import Supported
 from hyperglass.constants import code
 from hyperglass.exceptions import HyperglassError
@@ -76,13 +79,13 @@ limiter = Limiter(app, key_func=get_remote_address, global_limits=[rate_limit_si
 
 # Prometheus Config
 count_data = Counter(
-    "count_data", "Query Counter", ["source", "type", "loc_id", "target"]
+    "count_data", "Query Counter", ["source", "query_type", "loc_id", "target"]
 )
 
 count_errors = Counter(
     "count_errors",
     "Error Counter",
-    ["code", "reason", "source", "type", "loc_id", "target"],
+    ["code", "reason", "source", "query_type", "loc_id", "target"],
 )
 
 count_ratelimit = Counter(
@@ -101,14 +104,20 @@ async def metrics(request):
     registry = CollectorRegistry()
     multiprocess.MultiProcessCollector(registry)
     latest = generate_latest(registry)
-    return response.text(latest)
+    return response.text(
+        latest,
+        headers={
+            "Content-Type": CONTENT_TYPE_LATEST,
+            "Content-Length": str(len(latest)),
+        },
+    )
 
 
 @app.exception(NotFound)
 async def handle_404(request, exception):
     """Renders full error page for invalid URI"""
-    html = render.html("404")
     path = request.path
+    html = render.html("404", uri=path)
     client_addr = get_remote_address(request)
     count_notfound.labels(exception, path, client_addr).inc()
     logger.error(f"Error: {exception}, Path: {path}, Source: {client_addr}")
@@ -118,7 +127,7 @@ async def handle_404(request, exception):
 @app.exception(RateLimitExceeded)
 async def handle_429(request, exception):
     """Renders full error page for too many site queries"""
-    html = render.html("429")
+    html = render.html("ratelimit-site")
     client_addr = get_remote_address(request)
     count_ratelimit.labels(exception, client_addr).inc()
     logger.error(f"Error: {exception}, Source: {client_addr}")
@@ -148,14 +157,14 @@ async def clear_cache():
 @limiter.limit(rate_limit_site, error_message="Site")
 async def site(request):
     """Main front-end web application"""
-    return response.html(render.html("index"))
+    return response.html(render.html("index", primary_asn=params.general.primary_asn))
 
 
 @app.route("/test", methods=["GET"])
 async def test_route(request):
     """Test route for various tests"""
     html = render.html("500")
-    return response.html(html, status=500), 500
+    return response.html(html, status=500)
 
 
 @app.route("/locations/<asn>", methods=["GET"])
@@ -164,7 +173,17 @@ async def get_locations(request, asn):
     GET route provides a JSON list of all locations for the selected
     network/ASN.
     """
-    return response.json(devices.locations[asn])
+    # return response.json(devices.locations[asn])
+    return response.json([])
+
+
+@app.route("/networks", methods=["GET"])
+async def get_networks(request):
+    """
+    GET route provides a JSON list of all locations for the selected
+    network/ASN.
+    """
+    return response.json(display_networks)
 
 
 @app.route("/lg", methods=["POST"])
@@ -187,14 +206,14 @@ async def hyperglass_main(request):
         logger.debug("No selection specified")
         return response.html(params.messages.no_location, status=code.invalid)
     # Return error if no query type is selected
-    if not Supported.is_supported_query(lg_data["type"]):
+    if not Supported.is_supported_query(lg_data["query_type"]):
         logger.debug("No query specified")
         return response.html(params.messages.no_query_type, status=code.invalid)
     # Get client IP address for Prometheus logging & rate limiting
     client_addr = get_remote_address(request)
     # Increment Prometheus counter
     count_data.labels(
-        client_addr, lg_data["type"], lg_data["location"], lg_data["target"]
+        client_addr, lg_data["query_type"], lg_data["location"], lg_data["target"]
     ).inc()
 
     logger.debug(f"Client Address: {client_addr}")
@@ -237,7 +256,7 @@ async def hyperglass_main(request):
             response_status,
             code.get_reason(response_status),
             client_addr,
-            lg_data["type"],
+            lg_data["query_type"],
             lg_data["location"],
             lg_data["target"],
         ).inc()

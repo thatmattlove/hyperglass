@@ -1,7 +1,39 @@
-<footer class="footer">
-  <div class="container">
-    <div class="content is-small has-text-centered">
-      {{ details["footer"]["content"] | safe }}
+{% if branding.footer.enable and branding.credit.enable %}
+<div class="ui vertical footer segment">
+  <div class="ui center aligned fluid container">
+    <div class="ui vertical basic segments">
+      <div class="ui padded segment" id="lg-footer-text">
+        {{ details.footer.content | safe }}
+      </div>
+      <div class="ui padded segment" id="lg-credit-text">
+        {% include "templates/credit.html.j2" %}
+      </div>
     </div>
   </div>
-</footer>
+</div>
+{% elif branding.footer.enable and not branding.credit.enable %}
+<div class="ui vertical footer segment">
+  <div class="ui center aligned fluid container">
+    <div class="ui vertical basic segments">
+      <div class="ui padded segment" id="lg-footer-text">
+        {{ details.footer.content | safe }}
+      </div>
+    </div>
+  </div>
+</div>
+{% elif branding.credit.enable and not branding.footer.enable %}
+<div class="ui vertical footer segment">
+  <div class="ui center aligned fluid container">
+    <div class="ui vertical basic segments">
+      <div class="ui padded segment" id="lg-credit-text">
+      {% include "templates/credit.html.j2" %}
+      </div>
+    </div>
+  </div>
+</div>
+{% elif not branding.footer.enable and not branding.footer.enable %}
+<div class="ui vertical footer segment">
+  <div class="ui center aligned fluid container">
+  </div>
+</div>
+{% endif %}

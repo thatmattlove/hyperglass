@@ -9,7 +9,7 @@
 {% block content %}
 <div class="ui vertical center aligned segment" id="lg-maincontainer">
     {% import "templates/errortext.html.j2" as errortext %}
-    {{ errortext.errortext(branding.text.error404.title, branding.text.error404.subtitle.format(uri=uri), branding.text.error404.button, "h1", "h3") }}
+    {{ errortext.errortext(features.rate_limit.site.title, features.rate_limit.site.subtitle, features.rate_limit.site.button, "h1", "h3") }}
 </div>
 {% endblock %}
 

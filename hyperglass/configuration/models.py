@@ -44,7 +44,8 @@ class Router(BaseSettings):
     """Model for per-router config in devices.yaml."""
 
     address: Union[IPvAnyAddress, str]
-    asn: int
+    # asn: int
+    network: str
     src_addr_ipv4: IPv4Address
     src_addr_ipv6: IPv6Address
     credential: str
@@ -70,6 +71,42 @@ class Router(BaseSettings):
 class Routers(BaseSettings):
     """Base model for devices class."""
 
+    # @staticmethod
+    # def build_network_lists(valid_devices):
+    #     """
+    #     Builds locations dict, which is converted to JSON and passed to
+    #     JavaScript to associate locations with the selected network/ASN.
+
+    #     Builds networks dict, which is used to render the network/ASN
+    #     select element contents.
+    #     """
+    #     locations_dict = {}
+    #     networks_dict = {}
+    #     for (dev, params) in valid_devices.items():
+    #         asn = str(params["asn"])
+    #         if asn in locations_dict:
+    #             locations_dict[asn].append(
+    #                 {
+    #                     "location": params["location"],
+    #                     "hostname": dev,
+    #                     "display_name": params["display_name"],
+    #                 }
+    #             )
+    #             networks_dict[asn].append(params["location"])
+    #         elif asn not in locations_dict:
+    #             locations_dict[asn] = [
+    #                 {
+    #                     "location": params["location"],
+    #                     "hostname": dev,
+    #                     "display_name": params["display_name"],
+    #                 }
+    #             ]
+    #             networks_dict[asn] = [params["location"]]
+    #     if not locations_dict:
+    #         raise ConfigError('Unable to build locations list from "devices.yaml"')
+    #     if not networks_dict:
+    #         raise ConfigError('Unable to build networks list from "devices.yaml"')
+    #     return (locations_dict, networks_dict)
     @staticmethod
     def build_network_lists(valid_devices):
         """
@@ -79,33 +116,6 @@ class Routers(BaseSettings):
         Builds networks dict, which is used to render the network/ASN
         select element contents.
         """
-        locations_dict = {}
-        networks_dict = {}
-        for (dev, params) in valid_devices.items():
-            asn = str(params["asn"])
-            if asn in locations_dict:
-                locations_dict[asn].append(
-                    {
-                        "location": params["location"],
-                        "hostname": dev,
-                        "display_name": params["display_name"],
-                    }
-                )
-                networks_dict[asn].append(params["location"])
-            elif asn not in locations_dict:
-                locations_dict[asn] = [
-                    {
-                        "location": params["location"],
-                        "hostname": dev,
-                        "display_name": params["display_name"],
-                    }
-                ]
-                networks_dict[asn] = [params["location"]]
-        if not locations_dict:
-            raise ConfigError('Unable to build locations list from "devices.yaml"')
-        if not networks_dict:
-            raise ConfigError('Unable to build networks list from "devices.yaml"')
-        return (locations_dict, networks_dict)
 
     @classmethod
     def import_params(cls, input_params):
@@ -122,11 +132,11 @@ class Routers(BaseSettings):
             setattr(Routers, dev, router_params)
             routers.update({dev: router_params.dict()})
             hostnames.append(dev)
-        locations_dict, networks_dict = Routers.build_network_lists(routers)
+        # locations_dict, networks_dict = Routers.build_network_lists(routers)
         Routers.routers = routers
         Routers.hostnames = hostnames
-        Routers.locations = locations_dict
-        Routers.networks = networks_dict
+        # Routers.locations = locations_dict
+        # Routers.networks = networks_dict
         return Routers()
 
     class Config:
@@ -139,7 +149,6 @@ class Routers(BaseSettings):
 class Network(BaseSettings):
     """Model for per-network/asn config in devices.yaml"""
 
-    asn: int
     display_name: str
 
 
@@ -154,9 +163,12 @@ class Networks(BaseSettings):
         the credentials class.
         """
         obj = Networks()
+        networks = {}
         for (netname, params) in input_params.items():
             netname = clean_name(netname)
             setattr(Networks, netname, Network(**params))
+            networks.update({netname: Network(**params).dict()})
+        Networks.networks = networks
         return obj
 
     class Config:
@@ -339,7 +351,8 @@ class Branding(BaseSettings):
             """Class model for 404 Error Page"""
 
             title: str = "Error"
-            subtitle: str = "Page Not Found"
+            subtitle: str = "{uri} isn't a thing"
+            button: str = "Home"
 
         class Error500(BaseSettings):
             """Class model for 500 Error Page"""

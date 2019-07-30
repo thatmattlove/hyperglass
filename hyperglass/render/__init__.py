@@ -14,7 +14,7 @@ from markdown2 import Markdown
 # Project Imports
 from hyperglass.configuration import devices
 from hyperglass.configuration import logzero_config  # noqa: F401
-from hyperglass.configuration import params
+from hyperglass.configuration import params, networks
 from hyperglass.exceptions import HyperglassError
 
 # Module Directories
@@ -78,10 +78,11 @@ Performs BGP table lookup based on IPv4/IPv6 prefix.
 template: bgp_community
 link: <a href="#" id="helplink_bgpc">{{ general.org_name }} BGP Communities</a>
 ---
-Performs BGP table lookup based on [Extended](https://tools.ietf.org/html/rfc4360) \
-or [Large](https://tools.ietf.org/html/rfc8195) community value.
+Performs BGP table lookup based on <a href="https://tools.ietf.org/html/rfc4360" target\
+="_blank">Extended</a> or <a href="https://tools.ietf.org/html/rfc8195" target=\
+"_blank">Large</a> community value.
 
-{{ info["link"] | safe }}
+<!-- {{ info["link"] | safe }} -->
 """,
     "bgp_aspath": """
 ---
@@ -90,7 +91,7 @@ link: <a href="#" id="helplink_bgpa">Supported BGP AS Path Expressions</a>
 ---
 Performs BGP table lookup based on `AS_PATH` regular expression.
 
-{{ info["link"] | safe }}
+<!-- {{ info["link"] | safe }} -->
 """,
     "ping": """
 ---
@@ -103,8 +104,8 @@ Sends 5 ICMP echo requests to the target.
 template: traceroute
 ---
 Performs UDP Based traceroute to the target.<br>For information about how to \
-interpret traceroute results, [click here]\
-(https://hyperglass.readthedocs.io/en/latest/assets/traceroute_nanog.pdf).
+interpret traceroute results, <a href="https://hyperglass.readthedocs.io/en/latest/ass\
+ets/traceroute_nanog.pdf" target="_blank">click here</a>.
 """,
 }
 
@@ -128,7 +129,7 @@ def generate_markdown(section, file_name):
     else:
         yaml_raw = defaults[file_name]
     _, frontmatter, content = yaml_raw.split("---", 2)
-    html_classes = {"table": "table"}
+    html_classes = {"table": "ui compact table"}
     markdown = Markdown(
         extras={
             "break-on-newline": True,
@@ -165,7 +166,7 @@ def generate_markdown(section, file_name):
     return help_dict
 
 
-def html(template_name):
+def html(template_name, **kwargs):
     """Renders Jinja2 HTML templates"""
     details_name_list = ["footer", "bgp_aspath", "bgp_community"]
     details_dict = {}
@@ -181,7 +182,7 @@ def html(template_name):
         template_file = f"templates/{template_name}.html.j2"
         template = env.get_template(template_file)
         return template.render(
-            params, info=info_dict, details=details_dict, networks=devices.networks
+            params, info=info_dict, details=details_dict, networks=networks, **kwargs
         )
     except jinja2.TemplateNotFound as template_error:
         logger.error(

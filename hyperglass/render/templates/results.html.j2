@@ -1,0 +1,29 @@
+<div class="ui content fluid left aligned container animsition" data-animsition-out-class="fade-out-left"
+  data-animsition-in-class="fade-in-right" id="lg-results">
+  {% import "templates/title.html.j2" as title %}
+  {{ title.title(branding, primary_asn, size_title="h1", size_subtitle="h3") }}
+  <div class="ui segments">
+    <div class="ui padded fluid segment">
+      <h2 class="ui header">
+        <a href="#" id="results_back"><i class="icon angle left"></i></a>
+        <div class="content">
+          {{ branding.text.results }}
+        </div>
+      </h2>
+      <div id="results_detail">
+      </div>
+    </div>
+    <div class="ui padded fluid segment">
+      <!-- <button class="ui basic right floated icon button" id="clip-button" data-clipboard-target="#lg-results-segment"><i
+          class="copy outline icon" id="clip-icon"></i></button> -->
+      <i id="clip-button" data-clipboard-target="#lg-results-segment" data-content="Copy Output"
+        class="copy link icon"></i>
+      <div id="lg-results-segment"></div>
+    </div>
+    {% if features.cache.show_text %}
+    <div class="ui padded fluid segment">
+      <span class="ui small text">{{ features.cache.text }}</span>
+    </div>
+    {% endif %}
+  </div>
+</div>

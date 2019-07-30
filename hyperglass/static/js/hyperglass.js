@@ -1,259 +1,219 @@
 // Get the list of locations for the selected Network
 
-var progress = ($('#progress'));
-var resultsbox = ($('#resultsbox'));
-var target_error = ($('#target_error'));
-var target_input = ($('#target'));
-adjustDropdowns();
+var progress = $("#progress");
+var resultsbox = $("#resultsbox");
+var target_error = $("#target_error");
+var target_input = $("#target");
+// adjustDropdowns();
 clearPage();
 
-// Bulma Toggable Dropdown - help text
-$('#help-dropdown').click(
-    function (event) {
-        event.stopPropagation();
-        $(this).toggleClass('is-active');
-    }
-);
+$(".selection.dropdown").dropdown({
+  fullTextSearch: true,
+  match: "both",
+  allowCategorySelection: true,
+  ignoreCare: true
+});
+
+$("#type_bgp_route").popup({
+  hoverable: true,
+  variation: "wide",
+  position: "right center",
+  html: $("#bgpr_help_content").html()
+});
+
+$("#type_bgp_community").popup({
+  hoverable: true,
+  variation: "wide",
+  position: "right center",
+  html: $("#bgpc_help_content").html()
+});
+
+$("#type_bgp_aspath").popup({
+  hoverable: true,
+  variation: "wide",
+  position: "right center",
+  html: $("#bgpa_help_content").html()
+});
+
+$("#type_ping").popup({
+  hoverable: true,
+  variation: "wide",
+  position: "right center",
+  html: $("#ping_help_content").html()
+});
+
+$("#type_traceroute").popup({
+  hoverable: true,
+  variation: "wide",
+  position: "right center",
+  html: $("#traceroute_help_content").html()
+});
 
 // ClipboardJS Elements
-var btn_copy = document.getElementById('btn-copy');
-var clipboard = new ClipboardJS(btn_copy);
-clipboard.on('success', function (e) {
-    console.log(e);
-    $('#btn-copy').addClass('is-success').addClass('is-outlined');
-    $('#copy-icon').removeClass('icofont-ui-copy').addClass('icofont-check');
-    setTimeout(function () {
-        $('#btn-copy').removeClass('is-success').removeClass('is-outlined');
-        $('#copy-icon').removeClass('icofont-check').addClass('icofont-ui-copy');
-    }, 1000);
+var clip_button = document.getElementById("clip-button");
+var clipboard = new ClipboardJS(clip_button);
+clipboard.on("success", function (e) {
+  $("#clip-button")
+    .removeClass("copy link icon")
+    .addClass("green check icon");
+  e.clearSelection();
+  setTimeout(function () {
+    $("#clip-button")
+      .removeClass("green check icon")
+      .addClass("copy link icon");
+  }, 800);
 });
-clipboard.on('error', function (e) {
-    console.log(e);
+clipboard.on("error", function (e) {
+  console.log(e);
 });
-
-$('.modal-background, .modal-close').click(
-    function (event) {
-        event.stopPropagation();
-        $('.modal').removeClass("is-active");
-    }
-);
-
-// Adjust behavior of help text dropdown based on device screen size
-$('#help-dropdown-button').click(
-    function (event) {
-        if (window.innerWidth < 1024) {
-            $('#help-dropdown').removeClass('is-right');
-            $('.lg-help').addClass('lg-help-mobile').removeClass('lg-help');
-        }
-    }
-);
-
-function adjustDropdowns() {
-    var actual_width = window.innerWidth;
-    if (actual_width < 1024) {
-        $('#lg-netlocdropdown').removeClass('has-addons').removeClass('has-addons-centered').addClass('is-grouped').addClass('is-grouped-centered').addClass('is-grouped-multiline');
-        $('#network').css('width', actual_width * 0.85);
-        $('#location').css('width', actual_width * 0.85);
-    }
-}
 
 function clearErrors() {
-    progress.hide();
-    target_error.hide();
-    if (target_input.hasClass("is-warning")) {
-        target_input.removeClass("is-warning");
-    }
-    if (target_input.hasClass("is-danger")) {
-        target_input.removeClass("is-danger");
-    }
+  $("#lgForm").removeClass("error");
+  $("#lgForm").removeClass("warning");
+  $("#lgForm > div.ui.message").html("").removeClass("error").addClass("hidden");
+  $("#field-target").removeClass("error");
+  $(".ui.fluid.icon.input").removeClass("loading");
 }
 
 function clearPage() {
-    progress.hide();
-    resultsbox.hide();
-    target_error.hide();
-    if (target_input.hasClass("is-warning")) {
-        target_input.removeClass("is-warning");
-    }
-    if (target_input.hasClass("is-danger")) {
-        target_input.removeClass("is-danger");
-    }
-}
-
-function prepResults() {
-    progress.show();
-    resultsbox.show();
+  $(".ui.fluid.icon.input").removeClass("loading");
+  progress.hide();
+  resultsbox.hide();
+  target_error.hide();
+  if (target_input.hasClass("is-warning")) {
+    target_input.removeClass("is-warning");
+  }
+  if (target_input.hasClass("is-danger")) {
+    target_input.removeClass("is-danger");
+  }
 }
 
 $(document).ready(function () {
-    var defaultasn = $("#network").val();
-    $.ajax({
-        url: '/locations/' + defaultasn,
-        context: document.body,
-        type: 'get',
-        success: function (data) {
-            selectedRouters = data;
-            console.log(selectedRouters);
-            updateRouters(selectedRouters);
-        },
-        error: function (err) {
-            console.log(err);
-        }
-    });
+  $('#lg-results').hide();
+  $(".animsition").animsition({
+    inClass: 'fade-in',
+    outClass: 'fade-out',
+    inDuration: 800,
+    outDuration: 800,
+    transition: function (url) { window.location.href = url; }
+  });
+
+  $('#lg-form').animsition('in');
 });
 
-$('#network').on('change', (function (event) {
-    var asn = $("select[id=network").val();
-    $('#location').children(":not(#text_location)").remove();
-    $.ajax({
-        url: '/locations/' + asn,
-        type: 'get',
-        success: function (data) {
-            clearPage();
-            updateRouters(JSON.parse(data));
-        },
-        error: function (err) {
-            console.log(err);
-        }
-    });
-}));
-
-function updateRouters(locations) {
-    locations.forEach(function (r) {
-        $('#location').append($("<option>").attr('value', r.hostname).text(r.display_name));
-    });
-}
-
-$('#helplink_bgpc').click(function (event) {
-    $('#help_bgp_community').addClass("is-active");
-});
-
-$('#helplink_bgpa').click(function (event) {
-    $('#help_bgp_aspath').addClass("is-active");
-});
+$("#results_back").on("click", function () {
+  $('#lg-results').animsition('out', $('#lg-form'), '#');
+  $('#lg-results').hide();
+  $('#lg-form').show();
+  $('#lg-form').animsition('in');
+})
 
 // Submit Form Action
-$('#lgForm').on('submit', function () {
-    submitForm();
+$("#lgForm").form().submit(function (event) {
+  event.preventDefault();
+  clearErrors();
+  submitForm();
 });
 
-function submitForm() {
-    clearErrors();
-    var type = $('#type option:selected').val();
-    var type_title = $('#type option:selected').text();
-    var network = $('#network option:selected').val();
-    var location = $('#location option:selected').val();
-    var location_name = $('#location option:selected').text();
-    var target = $('#target').val();
+$("#submit_button").on("click", function () {
+  clearErrors();
+  submitForm();
+})
 
-    var tags = [
-        '<div class="field is-grouped is-grouped-multiline">',
-        '<div class="control">',
-        '<div class="tags has-addons">',
-        '<span class="tag lg-tag-loc-title">AS',
-        network,
-        '</span>',
-        '<span class="tag lg-tag-loc">',
-        location_name,
-        '</span>',
-        '</div>',
-        '</div>',
-        '<div class="control">',
-        '<div class="tags has-addons">',
-        '<span class="tag lg-tag-type-title">',
-        type_title,
-        '</span>',
-        '<span class="tag lg-tag-type">',
-        target,
-        '</span>',
-        '</div>',
-        '</div>',
-        '</div>'
-    ].join('');
-
-    $('#output').text("");
-    $('#queryInfo').text("");
-    $('#queryInfo').html(tags);
-
-    $.ajax(
-        {
-            url: '/lg',
-            type: 'POST',
-            data: JSON.stringify(
-                {
-                    location: location,
-                    type: type,
-                    target: target
-                }
-            ),
-            contentType: "application/json; charset=utf-8",
-            context: document.body,
-            readyState: prepResults(),
-            statusCode: {
-                200: function (response, code) {
-                    response_html = [
-                        '<br>',
-                        '<div class="content">',
-                        '<p class="query-output" id="output">',
-                        response,
-                        '</p>',
-                        '</div>',
-                    ];
-                    progress.hide();
-                    $('#output').html(response_html);
-                },
-                401: function (response, code) {
-                    response_html = [
-                        '<br>',
-                        '<div class="notification is-danger">',
-                        response.responseText,
-                        '</div>',
-                    ].join('');
-                    clearPage();
-                    target_error.show();
-                    target_input.addClass('is-danger');
-                    target_error.html(response_html);
-                },
-                405: function (response, code) {
-                    response_html = [
-                        '<br>',
-                        '<div class="notification is-warning">',
-                        response.responseText,
-                        '</div>',
-                    ].join('');
-                    clearPage();
-                    target_error.show();
-                    target_input.addClass('is-warning');
-                    target_error.html(response_html);
-                },
-                415: function (response, code) {
-                    response_html = [
-                        '<br>',
-                        '<div class="notification is-danger">',
-                        response.responseText,
-                        '</div>',
-                    ].join('');
-                    clearPage();
-                    target_error.show();
-                    target_input.addClass('is-danger');
-                    target_error.html(response_html);
-                },
-                429: function (response, code) {
-                    clearPage();
-                    $("#ratelimit").addClass("is-active");
-                },
-                504: function (response, code) {
-                    response_html = [
-                        '<br>',
-                        '<div class="notification is-danger">',
-                        response.responseText,
-                        '</div>',
-                    ].join('');
-                    clearPage();
-                    target_error.show();
-                    target_error.html(response_html);
-                }
-            }
-        }
-    );
+function buildError(msgClass, msg) {
+  var msgHtml = [
+    '<div class="ui ',
+    msgClass,
+    ' message transition hidden>',
+    '<i class="close icon"></i>',
+    '<p>',
+    msg,
+    '</p>',
+    '</div>'
+  ].join("");
+  return msgHtml;
 }
+
+function submitForm() {
+  clearErrors();
+  var query_type = $("#query_type").dropdown("get value");
+  var query_type_title = $("#query_type").dropdown("get text");
+  var location = $("#location").dropdown("get value");
+  var location_name = $("#location").dropdown("get text");
+  var target = $("#target").val();
+  console.log(query_type);
+  console.log(location);
+  console.log(target);
+
+  network = $("#" + location).val();
+
+  var tags = [
+    '<div class="ui label">',
+    network,
+    '<div class="detail">',
+    location_name,
+    "</div>",
+    "</div>",
+    '<div class="ui label">',
+    query_type_title,
+    '<div class="detail">',
+    target,
+    "</div>",
+    "</div>"
+  ].join("");
+
+  $("#results_detail").html(tags);
+  $(".ui.fluid.icon.input").addClass("loading");
+
+  $.ajax({
+    url: "/lg",
+    type: "POST",
+    data: JSON.stringify({
+      location: location,
+      query_type: query_type,
+      target: target
+    }),
+    contentType: "application/json; charset=utf-8",
+    context: document.body,
+    statusCode: {
+      200: function (response, code) {
+        $('#lg-form').animsition('out', $('#lg-results'), '#');
+        $('#lg-results').show();
+        $('#lg-results').animsition('in');
+        response_html = [
+          '<pre>',
+          response,
+          "</pre>"
+        ].join("");
+        $(".ui.fluid.icon.input").removeClass("loading");
+        $("#lg-results-segment").html(response_html);
+      },
+      401: function (response, code) {
+        $("#lgForm").addClass("error");
+        $("#lgForm > div.ui.hidden.message").html(response.responseText).addClass("error").removeClass("hidden");
+        $("#field-target").addClass("error");
+        $(".ui.fluid.icon.input").removeClass("loading");
+      },
+      405: function (response, code) {
+        $("#lgForm").addClass("error");
+        $("#lgForm > div.ui.hidden.message").html(response.responseText).addClass("error").removeClass("hidden");
+        $("#field-target").addClass("error");
+        $(".ui.fluid.icon.input").removeClass("loading");
+      },
+      415: function (response, code) {
+        $("#lgForm").addClass("warning");
+        $("#lgForm > div.ui.hidden.message").html(response.responseText).addClass("warning").removeClass("hidden");
+        $(".ui.fluid.icon.input").removeClass("loading");
+      },
+      429: function (response, code) {
+        $("#ratelimit").modal("show");
+      },
+      504: function (response, code) {
+        $("#lgForm").addClass("error");
+        $("#lgForm > div.ui.hidden.message").html(response.responseText).addClass("error").removeClass("hidden");
+        $("#field-target").addClass("error");
+        $(".ui.fluid.icon.input").removeClass("loading");
+      }
+    }
+  });
+};

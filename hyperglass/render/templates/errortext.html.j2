@@ -1,0 +1,12 @@
+{% macro errortext(title, subtitle, button, size_title="h1", size_subtitle="h3") -%}
+<div class="ui content container">
+    <{{ size_title }} class="ui header">{{ title }}
+    </{{ size_title }}>
+    <{{ size_subtitle }} class="ui header">{{ subtitle }}</{{ size_subtitle }}>
+    <br>
+    <a href="/"><button class="ui basic small button">
+    <i class="angle left icon"></i>
+    {{ button }}
+    </button></a>
+</div>
+{%- endmacro %}

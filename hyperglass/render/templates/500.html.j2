@@ -1,45 +1,18 @@
 {% extends "templates/base.html.j2" %}
-<!DOCTYPE html>
-<html>
 
 <head>
+    {% block head %}
+    {% include "templates/inlinestyle.html.j2" %}
+    {% endblock %}
 </head>
 
 {% block content %}
-
-<body class="has-background-danger">
-  <section class="section">
-    <nav class="navbar has-background-danger">
-      <div class="container">
-        <div class="navbar-brand">
-        </div>
-      </div>
-    </nav>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-  </section>
-  <section>
-    <div class="container has-text-centered">
-      <h1 class="title is-size-1">
-        {{ branding.text.error500.title }}
-      </h1>
-      <h2 class="subtitle is-size-3">
-        {{ branding.text.error500.subtitle }}
-      </h2>
-      <br>
-      <a href="/" class="button is-medium is-rounded is-inverted is-danger is-outlined">{{ branding.text.error500.button }}</a>
-    </div>
-  </section>
-  {% if branding.footer.enable == true %}
-    {% include "templates/footer.html.j2" %}
-  {% endif %}
-  {% if branding.credit.enable == true %}
-    {% include "templates/credit.html.j2" %}
-  {% endif %}
+<div class="ui vertical center aligned segment" id="lg-maincontainer">
+    {% import "templates/errortext.html.j2" as errortext %}
+    {{ errortext.errortext(branding.text.error500.title, branding.text.error500.subtitle, branding.text.error500.button, "h1", "h3") }}
+</div>
 {% endblock %}
-</body>
-</html>
+
+{% block footer %}
+{% include "templates/footer.html.j2" %}
+{% endblock %}

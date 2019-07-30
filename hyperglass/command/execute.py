@@ -198,7 +198,7 @@ class Execute:
     def __init__(self, lg_data):
         self.input_data = lg_data
         self.input_location = self.input_data["location"]
-        self.input_type = self.input_data["type"]
+        self.input_type = self.input_data["query_type"]
         self.input_target = self.input_data["target"]
 
     def parse(self, raw_output, nos):
