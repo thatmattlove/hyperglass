@@ -1,0 +1,39 @@
+{
+  "name": "hyperglass",
+  "version": "1.0.0",
+  "description": "Front end utilities for hyperglass",
+  "main": "hyperglass.js",
+  "dependencies": {
+    "@babel/core": "^7.0.0-0",
+    "@babel/preset-env": "^7.5.5",
+    "animsition": "^4.0.2",
+    "bootstrap": "^4.3.1",
+    "bootstrap-select": "^1.13.10",
+    "clipboard": "^2.0.4",
+    "jquery": "^3.4.1",
+    "parcel-bundler": "^1.12.3",
+    "popper.js": "^1.15.0",
+    "remixicon": "^1.3.1",
+    "sass": "^1.22.9",
+    "tinyify": "^2.5.1",
+    "watchify": "^3.11.1"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^7.0.0",
+    "babel-core": "^6.26.3",
+    "cssnano": "^4.1.10",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-plugin-import": "^2.18.2"
+  },
+  "scripts": {
+    "build": "parcel build --no-cache --bundle-node-modules --public-url /ui/ --out-dir ./ui hyperglass.es6 hyperglass.css"
+  },
+  "author": "https://github.com/checktheroads",
+  "license": "BSD-3-Clause-Clear",
+  "babel": {
+    "presets": [
+      "@babel/preset-react"
+    ]
+  }
+}

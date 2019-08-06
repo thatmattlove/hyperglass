@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 # Standard Imports
+import asyncio
+from functools import update_wrapper
 import os
 import grp
 import pwd
@@ -22,6 +24,15 @@ cp = shutil.copyfile
 
 # Define working directory
 working_directory = os.path.dirname(os.path.abspath(__file__))
+
+def async_command(func):
+    func = asyncio.coroutine(func)
+
+    def wrapper(*args, **kwargs):
+        loop = asyncio.get_event_loop()
+        return loop.run_until_complete(func(*args, **kwargs))
+
+    return update_wrapper(wrapper, func)
 
 
 def construct_test(test_query, location, test_target):
@@ -491,14 +502,16 @@ def test_hyperglass(
 
 
 @hg.command("clear-cache", help="Clear Flask cache")
-def clearcache():
+@async_command
+async def clearcache():
     """Clears the Flask-Caching cache"""
     try:
         import hyperglass.hyperglass
 
-        hyperglass.hyperglass.clear_cache()
-        click.secho("✓ Successfully cleared cache.", fg="green", bold=True)
-    except:
+        message = await hyperglass.hyperglass.clear_cache()
+        # click.secho("✓ Successfully cleared cache.", fg="green", bold=True)
+        click.secho("✓ " + str(message), fg="green", bold=True)
+    except (ImportError, RuntimeWarning):
         click.secho("✗ Failed to clear cache.", fg="red", bold=True)
         raise
 

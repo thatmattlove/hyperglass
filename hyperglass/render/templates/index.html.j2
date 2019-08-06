@@ -1,106 +1,72 @@
 {% extends "templates/base.html.j2" %}
 
-<head>
-  {% block head %}
-  {% include "templates/inlinestyle.html.j2" %}
-  {% endblock %}
-</head>
+{# {% include "templates/ratelimit-query.html.j2" %} #}
 
 {% block content %}
-{% include "templates/ratelimit-query.html.j2" %}
-{% if branding.peering_db.enable %}
-<div class="ui secondary menu">
-  <div class="right menu">
-    <a href="https://as{{ general.primary_asn }}.peeringdb.com/" target="_blank" class="item">
-      PeeringDB&nbsp;
-      <i class="sign out alternate icon"></i>
-    </a>
-  </div>
-</div>
-{% endif %}
-<div class="ui vertical center aligned segment" id="lg-maincontainer">
-  <div class="ui content container animsition" data-animsition-out-class="fade-out-right"
-    data-animsition-in-class="fade-in-left" id="lg-form">
+<div id="hg-parent" class="mx-auto">
+  <div class="container animsition" data-animsition-out-class="fade-out-right" data-animsition-in-class="fade-in-left"
+    id="hg-form">
     {% import "templates/title.html.j2" as title %}
-    {{ title.title(branding, primary_asn, size_title="h1", size_subtitle="h3") }}
-    <form class="ui huge form" onsubmit="return false" name="queryform" id="lgForm" action="?" method="POST">
-      <div class="two fields">
-        <div class="field">
-          <div class="ui fluid search selection dropdown" id="location">
-            <input type="hidden" name="location">
-            <div class="default text">{{ branding.text.location }}</div>
-            <i class="dropdown icon"></i>
-            <div class="menu">
-              {% for (netname, loc_params) in networks.items() %}
-              <div class="divider"></div>
-              <div class="header">
-                <i class="globe icon"></i>
-                {{ netname }}
-              </div>
+    {{ title.title(branding, primary_asn, size_title="h1", size_subtitle="h4", align="center") }}
+    <form onsubmit="return false" name="queryform" id="lgForm" action="?" method="POST">
+      <div class="form-row mb-3">
+        <div class="col">
+          <select multiple class="form-control form-control-lg hg-select" id="location" data-live-search="true"
+            title="{{ branding.text.location }}">
+            {% for (netname, loc_params) in networks.items() %}
+            <optgroup label="{{ netname }}">
               {% for param in loc_params %}
-              <div class="item" data-value='{{param["hostname"]}}'>
-                {{param["display_name"]}}
-              </div>
-              <input type="hidden" id='{{param["hostname"]}}' name='{{param["display_name"]}}' value="{{ netname }}">
+              <option data-tokens='{{ netname }} {{param["hostname"]}}' value='{{param["hostname"]}}'
+                data-display-name='{{param["display_name"]}}' data-netname="{{ netname }}" id='{{param["hostname"]}}'>
+                {{ param["display_name"] }}</option>
               {% endfor %}
-              {% endfor %}
-            </div>
-          </div>
+            </optgroup>
+            {% endfor %}
+          </select>
         </div>
-        <div class="field">
-          <div class="ui selection dropdown left icon" id="query_type">
-            <input type="hidden" name="query_type">
-            <i class="dropdown icon"></i>
-            <div class="default text">{{ branding.text.query_type }}</div>
-            <div class="ui menu">
-              {% if features.bgp_route.enable %}
-              <div class="item feature-selection" id="type_bgp_route" data-value="bgp_route">
-                {{ branding.text.bgp_route }}
-              </div>
-              {% endif %}
-              {% if features.bgp_community.enable == true %}
-              <div class="item feature-selection" id="type_bgp_community" data-value="bgp_community">
-                {{ branding.text.bgp_community }}
-              </div>
-              {% endif %}
-              {% if features.bgp_aspath.enable == true %}
-              <div class="item feature-selection" id="type_bgp_aspath" data-value="bgp_aspath">
-                {{ branding.text.bgp_aspath }}
-              </div>
-              {% endif %}
-              {% if features.ping.enable == true %}
-              <div class="item feature-selection" id="type_ping" data-value="ping">
-                {{ branding.text.ping }}
-              </div>
-              {% endif %}
-              {% if features.traceroute.enable == true %}
-              <div class="item feature-selection" id="type_traceroute" data-value="traceroute">
-                {{ branding.text.traceroute }}
-              </div>
-              {% endif %}
+        <div class="col">
+          <select class="form-control form-control-lg hg-select" id="query_type"
+            title="{{ branding.text.query_type }}" data-live-search="true">
+            {% if features.bgp_route.enable %}
+            <option id="bgp_route" value="bgp_route" data-display-name="{{ branding.text.bgp_route }}">
+              {{ branding.text.bgp_route }}</option>
+            {% endif %}
+            {% if features.bgp_community.enable %}
+            <option id="bgp_community" value="bgp_community" data-display-name="{{ branding.text.bgp_community }}">
+              {{ branding.text.bgp_community }}</option>
+            {% endif %}
+            {% if features.bgp_aspath.enable %}
+            <option id="bgp_aspath" value="bgp_aspath" data-display-name="{{ branding.text.bgp_aspath }}">
+              {{ branding.text.bgp_aspath }}</option>
+            {% endif %}
+            {% if features.ping.enable %}
+            <option id="ping" value="ping" data-display-name="{{ branding.text.ping }}">{{ branding.text.ping }}
+            </option>
+            {% endif %}
+            {% if features.traceroute.enable %}
+            <option id="type_traceroute" value="traceroute" data-display-name="{{ branding.text.traceroute }}">
+              {{ branding.text.traceroute }}</option>
+            {% endif %}
+          </select>
+        </div>
+      </div>
+      <div class="form-row mb-3">
+        <div class="col">
+          <div class="input-group input-group-lg">
+            <input class="form-control" type="text" placeholder="{{ branding.text.query_placeholder }}"
+              aria-label="{{ branding.text.query_placeholder }}" aria-describedby="target" id="target">
+            <div class="input-group-append">
+              <button class="btn btn-primary" id="hg-submit-button" type="submit">
+                <div id="hg-submit-icon">
+                  <i class="remixicon-search-line"></i>
+                </div>
+              </button>
             </div>
           </div>
         </div>
       </div>
-      <div class="field" id="field-target">
-        <div class="ui fluid icon input">
-          <input type="text" placeholder="{{ branding.text.query_placeholder }}" id="target">
-          <i class="search link icon" id="submit_button"></i>
-        </div>
-      </div>
-      <div class="ui hidden message"></div>
     </form>
-    <div class="ui popup" id="bgpr_help_content">{{ info["bgp_route"]["content"] | safe }}</div>
-    <div class="ui popup" id="bgpc_help_content">{{ info["bgp_community"]["content"] | safe }}<div class="ui divider">
-      </div>{{ details["bgp_community"]["content"] | safe }}</div>
-    <div class="ui popup" id="bgpa_help_content">{{ info["bgp_aspath"]["content"] | safe }}<div class="ui divider">
-      </div>{{ details["bgp_aspath"]["content"] | safe }}</div>
-    <div class="ui popup" id="ping_help_content">{{ info["ping"]["content"] | safe }}</div>
-    <div class="ui popup" id="traceroute_help_content">{{ info["traceroute"]["content"] | safe }}</div>
   </div>
   {% include "templates/results.html.j2" %}
 </div>
-{% endblock %}
-{% block footer %}
-{% include "templates/footer.html.j2" %}
 {% endblock %}

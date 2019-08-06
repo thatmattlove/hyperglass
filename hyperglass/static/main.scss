@@ -1,0 +1,13 @@
+// Functions
+
+@function findTextColor($color) {
+  @if (lightness($color) > 50) {
+    @return $dark;
+  } @else {
+    @return $white;
+  }
+}
+
+// Imports
+@import "./node_modules/bootstrap/scss/bootstrap";
+@import "./overrides.sass";

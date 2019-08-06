@@ -315,9 +315,9 @@ class Branding(BaseSettings):
     class Logo(BaseSettings):
         """Class model for params.branding.logo"""
 
-        path: str = "static/images/hyperglass-dark.png"
+        path: str = "ui/images/hyperglass-dark.png"
         width: int = 384
-        favicons: str = "static/images/favicons/"
+        favicons: str = "ui/images/favicons/"
 
     class PeeringDb(BaseSettings):
         """Class model for params.branding.peering_db"""

@@ -4,6 +4,7 @@ returns errors if input is invalid. Passes validated parameters to
 construct.py, which is used to build & run the Netmiko connectoins or
 hyperglass-frr API calls, returns the output back to the front end.
 """
+
 # Third Party Imports
 import http3
 import sshtunnel
@@ -82,7 +83,7 @@ class Connect:
                         "device_type": self.device_config.nos,
                         "username": self.cred.username,
                         "password": self.cred.password.get_secret_value(),
-                        "fast_cli": True,
+                        "global_delay_factor": 0.2,
                     }
                     logger.debug(f"Local binding: localhost:{tunnel.local_bind_port}")
                     try:
@@ -94,6 +95,7 @@ class Connect:
                         nm_connect_direct = ConnectHandler(**scrape_host)
                         response = nm_connect_direct.send_command(self.query)
                     except (
+                        OSError,
                         NetMikoAuthenticationException,
                         NetMikoTimeoutException,
                         NetmikoAuthError,
@@ -103,11 +105,12 @@ class Connect:
                         raise CantConnect(scrape_error)
             else:
                 scrape_host = {
-                    "host": self.device_config.address,
+                    "host": self.device_config.address.compressed,
+                    "port": self.device_config.port,
                     "device_type": self.device_config.nos,
                     "username": self.cred.username,
                     "password": self.cred.password.get_secret_value(),
-                    "fast_cli": True,
+                    "global_delay_factor": 0.2,
                 }
                 try:
                     logger.debug(
@@ -115,6 +118,7 @@ class Connect:
                             dev=self.device_config.location
                         )
                     )
+                    logger.debug(f"Device Parameters: {scrape_host}")
                     nm_connect_direct = ConnectHandler(**scrape_host)
                     response = nm_connect_direct.send_command(self.query)
                 except (

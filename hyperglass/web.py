@@ -33,10 +33,10 @@ def start():
     Compiles configured Sass variables to CSS, then starts Sanic web
     server.
     """
-    try:
-        render.css()
-    except Exception as render_error:
-        raise RuntimeError(render_error)
+    # try:
+    #     render.css()
+    # except Exception as render_error:
+    #     raise RuntimeError(render_error)
 
     tempdir = tempfile.TemporaryDirectory(prefix="hyperglass_")
     os.environ["prometheus_multiproc_dir"] = tempdir.name

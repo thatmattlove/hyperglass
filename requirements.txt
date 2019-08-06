@@ -1,12 +1,12 @@
 aredis==1.1.5
-click==6.7
+click==7.0
 hiredis==1.0.0
-http3==0.6.7
+httpx==0.6.8
 jinja2==2.10.1
 libsass==0.18.0
 logzero==1.5.0
 markdown2==2.3.7
-netmiko==2.3.3
+netmiko==2.4.1
 passlib==1.7.1
 prometheus_client==0.7.0
 pydantic==0.29

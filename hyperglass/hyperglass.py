@@ -1,7 +1,6 @@
 """Hyperglass Front End"""
 
 # Standard Library Imports
-import os
 import time
 from ast import literal_eval
 from pathlib import Path
@@ -42,11 +41,16 @@ redis_config = {
     "decode_responses": True,
 }
 
+# Static File Definitions
+static_dir = Path(__file__).parent / "static" / "ui"
+
 # Main Sanic app definition
-static_dir = Path(__file__).parent / "static"
 logger.debug(f"Static Files: {static_dir}")
+
 app = Sanic(__name__)
-app.static("/static", str(static_dir))
+app.static("/ui", str(static_dir))
+
+logger.debug(app.config)
 
 # Redis Cache Config
 r_cache = aredis.StrictRedis(db=params.features.cache.redis_id, **redis_config)
@@ -124,6 +128,15 @@ async def handle_404(request, exception):
     return response.html(html, status=404)
 
 
+@app.exception(ServerError)
+async def handle_408(request, exception):
+    """Renders full error page for invalid URI"""
+    client_addr = get_remote_address(request)
+    count_notfound.labels(exception, path, client_addr).inc()
+    logger.error(f"Error: {exception}, Source: {client_addr}")
+    return response.html(exception, status=408)
+
+
 @app.exception(RateLimitExceeded)
 async def handle_429(request, exception):
     """Renders full error page for too many site queries"""
@@ -148,6 +161,7 @@ async def clear_cache():
     """Function to clear the Redis cache"""
     try:
         await r_cache.flushdb()
+        return "Successfully cleared cache"
     except Exception as error_exception:
         logger.error(f"Error clearing cache: {error_exception}")
         raise HyperglassError(f"Error clearing cache: {error_exception}")
@@ -163,7 +177,7 @@ async def site(request):
 @app.route("/test", methods=["GET"])
 async def test_route(request):
     """Test route for various tests"""
-    html = render.html("500")
+    html = render.html("results")
     return response.html(html, status=500)
 
 
@@ -232,6 +246,8 @@ async def hyperglass_main(request):
         starttime = time.time()
         cache_value = await Execute(lg_data).response()
         endtime = time.time()
+        if not cache_value:
+            raise handle_408("Request timed out.")
         elapsedtime = round(endtime - starttime, 4)
         logger.debug(
             f"Execution for query {cache_key} took {elapsedtime} seconds to run."
@@ -261,3 +277,7 @@ async def hyperglass_main(request):
             lg_data["target"],
         ).inc()
     return response.html(response_output, status=response_status)
+
+
+if __name__ == "__main__":
+    cli()
