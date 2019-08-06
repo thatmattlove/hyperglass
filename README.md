@@ -25,13 +25,14 @@
 -   [Netmiko](https://github.com/ktbyers/netmiko)-based connection handling for traditional network devices
 -   [FRRouting](https://frrouting.org/) support via [hyperglass-frr](https://github.com/checktheroads/hyperglass-frr) REST API
 -   [BIRD](https://bird.network.cz/) support via [hyperglass-bird](https://github.com/checktheroads/hyperglass-bird) REST API
+-   Run queries against multiple routers asynchronously
 -   Customizable commands for each query type by vendor
--   Clean, modern, google-esq GUI based on the [Bumla](https://bulma.io) framework
+-   Clean, modern, GUI
 -   Customizable colors, logo, web fonts, error messages, UI text
--   Simple TOML config file for all customizable parameters (no databases!)
+-   Simple YAML config file for all customizable parameters (no databases!)
 -   Optional SSH Proxy to further direct secure router access
 -   Configurable IP/Prefix "blacklist" to prevent lookup of sensitive prefixes
--   Configurable rate limiting, powered by [Flask-Limiter](https://github.com/alisaifee/flask-limiter)
+-   Configurable rate limiting
 -   Query response caching with configurable cache timeout
 -   [Prometheus](https://prometheus.io/) metrics for query statistics tracking
 
@@ -53,9 +54,7 @@ Theoretically, any vendor supported by Netmiko can be supported by hyperglass. T
 
 ## Community
 
-For now, hyperglass news will be made available via Twitter:
-
--   [@checktheroads](https://twitter.com/checktheroads)
+There is now a [hyperglass team](https://keybase.io/team/hyperglass) on [Keybase](https://keybase.io/)! Any users, potential users, or contributors of hyperglass are welcome to join to discuss usage, feature requests, bugs, and other things.
 
 **hyperglass is developed with the express intention of being free to the networking community**.
 
