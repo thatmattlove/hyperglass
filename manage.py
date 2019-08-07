@@ -25,6 +25,7 @@ cp = shutil.copyfile
 # Define working directory
 working_directory = os.path.dirname(os.path.abspath(__file__))
 
+
 def async_command(func):
     func = asyncio.coroutine(func)
 
@@ -589,13 +590,13 @@ def flask_dev_server(host, port):
             click.style("✗ Error importing hyperlgass: ", fg="red", bold=True)
             + click.style(import_error, fg="blue")
         )
-    try:
-        render.css()
-    except Exception as e:
-        raise click.ClickException(
-            click.style("✗ Error compiling Sass: ", fg="red", bold=True)
-            + click.style(e, fg="blue")
-        )
+    # try:
+    #     render.css()
+    # except Exception as e:
+    #     raise click.ClickException(
+    #         click.style("✗ Error compiling Sass: ", fg="red", bold=True)
+    #         + click.style(e, fg="blue")
+    #     )
     try:
         click.secho(
             f"✓ Starting hyperglass development server...", fg="green", bold=True
