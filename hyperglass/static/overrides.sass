@@ -62,34 +62,93 @@
 	outline: none !important 
 	box-shadow: none 
 
-.bg-primary 
+.bg-primary
 	* 
-		color: findTextColor($primary) !important 
+		color: findTextColor($primary) !important
 
-.bg-secondary 
+.bg-secondary
 	* 
-		color: findTextColor($secondary) !important 
+		color: findTextColor($secondary) !important
 
-.bg-success 
+.bg-success
 	* 
-		color: findTextColor($success) !important 
+		color: findTextColor($success) !important
 
-.bg-danger 
+.bg-danger
 	* 
-		color: findTextColor($danger) !important 
+		color: findTextColor($danger) !important
 
-.bg-warning 
+.bg-warning
 	* 
-		color: findTextColor($warning) !important 
+		color: findTextColor($warning) !important
 
-.bg-info 
+.bg-info
 	* 
-		color: findTextColor($info) !important 
+		color: findTextColor($info) !important
 
-.bg-light 
+.bg-light
 	* 
-		color: findTextColor($light) !important 
+		color: findTextColor($light) !important
 
-.bg-dark 
+.bg-dark
 	* 
-		color: findTextColor($dark) !important 
+		color: findTextColor($dark) !important
+
+.bg-primary
+	::selection, ::-moz-selection
+		background-color: findTextColor($primary) !important
+		color: $primary !important
+
+.bg-secondary
+	::selection, ::-moz-selection
+		background-color: findTextColor($secondary) !important
+		color: $secondary !important
+
+.bg-success
+	::selection, ::-moz-selection
+		background-color: findTextColor($success) !important
+		color: $success !important
+
+.bg-danger
+	::selection, ::-moz-selection
+		background-color: findTextColor($danger) !important
+		color: $danger !important
+
+.bg-warning
+	::selection, ::-moz-selection
+		background-color: findTextColor($warning) !important
+		color: $warning !important
+
+.bg-info
+	::selection, ::-moz-selection
+		background-color: findTextColor($info) !important
+		color: $info !important
+
+.bg-light
+	::selection, ::-moz-selection
+		background-color: findTextColor($light) !important
+		color: $light !important
+
+.bg-dark
+	::selection, ::-moz-selection
+		background-color: findTextColor($dark) !important
+		color: $dark !important
+
+.bg-danger
+	.btn-outline-danger
+		border-color: findTextColor($danger) !important
+
+.bg-danger
+	.btn-outline-danger:hover
+		background-color:  findTextColor($danger) !important
+		color: $danger !important
+
+.bg-danger
+	hr
+		background-color: darken($danger, 10%)
+
+.modal-body > p
+	padding-left: 0.3rem !important
+
+.modal-title
+	padding-bottom: 1rem !important

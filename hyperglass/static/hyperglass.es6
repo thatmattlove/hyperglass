@@ -7,8 +7,6 @@ const selectpicker = require('bootstrap-select');
 const animsition = require('animsition');
 const ClipboardJS = require('clipboard');
 
-const status_refresh = '<i class="remixicon-refresh-line hg-menu-icon"></i>';
-
 $('#location').selectpicker({
   liveSearchNormalize: true,
   style: '',
@@ -27,6 +25,7 @@ $('#query_type').selectpicker({
 
 $(document).ready(() => {
   $('#hg-results').hide();
+  $('#hg-ratelimit-query').modal('hide');
   $('.animsition').animsition({
     inClass: 'fade-in',
     outClass: 'fade-out',
@@ -38,27 +37,35 @@ $(document).ready(() => {
   $('#hg-form').animsition('in');
 });
 
-$('#hg-back').click(() => {
-  $('.hg-select').selectpicker('deselectAll');
-  $('#hg-results').animsition('out', $('#hg-form'), '#');
-  $('#hg-results').hide();
-  $('#hg-form').show();
-  $('#hg-form').animsition('in');
-  $('#hg-accordion').empty();
-});
+const resetResults = () => {
+  const queryLocation = $('#location');
+  const queryType = $('#query_type');
+  const queryTarget = $('#query_target');
+  const resultsContainer = $('#hg-results');
+  const formContainer = $('#hg-form');
+  const resultsAccordion = $('#hg-accordion');
+  queryLocation.selectpicker('deselectAll');
+  queryType.selectpicker('val', '');
+  queryTarget.val('');
+  resultsContainer.animsition('out', formContainer, '#');
+  resultsContainer.hide();
+  formContainer.show();
+  formContainer.animsition('in');
+  resultsAccordion.empty();
+};
 
-const queryApp = (queryType, queryTypeName, locationList, target) => {
-  let results_title = `${queryTypeName} Query for ${target}`;
+const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
+  const resultsTitle = `${queryTypeName} Query for ${queryTarget}`;
 
-  $('#hg-results-title').html(results_title);
+  $('#hg-results-title').html(resultsTitle);
 
   $('#hg-submit-icon').empty().removeClass('hg-loading').html('<i class="remixicon-search-line"></i>');
 
   $.each(locationList, (n, loc) => {
-    let location_name = $(`#${loc}`).data('display-name');
-    let network_name = $(`#${loc}`).data('netname');
+    const locationName = $(`#${loc}`).data('display-name');
+    const networkName = $(`#${loc}`).data('netname');
 
-    let contentHtml = `
+    const contentHtml = `
     <div class="card" id="${loc}-output">
       <div class="card-header bg-light text-dark" id="${loc}-heading">
         <div class="float-right hg-status-container" id="${loc}-status-container">
@@ -89,28 +96,26 @@ const queryApp = (queryType, queryTypeName, locationList, target) => {
     } else {
       $('#hg-accordion').append(contentHtml);
     }
-    // let status_container = `<div class="float-left hg-status-container" id="${loc}-status-container"></div>`
-    let status_loading = `<i id="${loc}-spinner" class="hg-menu-icon hg-status-icon remixicon-loader-4-line text-secondary"></i>`;
+    const iconLoading = `<i id="${loc}-spinner" class="hg-menu-icon hg-status-icon remixicon-loader-4-line text-secondary"></i>`;
 
-    // $(`#${loc}-heading-container`).prepend(status_container);
-    $(`#${loc}-heading-text`).text(location_name);
+    $(`#${loc}-heading-text`).text(locationName);
     $(`#${loc}-status-container`)
       .addClass('hg-loading')
       .find('.hg-status-btn')
       .empty()
-      .html(status_loading);
+      .html(iconLoading);
 
-    const generateError = (errorClass, loc, text) => {
-      let status_error = '<i class="hg-menu-icon hg-status-icon remixicon-alert-line"></i>';
-      $(`#${loc}-heading`).removeClass('text-secondary bg-light').addClass(`bg-${errorClass}`);
-      $(`#${loc}-heading-text`).removeClass('text-secondary');
-      $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-light').addClass(`btn-${errorClass}`);
-      $(`#${loc}-status-container`)
+    const generateError = (errorClass, locError, text) => {
+      const iconError = '<i class="hg-menu-icon hg-status-icon remixicon-alert-line"></i>';
+      $(`#${locError}-heading`).removeClass('text-secondary bg-light').addClass(`bg-${errorClass}`);
+      $(`#${locError}-heading-text`).removeClass('text-secondary');
+      $(`#${locError}-heading`).find('.hg-menu-btn').removeClass('btn-light').addClass(`btn-${errorClass}`);
+      $(`#${locError}-status-container`)
         .removeClass('hg-loading')
         .find('.hg-status-btn')
         .empty()
-        .html(status_error);
-      $(`#${loc}-text`).html(text);
+        .html(iconError);
+      $(`#${locError}-text`).html(text);
     }
 
     $.ajax({
@@ -119,7 +124,7 @@ const queryApp = (queryType, queryTypeName, locationList, target) => {
       data: JSON.stringify({
         location: loc,
         query_type: queryType,
-        target: target,
+        target: queryTarget,
       }),
       contentType: 'application/json; charset=utf-8',
       context: document.body,
@@ -127,8 +132,8 @@ const queryApp = (queryType, queryTypeName, locationList, target) => {
       timeout: 15000,
     })
       .done((data, textStatus, jqXHR) => {
-        let response_pre = `<pre>${jqXHR.responseText}</pre>`;
-        let status_success = '<i class="hg-menu-icon hg-status-icon remixicon-check-line"></i>';
+        const displayHtml = `<pre>${jqXHR.responseText}</pre>`;
+        const iconSuccess = '<i class="hg-menu-icon hg-status-icon remixicon-check-line"></i>';
         $(`#${loc}-heading`).removeClass('text-secondary bg-light').addClass('bg-primary');
         $(`#${loc}-heading-text`).removeClass('text-secondary');
         $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-light').addClass('btn-primary');
@@ -136,26 +141,28 @@ const queryApp = (queryType, queryTypeName, locationList, target) => {
           .removeClass('hg-loading')
           .find('.hg-status-btn')
           .empty()
-          .html(status_success);
-        $(`#${loc}-text`).empty().html(response_pre);
+          .html(iconSuccess);
+        $(`#${loc}-text`).empty().html(displayHtml);
       })
       .fail((jqXHR, textStatus, errorThrown) => {
-        let codes_danger = [401, 415, 500, 501, 503];
-        let codes_warning = [405];
+        const codesDanger = [401, 415, 500, 501, 503];
+        const codesWarning = [405];
         if (textStatus === 'timeout') {
-          let text = 'Request timed out.';
-          let response_html = `<div class="alert alert-warning" role="alert">${text}</div>`;
-          let tab_timeout = '<i class="remixicon-time-line"></i>';
-
+          const displayText = 'Request timed out.';
+          const displayHtml = `<div class="alert alert-warning" role="alert">${displayText}</div>`;
+          const iconTimeout = '<i class="remixicon-time-line"></i>';
           $(`#${loc}-heading`).removeClass('text-secondary bg-light').addClass('bg-warning');
           $(`#${loc}-heading-text`).removeClass('text-secondary');
-          $(`#${loc}-status-container`).empty().removeClass('hg-loading').html(tab_timeout);
+          $(`#${loc}-status-container`).empty().removeClass('hg-loading').html(iconTimeout);
           $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-light').addClass('btn-warning');
-          $(`#${loc}-text`).html(response_html);
-        } else if (codes_danger.includes(jqXHR.status)) {
+          $(`#${loc}-text`).html(displayHtml);
+        } else if (codesDanger.includes(jqXHR.status)) {
           generateError('danger', loc, jqXHR.responseText);
-        } else if (codes_warning.includes(jqXHR.status)) {
+        } else if (codesWarning.includes(jqXHR.status)) {
           generateError('warning', loc, jqXHR.responseText);
+        } else if (jqXHR.status === 429) {
+          resetResults();
+          $('#hg-ratelimit-query').modal('show');
         }
       })
       .always(() => {
@@ -170,16 +177,21 @@ const queryApp = (queryType, queryTypeName, locationList, target) => {
 $('#lgForm').submit((event) => {
   event.preventDefault();
   $('#hg-submit-icon').empty().html('<i class="remixicon-loader-4-line"></i>').addClass('hg-loading');
-  let query_type = $("#query_type").val();
-  let query_type_title = $(`#${query_type}`).data('display-name');
-  let location = $('#location').val();
-  let target = $('#target').val();
-  queryApp(query_type, query_type_title, location, target);
+  const queryType = $('#query_type').val();
+  const queryTypeTitle = $(`#${queryType}`).data('display-name');
+  const queryLocation = $('#location').val();
+  const queryTarget = $('#query_target').val();
+
+  queryApp(queryType, queryTypeTitle, queryLocation, queryTarget);
   $('#hg-form').animsition('out', $('#hg-results'), '#');
   $('#hg-form').hide();
   $('#hg-results').show();
   $('#hg-results').animsition('in');
   $('#hg-submit-spinner').remove();
+});
+
+$('#hg-back').click(() => {
+  resetResults();
 });
 
 const clipboard = new ClipboardJS('.hg-copy-btn');
@@ -207,10 +219,20 @@ $('#hg-accordion').on('mouseleave', '.hg-status-btn', (e) => {
 });
 
 $('#hg-accordion').on('click', '.hg-status-btn', (e) => {
-  let loc_id = $(e.currentTarget).data('location');
-  console.log(`Refreshing ${loc_id}`);
-  let query_type = $('#query_type').val();
-  let query_type_title = $(`#${query_type}`).data('display-name');
-  let target = $('#target').val();
-  queryApp(query_type, query_type_title, [loc_id,], target);
+  const thisLocation = $(e.currentTarget).data('location');
+  console.log(`Refreshing ${thisLocation}`);
+  const queryType = $('#query_type').val();
+  const queryTypeTitle = $(`#${queryType}`).data('display-name');
+  const queryTarget = $('#query_target').val();
+
+
+  queryApp(queryType, queryTypeTitle, [thisLocation,], queryTarget);
+});
+
+$('#hg-ratelimit-query').on('shown.bs.modal', () => {
+  $('#hg-ratelimit-query').trigger('focus');
+});
+
+$('#hg-ratelimit-query').find('btn').on('click', () => {
+  $('#hg-ratelimit-query').modal('hide');
 });

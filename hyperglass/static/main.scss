@@ -1,10 +1,12 @@
 // Functions
 
 @function findTextColor($color) {
-  @if (lightness($color) > 50) {
+  @if (lightness($color) > 55%) {
     @return $dark;
-  } @else {
-    @return $white;
+  }
+
+  @else {
+    @return $light;
   }
 }
 
