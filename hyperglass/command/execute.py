@@ -6,7 +6,7 @@ hyperglass-frr API calls, returns the output back to the front end.
 """
 
 # Third Party Imports
-import http3
+import httpx
 import sshtunnel
 from logzero import logger
 from netmiko import ConnectHandler
@@ -157,7 +157,7 @@ class Connect:
         logger.debug(f"HTTP Headers: {headers}")
         logger.debug(f"URL endpoint: {endpoint}")
         try:
-            http_client = http3.AsyncClient()
+            http_client = httpx.AsyncClient()
             raw_response = await http_client.post(
                 endpoint, headers=headers, json=self.query, timeout=7
             )
@@ -167,21 +167,21 @@ class Connect:
             logger.debug(f"HTTP status code: {status}")
             logger.debug(f"Output for query {self.query}:\n{response}")
         except (
-            http3.exceptions.ConnectTimeout,
-            http3.exceptions.CookieConflict,
-            http3.exceptions.DecodingError,
-            http3.exceptions.InvalidURL,
-            http3.exceptions.PoolTimeout,
-            http3.exceptions.ProtocolError,
-            http3.exceptions.ReadTimeout,
-            http3.exceptions.RedirectBodyUnavailable,
-            http3.exceptions.RedirectLoop,
-            http3.exceptions.ResponseClosed,
-            http3.exceptions.ResponseNotRead,
-            http3.exceptions.StreamConsumed,
-            http3.exceptions.Timeout,
-            http3.exceptions.TooManyRedirects,
-            http3.exceptions.WriteTimeout,
+            httpx.exceptions.ConnectTimeout,
+            httpx.exceptions.CookieConflict,
+            httpx.exceptions.DecodingError,
+            httpx.exceptions.InvalidURL,
+            httpx.exceptions.PoolTimeout,
+            httpx.exceptions.ProtocolError,
+            httpx.exceptions.ReadTimeout,
+            httpx.exceptions.RedirectBodyUnavailable,
+            httpx.exceptions.RedirectLoop,
+            httpx.exceptions.ResponseClosed,
+            httpx.exceptions.ResponseNotRead,
+            httpx.exceptions.StreamConsumed,
+            httpx.exceptions.Timeout,
+            httpx.exceptions.TooManyRedirects,
+            httpx.exceptions.WriteTimeout,
             OSError,
         ) as rest_error:
             logger.error(f"Error connecting to device {self.device_config.location}")
