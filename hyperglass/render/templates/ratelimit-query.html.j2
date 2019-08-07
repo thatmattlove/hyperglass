@@ -1,15 +1,22 @@
-<div class="ui modal" id="ratelimit">
-    <div class="header">
-        {{ features.rate_limit.query.title }}
+<div class="modal fade" tabindex="-1" role="dialog" id="hg-ratelimit-query">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content bg-danger">
+      {# <div class="modal-header">
+        <h4 class="modal-title">{{ features.rate_limit.query.title }}</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div> #}
+      <div class="modal-body">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      <h2 class="modal-title">{{ features.rate_limit.query.title }}</h2>
+      <p>{{ features.rate_limit.query.message }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger" data-dismiss="modal">{{ features.rate_limit.query.button }}</button>
+      </div>
     </div>
-    <div class="content">
-        <p>{{ features.rate_limit.query.message }}</p>
-    </div>
-    <div class="actions">
-        <a href="/">
-            <div class="ui button">
-                {{ features.rate_limit.query.button }}
-            </div>
-        </a>
-    </div>
+  </div>
 </div>

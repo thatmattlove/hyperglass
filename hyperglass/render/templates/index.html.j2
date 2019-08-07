@@ -1,7 +1,5 @@
 {% extends "templates/base.html.j2" %}
 
-{# {% include "templates/ratelimit-query.html.j2" %} #}
-
 {% block content %}
 <div id="hg-parent" class="mx-auto">
   <div class="container animsition" data-animsition-out-class="fade-out-right" data-animsition-in-class="fade-in-left"
@@ -54,7 +52,7 @@
         <div class="col">
           <div class="input-group input-group-lg">
             <input class="form-control" type="text" placeholder="{{ branding.text.query_placeholder }}"
-              aria-label="{{ branding.text.query_placeholder }}" aria-describedby="target" id="target">
+              aria-label="{{ branding.text.query_placeholder }}" aria-describedby="query_target" id="query_target">
             <div class="input-group-append">
               <button class="btn btn-primary" id="hg-submit-button" type="submit">
                 <div id="hg-submit-icon">

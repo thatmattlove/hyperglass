@@ -1,10 +1,8 @@
 {% extends "templates/base.html.j2" %}
 
 {% block content %}
-<div class="ui vertical center aligned segment" id="lg-maincontainer">
-    {% import "templates/errortext.html.j2" as errortext %}
-    {{ errortext.errortext(branding.text.error404.title, branding.text.error404.subtitle.format(uri=uri), branding.text.error404.button, "h1", "h3") }}
-</div>
+{% import "templates/errortext.html.j2" as errortext %}
+    {{ errortext.errortext(branding.text.error404.title, branding.text.error404.subtitle.format(uri=uri), branding.text.error404.button) }}
 {% endblock %}
 
 {% block footer %}
