@@ -576,13 +576,27 @@ def generatekey(string_length):
     )
 
 
-@hg.command("dev-server", help="Start Flask development server")
-@click.option("--host", type=str, default="0.0.0.0", help="Listening IP")
-@click.option("--port", type=int, default=5000, help="TCP Port")
-def flask_dev_server(host, port):
-    """Starts Flask development server for testing without WSGI/Reverse Proxy"""
+def render_hyperglass_assets():
+    """Render theme template to Sass file and build web assets"""
     try:
-        from hyperglass import render
+        from hyperglass.render import render_assets
+    except ImportError as import_error:
+        raise click.ClickException(
+            click.style("✗ Error importing hyperlgass: ", fg="red", bold=True)
+            + click.style(import_error, fg="blue")
+        )
+    assets_rendered = False
+    try:
+        render_assets()
+        assets_rendered = True
+    except:
+        raise
+    return assets_rendered
+
+
+def start_dev_server(host, port):
+    """Starts Sanic development server for testing without WSGI/Reverse Proxy"""
+    try:
         from hyperglass import hyperglass
         from hyperglass.configuration import params
     except ImportError as import_error:
@@ -590,18 +604,13 @@ def flask_dev_server(host, port):
             click.style("✗ Error importing hyperlgass: ", fg="red", bold=True)
             + click.style(import_error, fg="blue")
         )
-    # try:
-    #     render.css()
-    # except Exception as e:
-    #     raise click.ClickException(
-    #         click.style("✗ Error compiling Sass: ", fg="red", bold=True)
-    #         + click.style(e, fg="blue")
-    #     )
     try:
         click.secho(
             f"✓ Starting hyperglass development server...", fg="green", bold=True
         )
-        hyperglass.app.run(host=host, debug=params.general.debug, port=port)
+        hyperglass.app.run(
+            host=host, debug=params.general.debug, port=port, auto_reload=False
+        )
     except Exception as e:
         raise click.ClickException(
             click.style("✗ Failed to start test server: ", fg="red", bold=True)
@@ -609,21 +618,30 @@ def flask_dev_server(host, port):
         )
 
 
-@hg.command("compile-sass", help="Compile Sass templates to CSS")
-def compile_sass():
-    """Renders Jinja2 and Sass templates to HTML & CSS files"""
+@hg.command("dev-server", help="Start development web server")
+@click.option("--host", type=str, default="0.0.0.0", help="Listening IP")
+@click.option("--port", type=int, default=5000, help="TCP Port")
+def dev_server(host, port):
+    """Renders theme and web assets, then starts dev web server"""
     try:
-        from hyperglass import render
-    except ImportError as import_error:
-        raise click.ClickException(
-            click.style("✗ Error importing hyperlgass: ", fg="red", bold=True)
-            + click.style(import_error, fg="blue")
-        )
-    try:
-        render.css()
+        assets_rendered = render_hyperglass_assets()
     except Exception as e:
         raise click.ClickException(
-            click.style("✗ Error compiling Sass: ", fg="red", bold=True)
+            click.style("✗ Error rendering assets: ", fg="red", bold=True)
+            + click.style(e, fg="blue")
+        )
+    if assets_rendered:
+        start_dev_server(host, port)
+
+
+@hg.command("render-assets", help="Render theme & build web assets")
+def render_assets():
+    """Render theme template to Sass file and build web assets"""
+    try:
+        assets_rendered = render_hyperglass_assets()
+    except Exception as e:
+        raise click.ClickException(
+            click.style("✗ Error rendering assets: ", fg="red", bold=True)
             + click.style(e, fg="blue")
         )
 
