@@ -1,9 +1,8 @@
 .DS_Store
 .sass-cache/
 node_modules/
-semantic/
-semantic.json
 old/
 *.tmp*
 .cache
 yarn-error.log
+theme.sass
