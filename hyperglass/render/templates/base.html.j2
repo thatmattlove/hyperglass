@@ -24,22 +24,14 @@
 <body class="d-flex flex-column h-100">
 {% include "templates/ratelimit-query.html.j2" %}
 <div class="container-fluid d-flex w-100 h-100 p-3 mx-auto flex-column">
-  <header>
-    <div>
-    {% if branding.peering_db.enable %}
-      <nav class="nav nav-masthead justify-content-center float-md-right">
-        <a class="nav-link active" href="https://as{{ general.primary_asn }}.peeringdb.com/"
-        target="_blank">PeeringDB&nbsp;<i class="remixicon-share-circle-line"></i>
-        </a>
-      </nav>
-    {% endif %}
-    </div>
-  </header>
 
   <main role="main" class="flex-shrink-0">
   {% block content %}
   {% endblock %}
   </main>
+  <button class="animsition btn btn-link text-primary hg-back" id="hg-back-btn" data-animsition-out-class="fade-out-left" data-animsition-in-class="fade-in-left">
+    <i class="remixicon-arrow-left-s-line"></i>
+  </button>
   {% include "templates/footer.html.j2" %}
   </div>
   <script src="ui/hyperglass.js"></script>
