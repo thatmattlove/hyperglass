@@ -1,97 +1,125 @@
-#hg-form 
-	margin-top: 20% !important 
-	max-width: 75% 
-.nav-masthead 
-	.nav-link 
-		& + .nav-link 
-			margin-left: 1rem 
+#hg-form
+	margin-top: 15% !important
+	margin-bottom: 10% !important
+	padding: unset
+
+#hg-results
+	margin-top: 5% !important
+	margin-bottom: 5% !important
+	padding: unset
+
+.nav-masthead
+	.nav-link
+		& + .nav-link
+			margin-left: 1rem
 
 // Fixes input group issue where button is 1px taller than the input element (default is 2px)
 .input-group-lg > .form-control:not(textarea),
-.input-group-lg > .custom-select, 
-.bootstrap-select.form-control-lg .dropdown-toggle 
-	height: calc(1.5em + 1rem + 3px) !important 
+.input-group-lg > .custom-select,
+.bootstrap-select.form-control-lg .dropdown-toggle
+	height: calc(1.5em + 1rem + 3px) !important
 
-#hg-accordion 
-	.btn-link 
-		font-weight: 200 
-		font-size: 1.4rem 
+.hg-back:hover
+	text-decoration: none 
+	border: 1px solid $primary !important
 
-.hg-menu-btn 
-	-webkit-transition: none 
-	-moz-transition: none 
-	-o-transition: none 
-	transition: none 
+.hg-back:focus
+	text-decoration: none
 
-.hg-menu-icon 
-	-webkit-transition: all 0.5s ease 
-	-moz-transition: all 0.5s ease 
-	-o-transition: all 0.5s ease 
-	transition: all 0.5s ease 
+.hg-back
+	position: fixed !important
+	width: 3rem !important
+	height: 3rem !important
+	left: 2rem !important
+	bottom: 2rem !important
+	border-radius: 50rem !important
+	border: 1px solid $card-border-color !important
+	transition: all .3s !important
+	font-weight: 200 !important
+	font-size: 1.4rem !important
+	opacity: 1 !important
+	pointer-events: auto !important
 
-.tab-content 
-	overflow: hidden 
+#hg-accordion
+	.btn-link
+		font-weight: 200
+		font-size: 1.4rem
 
-.tab-pane 
-	& > pre 
-		min-height: 45vh 
-		max-height: 60vh 
-		-ms-overflow-style: none 
-		scrollbar-width: none 
+.hg-menu-btn
+	-webkit-transition: none
+	-moz-transition: none
+	-o-transition: none
+	transition: none
 
-::-webkit-scrollbar 
-	width: 0px 
-	background: transparent 
+.hg-menu-icon
+	-webkit-transition: all 0.5s ease
+	-moz-transition: all 0.5s ease
+	-o-transition: all 0.5s ease
+	transition: all 0.5s ease
 
-.hg-status-container 
-	display: inline-block 
-	text-align: center 
-	vertical-align: middle 
-	line-height: 1.5 
+.tab-content
+	overflow: hidden
 
-.hg-loading 
-	animation: spinner-border .75s linear infinite 
+.tab-pane
+	& > pre
+		min-height: 45vh
+		max-height: 60vh
+		-ms-overflow-style: none
+		scrollbar-width: none
 
-.accordion 
-	div 
-		&.card 
-			&:only-child 
-				border-bottom: $card-border-width solid $card-border-color 
+::-webkit-scrollbar
+	width: 0px
+	background: transparent
 
-.btn:focus,.btn:active 
-	outline: none !important 
-	box-shadow: none 
+.hg-status-container
+	display: inline-block
+	text-align: center
+	vertical-align: middle
+	line-height: 1.5
+
+.hg-loading
+	animation: spinner-border .75s linear infinite
+
+.accordion
+	div
+		&.card
+			&:only-child
+				border-bottom: $card-border-width solid $card-border-color
+
+.btn:focus,.btn:active
+	outline: none !important
+	box-shadow: none
 
 .bg-primary
-	* 
+	*
 		color: findTextColor($primary) !important
 
 .bg-secondary
-	* 
+	*
 		color: findTextColor($secondary) !important
 
 .bg-success
-	* 
+	*
 		color: findTextColor($success) !important
 
 .bg-danger
-	* 
+	*
 		color: findTextColor($danger) !important
 
 .bg-warning
-	* 
+	*
 		color: findTextColor($warning) !important
 
 .bg-info
-	* 
+	*
 		color: findTextColor($info) !important
 
 .bg-light
-	* 
+	*
 		color: findTextColor($light) !important
 
 .bg-dark
-	* 
+	*
 		color: findTextColor($dark) !important
 
 .bg-primary
