@@ -10,6 +10,176 @@
   }
 }
 
+// Custom Classes
+
+@media (min-width: 576px) {
+  .mw-sm-25 {
+    max-width: 25% !important;
+  }
+
+  .mw-sm-50 {
+    max-width: 50% !important;
+  }
+
+  .mw-sm-75 {
+    max-width: 75% !important;
+  }
+
+  .mw-sm-100 {
+    max-width: 100% !important;
+  }
+
+  .mw-sm-auto {
+    max-width: auto !important;
+  }
+
+  .mh-sm-25 {
+    max-height: 25% !important;
+  }
+
+  .mh-sm-50 {
+    max-height: 50% !important;
+  }
+
+  .mh-sm-75 {
+    max-height: 75% !important;
+  }
+
+  .mh-sm-100 {
+    max-height: 100% !important;
+  }
+
+  .mh-sm-auto {
+    max-height: auto !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .mw-md-25 {
+    max-width: 25% !important;
+  }
+
+  .mw-md-50 {
+    max-width: 50% !important;
+  }
+
+  .mw-md-75 {
+    max-width: 75% !important;
+  }
+
+  .mw-md-100 {
+    max-width: 100% !important;
+  }
+
+  .mw-md-auto {
+    max-width: auto !important;
+  }
+
+  .mh-md-25 {
+    max-height: 25% !important;
+  }
+
+  .mh-md-50 {
+    max-height: 50% !important;
+  }
+
+  .mh-md-75 {
+    max-height: 75% !important;
+  }
+
+  .mh-md-100 {
+    max-height: 100% !important;
+  }
+
+  .mh-md-auto {
+    max-height: auto !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .mw-lg-25 {
+    max-width: 25% !important;
+  }
+
+  .mw-lg-50 {
+    max-width: 50% !important;
+  }
+
+  .mw-lg-75 {
+    max-width: 75% !important;
+  }
+
+  .mw-lg-100 {
+    max-width: 100% !important;
+  }
+
+  .mw-lg-auto {
+    max-width: auto !important;
+  }
+
+  .mh-lg-25 {
+    max-height: 25% !important;
+  }
+
+  .mh-lg-50 {
+    max-height: 50% !important;
+  }
+
+  .mh-lg-75 {
+    max-height: 75% !important;
+  }
+
+  .mh-lg-100 {
+    max-height: 100% !important;
+  }
+
+  .mh-lg-auto {
+    max-height: auto !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .mw-xl-25 {
+    max-width: 25% !important;
+  }
+
+  .mw-xl-50 {
+    max-width: 50% !important;
+  }
+
+  .mw-xl-75 {
+    max-width: 75% !important;
+  }
+
+  .mw-xl-100 {
+    max-width: 100% !important;
+  }
+
+  .mw-xl-auto {
+    max-width: auto !important;
+  }
+
+  .mh-xl-25 {
+    max-height: 25% !important;
+  }
+
+  .mh-xl-50 {
+    max-height: 50% !important;
+  }
+
+  .mh-xl-75 {
+    max-height: 75% !important;
+  }
+
+  .mh-xl-100 {
+    max-height: 100% !important;
+  }
+
+  .mh-xl-auto {
+    max-height: auto !important;
+  }
+}
+
 // Imports
 @import "./node_modules/bootstrap/scss/bootstrap";
 @import "./overrides.sass";
