@@ -7,7 +7,36 @@ const selectpicker = require('bootstrap-select');
 const animsition = require('animsition');
 const ClipboardJS = require('clipboard');
 
-$('#location').selectpicker({
+const queryLocation = $('#location');
+const queryType = $('#query_type');
+const queryTarget = $('#query_target');
+const resultsContainer = $('#hg-results');
+const formContainer = $('#hg-form');
+const resultsAccordion = $('#hg-accordion');
+const backButton = $('#hg-back-btn');
+
+const resetResults = () => {
+  queryLocation.selectpicker('deselectAll');
+  queryLocation.selectpicker('val', '');
+  queryType.selectpicker('val', '');
+  queryTarget.val('');
+  resultsContainer.animsition('out', formContainer, '#');
+  resultsContainer.hide();
+  formContainer.show();
+  formContainer.animsition('in');
+  backButton.hide();
+  resultsAccordion.empty();
+};
+
+const reloadPage = () => {
+  queryLocation.selectpicker('deselectAll');
+  queryLocation.selectpicker('val', '');
+  queryType.selectpicker('val', '');
+  queryTarget.val('');
+  resultsAccordion.empty();
+};
+
+queryLocation.selectpicker({
   liveSearchNormalize: true,
   style: '',
   styleBase: 'form-control',
@@ -15,7 +44,7 @@ $('#location').selectpicker({
   tickIcon: 'remixicon-check-line',
 });
 
-$('#query_type').selectpicker({
+queryType.selectpicker({
   liveSearchNormalize: true,
   style: '',
   styleBase: 'form-control',
@@ -24,8 +53,10 @@ $('#query_type').selectpicker({
 });
 
 $(document).ready(() => {
-  $('#hg-results').hide();
+  reloadPage();
+  resultsContainer.hide();
   $('#hg-ratelimit-query').modal('hide');
+  backButton.hide();
   $('.animsition').animsition({
     inClass: 'fade-in',
     outClass: 'fade-out',
@@ -34,25 +65,8 @@ $(document).ready(() => {
     transition: (url) => { window.location.href = url; },
   });
 
-  $('#hg-form').animsition('in');
-});
-
-const resetResults = () => {
-  const queryLocation = $('#location');
-  const queryType = $('#query_type');
-  const queryTarget = $('#query_target');
-  const resultsContainer = $('#hg-results');
-  const formContainer = $('#hg-form');
-  const resultsAccordion = $('#hg-accordion');
-  queryLocation.selectpicker('deselectAll');
-  queryType.selectpicker('val', '');
-  queryTarget.val('');
-  resultsContainer.animsition('out', formContainer, '#');
-  resultsContainer.hide();
-  formContainer.show();
   formContainer.animsition('in');
-  resultsAccordion.empty();
-};
+});
 
 const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
   const resultsTitle = `${queryTypeName} Query for ${queryTarget}`;
@@ -75,7 +89,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
         </div>
         <button type="button" class="float-right btn btn-light btn-lg hg-menu-btn hg-copy-btn" 
           data-clipboard-target="#${loc}-text" id="${loc}-copy-btn" disabled>
-          <i class="remixicon-file-copy-line hg-menu-icon hg-copy hg-copy-icon"></i>
+          <i class="remixicon-checkbox-multiple-blank-line hg-menu-icon hg-copy hg-copy-icon"></i>
         </button>
         <h2 class="mb-0" id="${loc}-heading-container">
           <button class="btn btn-link text-secondary" type="button" data-toggle="collapse" 
@@ -188,18 +202,20 @@ $('#lgForm').submit((event) => {
   $('#hg-results').show();
   $('#hg-results').animsition('in');
   $('#hg-submit-spinner').remove();
+  $('#hg-back-btn').show();
+  $('#hg-back-btn').animsition('in');
 });
 
-$('#hg-back').click(() => {
+$('#hg-back-btn').click(() => {
   resetResults();
 });
 
 const clipboard = new ClipboardJS('.hg-copy-btn');
 clipboard.on('success', (e) => {
-  $(e.trigger).find('.hg-copy-icon').removeClass('remixicon-file-copy-line').addClass('remixicon-task-line');
+  $(e.trigger).find('.hg-copy-icon').removeClass('remixicon-checkbox-multiple-blank-line').addClass('remixicon-checkbox-multiple-line');
   e.clearSelection();
   setTimeout(() => {
-    $(e.trigger).find('.hg-copy-icon').removeClass('remixicon-task-line').addClass('remixicon-file-copy-line');
+    $(e.trigger).find('.hg-copy-icon').removeClass('remixicon-checkbox-multiple-line').addClass('remixicon-checkbox-multiple-blank-line');
   }, 800);
 });
 clipboard.on('error', (e) => {
