@@ -1,6 +1,11 @@
 """
 Renders Jinja2 & Sass templates for use by the front end application
 """
+
+from hyperglass.render.html import render_html
+from hyperglass.render.webassets import render_assets
+
+'''
 # Standard Library Imports
 from pathlib import Path
 
@@ -216,3 +221,4 @@ def css():
     except sass.CompileError as sassy:
         logger.error(f"Error compiling Sass in file {scss_file}.")
         raise HyperglassError(sassy)
+'''
