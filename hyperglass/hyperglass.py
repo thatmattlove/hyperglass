@@ -22,7 +22,7 @@ from sanic_limiter import RateLimitExceeded
 from sanic_limiter import get_remote_address
 
 # Project Imports
-from hyperglass import render
+from hyperglass.render import render_html
 from hyperglass.command.execute import Execute
 from hyperglass.configuration import devices
 from hyperglass.configuration import logzero_config  # noqa: F401
@@ -121,7 +121,7 @@ async def metrics(request):
 async def handle_404(request, exception):
     """Renders full error page for invalid URI"""
     path = request.path
-    html = render.html("404", uri=path)
+    html = render_html("404", uri=path)
     client_addr = get_remote_address(request)
     count_notfound.labels(exception, path, client_addr).inc()
     logger.error(f"Error: {exception}, Path: {path}, Source: {client_addr}")
@@ -140,7 +140,7 @@ async def handle_408(request, exception):
 @app.exception(RateLimitExceeded)
 async def handle_429(request, exception):
     """Renders full error page for too many site queries"""
-    html = render.html("ratelimit-site")
+    html = render_html("ratelimit-site")
     client_addr = get_remote_address(request)
     count_ratelimit.labels(exception, client_addr).inc()
     logger.error(f"Error: {exception}, Source: {client_addr}")
@@ -153,7 +153,7 @@ async def handle_500(request, exception):
     client_addr = get_remote_address(request)
     count_errors.labels(500, exception, client_addr, None, None, None).inc()
     logger.error(f"Error: {exception}, Source: {client_addr}")
-    html = render.html("500")
+    html = render_html("500")
     return response.html(html, status=500)
 
 
@@ -171,13 +171,13 @@ async def clear_cache():
 @limiter.limit(rate_limit_site, error_message="Site")
 async def site(request):
     """Main front-end web application"""
-    return response.html(render.html("index", primary_asn=params.general.primary_asn))
+    return response.html(render_html("index", primary_asn=params.general.primary_asn))
 
 
 @app.route("/test", methods=["GET"])
 async def test_route(request):
     """Test route for various tests"""
-    html = render.html("results")
+    html = render_html("results")
     return response.html(html, status=500)
 
 
@@ -278,6 +278,3 @@ async def hyperglass_main(request):
         ).inc()
     return response.html(response_output, status=response_status)
 
-
-if __name__ == "__main__":
-    cli()
