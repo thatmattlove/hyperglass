@@ -1,13 +1,15 @@
 <div class="container animsition" data-animsition-out-class="fade-out-left" data-animsition-in-class="fade-in-right"
     id="hg-results">
-    {% import "templates/title.html.j2" as title %}
-    {{ title.title(branding, primary_asn, size_title="h1", size_subtitle="h4", align="left") }}
     <div class="container mb-lg-1 mt-lg-1">
         <div class="row mb-lg-1">
-            <div class="col align-self-center">
-                <button type="button" id="hg-back" class="float-left btn btn-light btn-lg">
-                    <i class="remixicon-arrow-left-s-line"></i>
-                </button>
+            <div class="col align-self-center d-flex justify-content-between">
+            <div class="text-left align-self-end">
+                    <h2 id="hg-results-title"></h2>
+                </div>
+                <div class="align-self-end text-right">
+                    {% import "templates/title.html.j2" as title %}
+                    {{ title.title(branding, primary_asn, size_title="h1", size_subtitle="h4") }}
+                </div>
             </div>
         </div>
         <div class="row mt-lg-1">
