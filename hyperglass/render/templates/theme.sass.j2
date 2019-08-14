@@ -1,0 +1,29 @@
+// Jinja2-rendered theme elements
+$hg-primary: {{ colors.primary }}
+$hg-background: {{ colors.background }}
+$hg-light: {{ colors.light }}
+$hg-dark: {{ colors.dark }}
+$hg-danger: {{ colors.danger }}
+$hg-warning: {{ colors.warning }}
+
+// Functions
+@function findTextColor($color)
+    @if (lightness($color) > 55%)
+        @return $hg-dark
+    @else
+        @return $hg-light
+
+@function findAltBackgroundColor($color)
+    @if (lightness($color) > 55%)
+        @return $hg-light
+    @else
+        @return $hg-dark
+
+// App variables
+
+$hg-loading: findAltBackgroundColor($hg-background)
+
+// Theme Overrides
+$theme-colors: ("primary": $hg-primary, "danger": $hg-danger, "warning": $hg-warning, "light": $hg-light, "dark": $hg-dark, "loading": $hg-loading)
+$body-bg: $hg-background
+$body-color: findTextColor($body-bg)

@@ -621,16 +621,22 @@ def start_dev_server(host, port):
 @hg.command("dev-server", help="Start development web server")
 @click.option("--host", type=str, default="0.0.0.0", help="Listening IP")
 @click.option("--port", type=int, default=5000, help="TCP Port")
-def dev_server(host, port):
+@click.option(
+    "--assets/--no-assets", default=False, help="Render Theme & Build Web Assets"
+)
+def dev_server(host, port, assets):
     """Renders theme and web assets, then starts dev web server"""
-    try:
-        assets_rendered = render_hyperglass_assets()
-    except Exception as e:
-        raise click.ClickException(
-            click.style("✗ Error rendering assets: ", fg="red", bold=True)
-            + click.style(e, fg="blue")
-        )
-    if assets_rendered:
+    if assets:
+        try:
+            assets_rendered = render_hyperglass_assets()
+        except Exception as e:
+            raise click.ClickException(
+                click.style("✗ Error rendering assets: ", fg="red", bold=True)
+                + click.style(e, fg="blue")
+            )
+        if assets_rendered:
+            start_dev_server(host, port)
+    if not assets:
         start_dev_server(host, port)
 
 

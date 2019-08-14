@@ -1,15 +1,3 @@
-// Functions
-
-@function findTextColor($color) {
-  @if (lightness($color) > 55%) {
-    @return $dark;
-  }
-
-  @else {
-    @return $light;
-  }
-}
-
 // Custom Classes
 
 @media (min-width: 576px) {
@@ -181,6 +169,6 @@
 }
 
 // Imports
+@import "./theme.sass";
 @import "./node_modules/bootstrap/scss/bootstrap";
 @import "./overrides.sass";
-@import "./theme.sass";

@@ -21,7 +21,7 @@
 
 .hg-back:hover
 	text-decoration: none 
-	border: 1px solid $primary !important
+	border: 1px solid $hg-primary !important
 
 .hg-back:focus
 	text-decoration: none
@@ -90,90 +90,85 @@
 	outline: none !important
 	box-shadow: none
 
+// .hg-results-loading
+// 	background-color: $hg-loading-bg
+
+// .btn-loading
+// 	background-color: $hg-loading-bg
+// 	color: $hg-loading-text
+
+.bg-primary
+	.btn-primary:hover
+		color: findTextColor($hg-primary) !important
+		background-color: darken($hg-primary, 10%) !important
+		border-color: $hg-primary !important
+
+.bg-warning
+	.btn-warning:hover
+		color: findTextColor($hg-warning) !important
+		background-color: darken($hg-warning, 10%) !important
+		border-color: $hg-warning !important
+
+.bg-danger
+	.btn-danger:hover
+		color: findTextColor($hg-danger) !important
+		background-color: darken($hg-danger, 10%) !important
+		border-color: $hg-danger !important
+
+.bg-loading
+	.btn-loading:hover
+		color: findTextColor($hg-loading) !important
+		background-color: darken($hg-loading, 10%) !important
+		border-color: $hg-loading !important
+
 .bg-primary
 	*
-		color: findTextColor($primary) !important
-
-.bg-secondary
-	*
-		color: findTextColor($secondary) !important
-
-.bg-success
-	*
-		color: findTextColor($success) !important
+		color: findTextColor($hg-primary) !important
 
 .bg-danger
 	*
-		color: findTextColor($danger) !important
+		color: findTextColor($hg-danger) !important
 
 .bg-warning
 	*
-		color: findTextColor($warning) !important
+		color: findTextColor($hg-warning) !important
 
-.bg-info
+.bg-loading
 	*
-		color: findTextColor($info) !important
-
-.bg-light
-	*
-		color: findTextColor($light) !important
-
-.bg-dark
-	*
-		color: findTextColor($dark) !important
+		color: findTextColor($hg-primary) !important
 
 .bg-primary
 	::selection, ::-moz-selection
-		background-color: findTextColor($primary) !important
-		color: $primary !important
-
-.bg-secondary
-	::selection, ::-moz-selection
-		background-color: findTextColor($secondary) !important
-		color: $secondary !important
-
-.bg-success
-	::selection, ::-moz-selection
-		background-color: findTextColor($success) !important
-		color: $success !important
+		background-color: findTextColor($hg-primary) !important
+		color: $hg-primary !important
 
 .bg-danger
 	::selection, ::-moz-selection
-		background-color: findTextColor($danger) !important
-		color: $danger !important
+		background-color: findTextColor($hg-danger) !important
+		color: $hg-danger !important
 
 .bg-warning
 	::selection, ::-moz-selection
-		background-color: findTextColor($warning) !important
-		color: $warning !important
+		background-color: findTextColor($hg-warning) !important
+		color: $hg-warning !important
 
-.bg-info
+.bg-loading
 	::selection, ::-moz-selection
-		background-color: findTextColor($info) !important
-		color: $info !important
-
-.bg-light
-	::selection, ::-moz-selection
-		background-color: findTextColor($light) !important
-		color: $light !important
-
-.bg-dark
-	::selection, ::-moz-selection
-		background-color: findTextColor($dark) !important
-		color: $dark !important
+		background-color: findTextColor($hg-loading) !important
+		color: $hg-loading !important
 
 .bg-danger
 	.btn-outline-danger
-		border-color: findTextColor($danger) !important
+		border-color: findTextColor($hg-danger) !important
 
 .bg-danger
 	.btn-outline-danger:hover
-		background-color:  findTextColor($danger) !important
-		color: $danger !important
+		background-color:  findTextColor($hg-danger) !important
+		color: $hg-danger !important
 
 .bg-danger
 	hr
-		background-color: darken($danger, 10%)
+		background-color: darken($hg-danger, 10%)
 
 .modal-body > p
 	padding-left: 0.3rem !important
