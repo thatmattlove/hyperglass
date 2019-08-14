@@ -71,42 +71,6 @@ class Router(BaseSettings):
 class Routers(BaseSettings):
     """Base model for devices class."""
 
-    # @staticmethod
-    # def build_network_lists(valid_devices):
-    #     """
-    #     Builds locations dict, which is converted to JSON and passed to
-    #     JavaScript to associate locations with the selected network/ASN.
-
-    #     Builds networks dict, which is used to render the network/ASN
-    #     select element contents.
-    #     """
-    #     locations_dict = {}
-    #     networks_dict = {}
-    #     for (dev, params) in valid_devices.items():
-    #         asn = str(params["asn"])
-    #         if asn in locations_dict:
-    #             locations_dict[asn].append(
-    #                 {
-    #                     "location": params["location"],
-    #                     "hostname": dev,
-    #                     "display_name": params["display_name"],
-    #                 }
-    #             )
-    #             networks_dict[asn].append(params["location"])
-    #         elif asn not in locations_dict:
-    #             locations_dict[asn] = [
-    #                 {
-    #                     "location": params["location"],
-    #                     "hostname": dev,
-    #                     "display_name": params["display_name"],
-    #                 }
-    #             ]
-    #             networks_dict[asn] = [params["location"]]
-    #     if not locations_dict:
-    #         raise ConfigError('Unable to build locations list from "devices.yaml"')
-    #     if not networks_dict:
-    #         raise ConfigError('Unable to build networks list from "devices.yaml"')
-    #     return (locations_dict, networks_dict)
     @staticmethod
     def build_network_lists(valid_devices):
         """
@@ -132,11 +96,8 @@ class Routers(BaseSettings):
             setattr(Routers, dev, router_params)
             routers.update({dev: router_params.dict()})
             hostnames.append(dev)
-        # locations_dict, networks_dict = Routers.build_network_lists(routers)
         Routers.routers = routers
         Routers.hostnames = hostnames
-        # Routers.locations = locations_dict
-        # Routers.networks = networks_dict
         return Routers()
 
     class Config:
@@ -269,10 +230,12 @@ class Branding(BaseSettings):
     class Colors(BaseSettings):
         """Class model for params.colors"""
 
+        primary: Color = "#40798c"
         background: Color = "#fbfffe"
-        button_submit: Color = "#40798c"
-        danger: Color = "#ff3860"
-        progress_bar: Color = "#40798c"
+        light: Color = "#fbfffe"
+        dark: Color = "#383541"
+        danger: Color = "#ff5e5b"
+        warning: Color = "#eec643"
 
         class Tag(BaseSettings):
             """Class model for params.colors.tag"""
