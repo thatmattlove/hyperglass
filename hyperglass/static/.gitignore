@@ -6,3 +6,4 @@ old/
 .cache
 yarn-error.log
 theme.sass
+test*
