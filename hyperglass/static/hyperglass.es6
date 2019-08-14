@@ -81,18 +81,18 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
 
     const contentHtml = `
     <div class="card" id="${loc}-output">
-      <div class="card-header bg-light text-dark" id="${loc}-heading">
+      <div class="card-header bg-loading" id="${loc}-heading">
         <div class="float-right hg-status-container" id="${loc}-status-container">
-          <button type="button" class="float-right btn btn-light btn-lg hg-menu-btn hg-status-btn" 
+          <button type="button" class="float-right btn btn-loading btn-lg hg-menu-btn hg-status-btn" 
             data-location="${loc}" id="${loc}-status-btn" disabled>
           </button>
         </div>
-        <button type="button" class="float-right btn btn-light btn-lg hg-menu-btn hg-copy-btn" 
+        <button type="button" class="float-right btn btn-loading btn-lg hg-menu-btn hg-copy-btn" 
           data-clipboard-target="#${loc}-text" id="${loc}-copy-btn" disabled>
           <i class="remixicon-checkbox-multiple-blank-line hg-menu-icon hg-copy hg-copy-icon"></i>
         </button>
         <h2 class="mb-0" id="${loc}-heading-container">
-          <button class="btn btn-link text-secondary" type="button" data-toggle="collapse" 
+          <button class="btn btn-link" type="button" data-toggle="collapse" 
             data-target="#${loc}-content" aria-expanded="true" aria-controls="${loc}-content"
             id="${loc}-heading-text">
           </button>
@@ -121,8 +121,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
 
     const generateError = (errorClass, locError, text) => {
       const iconError = '<i class="hg-menu-icon hg-status-icon remixicon-alert-line"></i>';
-      $(`#${locError}-heading`).removeClass('text-secondary bg-light').addClass(`bg-${errorClass}`);
-      $(`#${locError}-heading-text`).removeClass('text-secondary');
+      $(`#${locError}-heading`).removeClass('bg-loading').addClass(`bg-${errorClass}`);
       $(`#${locError}-heading`).find('.hg-menu-btn').removeClass('btn-light').addClass(`btn-${errorClass}`);
       $(`#${locError}-status-container`)
         .removeClass('hg-loading')
@@ -148,8 +147,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
       .done((data, textStatus, jqXHR) => {
         const displayHtml = `<pre>${jqXHR.responseText}</pre>`;
         const iconSuccess = '<i class="hg-menu-icon hg-status-icon remixicon-check-line"></i>';
-        $(`#${loc}-heading`).removeClass('text-secondary bg-light').addClass('bg-primary');
-        $(`#${loc}-heading-text`).removeClass('text-secondary');
+        $(`#${loc}-heading`).removeClass('bg-loading').addClass('bg-primary');
         $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-light').addClass('btn-primary');
         $(`#${loc}-status-container`)
           .removeClass('hg-loading')
@@ -165,11 +163,10 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
           const displayText = 'Request timed out.';
           const displayHtml = `<div class="alert alert-warning" role="alert">${displayText}</div>`;
           const iconTimeout = '<i class="remixicon-time-line"></i>';
-          $(`#${loc}-heading`).removeClass('text-secondary bg-light').addClass('bg-warning');
-          $(`#${loc}-heading-text`).removeClass('text-secondary');
-          $(`#${loc}-status-container`).empty().removeClass('hg-loading').html(iconTimeout);
+          $(`#${loc}-heading`).removeClass('bg-loading').addClass('bg-warning');
           $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-light').addClass('btn-warning');
-          $(`#${loc}-text`).html(displayHtml);
+          $(`#${loc}-status-container`).removeClass('hg-loading').find('.hg-status-btn').empty().html(iconTimeout);
+          $(`#${loc}-text`).empty().html(displayHtml);
         } else if (codesDanger.includes(jqXHR.status)) {
           generateError('danger', loc, jqXHR.responseText);
         } else if (codesWarning.includes(jqXHR.status)) {
