@@ -1,15 +1,17 @@
 {% macro title(branding, primary_asn, size_title="h1", size_subtitle="h4") -%}
 {% if branding.text.title_mode == 'text_only' %}
-    <{{ size_title }}>{{ branding.text.title }}</{{ size_title }}>
-    <{{ size_subtitle }}>{{ branding.text.subtitle.format(primary_asn=primary_asn) }}</{{ size_subtitle }}>
-    {% elif branding.text.title_mode == 'all' %}
-    <img src="{{ branding.logo.path }}" style="width: {{ branding.logo.width }}px;">
-    <{{ size_title }}>{{ branding.text.title }}</{{ size_title }}>
-    <{{ size_subtitle }}>{{ branding.text.subtitle.format(primary_asn=primary_asn) }}</{{ size_subtitle }}>
-    {% elif branding.text.title_mode == 'logo_title' %}
-    <img src="{{ branding.logo.path }}" style="width: {{ branding.logo.width }}px;">
-    <{{ size_title }}>{{ branding.text.title }}</{{ size_title }}>
-    {% elif branding.text.title_mode == 'logo_only' %}
-    <img src="{{ branding.logo.path }}" style="width: {{ branding.logo.width }}px;">
+<{{ size_title }}>{{ branding.text.title }}</{{ size_title }}>
+<{{ size_subtitle }}>{{ branding.text.subtitle.format(primary_asn=primary_asn) }}</{{ size_subtitle }}>
+{% elif branding.text.title_mode == 'all' %}
+<img src="{{ branding.logo.path }}" style="width: {{ branding.logo.width }}px;">
+<{{ size_title }}>{{ branding.text.title }}</{{ size_title }}>
+<{{ size_subtitle }}>{{ branding.text.subtitle.format(primary_asn=primary_asn) }}</{{ size_subtitle }}>
+{% elif branding.text.title_mode == 'logo_title' %}
+<img class="img-fluid" src="{{ branding.logo.path }}">
+<{{ size_title }}>{{ branding.text.title }}</{{ size_title }}>
+{% elif branding.text.title_mode == 'logo_only' %}
+<div class="text-center">
+    <img class="img-fluid" src="{{ branding.logo.path }}">
+</div>
 {% endif %}
 {%- endmacro %}
