@@ -122,7 +122,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
     const generateError = (errorClass, locError, text) => {
       const iconError = '<i class="hg-menu-icon hg-status-icon remixicon-alert-line"></i>';
       $(`#${locError}-heading`).removeClass('bg-loading').addClass(`bg-${errorClass}`);
-      $(`#${locError}-heading`).find('.hg-menu-btn').removeClass('btn-light').addClass(`btn-${errorClass}`);
+      $(`#${locError}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass(`btn-${errorClass}`);
       $(`#${locError}-status-container`)
         .removeClass('hg-loading')
         .find('.hg-status-btn')
@@ -148,7 +148,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
         const displayHtml = `<pre>${jqXHR.responseText}</pre>`;
         const iconSuccess = '<i class="hg-menu-icon hg-status-icon remixicon-check-line"></i>';
         $(`#${loc}-heading`).removeClass('bg-loading').addClass('bg-primary');
-        $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-light').addClass('btn-primary');
+        $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass('btn-primary');
         $(`#${loc}-status-container`)
           .removeClass('hg-loading')
           .find('.hg-status-btn')
@@ -164,7 +164,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
           const displayHtml = `<div class="alert alert-warning" role="alert">${displayText}</div>`;
           const iconTimeout = '<i class="remixicon-time-line"></i>';
           $(`#${loc}-heading`).removeClass('bg-loading').addClass('bg-warning');
-          $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-light').addClass('btn-warning');
+          $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass('btn-warning');
           $(`#${loc}-status-container`).removeClass('hg-loading').find('.hg-status-btn').empty().html(iconTimeout);
           $(`#${loc}-text`).empty().html(displayHtml);
         } else if (codesDanger.includes(jqXHR.status)) {
