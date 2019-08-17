@@ -44,7 +44,6 @@ class Router(BaseSettings):
     """Model for per-router config in devices.yaml."""
 
     address: Union[IPvAnyAddress, str]
-    # asn: int
     network: str
     src_addr_ipv4: IPv4Address
     src_addr_ipv6: IPv6Address
