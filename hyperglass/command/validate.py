@@ -100,9 +100,10 @@ def ip_blacklist(target):
     membership.
     """
     logger.debug(f"Blacklist Enabled: {params.features.blacklist.enable}")
+    target = ipaddress.ip_network(target)
     membership = False
     if params.features.blacklist.enable:
-        target_ver = ipaddress.ip_network(target).version
+        target_ver = target.version
         user_blacklist = params.features.blacklist.networks
         networks = [
             net
@@ -114,7 +115,11 @@ def ip_blacklist(target):
         )
         while not membership:
             for net in networks:
-                if ipaddress.ip_network(target).subnet_of(net):
+                blacklist_net = ipaddress.ip_network(net)
+                if (
+                    blacklist_net.network_address <= target.network_address
+                    and blacklist_net.network_address >= target.broadcast_address
+                ):
                     membership = True
                     logger.debug(f"Blacklist Match Found for {target} in {net}")
                     break
