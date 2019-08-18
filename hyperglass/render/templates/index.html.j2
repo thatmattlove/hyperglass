@@ -11,7 +11,7 @@
     </div>
     <form onsubmit="return false" name="queryform" id="lgForm" action="?" method="POST">
       <div class="form-row mb-3">
-        <div class="col">
+        <div class="col mb-3 mb-sm-0">
           <select multiple class="form-control form-control-lg hg-select" id="location" data-live-search="true"
             title="{{ branding.text.location }}">
             {% for (netname, loc_params) in networks.items() %}
