@@ -160,8 +160,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
         const codesDanger = [401, 415, 500, 501, 503];
         const codesWarning = [405];
         if (textStatus === 'timeout') {
-          const displayText = 'Request timed out.';
-          const displayHtml = `<div class="alert alert-warning" role="alert">${displayText}</div>`;
+          const displayHtml = 'Request timed out.';
           const iconTimeout = '<i class="remixicon-time-line"></i>';
           $(`#${loc}-heading`).removeClass('bg-loading').addClass('bg-warning');
           $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass('btn-warning');
