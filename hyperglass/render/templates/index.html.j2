@@ -10,7 +10,7 @@
     </div>
     <form onsubmit="return false" name="queryform" id="lgForm" action="?" method="POST">
       <div class="form-row mb-3">
-        <div class="col mb-3 mb-sm-0">
+        <div class="col-md col-sm-12 mb-3 mb-md-0">
           <select multiple class="form-control form-control-lg hg-select" id="location" data-live-search="true"
             title="{{ branding.text.location }}">
             {% for (netname, loc_params) in networks.items() %}
@@ -24,7 +24,7 @@
             {% endfor %}
           </select>
         </div>
-        <div class="col">
+        <div class="col-md col-sm-12">
           <select class="form-control form-control-lg hg-select" id="query_type"
             title="{{ branding.text.query_type }}" data-live-search="true">
             {% if features.bgp_route.enable %}
