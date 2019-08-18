@@ -4,10 +4,9 @@
 <div id="hg-parent" class="mx-auto">
   <div class="container animsition mw-lg-75 mw-xl-50" data-animsition-out-class="fade-out-right" data-animsition-in-class="fade-in-left"
     id="hg-form">
-    <div class="container-fluid text-center">
+    <div class="container-fluid d-flex justify-content-center mb-3 text-center">
     {% import "templates/title.html.j2" as title %}
     {{ title.title(branding, primary_asn, size_title="h1", size_subtitle="h4") }}
-    <br>
     </div>
     <form onsubmit="return false" name="queryform" id="lgForm" action="?" method="POST">
       <div class="form-row mb-3">
