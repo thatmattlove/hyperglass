@@ -36,3 +36,16 @@ traceroute = "traceroute inet {target} wait 1 source {source}"
 bgp_route = "show route protocol bgp table inet6.0 {target} detail"
 ping = "ping inet6 {target} count 5 source {source}"
 traceroute = "traceroute inet6 {target} wait 1 source {source}"
+
+[[arista_eos]]
+[arista_eos.dual]
+ping = "ping {target} source {source}"
+traceroute = "traceroute {target} source {source}"
+[arista_eos.ipv4]
+bgp_route = "show ip bgp {target}"
+bgp_community = "show ip bgp community {target}"
+bgp_aspath = "show ip bgp regexp {target}"
+[arista_eos.ipv6]
+bgp_route = "show ipv6 bgp {target}"
+bgp_community = "show ipv6 bgp community {target}"
+bgp_aspath = "show ipv6 bgp regexp {target}"
