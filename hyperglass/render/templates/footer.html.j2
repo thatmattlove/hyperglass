@@ -1,27 +1,26 @@
-<footer class="footer mt-auto py-3">
-  <div class="container text-center">
-    {% if branding.footer.enable and branding.credit.enable %}
-    <div class="col">
-      <small>{{ details.footer.content | safe }}</small>
+{% if branding.footer.enable %}
+<nav class="navbar fixed-bottom navbar-footer bg-footer">
+  <div class="container-fluid text-center p-0">
+    <div class="col-auto float-left">
+      <a class="btn btn-link hg-footer-item" href="#" data-toggle="popover" title="{{ branding.text.terms }}"
+        data-content="{{ details.footer.content | safe }}"><small>{{ branding.text.terms }}</small></a>
     </div>
-    <div class="col">
-      {% include "templates/credit.html.j2" %}
+    <div class="col-auto float-left">
+      <a class="btn btn-link" href="#"><small>{{ branding.text.info }}</small></a>
     </div>
-    {% elif not branding.credit.enable and branding.footer.enable %}
-    <div class="col">
-      <small>{{ details.footer.content | safe }}</small>
-    </div>
-    {% elif not branding.footer.enable and branding.credit.enable %}
-    <div class="col">
-      {% include "templates/credit.html.j2" %}
+    <div class="col-auto mr-auto"></div>
+    {% if branding.credit.enable %}
+    <div class="col-auto float-right">
+      <a class="btn btn-link" href="#"><small><i class="remixicon-braces-line" id="hg-credit"></i></small></a>
     </div>
     {% endif %}
     {% if branding.peering_db.enable %}
-    <div class="col">
-        <a class="btn btn-link btn-sm" href="https://as{{ general.primary_asn }}.peeringdb.com/" 
-        target="_blank">PeeringDB&nbsp;<i class="remixicon-share-circle-line"></i>
-        </a>
+    <div class="col-auto float-right">
+      <a class="btn btn-link" href="https://as{{ general.primary_asn }}.peeringdb.com/"
+        target="_blank"><small>PeeringDB&nbsp;<i class="remixicon-share-circle-line"></i></small>
+      </a>
     </div>
     {% endif %}
   </div>
-</footer>
+</nav>
+{% endif %}
