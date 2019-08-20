@@ -4,13 +4,13 @@
 <div id="hg-parent" class="mx-auto">
   <div class="container animsition mw-lg-75 mw-xl-50" data-animsition-out-class="fade-out-right" data-animsition-in-class="fade-in-left"
     id="hg-form">
-    <div class="container-fluid d-flex justify-content-center mb-3 text-center">
+    <div class="container-fluid d-flex justify-content-center mb-4 text-center">
     {% import "templates/title.html.j2" as title %}
     {{ title.title(branding, primary_asn, size_title="h1", size_subtitle="h4") }}
     </div>
     <form onsubmit="return false" name="queryform" id="lgForm" action="?" method="POST">
-      <div class="form-row mb-3">
-        <div class="col-md col-sm-12 mb-3 mb-md-0">
+      <div class="form-row mb-4">
+        <div class="col-md col-sm-12 mb-4 mb-md-0">
           <select multiple class="form-control form-control-lg hg-select" id="location" data-live-search="true"
             title="{{ branding.text.location }}">
             {% for (netname, loc_params) in networks.items() %}
@@ -50,7 +50,7 @@
           </select>
         </div>
       </div>
-      <div class="form-row mb-3">
+      <div class="form-row mb-4">
         <div class="col">
           <div class="input-group input-group-lg">
             <input class="form-control" type="text" placeholder="{{ branding.text.query_placeholder }}"
