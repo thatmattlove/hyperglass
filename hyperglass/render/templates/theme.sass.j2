@@ -19,12 +19,21 @@ $hg-warning: {{ colors.warning }}
     @else
         @return $hg-dark
 
+@function findFooterColor($color)
+    @if (lightness($color) > 55%)
+        $darker-color: scale-color($hg-light, $lightness: -3%)
+        @return grayscale($darker-color)
+    @else
+        $darker-color: scale-color($hg-dark, $lightness: -3%)
+        @return grayscale($darker-color)
+
 // App variables
 
 $hg-loading: findAltBackgroundColor($hg-background)
+$hg-footer: findFooterColor($hg-background)
 
 // Theme Overrides
 $enable-responsive-font-sizes: true
-$theme-colors: ("primary": $hg-primary, "danger": $hg-danger, "warning": $hg-warning, "light": $hg-light, "dark": $hg-dark, "loading": $hg-loading)
+$theme-colors: ("primary": $hg-primary, "danger": $hg-danger, "warning": $hg-warning, "light": $hg-light, "dark": $hg-dark, "loading": $hg-loading, "footer": $hg-footer)
 $body-bg: $hg-background
 $body-color: findTextColor($body-bg)
