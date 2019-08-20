@@ -383,6 +383,10 @@
     *
         color: findTextColor($hg-loading) !important
 
+.bg-footer
+    *
+        color: findTextColor($hg-footer) !important
+
 .bg-primary
     ::selection, ::-moz-selection
         background-color: findTextColor($hg-primary) !important
@@ -402,6 +406,11 @@
     ::selection, ::-moz-selection
         background-color: findTextColor($hg-loading) !important
         color: $hg-loading !important
+
+.bg-loading
+    ::selection, ::-moz-selection
+        background-color: findTextColor($hg-footer) !important
+        color: $hg-footer !important
 
 .bg-danger
     .btn-outline-danger
