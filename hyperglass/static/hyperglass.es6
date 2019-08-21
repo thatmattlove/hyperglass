@@ -10,6 +10,7 @@ const ClipboardJS = require('clipboard');
 const queryLocation = $('#location');
 const queryType = $('#query_type');
 const queryTarget = $('#query_target');
+const queryTargetAppend = $('#hg-target-append');
 const resultsContainer = $('#hg-results');
 const formContainer = $('#hg-form');
 const resultsAccordion = $('#hg-accordion');
@@ -94,6 +95,21 @@ $(document).ready(() => {
   });
 
   formContainer.animsition('in');
+});
+
+const supportedBtn = qt => `<button class="btn btn-dark hg-info-btn" id="hg-info-btn-${qt}" data-hg-type="${qt}" type="button"><div id="hg-info-icon-${qt}"><i class="remixicon-information-line"></i></div></button>`;
+
+queryType.on('changed.bs.select', () => {
+  const queryTypeId = queryType.val();
+  if ((queryTypeId === 'bgp_community') || (queryTypeId === 'bgp_aspath')) {
+    $('.hg-info-btn').remove();
+    queryTargetAppend.prepend(supportedBtn(queryTypeId));
+  }
+});
+
+queryTargetAppend.on('click', '.hg-info-btn', () => {
+  const queryTypeId = $('.hg-info-btn').data('hg-type');
+  $(`#hg-info-${queryTypeId}`).modal('show');
 });
 
 const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
