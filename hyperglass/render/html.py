@@ -105,26 +105,54 @@ ets/traceroute_nanog.pdf" target="_blank">click here</a>.
 }
 
 
-def generate_markdown(section, file_name):
+default_help = """
+---
+template: default_help
+---
+##### BGP Route
+Performs BGP table lookup based on IPv4/IPv6 prefix.
+<hr>
+##### BGP Community
+Performs BGP table lookup based on <a href="https://tools.ietf.org/html/rfc4360" target\
+="_blank">Extended</a> or <a href="https://tools.ietf.org/html/rfc8195" target=\
+"_blank">Large</a> community value.
+<hr>
+##### BGP AS Path
+Performs BGP table lookup based on `AS_PATH` regular expression.
+<hr>
+##### Ping
+Sends 5 ICMP echo requests to the target.
+<hr>
+##### Traceroute
+Performs UDP Based traceroute to the target.<br>For information about how to \
+interpret traceroute results, <a href="https://hyperglass.readthedocs.io/en/latest/ass\
+ets/traceroute_nanog.pdf" target="_blank">click here</a>.
+"""
+
+
+def generate_markdown(section, file_name=None):
     """
     Renders markdown as HTML. If file_name exists in appropriate
     directory, it will be imported and used. If not, the default values
     will be used. Also renders the Front Matter values within each
     template.
     """
-    if section == "info":
-        file = working_directory.joinpath(f"templates/info/{file_name}.md")
-        defaults = default_info
+    if section == "help":
+        file = working_directory.joinpath("templates/info/help.md")
+        if file.exists():
+            with file.open(mode="r") as file_raw:
+                yaml_raw = file_raw.read()
+        else:
+            yaml_raw = default_help
     elif section == "details":
         file = working_directory.joinpath(f"templates/info/details/{file_name}.md")
-        defaults = default_details
-    if file.exists():
-        with file.open(mode="r") as file_raw:
-            yaml_raw = file_raw.read()
-    else:
-        yaml_raw = defaults[file_name]
+        if file.exists():
+            with file.open(mode="r") as file_raw:
+                yaml_raw = file_raw.read()
+        else:
+            yaml_raw = default_details[file_name]
     _, frontmatter, content = yaml_raw.split("---", 2)
-    html_classes = {"table": "ui compact table"}
+    html_classes = {"table": "table"}
     markdown = Markdown(
         extras={
             "break-on-newline": True,
@@ -169,15 +197,17 @@ def render_html(template_name, **kwargs):
         details_data = generate_markdown("details", details_name)
         details_dict.update({details_name: details_data})
     info_list = ["bgp_route", "bgp_aspath", "bgp_community", "ping", "traceroute"]
-    info_dict = {}
-    for info_name in info_list:
-        info_data = generate_markdown("info", info_name)
-        info_dict.update({info_name: info_data})
+    rendered_help = generate_markdown("help")
+    logger.debug(rendered_help)
     try:
         template_file = f"templates/{template_name}.html.j2"
         template = env.get_template(template_file)
         return template.render(
-            params, info=info_dict, details=details_dict, networks=networks, **kwargs
+            params,
+            rendered_help=rendered_help,
+            details=details_dict,
+            networks=networks,
+            **kwargs,
         )
     except jinja2.TemplateNotFound as template_error:
         logger.error(

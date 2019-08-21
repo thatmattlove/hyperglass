@@ -14,6 +14,10 @@ const resultsContainer = $('#hg-results');
 const formContainer = $('#hg-form');
 const resultsAccordion = $('#hg-accordion');
 const backButton = $('#hg-back-btn');
+const footerHelpBtn = $('#hg-footer-help-btn');
+const footerTermsBtn = $('#hg-footer-terms-btn');
+const footerCreditBtn = $('#hg-footer-credit-btn');
+const footerPopoverTemplate = '<div class="popover mw-sm-75 mw-md-50 mw-lg-25" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>';
 
 const resetResults = () => {
   queryLocation.selectpicker('deselectAll');
@@ -24,7 +28,7 @@ const resetResults = () => {
   resultsContainer.hide();
   formContainer.show();
   formContainer.animsition('in');
-  backButton.hide();
+  backButton.addClass('d-none');
   resultsAccordion.empty();
 };
 
@@ -52,11 +56,35 @@ queryType.selectpicker({
   tickIcon: 'remixicon-check-line',
 });
 
+footerTermsBtn.popover({
+  html: true,
+  trigger: 'click',
+  template: footerPopoverTemplate,
+  placement: 'top',
+  content: $('#hg-footer-terms-html').html(),
+});
+
+footerHelpBtn.popover({
+  html: true,
+  trigger: 'click',
+  placement: 'top',
+  template: footerPopoverTemplate,
+  content: $('#hg-footer-help-html').html(),
+});
+
+footerCreditBtn.popover({
+  html: true,
+  trigger: 'click',
+  placement: 'top',
+  title: $('#hg-footer-credit-title').html(),
+  content: $('#hg-footer-credit-content').html(),
+  template: footerPopoverTemplate,
+});
+
 $(document).ready(() => {
   reloadPage();
   resultsContainer.hide();
   $('#hg-ratelimit-query').modal('hide');
-  backButton.hide();
   $('.animsition').animsition({
     inClass: 'fade-in',
     outClass: 'fade-out',
@@ -198,7 +226,7 @@ $('#lgForm').submit((event) => {
   $('#hg-results').show();
   $('#hg-results').animsition('in');
   $('#hg-submit-spinner').remove();
-  $('#hg-back-btn').show();
+  $('#hg-back-btn').removeClass('d-none');
   $('#hg-back-btn').animsition('in');
 });
 
