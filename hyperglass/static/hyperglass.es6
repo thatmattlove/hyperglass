@@ -59,7 +59,7 @@ queryType.selectpicker({
 
 footerTermsBtn.popover({
   html: true,
-  trigger: 'click',
+  trigger: 'focus',
   template: footerPopoverTemplate,
   placement: 'top',
   content: $('#hg-footer-terms-html').html(),
@@ -67,7 +67,7 @@ footerTermsBtn.popover({
 
 footerHelpBtn.popover({
   html: true,
-  trigger: 'click',
+  trigger: 'focus',
   placement: 'top',
   template: footerPopoverTemplate,
   content: $('#hg-footer-help-html').html(),
@@ -75,7 +75,7 @@ footerHelpBtn.popover({
 
 footerCreditBtn.popover({
   html: true,
-  trigger: 'click',
+  trigger: 'focus',
   placement: 'top',
   title: $('#hg-footer-credit-title').html(),
   content: $('#hg-footer-credit-content').html(),
