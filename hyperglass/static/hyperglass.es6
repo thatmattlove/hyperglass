@@ -6,11 +6,14 @@ const bootstrap = require('bootstrap');
 const selectpicker = require('bootstrap-select');
 const animsition = require('animsition');
 const ClipboardJS = require('clipboard');
+const frontEndConfig = require('./frontend.json');
 
+const inputMessages = frontEndConfig.messages;
 const queryLocation = $('#location');
 const queryType = $('#query_type');
 const queryTarget = $('#query_target');
 const queryTargetAppend = $('#hg-target-append');
+const submitIcon = $('#hg-submit-icon');
 const resultsContainer = $('#hg-results');
 const formContainer = $('#hg-form');
 const resultsAccordion = $('#hg-accordion');
@@ -20,6 +23,16 @@ const footerTermsBtn = $('#hg-footer-terms-btn');
 const footerCreditBtn = $('#hg-footer-credit-btn');
 const footerPopoverTemplate = '<div class="popover mw-sm-75 mw-md-50 mw-lg-25" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>';
 
+class InputInvalid extends Error {
+  constructor(validationMsg, invalidField, fieldContainer) {
+    super(validationMsg, invalidField, fieldContainer);
+    this.name = this.constructor.name;
+    this.message = validationMsg;
+    this.field = invalidField;
+    this.container = fieldContainer;
+  }
+}
+
 const resetResults = () => {
   queryLocation.selectpicker('deselectAll');
   queryLocation.selectpicker('val', '');
@@ -27,6 +40,7 @@ const resetResults = () => {
   queryTarget.val('');
   resultsContainer.animsition('out', formContainer, '#');
   resultsContainer.hide();
+  $('.hg-info-btn').remove();
   formContainer.show();
   formContainer.animsition('in');
   backButton.addClass('d-none');
@@ -93,7 +107,6 @@ $(document).ready(() => {
     outDuration: 800,
     transition: (url) => { window.location.href = url; },
   });
-
   formContainer.animsition('in');
 });
 
@@ -117,7 +130,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
 
   $('#hg-results-title').html(resultsTitle);
 
-  $('#hg-submit-icon').empty().removeClass('hg-loading').html('<i class="remixicon-search-line"></i>');
+  submitIcon.empty().removeClass('hg-loading').html('<i class="remixicon-search-line"></i>');
 
   $.each(locationList, (n, loc) => {
     const locationName = $(`#${loc}`).data('display-name');
@@ -227,15 +240,51 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
   });
 };
 
+$(document).on('InvalidInputEvent', (e, domField) => {
+  console.log('event triggered');
+  const errorField = $(domField);
+  console.log(errorField);
+  if (errorField.hasClass('is-invalid')) {
+    console.log('has class');
+    errorField.on('keyup', () => {
+      console.log('keyup');
+      errorField.removeClass('is-invalid');
+      errorField.nextAll('.invalid-feedback').remove();
+    });
+  }
+});
+
+
 // Submit Form Action
 $('#lgForm').submit((event) => {
   event.preventDefault();
-  $('#hg-submit-icon').empty().html('<i class="remixicon-loader-4-line"></i>').addClass('hg-loading');
+  submitIcon.empty().html('<i class="remixicon-loader-4-line"></i>').addClass('hg-loading');
   const queryType = $('#query_type').val();
-  const queryTypeTitle = $(`#${queryType}`).data('display-name');
   const queryLocation = $('#location').val();
   const queryTarget = $('#query_target').val();
 
+  try {
+    // message, thing to circle in red, place to put error text
+    if (!queryTarget) {
+      const queryTargetContainer = $('#query_target');
+      throw new InputInvalid(inputMessages.no_input, queryTargetContainer, queryTargetContainer.parent());
+    }
+    if (!queryType) {
+      const queryTypeContainer = $('#query_type').next('.dropdown-toggle');
+      throw new InputInvalid(inputMessages.no_query_type, queryTypeContainer, queryTypeContainer.parent());
+    }
+    if (queryLocation === undefined || queryLocation.length === 0) {
+      const queryLocationContainer = $('#location').next('.dropdown-toggle');
+      throw new InputInvalid(inputMessages.no_location, queryLocationContainer, queryLocationContainer.parent());
+    }
+  } catch (err) {
+    err.field.addClass('is-invalid');
+    err.container.append(`<div class="invalid-feedback px-1">${err.message}</div>`);
+    submitIcon.empty().removeClass('hg-loading').html('<i class="remixicon-search-line"></i>');
+    $(document).trigger('InvalidInputEvent', err.field);
+    return false;
+  }
+  const queryTypeTitle = $(`#${queryType}`).data('display-name');
   queryApp(queryType, queryTypeTitle, queryLocation, queryTarget);
   $('#hg-form').animsition('out', $('#hg-results'), '#');
   $('#hg-form').hide();

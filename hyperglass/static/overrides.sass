@@ -267,6 +267,11 @@
             margin-left: 1rem
 
 // Fixes input group issue where button is 1px taller than the input element (default is 2px)
+
+#hg-submit-button
+    border-top-right-radius: .3rem
+    border-bottom-right-radius: .3rem
+
 .input-group-lg > .form-control:not(textarea),
 .input-group-lg > .custom-select,
 .bootstrap-select.form-control-lg .dropdown-toggle
@@ -431,4 +436,5 @@
 .modal-title
     padding-bottom: 1rem !important
 
-.popover
+.form-control.is-invalid, .form-control.is-valid
+    background-image: unset !important

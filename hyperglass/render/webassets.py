@@ -24,6 +24,20 @@ env = jinja2.Environment(
 )
 
 
+def render_frontend_config():
+    """
+    Renders user config to JSON file so front end config can be used by
+    Javascript
+    """
+    rendered_frontend_file = hyperglass_root.joinpath("static/frontend.json")
+    try:
+        with rendered_frontend_file.open(mode="w") as frontend_file:
+            frontend_file.write(params.json())
+    except jinja2.exceptions as frontend_error:
+        logger.error(f"Error rendering front end config: {frontend_error}")
+        raise HyperglassError(frontend_error)
+
+
 def render_theme():
     """Renders Jinja2 template to Sass file"""
     rendered_theme_file = hyperglass_root.joinpath("static/theme.sass")
@@ -63,6 +77,12 @@ def build_assets():
 
 def render_assets():
     """Controller function for rendering sass theme elements and building web assets"""
+    try:
+        logger.debug("Rendering front end config...")
+        render_frontend_config()
+        logger.debug("Rendered front end config")
+    except HyperglassError as frontend_error:
+        raise HyperglassError(frontend_error)
     try:
         logger.debug("Rendering theme elements...")
         render_theme()

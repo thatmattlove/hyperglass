@@ -7,3 +7,5 @@ old/
 yarn-error.log
 theme.sass
 test*
+frontend.js
+frontend.json
