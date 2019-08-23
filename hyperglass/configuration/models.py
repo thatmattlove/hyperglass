@@ -231,11 +231,12 @@ class Branding(BaseSettings):
         """Class model for params.colors"""
 
         primary: Color = "#40798c"
-        background: Color = "#fbfffe"
-        light: Color = "#fbfffe"
-        dark: Color = "#383541"
+        secondary: Color = "#330036"
         danger: Color = "#ff5e5b"
         warning: Color = "#eec643"
+        light: Color = "#fbfffe"
+        dark: Color = "#383541"
+        background: Color = "#fbfffe"
 
         class Tag(BaseSettings):
             """Class model for params.colors.tag"""
