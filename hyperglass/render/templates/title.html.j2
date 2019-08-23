@@ -1,19 +1,26 @@
 {% macro title(branding, primary_asn, size_title="h1", size_subtitle="h4", direction="none") -%}
+
 {% if branding.text.title_mode == 'text_only' %}
-<{{ size_title }}>{{ branding.text.title }}</{{ size_title }}>
-<{{ size_subtitle }}>{{ branding.text.subtitle.format(primary_asn=primary_asn) }}</{{ size_subtitle }}>
+<div class="col p-0">
+    <p class="{{ size_title }}">{{ branding.text.title }}</p>
+    <p class="{{ size_subtitle }}">{{ branding.text.subtitle.format(primary_asn=primary_asn) }}</p>
+</div>
+
 {% elif branding.text.title_mode == 'all' %}
 <img src="{{ branding.logo.path }}" style="width: {{ branding.logo.width }}px;">
-<{{ size_title }}>{{ branding.text.title }}</{{ size_title }}>
-<{{ size_subtitle }}>{{ branding.text.subtitle.format(primary_asn=primary_asn) }}</{{ size_subtitle }}>
+<p class="{{ size_title }}">{{ branding.text.title }}<p>
+<p class="{{ size_subtitle }}">{{ branding.text.subtitle.format(primary_asn=primary_asn) }}</p>
+
 {% elif branding.text.title_mode == 'logo_title' %}
-<div class="float-{{ direction }} text-center mw-sm-100 mw-md-75 mw-lg-50 mw-xl-50">
+<div class="float-{{ direction }} mw-sm-100 mw-md-75 mw-lg-50 mw-xl-50">
     <img class="img-fluid" src="{{ branding.logo.path }}">
 </div>
-<{{ size_title }}>{{ branding.text.title }}</{{ size_title }}>
+<p clas="{{ size_title }}">{{ branding.text.title }}</p>
+
 {% elif branding.text.title_mode == 'logo_only' %}
-<div class="float-{{ direction }} text-center mw-sm-100 mw-md-75 mw-lg-50 mw-xl-50">
+<div class="float-{{ direction }} mw-sm-100 mw-md-75 mw-lg-50 mw-xl-50">
     <img class="img-fluid" src="{{ branding.logo.path }}">
 </div>
 {% endif %}
+
 {%- endmacro %}
