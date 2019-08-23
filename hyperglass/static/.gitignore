@@ -1,11 +1,13 @@
 .DS_Store
-.sass-cache/
-node_modules/
-old/
+# dev/test files
 *.tmp*
-.cache
-yarn-error.log
-theme.sass
 test*
+*.log
+# generated theme file from hyperglass/hyperglass/render/templates/theme.sass.j2
+theme.sass
+# generated JSON file from ingested & validated YAML config
 frontend.json
+# NPM modules
+node_modules/
+# Downloaded Google Fonts
 fonts/

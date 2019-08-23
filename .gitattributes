@@ -1,19 +1,11 @@
-# Bulma
-hyperglass/static/sass/base/* linguist-vendored
-hyperglass/static/sass/components/* linguist-vendored
-hyperglass/static/sass/elements/* linguist-vendored
-hyperglass/static/sass/grid/* linguist-vendored
-hyperglass/static/sass/layout/* linguist-vendored
-hyperglass/static/sass/utilities/* linguist-vendored
+# NPM/Yarn
+hyperglass/static/package.json linguist-vendored
+hyperglass/static/yarn.lock linguist-vendored
 
-# jquery
-hyperglass/hyperglass/static/js/jquery-* linguist-vendored
-
-# clipboard.js
-hyperglass/static/js/clipboard* linguist-vendored
-
-# icofont
-hyperglass/static/css/icofont/* linguist-vendored
-
-# docs
-docs/ linguist-documentation
+# Templates/Examples
+*.html.j2 linguist-language=HTML
+*.sass.j2 linguist-language=Sass
+*.yaml.example linguist-language=YAML
+*.yml.example linguist-language=YAML
+*.md.example linguist-language=Markdown
+*.service.example linguist-language=INI
