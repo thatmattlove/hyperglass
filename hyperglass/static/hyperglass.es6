@@ -9,14 +9,16 @@ const ClipboardJS = require('clipboard');
 const frontEndConfig = require('./frontend.json');
 
 const inputMessages = frontEndConfig.messages;
+const pageContainer = $('#hg-page-container');
+const formContainer = $('#hg-form');
 const queryLocation = $('#location');
 const queryType = $('#query_type');
 const queryTarget = $('#query_target');
 const queryTargetAppend = $('#hg-target-append');
 const submitIcon = $('#hg-submit-icon');
 const resultsContainer = $('#hg-results');
-const formContainer = $('#hg-form');
 const resultsAccordion = $('#hg-accordion');
+const resultsColumn = resultsAccordion.parent();
 const backButton = $('#hg-back-btn');
 const footerHelpBtn = $('#hg-footer-help-btn');
 const footerTermsBtn = $('#hg-footer-terms-btn');
@@ -33,6 +35,16 @@ class InputInvalid extends Error {
   }
 }
 
+const swapSpacing = (goTo) => {
+  if (goTo === 'form') {
+    pageContainer.removeClass('px-0 px-md-3');
+    resultsColumn.removeClass('px-0');
+  } else if (goTo === 'results') {
+    pageContainer.addClass('px-0 px-md-3');
+    resultsColumn.addClass('px-0');
+  }
+};
+
 const resetResults = () => {
   queryLocation.selectpicker('deselectAll');
   queryLocation.selectpicker('val', '');
@@ -41,6 +53,7 @@ const resetResults = () => {
   resultsContainer.animsition('out', formContainer, '#');
   resultsContainer.hide();
   $('.hg-info-btn').remove();
+  swapSpacing('form');
   formContainer.show();
   formContainer.animsition('in');
   backButton.addClass('d-none');
@@ -114,9 +127,12 @@ const supportedBtn = qt => `<button class="btn btn-dark hg-info-btn" id="hg-info
 
 queryType.on('changed.bs.select', () => {
   const queryTypeId = queryType.val();
+  const queryTypeBtn = $('.hg-info-btn');
   if ((queryTypeId === 'bgp_community') || (queryTypeId === 'bgp_aspath')) {
-    $('.hg-info-btn').remove();
+    queryTypeBtn.remove();
     queryTargetAppend.prepend(supportedBtn(queryTypeId));
+  } else {
+    queryTypeBtn.remove();
   }
 });
 
@@ -288,6 +304,7 @@ $('#lgForm').submit((event) => {
   queryApp(queryType, queryTypeTitle, queryLocation, queryTarget);
   $('#hg-form').animsition('out', $('#hg-results'), '#');
   $('#hg-form').hide();
+  swapSpacing('results');
   $('#hg-results').show();
   $('#hg-results').animsition('in');
   $('#hg-submit-spinner').remove();
@@ -301,10 +318,11 @@ $('#hg-back-btn').click(() => {
 
 const clipboard = new ClipboardJS('.hg-copy-btn');
 clipboard.on('success', (e) => {
-  $(e.trigger).find('.hg-copy-icon').removeClass('remixicon-checkbox-multiple-blank-line').addClass('remixicon-checkbox-multiple-line');
+  const copyIcon = $(e.trigger).find('.hg-copy-icon');
+  copyIcon.removeClass('remixicon-checkbox-multiple-blank-line').addClass('remixicon-checkbox-multiple-line');
   e.clearSelection();
   setTimeout(() => {
-    $(e.trigger).find('.hg-copy-icon').removeClass('remixicon-checkbox-multiple-line').addClass('remixicon-checkbox-multiple-blank-line');
+    copyIcon.removeClass('remixicon-checkbox-multiple-line').addClass('remixicon-checkbox-multiple-blank-line');
   }, 800);
 });
 clipboard.on('error', (e) => {

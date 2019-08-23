@@ -13,8 +13,8 @@
     .mw-sm-100
         max-width: 100% !important
 
-    .mw-sm-auto
-        max-width: auto !important
+    .mw-sm-none
+        max-width: none !important
 
     .mh-sm-25
         max-height: 25% !important
@@ -28,8 +28,8 @@
     .mh-sm-100
         max-height: 100% !important
 
-    .mh-sm-auto
-        max-height: auto !important
+    .mh-sm-none
+        max-height: none !important
 
 @media (min-width: 768px)
     .mw-md-25
@@ -44,8 +44,8 @@
     .mw-md-100
         max-width: 100% !important
 
-    .mw-md-auto
-        max-width: auto !important
+    .mw-md-none
+        max-width: none !important
 
     .mh-md-25
         max-height: 25% !important
@@ -59,8 +59,8 @@
     .mh-md-100
         max-height: 100% !important
 
-    .mh-md-auto
-        max-height: auto !important
+    .mh-md-none
+        max-height: none !important
 
 @media (min-width: 992px)
     .mw-lg-25
@@ -75,8 +75,8 @@
     .mw-lg-100
         max-width: 100% !important
 
-    .mw-lg-auto
-        max-width: auto !important
+    .mw-lg-none
+        max-width: none !important
 
     .mh-lg-25
         max-height: 25% !important
@@ -90,8 +90,8 @@
     .mh-lg-100
         max-height: 100% !important
 
-    .mh-lg-auto
-        max-height: auto !important
+    .mh-lg-none
+        max-height: none !important
 
 @media (min-width: 1200px)
     .mw-xl-25
@@ -106,8 +106,8 @@
     .mw-xl-100
         max-width: 100% !important
 
-    .mw-xl-auto
-        max-width: auto !important
+    .mw-xl-none
+        max-width: none !important
 
     .mh-xl-25
         max-height: 25% !important
@@ -121,8 +121,8 @@
     .mh-xl-100
         max-height: 100% !important
 
-    .mh-xl-auto
-        max-height: auto !important
+    .mh-xl-none
+        max-height: none !important
 @media (min-width: 576px)
     .mw-sm-25
         max-width: 25% !important
@@ -136,8 +136,8 @@
     .mw-sm-100
         max-width: 100% !important
 
-    .mw-sm-auto
-        max-width: auto !important
+    .mw-sm-none
+        max-width: none !important
 
     .mh-sm-25
         max-height: 25% !important
@@ -151,8 +151,8 @@
     .mh-sm-100
         max-height: 100% !important
 
-    .mh-sm-auto
-        max-height: auto !important
+    .mh-sm-none
+        max-height: none !important
 
 @media (min-width: 768px)
     .mw-md-25
@@ -167,8 +167,8 @@
     .mw-md-100
         max-width: 100% !important
 
-    .mw-md-auto
-        max-width: auto !important
+    .mw-md-none
+        max-width: none !important
 
     .mh-md-25
         max-height: 25% !important
@@ -182,8 +182,8 @@
     .mh-md-100
         max-height: 100% !important
 
-    .mh-md-auto
-        max-height: auto !important
+    .mh-md-none
+        max-height: none !important
 
 @media (min-width: 992px)
     .mw-lg-25
@@ -198,8 +198,8 @@
     .mw-lg-100
         max-width: 100% !important
 
-    .mw-lg-auto
-        max-width: auto !important
+    .mw-lg-none
+        max-width: none !important
 
     .mh-lg-25
         max-height: 25% !important
@@ -213,8 +213,8 @@
     .mh-lg-100
         max-height: 100% !important
 
-    .mh-lg-auto
-        max-height: auto !important
+    .mh-lg-none
+        max-height: none !important
 
 @media (min-width: 1200px)
     .mw-xl-25
@@ -229,8 +229,8 @@
     .mw-xl-100
         max-width: 100% !important
 
-    .mw-xl-auto
-        max-width: auto !important
+    .mw-xl-none
+        max-width: none !important
 
     .mh-xl-25
         max-height: 25% !important
@@ -244,8 +244,8 @@
     .mh-xl-100
         max-height: 100% !important
 
-    .mh-xl-auto
-        max-height: auto !important
+    .mh-xl-none
+        max-height: none !important
 
 // hyperglass overrides
 #hg-form
@@ -269,8 +269,8 @@
 // Fixes input group issue where button is 1px taller than the input element (default is 2px)
 
 #hg-submit-button
-    border-top-right-radius: .3rem
-    border-bottom-right-radius: .3rem
+    border-top-right-radius: $border-radius-lg
+    border-bottom-right-radius: $border-radius-lg
 
 .input-group-lg > .form-control:not(textarea),
 .input-group-lg > .custom-select,
@@ -292,6 +292,7 @@
     bottom: 5rem !important
     border-radius: 50rem !important
     border: 1px solid $card-border-color !important
+    background-color: $hg-loading
     transition: all .3s !important
     font-weight: 200 !important
     font-size: 1.4rem !important
@@ -302,6 +303,10 @@
     .btn-link
         font-weight: 200
         font-size: 1.4rem
+
+#hg-accordion
+    .card-body
+        word-wrap: normal !important
 
 .hg-menu-btn
     -webkit-transition: none
@@ -338,11 +343,12 @@
 .hg-loading
     animation: spinner-border .75s linear infinite
 
-.accordion
-    div
-        &.card
-            &:only-child
-                border-bottom: $card-border-width solid $card-border-color
+.accordion > .card:only-of-type
+    border-bottom: $card-border-width solid $card-border-color
+    border-top-left-radius: $border-radius !important
+    border-top-right-radius: $border-radius !important
+    border-bottom-left-radius: $border-radius !important
+    border-bottom-right-radius: $border-radius !important
 
 .btn:focus,.btn:active
     outline: none !important
@@ -435,6 +441,3 @@
 
 .modal-title
     padding-bottom: 1rem !important
-
-.form-control.is-invalid, .form-control.is-valid
-    background-image: unset !important
