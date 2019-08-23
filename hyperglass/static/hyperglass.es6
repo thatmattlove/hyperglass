@@ -87,27 +87,39 @@ queryType.selectpicker({
 
 footerTermsBtn.popover({
   html: true,
-  trigger: 'focus click',
+  trigger: 'manual',
   template: footerPopoverTemplate,
   placement: 'top',
   content: $('#hg-footer-terms-html').html(),
+}).on('click', (e) => {
+  $(e.currentTarget).popover('toggle');
+}).on('focusout', (e) => {
+  $(e.currentTarget).popover('hide');
 });
 
 footerHelpBtn.popover({
   html: true,
-  trigger: 'focus click',
+  trigger: 'manual',
   placement: 'top',
   template: footerPopoverTemplate,
   content: $('#hg-footer-help-html').html(),
+}).on('click', (e) => {
+  $(e.currentTarget).popover('toggle');
+}).on('focusout', (e) => {
+  $(e.currentTarget).popover('hide');
 });
 
 footerCreditBtn.popover({
   html: true,
-  trigger: 'focus click',
+  trigger: 'manual',
   placement: 'top',
   title: $('#hg-footer-credit-title').html(),
   content: $('#hg-footer-credit-content').html(),
   template: footerPopoverTemplate,
+}).on('click', (e) => {
+  $(e.currentTarget).popover('toggle');
+}).on('focusout', (e) => {
+  $(e.currentTarget).popover('hide');
 });
 
 $(document).ready(() => {
@@ -124,7 +136,7 @@ $(document).ready(() => {
   formContainer.animsition('in');
 });
 
-const supportedBtn = qt => `<button class="btn btn-dark hg-info-btn" id="hg-info-btn-${qt}" data-hg-type="${qt}" type="button"><div id="hg-info-icon-${qt}"><i class="remixicon-information-line"></i></div></button>`;
+const supportedBtn = qt => `<button class="btn btn-secondary hg-info-btn" id="hg-info-btn-${qt}" data-hg-type="${qt}" type="button"><div id="hg-info-icon-${qt}"><i class="remixicon-information-line"></i></div></button>`;
 
 queryType.on('changed.bs.select', () => {
   const queryTypeId = queryType.val();

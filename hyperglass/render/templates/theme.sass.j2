@@ -1,10 +1,11 @@
 // Jinja2-rendered theme elements
 $hg-primary: {{ colors.primary }}
-$hg-background: {{ colors.background }}
-$hg-light: {{ colors.light }}
-$hg-dark: {{ colors.dark }}
+$hg-secondary: {{ colors.secondary }}
 $hg-danger: {{ colors.danger }}
 $hg-warning: {{ colors.warning }}
+$hg-light: {{ colors.light }}
+$hg-dark: {{ colors.dark }}
+$hg-background: {{ colors.background }}
 
 // Functions
 @function findTextColor($color)
@@ -44,7 +45,7 @@ $enable-responsive-font-sizes: true
 
 $enable-validation-icons: false
 
-$theme-colors: ("primary": $hg-primary, "danger": $hg-danger, "warning": $hg-warning, "light": $hg-light, "dark": $hg-dark, "loading": $hg-loading, "footer": $hg-footer)
+$theme-colors: ("primary": $hg-primary, "secondary": $hg-secondary, "danger": $hg-danger, "warning": $hg-warning, "light": $hg-light, "dark": $hg-dark, "loading": $hg-loading, "footer": $hg-footer)
 
 $body-bg: $hg-background
 

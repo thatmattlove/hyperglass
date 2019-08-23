@@ -3,12 +3,12 @@
   <div class="container-fluid row no-gutters text-center p-0">
     <div class="col-auto float-left">
       <div class="d-none" id="hg-footer-terms-html">{{ details.footer.content | safe }}</div>
-      <a class="btn btn-link hg-footer-item" id="hg-footer-terms-btn" href="#" data-toggle="popover" tabindex="0"
+      <a class="btn btn-link" id="hg-footer-terms-btn" href="#" data-toggle="popover" tabindex="0" role="button"
         title="{{ branding.text.terms }}"><small>{{ branding.text.terms }}</small></a>
     </div>
     <div class="col-auto float-left">
       <div class="d-none" id="hg-footer-help-html">{{ rendered_help.content | safe }}</div>
-      <a class="btn btn-link hg-footer-item" id="hg-footer-help-btn" href="#" data-toggle="popover" tabindex="0"
+      <a class="btn btn-link" id="hg-footer-help-btn" href="#" data-toggle="popover" tabindex="0" role="button"
         title="{{ branding.text.info }}"><small>{{ branding.text.info }}</small></a>
     </div>
     <div class="col-auto mr-auto"></div>
@@ -21,7 +21,7 @@
         Source code licensed <a href="https://github.com/checktheroads/hyperglass/blob/master/LICENSE"
           target="_blank">BSD 3-Clause Clear.</a>
       </div>
-      <a class="btn btn-link" id="hg-footer-credit-btn" href="#" data-toggle="popover" tabindex="0"><small><i
+      <a class="btn btn-link" id="hg-footer-credit-btn" href="#" data-toggle="popover" tabindex="0" role="button"><small><i
             class="remixicon-code-s-slash-line"></i></small></a>
     </div>
     {% endif %}
