@@ -38,6 +38,36 @@ def render_frontend_config():
         raise HyperglassError(frontend_error)
 
 
+def get_fonts():
+    """Downloads google fonts"""
+    font_dir = hyperglass_root.joinpath("static/fonts")
+    font_bin = str(
+        hyperglass_root.joinpath("static/node_modules/get-google-fonts/cli.js")
+    )
+    font_base = "https://fonts.googleapis.com/css?family={p}|{m}&display=swap"
+    font_primary = "+".join(params.branding.font.primary.split(" ")).strip()
+    font_mono = "+".join(params.branding.font.mono.split(" ")).strip()
+    font_url = font_base.format(p=font_primary + ":300,400,700", m=font_mono + ":400")
+    proc = subprocess.Popen(
+        ["node", font_bin, "-w", "-i", font_url, "-o", font_dir],
+        cwd=hyperglass_root.joinpath("static"),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    try:
+        stdout, stderr = proc.communicate(timeout=60)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        stdout, stderr = proc.communicate()
+    if proc.returncode != 0:
+        output_error = stderr.decode("utf-8")
+        logger.error(output_error)
+        raise HyperglassError(f"Error downloading font from URL {font_url}")
+    else:
+        proc.kill()
+        logger.debug(f"Downloaded font from URL {font_url}")
+
+
 def render_theme():
     """Renders Jinja2 template to Sass file"""
     rendered_theme_file = hyperglass_root.joinpath("static/theme.sass")
@@ -60,7 +90,7 @@ def build_assets():
         stderr=subprocess.PIPE,
     )
     try:
-        stdout, stderr = proc.communicate(timeout=15)
+        stdout, stderr = proc.communicate(timeout=60)
     except subprocess.TimeoutExpired:
         proc.kill()
         stdout, stderr = proc.communicate()
@@ -76,13 +106,22 @@ def build_assets():
 
 
 def render_assets():
-    """Controller function for rendering sass theme elements and building web assets"""
+    """
+    Controller function for rendering sass theme elements and building
+    web assets
+    """
     try:
         logger.debug("Rendering front end config...")
         render_frontend_config()
         logger.debug("Rendered front end config")
     except HyperglassError as frontend_error:
         raise HyperglassError(frontend_error)
+    try:
+        logger.debug("Downloading theme fonts...")
+        get_fonts()
+        logger.debug("Downloaded theme fonts")
+    except HyperglassError as theme_error:
+        raise HyperglassError(theme_error)
     try:
         logger.debug("Rendering theme elements...")
         render_theme()

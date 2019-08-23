@@ -254,20 +254,8 @@ class Branding(BaseSettings):
     class Font(BaseSettings):
         """Class model for params.branding.font"""
 
-        class Primary(BaseSettings):
-            """Class model for params.branding.font.primary"""
-
-            name: str = "Nunito"
-            url: UrlStr = "https://fonts.googleapis.com/css?family=Nunito:400,600,700"
-
-        class Mono(BaseSettings):
-            """Class model for params.branding.font.mono"""
-
-            name: str = "Fira Mono"
-            url: UrlStr = "https://fonts.googleapis.com/css?family=Fira+Mono"
-
-        primary: Primary = Primary()
-        mono: Mono = Mono()
+        primary: str = "Nunito"
+        mono: str = "Fira Code"
 
     class Footer(BaseSettings):
         """Class model for params.branding.font"""
