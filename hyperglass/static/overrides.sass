@@ -266,19 +266,14 @@
         & + .nav-link
             margin-left: 1rem
 
-// Fixes input group issue where button is 1px taller than the input element (default is 2px)
-
-#hg-submit-button
-    border-top-right-radius: $border-radius-lg
-    border-bottom-right-radius: $border-radius-lg
-
 .input-group-lg > .form-control:not(textarea),
 .input-group-lg > .custom-select,
-.bootstrap-select.form-control-lg .dropdown-toggle
-    height: calc(1.5em + 1rem + 3px) !important
+bootstrap-select.form-control-lg .dropdown-toggle, .input-group-append > .btn
+    height: $input-height-lg !important
+    padding: $input-padding-y-lg $input-padding-x-lg !important
 
 .hg-back:hover
-    text-decoration: none 
+    text-decoration: none
     border: 1px solid $hg-primary !important
 
 .hg-back:focus
@@ -307,6 +302,7 @@
 #hg-accordion
     .card-body
         word-wrap: normal !important
+        color: findTextColor($card-bg) !important
 
 .hg-menu-btn
     -webkit-transition: none
@@ -319,6 +315,9 @@
     -moz-transition: all 0.5s ease
     -o-transition: all 0.5s ease
     transition: all 0.5s ease
+
+#hg-title-col
+    cursor: pointer
 
 .tab-content
     overflow: hidden

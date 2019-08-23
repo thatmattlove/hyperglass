@@ -1,11 +1,13 @@
 <div class="container animsition" data-animsition-out-class="fade-out-left" data-animsition-in-class="fade-in-right"
     id="hg-results">
     <div class="row mb-md-1 mb-lg-3 mb-xl-3 px-3 px-md-1 py-3 py-md-1 mx-0 mw-100 mw-md-none">
-        <div class="d-flex col-12 col-lg-6 justify-content-center justify-content-lg-start align-self-end text-center text-lg-left">
+        <div class="d-flex col-12 col-lg-6 justify-content-center justify-content-lg-start align-self-end text-center text-lg-left"
+            data-href="/" id="hg-title-col">
             {% import "templates/title.html.j2" as title %}
             {{ title.title(branding, primary_asn, size_title="h1", size_subtitle="h4", direction="left") }}
         </div>
-        <div class="d-flex col-12 col-lg-6 align-self-end justify-content-center justify-content-lg-end text-center text-lg-right">
+        <div
+            class="d-flex col-12 col-lg-6 align-self-end justify-content-center justify-content-lg-end text-center text-lg-right">
             <h2 class="mb-0" id="hg-results-title"></h2>
         </div>
     </div>

@@ -12,6 +12,7 @@ const cfgGeneral = frontEndConfig.general;
 const inputMessages = frontEndConfig.messages;
 const pageContainer = $('#hg-page-container');
 const formContainer = $('#hg-form');
+const titleColumn = $('#hg-title-col');
 const queryLocation = $('#location');
 const queryType = $('#query_type');
 const queryTarget = $('#query_target');
@@ -40,9 +41,11 @@ const swapSpacing = (goTo) => {
   if (goTo === 'form') {
     pageContainer.removeClass('px-0 px-md-3');
     resultsColumn.removeClass('px-0');
+    titleColumn.removeClass('text-center');
   } else if (goTo === 'results') {
     pageContainer.addClass('px-0 px-md-3');
     resultsColumn.addClass('px-0');
+    titleColumn.addClass('text-left');
   }
 };
 
@@ -120,6 +123,11 @@ footerCreditBtn.popover({
   $(e.currentTarget).popover('toggle');
 }).on('focusout', (e) => {
   $(e.currentTarget).popover('hide');
+});
+
+titleColumn.on('click', (e) => {
+  window.location = $(e.currentTarget).data('href');
+  return false;
 });
 
 $(document).ready(() => {
