@@ -325,6 +325,14 @@ class Branding(BaseSettings):
         error500: Error500 = Error500()
         error504: Error504 = Error504()
 
+        @validator("title_mode")
+        def check_title_mode(cls, v):
+            """Verifies title_mode matches supported values"""
+            supported_modes = ["logo_only", "text_only", "logo_title", "all"]
+            if v not in supported_modes:
+                raise ValueError("title_mode must be one of {}".format(supported_modes))
+            return v
+
     credit: Credit = Credit()
     footer: Footer = Footer()
     text: Text = Text()
