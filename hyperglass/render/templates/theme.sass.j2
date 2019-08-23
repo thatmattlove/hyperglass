@@ -28,31 +28,38 @@ $hg-background: {{ colors.background }}
         $darker-color: scale-color($hg-dark, $lightness: -3%)
         @return grayscale($darker-color)
 
-// App variables
+@function findBorderColor($color)
+    $inverted: invert($color)
+    @if (lightness($inverted) > 55%)
+        $border: scale-color($inverted, $lightness: -3%)
+        @return grayscale($border)
+    @else
+        $border: scale-color($inverted, $lightness: 3%)
+        @return grayscale($border)
 
+// App variables
 $hg-loading: findAltBackgroundColor($hg-background)
 $hg-footer: findFooterColor($hg-background)
 
 // Theme Overrides
+$theme-colors: ("primary": $hg-primary, "secondary": $hg-secondary, "danger": $hg-danger, "warning": $hg-warning, "light": $hg-light, "dark": $hg-dark, "loading": $hg-loading, "footer": $hg-footer)
 
 $font-family-sans-serif: "{{ font.primary }}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
-
 $font-family-monospace: "{{ font.mono }}", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
-
 $headings-font-weight: 400
 
 $enable-responsive-font-sizes: true
-
 $enable-validation-icons: false
 
-$theme-colors: ("primary": $hg-primary, "secondary": $hg-secondary, "danger": $hg-danger, "warning": $hg-warning, "light": $hg-light, "dark": $hg-dark, "loading": $hg-loading, "footer": $hg-footer)
-
 $body-bg: $hg-background
-
 $body-color: findTextColor($body-bg)
 
 $border-radius: .44rem
-
 $border-radius-lg: .4rem
-
 $border-radius-sm: .35rem
+
+$popover-bg: $hg-background
+$popover-border-color: rgba(findBorderColor($popover-bg), .2)
+$popover-body-color: findTextColor($popover-bg)
+
+$card-border-color: findBorderColor($body-bg)
