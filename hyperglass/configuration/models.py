@@ -219,6 +219,7 @@ class General(BaseSettings):
     redis_host: Union[str, IPvAnyNetwork] = "localhost"
     redis_port: int = 6379
     requires_ipv6_cidr: List[str] = ["cisco_ios", "cisco_nxos"]
+    query_timeout: int = 15
 
 
 class Branding(BaseSettings):

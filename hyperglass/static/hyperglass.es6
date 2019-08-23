@@ -8,6 +8,7 @@ const animsition = require('animsition');
 const ClipboardJS = require('clipboard');
 const frontEndConfig = require('./frontend.json');
 
+const cfgGeneral = frontEndConfig.general;
 const inputMessages = frontEndConfig.messages;
 const pageContainer = $('#hg-page-container');
 const formContainer = $('#hg-form');
@@ -86,7 +87,7 @@ queryType.selectpicker({
 
 footerTermsBtn.popover({
   html: true,
-  trigger: 'focus',
+  trigger: 'focus click',
   template: footerPopoverTemplate,
   placement: 'top',
   content: $('#hg-footer-terms-html').html(),
@@ -94,7 +95,7 @@ footerTermsBtn.popover({
 
 footerHelpBtn.popover({
   html: true,
-  trigger: 'focus',
+  trigger: 'focus click',
   placement: 'top',
   template: footerPopoverTemplate,
   content: $('#hg-footer-help-html').html(),
@@ -102,7 +103,7 @@ footerHelpBtn.popover({
 
 footerCreditBtn.popover({
   html: true,
-  trigger: 'focus',
+  trigger: 'focus click',
   placement: 'top',
   title: $('#hg-footer-credit-title').html(),
   content: $('#hg-footer-credit-content').html(),
@@ -116,8 +117,8 @@ $(document).ready(() => {
   $('.animsition').animsition({
     inClass: 'fade-in',
     outClass: 'fade-out',
-    inDuration: 800,
-    outDuration: 800,
+    inDuration: 400,
+    outDuration: 400,
     transition: (url) => { window.location.href = url; },
   });
   formContainer.animsition('in');
@@ -215,7 +216,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
       contentType: 'application/json; charset=utf-8',
       context: document.body,
       async: true,
-      timeout: 15000,
+      timeout: cfgGeneral.query_timeout * 1000,
     })
       .done((data, textStatus, jqXHR) => {
         const displayHtml = `<pre>${jqXHR.responseText}</pre>`;
