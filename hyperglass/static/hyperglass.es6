@@ -175,7 +175,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
 
     const contentHtml = `
     <div class="card" id="${loc}-output">
-      <div class="card-header bg-loading" id="${loc}-heading">
+      <div class="card-header bg-overlay" id="${loc}-heading">
         <div class="float-right hg-status-container" id="${loc}-status-container">
           <button type="button" class="float-right btn btn-loading btn-lg hg-menu-btn hg-status-btn" 
             data-location="${loc}" id="${loc}-status-btn" disabled>
@@ -215,13 +215,14 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
 
     const generateError = (errorClass, locError, text) => {
       const iconError = '<i class="hg-menu-icon hg-status-icon remixicon-alert-line"></i>';
-      $(`#${locError}-heading`).removeClass('bg-loading').addClass(`bg-${errorClass}`);
+      $(`#${locError}-heading`).removeClass('bg-overlay').addClass(`bg-${errorClass}`);
       $(`#${locError}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass(`btn-${errorClass}`);
       $(`#${locError}-status-container`)
         .removeClass('hg-loading')
         .find('.hg-status-btn')
         .empty()
-        .html(iconError);
+        .html(iconError)
+        .addClass('hg-done');
       $(`#${locError}-text`).html(text);
     }
 
@@ -241,13 +242,14 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
       .done((data, textStatus, jqXHR) => {
         const displayHtml = `<pre>${jqXHR.responseText}</pre>`;
         const iconSuccess = '<i class="hg-menu-icon hg-status-icon remixicon-check-line"></i>';
-        $(`#${loc}-heading`).removeClass('bg-loading').addClass('bg-primary');
+        $(`#${loc}-heading`).removeClass('bg-overlay').addClass('bg-primary');
         $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass('btn-primary');
         $(`#${loc}-status-container`)
           .removeClass('hg-loading')
           .find('.hg-status-btn')
           .empty()
-          .html(iconSuccess);
+          .html(iconSuccess)
+          .addClass('hg-done');
         $(`#${loc}-text`).empty().html(displayHtml);
       })
       .fail((jqXHR, textStatus, errorThrown) => {
@@ -256,9 +258,9 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
         if (textStatus === 'timeout') {
           const displayHtml = 'Request timed out.';
           const iconTimeout = '<i class="remixicon-time-line"></i>';
-          $(`#${loc}-heading`).removeClass('bg-loading').addClass('bg-warning');
+          $(`#${loc}-heading`).removeClass('bg-overlay').addClass('bg-warning');
           $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass('btn-warning');
-          $(`#${loc}-status-container`).removeClass('hg-loading').find('.hg-status-btn').empty().html(iconTimeout);
+          $(`#${loc}-status-container`).removeClass('hg-loading').find('.hg-status-btn').empty().html(iconTimeout).addClass('hg-done');
           $(`#${loc}-text`).empty().html(displayHtml);
         } else if (codesDanger.includes(jqXHR.status)) {
           generateError('danger', loc, jqXHR.responseText);
@@ -350,19 +352,19 @@ clipboard.on('error', (e) => {
   console.log(e);
 });
 
-$('#hg-accordion').on('mouseenter', '.hg-status-btn', (e) => {
+$('#hg-accordion').on('mouseenter', '.hg-done', (e) => {
   $(e.currentTarget)
     .find('.hg-status-icon')
     .addClass('remixicon-repeat-line');
 });
 
-$('#hg-accordion').on('mouseleave', '.hg-status-btn', (e) => {
+$('#hg-accordion').on('mouseleave', '.hg-done', (e) => {
   $(e.currentTarget)
     .find('.hg-status-icon')
     .removeClass('remixicon-repeat-line');
 });
 
-$('#hg-accordion').on('click', '.hg-status-btn', (e) => {
+$('#hg-accordion').on('click', '.hg-done', (e) => {
   const thisLocation = $(e.currentTarget).data('location');
   console.log(`Refreshing ${thisLocation}`);
   const queryType = $('#query_type').val();

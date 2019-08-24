@@ -3,32 +3,34 @@ $hg-primary: {{ colors.primary }}
 $hg-secondary: {{ colors.secondary }}
 $hg-danger: {{ colors.danger }}
 $hg-warning: {{ colors.warning }}
-$hg-light: {{ colors.light }}
-$hg-dark: {{ colors.dark }}
 $hg-background: {{ colors.background }}
-
-// Functions
+        
 @function findTextColor($color)
+    $inverted: invert($color)
     @if (lightness($color) > 55%)
-        @return $hg-dark
+        $text-color: scale-color($inverted, $lightness: -90%)
+        @return grayscale($text-color)
     @else
-        @return $hg-light
+        $text-color: scale-color($inverted, $lightness: 90%)
+        @return grayscale($text-color)
 
-@function findAltBackgroundColor($color)
+@function findOverlayColor($color)
     @if (lightness($color) > 55%)
-        @return $hg-light
-    @else
-        @return $hg-dark
-
-@function findFooterColor($color)
-    @if (lightness($color) > 55%)
-        $darker-color: scale-color($hg-light, $lightness: -3%)
+        $darker-color: scale-color($color, $lightness: -3%)
         @return grayscale($darker-color)
     @else
-        $darker-color: scale-color($hg-dark, $lightness: -3%)
+        $darker-color: scale-color($color, $lightness: 5%)
         @return grayscale($darker-color)
 
-@function findBorderColor($color)
+@function findSubtleColor($color)
+    @if (lightness($color) > 55%)
+        $subtle-color: scale-color($color, $lightness: -3%)
+        @return grayscale($subtle-color)
+    @else
+        $subtle-color: scale-color($color, $lightness: 20%)
+        @return grayscale($subtle-color)
+
+@function findInvertedColor($color)
     $inverted: invert($color)
     @if (lightness($inverted) > 55%)
         $border: scale-color($inverted, $lightness: -3%)
@@ -37,29 +39,88 @@ $hg-background: {{ colors.background }}
         $border: scale-color($inverted, $lightness: 3%)
         @return grayscale($border)
 
+@function findFieldColor($color)
+    @if (lightness($color) > 55%)
+        @return $color
+    @else
+        $darker-color: scale-color($color, $lightness: 5%)
+        @return grayscale($darker-color)
+
+//// Body Color
+$body-bg:       $hg-background
+$body-color:    findTextColor($body-bg)
+
+// Global variables
+$hg-overlay:        findOverlayColor($hg-background)
+$hg-inverted:       findInvertedColor($hg-background)
+$hg-field:          findFieldColor($hg-background)
+$hg-border:         rgba(findInvertedColor($hg-overlay), .2)
+$hg-primary-color:  findTextColor($hg-primary)
+
 // App variables
-$hg-loading: findAltBackgroundColor($hg-background)
-$hg-footer: findFooterColor($hg-background)
+$hg-loading:        $hg-overlay
+$hg-footer:         $hg-overlay
+$hg-overlay-bg:     $hg-overlay
+$hg-overlay-color:  findTextColor($hg-overlay-bg)
+$hg-inverted-bg:    $hg-inverted
+$hg-inverted-color: findTextColor($hg-inverted-bg)
+$hg-field-bg:       $hg-field
+$hg-field-color:    findTextColor($hg-field-bg)
 
-// Theme Overrides
-$theme-colors: ("primary": $hg-primary, "secondary": $hg-secondary, "danger": $hg-danger, "warning": $hg-warning, "light": $hg-light, "dark": $hg-dark, "loading": $hg-loading, "footer": $hg-footer)
+// Bootstrap Overrides
 
-$font-family-sans-serif: "{{ font.primary }}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
-$font-family-monospace: "{{ font.mono }}", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
-$headings-font-weight: 400
+//// Components
+$component-active-color: findTextColor($hg-primary)
 
-$enable-responsive-font-sizes: true
-$enable-validation-icons: false
+//// Flags
+$enable-responsive-font-sizes:  true
+$enable-validation-icons:       false
+$theme-colors:                  ("primary": $hg-primary, "secondary": $hg-secondary, "danger": $hg-danger, "warning": $hg-warning, "light": findTextColor(black), "dark": findTextColor(white), "overlay": $hg-overlay)
 
-$body-bg: $hg-background
-$body-color: findTextColor($body-bg)
+//// Fonts/Text
+$font-family-sans-serif:    "{{ font.primary }}", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
+$font-family-monospace:     "{{ font.mono }}", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
+$headings-font-weight:      400
 
-$border-radius: .44rem
-$border-radius-lg: .4rem
-$border-radius-sm: .35rem
+//// Borders
+$border-radius:     .44rem
+$border-radius-lg:  .4rem
+$border-radius-sm:  .35rem
 
-$popover-bg: $hg-background
-$popover-border-color: rgba(findBorderColor($popover-bg), .2)
-$popover-body-color: findTextColor($popover-bg)
+//// Popovers
+$popover-bg:                    $hg-field-bg
+$popover-border-color:          $hg-border
+$popover-body-color:            $hg-field-color
 
-$card-border-color: findBorderColor($body-bg)
+//// Cards
+$card-bg:                       $hg-field-bg
+$card-color:                    $hg-field-color
+$card-border-color:             $hg-border
+
+//// Dropdowns
+$dropdown-bg:                   $hg-field-bg
+$dropdown-color:                $hg-field-color
+$dropdown-divider-bg:           $hg-border
+$dropdown-border-color:         $hg-border
+$dropdown-header-color:         findSubtleColor($dropdown-color)
+$dropdown-link-color:           $hg-field-color
+$dropdown-link-hover-bg:        $hg-primary
+$dropdown-link-hover-color:     $hg-primary-color
+$dropdown-link-active-bg:       $hg-primary
+$dropdown-link-active-color:    $hg-primary-color
+
+////Forms
+$input-bg:                      $hg-field-bg
+$input-color:                   $hg-field-color
+$input-border-color:            $hg-border
+$input-placeholder-color:       findSubtleColor($hg-field-color)
+$input-btn-focus-box-shadow:    none
+$input-focus-bg:                findSubtleColor($input-bg)
+$input-focus-color:             $input-color
+$input-focus-border-color:      findOverlayColor($hg-border)
+
+//// Code
+$code-color:                    $hg-secondary
+$kbd-bg:                        findOverlayColor($hg-overlay)
+$kbd-color:                     $hg-overlay-color
+$pre-color:                     $body-color

@@ -268,9 +268,16 @@
 
 .input-group-lg > .form-control:not(textarea),
 .input-group-lg > .custom-select,
-bootstrap-select.form-control-lg .dropdown-toggle, .input-group-append > .btn
+.bootstrap-select.form-control-lg .dropdown-toggle, .input-group-append > .btn
     height: $input-height-lg !important
     padding: $input-padding-y-lg $input-padding-x-lg !important
+
+.form-control
+    transition: background-color .15s ease-in-out,box-shadow .15s ease-in-out !important
+    color: $input-color !important
+
+.bootstrap-select > .dropdown-toggle.bs-placeholder
+    color: $input-placeholder-color !important
 
 .hg-back:hover
     text-decoration: none
@@ -287,7 +294,7 @@ bootstrap-select.form-control-lg .dropdown-toggle, .input-group-append > .btn
     bottom: 5rem !important
     border-radius: 50rem !important
     border: 1px solid $card-border-color !important
-    background-color: $hg-loading
+    background-color: $hg-field-bg !important
     transition: all .3s !important
     font-weight: 200 !important
     font-size: 1.4rem !important
@@ -371,11 +378,11 @@ bootstrap-select.form-control-lg .dropdown-toggle, .input-group-append > .btn
         background-color: darken($hg-danger, 10%) !important
         border-color: $hg-danger !important
 
-.bg-loading
-    .btn-loading:hover
-        color: findTextColor($hg-loading) !important
-        background-color: darken($hg-loading, 10%) !important
-        border-color: $hg-loading !important
+.bg-overlay
+    .btn-overlay:hover
+        color: findTextColor($hg-overlay) !important
+        background-color: darken($hg-overlay, 10%) !important
+        border-color: $hg-overlay !important
 
 .bg-primary
     *
@@ -389,13 +396,9 @@ bootstrap-select.form-control-lg .dropdown-toggle, .input-group-append > .btn
     *
         color: findTextColor($hg-warning) !important
 
-.bg-loading
+.bg-overlay
     *
-        color: findTextColor($hg-loading) !important
-
-.bg-footer
-    *
-        color: findTextColor($hg-footer) !important
+        color: findTextColor($hg-overlay) !important
 
 .bg-primary
     ::selection, ::-moz-selection
@@ -412,15 +415,10 @@ bootstrap-select.form-control-lg .dropdown-toggle, .input-group-append > .btn
         background-color: findTextColor($hg-warning) !important
         color: $hg-warning !important
 
-.bg-loading
+.bg-overlay
     ::selection, ::-moz-selection
-        background-color: findTextColor($hg-loading) !important
-        color: $hg-loading !important
-
-.bg-loading
-    ::selection, ::-moz-selection
-        background-color: findTextColor($hg-footer) !important
-        color: $hg-footer !important
+        background-color: findTextColor($hg-overlay) !important
+        color: $hg-overlay !important
 
 .bg-danger
     .btn-outline-danger
