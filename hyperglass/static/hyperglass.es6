@@ -27,6 +27,8 @@ const footerTermsBtn = $('#hg-footer-terms-btn');
 const footerCreditBtn = $('#hg-footer-credit-btn');
 const footerPopoverTemplate = '<div class="popover mw-sm-75 mw-md-50 mw-lg-25" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>';
 
+let bsBlurState = false;
+
 class InputInvalid extends Error {
   constructor(validationMsg, invalidField, fieldContainer) {
     super(validationMsg, invalidField, fieldContainer);
@@ -72,14 +74,20 @@ const reloadPage = () => {
   resultsAccordion.empty();
 };
 
+/* Removed liveSearch until bootstrap-select mergest the fix for the mobile keyboard opening issue.
+   Basically, any time an option is selected on a mobile device, the keyboard pops open which is
+   super annoying. */
 queryLocation.selectpicker({
   iconBase: '',
-  liveSearchNormalize: true,
+  liveSearch: false,
   selectedTextFormat: 'count > 2',
   style: '',
   styleBase: 'form-control',
   tickIcon: 'remixicon-check-line',
-}).on('shown.bs.select hidden.bs.select changed.bs.select', (e) => {
+}).nextAll('.dropdown-menu.show').on('focus', '.bs-searchbox input', (e) => {
+  $(e.currentTarget).blur();
+  bsBlurState = true;
+}).on('hidden.bs.select', (e) => {
   $(e.currentTarget).nextAll('.dropdown-menu.show').find('input').blur();
 });
 
@@ -284,13 +292,9 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
 };
 
 $(document).on('InvalidInputEvent', (e, domField) => {
-  console.log('event triggered');
   const errorField = $(domField);
-  console.log(errorField);
   if (errorField.hasClass('is-invalid')) {
-    console.log('has class');
     errorField.on('keyup', () => {
-      console.log('keyup');
       errorField.removeClass('is-invalid');
       errorField.nextAll('.invalid-feedback').remove();
     });
@@ -299,8 +303,8 @@ $(document).on('InvalidInputEvent', (e, domField) => {
 
 
 // Submit Form Action
-$('#lgForm').submit((event) => {
-  event.preventDefault();
+$('#lgForm').on('submit', (e) => {
+  e.preventDefault();
   submitIcon.empty().html('<i class="remixicon-loader-4-line"></i>').addClass('hg-loading');
   const queryType = $('#query_type').val();
   const queryLocation = $('#location').val();
@@ -386,3 +390,12 @@ $('#hg-ratelimit-query').on('shown.bs.modal', () => {
 $('#hg-ratelimit-query').find('btn').on('click', () => {
   $('#hg-ratelimit-query').modal('hide');
 });
+
+// Cheap hack for mobile keyboard popping up on a multiple select with live search - see bootstrap-select #1511
+// $('.bs-searchbox.form-control').on('focus', () => {
+//   if (!bsBlurState) {
+//     console.log('matched cheap hack');
+//     $(this).blur();
+//     bsBlurState = true;
+//   }
+// });
