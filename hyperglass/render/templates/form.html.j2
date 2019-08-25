@@ -17,9 +17,10 @@
             {% for (netname, loc_params) in networks.items() %}
             <optgroup label="{{ netname }}">
               {% for param in loc_params %}
-              <option data-tokens='{{ netname }} {{param["hostname"]}}' value='{{param["hostname"]}}'
-                data-display-name='{{param["display_name"]}}' data-netname="{{ netname }}" id='{{param["hostname"]}}'>
-                {{ param["display_name"] }}</option>
+              <option id='{{ param.hostname }}' value='{{ param.hostname }}'
+                data-tokens='{{ netname }} {{param.hostname}}' data-display-name="{{ param.display_name }}"
+                data-netname="{{ netname }}">
+                {{ param.display_name }}</option>
               {% endfor %}
             </optgroup>
             {% endfor %}

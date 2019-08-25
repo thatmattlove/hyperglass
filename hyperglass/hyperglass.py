@@ -171,7 +171,7 @@ async def clear_cache():
 @limiter.limit(rate_limit_site, error_message="Site")
 async def site(request):
     """Main front-end web application"""
-    return response.html(render_html("index", primary_asn=params.general.primary_asn))
+    return response.html(render_html("form", primary_asn=params.general.primary_asn))
 
 
 @app.route("/test", methods=["GET"])
