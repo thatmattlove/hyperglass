@@ -46,6 +46,14 @@ $hg-background: {{ colors.background }}
         $darker-color: scale-color($color, $lightness: 5%)
         @return grayscale($darker-color)
 
+@function findSubtleText($color)
+    @if (lightness($color) > 55%)
+        $subtle-color: scale-color($color, $lightness: -20%)
+        @return grayscale($subtle-color)
+    @else
+        $subtle-color: scale-color($color, $lightness: 40%)
+        @return grayscale($subtle-color)
+
 //// Body Color
 $body-bg:       $hg-background
 $body-color:    findTextColor($body-bg)
@@ -102,7 +110,7 @@ $dropdown-bg:                   $hg-field-bg
 $dropdown-color:                $hg-field-color
 $dropdown-divider-bg:           $hg-border
 $dropdown-border-color:         $hg-border
-$dropdown-header-color:         findSubtleColor($dropdown-color)
+$dropdown-header-color:         findSubtleText($dropdown-color)
 $dropdown-link-color:           $hg-field-color
 $dropdown-link-hover-bg:        $hg-primary
 $dropdown-link-hover-color:     $hg-primary-color
@@ -113,7 +121,7 @@ $dropdown-link-active-color:    $hg-primary-color
 $input-bg:                      $hg-field-bg
 $input-color:                   $hg-field-color
 $input-border-color:            $hg-border
-$input-placeholder-color:       findSubtleColor($hg-field-color)
+$input-placeholder-color:       findSubtleText($hg-field-color)
 $input-btn-focus-box-shadow:    none
 $input-focus-bg:                findSubtleColor($input-bg)
 $input-focus-color:             $input-color

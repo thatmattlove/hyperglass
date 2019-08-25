@@ -73,19 +73,23 @@ const reloadPage = () => {
 };
 
 queryLocation.selectpicker({
+  iconBase: '',
   liveSearchNormalize: true,
+  selectedTextFormat: 'count > 2',
   style: '',
   styleBase: 'form-control',
-  iconBase: '',
   tickIcon: 'remixicon-check-line',
+}).on('shown.bs.select hidden.bs.select changed.bs.select', (e) => {
+  $(e.currentTarget).nextAll('.dropdown-menu.show').find('input').blur();
 });
 
 queryType.selectpicker({
-  liveSearchNormalize: true,
+  iconBase: '',
+  liveSearch: false,
   style: '',
   styleBase: 'form-control',
-  iconBase: '',
-  tickIcon: 'remixicon-check-line',
+}).on('hidden.bs.select', (e) => {
+  $(e.currentTarget).nextAll('.form-control.dropdown-toggle').blur();
 });
 
 footerTermsBtn.popover({
