@@ -278,7 +278,7 @@ class Branding(BaseSettings):
         title: str = "hyperglass"
         subtitle: str = "AS{primary_asn}".format(primary_asn=General().primary_asn)
         location: str = "Location"
-        query_type: str = "Type"
+        query_type: str = "Query"
         query_placeholder: str = "Target"
         terms: str = "Terms"
         info: str = "Help"
