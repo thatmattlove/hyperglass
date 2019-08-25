@@ -238,16 +238,6 @@ class Branding(BaseSettings):
         dark: Color = "#383541"
         background: Color = "#fbfffe"
 
-        class Tag(BaseSettings):
-            """Class model for params.colors.tag"""
-
-            query_type: Color = "#ff5e5b"
-            query_type_title: Color = "#330036"
-            location: Color = "#40798c"
-            location_title: Color = "#330036"
-
-        tag: Tag = Tag()
-
     class Credit(BaseSettings):
         """Class model for params.branding.credit"""
 
@@ -259,8 +249,8 @@ class Branding(BaseSettings):
         primary: str = "Nunito"
         mono: str = "Fira Code"
 
-    class Footer(BaseSettings):
-        """Class model for params.branding.font"""
+    class HelpMenu(BaseSettings):
+        """Class model for params.branding.help_menu"""
 
         enable: bool = True
 
@@ -276,23 +266,20 @@ class Branding(BaseSettings):
 
         enable: bool = True
 
-    credit: Credit = Credit()
-    font: Font = Font()
-    footer: Footer = Footer()
-    logo: Logo = Logo()
-    colors: Colors = Colors()
-    peering_db: PeeringDb = PeeringDb()
+    class Terms(BaseSettings):
+        """Class model for params.branding.terms"""
+
+        enable: bool = True
 
     class Text(BaseSettings):
         """Class model for params.branding.text"""
 
-        query_type: str = "Query Type"
         title_mode: str = "logo_only"
         title: str = "hyperglass"
         subtitle: str = "AS{primary_asn}".format(primary_asn=General().primary_asn)
-        results: str = "Results"
-        location: str = "Select Location..."
-        query_placeholder: str = "IP, Prefix, Community, or AS Path"
+        location: str = "Location"
+        query_type: str = "Type"
+        query_placeholder: str = "Target"
         terms: str = "Terms"
         info: str = "Help"
         peeringdb = "PeeringDB"
@@ -333,8 +320,13 @@ class Branding(BaseSettings):
                 raise ValueError("title_mode must be one of {}".format(supported_modes))
             return v
 
+    colors: Colors = Colors()
     credit: Credit = Credit()
-    footer: Footer = Footer()
+    font: Font = Font()
+    help_menu: HelpMenu = HelpMenu()
+    logo: Logo = Logo()
+    peering_db: PeeringDb = PeeringDb()
+    terms: Terms = Terms()
     text: Text = Text()
 
 
