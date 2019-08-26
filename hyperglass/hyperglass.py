@@ -181,26 +181,7 @@ async def test_route(request):
     return response.html(html, status=500)
 
 
-@app.route("/locations/<asn>", methods=["GET"])
-async def get_locations(request, asn):
-    """
-    GET route provides a JSON list of all locations for the selected
-    network/ASN.
-    """
-    # return response.json(devices.locations[asn])
-    return response.json([])
-
-
-@app.route("/networks", methods=["GET"])
-async def get_networks(request):
-    """
-    GET route provides a JSON list of all locations for the selected
-    network/ASN.
-    """
-    return response.json(display_networks)
-
-
-@app.route("/lg", methods=["POST"])
+@app.route("/query", methods=["POST"])
 @limiter.limit(rate_limit_query, error_message="Query")
 async def hyperglass_main(request):
     """
@@ -211,20 +192,25 @@ async def hyperglass_main(request):
     # Get JSON data from Ajax POST
     lg_data = request.json
     logger.debug(f"Unvalidated input: {lg_data}")
+
     # Return error if no target is specified
     if not lg_data["target"]:
         logger.debug("No input specified")
         return response.html(params.messages.no_input, status=code.invalid)
+
     # Return error if no location is selected
     if lg_data["location"] not in devices.hostnames:
         logger.debug("No selection specified")
         return response.html(params.messages.no_location, status=code.invalid)
+
     # Return error if no query type is selected
     if not Supported.is_supported_query(lg_data["query_type"]):
         logger.debug("No query specified")
         return response.html(params.messages.no_query_type, status=code.invalid)
+
     # Get client IP address for Prometheus logging & rate limiting
     client_addr = get_remote_address(request)
+
     # Increment Prometheus counter
     count_data.labels(
         client_addr, lg_data["query_type"], lg_data["location"], lg_data["target"]
@@ -236,29 +222,38 @@ async def hyperglass_main(request):
     # request, use as key for k/v cache store so each command output
     # value is unique
     cache_key = str(lg_data)
+
     # Define cache entry expiry time
     cache_timeout = params.features.cache.timeout
     logger.debug(f"Cache Timeout: {cache_timeout}")
+
     # Check if cached entry exists
     if not await r_cache.get(cache_key):
         logger.debug(f"Sending query {cache_key} to execute module...")
+
         # Pass request to execution module
         starttime = time.time()
         cache_value = await Execute(lg_data).response()
         endtime = time.time()
+
         if not cache_value:
-            raise handle_408("Request timed out.")
+            raise handle_408(params.messages.request_timeout)
+
         elapsedtime = round(endtime - starttime, 4)
+
         logger.debug(
             f"Execution for query {cache_key} took {elapsedtime} seconds to run."
         )
+
         # Create a cache entry
         await r_cache.set(cache_key, str(cache_value))
         await r_cache.expire(cache_key, cache_timeout)
 
         logger.debug(f"Added cache entry for query: {cache_key}")
+
     # If it does, return the cached entry
     cache_response = await r_cache.get(cache_key)
+
     # Serialize stringified tuple response from cache
     serialized_response = literal_eval(cache_response)
     response_output, response_status = serialized_response
@@ -266,6 +261,7 @@ async def hyperglass_main(request):
     logger.debug(f"Cache match for: {cache_key}, returning cached entry")
     logger.debug(f"Cache Output: {response_output}")
     logger.debug(f"Cache Status Code: {response_status}")
+
     # If error, increment Prometheus metrics
     if response_status in [405, 415, 504]:
         count_errors.labels(
@@ -276,5 +272,4 @@ async def hyperglass_main(request):
             lg_data["location"],
             lg_data["target"],
         ).inc()
-    return response.html(response_output, status=response_status)
-
+    return response.json({"output": response_output}, status=response_status)

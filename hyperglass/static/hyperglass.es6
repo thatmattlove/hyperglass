@@ -239,12 +239,13 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
     }
 
     $.ajax({
-      url: '/lg',
+      url: '/query',
       type: 'POST',
       data: JSON.stringify({
         location: loc,
         query_type: queryType,
         target: queryTarget,
+        response_format: 'html',
       }),
       contentType: 'application/json; charset=utf-8',
       context: document.body,
@@ -252,7 +253,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
       timeout: cfgGeneral.query_timeout * 1000,
     })
       .done((data, textStatus, jqXHR) => {
-        const displayHtml = `<pre>${jqXHR.responseText}</pre>`;
+        const displayHtml = `<pre>${data.output}</pre>`;
         const iconSuccess = '<i class="hg-menu-icon hg-status-icon remixicon-check-line"></i>';
         $(`#${loc}-heading`).removeClass('bg-overlay').addClass('bg-primary');
         $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass('btn-primary');
@@ -275,9 +276,9 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
           $(`#${loc}-status-container`).removeClass('hg-loading').find('.hg-status-btn').empty().html(iconTimeout).addClass('hg-done');
           $(`#${loc}-text`).empty().html(displayHtml);
         } else if (codesDanger.includes(jqXHR.status)) {
-          generateError('danger', loc, jqXHR.responseText);
+          generateError('danger', loc, data.output);
         } else if (codesWarning.includes(jqXHR.status)) {
-          generateError('warning', loc, jqXHR.responseText);
+          generateError('warning', loc, data.output);
         } else if (jqXHR.status === 429) {
           resetResults();
           $('#hg-ratelimit-query').modal('show');
