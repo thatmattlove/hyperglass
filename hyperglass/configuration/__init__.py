@@ -14,7 +14,7 @@ from pydantic import ValidationError
 
 # Project Imports
 from hyperglass.configuration import models
-from hyperglass.exceptions import ConfigError
+from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
 
 # Project Directories
 working_dir = Path(__file__).resolve().parent
@@ -38,19 +38,20 @@ except FileNotFoundError:
             "Defaults will be used."
         )
     )
+except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
+    raise ConfigError(error_msg=yaml_error) from None
+
 # Import device configuration file
 try:
     with open(working_dir.joinpath("devices.yaml")) as devices_yaml:
         user_devices = yaml.safe_load(devices_yaml)
 except FileNotFoundError as no_devices_error:
     logger.error(no_devices_error)
-    raise ConfigError(
-        (
-            f'"{working_dir.joinpath("devices.yaml")}" not found. '
-            "Devices are required to start hyperglass, please consult "
-            "the installation documentation."
-        )
-    )
+    raise ConfigMissing(
+        missing_item=str(working_dir.joinpath("devices.yaml"))
+    ) from None
+except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
+    raise ConfigError(error_msg=yaml_error) from None
 
 # Map imported user config files to expected schema:
 try:
@@ -69,9 +70,10 @@ try:
 except ValidationError as validation_errors:
     errors = validation_errors.errors()
     for error in errors:
-        raise ConfigError(
-            f'The value of {error["loc"][0]} field is invalid: {error["msg"]} '
-        )
+        raise ConfigInvalid(
+            field=": ".join([str(item) for item in error["loc"]]),
+            error_msg=error["msg"],
+        ) from None
 
 # Logzero Configuration
 log_level = 20
@@ -116,7 +118,7 @@ class Networks:
                             }
                         ]
         if not locations_dict:
-            raise ConfigError("Unable to build network to device mapping")
+            raise ConfigError(error_msg="Unable to build network to device mapping")
         return locations_dict
 
     def networks_display(self):
@@ -132,7 +134,7 @@ class Networks:
                     elif net_display not in locations_dict:
                         locations_dict[net_display] = [router_params["display_name"]]
         if not locations_dict:
-            raise ConfigError("Unable to build network to device mapping")
+            raise ConfigError(error_msg="Unable to build network to device mapping")
         return [
             {"network_name": netname, "location_names": display_name}
             for (netname, display_name) in locations_dict.items()

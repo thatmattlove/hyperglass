@@ -13,7 +13,7 @@ from logzero import logger
 # Project Imports
 from hyperglass.configuration import logzero_config  # noqa: F401
 from hyperglass.configuration import params
-from hyperglass.constants import code
+from hyperglass.exceptions import InputInvalid, InputNotAllowed
 
 
 class IPType:
@@ -82,16 +82,14 @@ class IPType:
 
 def ip_validate(target):
     """Validates if input is a valid IP address"""
-    validity = False
     try:
         valid_ip = ipaddress.ip_network(target)
         if valid_ip.is_reserved or valid_ip.is_unspecified or valid_ip.is_loopback:
-            raise ValueError
-        validity = True
+            raise InputInvalid(target=target)
     except (ipaddress.AddressValueError, ValueError):
         logger.debug(f"IP {target} is invalid")
-        validity = False
-    return validity
+        raise InputInvalid(target=target) from None
+    return valid_ip
 
 
 def ip_blacklist(target):
@@ -101,7 +99,6 @@ def ip_blacklist(target):
     """
     logger.debug(f"Blacklist Enabled: {params.features.blacklist.enable}")
     target = ipaddress.ip_network(target)
-    membership = False
     if params.features.blacklist.enable:
         target_ver = target.version
         user_blacklist = params.features.blacklist.networks
@@ -113,18 +110,15 @@ def ip_blacklist(target):
         logger.debug(
             f"IPv{target_ver} Blacklist Networks: {[str(n) for n in networks]}"
         )
-        while not membership:
-            for net in networks:
-                blacklist_net = ipaddress.ip_network(net)
-                if (
-                    blacklist_net.network_address <= target.network_address
-                    and blacklist_net.network_address >= target.broadcast_address
-                ):
-                    membership = True
-                    logger.debug(f"Blacklist Match Found for {target} in {net}")
-                    break
-            break
-    return membership
+        for net in networks:
+            blacklist_net = ipaddress.ip_network(net)
+            if (
+                blacklist_net.network_address <= target.network_address
+                and blacklist_net.network_address >= target.broadcast_address
+            ):
+                logger.debug(f"Blacklist Match Found for {target} in {net}")
+                raise InputNotAllowed(target=target) from None
+    return target
 
 
 def ip_attributes(target):
@@ -151,24 +145,24 @@ def ip_type_check(query_type, target, device):
     """Checks multiple IP address related validation parameters"""
     prefix_attr = ip_attributes(target)
     logger.debug(f"IP Attributes:\n{prefix_attr}")
-    validity = False
-    msg = params.messages.not_allowed.format(i=target)
+
     # If target is a member of the blacklist, return an error.
     if ip_blacklist(target):
-        validity = False
-        logger.debug("Failed blacklist check")
-        return (validity, msg)
+        pass
+
     # If enable_max_prefix feature enabled, require that BGP Route
     # queries be smaller than configured size limit.
     if query_type == "bgp_route" and params.features.max_prefix.enable:
         max_length = getattr(params.features.max_prefix, prefix_attr["afi"])
         if prefix_attr["length"] > max_length:
-            validity = False
-            msg = params.features.max_prefixmessage.format(
-                m=max_length, i=prefix_attr["network"]
-            )
             logger.debug("Failed max prefix length check")
-            return (validity, msg)
+            raise InputNotAllowed(
+                target=target,
+                error_msg=params.features.max_prefixmessage.format(
+                    m=max_length, i=prefix_attr["network"]
+                ),
+            )
+
     # If device NOS is listed in requires_ipv6_cidr.toml, and query is
     # an IPv6 host address, return an error.
     if (
@@ -177,20 +171,21 @@ def ip_type_check(query_type, target, device):
         and device.nos in params.general.requires_ipv6_cidr
         and IPType().is_host(target)
     ):
-        msg = params.messages.requires_ipv6_cidr.format(d=device.display_name)
-        validity = False
         logger.debug("Failed requires IPv6 CIDR check")
-        return (validity, msg)
+        raise InputInvalid(
+            target=target,
+            error_msg=params.messages.requires_ipv6_cidr.format(d=device.display_name),
+        )
+
     # If query type is ping or traceroute, and query target is in CIDR
     # format, return an error.
     if query_type in ("ping", "traceroute") and IPType().is_cidr(target):
-        msg = params.messages.directed_cidr.format(q=query_type.capitalize())
-        validity = False
         logger.debug("Failed CIDR format for ping/traceroute check")
-        return (validity, msg)
-    validity = True
-    msg = f"{target} is a valid {query_type} query."
-    return (validity, msg)
+        raise InputInvalid(
+            target=target,
+            error_msg=params.messages.directed_cidr.format(q=query_type.capitalize()),
+        )
+    return target
 
 
 class Validate:
@@ -200,125 +195,57 @@ class Validate:
     boolean for validity, specific error message, and status code.
     """
 
-    def __init__(self, device):
+    def __init__(self, device, query_type, target):
         """Initialize device parameters and error codes."""
         self.device = device
+        self.query_type = query_type
+        self.target = target
 
-    def ping(self, target):
-        """Ping Query: Input Validation & Error Handling"""
-        query_type = "ping"
-        logger.debug(f"Validating {query_type} query for target {target}...")
-        validity = False
-        msg = params.messages.invalid_ip.format(i=target)
-        status = code.not_allowed
+    def validate_ip(self):
+        """Validates IPv4/IPv6 Input"""
+        logger.debug(f"Validating {self.query_type} query for target {self.target}...")
+
         # Perform basic validation of an IP address, return error if
         # not a valid IP.
-        if not ip_validate(target):
-            status = code.invalid
-            logger.error(f"{msg}, {status}")
-            return (validity, msg, status)
+        if ip_validate(self.target):
+            pass
+
         # Perform further validation of a valid IP address, return an
         # error upon failure.
-        valid_query, msg = ip_type_check(query_type, target, self.device)
-        if valid_query:
-            validity = True
-            msg = f"{target} is a valid {query_type} query."
-            status = code.valid
-            logger.debug(f"{msg}, {status}")
-            return (validity, msg, status)
-        return (validity, msg, status)
+        if ip_type_check(self.query_type, self.target, self.device):
+            pass
+        return self.target
 
-    def traceroute(self, target):
-        """Traceroute Query: Input Validation & Error Handling"""
-        query_type = "traceroute"
-        logger.debug(f"Validating {query_type} query for target {target}...")
-        validity = False
-        msg = params.messages.invalid_ip.format(i=target)
-        status = code.not_allowed
-        # Perform basic validation of an IP address, return error if
-        # not a valid IP.
-        if not ip_validate(target):
-            status = code.invalid
-            logger.error(f"{msg}, {status}")
-            return (validity, msg, status)
-        # Perform further validation of a valid IP address, return an
-        # error upon failure.
-        valid_query, msg = ip_type_check(query_type, target, self.device)
-        if valid_query:
-            validity = True
-            msg = f"{target} is a valid {query_type} query."
-            status = code.valid
-            logger.debug(f"{msg}, {status}")
-            return (validity, msg, status)
-        return (validity, msg, status)
-
-    def bgp_route(self, target):
-        """BGP Route Query: Input Validation & Error Handling"""
-        query_type = "bgp_route"
-        logger.debug(f"Validating {query_type} query for target {target}...")
-        validity = False
-        msg = params.messages.invalid_ip.format(i=target)
-        status = code.not_allowed
-        # Perform basic validation of an IP address, return error if not
-        # a valid IP.
-        if not ip_validate(target):
-            status = code.invalid
-            logger.error(f"{msg}, {status}")
-            return (validity, msg, status)
-        # Perform further validation of a valid IP address, return an
-        # error upon failure.
-        valid_query, msg = ip_type_check(query_type, target, self.device)
-        if valid_query:
-            validity = True
-            msg = f"{target} is a valid {query_type} query."
-            status = code.valid
-            logger.debug(f"{msg}, {status}")
-            return (validity, msg, status)
-        return (validity, msg, status)
-
-    @staticmethod
-    def bgp_community(target):
-        """BGP Community Query: Input Validation & Error Handling"""
-        query_type = "bgp_community"
-        logger.debug(f"Validating {query_type} query for target {target}...")
-        validity = False
-        msg = params.messages.invalid_dual.format(i=target, qt="BGP Community")
-        status = code.invalid
+    def validate_dual(self):
+        """Validates Dual-Stack Input"""
+        logger.debug(f"Validating {self.query_type} query for target {self.target}...")
         # Validate input communities against configured or default regex
         # pattern.
-        # Extended Communities, new-format
-        if re.match(params.features.bgp_community.regex.extended_as, target):
-            validity = True
-            msg = f"{target} matched extended AS format community."
-            status = code.valid
-        # Extended Communities, 32 bit format
-        elif re.match(params.features.bgp_community.regex.decimal, target):
-            validity = True
-            msg = f"{target} matched decimal format community."
-            status = code.valid
-        # RFC 8092 Large Community Support
-        elif re.match(params.features.bgp_community.regex.large, target):
-            validity = True
-            msg = f"{target} matched large community."
-            status = code.valid
-        logger.debug(f"{msg}, {status}")
-        return (validity, msg, status)
+        if self.query_type == "bgp_community":
+            # Extended Communities, new-format
+            if re.match(params.features.bgp_community.regex.extended_as, self.target):
+                pass
+            # Extended Communities, 32 bit format
+            elif re.match(params.features.bgp_community.regex.decimal, self.target):
+                pass
+            # RFC 8092 Large Community Support
+            elif re.match(params.features.bgp_community.regex.large, self.target):
+                pass
+            else:
+                raise InputInvalid(target=self.target, query_type=self.query_type)
+        elif self.query_type == "bgp_aspath":
+            # Validate input AS_PATH regex pattern against configured or
+            # default regex pattern.
+            mode = params.features.bgp_aspath.regex.mode
+            pattern = getattr(params.features.bgp_aspath.regex, mode)
+            if re.match(pattern, self.target):
+                pass
+            else:
+                raise InputInvalid(target=self.target, query_type=self.query_type)
+        return self.target
 
-    @staticmethod
-    def bgp_aspath(target):
-        """BGP AS Path Query: Input Validation & Error Handling"""
-        query_type = "bgp_aspath"
-        logger.debug(f"Validating {query_type} query for target {target}...")
-        validity = False
-        msg = params.messages.invalid_dual.format(i=target, qt="AS Path")
-        status = code.invalid
-        # Validate input AS_PATH regex pattern against configured or
-        # default regex pattern.
-        mode = params.features.bgp_aspath.regex.mode
-        pattern = getattr(params.features.bgp_aspath.regex, mode)
-        if re.match(pattern, target):
-            validity = True
-            msg = f"{target} matched AS_PATH regex."
-            status = code.valid
-        logger.debug(f"{msg}, {status}")
-        return (validity, msg, status)
+    def valdiate_query(self):
+        if self.query_type in ("bgp_community", "bgp_aspath"):
+            return self.validate_dual()
+        else:
+            return self.validate_ip()

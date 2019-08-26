@@ -344,6 +344,7 @@ class Messages(BaseSettings):
     invalid_dual: str = "<b>{i}</b> is an invalid {qt}."
     general: str = "An error occurred."
     directed_cidr: str = "<b>{q}</b> queries can not be in CIDR format."
+    request_timeout: str = "Request timed out."
 
 
 class Features(BaseSettings):

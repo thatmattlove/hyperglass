@@ -26,7 +26,7 @@ from hyperglass.configuration import proxies
 from hyperglass.constants import Supported
 from hyperglass.constants import code
 from hyperglass.constants import protocol_map
-from hyperglass.exceptions import CantConnect
+from hyperglass.exceptions import AuthError, RestError, ScrapeError
 
 
 class Connect:
@@ -54,90 +54,99 @@ class Connect:
         connect to the remote device.
         """
         response = None
-        try:
-            if self.device_config.proxy:
-                device_proxy = getattr(proxies, self.device_config.proxy)
-                logger.debug(
-                    f"Proxy: {device_proxy.address.compressed}:{device_proxy.port}"
+        if self.device_config.proxy:
+            device_proxy = getattr(proxies, self.device_config.proxy)
+            logger.debug(
+                f"Proxy: {device_proxy.address.compressed}:{device_proxy.port}"
+            )
+            logger.debug(
+                "Connecting to {dev} via sshtunnel library...".format(
+                    dev=self.device_config.proxy
                 )
-                logger.debug(
-                    "Connecting to {dev} via sshtunnel library...".format(
-                        dev=self.device_config.proxy
-                    )
-                )
-                with sshtunnel.open_tunnel(
-                    device_proxy.address.compressed,
-                    device_proxy.port,
-                    ssh_username=device_proxy.username,
-                    ssh_password=device_proxy.password.get_secret_value(),
-                    remote_bind_address=(
-                        self.device_config.address.compressed,
-                        self.device_config.port,
-                    ),
-                    local_bind_address=("localhost", 0),
-                ) as tunnel:
-                    logger.debug(f"Established tunnel with {self.device_config.proxy}")
-                    scrape_host = {
-                        "host": "localhost",
-                        "port": tunnel.local_bind_port,
-                        "device_type": self.device_config.nos,
-                        "username": self.cred.username,
-                        "password": self.cred.password.get_secret_value(),
-                        "global_delay_factor": 0.2,
-                    }
-                    logger.debug(f"Local binding: localhost:{tunnel.local_bind_port}")
-                    try:
-                        logger.debug(
-                            "Connecting to {dev} via Netmiko library...".format(
-                                dev=self.device_config.location
-                            )
-                        )
-                        nm_connect_direct = ConnectHandler(**scrape_host)
-                        response = nm_connect_direct.send_command(self.query)
-                    except (
-                        OSError,
-                        NetMikoAuthenticationException,
-                        NetMikoTimeoutException,
-                        NetmikoAuthError,
-                        NetmikoTimeoutError,
-                        sshtunnel.BaseSSHTunnelForwarderError,
-                    ) as scrape_error:
-                        raise CantConnect(scrape_error)
-            else:
+            )
+            with sshtunnel.open_tunnel(
+                device_proxy.address.compressed,
+                device_proxy.port,
+                ssh_username=device_proxy.username,
+                ssh_password=device_proxy.password.get_secret_value(),
+                remote_bind_address=(
+                    self.device_config.address.compressed,
+                    self.device_config.port,
+                ),
+                local_bind_address=("localhost", 0),
+            ) as tunnel:
+                logger.debug(f"Established tunnel with {self.device_config.proxy}")
                 scrape_host = {
-                    "host": self.device_config.address.compressed,
-                    "port": self.device_config.port,
+                    "host": "localhost",
+                    "port": tunnel.local_bind_port,
                     "device_type": self.device_config.nos,
                     "username": self.cred.username,
                     "password": self.cred.password.get_secret_value(),
                     "global_delay_factor": 0.2,
                 }
+                logger.debug(f"Local binding: localhost:{tunnel.local_bind_port}")
                 try:
                     logger.debug(
                         "Connecting to {dev} via Netmiko library...".format(
                             dev=self.device_config.location
                         )
                     )
-                    logger.debug(f"Device Parameters: {scrape_host}")
                     nm_connect_direct = ConnectHandler(**scrape_host)
                     response = nm_connect_direct.send_command(self.query)
                 except (
-                    NetMikoAuthenticationException,
+                    OSError,
                     NetMikoTimeoutException,
-                    NetmikoAuthError,
                     NetmikoTimeoutError,
                     sshtunnel.BaseSSHTunnelForwarderError,
                 ) as scrape_error:
-                    raise CantConnect(scrape_error)
-            if not response:
-                raise CantConnect("No response")
-            status = code.valid
-            logger.debug(f"Output for query: {self.query}:\n{response}")
-        except CantConnect as scrape_error:
-            logger.error(scrape_error)
-            response = params.messages.general
-            status = code.invalid
-        return response, status
+                    raise ScrapeError(
+                        device=self.device_config.location,
+                        proxy=self.device_config.proxy,
+                        error_msg=scrape_error,
+                    ) from None
+                except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
+                    raise AuthError(
+                        device=self.device_config.location,
+                        proxy=self.device_config.proxy,
+                        error_msg=auth_error,
+                    ) from None
+        else:
+            scrape_host = {
+                "host": self.device_config.address.compressed,
+                "port": self.device_config.port,
+                "device_type": self.device_config.nos,
+                "username": self.cred.username,
+                "password": self.cred.password.get_secret_value(),
+                "global_delay_factor": 0.2,
+            }
+            try:
+                logger.debug(
+                    "Connecting to {dev} via Netmiko library...".format(
+                        dev=self.device_config.location
+                    )
+                )
+                logger.debug(f"Device Parameters: {scrape_host}")
+                nm_connect_direct = ConnectHandler(**scrape_host)
+                response = nm_connect_direct.send_command(self.query)
+            except (
+                OSError,
+                NetMikoTimeoutException,
+                NetmikoTimeoutError,
+                sshtunnel.BaseSSHTunnelForwarderError,
+            ) as scrape_error:
+                raise ScrapeError(
+                    device=self.device_config.location, error_msg=scrape_error
+                ) from None
+            except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
+                raise AuthError(
+                    device=self.device_config.location, error_msg=auth_error
+                ) from None
+        if not response:
+            raise ScrapeError(
+                device=self.device_config.location, error_msg="No response"
+            )
+        logger.debug(f"Output for query: {self.query}:\n{response}")
+        return response
 
     async def rest(self):
         """Sends HTTP POST to router running a hyperglass API agent"""
@@ -162,7 +171,6 @@ class Connect:
                 endpoint, headers=headers, json=self.query, timeout=7
             )
             response = raw_response.text
-            status = raw_response.status_code
 
             logger.debug(f"HTTP status code: {status}")
             logger.debug(f"Output for query {self.query}:\n{response}")
@@ -186,10 +194,8 @@ class Connect:
         ) as rest_error:
             logger.error(f"Error connecting to device {self.device_config.location}")
             logger.error(rest_error)
-
-            response = params.messages.general
-            status = code.invalid
-        return response, status
+            raise RestError(device=self.device_config.location, error_msg=rest_error)
+        return response
 
 
 class Execute:
