@@ -119,9 +119,23 @@ class RestError(HyperglassError):
 class InputInvalid(HyperglassError):
     """Raised when input validation fails"""
 
-    message: str = ""
-    status: int = code.invalid
-    keywords: List[str] = []
+    def __init__(self, **kwargs):
+        self._kwargs = kwargs
+        self._query_type = self._kwargs.get("query_type")
+        if self._query_type in ("bgp_route", "ping", "traceroute"):
+            self.query_type: str = "IP Address"
+        elif self._query_type == "bgp_aspath":
+            self.query_type: str = "AS Path"
+        elif self._query_type == "bgp_community":
+            self.query_type: str = "Community"
+        self.target: str = str(kwargs.get("target"), None)
+        self.message = f"{self.target} is an invalid {self.query_type}."
+        self.status: int = code.invalid
+        self.keywords: List[str] = []
+        super().__init__(self.message, self.status, self.keywords)
+
+    def __str__(self):
+        return self.message
 
 
 class InputNotAllowed(HyperglassError):
