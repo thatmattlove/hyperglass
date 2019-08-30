@@ -1,7 +1,7 @@
 test.py
 .DS_Store
 .idea
-*.sass-cache
+.vscode
 #
 # Github Default from https://github.com/martinohanlon/flightlight/issues/1
 # Byte-compiled / optimized / DLL files
