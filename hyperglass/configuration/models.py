@@ -336,14 +336,14 @@ class Messages(BaseSettings):
     no_query_type: str = "Query Type must be specified."
     no_location: str = "A location must be selected."
     no_input: str = "A target must be specified"
-    not_allowed: str = "<b>{i}</b> is not allowed."
+    blacklist: str = "{target} is not allowed."
+    max_prefix: str = "{target} prefix-length must be shorter than {max_length}."
     requires_ipv6_cidr: str = (
-        "<b>{d}</b> requires IPv6 BGP lookups" "to be in CIDR notation."
+        "{location} requires IPv6 BGP lookups to be in CIDR notation."
     )
-    invalid_ip: str = "<b>{i}</b> is not a valid IP address."
-    invalid_dual: str = "<b>{i}</b> is an invalid {qt}."
-    general: str = "An error occurred."
-    directed_cidr: str = "<b>{q}</b> queries can not be in CIDR format."
+    invalid_input: str = "{target} is not a valid {query_type}."
+    general: str = "Something went wrong."
+    directed_cidr: str = "{query_type} queries can not be in CIDR format."
     request_timeout: str = "Request timed out."
 
 
