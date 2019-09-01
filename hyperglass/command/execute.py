@@ -24,7 +24,6 @@ from hyperglass.configuration import logzero_config  # noqa: F401
 from hyperglass.configuration import params
 from hyperglass.configuration import proxies
 from hyperglass.constants import Supported
-from hyperglass.constants import code
 from hyperglass.constants import protocol_map
 from hyperglass.exceptions import AuthError, RestError, ScrapeError
 
@@ -74,6 +73,7 @@ class Connect:
                     self.device_config.port,
                 ),
                 local_bind_address=("localhost", 0),
+                skip_tunnel_checkup=False,
             ) as tunnel:
                 logger.debug(f"Established tunnel with {self.device_config.proxy}")
                 scrape_host = {
@@ -99,16 +99,24 @@ class Connect:
                     NetmikoTimeoutError,
                     sshtunnel.BaseSSHTunnelForwarderError,
                 ) as scrape_error:
+                    logger.error(
+                        f"Error connecting to device {self.device_config.location}"
+                    )
                     raise ScrapeError(
+                        params.messages.connection_error,
                         device=self.device_config.location,
                         proxy=self.device_config.proxy,
-                        error_msg=scrape_error,
+                        error=scrape_error,
                     ) from None
                 except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
+                    logger.error(
+                        f"Error authenticating to device {self.device_config.location}"
+                    )
                     raise AuthError(
+                        params.messages.connection_error,
                         device=self.device_config.location,
                         proxy=self.device_config.proxy,
-                        error_msg=auth_error,
+                        error=auth_error,
                     ) from None
         else:
             scrape_host = {
@@ -134,16 +142,32 @@ class Connect:
                 NetmikoTimeoutError,
                 sshtunnel.BaseSSHTunnelForwarderError,
             ) as scrape_error:
+                logger.error(
+                    f"Error connecting to device {self.device_config.location}"
+                )
                 raise ScrapeError(
-                    device=self.device_config.location, error_msg=scrape_error
+                    params.messages.connection_error,
+                    device=self.device_config.location,
+                    proxy=None,
+                    error=scrape_error,
                 ) from None
             except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
+                logger.error(
+                    f"Error authenticating to device {self.device_config.location}"
+                )
                 raise AuthError(
-                    device=self.device_config.location, error_msg=auth_error
+                    params.messages.connection_error,
+                    device=self.device_config.location,
+                    proxy=None,
+                    error=auth_error,
                 ) from None
         if not response:
+            logger.error(f"No response from device {self.device_config.location}")
             raise ScrapeError(
-                device=self.device_config.location, error_msg="No response"
+                params.messages.connection_error,
+                device=self.device_config.location,
+                proxy=None,
+                error="No response",
             )
         logger.debug(f"Output for query: {self.query}:\n{response}")
         return response
@@ -151,6 +175,7 @@ class Connect:
     async def rest(self):
         """Sends HTTP POST to router running a hyperglass API agent"""
         logger.debug(f"Query parameters: {self.query}")
+
         uri = Supported.map_rest(self.device_config.nos)
         headers = {
             "Content-Type": "application/json",
@@ -163,8 +188,10 @@ class Connect:
             port=self.device_config.port,
             uri=uri,
         )
+
         logger.debug(f"HTTP Headers: {headers}")
         logger.debug(f"URL endpoint: {endpoint}")
+
         try:
             http_client = httpx.AsyncClient()
             raw_response = await http_client.post(
@@ -172,7 +199,7 @@ class Connect:
             )
             response = raw_response.text
 
-            logger.debug(f"HTTP status code: {status}")
+            logger.debug(f"HTTP status code: {raw_response.status_code}")
             logger.debug(f"Output for query {self.query}:\n{response}")
         except (
             httpx.exceptions.ConnectTimeout,
@@ -193,8 +220,11 @@ class Connect:
             OSError,
         ) as rest_error:
             logger.error(f"Error connecting to device {self.device_config.location}")
-            logger.error(rest_error)
-            raise RestError(device=self.device_config.location, error_msg=rest_error)
+            raise RestError(
+                params.messages.connection_error,
+                device=self.device_config.location,
+                error=rest_error,
+            )
         return response
 
 
@@ -206,20 +236,22 @@ class Execute:
     """
 
     def __init__(self, lg_data):
-        self.input_data = lg_data
-        self.input_location = self.input_data["location"]
-        self.input_type = self.input_data["query_type"]
-        self.input_target = self.input_data["target"]
+        self.query_data = lg_data
+        self.query_location = self.query_data["location"]
+        self.query_type = self.query_data["query_type"]
+        self.query_target = self.query_data["target"]
 
     def parse(self, raw_output, nos):
         """
+        Deprecating: see #16
+
         Splits BGP raw output by AFI, returns only IPv4 & IPv6 output for
         protocol-agnostic commands (Community & AS_PATH Lookups).
         """
         logger.debug("Parsing raw output...")
 
         parsed = raw_output
-        if self.input_type in ("bgp_community", "bgp_aspath"):
+        if self.query_type in ("bgp_community", "bgp_aspath"):
             logger.debug(f"Parsing raw output for device type {nos}")
             if nos in ("cisco_ios",):
                 delimiter = "For address family: "
@@ -236,33 +268,26 @@ class Execute:
         Initializes Execute.filter(), if input fails to pass filter,
         returns errors to front end. Otherwise, executes queries.
         """
-        device_config = getattr(devices, self.input_location)
+        device_config = getattr(devices, self.query_location)
 
-        logger.debug(f"Received query for {self.input_data}")
-        logger.debug(f"Matched device config:\n{device_config}")
+        logger.debug(f"Received query for {self.query_data}")
+        logger.debug(f"Matched device config: {device_config}")
 
         # Run query parameters through validity checks
-        validity, msg, status = getattr(Validate(device_config), self.input_type)(
-            self.input_target
-        )
-        if not validity:
-            logger.debug("Invalid query")
-            return (msg, status)
-        connection = None
+        validation = Validate(device_config, self.query_type, self.query_target)
+        valid_input = validation.validate_query()
+        if valid_input:
+            logger.debug(f"Validation passed for query: {self.query_data}")
+            pass
+
+        connect = None
         output = params.messages.general
 
-        logger.debug(f"Validity: {validity}, Message: {msg}, Status: {status}")
-
         transport = Supported.map_transport(device_config.nos)
-        connection = Connect(
-            device_config, self.input_type, self.input_target, transport
-        )
+        connect = Connect(device_config, self.query_type, self.query_target, transport)
         if Supported.is_rest(device_config.nos):
-            raw_output, status = await connection.rest()
+            output = await connect.rest()
         elif Supported.is_scrape(device_config.nos):
-            raw_output, status = await connection.scrape()
-        output = self.parse(raw_output, device_config.nos)
+            output = await connect.scrape()
 
-        logger.debug(f"Parsed output for device type {device_config.nos}:\n{output}")
-
-        return (output, status)
+        return output

@@ -17,6 +17,7 @@ from sanic import Sanic
 from sanic import response
 from sanic.exceptions import NotFound
 from sanic.exceptions import ServerError
+from sanic.exceptions import InvalidUsage
 from sanic_limiter import Limiter
 from sanic_limiter import RateLimitExceeded
 from sanic_limiter import get_remote_address
@@ -27,10 +28,16 @@ from hyperglass.command.execute import Execute
 from hyperglass.configuration import devices
 from hyperglass.configuration import logzero_config  # noqa: F401
 from hyperglass.configuration import params
-from hyperglass.configuration import display_networks
 from hyperglass.constants import Supported
 from hyperglass.constants import code
-from hyperglass.exceptions import HyperglassError
+from hyperglass.exceptions import (
+    HyperglassError,
+    AuthError,
+    ScrapeError,
+    RestError,
+    InputInvalid,
+    InputNotAllowed,
+)
 
 logger.debug(f"Configuration Parameters:\n {params.dict()}")
 
@@ -117,6 +124,35 @@ async def metrics(request):
     )
 
 
+@app.exception(InvalidUsage)
+async def handle_ui_errors(request, exception):
+    """Renders full error page for invalid URI"""
+    client_addr = get_remote_address(request)
+    error = exception.args[0]
+    status = error["status"]
+    logger.info(error)
+    count_errors.labels(
+        status,
+        code.get_reason(status),
+        client_addr,
+        request.json["query_type"],
+        request.json["location"],
+        request.json["target"],
+    ).inc()
+    logger.error(f'Error: {error["message"]}, Source: {client_addr}')
+    return response.json(
+        {"output": error["message"], "status": status, "keywords": error["keywords"]},
+        status=status,
+    )
+
+
+@app.exception(ServerError)
+async def handle_missing(request, exception):
+    """Renders full error page for invalid URI"""
+    logger.error(f"Error: {exception}")
+    return response.json(exception, status=code.invalid)
+
+
 @app.exception(NotFound)
 async def handle_404(request, exception):
     """Renders full error page for invalid URI"""
@@ -126,15 +162,6 @@ async def handle_404(request, exception):
     count_notfound.labels(exception, path, client_addr).inc()
     logger.error(f"Error: {exception}, Path: {path}, Source: {client_addr}")
     return response.html(html, status=404)
-
-
-@app.exception(ServerError)
-async def handle_408(request, exception):
-    """Renders full error page for invalid URI"""
-    client_addr = get_remote_address(request)
-    count_notfound.labels(exception, path, client_addr).inc()
-    logger.error(f"Error: {exception}, Source: {client_addr}")
-    return response.html(exception, status=408)
 
 
 @app.exception(RateLimitExceeded)
@@ -196,17 +223,17 @@ async def hyperglass_main(request):
     # Return error if no target is specified
     if not lg_data["target"]:
         logger.debug("No input specified")
-        return response.html(params.messages.no_input, status=code.invalid)
+        raise handle_missing(request, params.messages.no_input)
 
     # Return error if no location is selected
     if lg_data["location"] not in devices.hostnames:
         logger.debug("No selection specified")
-        return response.html(params.messages.no_location, status=code.invalid)
+        raise handle_missing(request, params.messages.no_input)
 
     # Return error if no query type is selected
     if not Supported.is_supported_query(lg_data["query_type"]):
         logger.debug("No query specified")
-        return response.html(params.messages.no_query_type, status=code.invalid)
+        raise handle_missing(request, params.messages.no_input)
 
     # Get client IP address for Prometheus logging & rate limiting
     client_addr = get_remote_address(request)
@@ -233,13 +260,22 @@ async def hyperglass_main(request):
 
         # Pass request to execution module
         starttime = time.time()
-        cache_value = await Execute(lg_data).response()
+        try:
+            cache_value = await Execute(lg_data).response()
+        except (
+            AuthError,
+            RestError,
+            ScrapeError,
+            InputInvalid,
+            InputNotAllowed,
+        ) as backend_error:
+            raise InvalidUsage(backend_error.__dict__())
+
         endtime = time.time()
+        elapsedtime = round(endtime - starttime, 4)
 
         if not cache_value:
-            raise handle_408(params.messages.request_timeout)
-
-        elapsedtime = round(endtime - starttime, 4)
+            raise handle_ui_errors(request, params.messages.request_timeout)
 
         logger.debug(
             f"Execution for query {cache_key} took {elapsedtime} seconds to run."
@@ -255,21 +291,11 @@ async def hyperglass_main(request):
     cache_response = await r_cache.get(cache_key)
 
     # Serialize stringified tuple response from cache
-    serialized_response = literal_eval(cache_response)
-    response_output, response_status = serialized_response
+    # serialized_response = literal_eval(cache_response)
+    # response_output, response_status = serialized_response
+    response_output = cache_response
 
     logger.debug(f"Cache match for: {cache_key}, returning cached entry")
     logger.debug(f"Cache Output: {response_output}")
-    logger.debug(f"Cache Status Code: {response_status}")
 
-    # If error, increment Prometheus metrics
-    if response_status in [405, 415, 504]:
-        count_errors.labels(
-            response_status,
-            code.get_reason(response_status),
-            client_addr,
-            lg_data["query_type"],
-            lg_data["location"],
-            lg_data["target"],
-        ).inc()
-    return response.json({"output": response_output}, status=response_status)
+    return response.json({"output": response_output}, status=200)

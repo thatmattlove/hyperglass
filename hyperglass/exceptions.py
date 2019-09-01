@@ -2,8 +2,6 @@
 Custom exceptions for hyperglass
 """
 
-from typing import Dict
-
 from hyperglass.constants import code
 
 
@@ -12,7 +10,17 @@ class HyperglassError(Exception):
     hyperglass base exception
     """
 
-    pass
+    def __init__(self, message="", status=500, keywords={}):
+        self.message = message
+        self.status = status
+        self.keywords = keywords
+
+    def __dict__(self):
+        return {
+            "message": self.message,
+            "status": self.status,
+            "keywords": self.keywords,
+        }
 
 
 class ConfigError(HyperglassError):
@@ -21,9 +29,9 @@ class ConfigError(HyperglassError):
     """
 
     def __init__(self, unformatted_msg, kwargs={}):
-        self.message: unformatted_msg.format(**kwargs)
-        self.keywords: Dict = kwargs
-        super().__init__(self.message, self.keywords)
+        self.message = unformatted_msg.format(**kwargs)
+        self.keywords = [value for value in kwargs.values()]
+        super().__init__(message=self.message, keywords=self.keywords)
 
     def __str__(self):
         return self.message
@@ -33,11 +41,11 @@ class ConfigInvalid(HyperglassError):
     """Raised when a config item fails type or option validation"""
 
     def __init__(self, **kwargs):
-        self.message: str = 'The value field "{field}" is invalid: {error_msg}'.format(
+        self.message = 'The value field "{field}" is invalid: {error_msg}'.format(
             **kwargs
         )
-        self.keywords: Dict = kwargs
-        super().__init__(self.message, self.keywords)
+        self.keywords = [value for value in kwargs.values()]
+        super().__init__(message=self.message, keywords=self.keywords)
 
     def __str__(self):
         return self.message
@@ -49,12 +57,12 @@ class ConfigMissing(HyperglassError):
     """
 
     def __init__(self, kwargs={}):
-        self.message: str = (
+        self.message = (
             "{missing_item} is missing or undefined and is required to start "
             "hyperglass. Please consult the installation documentation."
         ).format(**kwargs)
-        self.keywords: Dict = kwargs
-        super().__init__(self.message, self.keywords)
+        self.keywords = [value for value in kwargs.values()]
+        super().__init__(message=self.message, keywords=self.keywords)
 
     def __str__(self):
         return self.message
@@ -63,11 +71,13 @@ class ConfigMissing(HyperglassError):
 class ScrapeError(HyperglassError):
     """Raised upon a scrape/netmiko error"""
 
-    def __init__(self, kwargs={}):
-        self.message: str = "".format(**kwargs)
-        self.keywords: Dict = kwargs
-        self.status: int = code.target_error
-        super().__init__(self.message, self.keywords)
+    def __init__(self, msg, kwargs={}):
+        self.message = msg.format(**kwargs)
+        self.status = code.target_error
+        self.keywords = [value for value in kwargs.values()]
+        super().__init__(
+            message=self.message, status=self.status, keywords=self.keywords
+        )
 
     def __str__(self):
         return self.message
@@ -76,11 +86,13 @@ class ScrapeError(HyperglassError):
 class AuthError(HyperglassError):
     """Raised when authentication to a device fails"""
 
-    def __init__(self, kwargs={}):
-        self.message: str = "".format(**kwargs)
-        self.keywords: Dict = kwargs
-        self.status: int = code.target_error
-        super().__init__(self.message, self.keywords)
+    def __init__(self, msg, kwargs={}):
+        self.message = msg.format(**kwargs)
+        self.status = code.target_error
+        self.keywords = [value for value in kwargs.values()]
+        super().__init__(
+            message=self.message, status=self.status, keywords=self.keywords
+        )
 
     def __str__(self):
         return self.message
@@ -89,11 +101,13 @@ class AuthError(HyperglassError):
 class RestError(HyperglassError):
     """Raised upon a rest API client error"""
 
-    def __init__(self, kwargs={}):
-        self.message: str = "".format(**kwargs)
-        self.keywords: Dict = kwargs
-        self.status: int = code.target_error
-        super().__init__(self.message, self.keywords)
+    def __init__(self, msg, kwargs={}):
+        self.message = msg.format(**kwargs)
+        self.status = code.target_error
+        self.keywords = [value for value in kwargs.values()]
+        super().__init__(
+            message=self.message, status=self.status, keywords=self.keywords
+        )
 
     def __str__(self):
         return self.message
@@ -103,10 +117,12 @@ class InputInvalid(HyperglassError):
     """Raised when input validation fails"""
 
     def __init__(self, unformatted_msg, **kwargs):
-        self.message: str = unformatted_msg.format(**kwargs)
-        self.keywords: Dict = kwargs
-        self.status: int = code.invalid
-        super().__init__(self.message, self.status)
+        self.message = unformatted_msg.format(**kwargs)
+        self.status = code.invalid
+        self.keywords = [value for value in kwargs.values()]
+        super().__init__(
+            message=self.message, status=self.status, keywords=self.keywords
+        )
 
     def __str__(self):
         return self.message
@@ -119,25 +135,12 @@ class InputNotAllowed(HyperglassError):
     """
 
     def __init__(self, unformatted_msg, **kwargs):
-        self.message: str = unformatted_msg.format(**kwargs)
-        self.keywords: Dict = kwargs
-        self.status: int = code.invalid
-        super().__init__(self.status, self.message)
-
-    def __str__(self):
-        return self.message
-
-
-class ParseError(HyperglassError):
-    """
-    Raised when an ouput parser encounters an error.
-    """
-
-    def __init__(self, kwargs={}):
-        self.message: str = "".format(**kwargs)
-        self.keywords: Dict = kwargs
-        self.status: int = code.target_error
-        super().__init__(self.message, self.keywords)
+        self.message = unformatted_msg.format(**kwargs)
+        self.status = code.invalid
+        self.keywords = [value for value in kwargs.values()]
+        super().__init__(
+            message=self.message, status=self.status, keywords=self.keywords
+        )
 
     def __str__(self):
         return self.message
@@ -149,10 +152,12 @@ class UnsupportedDevice(HyperglassError):
     """
 
     def __init__(self, kwargs={}):
-        self.message: str = "".format(**kwargs)
-        self.keywords: Dict = kwargs
-        self.status: int = code.target_error
-        super().__init__(self.message, self.keywords)
+        self.message = "".format(**kwargs)
+        self.status = code.target_error
+        self.keywords = [value for value in kwargs.values()]
+        super().__init__(
+            message=self.message, status=self.status, keywords=self.keywords
+        )
 
     def __str__(self):
         return self.message

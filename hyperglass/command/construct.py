@@ -136,7 +136,13 @@ class Construct:
             query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
         elif self.transport == "scrape":
             conf_command = self.device_commands(self.device.nos, afi, query_type)
-            query = conf_command.format(target=target)
+            afis = []
+            for afi in self.device.afis:
+                split_afi = afi.split("v")
+                afis.append(
+                    "".join([split_afi[0].upper(), "v", split_afi[1], " Unicast|"])
+                )
+            query = conf_command.format(target=target, afis="".join(afis))
         logger.debug(f"Constructed query: {query}")
         return query
 
@@ -154,6 +160,12 @@ class Construct:
             query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
         elif self.transport == "scrape":
             conf_command = self.device_commands(self.device.nos, afi, query_type)
-            query = conf_command.format(target=target)
+            afis = []
+            for afi in self.device.afis:
+                split_afi = afi.split("v")
+                afis.append(
+                    "".join([split_afi[0].upper(), "v", split_afi[1], " Unicast|"])
+                )
+            query = conf_command.format(target=target, afis="".join(afis))
         logger.debug(f"Constructed query: {query}")
         return query

@@ -85,10 +85,14 @@ def ip_validate(target):
     try:
         valid_ip = ipaddress.ip_network(target)
         if valid_ip.is_reserved or valid_ip.is_unspecified or valid_ip.is_loopback:
-            raise ValueError
-    except (ipaddress.AddressValueError, ValueError):
+            _exception = ValueError(params.messages.invalid_input)
+            _exception.details = {}
+            raise _exception
+    except (ipaddress.AddressValueError, ValueError) as ip_error:
         logger.debug(f"IP {target} is invalid")
-        raise ValueError
+        _exception = ValueError(ip_error)
+        _exception.details = {}
+        raise _exception
     return valid_ip
 
 
@@ -108,16 +112,18 @@ def ip_blacklist(target):
             if ipaddress.ip_network(net).version == target_ver
         ]
         logger.debug(
-            f"IPv{target_ver} Blacklist Networks: {[str(n) for n in networks]}"
+            f"IPv{target_ver} Blacklist Networks: {[str(net) for net in networks]}"
         )
         for net in networks:
             blacklist_net = ipaddress.ip_network(net)
             if (
                 blacklist_net.network_address <= target.network_address
-                and blacklist_net.network_address >= target.broadcast_address
+                and blacklist_net.broadcast_address >= target.broadcast_address
             ):
-                logger.debug(f"Blacklist Match Found for {target} in {net}")
-                raise ValueError(params.messages.blacklist)
+                logger.debug(f"Blacklist Match Found for {target} in {str(net)}")
+                _exception = ValueError(params.messages.blacklist)
+                _exception.details = {"blacklisted_net": str(net)}
+                raise _exception
     return target
 
 
@@ -153,7 +159,7 @@ def ip_type_check(query_type, target, device):
         if prefix_attr["length"] > max_length:
             logger.debug("Failed max prefix length check")
             _exception = ValueError(params.messages.max_prefix)
-            _exception.details = {"max_length": params.features.max_prefix}
+            _exception.details = {"max_length": max_length}
             raise _exception
 
     # If device NOS is listed in requires_ipv6_cidr.toml, and query is
@@ -166,7 +172,7 @@ def ip_type_check(query_type, target, device):
     ):
         logger.debug("Failed requires IPv6 CIDR check")
         _exception = ValueError(params.messages.requires_ipv6_cidr)
-        _exception.details = {"device_name": device.location}
+        _exception.details = {"device_name": device.display_name}
         raise _exception
 
     # If query type is ping or traceroute, and query target is in CIDR
@@ -174,7 +180,7 @@ def ip_type_check(query_type, target, device):
     if query_type in ("ping", "traceroute") and IPType().is_cidr(target):
         logger.debug("Failed CIDR format for ping/traceroute check")
         _exception = ValueError(params.messages.directed_cidr)
-        _exception.details = {}
+        _exception.details = {"query_type": getattr(params.branding.text, query_type)}
         raise _exception
     return target
 
@@ -202,18 +208,20 @@ class Validate:
             ip_validate(self.target)
         except ValueError as unformatted_error:
             raise InputInvalid(
-                unformatted_error,
+                params.messages.invalid_input,
                 target=self.target,
                 query_type=getattr(params.branding.text, self.query_type),
                 **unformatted_error.details,
-            ) from None
+            )
 
         # If target is a member of the blacklist, return an error.
         try:
             ip_blacklist(self.target)
         except ValueError as unformatted_error:
             raise InputNotAllowed(
-                unformatted_error, target=self.target, **unformatted_error.details
+                params.messages.blacklist,
+                target=self.target,
+                **unformatted_error.details,
             )
 
         # Perform further validation of a valid IP address, return an
@@ -222,7 +230,7 @@ class Validate:
             ip_type_check(self.query_type, self.target, self.device)
         except ValueError as unformatted_error:
             raise InputNotAllowed(
-                unformatted_error, target=self.target, **unformatted_error.details
+                str(unformatted_error), target=self.target, **unformatted_error.details
             )
 
         return self.target
@@ -267,7 +275,7 @@ class Validate:
                 )
         return self.target
 
-    def valdiate_query(self):
+    def validate_query(self):
         if self.query_type in ("bgp_community", "bgp_aspath"):
             return self.validate_dual()
         else:
