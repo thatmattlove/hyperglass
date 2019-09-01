@@ -18,14 +18,13 @@ from pydantic import BaseSettings
 from pydantic import IPvAnyAddress
 from pydantic import IPvAnyNetwork
 from pydantic import SecretStr
-from pydantic import UrlStr
 from pydantic import constr
 from pydantic import validator
 from pydantic.color import Color
 
 # Project Imports
 from hyperglass.constants import Supported
-from hyperglass.exceptions import ConfigError
+from hyperglass.exceptions import ConfigInvalid
 from hyperglass.exceptions import UnsupportedDevice
 
 
@@ -52,6 +51,7 @@ class Router(BaseSettings):
     display_name: str
     port: int
     nos: str
+    afis: List[str] = ["ipv4", "ipv6"]
     proxy: Union[str, None] = None
 
     @validator("nos")
@@ -62,9 +62,19 @@ class Router(BaseSettings):
         return v
 
     @validator("credential", "proxy", "location")
-    def clean_credential(cls, v):  # noqa: N805
+    def clean_name(cls, v):  # noqa: N805
         """Remove or replace unsupported characters from field values"""
         return clean_name(v)
+
+    @validator("afis")
+    def validate_afi(cls, v):  # noqa: N805
+        """Validates that configured AFI is supported"""
+        supported_afis = ("ipv4", "ipv6", "vpnv4", "vpnv6")
+        if v.lower() not in supported_afis:
+            raise ConfigInvalid(
+                field=v, error_msg=f"AFI must be one of: {str(supported_afis)}"
+            )
+        return v.lower()
 
 
 class Routers(BaseSettings):
@@ -276,7 +286,7 @@ class Branding(BaseSettings):
 
         title_mode: str = "logo_only"
         title: str = "hyperglass"
-        subtitle: str = "AS{primary_asn}".format(primary_asn=General().primary_asn)
+        subtitle: str = "AS{primary_asn}"
         location: str = "Location"
         query_type: str = "Query"
         query_placeholder: str = "Target"
@@ -306,7 +316,7 @@ class Branding(BaseSettings):
         class Error504(BaseSettings):
             """Class model for 504 Error Element"""
 
-            message: str = "Unable to reach <b>{target}</b>"
+            message: str = "Unable to reach {target}"
 
         error404: Error404 = Error404()
         error500: Error500 = Error500()
@@ -333,18 +343,21 @@ class Branding(BaseSettings):
 class Messages(BaseSettings):
     """Class model for params.messages"""
 
-    no_query_type: str = "Query Type must be specified."
+    no_query_type: str = "A query type must be specified."
     no_location: str = "A location must be selected."
     no_input: str = "A target must be specified"
-    blacklist: str = "{target} is not allowed."
-    max_prefix: str = "{target} prefix-length must be shorter than {max_length}."
-    requires_ipv6_cidr: str = (
-        "{location} requires IPv6 BGP lookups to be in CIDR notation."
+    blacklist: str = "{target} a member of {blacklisted_net}, which is not allowed."
+    max_prefix: str = (
+        "Prefix length must be shorter than /{max_length}. {target} is too specific."
     )
-    invalid_input: str = "{target} is not a valid {query_type}."
+    requires_ipv6_cidr: str = (
+        "{device_name} requires IPv6 BGP lookups to be in CIDR notation."
+    )
+    invalid_input: str = "{target} is not a valid {query_type} target."
     general: str = "Something went wrong."
     directed_cidr: str = "{query_type} queries can not be in CIDR format."
     request_timeout: str = "Request timed out."
+    connection_error: str = "Error connecting to {device_name}: {error}"
 
 
 class Features(BaseSettings):
@@ -534,22 +547,34 @@ class Commands(BaseSettings):
         class Dual(BaseSettings):
             """Default commands for dual afi commands"""
 
-            bgp_community = "show bgp all community {target}"
-            bgp_aspath = 'show bgp all quote-regexp "{target}"'
+            bgp_community: str = (
+                "show bgp all community {target} | section {afis}Network"
+            )
+            bgp_aspath: str = (
+                'show bgp all quote-regexp "{target}" | section {afis}Network'
+            )
 
         class IPv4(BaseSettings):
             """Default commands for ipv4 commands"""
 
-            bgp_route = "show bgp ipv4 unicast {target} | exclude pathid:|Epoch"
-            ping = "ping {target} repeat 5 source {source}"
-            traceroute = "traceroute {target} timeout 1 probe 2 source {source}"
+            bgp_route: str = "show bgp ipv4 unicast {target} | exclude pathid:|Epoch"
+            ping: str = "ping {target} repeat 5 source {source} | exclude Type escape"
+            traceroute: str = (
+                "traceroute {target} timeout 1 probe 2 source {source} "
+                "| exclude Type escape"
+            )
 
         class IPv6(BaseSettings):
             """Default commands for ipv6 commands"""
 
-            bgp_route = "show bgp ipv6 unicast {target} | exclude pathid:|Epoch"
-            ping = "ping ipv6 {target} repeat 5 source {source}"
-            traceroute = "traceroute ipv6 {target} timeout 1 probe 2 source {source}"
+            bgp_route: str = "show bgp ipv6 unicast {target} | exclude pathid:|Epoch"
+            ping: str = (
+                "ping ipv6 {target} repeat 5 source {source} | exclude Type escape"
+            )
+            traceroute: str = (
+                "traceroute ipv6 {target} timeout 1 probe 2 source {source} "
+                "| exclude Type escape"
+            )
 
         dual: Dual = Dual()
         ipv4: IPv4 = IPv4()
@@ -561,11 +586,11 @@ class Commands(BaseSettings):
         class Dual(BaseSettings):
             """Default commands for dual afi commands"""
 
-            bgp_community = (
+            bgp_community: str = (
                 "show bgp all unicast community {target} | utility egrep -v "
                 '"\\(BGP |Table |Non-stop\\)"'
             )
-            bgp_aspath = (
+            bgp_aspath: str = (
                 "show bgp all unicast regexp {target} | utility egrep -v "
                 '"\\(BGP |Table |Non-stop\\)"'
             )
@@ -573,22 +598,26 @@ class Commands(BaseSettings):
         class IPv4(BaseSettings):
             """Default commands for ipv4 commands"""
 
-            bgp_route = (
+            bgp_route: str = (
                 "show bgp ipv4 unicast {target} | util egrep \\(BGP routing table "
                 "entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
             )
-            ping = "ping ipv4 {target} count 5 source {src_addr_ipv4}"
-            traceroute = "traceroute ipv4 {target} timeout 1 probe 2 source {source}"
+            ping: str = "ping ipv4 {target} count 5 source {src_addr_ipv4}"
+            traceroute: str = (
+                "traceroute ipv4 {target} timeout 1 probe 2 source {source}"
+            )
 
         class IPv6(BaseSettings):
             """Default commands for ipv6 commands"""
 
-            bgp_route = (
+            bgp_route: str = (
                 "show bgp ipv6 unicast {target} | util egrep \\(BGP routing table "
                 "entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
             )
-            ping = "ping ipv6 {target} count 5 source {src_addr_ipv6}"
-            traceroute = "traceroute ipv6 {target} timeout 1 probe 2 source {source}"
+            ping: str = "ping ipv6 {target} count 5 source {src_addr_ipv6}"
+            traceroute: str = (
+                "traceroute ipv6 {target} timeout 1 probe 2 source {source}"
+            )
 
         dual: Dual = Dual()
         ipv4: IPv4 = IPv4()
