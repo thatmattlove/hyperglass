@@ -236,11 +236,11 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
         .html(iconError)
         .addClass('hg-done');
       $(`#${locError}-text`).html(text);
-    }
+    };
 
     $.ajax({
       url: '/query',
-      type: 'POST',
+      method: 'POST',
       data: JSON.stringify({
         location: loc,
         query_type: queryType,
@@ -269,16 +269,15 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
         const codesDanger = [401, 415, 500, 501, 503];
         const codesWarning = [405];
         if (textStatus === 'timeout') {
-          const displayHtml = 'Request timed out.';
           const iconTimeout = '<i class="remixicon-time-line"></i>';
           $(`#${loc}-heading`).removeClass('bg-overlay').addClass('bg-warning');
           $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass('btn-warning');
           $(`#${loc}-status-container`).removeClass('hg-loading').find('.hg-status-btn').empty().html(iconTimeout).addClass('hg-done');
-          $(`#${loc}-text`).empty().html(displayHtml);
+          $(`#${loc}-text`).empty().html(inputMessages.request_timeout);
         } else if (codesDanger.includes(jqXHR.status)) {
-          generateError('danger', loc, data.output);
+          generateError('danger', loc, jqXHR.responseJSON.output);
         } else if (codesWarning.includes(jqXHR.status)) {
-          generateError('warning', loc, data.output);
+          generateError('warning', loc, jqXHR.responseJSON.output);
         } else if (jqXHR.status === 429) {
           resetResults();
           $('#hg-ratelimit-query').modal('show');
