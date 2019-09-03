@@ -37,6 +37,7 @@ from hyperglass.exceptions import (
     RestError,
     InputInvalid,
     InputNotAllowed,
+    DeviceTimeout,
 )
 
 logger.debug(f"Configuration Parameters:\n {params.dict()}")
@@ -259,27 +260,26 @@ async def hyperglass_main(request):
         logger.debug(f"Sending query {cache_key} to execute module...")
 
         # Pass request to execution module
-        starttime = time.time()
         try:
+            starttime = time.time()
+
             cache_value = await Execute(lg_data).response()
+
+            endtime = time.time()
+            elapsedtime = round(endtime - starttime, 4)
+            logger.debug(f"Query {cache_key} took {elapsedtime} seconds to run.")
         except (
             AuthError,
             RestError,
             ScrapeError,
             InputInvalid,
             InputNotAllowed,
+            DeviceTimeout,
         ) as backend_error:
             raise InvalidUsage(backend_error.__dict__())
 
-        endtime = time.time()
-        elapsedtime = round(endtime - starttime, 4)
-
         if not cache_value:
             raise handle_ui_errors(request, params.messages.request_timeout)
-
-        logger.debug(
-            f"Execution for query {cache_key} took {elapsedtime} seconds to run."
-        )
 
         # Create a cache entry
         await r_cache.set(cache_key, str(cache_value))
@@ -290,9 +290,6 @@ async def hyperglass_main(request):
     # If it does, return the cached entry
     cache_response = await r_cache.get(cache_key)
 
-    # Serialize stringified tuple response from cache
-    # serialized_response = literal_eval(cache_response)
-    # response_output, response_status = serialized_response
     response_output = cache_response
 
     logger.debug(f"Cache match for: {cache_key}, returning cached entry")
