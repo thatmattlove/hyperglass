@@ -51,6 +51,7 @@ class Router(BaseSettings):
     display_name: str
     port: int
     nos: str
+    commands: Union[str, None] = None
     afis: List[str] = ["ipv4", "ipv6"]
     proxy: Union[str, None] = None
 
@@ -75,6 +76,12 @@ class Router(BaseSettings):
                 field=v, error_msg=f"AFI must be one of: {str(supported_afis)}"
             )
         return v.lower()
+
+    @validator("commands", always=True)
+    def validate_commands(cls, v, values):  # noqa: N805
+        if v is None:
+            v = values["nos"]
+        return v
 
 
 class Routers(BaseSettings):
@@ -190,7 +197,9 @@ class Proxy(BaseSettings):
 
     @validator("nos")
     def supported_nos(cls, v):  # noqa: N805
-        """Validates that passed nos string is supported by hyperglass"""
+        """
+        Validates that passed nos string is supported by hyperglass.
+        """
         if not v == "linux_ssh":
             raise UnsupportedDevice(f'"{v}" device type is not supported.')
         return v
@@ -229,7 +238,7 @@ class General(BaseSettings):
     redis_host: Union[str, IPvAnyNetwork] = "localhost"
     redis_port: int = 6379
     requires_ipv6_cidr: List[str] = ["cisco_ios", "cisco_nxos"]
-    query_timeout: int = 15
+    request_timeout: int = 15
 
 
 class Branding(BaseSettings):
@@ -358,6 +367,8 @@ class Messages(BaseSettings):
     directed_cidr: str = "{query_type} queries can not be in CIDR format."
     request_timeout: str = "Request timed out."
     connection_error: str = "Error connecting to {device_name}: {error}"
+    authentication_error: str = "Authentication error occurred."
+    noresponse_error: str = "No response."
 
 
 class Features(BaseSettings):

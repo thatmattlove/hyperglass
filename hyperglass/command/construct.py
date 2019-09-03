@@ -69,7 +69,7 @@ class Construct:
                 }
             )
         elif self.transport == "scrape":
-            conf_command = self.device_commands(self.device.nos, afi, query_type)
+            conf_command = self.device_commands(self.device.commands, afi, query_type)
             query = conf_command.format(target=target, source=source)
         logger.debug(f"Constructed query: {query}")
         return query
@@ -97,7 +97,7 @@ class Construct:
             )
 
         elif self.transport == "scrape":
-            conf_command = self.device_commands(self.device.nos, afi, query_type)
+            conf_command = self.device_commands(self.device.commands, afi, query_type)
             query = conf_command.format(target=target, source=source)
         logger.debug(f"Constructed query: {query}")
         return query
@@ -116,7 +116,7 @@ class Construct:
         if self.transport == "rest":
             query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
         elif self.transport == "scrape":
-            conf_command = self.device_commands(self.device.nos, afi, query_type)
+            conf_command = self.device_commands(self.device.commands, afi, query_type)
             query = conf_command.format(target=target)
         logger.debug(f"Constructed query: {query}")
         return query
@@ -135,7 +135,7 @@ class Construct:
         if self.transport == "rest":
             query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
         elif self.transport == "scrape":
-            conf_command = self.device_commands(self.device.nos, afi, query_type)
+            conf_command = self.device_commands(self.device.commands, afi, query_type)
             afis = []
             for afi in self.device.afis:
                 split_afi = afi.split("v")
@@ -159,7 +159,7 @@ class Construct:
         if self.transport == "rest":
             query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
         elif self.transport == "scrape":
-            conf_command = self.device_commands(self.device.nos, afi, query_type)
+            conf_command = self.device_commands(self.device.commands, afi, query_type)
             afis = []
             for afi in self.device.afis:
                 split_afi = afi.split("v")
