@@ -6,14 +6,15 @@ from hyperglass.constants import code
 
 
 class HyperglassError(Exception):
-    """
-    hyperglass base exception
-    """
+    """hyperglass base exception"""
 
     def __init__(self, message="", status=500, keywords={}):
         self.message = message
         self.status = status
         self.keywords = keywords
+
+    def __str__(self):
+        return self.message
 
     def __dict__(self):
         return {
@@ -24,17 +25,12 @@ class HyperglassError(Exception):
 
 
 class ConfigError(HyperglassError):
-    """
-    Raised for generic user-config issues.
-    """
+    """Raised for generic user-config issues."""
 
-    def __init__(self, unformatted_msg, kwargs={}):
+    def __init__(self, unformatted_msg, **kwargs):
         self.message = unformatted_msg.format(**kwargs)
         self.keywords = [value for value in kwargs.values()]
         super().__init__(message=self.message, keywords=self.keywords)
-
-    def __str__(self):
-        return self.message
 
 
 class ConfigInvalid(HyperglassError):
@@ -47,16 +43,13 @@ class ConfigInvalid(HyperglassError):
         self.keywords = [value for value in kwargs.values()]
         super().__init__(message=self.message, keywords=self.keywords)
 
-    def __str__(self):
-        return self.message
-
 
 class ConfigMissing(HyperglassError):
     """
-    Raised when a required config file or item is missing or undefined
+    Raised when a required config file or item is missing or undefined.
     """
 
-    def __init__(self, kwargs={}):
+    def __init__(self, **kwargs):
         self.message = (
             "{missing_item} is missing or undefined and is required to start "
             "hyperglass. Please consult the installation documentation."
@@ -64,53 +57,41 @@ class ConfigMissing(HyperglassError):
         self.keywords = [value for value in kwargs.values()]
         super().__init__(message=self.message, keywords=self.keywords)
 
-    def __str__(self):
-        return self.message
-
 
 class ScrapeError(HyperglassError):
     """Raised upon a scrape/netmiko error"""
 
-    def __init__(self, msg, kwargs={}):
+    def __init__(self, msg, **kwargs):
         self.message = msg.format(**kwargs)
         self.status = code.target_error
         self.keywords = [value for value in kwargs.values()]
         super().__init__(
             message=self.message, status=self.status, keywords=self.keywords
         )
-
-    def __str__(self):
-        return self.message
 
 
 class AuthError(HyperglassError):
     """Raised when authentication to a device fails"""
 
-    def __init__(self, msg, kwargs={}):
+    def __init__(self, msg, **kwargs):
         self.message = msg.format(**kwargs)
         self.status = code.target_error
         self.keywords = [value for value in kwargs.values()]
         super().__init__(
             message=self.message, status=self.status, keywords=self.keywords
         )
-
-    def __str__(self):
-        return self.message
 
 
 class RestError(HyperglassError):
     """Raised upon a rest API client error"""
 
-    def __init__(self, msg, kwargs={}):
+    def __init__(self, msg, **kwargs):
         self.message = msg.format(**kwargs)
         self.status = code.target_error
         self.keywords = [value for value in kwargs.values()]
         super().__init__(
             message=self.message, status=self.status, keywords=self.keywords
         )
-
-    def __str__(self):
-        return self.message
 
 
 class InputInvalid(HyperglassError):
@@ -123,9 +104,6 @@ class InputInvalid(HyperglassError):
         super().__init__(
             message=self.message, status=self.status, keywords=self.keywords
         )
-
-    def __str__(self):
-        return self.message
 
 
 class InputNotAllowed(HyperglassError):
@@ -142,16 +120,11 @@ class InputNotAllowed(HyperglassError):
             message=self.message, status=self.status, keywords=self.keywords
         )
 
-    def __str__(self):
-        return self.message
-
 
 class UnsupportedDevice(HyperglassError):
-    """
-    Raised when an input NOS is not in the supported NOS list.
-    """
+    """Raised when an input NOS is not in the supported NOS list."""
 
-    def __init__(self, kwargs={}):
+    def __init__(self, **kwargs):
         self.message = "".format(**kwargs)
         self.status = code.target_error
         self.keywords = [value for value in kwargs.values()]
@@ -159,5 +132,14 @@ class UnsupportedDevice(HyperglassError):
             message=self.message, status=self.status, keywords=self.keywords
         )
 
-    def __str__(self):
-        return self.message
+
+class DeviceTimeout(HyperglassError):
+    """Raised when the connection to a device times out."""
+
+    def __init__(self, msg, **kwargs):
+        self.message = msg.format(**kwargs)
+        self.status = code.target_error
+        self.keywords = [value for value in kwargs.values()]
+        super().__init__(
+            message=self.message, status=self.status, keywords=self.keywords
+        )
