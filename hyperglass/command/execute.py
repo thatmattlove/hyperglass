@@ -5,6 +5,8 @@ construct.py, which is used to build & run the Netmiko connectoins or
 hyperglass-frr API calls, returns the output back to the front end.
 """
 
+import re
+
 # Third Party Imports
 import httpx
 import sshtunnel
@@ -25,14 +27,16 @@ from hyperglass.configuration import params
 from hyperglass.configuration import proxies
 from hyperglass.constants import Supported
 from hyperglass.constants import protocol_map
-from hyperglass.exceptions import AuthError, RestError, ScrapeError
+from hyperglass.exceptions import AuthError, RestError, ScrapeError, DeviceTimeout
 
 
 class Connect:
     """
     Parent class for all connection types:
 
-    scrape() connects to devices via SSH for "screen scraping"
+    scrape_direct() directly connects to devices via SSH
+
+    scrape_proxied() connects to devices via an SSH proxy
 
     rest() connects to devices via HTTP for RESTful API communication
     """
@@ -45,25 +49,18 @@ class Connect:
         self.cred = getattr(credentials, device_config.credential)
         self.query = getattr(Construct(device_config, transport), query_type)(target)
 
-    async def scrape(self):
+    async def scrape_proxied(self):
         """
-        Connects to the router via Netmiko library, return the command
-        output. If an SSH proxy is enabled, creates an SSH tunnel via
-        the sshtunnel library, and netmiko uses the local binding to
-        connect to the remote device.
+        Connects to the router via Netmiko library via the sshtunnel
+        library, returns the command output.
         """
-        response = None
-        if self.device_config.proxy:
-            device_proxy = getattr(proxies, self.device_config.proxy)
-            logger.debug(
-                f"Proxy: {device_proxy.address.compressed}:{device_proxy.port}"
-            )
-            logger.debug(
-                "Connecting to {dev} via sshtunnel library...".format(
-                    dev=self.device_config.proxy
-                )
-            )
-            with sshtunnel.open_tunnel(
+        device_proxy = getattr(proxies, self.device_config.proxy)
+
+        logger.debug(
+            f"Connecting to {self.device_config.proxy} via sshtunnel library..."
+        )
+        try:
+            tunnel = sshtunnel.open_tunnel(
                 device_proxy.address.compressed,
                 device_proxy.port,
                 ssh_username=device_proxy.username,
@@ -74,100 +71,137 @@ class Connect:
                 ),
                 local_bind_address=("localhost", 0),
                 skip_tunnel_checkup=False,
-            ) as tunnel:
-                logger.debug(f"Established tunnel with {self.device_config.proxy}")
-                scrape_host = {
-                    "host": "localhost",
-                    "port": tunnel.local_bind_port,
-                    "device_type": self.device_config.nos,
-                    "username": self.cred.username,
-                    "password": self.cred.password.get_secret_value(),
-                    "global_delay_factor": 0.2,
-                }
-                logger.debug(f"Local binding: localhost:{tunnel.local_bind_port}")
-                try:
-                    logger.debug(
-                        "Connecting to {dev} via Netmiko library...".format(
-                            dev=self.device_config.location
-                        )
-                    )
-                    nm_connect_direct = ConnectHandler(**scrape_host)
-                    response = nm_connect_direct.send_command(self.query)
-                except (
-                    OSError,
-                    NetMikoTimeoutException,
-                    NetmikoTimeoutError,
-                    sshtunnel.BaseSSHTunnelForwarderError,
-                ) as scrape_error:
-                    logger.error(
-                        f"Error connecting to device {self.device_config.location}"
-                    )
-                    raise ScrapeError(
-                        params.messages.connection_error,
-                        device=self.device_config.location,
-                        proxy=self.device_config.proxy,
-                        error=scrape_error,
-                    ) from None
-                except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
-                    logger.error(
-                        f"Error authenticating to device {self.device_config.location}"
-                    )
-                    raise AuthError(
-                        params.messages.connection_error,
-                        device=self.device_config.location,
-                        proxy=self.device_config.proxy,
-                        error=auth_error,
-                    ) from None
-        else:
+                logger=logger,
+            )
+        except sshtunnel.BaseSSHTunnelForwarderError as scrape_proxy_error:
+            logger.error(
+                f"Error connecting to device {self.device_config.location} via "
+                f"proxy {self.device_config.proxy}"
+            )
+            raise ScrapeError(
+                params.messages.connection_error,
+                device_name=self.device_config.display_name,
+                proxy=self.device_config.proxy,
+                error=scrape_proxy_error,
+            )
+        with tunnel:
+            logger.debug(f"Established tunnel with {self.device_config.proxy}")
             scrape_host = {
-                "host": self.device_config.address.compressed,
-                "port": self.device_config.port,
+                "host": "localhost",
+                "port": tunnel.local_bind_port,
                 "device_type": self.device_config.nos,
                 "username": self.cred.username,
                 "password": self.cred.password.get_secret_value(),
                 "global_delay_factor": 0.2,
+                "timeout": params.general.request_timeout - 1,
             }
+            logger.debug(f"SSH proxy local binding: localhost:{tunnel.local_bind_port}")
             try:
                 logger.debug(
-                    "Connecting to {dev} via Netmiko library...".format(
-                        dev=self.device_config.location
-                    )
+                    f"Connecting to {self.device_config.location} "
+                    "via Netmiko library..."
                 )
-                logger.debug(f"Device Parameters: {scrape_host}")
                 nm_connect_direct = ConnectHandler(**scrape_host)
                 response = nm_connect_direct.send_command(self.query)
-            except (
-                OSError,
-                NetMikoTimeoutException,
-                NetmikoTimeoutError,
-                sshtunnel.BaseSSHTunnelForwarderError,
-            ) as scrape_error:
+            except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
                 logger.error(
-                    f"Error connecting to device {self.device_config.location}"
+                    f"Timeout connecting to device {self.device_config.location}: "
+                    f"{scrape_error}"
                 )
-                raise ScrapeError(
+                raise DeviceTimeout(
                     params.messages.connection_error,
-                    device=self.device_config.location,
-                    proxy=None,
-                    error=scrape_error,
-                ) from None
+                    device_name=self.device_config.display_name,
+                    proxy=self.device_config.proxy,
+                    error=params.messages.request_timeout,
+                )
             except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
                 logger.error(
-                    f"Error authenticating to device {self.device_config.location}"
+                    f"Error authenticating to device {self.device_config.location}: "
+                    f"{auth_error}"
                 )
                 raise AuthError(
                     params.messages.connection_error,
-                    device=self.device_config.location,
-                    proxy=None,
-                    error=auth_error,
+                    device_name=self.device_config.display_name,
+                    proxy=self.device_config.proxy,
+                    error=params.messages.authentication_error,
                 ) from None
+            except sshtunnel.BaseSSHTunnelForwarderError as scrape_error:
+                logger.error(
+                    f"Error connecting to device proxy {self.device_config.proxy}: "
+                    f"{scrape_error}"
+                )
+                raise ScrapeError(
+                    params.messages.connection_error,
+                    device_name=self.device_config.display_name,
+                    proxy=self.device_config.proxy,
+                    error=params.messages.general,
+                )
         if not response:
             logger.error(f"No response from device {self.device_config.location}")
             raise ScrapeError(
                 params.messages.connection_error,
-                device=self.device_config.location,
+                device_name=self.device_config.display_name,
                 proxy=None,
-                error="No response",
+                error=params.messages.noresponse_error,
+            )
+        logger.debug(f"Output for query: {self.query}:\n{response}")
+        return response
+
+    async def scrape_direct(self):
+        """
+        Directly connects to the router via Netmiko library, returns the
+        command output.
+        """
+
+        logger.debug(f"Connecting directly to {self.device_config.location}...")
+
+        scrape_host = {
+            "host": self.device_config.address.compressed,
+            "port": self.device_config.port,
+            "device_type": self.device_config.nos,
+            "username": self.cred.username,
+            "password": self.cred.password.get_secret_value(),
+            "global_delay_factor": 0.2,
+            "timeout": params.general.request_timeout - 1,
+        }
+
+        try:
+            logger.debug(f"Device Parameters: {scrape_host}")
+            logger.debug(
+                f"Connecting to {self.device_config.location} via Netmiko library"
+            )
+            nm_connect_direct = ConnectHandler(**scrape_host)
+            response = nm_connect_direct.send_command(self.query)
+        except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
+            logger.error(
+                f"{params.general.request_timeout - 1} second timeout expired."
+            )
+            logger.error(scrape_error)
+            raise DeviceTimeout(
+                params.messages.connection_error,
+                device_name=self.device_config.display_name,
+                proxy=None,
+                error=params.messages.request_timeout,
+            )
+        except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
+            logger.error(
+                f"Error authenticating to device {self.device_config.location}"
+            )
+            logger.error(auth_error)
+
+            raise AuthError(
+                params.messages.connection_error,
+                device_name=self.device_config.display_name,
+                proxy=None,
+                error=params.messages.authentication_error,
+            )
+        if not response:
+            logger.error(f"No response from device {self.device_config.location}")
+            raise ScrapeError(
+                params.messages.connection_error,
+                device_name=self.device_config.display_name,
+                proxy=None,
+                error=params.messages.noresponse_error,
             )
         logger.debug(f"Output for query: {self.query}:\n{response}")
         return response
@@ -191,6 +225,12 @@ class Connect:
 
         logger.debug(f"HTTP Headers: {headers}")
         logger.debug(f"URL endpoint: {endpoint}")
+
+        rest_exception = lambda msg: RestError(
+            params.messages.connection_error,
+            device_name=self.device_config.display_name,
+            error=msg,
+        )
 
         try:
             http_client = httpx.AsyncClient()
@@ -217,14 +257,26 @@ class Connect:
             httpx.exceptions.Timeout,
             httpx.exceptions.TooManyRedirects,
             httpx.exceptions.WriteTimeout,
-            OSError,
         ) as rest_error:
-            logger.error(f"Error connecting to device {self.device_config.location}")
-            raise RestError(
-                params.messages.connection_error,
-                device=self.device_config.location,
-                error=rest_error,
+            rest_msg = " ".join(
+                re.findall(r"[A-Z][^A-Z]*", rest_error.__class__.__name__)
             )
+            logger.error(
+                f"Error connecting to device {self.device_config.location}: {rest_msg}"
+            )
+            raise rest_exception(rest_msg)
+        except OSError:
+            raise rest_exception("System error")
+
+        if raw_response.status_code != 200:
+            logger.error(f"Response code is {raw_response.status_code}")
+            raise rest_exception(params.messages.general)
+
+        if not response:
+            logger.error(f"No response from device {self.device_config.location}")
+            raise rest_exception(params.messages.noresponse_error)
+
+        logger.debug(f"Output for query: {self.query}:\n{response}")
         return response
 
 
@@ -240,28 +292,6 @@ class Execute:
         self.query_location = self.query_data["location"]
         self.query_type = self.query_data["query_type"]
         self.query_target = self.query_data["target"]
-
-    def parse(self, raw_output, nos):
-        """
-        Deprecating: see #16
-
-        Splits BGP raw output by AFI, returns only IPv4 & IPv6 output for
-        protocol-agnostic commands (Community & AS_PATH Lookups).
-        """
-        logger.debug("Parsing raw output...")
-
-        parsed = raw_output
-        if self.query_type in ("bgp_community", "bgp_aspath"):
-            logger.debug(f"Parsing raw output for device type {nos}")
-            if nos in ("cisco_ios",):
-                delimiter = "For address family: "
-                parsed_raw = raw_output.split(delimiter)[1:3]
-                parsed = "\n\n".join([delimiter + afi.rstrip() for afi in parsed_raw])
-            elif nos in ("cisco_xr",):
-                delimiter = "Address Family: "
-                parsed_raw = raw_output.split(delimiter)[1:3]
-                parsed = "\n\n".join([delimiter + afi.rstrip() for afi in parsed_raw])
-        return parsed
 
     async def response(self):
         """
@@ -285,9 +315,12 @@ class Execute:
 
         transport = Supported.map_transport(device_config.nos)
         connect = Connect(device_config, self.query_type, self.query_target, transport)
+
         if Supported.is_rest(device_config.nos):
             output = await connect.rest()
         elif Supported.is_scrape(device_config.nos):
-            output = await connect.scrape()
-
+            if device_config.proxy:
+                output = await connect.scrape_proxied()
+            else:
+                output = await connect.scrape_direct()
         return output
