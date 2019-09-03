@@ -26,10 +26,12 @@ try:
 except FileNotFoundError as no_config_error:
     user_config = None
     logger.error(f"{no_config_error} - Default configuration will be used")
+
 # Import device commands file
 try:
     with open(working_dir.joinpath("commands.yaml")) as commands_yaml:
         user_commands = yaml.safe_load(commands_yaml)
+        logger.info(f"Found commands: {user_commands}")
 except FileNotFoundError:
     user_commands = None
     logger.info(
