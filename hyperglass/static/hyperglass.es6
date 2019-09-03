@@ -238,6 +238,14 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
       $(`#${locError}-text`).html(text);
     };
 
+    const timeoutError = (locError, text) => {
+      const iconTimeout = '<i class="remixicon-time-line"></i>';
+      $(`#${locError}-heading`).removeClass('bg-overlay').addClass('bg-warning');
+      $(`#${locError}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass('btn-warning');
+      $(`#${locError}-status-container`).removeClass('hg-loading').find('.hg-status-btn').empty().html(iconTimeout).addClass('hg-done');
+      $(`#${locError}-text`).empty().html(text);
+    };
+
     $.ajax({
       url: '/query',
       method: 'POST',
@@ -250,7 +258,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
       contentType: 'application/json; charset=utf-8',
       context: document.body,
       async: true,
-      timeout: cfgGeneral.query_timeout * 1000,
+      timeout: cfgGeneral.request_timeout * 1000,
     })
       .done((data, textStatus, jqXHR) => {
         const displayHtml = `<pre>${data.output}</pre>`;
@@ -266,14 +274,12 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
         $(`#${loc}-text`).empty().html(displayHtml);
       })
       .fail((jqXHR, textStatus, errorThrown) => {
-        const codesDanger = [401, 415, 500, 501, 503];
+        const codesDanger = [401, 415, 501, 503, 504];
         const codesWarning = [405];
         if (textStatus === 'timeout') {
-          const iconTimeout = '<i class="remixicon-time-line"></i>';
-          $(`#${loc}-heading`).removeClass('bg-overlay').addClass('bg-warning');
-          $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass('btn-warning');
-          $(`#${loc}-status-container`).removeClass('hg-loading').find('.hg-status-btn').empty().html(iconTimeout).addClass('hg-done');
-          $(`#${loc}-text`).empty().html(inputMessages.request_timeout);
+          timeoutError(loc, inputMessages.request_timeout);
+        } else if (jqXHR.status === 500 && textStatus !== 'timeout') {
+          timeoutError(loc, inputMessages.request_timeout);
         } else if (codesDanger.includes(jqXHR.status)) {
           generateError('danger', loc, jqXHR.responseJSON.output);
         } else if (codesWarning.includes(jqXHR.status)) {
