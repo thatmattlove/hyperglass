@@ -146,14 +146,16 @@ $(document).ready(() => {
   reloadPage();
   resultsContainer.hide();
   $('#hg-ratelimit-query').modal('hide');
-  $('.animsition').animsition({
-    inClass: 'fade-in',
-    outClass: 'fade-out',
-    inDuration: 400,
-    outDuration: 400,
-    transition: (url) => { window.location.href = url; },
-  });
-  formContainer.animsition('in');
+  if (location.pathname == '/') {
+    $('.animsition').animsition({
+      inClass: 'fade-in',
+      outClass: 'fade-out',
+      inDuration: 400,
+      outDuration: 400,
+      transition: (url) => { window.location.href = url; },
+    });
+    formContainer.animsition('in');
+  }
 });
 
 const supportedBtn = qt => `<button class="btn btn-secondary hg-info-btn" id="hg-info-btn-${qt}" data-hg-type="${qt}" type="button"><div id="hg-info-icon-${qt}"><i class="remixicon-information-line"></i></div></button>`;
@@ -274,19 +276,16 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
         $(`#${loc}-text`).empty().html(displayHtml);
       })
       .fail((jqXHR, textStatus, errorThrown) => {
-        const codesDanger = [401, 415, 501, 503, 504];
-        const codesWarning = [405];
+        const statusCode = jqXHR.status;
         if (textStatus === 'timeout') {
           timeoutError(loc, inputMessages.request_timeout);
-        } else if (jqXHR.status === 500 && textStatus !== 'timeout') {
-          timeoutError(loc, inputMessages.request_timeout);
-        } else if (codesDanger.includes(jqXHR.status)) {
-          generateError('danger', loc, jqXHR.responseJSON.output);
-        } else if (codesWarning.includes(jqXHR.status)) {
-          generateError('warning', loc, jqXHR.responseJSON.output);
         } else if (jqXHR.status === 429) {
           resetResults();
           $('#hg-ratelimit-query').modal('show');
+        } else if (statusCode === 500 && textStatus !== 'timeout') {
+          timeoutError(loc, inputMessages.request_timeout);
+        } else if ((jqXHR.responseJSON.alert === 'danger') || (jqXHR.responseJSON.alert === 'warning')) {
+          generateError(jqXHR.responseJSON.alertype, loc, jqXHR.responseJSON.output);
         }
       })
       .always(() => {
@@ -396,12 +395,3 @@ $('#hg-ratelimit-query').on('shown.bs.modal', () => {
 $('#hg-ratelimit-query').find('btn').on('click', () => {
   $('#hg-ratelimit-query').modal('hide');
 });
-
-// Cheap hack for mobile keyboard popping up on a multiple select with live search - see bootstrap-select #1511
-// $('.bs-searchbox.form-control').on('focus', () => {
-//   if (!bsBlurState) {
-//     console.log('matched cheap hack');
-//     $(this).blur();
-//     bsBlurState = true;
-//   }
-// });

@@ -18,6 +18,7 @@ from sanic import response
 from sanic.exceptions import NotFound
 from sanic.exceptions import ServerError
 from sanic.exceptions import InvalidUsage
+from sanic.exceptions import ServiceUnavailable
 from sanic_limiter import Limiter
 from sanic_limiter import RateLimitExceeded
 from sanic_limiter import get_remote_address
@@ -29,7 +30,6 @@ from hyperglass.configuration import devices
 from hyperglass.configuration import logzero_config  # noqa: F401
 from hyperglass.configuration import params
 from hyperglass.constants import Supported
-from hyperglass.constants import code
 from hyperglass.exceptions import (
     HyperglassError,
     AuthError,
@@ -97,7 +97,7 @@ count_data = Counter(
 count_errors = Counter(
     "count_errors",
     "Error Counter",
-    ["code", "reason", "source", "query_type", "loc_id", "target"],
+    ["reason", "source", "query_type", "loc_id", "target"],
 )
 
 count_ratelimit = Counter(
@@ -126,32 +126,45 @@ async def metrics(request):
 
 
 @app.exception(InvalidUsage)
-async def handle_ui_errors(request, exception):
-    """Renders full error page for invalid URI"""
+async def handle_frontend_errors(request, exception):
+    """Handles user-facing feedback related to frontend/input errors"""
     client_addr = get_remote_address(request)
     error = exception.args[0]
-    status = error["status"]
+    alert = error["alert"]
     logger.info(error)
     count_errors.labels(
-        status,
-        code.get_reason(status),
+        "Front End Error",
         client_addr,
-        request.json["query_type"],
-        request.json["location"],
-        request.json["target"],
+        request.json.get("query_type"),
+        request.json.get("location"),
+        request.json.get("target"),
     ).inc()
     logger.error(f'Error: {error["message"]}, Source: {client_addr}')
     return response.json(
-        {"output": error["message"], "status": status, "keywords": error["keywords"]},
-        status=status,
+        {"output": error["message"], "alert": alert, "keywords": error["keywords"]},
+        status=400,
     )
 
 
-@app.exception(ServerError)
-async def handle_missing(request, exception):
-    """Renders full error page for invalid URI"""
-    logger.error(f"Error: {exception}")
-    return response.json(exception, status=code.invalid)
+@app.exception(ServiceUnavailable)
+async def handle_backend_errors(request, exception):
+    """Handles user-facing feedback related to backend errors"""
+    client_addr = get_remote_address(request)
+    error = exception.args[0]
+    alert = error["alert"]
+    logger.info(error)
+    count_errors.labels(
+        "Back End Error",
+        client_addr,
+        request.json.get("query_type"),
+        request.json.get("location"),
+        request.json.get("target"),
+    ).inc()
+    logger.error(f'Error: {error["message"]}, Source: {client_addr}')
+    return response.json(
+        {"output": error["message"], "alert": alert, "keywords": error["keywords"]},
+        status=503,
+    )
 
 
 @app.exception(NotFound)
@@ -205,12 +218,19 @@ async def site(request):
 @app.route("/test", methods=["GET"])
 async def test_route(request):
     """Test route for various tests"""
-    html = render_html("results")
+    html = render_html("500")
     return response.html(html, status=500)
 
 
 @app.route("/query", methods=["POST"])
-@limiter.limit(rate_limit_query, error_message="Query")
+@limiter.limit(
+    rate_limit_query,
+    error_message={
+        "output": params.features.rate_limit.query.message,
+        "alert": "danger",
+        "keywords": [],
+    },
+)
 async def hyperglass_main(request):
     """
     Main backend application initiator. Ingests Ajax POST data from
@@ -221,27 +241,58 @@ async def hyperglass_main(request):
     lg_data = request.json
     logger.debug(f"Unvalidated input: {lg_data}")
 
+    query_location = lg_data.get("location")
+    query_type = lg_data.get("query_type")
+    query_target = lg_data.get("target")
+
     # Return error if no target is specified
-    if not lg_data["target"]:
+    if not query_target:
         logger.debug("No input specified")
-        raise handle_missing(request, params.messages.no_input)
+        raise InvalidUsage(
+            {
+                "message": params.messages.no_input.format(
+                    query_type=params.branding.text.query_target
+                ),
+                "alert": "warning",
+                "keywords": [params.branding.text.query_target],
+            }
+        )
 
     # Return error if no location is selected
-    if lg_data["location"] not in devices.hostnames:
+    if query_location not in devices.hostnames:
         logger.debug("No selection specified")
-        raise handle_missing(request, params.messages.no_input)
+        raise InvalidUsage(
+            {
+                "message": params.messages.no_input.format(
+                    query_type=params.branding.text.query_location
+                ),
+                "alert": "warning",
+                "keywords": [params.branding.text.query_location],
+            }
+        )
 
     # Return error if no query type is selected
-    if not Supported.is_supported_query(lg_data["query_type"]):
+    if not Supported.is_supported_query(query_type):
         logger.debug("No query specified")
-        raise handle_missing(request, params.messages.no_input)
+        raise InvalidUsage(
+            {
+                "message": params.messages.no_input.format(
+                    query_type=params.branding.text.query_type
+                ),
+                "alert": "warning",
+                "keywords": [params.branding.text.query_location],
+            }
+        )
 
     # Get client IP address for Prometheus logging & rate limiting
     client_addr = get_remote_address(request)
 
     # Increment Prometheus counter
     count_data.labels(
-        client_addr, lg_data["query_type"], lg_data["location"], lg_data["target"]
+        client_addr,
+        lg_data.get("query_type"),
+        lg_data.get("location"),
+        lg_data.get("target"),
     ).inc()
 
     logger.debug(f"Client Address: {client_addr}")
@@ -268,18 +319,15 @@ async def hyperglass_main(request):
             endtime = time.time()
             elapsedtime = round(endtime - starttime, 4)
             logger.debug(f"Query {cache_key} took {elapsedtime} seconds to run.")
-        except (
-            AuthError,
-            RestError,
-            ScrapeError,
-            InputInvalid,
-            InputNotAllowed,
-            DeviceTimeout,
-        ) as backend_error:
-            raise InvalidUsage(backend_error.__dict__())
+        except (InputInvalid, InputNotAllowed) as frontend_error:
+            raise InvalidUsage(frontend_error.__dict__())
+        except (AuthError, RestError, ScrapeError, DeviceTimeout) as backend_error:
+            raise ServiceUnavailable(backend_error.__dict__())
 
         if not cache_value:
-            raise handle_ui_errors(request, params.messages.request_timeout)
+            raise ServerError(
+                {"message": params.messages.general, "alert": "danger", "keywords": []}
+            )
 
         # Create a cache entry
         await r_cache.set(cache_key, str(cache_value))

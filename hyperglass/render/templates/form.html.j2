@@ -13,7 +13,7 @@
       <div class="form-row mb-4">
         <div class="col-md col-sm-12 mb-4 mb-md-0">
           <select multiple class="form-control form-control-lg hg-select" id="location" data-live-search="true"
-            title="{{ branding.text.location }}">
+            title="{{ branding.text.query_location }}">
             {% for (netname, loc_params) in networks.items() %}
             <optgroup label="{{ netname }}">
               {% for param in loc_params %}
@@ -55,8 +55,8 @@
       <div class="form-row mb-4">
         <div class="col" id="hg-target-container">
           <div class="input-group input-group-lg">
-            <input class="form-control" type="text" placeholder="{{ branding.text.query_placeholder }}"
-              aria-label="{{ branding.text.query_placeholder }}" aria-describedby="query_target" id="query_target"
+            <input class="form-control" type="text" placeholder="{{ branding.text.query_target }}"
+              aria-label="{{ branding.text.query_target }}" aria-describedby="query_target" id="query_target"
               required>
             <div class="input-group-append" id="hg-target-append">
               <button class="btn btn-primary" id="hg-submit-button" type="submit">

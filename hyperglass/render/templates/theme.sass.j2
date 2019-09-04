@@ -1,10 +1,10 @@
 // Jinja2-rendered theme elements
-$hg-primary: {{ colors.primary }}
-$hg-secondary: {{ colors.secondary }}
-$hg-danger: {{ colors.danger }}
-$hg-warning: {{ colors.warning }}
-$hg-background: {{ colors.background }}
-        
+$hg-primary:  {{ colors.primary }}
+$hg-secondary:  {{ colors.secondary }}
+$hg-danger:  {{ colors.danger }}
+$hg-warning:  {{ colors.warning }}
+$hg-background:  {{ colors.background }}
+
 @function findTextColor($color)
     $inverted: invert($color)
     @if (lightness($color) > 55%)
@@ -91,9 +91,9 @@ $font-family-monospace:     "{{ font.mono }}", SFMono-Regular, Menlo, Monaco, Co
 $headings-font-weight:      400
 
 //// Borders
-$border-radius:     .44rem
-$border-radius-lg:  .4rem
-$border-radius-sm:  .35rem
+$border-radius:     .5rem
+$border-radius-lg:  .7rem
+$border-radius-sm:  .4rem
 
 //// Popovers
 $popover-bg:                    $hg-field-bg
