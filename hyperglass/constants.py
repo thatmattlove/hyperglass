@@ -5,42 +5,6 @@ Global Constants for hyperglass
 protocol_map = {80: "http", 8080: "http", 443: "https", 8443: "https"}
 
 
-class Status:
-    """
-    Defines codes, messages, and method names for status codes used by
-    hyperglass.
-    """
-
-    codes_dict = {
-        200: ("valid", "Valid Query"),
-        405: ("not_allowed", "Query Not Allowed"),
-        415: ("invalid", "Invalid Query"),
-        504: ("target_error", "Unable to Reach Target"),
-    }
-
-    def __init__(self):
-        """
-        Dynamically generates class attributes for codes in codes_dict.
-        """
-        for (_code, text) in Status.codes_dict.items():
-            setattr(self, text[0], _code)
-
-    @staticmethod
-    def get_reason(search_code):
-        """
-        Maps and returns input code integer to associated reason text.
-        Mainly used for populating Prometheus fields.
-        """
-        reason = None
-        for (_code, text) in Status.codes_dict.items():
-            if _code == search_code:
-                reason = text[1]
-        return reason
-
-
-code = Status()
-
-
 class Supported:
     """
     Defines items supported by hyperglass.

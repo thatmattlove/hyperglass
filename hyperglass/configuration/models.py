@@ -251,7 +251,7 @@ class Branding(BaseSettings):
 
         primary: Color = "#40798c"
         secondary: Color = "#330036"
-        danger: Color = "#ff5e5b"
+        danger: Color = "#a21024"
         warning: Color = "#eec643"
         light: Color = "#fbfffe"
         dark: Color = "#383541"
@@ -296,9 +296,9 @@ class Branding(BaseSettings):
         title_mode: str = "logo_only"
         title: str = "hyperglass"
         subtitle: str = "AS{primary_asn}"
-        location: str = "Location"
+        query_location: str = "Location"
         query_type: str = "Query"
-        query_placeholder: str = "Target"
+        query_target: str = "Target"
         terms: str = "Terms"
         info: str = "Help"
         peeringdb = "PeeringDB"
@@ -354,7 +354,7 @@ class Messages(BaseSettings):
 
     no_query_type: str = "A query type must be specified."
     no_location: str = "A location must be selected."
-    no_input: str = "A target must be specified"
+    no_input: str = "{query_type} must be specified."
     blacklist: str = "{target} a member of {blacklisted_net}, which is not allowed."
     max_prefix: str = (
         "Prefix length must be shorter than /{max_length}. {target} is too specific."

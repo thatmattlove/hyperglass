@@ -2,26 +2,20 @@
 Custom exceptions for hyperglass
 """
 
-from hyperglass.constants import code
-
 
 class HyperglassError(Exception):
     """hyperglass base exception"""
 
-    def __init__(self, message="", status=500, keywords={}):
+    def __init__(self, message="", alert="warning", keywords={}):
         self.message = message
-        self.status = status
+        self.alert = alert
         self.keywords = keywords
 
     def __str__(self):
         return self.message
 
     def __dict__(self):
-        return {
-            "message": self.message,
-            "status": self.status,
-            "keywords": self.keywords,
-        }
+        return {"message": self.message, "alert": self.alert, "keywords": self.keywords}
 
 
 class ConfigError(HyperglassError):
@@ -63,11 +57,9 @@ class ScrapeError(HyperglassError):
 
     def __init__(self, msg, **kwargs):
         self.message = msg.format(**kwargs)
-        self.status = code.target_error
+        self.alert = "danger"
         self.keywords = [value for value in kwargs.values()]
-        super().__init__(
-            message=self.message, status=self.status, keywords=self.keywords
-        )
+        super().__init__(message=self.message, alert=self.alert, keywords=self.keywords)
 
 
 class AuthError(HyperglassError):
@@ -75,11 +67,9 @@ class AuthError(HyperglassError):
 
     def __init__(self, msg, **kwargs):
         self.message = msg.format(**kwargs)
-        self.status = code.target_error
+        self.alert = "danger"
         self.keywords = [value for value in kwargs.values()]
-        super().__init__(
-            message=self.message, status=self.status, keywords=self.keywords
-        )
+        super().__init__(message=self.message, alert=self.alert, keywords=self.keywords)
 
 
 class RestError(HyperglassError):
@@ -87,11 +77,9 @@ class RestError(HyperglassError):
 
     def __init__(self, msg, **kwargs):
         self.message = msg.format(**kwargs)
-        self.status = code.target_error
+        self.alert = "danger"
         self.keywords = [value for value in kwargs.values()]
-        super().__init__(
-            message=self.message, status=self.status, keywords=self.keywords
-        )
+        super().__init__(message=self.message, alert=self.alert, keywords=self.keywords)
 
 
 class InputInvalid(HyperglassError):
@@ -99,11 +87,9 @@ class InputInvalid(HyperglassError):
 
     def __init__(self, unformatted_msg, **kwargs):
         self.message = unformatted_msg.format(**kwargs)
-        self.status = code.invalid
+        self.alert = "warning"
         self.keywords = [value for value in kwargs.values()]
-        super().__init__(
-            message=self.message, status=self.status, keywords=self.keywords
-        )
+        super().__init__(message=self.message, alert=self.alert, keywords=self.keywords)
 
 
 class InputNotAllowed(HyperglassError):
@@ -114,11 +100,9 @@ class InputNotAllowed(HyperglassError):
 
     def __init__(self, unformatted_msg, **kwargs):
         self.message = unformatted_msg.format(**kwargs)
-        self.status = code.invalid
+        self.alert = "warning"
         self.keywords = [value for value in kwargs.values()]
-        super().__init__(
-            message=self.message, status=self.status, keywords=self.keywords
-        )
+        super().__init__(message=self.message, alert=self.alert, keywords=self.keywords)
 
 
 class UnsupportedDevice(HyperglassError):
@@ -126,11 +110,8 @@ class UnsupportedDevice(HyperglassError):
 
     def __init__(self, **kwargs):
         self.message = "".format(**kwargs)
-        self.status = code.target_error
         self.keywords = [value for value in kwargs.values()]
-        super().__init__(
-            message=self.message, status=self.status, keywords=self.keywords
-        )
+        super().__init__(message=self.message, keywords=self.keywords)
 
 
 class DeviceTimeout(HyperglassError):
@@ -138,8 +119,6 @@ class DeviceTimeout(HyperglassError):
 
     def __init__(self, msg, **kwargs):
         self.message = msg.format(**kwargs)
-        self.status = code.target_error
+        self.alert = "danger"
         self.keywords = [value for value in kwargs.values()]
-        super().__init__(
-            message=self.message, status=self.status, keywords=self.keywords
-        )
+        super().__init__(message=self.message, alert=self.alert, keywords=self.keywords)
