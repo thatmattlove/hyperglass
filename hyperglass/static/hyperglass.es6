@@ -1,5 +1,6 @@
 // Module Imports
 global.jQuery = require('jquery');
+
 const $ = jQuery;
 const Popper = require('popper.js');
 const bootstrap = require('bootstrap');
@@ -244,7 +245,9 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
       const iconTimeout = '<i class="remixicon-time-line"></i>';
       $(`#${locError}-heading`).removeClass('bg-overlay').addClass('bg-warning');
       $(`#${locError}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass('btn-warning');
-      $(`#${locError}-status-container`).removeClass('hg-loading').find('.hg-status-btn').empty().html(iconTimeout).addClass('hg-done');
+      $(`#${locError}-status-container`).removeClass('hg-loading').find('.hg-status-btn').empty()
+        .html(iconTimeout)
+        .addClass('hg-done');
       $(`#${locError}-text`).empty().html(text);
     };
 
@@ -285,7 +288,7 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
         } else if (statusCode === 500 && textStatus !== 'timeout') {
           timeoutError(loc, inputMessages.request_timeout);
         } else if ((jqXHR.responseJSON.alert === 'danger') || (jqXHR.responseJSON.alert === 'warning')) {
-          generateError(jqXHR.responseJSON.alertype, loc, jqXHR.responseJSON.output);
+          generateError(jqXHR.responseJSON.alert, loc, jqXHR.responseJSON.output);
         }
       })
       .always(() => {
@@ -385,7 +388,7 @@ $('#hg-accordion').on('click', '.hg-done', (e) => {
   const queryTarget = $('#query_target').val();
 
 
-  queryApp(queryType, queryTypeTitle, [thisLocation,], queryTarget);
+  queryApp(queryType, queryTypeTitle, [thisLocation], queryTarget);
 });
 
 $('#hg-ratelimit-query').on('shown.bs.modal', () => {
