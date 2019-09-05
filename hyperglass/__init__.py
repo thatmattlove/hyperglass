@@ -40,3 +40,5 @@ POSSIBILITY OF SUCH DAMAGE.
 from hyperglass import command
 from hyperglass import configuration
 from hyperglass import render
+from hyperglass import exceptions
+from hyperglass import constants
