@@ -53,6 +53,7 @@ class Router(BaseSettings):
     nos: str
     commands: Union[str, None] = None
     afis: List[str] = ["ipv4", "ipv6"]
+    vrfs: List[str] = []
     proxy: Union[str, None] = None
 
     @validator("nos")
@@ -307,6 +308,7 @@ class Branding(BaseSettings):
         bgp_aspath: str = "BGP AS Path"
         ping: str = "Ping"
         traceroute: str = "Traceroute"
+        vrf: str = "VRF"
 
         class Error404(BaseSettings):
             """Class model for 404 Error Page"""
@@ -369,10 +371,17 @@ class Messages(BaseSettings):
     connection_error: str = "Error connecting to {device_name}: {error}"
     authentication_error: str = "Authentication error occurred."
     noresponse_error: str = "No response."
+    vrf_not_associated: str = "{vrf} is not associated with {device_name}."
+    no_matching_vrfs: str = "No VRFs Match"
 
 
 class Features(BaseSettings):
     """Class model for params.features"""
+
+    class Vrf(BaseSettings):
+        """Class model for params.features.vrf"""
+
+        enable: bool = False
 
     class BgpRoute(BaseSettings):
         """Class model for params.features.bgp_route"""
@@ -493,6 +502,7 @@ class Features(BaseSettings):
     cache: Cache = Cache()
     max_prefix: MaxPrefix = MaxPrefix()
     rate_limit: RateLimit = RateLimit()
+    vrf: Vrf = Vrf()
 
 
 class Params(BaseSettings):
@@ -552,23 +562,78 @@ class Commands(BaseSettings):
             setattr(Commands, nos, NosModel(**cmds))
         return obj
 
+    # class CiscoIOS(BaseSettings):
+    #     """Class model for default cisco_ios commands"""
+
+    #     class Dual(BaseSettings):
+    #         """Default commands for dual afi commands"""
+
+    #         bgp_community: str = (
+    #             "show bgp all community {target} | section {afis}Network"
+    #         )
+
+    #         bgp_aspath: str = (
+    #             'show bgp all quote-regexp "{target}" | section {afis}Network'
+    #         )
+
+    #     class IPv4(BaseSettings):
+    #         """Default commands for ipv4 commands"""
+
+    #         bgp_route: str = "show bgp ipv4 unicast {target} | exclude pathid:|Epoch"
+    #         ping: str = "ping {target} repeat 5 source {source} | exclude Type escape"
+    #         traceroute: str = (
+    #             "traceroute {target} timeout 1 probe 2 source {source} "
+    #             "| exclude Type escape"
+    #         )
+
+    #     class IPv6(BaseSettings):
+    #         """Default commands for ipv6 commands"""
+
+    #         bgp_route: str = "show bgp ipv6 unicast {target} | exclude pathid:|Epoch"
+    #         ping: str = (
+    #             "ping ipv6 {target} repeat 5 source {source} | exclude Type escape"
+    #         )
+    #         traceroute: str = (
+    #             "traceroute ipv6 {target} timeout 1 probe 2 source {source} "
+    #             "| exclude Type escape"
+    #         )
+
+    #     dual: Dual = Dual()
+    #     ipv4: IPv4 = IPv4()
+    #     ipv6: IPv6 = IPv6()
     class CiscoIOS(BaseSettings):
         """Class model for default cisco_ios commands"""
 
-        class Dual(BaseSettings):
+        class VPNv4(BaseSettings):
             """Default commands for dual afi commands"""
 
-            bgp_community: str = (
-                "show bgp all community {target} | section {afis}Network"
+            bgp_community: str = "show bgp {afi} unicast vrf {vrf} community {target}"
+            bgp_aspath: str = 'show bgp {afi} unicast vrf {vrf} quote-regexp "{target}"'
+            bgp_route: str = "show bgp {afi} unicast vrf {vrf} {target}"
+            ping: str = "ping vrf {vrf} {target} repeat 5 source {source}"
+            traceroute: str = (
+                "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source} "
+                "| exclude Type escape"
             )
-            bgp_aspath: str = (
-                'show bgp all quote-regexp "{target}" | section {afis}Network'
+
+        class VPNv6(BaseSettings):
+            """Default commands for dual afi commands"""
+
+            bgp_community: str = "show bgp {afi} unicast vrf {vrf} community {target}"
+            bgp_aspath: str = 'show bgp {afi} unicast vrf {vrf} quote-regexp "{target}"'
+            bgp_route: str = "show bgp {afi} unicast vrf {vrf} {target}"
+            ping: str = "ping vrf {vrf} {target} repeat 5 source {source}"
+            traceroute: str = (
+                "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source} "
+                "| exclude Type escape"
             )
 
         class IPv4(BaseSettings):
             """Default commands for ipv4 commands"""
 
-            bgp_route: str = "show bgp ipv4 unicast {target} | exclude pathid:|Epoch"
+            bgp_community: str = "show bgp {afi} unicast community {target}"
+            bgp_aspath: str = 'show bgp {afi} unicast quote-regexp "{target}"'
+            bgp_route: str = "show bgp {afi} unicast {target} | exclude pathid:|Epoch"
             ping: str = "ping {target} repeat 5 source {source} | exclude Type escape"
             traceroute: str = (
                 "traceroute {target} timeout 1 probe 2 source {source} "
@@ -578,16 +643,19 @@ class Commands(BaseSettings):
         class IPv6(BaseSettings):
             """Default commands for ipv6 commands"""
 
-            bgp_route: str = "show bgp ipv6 unicast {target} | exclude pathid:|Epoch"
+            bgp_community: str = "show bgp {afi} unicast community {target}"
+            bgp_aspath: str = 'show bgp {afi} unicast quote-regexp "{target}"'
+            bgp_route: str = "show bgp {afi} unicast {target} | exclude pathid:|Epoch"
             ping: str = (
-                "ping ipv6 {target} repeat 5 source {source} | exclude Type escape"
+                "ping {afi} {target} repeat 5 source {source} | exclude Type escape"
             )
             traceroute: str = (
                 "traceroute ipv6 {target} timeout 1 probe 2 source {source} "
                 "| exclude Type escape"
             )
 
-        dual: Dual = Dual()
+        vpnv4: VPNv4 = VPNv4()
+        vpnv6: VPNv6 = VPNv6()
         ipv4: IPv4 = IPv4()
         ipv6: IPv6 = IPv6()
 

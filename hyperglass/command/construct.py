@@ -22,21 +22,21 @@ class Construct:
     input parameters.
     """
 
-    def __init__(self, device, transport):
+    def __init__(self, device, query_data, transport):
         self.device = device
+        self.query_data = query_data
         self.transport = transport
+        self.query_target = self.query_data["target"]
+        self.query_vrf = self.query_data["vrf"]
 
-    def get_src(self, ver):
+    @staticmethod
+    def get_src(device, afi):
         """
         Returns source IP based on IP version of query destination.
         """
-        src = None
-        if ver == 4:
-            src = self.device.src_addr_ipv4.exploded
-        if ver == 6:
-            src = self.device.src_addr_ipv6.exploded
-        logger.debug(f"IPv{ver} Source: {src}")
-        return src
+        src_afi = f"src_addr_{afi}"
+        src = getattr(device, src_afi)
+        return src.exploded
 
     @staticmethod
     def device_commands(nos, afi, query_type):
@@ -49,123 +49,184 @@ class Construct:
         cmd_path = f"{nos}.{afi}.{query_type}"
         return operator.attrgetter(cmd_path)(commands)
 
-    def ping(self, target):
+    @staticmethod
+    def query_afi(query_target, query_vrf):
+        """
+        Constructs AFI string. If query_vrf is specified, AFI prefix is
+        "vpnv", if not, AFI prefix is "ipv"
+        """
+        ip_version = ipaddress.ip_network(query_target).version
+        if query_vrf:
+            afi = f"vpnv{ip_version}"
+        else:
+            afi = f"ipv{ip_version}"
+        return afi
+
+    def ping(self):
         """Constructs ping query parameters from pre-validated input"""
-        query_type = "ping"
+
         logger.debug(
-            f"Constructing {query_type} query for {target} via {self.transport}..."
+            f"Constructing ping query for {self.query_target} via {self.transport}"
         )
-        query = None
-        ip_version = ipaddress.ip_network(target).version
-        afi = f"ipv{ip_version}"
-        source = self.get_src(ip_version)
+
+        query = []
+        afi = self.query_afi(self.query_target, self.query_vrf)
+        source = self.get_src(self.device, afi)
+
         if self.transport == "rest":
             query = json.dumps(
                 {
-                    "query_type": query_type,
+                    "query_type": "ping",
                     "afi": afi,
+                    "vrf": self.query_vrf,
                     "source": source,
-                    "target": target,
+                    "target": self.query_target,
                 }
             )
         elif self.transport == "scrape":
-            conf_command = self.device_commands(self.device.commands, afi, query_type)
-            query = conf_command.format(target=target, source=source)
+            cmd = self.device_commands(self.device.commands, afi, "ping")
+            query = cmd.format(
+                target=self.query_target, source=source, vrf=self.query_vrf
+            )
+
         logger.debug(f"Constructed query: {query}")
+
         return query
 
-    def traceroute(self, target):
+    def traceroute(self):
         """
         Constructs traceroute query parameters from pre-validated input.
         """
-        query_type = "traceroute"
         logger.debug(
-            f"Constructing {query_type} query for {target} via {self.transport}..."
+            (
+                f"Constructing traceroute query for {self.query_target} "
+                f"via {self.transport}"
+            )
         )
+
         query = None
-        ip_version = ipaddress.ip_network(target).version
-        afi = f"ipv{ip_version}"
-        source = self.get_src(ip_version)
+        afi = self.query_afi(self.query_target, self.query_vrf)
+        source = self.get_src(self.device, afi)
+
         if self.transport == "rest":
             query = json.dumps(
                 {
-                    "query_type": query_type,
+                    "query_type": "traceroute",
                     "afi": afi,
+                    "vrf": self.query_vrf,
                     "source": source,
-                    "target": target,
+                    "target": self.query_target,
                 }
             )
-
         elif self.transport == "scrape":
-            conf_command = self.device_commands(self.device.commands, afi, query_type)
-            query = conf_command.format(target=target, source=source)
+            cmd = self.device_commands(self.device.commands, afi, "traceroute")
+            query = cmd.format(
+                target=self.query_target, source=source, vrf=self.query_vrf
+            )
+
         logger.debug(f"Constructed query: {query}")
+
         return query
 
-    def bgp_route(self, target):
+    def bgp_route(self):
         """
         Constructs bgp_route query parameters from pre-validated input.
         """
-        query_type = "bgp_route"
         logger.debug(
-            f"Constructing {query_type} query for {target} via {self.transport}..."
+            f"Constructing bgp_route query for {self.query_target} via {self.transport}"
         )
+
         query = None
-        ip_version = ipaddress.ip_network(target).version
-        afi = f"ipv{ip_version}"
+        afi = self.query_afi(self.query_target, self.query_vrf)
+        source = self.get_src(self.device, afi)
+
         if self.transport == "rest":
-            query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
+            query = json.dumps(
+                {
+                    "query_type": "bgp_route",
+                    "afi": afi,
+                    "vrf": self.query_vrf,
+                    "source": source,
+                    "target": self.query_target,
+                }
+            )
         elif self.transport == "scrape":
-            conf_command = self.device_commands(self.device.commands, afi, query_type)
-            query = conf_command.format(target=target)
+            cmd = self.device_commands(self.device.commands, afi, "bgp_route")
+            query = cmd.format(
+                target=self.query_target, source=source, vrf=self.query_vrf
+            )
+
         logger.debug(f"Constructed query: {query}")
+
         return query
 
-    def bgp_community(self, target):
+    def bgp_community(self):
         """
         Constructs bgp_community query parameters from pre-validated
         input.
         """
-        query_type = "bgp_community"
         logger.debug(
-            f"Constructing {query_type} query for {target} via {self.transport}..."
+            (
+                f"Constructing bgp_community query for {self.query_target} "
+                f"via {self.transport}"
+            )
         )
-        afi = "dual"
+
         query = None
+        afi = self.query_afi(self.query_target, self.query_vrf)
+        source = self.get_src(self.device, afi)
+
         if self.transport == "rest":
-            query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
+            query = json.dumps(
+                {
+                    "query_type": "bgp_community",
+                    "afi": afi,
+                    "vrf": self.query_vrf,
+                    "source": source,
+                    "target": self.query_target,
+                }
+            )
         elif self.transport == "scrape":
-            conf_command = self.device_commands(self.device.commands, afi, query_type)
-            afis = []
-            for afi in self.device.afis:
-                split_afi = afi.split("v")
-                afis.append(
-                    "".join([split_afi[0].upper(), "v", split_afi[1], " Unicast|"])
-                )
-            query = conf_command.format(target=target, afis="".join(afis))
+            cmd = self.device_commands(self.device.commands, afi, "bgp_community")
+            query = cmd.format(
+                target=self.query_target, source=source, vrf=self.query_vrf
+            )
+
         logger.debug(f"Constructed query: {query}")
+
         return query
 
-    def bgp_aspath(self, target):
+    def bgp_aspath(self):
         """
         Constructs bgp_aspath query parameters from pre-validated input.
         """
-        query_type = "bgp_aspath"
         logger.debug(
-            f"Constructing {query_type} query for {target} via {self.transport}..."
+            (
+                f"Constructing bgp_aspath query for {self.query_target} "
+                f"via {self.transport}"
+            )
         )
-        afi = "dual"
+
         query = None
+        afi = self.query_afi(self.query_target, self.query_vrf)
+        source = self.get_src(self.device, afi)
+
         if self.transport == "rest":
-            query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
+            query = json.dumps(
+                {
+                    "query_type": "bgp_aspath",
+                    "afi": afi,
+                    "vrf": self.query_vrf,
+                    "source": source,
+                    "target": self.query_target,
+                }
+            )
         elif self.transport == "scrape":
-            conf_command = self.device_commands(self.device.commands, afi, query_type)
-            afis = []
-            for afi in self.device.afis:
-                split_afi = afi.split("v")
-                afis.append(
-                    "".join([split_afi[0].upper(), "v", split_afi[1], " Unicast|"])
-                )
-            query = conf_command.format(target=target, afis="".join(afis))
+            cmd = self.device_commands(self.device.commands, afi, "bgp_aspath")
+            query = cmd.format(
+                target=self.query_target, source=source, vrf=self.query_vrf
+            )
+
         logger.debug(f"Constructed query: {query}")
+
         return query

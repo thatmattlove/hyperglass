@@ -28,7 +28,7 @@
         </div>
         <div class="col-md col-sm-12">
           <select class="form-control form-control-lg hg-select custom-select-lg" id="query_type"
-            title="{{ branding.text.query_type }}" data-live-search="true" required>
+            title="{{ branding.text.query_type }}" required>
             {% if features.bgp_route.enable %}
             <option id="bgp_route" value="bgp_route" data-display-name="{{ branding.text.bgp_route }}">
               {{ branding.text.bgp_route }}</option>
@@ -52,12 +52,12 @@
           </select>
         </div>
       </div>
-      <div class="form-row mb-4">
+      <div class="form-row mb-4" id="hg-row-2">
+        <div id="hg-container-vrf"></div>
         <div class="col" id="hg-target-container">
           <div class="input-group input-group-lg">
             <input class="form-control" type="text" placeholder="{{ branding.text.query_target }}"
-              aria-label="{{ branding.text.query_target }}" aria-describedby="query_target" id="query_target"
-              required>
+              aria-label="{{ branding.text.query_target }}" aria-describedby="query_target" id="query_target" required>
             <div class="input-group-append" id="hg-target-append">
               <button class="btn btn-primary" id="hg-submit-button" type="submit">
                 <div id="hg-submit-icon">

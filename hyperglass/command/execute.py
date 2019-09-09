@@ -41,13 +41,16 @@ class Connect:
     rest() connects to devices via HTTP for RESTful API communication
     """
 
-    def __init__(self, device_config, query_type, target, transport):
+    def __init__(self, device_config, query_data, transport):
         self.device_config = device_config
-        self.query_type = query_type
-        self.target = target
+        self.query_data = query_data
+        self.query_type = self.query_data["query_type"]
+        self.query_target = self.query_data["target"]
         self.transport = transport
         self.cred = getattr(credentials, device_config.credential)
-        self.query = getattr(Construct(device_config, transport), query_type)(target)
+        self.query = getattr(Construct(device_config, transport), self.query_type)(
+            self.query_data
+        )
 
     async def scrape_proxied(self):
         """
@@ -102,7 +105,14 @@ class Connect:
                     "via Netmiko library..."
                 )
                 nm_connect_direct = ConnectHandler(**scrape_host)
-                response = nm_connect_direct.send_command(self.query)
+                responses = []
+                for query in self.query:
+                    raw = nm_connect_direct.send_command(query)
+                    responses.append(raw)
+                    logger.debug(f'Raw response for command "{query}":\n{raw}')
+                response = "\n".join(responses)
+                logger.debug(f"Response type:\n{type(response)}")
+
             except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
                 logger.error(
                     f"Timeout connecting to device {self.device_config.location}: "
@@ -136,7 +146,7 @@ class Connect:
                     proxy=self.device_config.proxy,
                     error=params.messages.general,
                 )
-        if not response:
+        if response is None:
             logger.error(f"No response from device {self.device_config.location}")
             raise ScrapeError(
                 params.messages.connection_error,
@@ -226,12 +236,6 @@ class Connect:
         logger.debug(f"HTTP Headers: {headers}")
         logger.debug(f"URL endpoint: {endpoint}")
 
-        rest_exception = lambda msg: RestError(
-            params.messages.connection_error,
-            device_name=self.device_config.display_name,
-            error=msg,
-        )
-
         try:
             http_client = httpx.AsyncClient()
             raw_response = await http_client.post(
@@ -264,17 +268,33 @@ class Connect:
             logger.error(
                 f"Error connecting to device {self.device_config.location}: {rest_msg}"
             )
-            raise rest_exception(rest_msg)
+            raise RestError(
+                params.messages.connection_error,
+                device_name=self.device_config.display_name,
+                error=rest_msg,
+            )
         except OSError:
-            raise rest_exception("System error")
+            raise RestError(
+                params.messages.connection_error,
+                device_name=self.device_config.display_name,
+                error="System error",
+            )
 
         if raw_response.status_code != 200:
             logger.error(f"Response code is {raw_response.status_code}")
-            raise rest_exception(params.messages.general)
+            raise RestError(
+                params.messages.connection_error,
+                device_name=self.device_config.display_name,
+                error=params.messages.general,
+            )
 
         if not response:
             logger.error(f"No response from device {self.device_config.location}")
-            raise rest_exception(params.messages.noresponse_error)
+            raise RestError(
+                params.messages.connection_error,
+                device_name=self.device_config.display_name,
+                error=params.messages.noresponse_error,
+            )
 
         logger.debug(f"Output for query: {self.query}:\n{response}")
         return response
@@ -289,9 +309,9 @@ class Execute:
 
     def __init__(self, lg_data):
         self.query_data = lg_data
-        self.query_location = self.query_data["location"]
+        self.query_location = self.query_data["query_location"]
         self.query_type = self.query_data["query_type"]
-        self.query_target = self.query_data["target"]
+        self.query_target = self.query_data["query_target"]
 
     async def response(self):
         """
@@ -314,7 +334,7 @@ class Execute:
         output = params.messages.general
 
         transport = Supported.map_transport(device_config.nos)
-        connect = Connect(device_config, self.query_type, self.query_target, transport)
+        connect = Connect(device_config, self.query_data, transport)
 
         if Supported.is_rest(device_config.nos):
             output = await connect.rest()

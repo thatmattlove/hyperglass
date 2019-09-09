@@ -13,6 +13,8 @@ from logzero import logger
 # Project Imports
 from hyperglass.configuration import logzero_config  # noqa: F401
 from hyperglass.configuration import params
+from hyperglass.configuration import frontend_params
+from hyperglass.configuration import frontend_networks
 from hyperglass.exceptions import HyperglassError
 
 # Module Directories
@@ -32,7 +34,9 @@ def render_frontend_config():
     rendered_frontend_file = hyperglass_root.joinpath("static/frontend.json")
     try:
         with rendered_frontend_file.open(mode="w") as frontend_file:
-            frontend_file.write(params.json())
+            frontend_file.write(
+                json.dumps({"config": frontend_params, "networks": frontend_networks})
+            )
     except jinja2.exceptions as frontend_error:
         logger.error(f"Error rendering front end config: {frontend_error}")
         raise HyperglassError(frontend_error)

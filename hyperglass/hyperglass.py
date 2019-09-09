@@ -1,6 +1,7 @@
 """Hyperglass Front End"""
 
 # Standard Library Imports
+import operator
 import time
 from ast import literal_eval
 from pathlib import Path
@@ -91,7 +92,7 @@ limiter = Limiter(app, key_func=get_remote_address, global_limits=[rate_limit_si
 
 # Prometheus Config
 count_data = Counter(
-    "count_data", "Query Counter", ["source", "query_type", "loc_id", "target"]
+    "count_data", "Query Counter", ["source", "query_type", "loc_id", "target", "vrf"]
 )
 
 count_errors = Counter(
@@ -241,9 +242,10 @@ async def hyperglass_main(request):
     lg_data = request.json
     logger.debug(f"Unvalidated input: {lg_data}")
 
-    query_location = lg_data.get("location")
+    query_location = lg_data.get("query_location")
     query_type = lg_data.get("query_type")
-    query_target = lg_data.get("target")
+    query_target = lg_data.get("query_target")
+    query_vrf = lg_data.get("query_vrf", None)
 
     # Return error if no target is specified
     if not query_target:
@@ -284,6 +286,21 @@ async def hyperglass_main(request):
             }
         )
 
+    device_selector = getattr(devices, query_location)
+    device_vrfs = device_selector.vrfs
+    device_display_name = device_selector.display_name
+    if query_vrf and query_vrf not in device_vrfs:
+        logger.debug(f"VRF {query_vrf} not associated with {query_location}")
+        raise InvalidUsage(
+            {
+                "message": params.messages.vrf_not_associated.format(
+                    vrf=query_vrf, device_name=device_display_name
+                ),
+                "alert": "warning",
+                "keywords": [query_vrf, device_display_name],
+            }
+        )
+
     # Get client IP address for Prometheus logging & rate limiting
     client_addr = get_remote_address(request)
 
@@ -291,8 +308,9 @@ async def hyperglass_main(request):
     count_data.labels(
         client_addr,
         lg_data.get("query_type"),
-        lg_data.get("location"),
-        lg_data.get("target"),
+        lg_data.get("query_location"),
+        lg_data.get("query_target"),
+        lg_data.get("query_vrf", None),
     ).inc()
 
     logger.debug(f"Client Address: {client_addr}")

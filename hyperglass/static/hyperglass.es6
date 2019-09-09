@@ -9,14 +9,19 @@ const animsition = require('animsition');
 const ClipboardJS = require('clipboard');
 const frontEndConfig = require('./frontend.json');
 
-const cfgGeneral = frontEndConfig.general;
-const inputMessages = frontEndConfig.messages;
+const cfgGeneral = frontEndConfig.config.general;
+const cfgBranding = frontEndConfig.config.branding;
+const cfgNetworks = frontEndConfig.networks;
+const inputMessages = frontEndConfig.config.messages;
 const pageContainer = $('#hg-page-container');
 const formContainer = $('#hg-form');
 const titleColumn = $('#hg-title-col');
+const rowTwo = $('#hg-row-2');
+const vrfContainer = $('#hg-container-vrf');
 const queryLocation = $('#location');
 const queryType = $('#query_type');
 const queryTarget = $('#query_target');
+const queryVrf = $('#query_vrf');
 const queryTargetAppend = $('#hg-target-append');
 const submitIcon = $('#hg-submit-icon');
 const resultsContainer = $('#hg-results');
@@ -28,7 +33,14 @@ const footerTermsBtn = $('#hg-footer-terms-btn');
 const footerCreditBtn = $('#hg-footer-credit-btn');
 const footerPopoverTemplate = '<div class="popover mw-sm-75 mw-md-50 mw-lg-25" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>';
 
-let bsBlurState = false;
+const supportedBtn = qt => `<button class="btn btn-secondary hg-info-btn" id="hg-info-btn-${qt}" data-hg-type="${qt}" type="button"><div id="hg-info-icon-${qt}"><i class="remixicon-information-line"></i></div></button>`;
+
+const vrfSelect = title => `
+  <select class="form-control form-control-lg hg-select" id="query_vrf" title="${title}" disabled>
+  </select>
+`;
+
+const vrfOption = txt => `<option value="${txt}">${txt}</option>`;
 
 class InputInvalid extends Error {
   constructor(validationMsg, invalidField, fieldContainer) {
@@ -69,7 +81,7 @@ const resetResults = () => {
 
 const reloadPage = () => {
   queryLocation.selectpicker('deselectAll');
-  queryLocation.selectpicker('val', '');
+  queryLocation.selectpicker('val', []);
   queryType.selectpicker('val', '');
   queryTarget.val('');
   resultsAccordion.empty();
@@ -85,9 +97,6 @@ queryLocation.selectpicker({
   style: '',
   styleBase: 'form-control',
   tickIcon: 'remixicon-check-line',
-}).nextAll('.dropdown-menu.show').on('focus', '.bs-searchbox input', (e) => {
-  $(e.currentTarget).blur();
-  bsBlurState = true;
 }).on('hidden.bs.select', (e) => {
   $(e.currentTarget).nextAll('.dropdown-menu.show').find('input').blur();
 });
@@ -159,8 +168,6 @@ $(document).ready(() => {
   }
 });
 
-const supportedBtn = qt => `<button class="btn btn-secondary hg-info-btn" id="hg-info-btn-${qt}" data-hg-type="${qt}" type="button"><div id="hg-info-icon-${qt}"><i class="remixicon-information-line"></i></div></button>`;
-
 queryType.on('changed.bs.select', () => {
   const queryTypeId = queryType.val();
   const queryTypeBtn = $('.hg-info-btn');
@@ -172,12 +179,78 @@ queryType.on('changed.bs.select', () => {
   }
 });
 
+function findIntersection(firstSet, ...sets) {
+  const count = sets.length;
+  const result = new Set(firstSet);
+  firstSet.forEach((item) => {
+    let i = count;
+    let allHave = true;
+    while (i--) {
+      allHave = sets[i].has(item);
+      if (!allHave) { break; }
+    }
+    if (!allHave) {
+      result.delete(item);
+    }
+  });
+  return result;
+}
+
+queryLocation.on('changed.bs.select', (e, clickedIndex, isSelected, previousValue) => {
+  const net = $(e.currentTarget);
+  vrfContainer.empty().removeClass('col');
+  const queryLocationIds = net.val();
+  if (Array.isArray(queryLocationIds) && (queryLocationIds.length)) {
+    const queryLocationNet = net[0][clickedIndex].dataset.netname;
+    const selectedVrfs = () => {
+      const allVrfs = [];
+      $.each(queryLocationIds, (i, loc) => {
+        const locVrfs = cfgNetworks[queryLocationNet][loc].vrfs;
+        allVrfs.push(new Set(locVrfs));
+      });
+      return allVrfs;
+    };
+    const intersectingVrfs = Array.from(findIntersection(...selectedVrfs()));
+    console.log(intersectingVrfs);
+    // Add the VRF select element
+    if (vrfContainer.find('#query_vrf').length === 0) {
+      vrfContainer.addClass('col').html(vrfSelect(cfgBranding.text.vrf));
+    }
+    // Build the select options for each VRF in array
+    const vrfHtmlList = [];
+    $.each(intersectingVrfs, (i, vrf) => {
+      vrfHtmlList.push(vrfOption(vrf));
+    });
+    // Add the options to the VRF select element, enable it, initialize Bootstrap Select
+    vrfContainer.find('#query_vrf').html(vrfHtmlList.join('')).removeAttr('disabled').selectpicker({
+      iconBase: '',
+      liveSearch: false,
+      style: '',
+      styleBase: 'form-control',
+    });
+    if (intersectingVrfs.length === 0) {
+      vrfContainer.find('#query_vrf').selectpicker('destroy');
+      vrfContainer.find('#query_vrf').prop('title', inputMessages.no_matching_vrfs).prop('disabled', true);
+      vrfContainer.find('#query_vrf').selectpicker({
+        iconBase: '',
+        liveSearch: false,
+        style: '',
+        styleBase: 'form-control',
+      });
+    }
+  }
+});
+
 queryTargetAppend.on('click', '.hg-info-btn', () => {
   const queryTypeId = $('.hg-info-btn').data('hg-type');
   $(`#hg-info-${queryTypeId}`).modal('show');
 });
 
-const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
+$('#hg-row-2').find('#query_vrf').on('hidden.bs.select', (e) => {
+  $(e.currentTarget).nextAll('.form-control.dropdown-toggle').blur();
+});
+
+const queryApp = (queryType, queryTypeName, locationList, queryTarget, queryVrf) => {
   const resultsTitle = `${queryTypeName} Query for ${queryTarget}`;
 
   $('#hg-results-title').html(resultsTitle);
@@ -255,9 +328,10 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget) => {
       url: '/query',
       method: 'POST',
       data: JSON.stringify({
-        location: loc,
+        query_location: loc,
         query_type: queryType,
-        target: queryTarget,
+        query_target: queryTarget,
+        query_vrf: queryVrf,
         response_format: 'html',
       }),
       contentType: 'application/json; charset=utf-8',
@@ -317,6 +391,7 @@ $('#lgForm').on('submit', (e) => {
   const queryType = $('#query_type').val();
   const queryLocation = $('#location').val();
   const queryTarget = $('#query_target').val();
+  const queryVrf = $('#query_vrf').val() || null;
 
   try {
     // message, thing to circle in red, place to put error text
@@ -340,7 +415,7 @@ $('#lgForm').on('submit', (e) => {
     return false;
   }
   const queryTypeTitle = $(`#${queryType}`).data('display-name');
-  queryApp(queryType, queryTypeTitle, queryLocation, queryTarget);
+  queryApp(queryType, queryTypeTitle, queryLocation, queryTarget, queryVrf);
   $('#hg-form').animsition('out', $('#hg-results'), '#');
   $('#hg-form').hide();
   swapSpacing('results');

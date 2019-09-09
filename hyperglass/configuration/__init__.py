@@ -109,6 +109,7 @@ class Networks:
                                 "location": router_params["location"],
                                 "hostname": router,
                                 "display_name": router_params["display_name"],
+                                "vrfs": router_params["vrfs"],
                             }
                         )
                     elif net_display not in locations_dict:
@@ -117,6 +118,7 @@ class Networks:
                                 "location": router_params["location"],
                                 "hostname": router,
                                 "display_name": router_params["display_name"],
+                                "vrfs": router_params["vrfs"],
                             }
                         ]
         if not locations_dict:
@@ -142,8 +144,43 @@ class Networks:
             for (netname, display_name) in locations_dict.items()
         ]
 
+    def frontend_networks(self):
+        frontend_dict = {}
+        for (router, router_params) in self.routers.items():
+            for (netname, net_params) in self.networks.items():
+                if router_params["network"] == netname:
+                    net_display = net_params["display_name"]
+                    if net_display in frontend_dict:
+                        frontend_dict[net_display].update(
+                            {
+                                router: {
+                                    "location": router_params["location"],
+                                    "display_name": router_params["display_name"],
+                                    "vrfs": router_params["vrfs"],
+                                }
+                            }
+                        )
+                    elif net_display not in frontend_dict:
+                        frontend_dict[net_display] = {
+                            router: {
+                                "location": router_params["location"],
+                                "display_name": router_params["display_name"],
+                                "vrfs": router_params["vrfs"],
+                            }
+                        }
+        if not frontend_dict:
+            raise ConfigError(error_msg="Unable to build network to device mapping")
+        return frontend_dict
+
 
 net = Networks()
 networks = net.networks_verbose()
-logger.debug(networks)
 display_networks = net.networks_display()
+frontend_networks = net.frontend_networks()
+
+frontend_fields = {
+    "general": {"debug", "request_timeout"},
+    "branding": {"text"},
+    "messages": ...,
+}
+frontend_params = params.dict(include=frontend_fields)
