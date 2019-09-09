@@ -3,7 +3,6 @@
 # Standard Library Imports
 import operator
 import time
-from ast import literal_eval
 from pathlib import Path
 
 # Third Party Imports
