@@ -33,6 +33,8 @@ const footerTermsBtn = $('#hg-footer-terms-btn');
 const footerCreditBtn = $('#hg-footer-credit-btn');
 const footerPopoverTemplate = '<div class="popover mw-sm-75 mw-md-50 mw-lg-25" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>';
 
+const feedbackInvalid = msg => `<div class="invalid-feedback px-1">${msg}</div>`;
+
 const supportedBtn = qt => `<button class="btn btn-secondary hg-info-btn" id="hg-info-btn-${qt}" data-hg-type="${qt}" type="button"><div id="hg-info-icon-${qt}"><i class="remixicon-information-line"></i></div></button>`;
 
 const vrfSelect = title => `
@@ -52,7 +54,7 @@ class InputInvalid extends Error {
   }
 }
 
-const swapSpacing = (goTo) => {
+function swapSpacing(goTo) {
   if (goTo === 'form') {
     pageContainer.removeClass('px-0 px-md-3');
     resultsColumn.removeClass('px-0');
@@ -62,9 +64,9 @@ const swapSpacing = (goTo) => {
     resultsColumn.addClass('px-0');
     titleColumn.addClass('text-left');
   }
-};
+}
 
-const resetResults = () => {
+function resetResults() {
   queryLocation.selectpicker('deselectAll');
   queryLocation.selectpicker('val', '');
   queryType.selectpicker('val', '');
@@ -77,15 +79,32 @@ const resetResults = () => {
   formContainer.animsition('in');
   backButton.addClass('d-none');
   resultsAccordion.empty();
-};
+}
 
-const reloadPage = () => {
+function reloadPage() {
   queryLocation.selectpicker('deselectAll');
   queryLocation.selectpicker('val', []);
   queryType.selectpicker('val', '');
   queryTarget.val('');
   resultsAccordion.empty();
-};
+}
+
+function findIntersection(firstSet, ...sets) {
+  const count = sets.length;
+  const result = new Set(firstSet);
+  firstSet.forEach((item) => {
+    let i = count;
+    let allHave = true;
+    while (i--) {
+      allHave = sets[i].has(item);
+      if (!allHave) { break; }
+    }
+    if (!allHave) {
+      result.delete(item);
+    }
+  });
+  return result;
+}
 
 /* Removed liveSearch until bootstrap-select mergest the fix for the mobile keyboard opening issue.
    Basically, any time an option is selected on a mobile device, the keyboard pops open which is
@@ -147,11 +166,6 @@ footerCreditBtn.popover({
   $(e.currentTarget).popover('hide');
 });
 
-titleColumn.on('click', (e) => {
-  window.location = $(e.currentTarget).data('href');
-  return false;
-});
-
 $(document).ready(() => {
   reloadPage();
   resultsContainer.hide();
@@ -179,23 +193,6 @@ queryType.on('changed.bs.select', () => {
   }
 });
 
-function findIntersection(firstSet, ...sets) {
-  const count = sets.length;
-  const result = new Set(firstSet);
-  firstSet.forEach((item) => {
-    let i = count;
-    let allHave = true;
-    while (i--) {
-      allHave = sets[i].has(item);
-      if (!allHave) { break; }
-    }
-    if (!allHave) {
-      result.delete(item);
-    }
-  });
-  return result;
-}
-
 queryLocation.on('changed.bs.select', (e, clickedIndex, isSelected, previousValue) => {
   const net = $(e.currentTarget);
   vrfContainer.empty().removeClass('col');
@@ -211,7 +208,6 @@ queryLocation.on('changed.bs.select', (e, clickedIndex, isSelected, previousValu
       return allVrfs;
     };
     const intersectingVrfs = Array.from(findIntersection(...selectedVrfs()));
-    console.log(intersectingVrfs);
     // Add the VRF select element
     if (vrfContainer.find('#query_vrf').length === 0) {
       vrfContainer.addClass('col').html(vrfSelect(cfgBranding.text.vrf));
@@ -259,7 +255,6 @@ const queryApp = (queryType, queryTypeName, locationList, queryTarget, queryVrf)
 
   $.each(locationList, (n, loc) => {
     const locationName = $(`#${loc}`).data('display-name');
-    const networkName = $(`#${loc}`).data('netname');
 
     const contentHtml = `
     <div class="card" id="${loc}-output">
@@ -388,28 +383,41 @@ $(document).on('InvalidInputEvent', (e, domField) => {
 $('#lgForm').on('submit', (e) => {
   e.preventDefault();
   submitIcon.empty().html('<i class="remixicon-loader-4-line"></i>').addClass('hg-loading');
-  const queryType = $('#query_type').val();
-  const queryLocation = $('#location').val();
-  const queryTarget = $('#query_target').val();
-  const queryVrf = $('#query_vrf').val() || null;
+  const queryType = $('#query_type').val() || '';
+  const queryLocation = $('#location').val() || '';
+  const queryTarget = $('#query_target').val() || '';
+  const queryVrf = $('#query_vrf').val() || [];
+
+  const queryTargetContainer = $('#query_target');
+  const queryTypeContainer = $('#query_type').next('.dropdown-toggle');
+  const queryLocationContainer = $('#location').next('.dropdown-toggle');
 
   try {
     // message, thing to circle in red, place to put error text
     if (!queryTarget) {
-      const queryTargetContainer = $('#query_target');
-      throw new InputInvalid(inputMessages.no_input, queryTargetContainer, queryTargetContainer.parent());
+      throw new InputInvalid(
+        inputMessages.no_input,
+        queryTargetContainer,
+        queryTargetContainer.parent(),
+      );
     }
     if (!queryType) {
-      const queryTypeContainer = $('#query_type').next('.dropdown-toggle');
-      throw new InputInvalid(inputMessages.no_query_type, queryTypeContainer, queryTypeContainer.parent());
+      throw new InputInvalid(
+        inputMessages.no_query_type,
+        queryTypeContainer,
+        queryTypeContainer.parent(),
+      );
     }
     if (queryLocation === undefined || queryLocation.length === 0) {
-      const queryLocationContainer = $('#location').next('.dropdown-toggle');
-      throw new InputInvalid(inputMessages.no_location, queryLocationContainer, queryLocationContainer.parent());
+      throw new InputInvalid(
+        inputMessages.no_location,
+        queryLocationContainer,
+        queryLocationContainer.parent(),
+      );
     }
   } catch (err) {
     err.field.addClass('is-invalid');
-    err.container.append(`<div class="invalid-feedback px-1">${err.message}</div>`);
+    err.container.append(feedbackInvalid(err.message));
     submitIcon.empty().removeClass('hg-loading').html('<i class="remixicon-search-line"></i>');
     $(document).trigger('InvalidInputEvent', err.field);
     return false;
@@ -426,7 +434,12 @@ $('#lgForm').on('submit', (e) => {
   $('#hg-back-btn').animsition('in');
 });
 
-$('#hg-back-btn').click(() => {
+titleColumn.on('click', (e) => {
+  window.location = $(e.currentTarget).data('href');
+  return false;
+});
+
+backButton.click(() => {
   resetResults();
 });
 
@@ -457,12 +470,9 @@ $('#hg-accordion').on('mouseleave', '.hg-done', (e) => {
 
 $('#hg-accordion').on('click', '.hg-done', (e) => {
   const thisLocation = $(e.currentTarget).data('location');
-  console.log(`Refreshing ${thisLocation}`);
   const queryType = $('#query_type').val();
   const queryTypeTitle = $(`#${queryType}`).data('display-name');
   const queryTarget = $('#query_target').val();
-
-
   queryApp(queryType, queryTypeTitle, [thisLocation], queryTarget);
 });
 
