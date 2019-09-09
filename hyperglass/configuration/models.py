@@ -107,14 +107,18 @@ class Routers(BaseSettings):
         """
         routers = {}
         hostnames = []
+        vrfs = set()
         for (devname, params) in input_params.items():
             dev = clean_name(devname)
             router_params = Router(**params)
             setattr(Routers, dev, router_params)
             routers.update({dev: router_params.dict()})
             hostnames.append(dev)
+            for vrf in router_params.dict()["vrfs"]:
+                vrfs.add(vrf)
         Routers.routers = routers
         Routers.hostnames = hostnames
+        Routers.vrfs = list(vrfs)
         return Routers()
 
     class Config:
@@ -365,6 +369,10 @@ class Messages(BaseSettings):
         "{device_name} requires IPv6 BGP lookups to be in CIDR notation."
     )
     invalid_input: str = "{target} is not a valid {query_type} target."
+    invalid_target: str = "{query_target} is invalid."
+    invalid_location: str = "{query_location} must be a list/array."
+    invalid_type: str = "{query_type} is not a supported {name}"
+    invalid_query_vrf: str = "{query_vrf} is not defined"
     general: str = "Something went wrong."
     directed_cidr: str = "{query_type} queries can not be in CIDR format."
     request_timeout: str = "Request timed out."

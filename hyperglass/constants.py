@@ -17,6 +17,8 @@ class Supported:
     Netmiko. List updated 07/2019.
     """
 
+    query_parameters = ("query_location", "query_type", "query_target", "query_vrf")
+
     query_types = ("bgp_route", "bgp_community", "bgp_aspath", "ping", "traceroute")
 
     rest = ("frr", "bird")

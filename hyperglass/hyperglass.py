@@ -223,6 +223,170 @@ async def test_route(request):
     return response.html(html, status=500)
 
 
+async def validate_input(query_data):  # noqa: C901
+    """
+    Deletes any globally unsupported query parameters.
+    
+    Performs validation functions per input type:
+        - query_target:
+            - Verifies input is not empty
+            - Verifies input is a string
+        - query_location:
+            - Verfies input is not empty
+            - Verifies input is a list
+            - Verifies locations in list are defined
+        - query_type:
+            - Verifies input is not empty
+            - Verifies input is a string
+            - Verifies query type is enabled and supported
+        - query_vrf: (if feature enabled)
+            - Verfies input is a list
+            - Verifies VRFs in list are defined
+    """
+    # Delete any globally unsupported parameters
+    for (param, value) in query_data:
+        if param not in Supported.query_parameters:
+            query_data.pop(param, None)
+
+    # Unpack query data
+    query_location = query_data.get("query_location", [])
+    query_type = query_data.get("query_type", "")
+    query_target = query_data.get("query_target", "")
+    query_vrf = query_data.get("query_vrf", [])
+
+    # Verify that query_target is not empty
+    if not query_target:
+        logger.debug("No input specified")
+        raise InvalidUsage(
+            {
+                "message": params.messages.no_input.format(
+                    query_type=params.branding.text.query_target
+                ),
+                "alert": "warning",
+                "keywords": [params.branding.text.query_target],
+            }
+        )
+    # Verify that query_target is a string
+    if not isinstance(query_target, str):
+        logger.debug("Target is not a string")
+        raise InvalidUsage(
+            {
+                "message": params.messages.invalid_target.format(
+                    query_target=query_target
+                ),
+                "alert": "warning",
+                "keywords": [params.branding.text.query_target, query_target],
+            }
+        )
+    # Verify that query_location is not empty
+    if not query_location:
+        logger.debug("No selection specified")
+        raise InvalidUsage(
+            {
+                "message": params.messages.no_input.format(
+                    query_type=params.branding.text.query_location
+                ),
+                "alert": "warning",
+                "keywords": [params.branding.text.query_location],
+            }
+        )
+    # Verify that query_location is a list
+    if not isinstance(query_location, list):
+        logger.debug("Query Location is not a list/array")
+        raise InvalidUsage(
+            {
+                "message": params.messages.invalid_location.format(
+                    query_location=params.branding.text.query_location
+                ),
+                "alert": "warning",
+                "keywords": [params.branding.text.query_location, query_location],
+            }
+        )
+    # Verify that locations in query_location are actually defined
+    if not all(loc in query_location for loc in devices.hostnames):
+        raise InvalidUsage(
+            {
+                "message": params.messages.invalid_location.format(
+                    query_location=params.branding.text.query_location
+                ),
+                "alert": "warning",
+                "keywords": [params.branding.text.query_location, query_location],
+            }
+        )
+    # Verify that query_type is not empty
+    if not query_type:
+        logger.debug("No query specified")
+        raise InvalidUsage(
+            {
+                "message": params.messages.no_input.format(
+                    query_type=params.branding.text.query_type
+                ),
+                "alert": "warning",
+                "keywords": [params.branding.text.query_location],
+            }
+        )
+    if not isinstance(query_type, str):
+        logger.debug("Query Type is not a string")
+        raise InvalidUsage(
+            {
+                "message": params.messages.invalid_location.format(
+                    query_location=params.branding.text.query_location
+                ),
+                "alert": "warning",
+                "keywords": [params.branding.text.query_location, query_location],
+            }
+        )
+    # Verify that query_type is actually supported
+    query_is_supported = Supported.is_supported_query(query_type)
+    if not query_is_supported:
+        logger.debug("Query not supported")
+        raise InvalidUsage(
+            {
+                "message": params.messages.invalid_query_type.format(
+                    query_type=query_type, name=params.branding.text.query_type
+                ),
+                "alert": "warning",
+                "keywords": [params.branding.text.query_location, query_type],
+            }
+        )
+    elif query_is_supported:
+        query_is_enabled = operator.attrgetter(f"{query_type}.enable")(params.features)
+        if not query_is_enabled:
+            raise InvalidUsage(
+                {
+                    "message": params.messages.invalid_query_type.format(
+                        query_type=query_type, name=params.branding.text.query_type
+                    ),
+                    "alert": "warning",
+                    "keywords": [params.branding.text.query_location, query_type],
+                }
+            )
+    if params.features.vrf.enable:
+        # Verify that query_vrf is a list
+        if query_vrf and not isinstance(query_vrf, list):
+            raise InvalidUsage(
+                {
+                    "message": params.messages.invalid_query_vrf.format(
+                        query_vrf=query_vrf, name=params.branding.text.query_vrf
+                    ),
+                    "alert": "warning",
+                    "keywords": [params.branding.text.query_vrf, query_vrf],
+                }
+            )
+        # Verify that vrfs in query_vrf are defined
+        if query_vrf and not all(vrf in query_vrf for vrf in devices.vrfs):
+            raise InvalidUsage(
+                {
+                    "message": params.messages.invalid_query_vrf.format(
+                        query_vrf=query_vrf, name=params.branding.text.query_vrf
+                    ),
+                    "alert": "warning",
+                    "keywords": [params.branding.text.query_vrf, query_vrf],
+                }
+            )
+    return query_data
+
+
 @app.route("/query", methods=["POST"])
 @limiter.limit(
     rate_limit_query,
@@ -239,67 +403,11 @@ async def hyperglass_main(request):
     filtering/lookups.
     """
     # Get JSON data from Ajax POST
-    lg_data = request.json
-    logger.debug(f"Unvalidated input: {lg_data}")
+    raw_query_data = request.json
+    logger.debug(f"Unvalidated input: {raw_query_data}")
 
-    query_location = lg_data.get("query_location")
-    query_type = lg_data.get("query_type")
-    query_target = lg_data.get("query_target")
-    query_vrf = lg_data.get("query_vrf", None)
-
-    # Return error if no target is specified
-    if not query_target:
-        logger.debug("No input specified")
-        raise InvalidUsage(
-            {
-                "message": params.messages.no_input.format(
-                    query_type=params.branding.text.query_target
-                ),
-                "alert": "warning",
-                "keywords": [params.branding.text.query_target],
-            }
-        )
-
-    # Return error if no location is selected
-    if query_location not in devices.hostnames:
-        logger.debug("No selection specified")
-        raise InvalidUsage(
-            {
-                "message": params.messages.no_input.format(
-                    query_type=params.branding.text.query_location
-                ),
-                "alert": "warning",
-                "keywords": [params.branding.text.query_location],
-            }
-        )
-
-    # Return error if no query type is selected
-    if not Supported.is_supported_query(query_type):
-        logger.debug("No query specified")
-        raise InvalidUsage(
-            {
-                "message": params.messages.no_input.format(
-                    query_type=params.branding.text.query_type
-                ),
-                "alert": "warning",
-                "keywords": [params.branding.text.query_location],
-            }
-        )
-
-    device_selector = getattr(devices, query_location)
-    device_vrfs = device_selector.vrfs
-    device_display_name = device_selector.display_name
-    if query_vrf and query_vrf not in device_vrfs:
-        logger.debug(f"VRF {query_vrf} not associated with {query_location}")
-        raise InvalidUsage(
-            {
-                "message": params.messages.vrf_not_associated.format(
-                    vrf=query_vrf, device_name=device_display_name
-                ),
-                "alert": "warning",
-                "keywords": [query_vrf, device_display_name],
-            }
-        )
+    # Perform basic input validation
+    query_data = validate_input(raw_query_data)
 
     # Get client IP address for Prometheus logging & rate limiting
     client_addr = get_remote_address(request)
@@ -307,10 +415,10 @@ async def hyperglass_main(request):
     # Increment Prometheus counter
     count_data.labels(
         client_addr,
-        lg_data.get("query_type"),
-        lg_data.get("query_location"),
-        lg_data.get("query_target"),
-        lg_data.get("query_vrf", None),
+        query_data.get("query_type"),
+        query_data.get("query_location"),
+        query_data.get("query_target"),
+        query_data.get("query_vrf"),
     ).inc()
 
     logger.debug(f"Client Address: {client_addr}")
@@ -318,7 +426,7 @@ async def hyperglass_main(request):
     # Stringify the form response containing serialized JSON for the
     # request, use as key for k/v cache store so each command output
     # value is unique
-    cache_key = str(lg_data)
+    cache_key = str(query_data)
 
     # Define cache entry expiry time
     cache_timeout = params.features.cache.timeout
@@ -332,11 +440,13 @@ async def hyperglass_main(request):
         try:
             starttime = time.time()
 
-            cache_value = await Execute(lg_data).response()
+            cache_value = await Execute(query_data).response()
 
             endtime = time.time()
             elapsedtime = round(endtime - starttime, 4)
+
             logger.debug(f"Query {cache_key} took {elapsedtime} seconds to run.")
+
         except (InputInvalid, InputNotAllowed) as frontend_error:
             raise InvalidUsage(frontend_error.__dict__())
         except (AuthError, RestError, ScrapeError, DeviceTimeout) as backend_error:
