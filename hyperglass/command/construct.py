@@ -12,6 +12,7 @@ import operator
 from logzero import logger
 
 # Project Imports
+from hyperglass.configuration import vrfs
 from hyperglass.configuration import commands
 from hyperglass.configuration import logzero_config  # noqa: F401
 
@@ -26,8 +27,8 @@ class Construct:
         self.device = device
         self.query_data = query_data
         self.transport = transport
-        self.query_target = self.query_data["target"]
-        self.query_vrf = self.query_data["vrf"]
+        self.query_target = self.query_data["query_target"]
+        self.query_vrf = self.query_data["query_vrf"]
 
     @staticmethod
     def get_src(device, afi):
@@ -91,7 +92,7 @@ class Construct:
 
         logger.debug(f"Constructed query: {query}")
 
-        return query
+        return [query]
 
     def traceroute(self):
         """
@@ -126,7 +127,7 @@ class Construct:
 
         logger.debug(f"Constructed query: {query}")
 
-        return query
+        return [query]
 
     def bgp_route(self):
         """
@@ -137,7 +138,7 @@ class Construct:
         )
 
         query = None
-        afi = self.query_afi(self.query_target, self.query_vrf)
+        afi = Construct.query_afi(self.query_target, self.query_vrf)
         source = self.get_src(self.device, afi)
 
         if self.transport == "rest":
@@ -153,12 +154,12 @@ class Construct:
         elif self.transport == "scrape":
             cmd = self.device_commands(self.device.commands, afi, "bgp_route")
             query = cmd.format(
-                target=self.query_target, source=source, vrf=self.query_vrf
+                target=self.query_target, source=source, afi=afi, vrf=self.query_vrf
             )
 
         logger.debug(f"Constructed query: {query}")
 
-        return query
+        return [query]
 
     def bgp_community(self):
         """
@@ -174,6 +175,7 @@ class Construct:
 
         query = None
         afi = self.query_afi(self.query_target, self.query_vrf)
+        logger.debug(afi)
         source = self.get_src(self.device, afi)
 
         if self.transport == "rest":

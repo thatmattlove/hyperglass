@@ -4,6 +4,7 @@ default values if undefined.
 """
 
 # Standard Library Imports
+import operator
 from pathlib import Path
 
 # Third Party Imports
@@ -65,10 +66,14 @@ try:
         commands = models.Commands.import_params(user_commands)
     elif not user_commands:
         commands = models.Commands()
+
     devices = models.Routers.import_params(user_devices["router"])
     credentials = models.Credentials.import_params(user_devices["credential"])
     proxies = models.Proxies.import_params(user_devices["proxy"])
     _networks = models.Networks.import_params(user_devices["network"])
+    vrfs = models.Vrfs.import_params(user_devices.get("vrf"))
+
+
 except ValidationError as validation_errors:
     errors = validation_errors.errors()
     for error in errors:
@@ -76,6 +81,15 @@ except ValidationError as validation_errors:
             field=": ".join([str(item) for item in error["loc"]]),
             error_msg=error["msg"],
         ) from None
+
+# Validate that VRFs configured on a device are actually defined
+for dev in devices.hostnames:
+    dev_cls = getattr(devices, dev)
+    for vrf in getattr(dev_cls, "vrfs"):
+        if vrf not in vrfs._all:
+            raise ConfigInvalid(
+                field=vrf, error_msg=f"{vrf} is not in configured VRFs: {vrfs._all}"
+            )
 
 # Logzero Configuration
 log_level = 20

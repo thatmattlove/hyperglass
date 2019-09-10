@@ -39,6 +39,57 @@ def clean_name(_name):
     return _scrubbed.lower()
 
 
+class Vrf(BaseSettings):
+    """Model for per VRF/afi config in devices.yaml"""
+
+    display_name: str
+    name: str
+    afis: List[str]
+
+
+class Vrfs(BaseSettings):
+    """Base model for vrfs class"""
+
+    @classmethod
+    def import_params(cls, input_params):
+        """
+        Imports passed dict from YAML config, removes unsupported
+        characters from VRF names, dynamically sets attributes for
+        the Vrfs class.
+        """
+        vrfs: Vrf = {
+            "default": {
+                "display_name": "Default",
+                "name": "default",
+                "afis": ["ipv4, ipv6"],
+            }
+        }
+        names: List[str] = ["default"]
+        _all: List[str] = ["default"]
+
+        for (vrf_key, params) in input_params.items():
+            vrf = clean_name(vrf_key)
+            vrf_params = Vrf(**params)
+            vrfs.update({vrf: vrf_params.dict()})
+            names.append(params.get("name"))
+            _all.append(vrf_key)
+        for (vrf_key, params) in vrfs.items():
+            setattr(Vrfs, vrf_key, params)
+
+        names: List[str] = list(set(names))
+        _all: List[str] = list(set(_all))
+        Vrfs.vrfs = vrfs
+        Vrfs.names = names
+        Vrfs._all = _all
+        return Vrfs()
+
+    class Config:
+        """Pydantic Config"""
+
+        validate_all = True
+        validate_assignment = True
+
+
 class Router(BaseSettings):
     """Model for per-router config in devices.yaml."""
 
@@ -47,14 +98,13 @@ class Router(BaseSettings):
     src_addr_ipv4: IPv4Address
     src_addr_ipv6: IPv6Address
     credential: str
+    proxy: Union[str, None] = None
     location: str
     display_name: str
     port: int
     nos: str
     commands: Union[str, None] = None
-    afis: List[str] = ["ipv4", "ipv6"]
-    vrfs: List[str] = []
-    proxy: Union[str, None] = None
+    vrfs: List[str] = ["default"]
 
     @validator("nos")
     def supported_nos(cls, v):  # noqa: N805
@@ -68,15 +118,23 @@ class Router(BaseSettings):
         """Remove or replace unsupported characters from field values"""
         return clean_name(v)
 
-    @validator("afis")
-    def validate_afi(cls, v):  # noqa: N805
-        """Validates that configured AFI is supported"""
-        supported_afis = ("ipv4", "ipv6", "vpnv4", "vpnv6")
-        if v.lower() not in supported_afis:
-            raise ConfigInvalid(
-                field=v, error_msg=f"AFI must be one of: {str(supported_afis)}"
-            )
-        return v.lower()
+    # @validator("vrfs")
+    # def validate_vrfs(cls, v):
+    #     configured_vrfs = Vrfs().names
+    #     if v not in configured_vrfs:
+    #         raise ConfigInvalid(
+    #             field=v, error_msg=f"VRF must be in {str(configured_vrfs)}"
+    #         )
+
+    # @validator("afis")
+    # def validate_afi(cls, v):  # noqa: N805
+    #     """Validates that configured AFI is supported"""
+    #     supported_afis = ("ipv4", "ipv6", "vpnv4", "vpnv6")
+    #     if v.lower() not in supported_afis:
+    #         raise ConfigInvalid(
+    #             field=v, error_msg=f"AFI must be one of: {str(supported_afis)}"
+    #         )
+    #     return v.lower()
 
     @validator("commands", always=True)
     def validate_commands(cls, v, values):  # noqa: N805
@@ -87,16 +145,6 @@ class Router(BaseSettings):
 
 class Routers(BaseSettings):
     """Base model for devices class."""
-
-    @staticmethod
-    def build_network_lists(valid_devices):
-        """
-        Builds locations dict, which is converted to JSON and passed to
-        JavaScript to associate locations with the selected network/ASN.
-
-        Builds networks dict, which is used to render the network/ASN
-        select element contents.
-        """
 
     @classmethod
     def import_params(cls, input_params):
@@ -360,7 +408,7 @@ class Messages(BaseSettings):
 
     no_query_type: str = "A query type must be specified."
     no_location: str = "A location must be selected."
-    no_input: str = "{query_type} must be specified."
+    no_input: str = "{field} must be specified."
     blacklist: str = "{target} a member of {blacklisted_net}, which is not allowed."
     max_prefix: str = (
         "Prefix length must be shorter than /{max_length}. {target} is too specific."
@@ -369,10 +417,7 @@ class Messages(BaseSettings):
         "{device_name} requires IPv6 BGP lookups to be in CIDR notation."
     )
     invalid_input: str = "{target} is not a valid {query_type} target."
-    invalid_target: str = "{query_target} is invalid."
-    invalid_location: str = "{query_location} must be a list/array."
-    invalid_type: str = "{query_type} is not a supported {name}"
-    invalid_query_vrf: str = "{query_vrf} is not defined"
+    invalid_field: str = "{input} is an invalid {field}."
     general: str = "Something went wrong."
     directed_cidr: str = "{query_type} queries can not be in CIDR format."
     request_timeout: str = "Request timed out."

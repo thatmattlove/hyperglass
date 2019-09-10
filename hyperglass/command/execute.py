@@ -45,12 +45,17 @@ class Connect:
         self.device_config = device_config
         self.query_data = query_data
         self.query_type = self.query_data["query_type"]
-        self.query_target = self.query_data["target"]
+        self.query_target = self.query_data["query_target"]
         self.transport = transport
         self.cred = getattr(credentials, device_config.credential)
-        self.query = getattr(Construct(device_config, transport), self.query_type)(
-            self.query_data
-        )
+        self.query = getattr(
+            Construct(
+                device=self.device_config,
+                query_data=self.query_data,
+                transport=self.transport,
+            ),
+            self.query_type,
+        )()
 
     async def scrape_proxied(self):
         """

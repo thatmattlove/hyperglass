@@ -225,7 +225,6 @@ async def test_route(request):
 async def validate_input(query_data):  # noqa: C901
     """
     Deletes any globally unsupported query parameters.
-    
     Performs validation functions per input type:
         - query_target:
             - Verifies input is not empty
@@ -243,15 +242,15 @@ async def validate_input(query_data):  # noqa: C901
             - Verifies VRFs in list are defined
     """
     # Delete any globally unsupported parameters
-    for (param, value) in query_data:
-        if param not in Supported.query_parameters:
-            query_data.pop(param, None)
+    supported_query_data = {
+        k: v for k, v in query_data.items() if k in Supported.query_parameters
+    }
 
     # Unpack query data
-    query_location = query_data.get("query_location", [])
-    query_type = query_data.get("query_type", "")
-    query_target = query_data.get("query_target", "")
-    query_vrf = query_data.get("query_vrf", [])
+    query_location = supported_query_data.get("query_location", "")
+    query_type = supported_query_data.get("query_type", "")
+    query_target = supported_query_data.get("query_target", "")
+    query_vrf = supported_query_data.get("query_vrf", [])
 
     # Verify that query_target is not empty
     if not query_target:
@@ -259,7 +258,7 @@ async def validate_input(query_data):  # noqa: C901
         raise InvalidUsage(
             {
                 "message": params.messages.no_input.format(
-                    query_type=params.branding.text.query_target
+                    field=params.branding.text.query_target
                 ),
                 "alert": "warning",
                 "keywords": [params.branding.text.query_target],
@@ -270,8 +269,8 @@ async def validate_input(query_data):  # noqa: C901
         logger.debug("Target is not a string")
         raise InvalidUsage(
             {
-                "message": params.messages.invalid_target.format(
-                    query_target=query_target
+                "message": params.messages.invalid_field.format(
+                    input=query_target, field=params.branding.text.query_target
                 ),
                 "alert": "warning",
                 "keywords": [params.branding.text.query_target, query_target],
@@ -283,30 +282,30 @@ async def validate_input(query_data):  # noqa: C901
         raise InvalidUsage(
             {
                 "message": params.messages.no_input.format(
-                    query_type=params.branding.text.query_location
+                    field=params.branding.text.query_location
                 ),
                 "alert": "warning",
                 "keywords": [params.branding.text.query_location],
             }
         )
-    # Verify that query_location is a list
-    if not isinstance(query_location, list):
-        logger.debug("Query Location is not a list/array")
+    # Verify that query_location is a string
+    if not isinstance(query_location, str):
+        logger.debug("Query Location is not a string")
         raise InvalidUsage(
             {
-                "message": params.messages.invalid_location.format(
-                    query_location=params.branding.text.query_location
+                "message": params.messages.invalid_field.format(
+                    input=query_location, field=params.branding.text.query_location
                 ),
                 "alert": "warning",
                 "keywords": [params.branding.text.query_location, query_location],
             }
         )
     # Verify that locations in query_location are actually defined
-    if not all(loc in query_location for loc in devices.hostnames):
+    if query_location not in devices.hostnames:
         raise InvalidUsage(
             {
-                "message": params.messages.invalid_location.format(
-                    query_location=params.branding.text.query_location
+                "message": params.messages.invalid_field.format(
+                    input=query_location, field=params.branding.text.query_location
                 ),
                 "alert": "warning",
                 "keywords": [params.branding.text.query_location, query_location],
@@ -318,7 +317,7 @@ async def validate_input(query_data):  # noqa: C901
         raise InvalidUsage(
             {
                 "message": params.messages.no_input.format(
-                    query_type=params.branding.text.query_type
+                    field=params.branding.text.query_type
                 ),
                 "alert": "warning",
                 "keywords": [params.branding.text.query_location],
@@ -328,11 +327,11 @@ async def validate_input(query_data):  # noqa: C901
         logger.debug("Query Type is not a string")
         raise InvalidUsage(
             {
-                "message": params.messages.invalid_location.format(
-                    query_location=params.branding.text.query_location
+                "message": params.messages.invalid_field.format(
+                    input=query_type, field=params.branding.text.query_type
                 ),
                 "alert": "warning",
-                "keywords": [params.branding.text.query_location, query_location],
+                "keywords": [params.branding.text.query_type, query_type],
             }
         )
     # Verify that query_type is actually supported
@@ -341,8 +340,8 @@ async def validate_input(query_data):  # noqa: C901
         logger.debug("Query not supported")
         raise InvalidUsage(
             {
-                "message": params.messages.invalid_query_type.format(
-                    query_type=query_type, name=params.branding.text.query_type
+                "message": params.messages.invalid_field.format(
+                    input=query_type, field=params.branding.text.query_type
                 ),
                 "alert": "warning",
                 "keywords": [params.branding.text.query_location, query_type],
@@ -353,8 +352,8 @@ async def validate_input(query_data):  # noqa: C901
         if not query_is_enabled:
             raise InvalidUsage(
                 {
-                    "message": params.messages.invalid_query_type.format(
-                        query_type=query_type, name=params.branding.text.query_type
+                    "message": params.messages.invalid_field.format(
+                        input=query_type, field=params.branding.text.query_type
                     ),
                     "alert": "warning",
                     "keywords": [params.branding.text.query_location, query_type],
@@ -365,8 +364,8 @@ async def validate_input(query_data):  # noqa: C901
         if query_vrf and not isinstance(query_vrf, list):
             raise InvalidUsage(
                 {
-                    "message": params.messages.invalid_query_vrf.format(
-                        query_vrf=query_vrf, name=params.branding.text.query_vrf
+                    "message": params.messages.invalid_field.format(
+                        input=query_vrf, field=params.branding.text.query_vrf
                     ),
                     "alert": "warning",
                     "keywords": [params.branding.text.query_vrf, query_vrf],
@@ -376,8 +375,8 @@ async def validate_input(query_data):  # noqa: C901
         if query_vrf and not all(vrf in query_vrf for vrf in devices.vrfs):
             raise InvalidUsage(
                 {
-                    "message": params.messages.invalid_query_vrf.format(
-                        query_vrf=query_vrf, name=params.branding.text.query_vrf
+                    "message": params.messages.invalid_field.format(
+                        input=query_vrf, field=params.branding.text.query_vrf
                     ),
                     "alert": "warning",
                     "keywords": [params.branding.text.query_vrf, query_vrf],
@@ -406,7 +405,7 @@ async def hyperglass_main(request):
     logger.debug(f"Unvalidated input: {raw_query_data}")
 
     # Perform basic input validation
-    query_data = validate_input(raw_query_data)
+    query_data = await validate_input(raw_query_data)
 
     # Get client IP address for Prometheus logging & rate limiting
     client_addr = get_remote_address(request)
