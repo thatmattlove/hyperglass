@@ -4,7 +4,6 @@ default values if undefined.
 """
 
 # Standard Library Imports
-import operator
 from pathlib import Path
 
 # Third Party Imports
@@ -14,7 +13,15 @@ from logzero import logger
 from pydantic import ValidationError
 
 # Project Imports
-from hyperglass.configuration import models
+from hyperglass.configuration.models import (
+    params as _params,
+    commands as _commands,
+    routers as _routers,
+    proxies as _proxies,
+    networks as _networks,
+    vrfs as _vrfs,
+    credentials as _credentials,
+)
 from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
 
 # Project Directories
@@ -59,19 +66,19 @@ except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
 # Map imported user config files to expected schema:
 try:
     if user_config:
-        params = models.Params(**user_config)
+        params = _params.Params(**user_config)
     elif not user_config:
-        params = models.Params()
+        params = _params.Params()
     if user_commands:
-        commands = models.Commands.import_params(user_commands)
+        commands = _commands.Commands.import_params(user_commands)
     elif not user_commands:
-        commands = models.Commands()
+        commands = _commands.Commands()
 
-    devices = models.Routers.import_params(user_devices["router"])
-    credentials = models.Credentials.import_params(user_devices["credential"])
-    proxies = models.Proxies.import_params(user_devices["proxy"])
-    _networks = models.Networks.import_params(user_devices["network"])
-    vrfs = models.Vrfs.import_params(user_devices.get("vrf"))
+    devices = _routers.Routers.import_params(user_devices["router"])
+    credentials = _credentials.Credentials.import_params(user_devices["credential"])
+    proxies = _proxies.Proxies.import_params(user_devices["proxy"])
+    imported_networks = _networks.Networks.import_params(user_devices["network"])
+    vrfs = _vrfs.Vrfs.import_params(user_devices.get("vrf"))
 
 
 except ValidationError as validation_errors:
@@ -109,7 +116,7 @@ logzero_config = logzero.setup_default_logger(
 class Networks:
     def __init__(self):
         self.routers = devices.routers
-        self.networks = _networks.networks
+        self.networks = imported_networks.networks
 
     def networks_verbose(self):
         locations_dict = {}
@@ -141,8 +148,8 @@ class Networks:
 
     def networks_display(self):
         locations_dict = {}
-        for (router, router_params) in devices.routers.items():
-            for (netname, net_params) in _networks.networks.items():
+        for (router, router_params) in self.routers.items():
+            for (netname, net_params) in self.networks.items():
                 if router_params["network"] == netname:
                     net_display = net_params["display_name"]
                     if net_display in locations_dict:
