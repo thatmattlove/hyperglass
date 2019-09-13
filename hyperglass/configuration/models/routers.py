@@ -20,6 +20,44 @@ from pydantic import validator
 from hyperglass.configuration.models._utils import clean_name
 from hyperglass.constants import Supported
 from hyperglass.exceptions import UnsupportedDevice
+from hyperglass.constants import afi_nos_map
+
+
+class AfiMap(BaseSettings):
+    """Model for AFI map"""
+
+    ipv4: Union[str, None] = None
+    ipv6: Union[str, None] = None
+    ipv4_vpn: Union[str, None] = None
+    ipv6_vpn: Union[str, None] = None
+
+    @validator("ipv4", always=True)
+    def validate_ipv4(cls, v):  # noqa: N805
+        """If a map field is undefined, get a default value"""
+        if v is None:
+            v = afi_nos_map.get("default").get("ipv4")
+        return v
+
+    @validator("ipv6", always=True)
+    def validate_ipv6(cls, v):  # noqa: N805
+        """If a map field is undefined, get a default value"""
+        if v is None:
+            v = afi_nos_map.get("default").get("ipv6")
+        return v
+
+    @validator("ipv4_vpn", always=True)
+    def validate_ipv4_vpn(cls, v):  # noqa: N805
+        """If a map field is undefined, get a default value"""
+        if v is None:
+            v = afi_nos_map.get("default").get("ipv4_vpn")
+        return v
+
+    @validator("ipv6_vpn", always=True)
+    def validate_ipv6_vpn(cls, v):  # noqa: N805
+        """If a map field is undefined, get a default value"""
+        if v is None:
+            v = afi_nos_map.get("default").get("ipv6_vpn")
+        return v
 
 
 class Router(BaseSettings):
@@ -37,10 +75,13 @@ class Router(BaseSettings):
     nos: str
     commands: Union[str, None] = None
     vrfs: List[str] = ["default"]
+    afi_map: Union[AfiMap, None] = None
 
     @validator("nos")
     def supported_nos(cls, v):  # noqa: N805
-        """Validates that passed nos string is supported by hyperglass"""
+        """
+        Validates that passed nos string is supported by hyperglass.
+        """
         if not Supported.is_supported(v):
             raise UnsupportedDevice(f'"{v}" device type is not supported.')
         return v
@@ -52,9 +93,25 @@ class Router(BaseSettings):
 
     @validator("commands", always=True)
     def validate_commands(cls, v, values):  # noqa: N805
+        """
+        If a named command profile is not defined, use theNOS name.
+        """
         if v is None:
             v = values["nos"]
         return v
+
+    @validator("afi_map", always=True)
+    def validate_afis(cls, v, values):  # noqa: N805
+        """
+        If an AFI map is not defined, try to get one based on the
+        NOS name. If that doesn't exist, use a default.
+        """
+        if v is None:
+            v = AfiMap(**afi_nos_map.get(values["nos"], afi_nos_map.get("default")))
+        return v
+
+
+Router.update_forward_refs()
 
 
 class Routers(BaseSettings):
