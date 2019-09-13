@@ -49,3 +49,16 @@ bgp_aspath = "show ip bgp regexp {target}"
 bgp_route = "show ipv6 bgp {target}"
 bgp_community = "show ipv6 bgp community {target}"
 bgp_aspath = "show ipv6 bgp regexp {target}"
+
+[[huawei]]
+[huawei.dual]
+bgp_community = "display bgp routing-table community {target}"
+bgp_aspath = "display bgp routing-table regular-expression {target}"
+[huawei.ipv4]
+bgp_route = "display bgp routing-table {target} longer-prefixes"
+ping = "ping -c 5 -a {source} {target}"
+traceroute = "tracert -a {source} {target}"
+[huawei.ipv6]
+bgp_route = "display bgp ipv6 routing-table {target} longer-prefixes"
+ping = "ping ipv6 -c 5 -a {source} {target}"
+traceroute = "tracert ipv6 -a {source} {target}"
