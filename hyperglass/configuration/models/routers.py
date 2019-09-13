@@ -31,34 +31,6 @@ class AfiMap(BaseSettings):
     ipv4_vpn: Union[str, None] = None
     ipv6_vpn: Union[str, None] = None
 
-    @validator("ipv4", always=True)
-    def validate_ipv4(cls, v):  # noqa: N805
-        """If a map field is undefined, get a default value"""
-        if v is None:
-            v = afi_nos_map.get("default").get("ipv4")
-        return v
-
-    @validator("ipv6", always=True)
-    def validate_ipv6(cls, v):  # noqa: N805
-        """If a map field is undefined, get a default value"""
-        if v is None:
-            v = afi_nos_map.get("default").get("ipv6")
-        return v
-
-    @validator("ipv4_vpn", always=True)
-    def validate_ipv4_vpn(cls, v):  # noqa: N805
-        """If a map field is undefined, get a default value"""
-        if v is None:
-            v = afi_nos_map.get("default").get("ipv4_vpn")
-        return v
-
-    @validator("ipv6_vpn", always=True)
-    def validate_ipv6_vpn(cls, v):  # noqa: N805
-        """If a map field is undefined, get a default value"""
-        if v is None:
-            v = afi_nos_map.get("default").get("ipv6_vpn")
-        return v
-
 
 class Router(BaseSettings):
     """Model for per-router config in devices.yaml."""
