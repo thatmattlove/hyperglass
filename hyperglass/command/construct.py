@@ -113,6 +113,8 @@ class Construct:
         query = None
         ip_version = IPNetwork(target).ip.version
         afi = f"ipv{ip_version}"
+        if self.d_type == "huawei":
+            target = target.replace("/", " ")
         if transport == "rest":
             query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
         if transport == "scrape":
