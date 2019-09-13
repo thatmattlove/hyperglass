@@ -145,6 +145,8 @@ class Construct:
         logger.debug(f"Constructing {query_type} query for {target} via {transport}...")
         afi = "dual"
         query = None
+        if self.d_type == "juniper":
+            target = target.replace("_", ".*")
         if transport == "rest":
             query = json.dumps({"query_type": query_type, "afi": afi, "target": target})
         if transport == "scrape":
