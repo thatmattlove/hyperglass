@@ -23,6 +23,7 @@ from hyperglass.configuration.models import (
     credentials as _credentials,
 )
 from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
+from hyperglass.constants import afi_nos_map
 
 # Project Directories
 working_dir = Path(__file__).resolve().parent
@@ -35,7 +36,7 @@ except FileNotFoundError as no_config_error:
     user_config = None
     logger.error(f"{no_config_error} - Default configuration will be used")
 
-# Import device commands file
+# Import commands file
 try:
     with open(working_dir.joinpath("commands.yaml")) as commands_yaml:
         user_commands = yaml.safe_load(commands_yaml)
