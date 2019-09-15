@@ -1,3 +1,9 @@
+# WARNING
+
+This branch is *very much* under construction. There's a 99% chance that hyperglass will not function at all if you download and install from this branch. If you're looking for a working version of hyperglass, **please go to the [master branch](https://github.com/checktheroads/hyperglass/tree/master)**.
+
+<hr>
+
 <img src="logo.png" width=300></img>
 
 **hyperglass** is a modern network looking glass application. A looking glass is typically implemented by network service providers as a way of providing customers, peers, and partners with a way to easily view elements of, or run tests from the provider's network.
@@ -61,10 +67,6 @@ There is now a [hyperglass team](https://keybase.io/team/hyperglass) on [Keybase
 *However, the hyperglass demo does cost [/checktheroads](https://github.com/checktheroads) about $15/month for 3 Digital Ocean droplets. If you're feeling particularly helpful and want to help offset that cost, small donations are welcome.*
 
 [![Donate](https://img.shields.io/badge/Donate-blue.svg?logo=paypal)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZQFH3BB2B5M3E&source=url)
-
-## Acknowledgements
-
--   This project originally started as a fork of [vraulsan](https://github.com/vraulsan)'s [looking-glass](https://github.com/vraulsan/looking-glass) project. The guts of the Flask components still remain from that project, but almost everything else has been rewritten. Nevertheless, the inspiration for building hyperglass came from here.
 
 ## License
 
