@@ -88,7 +88,7 @@ except ValidationError as validation_errors:
         raise ConfigInvalid(
             field=": ".join([str(item) for item in error["loc"]]),
             error_msg=error["msg"],
-        ) from None
+        )
 
 # Validate that VRFs configured on a device are actually defined
 for dev in devices.hostnames:

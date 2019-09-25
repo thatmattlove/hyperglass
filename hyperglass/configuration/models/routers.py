@@ -6,6 +6,7 @@ Imports config variables and overrides default class attributes.
 Validates input for overridden parameters.
 """
 # Standard Library Imports
+import operator
 from ipaddress import IPv4Address
 from ipaddress import IPv6Address
 from typing import List
@@ -15,6 +16,7 @@ from typing import Union
 from pydantic import BaseSettings
 from pydantic import IPvAnyAddress
 from pydantic import validator
+from logzero import logger
 
 # Project Imports
 from hyperglass.configuration.models._utils import clean_name
@@ -23,13 +25,20 @@ from hyperglass.exceptions import UnsupportedDevice
 from hyperglass.constants import afi_nos_map
 
 
-class AfiMap(BaseSettings):
+class Afi(BaseSettings):
+    """Model for AFI definitions"""
+
+    label: str
+    source: IPvAnyAddress
+
+
+class Afis(BaseSettings):
     """Model for AFI map"""
 
-    ipv4: Union[str, None] = None
-    ipv6: Union[str, None] = None
-    ipv4_vpn: Union[str, None] = None
-    ipv6_vpn: Union[str, None] = None
+    ipv4: Union[Afi, None] = None
+    ipv6: Union[Afi, None] = None
+    ipv4_vpn: Union[Afi, None] = None
+    ipv6_vpn: Union[Afi, None] = None
 
 
 class Router(BaseSettings):
@@ -37,8 +46,6 @@ class Router(BaseSettings):
 
     address: Union[IPvAnyAddress, str]
     network: str
-    src_addr_ipv4: IPv4Address
-    src_addr_ipv6: IPv6Address
     credential: str
     proxy: Union[str, None] = None
     location: str
@@ -47,7 +54,7 @@ class Router(BaseSettings):
     nos: str
     commands: Union[str, None] = None
     vrfs: List[str] = ["default"]
-    afi_map: Union[AfiMap, None] = None
+    afis: Afis
 
     @validator("nos")
     def supported_nos(cls, v):  # noqa: N805
@@ -72,18 +79,22 @@ class Router(BaseSettings):
             v = values["nos"]
         return v
 
-    @validator("afi_map", always=True)
+    @validator("afis", pre=True)
     def validate_afis(cls, v, values):  # noqa: N805
         """
         If an AFI map is not defined, try to get one based on the
         NOS name. If that doesn't exist, use a default.
         """
-        if v is None:
-            v = AfiMap(**afi_nos_map.get(values["nos"], afi_nos_map.get("default")))
+        logger.debug(f"V In: {v}")
+        for (afi_name, afi_params) in {
+            afi: params for afi, params in v.items() if params is not None
+        }.items():
+            if afi_params.get("label") is None:
+                label = afi_nos_map.get(values["nos"], None)
+                if label is None:
+                    label = afi_nos_map["default"][afi_name]
+                v[afi_name].update({"label": label})
         return v
-
-
-Router.update_forward_refs()
 
 
 class Routers(BaseSettings):

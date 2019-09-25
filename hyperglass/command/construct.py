@@ -56,11 +56,11 @@ class Construct:
         Constructs AFI string. If query_vrf is specified, AFI prefix is
         "vpnv", if not, AFI prefix is "ipv"
         """
-        ip_version = ipaddress.ip_network(query_target).version
+        protocol = ipaddress.ip_network(query_target).version
         if query_vrf:
-            afi = f"vpnv{ip_version}"
+            afi = f"ipv{protocol}_vpn"
         else:
-            afi = f"ipv{ip_version}"
+            afi = f"ipv{protocol}"
         return afi
 
     def ping(self):
@@ -71,28 +71,36 @@ class Construct:
         )
 
         query = []
-        afi = self.query_afi(self.query_target, self.query_vrf)
-        source = self.get_src(self.device, afi)
+        query_vrfs = self.query_vrf
 
-        if self.transport == "rest":
-            query = json.dumps(
-                {
-                    "query_type": "ping",
-                    "afi": afi,
-                    "vrf": self.query_vrf,
-                    "source": source,
-                    "target": self.query_target,
-                }
-            )
-        elif self.transport == "scrape":
-            cmd = self.device_commands(self.device.commands, afi, "ping")
-            query = cmd.format(
-                target=self.query_target, source=source, vrf=self.query_vrf
-            )
+        for vrf in query_vrfs:
+            query_afi = self.query_afi(self.query_target, vrf)
+            afi_path = f"self.device.afis.{query_afi}"
+            afi = getattr(afi_path, "label")
+            vrf_label = vrfs.get(vrf).get("label")
+            vrf_source = getattr(afi_path, "source")
+
+            if self.transport == "rest":
+                vrf_query = json.dumps(
+                    {
+                        "query_type": "ping",
+                        "afi": afi,
+                        "vrf": vrf_label,
+                        "source": vrf_source,
+                        "target": self.query_target,
+                    }
+                )
+            elif self.transport == "scrape":
+                cmd = self.device_commands(self.device.commands, afi, "ping")
+                query.append(
+                    cmd.format(
+                        target=self.query_target, source=vrf_source, vrf=vrf_label
+                    )
+                )
+            query.append(vrf_query)
 
         logger.debug(f"Constructed query: {query}")
-
-        return [query]
+        return query
 
     def traceroute(self):
         """
