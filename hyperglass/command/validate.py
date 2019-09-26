@@ -8,7 +8,7 @@ import ipaddress
 import re
 
 # Third Party Imports
-from logzero import logger
+from logzero import logger as log
 
 # Project Imports
 from hyperglass.configuration import logzero_config  # noqa: F401
@@ -62,10 +62,10 @@ class IPType:
         ip_version = ipaddress.ip_network(target).version
         state = False
         if ip_version == 4 and re.match(self.ipv4_host, target):
-            logger.debug(f"{target} is an IPv{ip_version} host.")
+            log.debug(f"{target} is an IPv{ip_version} host.")
             state = True
         if ip_version == 6 and re.match(self.ipv6_host, target):
-            logger.debug(f"{target} is an IPv{ip_version} host.")
+            log.debug(f"{target} is an IPv{ip_version} host.")
             state = True
         return state
 
@@ -89,7 +89,7 @@ def ip_validate(target):
             _exception.details = {}
             raise _exception
     except (ipaddress.AddressValueError, ValueError) as ip_error:
-        logger.debug(f"IP {target} is invalid")
+        log.debug(f"IP {target} is invalid")
         _exception = ValueError(ip_error)
         _exception.details = {}
         raise _exception
@@ -101,7 +101,7 @@ def ip_blacklist(target):
     Check blacklist list for prefixes/IPs, return boolean based on list
     membership.
     """
-    logger.debug(f"Blacklist Enabled: {params.features.blacklist.enable}")
+    log.debug(f"Blacklist Enabled: {params.features.blacklist.enable}")
     target = ipaddress.ip_network(target)
     if params.features.blacklist.enable:
         target_ver = target.version
@@ -111,7 +111,7 @@ def ip_blacklist(target):
             for net in user_blacklist
             if ipaddress.ip_network(net).version == target_ver
         ]
-        logger.debug(
+        log.debug(
             f"IPv{target_ver} Blacklist Networks: {[str(net) for net in networks]}"
         )
         for net in networks:
@@ -120,7 +120,7 @@ def ip_blacklist(target):
                 blacklist_net.network_address <= target.network_address
                 and blacklist_net.broadcast_address >= target.broadcast_address
             ):
-                logger.debug(f"Blacklist Match Found for {target} in {str(net)}")
+                log.debug(f"Blacklist Match Found for {target} in {str(net)}")
                 _exception = ValueError(params.messages.blacklist)
                 _exception.details = {"blacklisted_net": str(net)}
                 raise _exception
@@ -150,14 +150,14 @@ def ip_attributes(target):
 def ip_type_check(query_type, target, device):
     """Checks multiple IP address related validation parameters"""
     prefix_attr = ip_attributes(target)
-    logger.debug(f"IP Attributes:\n{prefix_attr}")
+    log.debug(f"IP Attributes:\n{prefix_attr}")
 
     # If enable_max_prefix feature enabled, require that BGP Route
     # queries be smaller than configured size limit.
     if query_type == "bgp_route" and params.features.max_prefix.enable:
         max_length = getattr(params.features.max_prefix, prefix_attr["afi"])
         if prefix_attr["length"] > max_length:
-            logger.debug("Failed max prefix length check")
+            log.debug("Failed max prefix length check")
             _exception = ValueError(params.messages.max_prefix)
             _exception.details = {"max_length": max_length}
             raise _exception
@@ -170,7 +170,7 @@ def ip_type_check(query_type, target, device):
         and device.nos in params.general.requires_ipv6_cidr
         and IPType().is_host(target)
     ):
-        logger.debug("Failed requires IPv6 CIDR check")
+        log.debug("Failed requires IPv6 CIDR check")
         _exception = ValueError(params.messages.requires_ipv6_cidr)
         _exception.details = {"device_name": device.display_name}
         raise _exception
@@ -178,7 +178,7 @@ def ip_type_check(query_type, target, device):
     # If query type is ping or traceroute, and query target is in CIDR
     # format, return an error.
     if query_type in ("ping", "traceroute") and IPType().is_cidr(target):
-        logger.debug("Failed CIDR format for ping/traceroute check")
+        log.debug("Failed CIDR format for ping/traceroute check")
         _exception = ValueError(params.messages.directed_cidr)
         _exception.details = {"query_type": getattr(params.branding.text, query_type)}
         raise _exception
@@ -200,7 +200,7 @@ class Validate:
 
     def validate_ip(self):
         """Validates IPv4/IPv6 Input"""
-        logger.debug(f"Validating {self.query_type} query for target {self.target}...")
+        log.debug(f"Validating {self.query_type} query for target {self.target}...")
 
         # Perform basic validation of an IP address, return error if
         # not a valid IP.
@@ -237,7 +237,7 @@ class Validate:
 
     def validate_dual(self):
         """Validates Dual-Stack Input"""
-        logger.debug(f"Validating {self.query_type} query for target {self.target}...")
+        log.debug(f"Validating {self.query_type} query for target {self.target}...")
 
         if self.query_type == "bgp_community":
             # Validate input communities against configured or default regex

@@ -7,7 +7,7 @@ from pathlib import Path
 
 # Third Party Imports
 import aredis
-from logzero import logger
+from logzero import logger as log
 from prometheus_client import CollectorRegistry
 from prometheus_client import Counter
 from prometheus_client import generate_latest
@@ -40,7 +40,7 @@ from hyperglass.exceptions import (
     DeviceTimeout,
 )
 
-logger.debug(f"Configuration Parameters:\n {params.dict()}")
+log.debug(f"Configuration Parameters:\n {params.dict()}")
 
 # Redis Config
 redis_config = {
@@ -53,12 +53,12 @@ redis_config = {
 static_dir = Path(__file__).parent / "static" / "ui"
 
 # Main Sanic app definition
-logger.debug(f"Static Files: {static_dir}")
+log.debug(f"Static Files: {static_dir}")
 
 app = Sanic(__name__)
 app.static("/ui", str(static_dir))
 
-logger.debug(app.config)
+log.debug(app.config)
 
 # Redis Cache Config
 r_cache = aredis.StrictRedis(db=params.features.cache.redis_id, **redis_config)
@@ -71,8 +71,8 @@ site_period = params.features.rate_limit.site.period
 #
 rate_limit_query = f"{query_rate} per {query_period}"
 rate_limit_site = f"{site_rate} per {site_period}"
-logger.debug(f"Query rate limit: {rate_limit_query}")
-logger.debug(f"Site rate limit: {rate_limit_site}")
+log.debug(f"Query rate limit: {rate_limit_query}")
+log.debug(f"Site rate limit: {rate_limit_site}")
 
 # Redis Config for Sanic-Limiter storage
 r_limiter_db = params.features.rate_limit.redis_id
@@ -131,7 +131,7 @@ async def handle_frontend_errors(request, exception):
     client_addr = get_remote_address(request)
     error = exception.args[0]
     alert = error["alert"]
-    logger.info(error)
+    log.info(error)
     count_errors.labels(
         "Front End Error",
         client_addr,
@@ -139,7 +139,7 @@ async def handle_frontend_errors(request, exception):
         request.json.get("location"),
         request.json.get("target"),
     ).inc()
-    logger.error(f'Error: {error["message"]}, Source: {client_addr}')
+    log.error(f'Error: {error["message"]}, Source: {client_addr}')
     return response.json(
         {"output": error["message"], "alert": alert, "keywords": error["keywords"]},
         status=400,
@@ -152,7 +152,7 @@ async def handle_backend_errors(request, exception):
     client_addr = get_remote_address(request)
     error = exception.args[0]
     alert = error["alert"]
-    logger.info(error)
+    log.info(error)
     count_errors.labels(
         "Back End Error",
         client_addr,
@@ -160,7 +160,7 @@ async def handle_backend_errors(request, exception):
         request.json.get("location"),
         request.json.get("target"),
     ).inc()
-    logger.error(f'Error: {error["message"]}, Source: {client_addr}')
+    log.error(f'Error: {error["message"]}, Source: {client_addr}')
     return response.json(
         {"output": error["message"], "alert": alert, "keywords": error["keywords"]},
         status=503,
@@ -174,7 +174,7 @@ async def handle_404(request, exception):
     html = render_html("404", uri=path)
     client_addr = get_remote_address(request)
     count_notfound.labels(exception, path, client_addr).inc()
-    logger.error(f"Error: {exception}, Path: {path}, Source: {client_addr}")
+    log.error(f"Error: {exception}, Path: {path}, Source: {client_addr}")
     return response.html(html, status=404)
 
 
@@ -184,7 +184,7 @@ async def handle_429(request, exception):
     html = render_html("ratelimit-site")
     client_addr = get_remote_address(request)
     count_ratelimit.labels(exception, client_addr).inc()
-    logger.error(f"Error: {exception}, Source: {client_addr}")
+    log.error(f"Error: {exception}, Source: {client_addr}")
     return response.html(html, status=429)
 
 
@@ -193,7 +193,7 @@ async def handle_500(request, exception):
     """General Error Page"""
     client_addr = get_remote_address(request)
     count_errors.labels(500, exception, client_addr, None, None, None).inc()
-    logger.error(f"Error: {exception}, Source: {client_addr}")
+    log.error(f"Error: {exception}, Source: {client_addr}")
     html = render_html("500")
     return response.html(html, status=500)
 
@@ -204,7 +204,7 @@ async def clear_cache():
         await r_cache.flushdb()
         return "Successfully cleared cache"
     except Exception as error_exception:
-        logger.error(f"Error clearing cache: {error_exception}")
+        log.error(f"Error clearing cache: {error_exception}")
         raise HyperglassError(f"Error clearing cache: {error_exception}")
 
 
@@ -254,7 +254,7 @@ async def validate_input(query_data):  # noqa: C901
 
     # Verify that query_target is not empty
     if not query_target:
-        logger.debug("No input specified")
+        log.debug("No input specified")
         raise InvalidUsage(
             {
                 "message": params.messages.no_input.format(
@@ -266,7 +266,7 @@ async def validate_input(query_data):  # noqa: C901
         )
     # Verify that query_target is a string
     if not isinstance(query_target, str):
-        logger.debug("Target is not a string")
+        log.debug("Target is not a string")
         raise InvalidUsage(
             {
                 "message": params.messages.invalid_field.format(
@@ -278,7 +278,7 @@ async def validate_input(query_data):  # noqa: C901
         )
     # Verify that query_location is not empty
     if not query_location:
-        logger.debug("No selection specified")
+        log.debug("No selection specified")
         raise InvalidUsage(
             {
                 "message": params.messages.no_input.format(
@@ -290,7 +290,7 @@ async def validate_input(query_data):  # noqa: C901
         )
     # Verify that query_location is a string
     if not isinstance(query_location, str):
-        logger.debug("Query Location is not a string")
+        log.debug("Query Location is not a string")
         raise InvalidUsage(
             {
                 "message": params.messages.invalid_field.format(
@@ -313,7 +313,7 @@ async def validate_input(query_data):  # noqa: C901
         )
     # Verify that query_type is not empty
     if not query_type:
-        logger.debug("No query specified")
+        log.debug("No query specified")
         raise InvalidUsage(
             {
                 "message": params.messages.no_input.format(
@@ -324,7 +324,7 @@ async def validate_input(query_data):  # noqa: C901
             }
         )
     if not isinstance(query_type, str):
-        logger.debug("Query Type is not a string")
+        log.debug("Query Type is not a string")
         raise InvalidUsage(
             {
                 "message": params.messages.invalid_field.format(
@@ -337,7 +337,7 @@ async def validate_input(query_data):  # noqa: C901
     # Verify that query_type is actually supported
     query_is_supported = Supported.is_supported_query(query_type)
     if not query_is_supported:
-        logger.debug("Query not supported")
+        log.debug("Query not supported")
         raise InvalidUsage(
             {
                 "message": params.messages.invalid_field.format(
@@ -402,7 +402,7 @@ async def hyperglass_main(request):
     """
     # Get JSON data from Ajax POST
     raw_query_data = request.json
-    logger.debug(f"Unvalidated input: {raw_query_data}")
+    log.debug(f"Unvalidated input: {raw_query_data}")
 
     # Perform basic input validation
     query_data = await validate_input(raw_query_data)
@@ -419,7 +419,7 @@ async def hyperglass_main(request):
         query_data.get("query_vrf"),
     ).inc()
 
-    logger.debug(f"Client Address: {client_addr}")
+    log.debug(f"Client Address: {client_addr}")
 
     # Stringify the form response containing serialized JSON for the
     # request, use as key for k/v cache store so each command output
@@ -428,11 +428,11 @@ async def hyperglass_main(request):
 
     # Define cache entry expiry time
     cache_timeout = params.features.cache.timeout
-    logger.debug(f"Cache Timeout: {cache_timeout}")
+    log.debug(f"Cache Timeout: {cache_timeout}")
 
     # Check if cached entry exists
     if not await r_cache.get(cache_key):
-        logger.debug(f"Sending query {cache_key} to execute module...")
+        log.debug(f"Sending query {cache_key} to execute module...")
 
         # Pass request to execution module
         try:
@@ -443,7 +443,7 @@ async def hyperglass_main(request):
             endtime = time.time()
             elapsedtime = round(endtime - starttime, 4)
 
-            logger.debug(f"Query {cache_key} took {elapsedtime} seconds to run.")
+            log.debug(f"Query {cache_key} took {elapsedtime} seconds to run.")
 
         except (InputInvalid, InputNotAllowed) as frontend_error:
             raise InvalidUsage(frontend_error.__dict__())
@@ -459,14 +459,14 @@ async def hyperglass_main(request):
         await r_cache.set(cache_key, str(cache_value))
         await r_cache.expire(cache_key, cache_timeout)
 
-        logger.debug(f"Added cache entry for query: {cache_key}")
+        log.debug(f"Added cache entry for query: {cache_key}")
 
     # If it does, return the cached entry
     cache_response = await r_cache.get(cache_key)
 
     response_output = cache_response
 
-    logger.debug(f"Cache match for: {cache_key}, returning cached entry")
-    logger.debug(f"Cache Output: {response_output}")
+    log.debug(f"Cache match for: {cache_key}, returning cached entry")
+    log.debug(f"Cache Output: {response_output}")
 
     return response.json({"output": response_output}, status=200)

@@ -9,7 +9,7 @@ from pathlib import Path
 # Third Party Imports
 import logzero
 import yaml
-from logzero import logger
+from logzero import logger as log
 from pydantic import ValidationError
 
 # Project Imports
@@ -34,16 +34,16 @@ try:
         user_config = yaml.safe_load(config_yaml)
 except FileNotFoundError as no_config_error:
     user_config = None
-    logger.error(f"{no_config_error} - Default configuration will be used")
+    log.error(f"{no_config_error} - Default configuration will be used")
 
 # Import commands file
 try:
     with open(working_dir.joinpath("commands.yaml")) as commands_yaml:
         user_commands = yaml.safe_load(commands_yaml)
-        logger.info(f"Found commands: {user_commands}")
+        log.info(f"Found commands: {user_commands}")
 except FileNotFoundError:
     user_commands = None
-    logger.info(
+    log.info(
         (
             f'No commands found in {working_dir.joinpath("commands.yaml")}. '
             "Defaults will be used."
@@ -57,7 +57,7 @@ try:
     with open(working_dir.joinpath("devices.yaml")) as devices_yaml:
         user_devices = yaml.safe_load(devices_yaml)
 except FileNotFoundError as no_devices_error:
-    logger.error(no_devices_error)
+    log.error(no_devices_error)
     raise ConfigMissing(
         missing_item=str(working_dir.joinpath("devices.yaml"))
     ) from None

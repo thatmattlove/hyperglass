@@ -9,7 +9,7 @@ import json
 import operator
 
 # Third Party Imports
-from logzero import logger
+from logzero import logger as log
 
 # Project Imports
 from hyperglass.configuration import vrfs
@@ -66,7 +66,7 @@ class Construct:
     def ping(self):
         """Constructs ping query parameters from pre-validated input"""
 
-        logger.debug(
+        log.debug(
             f"Constructing ping query for {self.query_target} via {self.transport}"
         )
 
@@ -99,14 +99,14 @@ class Construct:
                 )
             query.append(vrf_query)
 
-        logger.debug(f"Constructed query: {query}")
+        log.debug(f"Constructed query: {query}")
         return query
 
     def traceroute(self):
         """
         Constructs traceroute query parameters from pre-validated input.
         """
-        logger.debug(
+        log.debug(
             (
                 f"Constructing traceroute query for {self.query_target} "
                 f"via {self.transport}"
@@ -133,7 +133,7 @@ class Construct:
                 target=self.query_target, source=source, vrf=self.query_vrf
             )
 
-        logger.debug(f"Constructed query: {query}")
+        log.debug(f"Constructed query: {query}")
 
         return [query]
 
@@ -141,7 +141,7 @@ class Construct:
         """
         Constructs bgp_route query parameters from pre-validated input.
         """
-        logger.debug(
+        log.debug(
             f"Constructing bgp_route query for {self.query_target} via {self.transport}"
         )
 
@@ -165,7 +165,7 @@ class Construct:
                 target=self.query_target, source=source, afi=afi, vrf=self.query_vrf
             )
 
-        logger.debug(f"Constructed query: {query}")
+        log.debug(f"Constructed query: {query}")
 
         return [query]
 
@@ -174,7 +174,7 @@ class Construct:
         Constructs bgp_community query parameters from pre-validated
         input.
         """
-        logger.debug(
+        log.debug(
             (
                 f"Constructing bgp_community query for {self.query_target} "
                 f"via {self.transport}"
@@ -183,7 +183,7 @@ class Construct:
 
         query = None
         afi = self.query_afi(self.query_target, self.query_vrf)
-        logger.debug(afi)
+        log.debug(afi)
         source = self.get_src(self.device, afi)
 
         if self.transport == "rest":
@@ -202,7 +202,7 @@ class Construct:
                 target=self.query_target, source=source, vrf=self.query_vrf
             )
 
-        logger.debug(f"Constructed query: {query}")
+        log.debug(f"Constructed query: {query}")
 
         return query
 
@@ -210,7 +210,7 @@ class Construct:
         """
         Constructs bgp_aspath query parameters from pre-validated input.
         """
-        logger.debug(
+        log.debug(
             (
                 f"Constructing bgp_aspath query for {self.query_target} "
                 f"via {self.transport}"
@@ -237,6 +237,6 @@ class Construct:
                 target=self.query_target, source=source, vrf=self.query_vrf
             )
 
-        logger.debug(f"Constructed query: {query}")
+        log.debug(f"Constructed query: {query}")
 
         return query

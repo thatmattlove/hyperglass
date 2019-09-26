@@ -7,7 +7,7 @@ from pathlib import Path
 # Third Party Imports
 import jinja2
 import yaml
-from logzero import logger
+from logzero import logger as log
 from markdown2 import Markdown
 
 # Project Imports
@@ -198,7 +198,7 @@ def render_html(template_name, **kwargs):
         details_dict.update({details_name: details_data})
     info_list = ["bgp_route", "bgp_aspath", "bgp_community", "ping", "traceroute"]
     rendered_help = generate_markdown("help")
-    logger.debug(rendered_help)
+    log.debug(rendered_help)
     try:
         template_file = f"templates/{template_name}.html.j2"
         template = env.get_template(template_file)
@@ -210,7 +210,5 @@ def render_html(template_name, **kwargs):
             **kwargs,
         )
     except jinja2.TemplateNotFound as template_error:
-        logger.error(
-            f"Error rendering Jinja2 template {Path(template_file).resolve()}."
-        )
+        log.error(f"Error rendering Jinja2 template {Path(template_file).resolve()}.")
         raise HyperglassError(template_error)

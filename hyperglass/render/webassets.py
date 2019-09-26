@@ -8,7 +8,7 @@ from pathlib import Path
 
 # Third Party Imports
 import jinja2
-from logzero import logger
+from logzero import logger as log
 
 # Project Imports
 from hyperglass.configuration import logzero_config  # noqa: F401
@@ -38,7 +38,7 @@ def render_frontend_config():
                 json.dumps({"config": frontend_params, "networks": frontend_networks})
             )
     except jinja2.exceptions as frontend_error:
-        logger.error(f"Error rendering front end config: {frontend_error}")
+        log.error(f"Error rendering front end config: {frontend_error}")
         raise HyperglassError(frontend_error)
 
 
@@ -65,11 +65,11 @@ def get_fonts():
         stdout, stderr = proc.communicate()
     if proc.returncode != 0:
         output_error = stderr.decode("utf-8")
-        logger.error(output_error)
+        log.error(output_error)
         raise HyperglassError(f"Error downloading font from URL {font_url}")
     else:
         proc.kill()
-        logger.debug(f"Downloaded font from URL {font_url}")
+        log.debug(f"Downloaded font from URL {font_url}")
 
 
 def render_theme():
@@ -81,7 +81,7 @@ def render_theme():
         with rendered_theme_file.open(mode="w") as theme_file:
             theme_file.write(rendered_theme)
     except jinja2.exceptions as theme_error:
-        logger.error(f"Error rendering theme: {theme_error}")
+        log.error(f"Error rendering theme: {theme_error}")
         raise HyperglassError(theme_error)
 
 
@@ -101,12 +101,12 @@ def build_assets():
     output_out = json.loads(stdout.decode("utf-8").split("\n")[0])
     if proc.returncode != 0:
         output_error = json.loads(stderr.decode("utf-8").strip("\n"))
-        logger.error(output_error["data"])
+        log.error(output_error["data"])
         raise HyperglassError(
             f'Error building web assets with script {output_out["data"]}:'
             f'{output_error["data"]}'
         )
-    logger.debug(f'Built web assets with script {output_out["data"]}')
+    log.debug(f'Built web assets with script {output_out["data"]}')
 
 
 def render_assets():
@@ -115,26 +115,26 @@ def render_assets():
     web assets
     """
     try:
-        logger.debug("Rendering front end config...")
+        log.debug("Rendering front end config...")
         render_frontend_config()
-        logger.debug("Rendered front end config")
+        log.debug("Rendered front end config")
     except HyperglassError as frontend_error:
         raise HyperglassError(frontend_error)
     try:
-        logger.debug("Downloading theme fonts...")
+        log.debug("Downloading theme fonts...")
         get_fonts()
-        logger.debug("Downloaded theme fonts")
+        log.debug("Downloaded theme fonts")
     except HyperglassError as theme_error:
         raise HyperglassError(theme_error)
     try:
-        logger.debug("Rendering theme elements...")
+        log.debug("Rendering theme elements...")
         render_theme()
-        logger.debug("Rendered theme elements")
+        log.debug("Rendered theme elements")
     except HyperglassError as theme_error:
         raise HyperglassError(theme_error)
     try:
-        logger.debug("Building web assets...")
+        log.debug("Building web assets...")
         build_assets()
-        logger.debug("Built web assets")
+        log.debug("Built web assets")
     except HyperglassError as assets_error:
         raise HyperglassError(assets_error)
