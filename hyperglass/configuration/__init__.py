@@ -75,11 +75,15 @@ try:
     elif not user_commands:
         commands = _commands.Commands()
 
-    devices = _routers.Routers.import_params(user_devices["router"])
-    credentials = _credentials.Credentials.import_params(user_devices["credential"])
-    proxies = _proxies.Proxies.import_params(user_devices["proxy"])
-    imported_networks = _networks.Networks.import_params(user_devices["network"])
-    vrfs = _vrfs.Vrfs.import_params(user_devices.get("vrf"))
+    devices = _routers.Routers.import_params(user_devices.get("router", dict()))
+    credentials = _credentials.Credentials.import_params(
+        user_devices.get("credential", dict())
+    )
+    proxies = _proxies.Proxies.import_params(user_devices.get("proxy", dict()))
+    imported_networks = _networks.Networks.import_params(
+        user_devices.get("network", dict())
+    )
+    vrfs = _vrfs.Vrfs.import_params(user_devices.get("vrf", dict()))
 
 
 except ValidationError as validation_errors:
