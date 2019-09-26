@@ -57,7 +57,7 @@ class Construct:
         "vpnv", if not, AFI prefix is "ipv"
         """
         protocol = ipaddress.ip_network(query_target).version
-        if query_vrf:
+        if query_vrf and query_vrf != "default":
             afi = f"ipv{protocol}_vpn"
         else:
             afi = f"ipv{protocol}"
@@ -71,33 +71,33 @@ class Construct:
         )
 
         query = []
-        query_vrfs = self.query_vrf
 
-        for vrf in query_vrfs:
-            query_afi = self.query_afi(self.query_target, vrf)
-            afi_path = f"self.device.afis.{query_afi}"
-            afi = getattr(afi_path, "label")
-            vrf_label = vrfs.get(vrf).get("label")
-            vrf_source = getattr(afi_path, "source")
+        query_afi = self.query_afi(self.query_target, self.query_vrf)
+        afi = getattr(self.device.afis, query_afi)
+        vrf = self.device.vrfs[self.device.vrfs.index(self.query_vrf)]
 
-            if self.transport == "rest":
-                vrf_query = json.dumps(
+        # TODO: AFI to VRF mapping still needs work. Possible solution:
+        # move AFI model to be a direct child of a VRF. Each VRF can define an
+        # ipv4 or ipv6 family. Determine AFI of query target, get source/label
+        # as device -> vrfs -> afi[family] -> source/label
+
+        if self.transport == "rest":
+            query.append(
+                json.dumps(
                     {
                         "query_type": "ping",
-                        "afi": afi,
-                        "vrf": vrf_label,
-                        "source": vrf_source,
+                        "afi": afi.label,
+                        "vrf": vrf,
+                        "source": afi.source,
                         "target": self.query_target,
                     }
                 )
-            elif self.transport == "scrape":
-                cmd = self.device_commands(self.device.commands, afi, "ping")
-                query.append(
-                    cmd.format(
-                        target=self.query_target, source=vrf_source, vrf=vrf_label
-                    )
-                )
-            query.append(vrf_query)
+            )
+        elif self.transport == "scrape":
+            cmd = self.device_commands(self.device.commands, afi.label, "ping")
+            query.append(
+                cmd.format(target=self.query_target, source=afi.source, vrf=vrf)
+            )
 
         log.debug(f"Constructed query: {query}")
         return query
