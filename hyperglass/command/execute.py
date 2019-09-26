@@ -77,7 +77,7 @@ class Connect:
                 ),
                 local_bind_address=("localhost", 0),
                 skip_tunnel_checkup=False,
-                logger=logger,
+                logger=log,
             )
         except sshtunnel.BaseSSHTunnelForwarderError as scrape_proxy_error:
             log.error(
