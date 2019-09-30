@@ -386,7 +386,7 @@ $('#lgForm').on('submit', (e) => {
   const queryType = $('#query_type').val() || '';
   const queryLocation = $('#location').val() || '';
   const queryTarget = $('#query_target').val() || '';
-  const queryVrf = $('#query_vrf').val() || [];
+  const queryVrf = $('#query_vrf').val() || '';
 
   const queryTargetContainer = $('#query_target');
   const queryTypeContainer = $('#query_type').next('.dropdown-toggle');

@@ -5,6 +5,7 @@ error message.
 """
 # Standard Library Imports
 import ipaddress
+import operator
 import re
 
 # Third Party Imports
@@ -13,6 +14,7 @@ from logzero import logger as log
 # Project Imports
 from hyperglass.configuration import logzero_config  # noqa: F401
 from hyperglass.configuration import params
+from hyperglass.configuration import vrfs
 from hyperglass.exceptions import InputInvalid, InputNotAllowed
 
 
@@ -96,35 +98,56 @@ def ip_validate(target):
     return valid_ip
 
 
-def ip_blacklist(target):
+def ip_access_list(query_data):
     """
-    Check blacklist list for prefixes/IPs, return boolean based on list
-    membership.
+    Check VRF access list for matching prefixes, returns an error if a
+    match is found.
     """
-    log.debug(f"Blacklist Enabled: {params.features.blacklist.enable}")
-    target = ipaddress.ip_network(target)
-    if params.features.blacklist.enable:
-        target_ver = target.version
-        user_blacklist = params.features.blacklist.networks
-        networks = [
-            net
-            for net in user_blacklist
-            if ipaddress.ip_network(net).version == target_ver
-        ]
-        log.debug(
-            f"IPv{target_ver} Blacklist Networks: {[str(net) for net in networks]}"
-        )
-        for net in networks:
-            blacklist_net = ipaddress.ip_network(net)
-            if (
-                blacklist_net.network_address <= target.network_address
-                and blacklist_net.broadcast_address >= target.broadcast_address
-            ):
-                log.debug(f"Blacklist Match Found for {target} in {str(net)}")
-                _exception = ValueError(params.messages.blacklist)
-                _exception.details = {"blacklisted_net": str(net)}
+    log.debug(f'Checking Access List for: {query_data["query_target"]}')
+
+    def member_of(target, network):
+        """
+        Returns boolean if an input target IP is a member of an input
+        network.
+        """
+        log.debug(f"Checking membership of {target} for {network}")
+
+        membership = False
+        if (
+            network.network_address <= target.network_address
+            and network.broadcast_address >= target.broadcast_address  # NOQA: W503
+        ):
+            log.debug(f"{target} is a member of {network}")
+            membership = True
+        return membership
+
+    target = ipaddress.ip_network(query_data["query_target"])
+    vrf_acl = operator.attrgetter(f'{query_data["query_vrf"]}.access_list')(vrfs)
+    target_ver = target.version
+
+    log.debug(f"Access List: {vrf_acl}")
+
+    for ace in vrf_acl:
+        for action, net in {
+            a: n for a, n in ace.items() for ace in vrf_acl if n.version == target_ver
+        }.items():
+            # If the target is a member of an allowed network, exit successfully.
+            if member_of(target, net) and action == "allow":
+                log.debug(f"{target} is specifically allowed")
+                return target
+
+            # If the target is a member of a denied network, return an error.
+            elif member_of(target, net) and action == "deny":
+                log.debug(f"{target} is specifically denied")
+                _exception = ValueError(params.messages.acl_denied)
+                _exception.details = {"denied_network": str(net)}
                 raise _exception
-    return target
+
+    # Implicitly deny queries if an allow statement does not exist.
+    log.debug(f"{target} is implicitly denied")
+    _exception = ValueError(params.messages.acl_not_allowed)
+    _exception.details = {"denied_network": ""}
+    raise _exception
 
 
 def ip_attributes(target):
@@ -192,10 +215,11 @@ class Validate:
     boolean for validity, specific error message, and status code.
     """
 
-    def __init__(self, device, query_type, target):
+    def __init__(self, device, query_data, target):
         """Initialize device parameters and error codes."""
         self.device = device
-        self.query_type = query_type
+        self.query_data = query_data
+        self.query_type = self.query_data["query_type"]
         self.target = target
 
     def validate_ip(self):
@@ -214,14 +238,12 @@ class Validate:
                 **unformatted_error.details,
             )
 
-        # If target is a member of the blacklist, return an error.
+        # If target is a not allowed, return an error.
         try:
-            ip_blacklist(self.target)
+            ip_access_list(self.query_data)
         except ValueError as unformatted_error:
             raise InputNotAllowed(
-                params.messages.blacklist,
-                target=self.target,
-                **unformatted_error.details,
+                str(unformatted_error), target=self.target, **unformatted_error.details
             )
 
         # Perform further validation of a valid IP address, return an

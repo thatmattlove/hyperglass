@@ -23,7 +23,6 @@ from hyperglass.configuration.models import (
     credentials as _credentials,
 )
 from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
-from hyperglass.constants import afi_nos_map
 
 # Project Directories
 working_dir = Path(__file__).resolve().parent
@@ -97,11 +96,17 @@ except ValidationError as validation_errors:
 # Validate that VRFs configured on a device are actually defined
 for dev in devices.hostnames:
     dev_cls = getattr(devices, dev)
-    for vrf in getattr(dev_cls, "vrfs"):
+    display_vrfs = []
+    for vrf in getattr(dev_cls, "_vrfs"):
         if vrf not in vrfs._all:
             raise ConfigInvalid(
                 field=vrf, error_msg=f"{vrf} is not in configured VRFs: {vrfs._all}"
             )
+        vrf_attr = getattr(vrfs, vrf)
+        display_vrfs.append(vrf_attr.display_name)
+    devices.routers[dev]["display_vrfs"] = display_vrfs
+    setattr(dev_cls, "display_vrfs", display_vrfs)
+
 
 # Logzero Configuration
 log_level = 20
@@ -182,7 +187,7 @@ class Networks:
                                 router: {
                                     "location": router_params["location"],
                                     "display_name": router_params["display_name"],
-                                    "vrfs": router_params["vrfs"],
+                                    "vrfs": router_params["display_vrfs"],
                                 }
                             }
                         )
@@ -191,7 +196,7 @@ class Networks:
                             router: {
                                 "location": router_params["location"],
                                 "display_name": router_params["display_name"],
-                                "vrfs": router_params["vrfs"],
+                                "vrfs": router_params["display_vrfs"],
                             }
                         }
         if not frontend_dict:

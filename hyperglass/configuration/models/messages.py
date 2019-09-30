@@ -16,13 +16,15 @@ class Messages(BaseSettings):
     no_query_type: str = "A query type must be specified."
     no_location: str = "A location must be selected."
     no_input: str = "{field} must be specified."
-    blacklist: str = "{target} a member of {blacklisted_net}, which is not allowed."
+    acl_denied: str = "{target} is a member of {denied_network}, which is not allowed."
+    acl_not_allowed: str = "{target} is not allowed."
     max_prefix: str = (
         "Prefix length must be shorter than /{max_length}. {target} is too specific."
     )
     requires_ipv6_cidr: str = (
         "{device_name} requires IPv6 BGP lookups to be in CIDR notation."
     )
+    feature_not_enabled: str = "{feature} is not enabled for {device_name}."
     invalid_input: str = "{target} is not a valid {query_type} target."
     invalid_field: str = "{input} is an invalid {field}."
     general: str = "Something went wrong."
@@ -31,5 +33,5 @@ class Messages(BaseSettings):
     connection_error: str = "Error connecting to {device_name}: {error}"
     authentication_error: str = "Authentication error occurred."
     noresponse_error: str = "No response."
-    vrf_not_associated: str = "{vrf} is not associated with {device_name}."
+    vrf_not_associated: str = "VRF {vrf_name} is not associated with {device_name}."
     no_matching_vrfs: str = "No VRFs Match"

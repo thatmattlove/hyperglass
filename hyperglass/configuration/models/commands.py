@@ -72,7 +72,7 @@ class Commands(BaseSettings):
     class CiscoIOS(BaseSettings):
         """Class model for default cisco_ios commands"""
 
-        class VPNv4IPv4(BaseSettings):
+        class IPv4Vrf(BaseSettings):
             """Default commands for dual afi commands"""
 
             bgp_community: str = "show bgp {afi} unicast vrf {vrf} community {target}"
@@ -80,11 +80,10 @@ class Commands(BaseSettings):
             bgp_route: str = "show bgp {afi} unicast vrf {vrf} {target}"
             ping: str = "ping vrf {vrf} {target} repeat 5 source {source}"
             traceroute: str = (
-                "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source} "
-                "| exclude Type escape"
+                "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
             )
 
-        class VPNv6IPv6(BaseSettings):
+        class IPv6Vrf(BaseSettings):
             """Default commands for dual afi commands"""
 
             bgp_community: str = "show bgp {afi} unicast vrf {vrf} community {target}"
@@ -92,40 +91,33 @@ class Commands(BaseSettings):
             bgp_route: str = "show bgp {afi} unicast vrf {vrf} {target}"
             ping: str = "ping vrf {vrf} {target} repeat 5 source {source}"
             traceroute: str = (
-                "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source} "
-                "| exclude Type escape"
+                "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
             )
 
-        class IPv4(BaseSettings):
+        class IPv4Default(BaseSettings):
             """Default commands for ipv4 commands"""
 
             bgp_community: str = "show bgp {afi} unicast community {target}"
             bgp_aspath: str = 'show bgp {afi} unicast quote-regexp "{target}"'
             bgp_route: str = "show bgp {afi} unicast {target} | exclude pathid:|Epoch"
-            ping: str = "ping {target} repeat 5 source {source} | exclude Type escape"
-            traceroute: str = (
-                "traceroute {target} timeout 1 probe 2 source {source} "
-                "| exclude Type escape"
-            )
+            ping: str = "ping {target} repeat 5 source {source}"
+            traceroute: str = "traceroute {target} timeout 1 probe 2 source {source}"
 
-        class IPv6(BaseSettings):
+        class IPv6Default(BaseSettings):
             """Default commands for ipv6 commands"""
 
             bgp_community: str = "show bgp {afi} unicast community {target}"
             bgp_aspath: str = 'show bgp {afi} unicast quote-regexp "{target}"'
             bgp_route: str = "show bgp {afi} unicast {target} | exclude pathid:|Epoch"
-            ping: str = (
-                "ping {afi} {target} repeat 5 source {source} | exclude Type escape"
-            )
+            ping: str = ("ping {afi} {target} repeat 5 source {source}")
             traceroute: str = (
-                "traceroute ipv6 {target} timeout 1 probe 2 source {source} "
-                "| exclude Type escape"
+                "traceroute ipv6 {target} timeout 1 probe 2 source {source}"
             )
 
-        ipv4: IPv4 = IPv4()
-        ipv6: IPv6 = IPv6()
-        vpn_ipv4: VPNv4IPv4 = VPNv4IPv4()
-        vpn_ipv6: VPNv6IPv6 = VPNv6IPv6()
+        ipv4_default: IPv4Default = IPv4Default()
+        ipv6_default: IPv6Default = IPv6Default()
+        ipv4_vrf: IPv4Vrf = IPv4Vrf()
+        ipv6_vrf: IPv6Vrf = IPv6Vrf()
 
     class CiscoXR(BaseSettings):
         """Class model for default cisco_xr commands"""

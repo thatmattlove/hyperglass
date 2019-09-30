@@ -27,6 +27,7 @@ from sanic_limiter import get_remote_address
 from hyperglass.render import render_html
 from hyperglass.command.execute import Execute
 from hyperglass.configuration import devices
+from hyperglass.configuration import vrfs
 from hyperglass.configuration import logzero_config  # noqa: F401
 from hyperglass.configuration import params
 from hyperglass.constants import Supported
@@ -250,7 +251,7 @@ async def validate_input(query_data):  # noqa: C901
     query_location = supported_query_data.get("query_location", "")
     query_type = supported_query_data.get("query_type", "")
     query_target = supported_query_data.get("query_target", "")
-    query_vrf = supported_query_data.get("query_vrf", [])
+    query_vrf = supported_query_data.get("query_vrf", "")
 
     # Verify that query_target is not empty
     if not query_target:
@@ -359,30 +360,40 @@ async def validate_input(query_data):  # noqa: C901
                     "keywords": [params.branding.text.query_location, query_type],
                 }
             )
-    if params.features.vrf.enable:
-        # Verify that query_vrf is a list
-        if query_vrf and not isinstance(query_vrf, list):
-            raise InvalidUsage(
-                {
-                    "message": params.messages.invalid_field.format(
-                        input=query_vrf, field=params.branding.text.query_vrf
-                    ),
-                    "alert": "warning",
-                    "keywords": [params.branding.text.query_vrf, query_vrf],
-                }
-            )
-        # Verify that vrfs in query_vrf are defined
-        if query_vrf and not all(vrf in query_vrf for vrf in devices.vrfs):
-            raise InvalidUsage(
-                {
-                    "message": params.messages.invalid_field.format(
-                        input=query_vrf, field=params.branding.text.query_vrf
-                    ),
-                    "alert": "warning",
-                    "keywords": [params.branding.text.query_vrf, query_vrf],
-                }
-            )
-    return query_data
+    # Verify that query_vrf is a string
+    if query_vrf and not isinstance(query_vrf, str):
+        raise InvalidUsage(
+            {
+                "message": params.messages.invalid_field.format(
+                    input=query_vrf, field=params.branding.text.query_vrf
+                ),
+                "alert": "warning",
+                "keywords": [params.branding.text.query_vrf, query_vrf],
+            }
+        )
+    # Verify that vrfs in query_vrf are defined
+    display_vrfs = [v["display_name"] for k, v in vrfs.vrfs.items()]
+    if query_vrf and not any(vrf in query_vrf for vrf in display_vrfs):
+        display_device = getattr(devices, query_location)
+        raise InvalidUsage(
+            {
+                "message": params.messages.vrf_not_associated.format(
+                    vrf_name=query_vrf, device_name=display_device.display_name
+                ),
+                "alert": "warning",
+                "keywords": [query_vrf, query_location],
+            }
+        )
+    # If VRF display name from UI/API matches a configured display name, set the
+    # query_vrf value to the configured VRF key name
+    if query_vrf:
+        supported_query_data["query_vrf"] = [
+            k for k, v in vrfs.vrfs.items() if v["display_name"] == query_vrf
+        ][0]
+    if not query_vrf:
+        supported_query_data["query_vrf"] = "default"
+    log.debug(f"Validated Query: {supported_query_data}")
+    return supported_query_data
 
 
 @app.route("/query", methods=["POST"])

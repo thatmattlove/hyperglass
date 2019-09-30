@@ -29,6 +29,7 @@ class Construct:
         self.transport = transport
         self.query_target = self.query_data["query_target"]
         self.query_vrf = self.query_data["query_vrf"]
+        self.cmd_type = self.get_cmd_type(self.query_target, self.query_vrf)
 
     @staticmethod
     def get_src(device, afi):
@@ -51,17 +52,17 @@ class Construct:
         return operator.attrgetter(cmd_path)(commands)
 
     @staticmethod
-    def query_afi(query_target, query_vrf):
+    def get_cmd_type(query_target, query_vrf):
         """
         Constructs AFI string. If query_vrf is specified, AFI prefix is
         "vpnv", if not, AFI prefix is "ipv"
         """
         protocol = ipaddress.ip_network(query_target).version
         if query_vrf and query_vrf != "default":
-            afi = f"ipv{protocol}_vpn"
+            cmd_type = f"ipv{protocol}_vrf"
         else:
-            afi = f"ipv{protocol}"
-        return afi
+            cmd_type = f"ipv{protocol}_default"
+        return cmd_type
 
     def ping(self):
         """Constructs ping query parameters from pre-validated input"""
@@ -71,32 +72,31 @@ class Construct:
         )
 
         query = []
-
-        query_afi = self.query_afi(self.query_target, self.query_vrf)
-        afi = getattr(self.device.afis, query_afi)
-        vrf = self.device.vrfs[self.device.vrfs.index(self.query_vrf)]
-
-        # TODO: AFI to VRF mapping still needs work. Possible solution:
-        # move AFI model to be a direct child of a VRF. Each VRF can define an
-        # ipv4 or ipv6 family. Determine AFI of query target, get source/label
-        # as device -> vrfs -> afi[family] -> source/label
+        query_protocol = f"ipv{ipaddress.ip_network(self.query_target).version}"
+        vrf = getattr(self.device.vrfs, self.query_vrf)
+        afi = getattr(vrf, query_protocol)
 
         if self.transport == "rest":
             query.append(
                 json.dumps(
                     {
                         "query_type": "ping",
-                        "afi": afi.label,
-                        "vrf": vrf,
-                        "source": afi.source,
+                        "afi": afi.afi_name,
+                        "vrf": afi.vrf_name,
+                        "source": afi.source_address,
                         "target": self.query_target,
                     }
                 )
             )
         elif self.transport == "scrape":
-            cmd = self.device_commands(self.device.commands, afi.label, "ping")
+            cmd = self.device_commands(self.device.commands, self.cmd_type, "ping")
             query.append(
-                cmd.format(target=self.query_target, source=afi.source, vrf=vrf)
+                cmd.format(
+                    target=self.query_target,
+                    source=afi.source_address,
+                    vrf=afi.vrf_name,
+                    afi=afi.afi_name,
+                )
             )
 
         log.debug(f"Constructed query: {query}")
@@ -113,29 +113,38 @@ class Construct:
             )
         )
 
-        query = None
-        afi = self.query_afi(self.query_target, self.query_vrf)
-        source = self.get_src(self.device, afi)
+        query = []
+        query_protocol = f"ipv{ipaddress.ip_network(self.query_target).version}"
+        vrf = getattr(self.device.vrfs, self.query_vrf)
+        afi = getattr(vrf, query_protocol)
 
         if self.transport == "rest":
-            query = json.dumps(
-                {
-                    "query_type": "traceroute",
-                    "afi": afi,
-                    "vrf": self.query_vrf,
-                    "source": source,
-                    "target": self.query_target,
-                }
+            query.append(
+                json.dumps(
+                    {
+                        "query_type": "traceroute",
+                        "afi": afi.afi_name,
+                        "vrf": afi.vrf_name,
+                        "source": afi.source_address,
+                        "target": self.query_target,
+                    }
+                )
             )
         elif self.transport == "scrape":
-            cmd = self.device_commands(self.device.commands, afi, "traceroute")
-            query = cmd.format(
-                target=self.query_target, source=source, vrf=self.query_vrf
+            cmd = self.device_commands(
+                self.device.commands, self.cmd_type, "traceroute"
+            )
+            query.append(
+                cmd.format(
+                    target=self.query_target,
+                    source=afi.source_address,
+                    vrf=afi.vrf_name,
+                    afi=afi.afi_name,
+                )
             )
 
         log.debug(f"Constructed query: {query}")
-
-        return [query]
+        return query
 
     def bgp_route(self):
         """
@@ -145,29 +154,36 @@ class Construct:
             f"Constructing bgp_route query for {self.query_target} via {self.transport}"
         )
 
-        query = None
-        afi = Construct.query_afi(self.query_target, self.query_vrf)
-        source = self.get_src(self.device, afi)
+        query = []
+        query_protocol = f"ipv{ipaddress.ip_network(self.query_target).version}"
+        vrf = getattr(self.device.vrfs, self.query_vrf)
+        afi = getattr(vrf, query_protocol)
 
         if self.transport == "rest":
-            query = json.dumps(
-                {
-                    "query_type": "bgp_route",
-                    "afi": afi,
-                    "vrf": self.query_vrf,
-                    "source": source,
-                    "target": self.query_target,
-                }
+            query.append(
+                json.dumps(
+                    {
+                        "query_type": "bgp_route",
+                        "afi": afi.afi_name,
+                        "vrf": afi.vrf_name,
+                        "source": afi.source_address,
+                        "target": self.query_target,
+                    }
+                )
             )
         elif self.transport == "scrape":
-            cmd = self.device_commands(self.device.commands, afi, "bgp_route")
-            query = cmd.format(
-                target=self.query_target, source=source, afi=afi, vrf=self.query_vrf
+            cmd = self.device_commands(self.device.commands, self.cmd_type, "bgp_route")
+            query.append(
+                cmd.format(
+                    target=self.query_target,
+                    source=afi.source_address,
+                    vrf=afi.vrf_name,
+                    afi=afi.afi_name,
+                )
             )
 
         log.debug(f"Constructed query: {query}")
-
-        return [query]
+        return query
 
     def bgp_community(self):
         """
@@ -176,34 +192,45 @@ class Construct:
         """
         log.debug(
             (
-                f"Constructing bgp_community query for {self.query_target} "
-                f"via {self.transport}"
+                f"Constructing bgp_community query for "
+                f"{self.query_target} via {self.transport}"
             )
         )
 
-        query = None
-        afi = self.query_afi(self.query_target, self.query_vrf)
-        log.debug(afi)
-        source = self.get_src(self.device, afi)
+        query = []
+
+        vrf = getattr(self.device.vrfs, self.query_vrf)
+        afi = getattr(vrf, self.query_afi)
+
+        # TODO: Reimplement "dual" concept?
+        # ValueError: '14525:5001' does not appear to be an IPv4 or IPv6 network
 
         if self.transport == "rest":
-            query = json.dumps(
-                {
-                    "query_type": "bgp_community",
-                    "afi": afi,
-                    "vrf": self.query_vrf,
-                    "source": source,
-                    "target": self.query_target,
-                }
+            query.append(
+                json.dumps(
+                    {
+                        "query_type": "bgp_community",
+                        "afi": afi.afi_name,
+                        "vrf": afi.vrf_name,
+                        "source": afi.source_address,
+                        "target": self.query_target,
+                    }
+                )
             )
         elif self.transport == "scrape":
-            cmd = self.device_commands(self.device.commands, afi, "bgp_community")
-            query = cmd.format(
-                target=self.query_target, source=source, vrf=self.query_vrf
+            cmd = self.device_commands(
+                self.device.commands, self.cmd_type, "bgp_community"
+            )
+            query.append(
+                cmd.format(
+                    target=self.query_target,
+                    source=afi.source_address,
+                    vrf=afi.vrf_name,
+                    afi=afi.afi_name,
+                )
             )
 
         log.debug(f"Constructed query: {query}")
-
         return query
 
     def bgp_aspath(self):

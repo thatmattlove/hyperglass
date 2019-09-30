@@ -7,21 +7,14 @@ Validates input for overridden parameters.
 """
 # Standard Library Imports
 from math import ceil
-from typing import List
 
 # Third Party Imports
 from pydantic import BaseSettings
-from pydantic import IPvAnyNetwork
 from pydantic import constr
 
 
 class Features(BaseSettings):
     """Class model for params.features"""
-
-    class Vrf(BaseSettings):
-        """Class model for params.features.vrf"""
-
-        enable: bool = False
 
     class BgpRoute(BaseSettings):
         """Class model for params.features.bgp_route"""
@@ -67,19 +60,6 @@ class Features(BaseSettings):
         """Class model for params.features.traceroute"""
 
         enable: bool = True
-
-    class Blacklist(BaseSettings):
-        """Class model for params.features.blacklist"""
-
-        enable: bool = True
-        networks: List[IPvAnyNetwork] = [
-            "198.18.0.0/15",
-            "100.64.0.0/10",
-            "2001:db8::/32",
-            "10.0.0.0/8",
-            "192.168.0.0/16",
-            "172.16.0.0/12",
-        ]
 
     class Cache(BaseSettings):
         """Class model for params.features.cache"""
@@ -138,8 +118,6 @@ class Features(BaseSettings):
     bgp_aspath: BgpAsPath = BgpAsPath()
     ping: Ping = Ping()
     traceroute: Traceroute = Traceroute()
-    blacklist: Blacklist = Blacklist()
     cache: Cache = Cache()
     max_prefix: MaxPrefix = MaxPrefix()
     rate_limit: RateLimit = RateLimit()
-    vrf: Vrf = Vrf()

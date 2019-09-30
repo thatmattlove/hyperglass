@@ -323,7 +323,7 @@ class Execute:
         log.debug(f"Matched device config: {device_config}")
 
         # Run query parameters through validity checks
-        validation = Validate(device_config, self.query_type, self.query_target)
+        validation = Validate(device_config, self.query_data, self.query_target)
         valid_input = validation.validate_query()
         if valid_input:
             log.debug(f"Validation passed for query: {self.query_data}")
