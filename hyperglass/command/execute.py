@@ -113,7 +113,7 @@ class Connect:
                     raw = nm_connect_direct.send_command(query)
                     responses.append(raw)
                     log.debug(f'Raw response for command "{query}":\n{raw}')
-                response = "\n".join(responses)
+                response = "\n\n".join(responses)
                 log.debug(f"Response type:\n{type(response)}")
 
             except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
