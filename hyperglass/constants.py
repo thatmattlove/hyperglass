@@ -4,14 +4,7 @@ Global Constants for hyperglass
 
 protocol_map = {80: "http", 8080: "http", 443: "https", 8443: "https"}
 
-afi_nos_map = {
-    "default": {
-        "ipv4_global": "ipv4",
-        "ipv6_global": "ipv6",
-        "ipv4_vpn": "vpnv4",
-        "ipv6_vpn": "vpnv6",
-    }
-}
+target_format_space = ("huawei", "huawei_vrpv8")
 
 
 class Supported:

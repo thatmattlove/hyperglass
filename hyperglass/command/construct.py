@@ -4,6 +4,7 @@ command for Netmiko library or API call parameters for supported
 hyperglass API modules.
 """
 # Standard Library Imports
+import re
 import ipaddress
 import json
 import operator
@@ -15,6 +16,7 @@ from logzero import logger as log
 from hyperglass.configuration import vrfs
 from hyperglass.configuration import commands
 from hyperglass.configuration import logzero_config  # noqa: F401
+from hyperglass.constants import target_format_space
 
 
 class Construct:
@@ -30,14 +32,12 @@ class Construct:
         self.query_target = self.query_data["query_target"]
         self.query_vrf = self.query_data["query_vrf"]
 
-    @staticmethod
-    def get_src(device, afi):
-        """
-        Returns source IP based on IP version of query destination.
-        """
-        src_afi = f"src_addr_{afi}"
-        src = getattr(device, src_afi)
-        return src.exploded
+    def format_target(self, target):
+        """Formats query target based on NOS requirement"""
+        if self.device.nos in target_format_space:
+            _target = re.sub(r"\/", r" ", target)
+        log.debug(f"Formatted target: {_target}")
+        return _target
 
     @staticmethod
     def device_commands(nos, afi, query_type):
@@ -87,7 +87,7 @@ class Construct:
                 )
             )
         elif self.transport == "scrape":
-            cmd_type = self.get_cmd_type(afi, self.query_vrf)
+            cmd_type = self.get_cmd_type(afi.afi_name, self.query_vrf)
             cmd = self.device_commands(self.device.commands, cmd_type, "ping")
             query.append(
                 cmd.format(
@@ -130,7 +130,7 @@ class Construct:
                 )
             )
         elif self.transport == "scrape":
-            cmd_type = self.get_cmd_type(afi, self.query_vrf)
+            cmd_type = self.get_cmd_type(afi.afi_name, self.query_vrf)
             cmd = self.device_commands(self.device.commands, cmd_type, "traceroute")
             query.append(
                 cmd.format(
@@ -170,11 +170,11 @@ class Construct:
                 )
             )
         elif self.transport == "scrape":
-            cmd_type = self.get_cmd_type(afi, self.query_vrf)
+            cmd_type = self.get_cmd_type(afi.afi_name, self.query_vrf)
             cmd = self.device_commands(self.device.commands, cmd_type, "bgp_route")
             query.append(
                 cmd.format(
-                    target=self.query_target,
+                    target=self.format_target(self.query_target),
                     source=afi.source_address,
                     vrf=afi.vrf_name,
                     afi=afi.afi_name,
@@ -223,7 +223,7 @@ class Construct:
                     )
                 )
             elif self.transport == "scrape":
-                cmd_type = self.get_cmd_type(afi, self.query_vrf)
+                cmd_type = self.get_cmd_type(afi.afi_name, self.query_vrf)
                 cmd = self.device_commands(
                     self.device.commands, cmd_type, "bgp_community"
                 )
@@ -277,7 +277,7 @@ class Construct:
                     )
                 )
             elif self.transport == "scrape":
-                cmd_type = self.get_cmd_type(afi, self.query_vrf)
+                cmd_type = self.get_cmd_type(afi.afi_name, self.query_vrf)
                 cmd = self.device_commands(self.device.commands, cmd_type, "bgp_aspath")
                 query.append(
                     cmd.format(
