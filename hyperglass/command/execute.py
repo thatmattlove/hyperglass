@@ -184,7 +184,13 @@ class Connect:
                 f"Connecting to {self.device_config.location} via Netmiko library"
             )
             nm_connect_direct = ConnectHandler(**scrape_host)
-            response = nm_connect_direct.send_command(self.query)
+            responses = []
+            for query in self.query:
+                raw = nm_connect_direct.send_command(query)
+                responses.append(raw)
+                log.debug(f'Raw response for command "{query}":\n{raw}')
+            response = "\n\n".join(responses)
+            log.debug(f"Response type:\n{type(response)}")
         except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
             log.error(f"{params.general.request_timeout - 1} second timeout expired.")
             log.error(scrape_error)
@@ -204,7 +210,7 @@ class Connect:
                 proxy=None,
                 error=params.messages.authentication_error,
             )
-        if not response:
+        if response is None:
             log.error(f"No response from device {self.device_config.location}")
             raise ScrapeError(
                 params.messages.connection_error,

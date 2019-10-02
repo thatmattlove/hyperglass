@@ -36,6 +36,8 @@ class Construct:
         """Formats query target based on NOS requirement"""
         if self.device.nos in target_format_space:
             _target = re.sub(r"\/", r" ", target)
+        else:
+            _target = target
         log.debug(f"Formatted target: {_target}")
         return _target
 
