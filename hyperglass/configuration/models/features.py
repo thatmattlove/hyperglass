@@ -9,24 +9,24 @@ Validates input for overridden parameters.
 from math import ceil
 
 # Third Party Imports
-from pydantic import BaseSettings
 from pydantic import constr
+from hyperglass.configuration.models._utils import HyperglassModel
 
 
-class Features(BaseSettings):
+class Features(HyperglassModel):
     """Class model for params.features"""
 
-    class BgpRoute(BaseSettings):
+    class BgpRoute(HyperglassModel):
         """Class model for params.features.bgp_route"""
 
         enable: bool = True
 
-    class BgpCommunity(BaseSettings):
+    class BgpCommunity(HyperglassModel):
         """Class model for params.features.bgp_community"""
 
         enable: bool = True
 
-        class Regex(BaseSettings):
+        class Regex(HyperglassModel):
             """Class model for params.features.bgp_community.regex"""
 
             decimal: str = r"^[0-9]{1,10}$"
@@ -35,12 +35,12 @@ class Features(BaseSettings):
 
         regex: Regex = Regex()
 
-    class BgpAsPath(BaseSettings):
+    class BgpAsPath(HyperglassModel):
         """Class model for params.features.bgp_aspath"""
 
         enable: bool = True
 
-        class Regex(BaseSettings):
+        class Regex(HyperglassModel):
             """Class model for params.bgp_aspath.regex"""
 
             mode: constr(regex="asplain|asdot") = "asplain"
@@ -51,17 +51,17 @@ class Features(BaseSettings):
 
         regex: Regex = Regex()
 
-    class Ping(BaseSettings):
+    class Ping(HyperglassModel):
         """Class model for params.features.ping"""
 
         enable: bool = True
 
-    class Traceroute(BaseSettings):
+    class Traceroute(HyperglassModel):
         """Class model for params.features.traceroute"""
 
         enable: bool = True
 
-    class Cache(BaseSettings):
+    class Cache(HyperglassModel):
         """Class model for params.features.cache"""
 
         redis_id: int = 0
@@ -71,7 +71,7 @@ class Features(BaseSettings):
             timeout=ceil(timeout / 60)
         )
 
-    class MaxPrefix(BaseSettings):
+    class MaxPrefix(HyperglassModel):
         """Class model for params.features.max_prefix"""
 
         enable: bool = False
@@ -81,12 +81,12 @@ class Features(BaseSettings):
             "Prefix length must be smaller than /{m}. <b>{i}</b> is too specific."
         )
 
-    class RateLimit(BaseSettings):
+    class RateLimit(HyperglassModel):
         """Class model for params.features.rate_limit"""
 
         redis_id: int = 1
 
-        class Query(BaseSettings):
+        class Query(HyperglassModel):
             """Class model for params.features.rate_limit.query"""
 
             rate: int = 5
@@ -98,7 +98,7 @@ class Features(BaseSettings):
             ).format(rate=rate, period=period)
             button: str = "Try Again"
 
-        class Site(BaseSettings):
+        class Site(HyperglassModel):
             """Class model for params.features.rate_limit.site"""
 
             rate: int = 60

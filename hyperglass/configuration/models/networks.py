@@ -6,20 +6,18 @@ Imports config variables and overrides default class attributes.
 Validates input for overridden parameters.
 """
 
-# Third Party Imports
-from pydantic import BaseSettings
-
 # Project Imports
 from hyperglass.configuration.models._utils import clean_name
+from hyperglass.configuration.models._utils import HyperglassModel
 
 
-class Network(BaseSettings):
+class Network(HyperglassModel):
     """Model for per-network/asn config in devices.yaml"""
 
     display_name: str
 
 
-class Networks(BaseSettings):
+class Networks(HyperglassModel):
     """Base model for networks class"""
 
     @classmethod
@@ -37,9 +35,3 @@ class Networks(BaseSettings):
             networks.update({netname: Network(**params).dict()})
         Networks.networks = networks
         return obj
-
-    class Config:
-        """Pydantic Config"""
-
-        validate_all = True
-        validate_assignment = True

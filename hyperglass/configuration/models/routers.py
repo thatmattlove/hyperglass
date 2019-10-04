@@ -8,77 +8,68 @@ Validates input for overridden parameters.
 # Standard Library Imports
 from typing import List
 from typing import Union
+
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party Imports
-from pydantic import BaseSettings
-from pydantic import IPvAnyAddress
 from pydantic import validator
-from logzero import logger as log
 
 # Project Imports
 from hyperglass.configuration.models._utils import clean_name
+from hyperglass.configuration.models._utils import HyperglassModel
 from hyperglass.constants import Supported
 from hyperglass.exceptions import UnsupportedDevice
 from hyperglass.exceptions import ConfigError
 
 
-class DeviceVrf4(BaseSettings):
+class DeviceVrf4(HyperglassModel):
     """Model for AFI definitions"""
 
     afi_name: str = ""
     vrf_name: str = ""
     source_address: IPv4Address
 
-    class Config:
-        """Pydantic Config"""
+    @validator("source_address")
+    def stringify_ip(cls, v):
+        if isinstance(v, IPv4Address):
+            v = str(v)
+        return v
 
-        validate_assignment = True
-        validate_all = True
 
-
-class DeviceVrf6(BaseSettings):
+class DeviceVrf6(HyperglassModel):
     """Model for AFI definitions"""
 
     afi_name: str = ""
     vrf_name: str = ""
     source_address: IPv6Address
 
-    class Config:
-        """Pydantic Config"""
+    @validator("source_address")
+    def stringify_ip(cls, v):
+        if isinstance(v, IPv6Address):
+            v = str(v)
+        return v
 
-        validate_assignment = True
-        validate_all = True
 
-
-class VrfAfis(BaseSettings):
+class VrfAfis(HyperglassModel):
     """Model for per-AFI dicts of VRF params"""
 
     ipv4: Union[DeviceVrf4, None] = None
     ipv6: Union[DeviceVrf6, None] = None
 
-    class Config:
-        """Pydantic Config"""
 
-        validate_assignment = True
-        validate_all = True
-
-
-class Vrf(BaseSettings):
+class Vrf(HyperglassModel):
     default: VrfAfis
 
     class Config:
-        """Pydantic Config"""
+        """Pydantic Config Overrides"""
 
         extra = "allow"
-        validate_assignment = True
-        validate_all = True
 
 
-class Router(BaseSettings):
+class Router(HyperglassModel):
     """Model for per-router config in devices.yaml."""
 
-    address: Union[IPvAnyAddress, str]
+    address: str
     network: str
     credential: str
     proxy: Union[str, None] = None
@@ -120,7 +111,6 @@ class Router(BaseSettings):
         If an AFI map is not defined, try to get one based on the
         NOS name. If that doesn't exist, use a default.
         """
-        log.debug(f"Start: {v}")
         _vrfs = []
         for vrf_label, vrf_afis in v.items():
             if vrf_label is None:
@@ -145,19 +135,16 @@ class Router(BaseSettings):
                 if not params.get("vrf_name"):
                     params.update({"vrf_name": vrf_label})
             setattr(Vrf, vrf_label, VrfAfis(**vrf_afis))
-        log.debug(_vrfs)
         values["_vrfs"] = _vrfs
         return v
 
     class Config:
-        """Pydantic Config"""
+        """Pydantic Config Overrides"""
 
-        validate_assignment = True
-        validate_all = True
         extra = "allow"
 
 
-class Routers(BaseSettings):
+class Routers(HyperglassModel):
     """Base model for devices class."""
 
     @classmethod
@@ -173,18 +160,17 @@ class Routers(BaseSettings):
         for (devname, params) in input_params.items():
             dev = clean_name(devname)
             router_params = Router(**params)
+
             setattr(Routers, dev, router_params)
+
             routers.update({dev: router_params.dict()})
             hostnames.append(dev)
+
             for vrf in router_params.dict()["vrfs"]:
                 vrfs.add(vrf)
+
         Routers.routers = routers
         Routers.hostnames = hostnames
         Routers.vrfs = list(vrfs)
+
         return Routers()
-
-    class Config:
-        """Pydantic Config"""
-
-        validate_all = True
-        validate_assignment = True

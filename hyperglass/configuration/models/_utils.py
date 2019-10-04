@@ -3,6 +3,7 @@ Utility Functions for Pydantic Models
 """
 
 import re
+from pydantic import BaseSettings
 
 
 def clean_name(_name):
@@ -14,3 +15,16 @@ def clean_name(_name):
     _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", _name)
     _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
     return _scrubbed.lower()
+
+
+class HyperglassModel(BaseSettings):
+    """Base model for all hyperglass configuration models"""
+
+    pass
+
+    class Config:
+        """Default pydantic configuration"""
+
+        validate_all = True
+        extra = "forbid"
+        validate_assignment = True

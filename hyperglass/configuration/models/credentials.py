@@ -7,21 +7,21 @@ Validates input for overridden parameters.
 """
 
 # Third Party Imports
-from pydantic import BaseSettings
 from pydantic import SecretStr
 
 # Project Imports
 from hyperglass.configuration.models._utils import clean_name
+from hyperglass.configuration.models._utils import HyperglassModel
 
 
-class Credential(BaseSettings):
+class Credential(HyperglassModel):
     """Model for per-credential config in devices.yaml"""
 
     username: str
     password: SecretStr
 
 
-class Credentials(BaseSettings):
+class Credentials(HyperglassModel):
     """Base model for credentials class"""
 
     @classmethod
@@ -36,9 +36,3 @@ class Credentials(BaseSettings):
             cred = clean_name(credname)
             setattr(Credentials, cred, Credential(**params))
         return obj
-
-    class Config:
-        """Pydantic Config"""
-
-        validate_all = True
-        validate_assignment = True

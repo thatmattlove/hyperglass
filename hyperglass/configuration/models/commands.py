@@ -6,14 +6,14 @@ Imports config variables and overrides default class attributes.
 Validates input for overridden parameters.
 """
 
-# Third Party Imports
-from pydantic import BaseSettings
+# Project Imports
+from hyperglass.configuration.models._utils import HyperglassModel
 
 
-class Command(BaseSettings):
+class Command(HyperglassModel):
     """Class model for non-default commands"""
 
-    class IPv4(BaseSettings):
+    class IPv4(HyperglassModel):
         """Class model for non-default dual afi commands"""
 
         bgp_route: str = ""
@@ -22,7 +22,7 @@ class Command(BaseSettings):
         ping: str = ""
         traceroute: str = ""
 
-    class IPv6(BaseSettings):
+    class IPv6(HyperglassModel):
         """Class model for non-default ipv4 commands"""
 
         bgp_route: str = ""
@@ -31,7 +31,7 @@ class Command(BaseSettings):
         ping: str = ""
         traceroute: str = ""
 
-    class VPNIPv4(BaseSettings):
+    class VPNIPv4(HyperglassModel):
         """Class model for non-default ipv6 commands"""
 
         bgp_route: str = ""
@@ -40,7 +40,7 @@ class Command(BaseSettings):
         ping: str = ""
         traceroute: str = ""
 
-    class VPNIPv6(BaseSettings):
+    class VPNIPv6(HyperglassModel):
         """Class model for non-default ipv6 commands"""
 
         bgp_route: str = ""
@@ -55,7 +55,7 @@ class Command(BaseSettings):
     vpn_ipv6: VPNIPv6 = VPNIPv6()
 
 
-class Commands(BaseSettings):
+class Commands(HyperglassModel):
     """Base class for commands class"""
 
     @classmethod
@@ -69,10 +69,10 @@ class Commands(BaseSettings):
             setattr(Commands, nos, Command(**cmds))
         return obj
 
-    class CiscoIOS(BaseSettings):
+    class CiscoIOS(HyperglassModel):
         """Class model for default cisco_ios commands"""
 
-        class IPv4Vrf(BaseSettings):
+        class IPv4Vrf(HyperglassModel):
             """Default commands for dual afi commands"""
 
             bgp_community: str = "show bgp vpnv4 unicast vrf {vrf} community {target}"
@@ -83,7 +83,7 @@ class Commands(BaseSettings):
                 "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
             )
 
-        class IPv6Vrf(BaseSettings):
+        class IPv6Vrf(HyperglassModel):
             """Default commands for dual afi commands"""
 
             bgp_community: str = "show bgp vpnv6 unicast vrf {vrf} community {target}"
@@ -94,7 +94,7 @@ class Commands(BaseSettings):
                 "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
             )
 
-        class IPv4Default(BaseSettings):
+        class IPv4Default(HyperglassModel):
             """Default commands for ipv4 commands"""
 
             bgp_community: str = "show bgp ipv4 unicast community {target}"
@@ -103,7 +103,7 @@ class Commands(BaseSettings):
             ping: str = "ping {target} repeat 5 source {source}"
             traceroute: str = "traceroute {target} timeout 1 probe 2 source {source}"
 
-        class IPv6Default(BaseSettings):
+        class IPv6Default(HyperglassModel):
             """Default commands for ipv6 commands"""
 
             bgp_community: str = "show bgp ipv6 unicast community {target}"
@@ -119,10 +119,10 @@ class Commands(BaseSettings):
         ipv4_vrf: IPv4Vrf = IPv4Vrf()
         ipv6_vrf: IPv6Vrf = IPv6Vrf()
 
-    class CiscoXR(BaseSettings):
+    class CiscoXR(HyperglassModel):
         """Class model for default cisco_xr commands"""
 
-        class Dual(BaseSettings):
+        class Dual(HyperglassModel):
             """Default commands for dual afi commands"""
 
             bgp_community: str = (
@@ -134,7 +134,7 @@ class Commands(BaseSettings):
                 '"\\(BGP |Table |Non-stop\\)"'
             )
 
-        class IPv4(BaseSettings):
+        class IPv4(HyperglassModel):
             """Default commands for ipv4 commands"""
 
             bgp_route: str = (
@@ -146,7 +146,7 @@ class Commands(BaseSettings):
                 "traceroute ipv4 {target} timeout 1 probe 2 source {source}"
             )
 
-        class IPv6(BaseSettings):
+        class IPv6(HyperglassModel):
             """Default commands for ipv6 commands"""
 
             bgp_route: str = (
@@ -162,23 +162,23 @@ class Commands(BaseSettings):
         ipv4: IPv4 = IPv4()
         ipv6: IPv6 = IPv6()
 
-    class Juniper(BaseSettings):
+    class Juniper(HyperglassModel):
         """Class model for default juniper commands"""
 
-        class Dual(BaseSettings):
+        class Dual(HyperglassModel):
             """Default commands for dual afi commands"""
 
             bgp_community = "show route protocol bgp community {target}"
             bgp_aspath = "show route protocol bgp aspath-regex {target}"
 
-        class IPv4(BaseSettings):
+        class IPv4(HyperglassModel):
             """Default commands for ipv4 commands"""
 
             bgp_route = "show route protocol bgp table inet.0 {target} detail"
             ping = "ping inet {target} count 5 source {src_addr_ipv4}"
             traceroute = "traceroute inet {target} wait 1 source {source}"
 
-        class IPv6(BaseSettings):
+        class IPv6(HyperglassModel):
             """Default commands for ipv6 commands"""
 
             bgp_route = "show route protocol bgp table inet6.0 {target} detail"
@@ -189,10 +189,10 @@ class Commands(BaseSettings):
         ipv4: IPv4 = IPv4()
         ipv6: IPv6 = IPv6()
 
-    class Huawei(BaseSettings):
+    class Huawei(HyperglassModel):
         """Class model for default huawei commands"""
 
-        class IPv4Vrf(BaseSettings):
+        class IPv4Vrf(HyperglassModel):
             """Default commands for dual afi commands"""
 
             bgp_community: str = (
@@ -211,7 +211,7 @@ class Commands(BaseSettings):
                 "tracert -q 2 -f 1 -vpn-instance {vrf} -a {source} {target}"
             )
 
-        class IPv6Vrf(BaseSettings):
+        class IPv6Vrf(HyperglassModel):
             """Default commands for dual afi commands"""
 
             bgp_community: str = (
@@ -230,7 +230,7 @@ class Commands(BaseSettings):
                 "tracert -q 2 -f 1 vpn-instance {vrf} -a {source} {target}"
             )
 
-        class IPv4Default(BaseSettings):
+        class IPv4Default(HyperglassModel):
             """Default commands for ipv4 commands"""
 
             bgp_community: str = "display bgp routing-table regular-expression {target}"
@@ -239,7 +239,7 @@ class Commands(BaseSettings):
             ping: str = "ping -c 5 -a {source} {target}"
             traceroute: str = "tracert -q 2 -f 1 -a {source} {target}"
 
-        class IPv6Default(BaseSettings):
+        class IPv6Default(HyperglassModel):
             """Default commands for ipv6 commands"""
 
             bgp_community: str = "display bgp ipv6 routing-table community {target}"
@@ -261,7 +261,6 @@ class Commands(BaseSettings):
     huawei: Command = Huawei()
 
     class Config:
-        """Pydantic Config"""
+        """Pydantic Config Overrides"""
 
         validate_all = False
-        validate_assignment = True

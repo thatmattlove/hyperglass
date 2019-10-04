@@ -6,11 +6,11 @@ Imports config variables and overrides default class attributes.
 Validates input for overridden parameters.
 """
 
-# Third Party Imports
-from pydantic import BaseSettings
+# Project Imports
+from hyperglass.configuration.models._utils import HyperglassModel
 
 
-class Messages(BaseSettings):
+class Messages(HyperglassModel):
     """Class model for params.messages"""
 
     no_query_type: str = "A query type must be specified."

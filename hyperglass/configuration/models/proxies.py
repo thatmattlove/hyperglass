@@ -5,24 +5,21 @@ Imports config variables and overrides default class attributes.
 
 Validates input for overridden parameters.
 """
-# Standard Library Imports
-from typing import Union
 
 # Third Party Imports
-from pydantic import BaseSettings
-from pydantic import IPvAnyAddress
 from pydantic import SecretStr
 from pydantic import validator
 
 # Project Imports
 from hyperglass.configuration.models._utils import clean_name
+from hyperglass.configuration.models._utils import HyperglassModel
 from hyperglass.exceptions import UnsupportedDevice
 
 
-class Proxy(BaseSettings):
+class Proxy(HyperglassModel):
     """Model for per-proxy config in devices.yaml"""
 
-    address: Union[IPvAnyAddress, str]
+    address: str
     port: int = 22
     username: str
     password: SecretStr
@@ -39,7 +36,7 @@ class Proxy(BaseSettings):
         return v
 
 
-class Proxies(BaseSettings):
+class Proxies(HyperglassModel):
     """Base model for proxies class"""
 
     @classmethod
@@ -54,9 +51,3 @@ class Proxies(BaseSettings):
             dev = clean_name(devname)
             setattr(Proxies, dev, Proxy(**params))
         return obj
-
-    class Config:
-        """Pydantic Config"""
-
-        validate_all = True
-        validate_assignment = True

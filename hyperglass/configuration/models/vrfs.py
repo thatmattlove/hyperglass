@@ -8,47 +8,43 @@ Validates input for overridden parameters.
 # Standard Library Imports
 from typing import List
 from typing import Dict
+from ipaddress import IPv4Network
+from ipaddress import IPv6Network
 
 # Third Party Imports
-from pydantic import BaseSettings
+from pydantic import constr
 from pydantic import IPvAnyNetwork
 from pydantic import validator
 
 # Project Imports
 from hyperglass.configuration.models._utils import clean_name
-from hyperglass.exceptions import ConfigInvalid
+from hyperglass.configuration.models._utils import HyperglassModel
+
+from logzero import logger as log
 
 
-class Vrf(BaseSettings):
+class Vrf(HyperglassModel):
     """Model for per VRF/afi config in devices.yaml"""
 
     display_name: str
     ipv4: bool = True
     ipv6: bool = True
-    access_list: List[Dict[str, IPvAnyNetwork]] = [
+    access_list: List[Dict[constr(regex=("allow|deny")), IPvAnyNetwork]] = [
         {"allow": "0.0.0.0/0"},
         {"allow": "::/0"},
     ]
 
-    @validator("access_list", whole=True, always=True)
+    @validator("access_list", pre=True, whole=True, always=True)
     def validate_action(cls, value):
-        allowed_actions = ("allow", "deny")
         for li in value:
             for action, network in li.items():
-                if action not in allowed_actions:
-                    raise ConfigInvalid(
-                        field=action,
-                        error_msg=(
-                            "Access List Entries must be formatted as "
-                            '"- action: network" (list of dictionaries with the action '
-                            "as the key, and the network as the value), e.g. "
-                            '"- deny: 192.0.2.0/24 or "- allow: 2001:db8::/32".'
-                        ),
-                    )
+                if isinstance(network, (IPv4Network, IPv6Network)):
+                    li[action] = str(network)
+        log.info(value)
         return value
 
 
-class Vrfs(BaseSettings):
+class Vrfs(HyperglassModel):
     """Base model for vrfs class"""
 
     @classmethod
@@ -79,9 +75,3 @@ class Vrfs(BaseSettings):
         Vrfs.display_names = display_names
         Vrfs._all = _all
         return Vrfs()
-
-    class Config:
-        """Pydantic Config"""
-
-        validate_all = True
-        validate_assignment = True
