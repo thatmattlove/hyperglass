@@ -11,7 +11,6 @@ try:
     import multiprocessing
     import os
     import tempfile
-    from hyperglass import render
     from hyperglass import hyperglass
     from hyperglass.configuration import params
 except ImportError as import_error:
@@ -24,7 +23,6 @@ if params.general.debug:
     debug = True
     access_log = False
 
-# Override the number of web server workers if necessary:
 workers = multiprocessing.cpu_count()
 
 
@@ -33,11 +31,6 @@ def start():
     Compiles configured Sass variables to CSS, then starts Sanic web
     server.
     """
-    # try:
-    #     render.css()
-    # except Exception as render_error:
-    #     raise RuntimeError(render_error)
-
     tempdir = tempfile.TemporaryDirectory(prefix="hyperglass_")
     os.environ["prometheus_multiproc_dir"] = tempdir.name
 
