@@ -1,0 +1,127 @@
+---
+# general:
+#   debug: false
+#   google_analytics: ''
+#   org_name: The Company
+#   primary_asn: '65001'
+#   redis_host: localhost
+#   redis_port: 6379
+#   request_timeout: 30
+#   requires_ipv6_cidr:
+#     - cisco_ios
+#     - cisco_nxos
+
+# branding:
+#     danger: '#a21024'
+#     dark: '#383541'
+#     light: '#fbfffe'
+#     primary: '#40798c'
+#     secondary: '#330036'
+#     warning: '#eec643'
+#   credit:
+#     enable: true
+#   font:
+#     mono: Fira Code
+#     primary: Nunito
+#   help_menu:
+#     enable: true
+#   logo:
+#     favicons: ui/images/favicons/
+#     path: ui/images/hyperglass-dark.png
+#     width: 384
+#   peering_db:
+#     enable: true
+#   site_name: hyperglass
+#   terms:
+#     enable: true
+#   text:
+#     bgp_aspath: BGP AS Path
+#     bgp_community: BGP Community
+#     bgp_route: BGP Route
+#     error404:
+#       button: Home
+#       subtitle: '{uri} isn''t a thing'
+#       title: Error
+#     error500:
+#       button: Home
+#       subtitle: Something Went Wrong
+#       title: Error
+#     error504:
+#       message: Unable to reach {target}
+#     info: Help
+#     peeringdb: PeeringDB
+#     ping: Ping
+#     query_location: Location
+#     query_target: Target
+#     query_type: Query
+#     subtitle: AS{primary_asn}
+#     terms: Terms
+#     title: hyperglass
+#     title_mode: logo_only
+#     traceroute: Traceroute
+#     vrf: VRF
+
+# features:
+#   bgp_aspath:
+#     enable: true
+#     regex:
+#       asdot: ^(\^|^\_)((\d+\.\d+)\_|(\d+\.\d+)\$|(\d+\.\d+)\(\_\.\+\_\))+$
+#       asplain: ^(\^|^\_)(\d+\_|\d+\$|\d+\(\_\.\+\_\))+$
+#       mode: asplain
+#   bgp_community:
+#     enable: true
+#     regex:
+#       decimal: ^[0-9]{1,10}$
+#       extended_as: ^([0-9]{0,5})\:([0-9]{1,5})$
+#       large: ^([0-9]{1,10})\:([0-9]{1,10})\:[0-9]{1,10}$
+#   bgp_route:
+#     enable: true
+#   cache:
+#     redis_id: 0
+#     show_text: true
+#     text: Results will be cached for 2 minutes.
+#     timeout: 120
+#   max_prefix:
+#     enable: false
+#     ipv4: 24
+#     ipv6: 64
+#     message: Prefix length must be smaller than /{m}. <b>{i}</b> is too specific.
+#   ping:
+#     enable: true
+#   rate_limit:
+#     query:
+#       button: Try Again
+#       message: Query limit of 5 per minute reached. Please wait one minute and try
+#         again.
+#       period: minute
+#       rate: 5
+#       title: Query Limit Reached
+#     redis_id: 1
+#     site:
+#       button: Try Again
+#       period: minute
+#       rate: 60
+#       subtitle: You have accessed this site more than 60 times in the last minute.
+#       title: Limit Reached
+#   traceroute:
+#     enable: true
+
+# messages:
+#   acl_denied: '{target} is a member of {denied_network}, which is not allowed.'
+#   acl_not_allowed: '{target} is not allowed.'
+#   authentication_error: Authentication error occurred.
+#   connection_error: 'Error connecting to {device_name}: {error}'
+#   directed_cidr: '{query_type} queries can not be in CIDR format.'
+#   feature_not_enabled: '{feature} is not enabled for {device_name}.'
+#   general: Something went wrong.
+#   invalid_field: '{input} is an invalid {field}.'
+#   invalid_input: '{target} is not a valid {query_type} target.'
+#   max_prefix: Prefix length must be shorter than /{max_length}. {target} is too specific.
+#   no_input: '{field} must be specified.'
+#   no_location: A location must be selected.
+#   no_matching_vrfs: No VRFs Match
+#   no_query_type: A query type must be specified.
+#   noresponse_error: No response.
+#   request_timeout: Request timed out.
+#   requires_ipv6_cidr: '{device_name} requires IPv6 BGP lookups to be in CIDR notation.'
+#   vrf_not_associated: VRF {vrf_name} is not associated with {device_name}.

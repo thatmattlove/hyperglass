@@ -1,0 +1,78 @@
+---
+# cisco_ios:
+#   ipv4_default:
+#     bgp_aspath: show bgp ipv4 unicast quote-regexp "{target}"
+#     bgp_community: show bgp ipv4 unicast community {target}
+#     bgp_route: show bgp ipv4 unicast {target} | exclude pathid:|Epoch
+#     ping: ping {target} repeat 5 source {source}
+#     traceroute: traceroute {target} timeout 1 probe 2 source {source}
+#   ipv4_vrf:
+#     bgp_aspath: show bgp vpnv4 unicast vrf {vrf} quote-regexp "{target}"
+#     bgp_community: show bgp vpnv4 unicast vrf {vrf} community {target}
+#     bgp_route: show bgp vpnv4 unicast vrf {vrf} {target}
+#     ping: ping vrf {vrf} {target} repeat 5 source {source}
+#     traceroute: traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}
+#   ipv6_default:
+#     bgp_aspath: show bgp ipv6 unicast quote-regexp "{target}"
+#     bgp_community: show bgp ipv6 unicast community {target}
+#     bgp_route: show bgp ipv6 unicast {target} | exclude pathid:|Epoch
+#     ping: ping {afi} {target} repeat 5 source {source}
+#     traceroute: traceroute ipv6 {target} timeout 1 probe 2 source {source}
+#   ipv6_vrf:
+#     bgp_aspath: show bgp vpnv6 unicast vrf {vrf} quote-regexp "{target}"
+#     bgp_community: show bgp vpnv6 unicast vrf {vrf} community {target}
+#     bgp_route: show bgp vpnv6 unicast vrf {vrf} {target}
+#     ping: ping vrf {vrf} {target} repeat 5 source {source}
+#     traceroute: traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}
+
+# cisco_xr:
+#   dual:
+#     bgp_aspath: show bgp all unicast regexp {target} | utility egrep -v "\(BGP |Table|Non-stop\)"
+#     bgp_community: show bgp all unicast community {target} | utility egrep -v "\(BGP|Table |Non-stop\)"
+#   ipv4:
+#     bgp_route: show bgp ipv4 unicast {target} | util egrep \(BGP routing table entry|Path\#|aggregated by|Origin |Community:|validity| from \)
+#     ping: ping ipv4 {target} count 5 source {src_addr_ipv4}
+#     traceroute: traceroute ipv4 {target} timeout 1 probe 2 source {source}
+#   ipv6:
+#     bgp_route: show bgp ipv6 unicast {target} | util egrep \(BGP routing table entry|Path\#|aggregated by|Origin |Community:|validity| from \)
+#     ping: ping ipv6 {target} count 5 source {src_addr_ipv6}
+#     traceroute: traceroute ipv6 {target} timeout 1 probe 2 source {source}
+
+# huawei:
+#   ipv4_default:
+#     bgp_aspath: display bgp routing-table regular-expression {target}
+#     bgp_community: display bgp routing-table regular-expression {target}
+#     bgp_route: display bgp routing-table {target}
+#     ping: ping -c 5 -a {source} {target}
+#     traceroute: tracert -q 2 -f 1 -a {source} {target}
+#   ipv4_vrf:
+#     bgp_aspath: display bgp vpnv4 vpn-instance {vrf} routing-table regular-expression {target}
+#     bgp_community: display bgp vpnv4 vpn-instance {vrf} routing-table regular-expression{target}
+#     bgp_route: display bgp vpnv4 vpn-instance {vrf} routing-table {target}
+#     ping: ping -vpn-instance {vrf} -c 5 -a {source} {target}
+#     traceroute: tracert -q 2 -f 1 -vpn-instance {vrf} -a {source} {target}
+#   ipv6_default:
+#     bgp_aspath: display bgp ipv6 routing-table regular-expression {target}
+#     bgp_community: display bgp ipv6 routing-table community {target}
+#     bgp_route: display bgp ipv6 routing-table {target}
+#     ping: ping ipv6 -c 5 -a {source} {target}
+#     traceroute: tracert ipv6 -q 2 -f 1 -a {source} {target}
+#   ipv6_vrf:
+#     bgp_aspath: display bgp vpnv6 vpn-instance {vrf} routing-table regular-expression {target}
+#     bgp_community: display bgp vpnv6 vpn-instance {vrf} routing-table regular-expression {target}
+#     bgp_route: display bgp vpnv6 vpn-instance {vrf} routing-table {target}
+#     ping: ping vpnv6 vpn-instance {vrf} -c 5 -a {source} {target}
+#     traceroute: tracert -q 2 -f 1 vpn-instance {vrf} -a {source} {target}
+
+# juniper:
+#   dual:
+#     bgp_aspath: show route protocol bgp aspath-regex {target}
+#     bgp_community: show route protocol bgp community {target}
+#   ipv4:
+#     bgp_route: show route protocol bgp table inet.0 {target} detail
+#     ping: ping inet {target} count 5 source {src_addr_ipv4}
+#     traceroute: traceroute inet {target} wait 1 source {source}
+#   ipv6:
+#     bgp_route: show route protocol bgp table inet6.0 {target} detail
+#     ping: ping inet6 {target} count 5 source {src_addr_ipv6}
+#     traceroute: traceroute inet6 {target} wait 1 source {source}

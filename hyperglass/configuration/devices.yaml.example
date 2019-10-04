@@ -1,0 +1,46 @@
+---
+router:
+    edge01_hnl01:
+      address: 192.0.2.1
+      commands: cisco_ios
+      credential: default
+      display_name: New York, NY
+      location: nyc01
+      network: primary
+      nos: cisco_ios
+      port: 22
+      proxy: null
+      vrfs:
+        default:
+          ipv4:
+            source_address: 192.0.2.1
+          ipv6:
+            source_address: 2001:db8::1
+credential:
+    default:
+        username: hyperglass
+        password: secret
+
+proxy:
+    servername:
+        address: 10.0.0.1
+        port: 22
+        username: hyperglass
+        password: secret
+        nos: linux_ssh
+        ssh_command: ssh -l {username} {host} | tee /home/hyperglass/sshlog.log
+
+network:
+    primary:
+        display_name: Company Network
+
+vrf:
+  default:
+    access_list:
+      - deny: 192.168.0.0/16
+      - deny: 172.16.0.0/12
+      - deny: 2001:db8::/32
+      - allow: 0.0.0.0/0
+    display_name: Global
+    ipv4: true
+    ipv6: true
