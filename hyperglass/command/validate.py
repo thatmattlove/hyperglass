@@ -13,6 +13,7 @@ from logzero import logger as log
 
 # Project Imports
 from hyperglass.configuration import logzero_config  # noqa: F401
+from hyperglass.configuration import stack  # NOQA: F401
 from hyperglass.configuration import params
 from hyperglass.configuration import vrfs
 from hyperglass.exceptions import InputInvalid, InputNotAllowed

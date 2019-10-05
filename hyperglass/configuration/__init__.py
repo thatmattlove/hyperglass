@@ -8,6 +8,7 @@ from pathlib import Path
 
 # Third Party Imports
 import logzero
+import stackprinter
 import yaml
 from logzero import logger as log
 from pydantic import ValidationError
@@ -23,6 +24,9 @@ from hyperglass.configuration.models import (
     credentials as _credentials,
 )
 from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
+
+# Stackprinter Configuration
+stack = stackprinter.set_excepthook()
 
 # Project Directories
 working_dir = Path(__file__).resolve().parent

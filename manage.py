@@ -18,6 +18,9 @@ import click
 import json
 from passlib.hash import pbkdf2_sha256
 import requests
+import stackprinter
+
+stackprinter.set_excepthook(style="darkbg2")
 
 # Initialize shutil copy function
 cp = shutil.copyfile

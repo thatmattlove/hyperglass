@@ -23,6 +23,7 @@ from hyperglass.command.validate import Validate
 from hyperglass.configuration import credentials
 from hyperglass.configuration import devices
 from hyperglass.configuration import logzero_config  # noqa: F401
+from hyperglass.configuration import stack  # NOQA: F401
 from hyperglass.configuration import params
 from hyperglass.configuration import proxies
 from hyperglass.constants import Supported

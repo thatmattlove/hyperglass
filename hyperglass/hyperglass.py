@@ -29,6 +29,7 @@ from hyperglass.command.execute import Execute
 from hyperglass.configuration import devices
 from hyperglass.configuration import vrfs
 from hyperglass.configuration import logzero_config  # noqa: F401
+from hyperglass.configuration import stack  # NOQA: F401
 from hyperglass.configuration import params
 from hyperglass.constants import Supported
 from hyperglass.exceptions import (

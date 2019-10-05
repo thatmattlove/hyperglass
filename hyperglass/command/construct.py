@@ -15,7 +15,8 @@ from logzero import logger as log
 # Project Imports
 from hyperglass.configuration import vrfs
 from hyperglass.configuration import commands
-from hyperglass.configuration import logzero_config  # noqa: F401
+from hyperglass.configuration import logzero_config  # NOQA: F401
+from hyperglass.configuration import stack  # NOQA: F401
 from hyperglass.constants import target_format_space
 
 

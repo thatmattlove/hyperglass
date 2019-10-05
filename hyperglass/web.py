@@ -13,6 +13,7 @@ try:
     import tempfile
     from hyperglass import hyperglass
     from hyperglass.configuration import params
+    from hyperglass.configuration import stack  # NOQA: F401
 except ImportError as import_error:
     raise RuntimeError(import_error)
 
