@@ -49,10 +49,10 @@ class Command(HyperglassModel):
         ping: str = ""
         traceroute: str = ""
 
-    ipv4: IPv4 = IPv4()
-    ipv6: IPv6 = IPv6()
-    vpn_ipv4: VPNIPv4 = VPNIPv4()
-    vpn_ipv6: VPNIPv6 = VPNIPv6()
+    ipv4_default: IPv4 = IPv4()
+    ipv6_default: IPv6 = IPv6()
+    ipv4_vpn: VPNIPv4 = VPNIPv4()
+    ipv6_vpn: VPNIPv6 = VPNIPv6()
 
 
 class Commands(HyperglassModel):
@@ -116,8 +116,8 @@ class Commands(HyperglassModel):
 
         ipv4_default: IPv4Default = IPv4Default()
         ipv6_default: IPv6Default = IPv6Default()
-        ipv4_vrf: IPv4Vrf = IPv4Vrf()
-        ipv6_vrf: IPv6Vrf = IPv6Vrf()
+        ipv4_vpn: IPv4Vrf = IPv4Vrf()
+        ipv6_vpn: IPv6Vrf = IPv6Vrf()
 
     class CiscoXR(HyperglassModel):
         """Class model for default cisco_xr commands"""

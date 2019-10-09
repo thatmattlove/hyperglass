@@ -251,6 +251,16 @@
     max-height: 75% !important
 
 // hyperglass overrides
+.hg-logo
+    max-height: 60px
+    max-width: 100%
+    height: auto
+    width: auto
+
+#hg-submit-button
+    border-bottom-right-radius: $border-radius-lg !important
+    border-top-right-radius: $border-radius-lg !important
+
 #hg-form
     margin-top: 15% !important
     margin-bottom: 10% !important
@@ -429,12 +439,12 @@
 
 .bg-danger
     .btn-outline-danger:hover
-        background-color:  findTextColor($hg-danger) !important
+        background-color: findTextColor($hg-danger) !important
         color: $hg-danger !important
 
 .bg-danger
     hr
-    background-color: darken($hg-danger, 10%)
+        background-color: darken($hg-danger, 10%)
 
 .modal-body > p
     padding-left: 0.3rem !important

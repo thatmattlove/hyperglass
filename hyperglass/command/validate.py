@@ -5,7 +5,6 @@ error message.
 """
 # Standard Library Imports
 import ipaddress
-import operator
 import re
 
 # Third Party Imports
@@ -13,10 +12,10 @@ from logzero import logger as log
 
 # Project Imports
 from hyperglass.configuration import logzero_config  # noqa: F401
-from hyperglass.configuration import stack  # NOQA: F401
 from hyperglass.configuration import params
-from hyperglass.configuration import vrfs
-from hyperglass.exceptions import InputInvalid, InputNotAllowed
+from hyperglass.exceptions import HyperglassError
+from hyperglass.exceptions import InputInvalid
+from hyperglass.exceptions import InputNotAllowed
 
 
 class IPType:
@@ -99,7 +98,7 @@ def ip_validate(target):
     return valid_ip
 
 
-def ip_access_list(query_data):
+def ip_access_list(query_data, device):
     """
     Check VRF access list for matching prefixes, returns an error if a
     match is found.
@@ -123,7 +122,18 @@ def ip_access_list(query_data):
         return membership
 
     target = ipaddress.ip_network(query_data["query_target"])
-    vrf_acl = operator.attrgetter(f'{query_data["query_vrf"]}.access_list')(vrfs)
+
+    vrf_acl = None
+    for vrf in device.vrfs:
+        if vrf.name == query_data["query_vrf"]:
+            vrf_acl = vrf.access_list
+    if not vrf_acl:
+        raise HyperglassError(
+            message="Unable to match query VRF to any configured VRFs",
+            alert="danger",
+            keywords=[query_data["query_vrf"]],
+        )
+
     target_ver = target.version
 
     log.debug(f"Access List: {vrf_acl}")
@@ -241,7 +251,7 @@ class Validate:
 
         # If target is a not allowed, return an error.
         try:
-            ip_access_list(self.query_data)
+            ip_access_list(self.query_data, self.device)
         except ValueError as unformatted_error:
             raise InputNotAllowed(
                 str(unformatted_error), target=self.target, **unformatted_error.details

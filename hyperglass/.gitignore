@@ -7,3 +7,4 @@ gunicorn_dev_config.py
 test.py
 __pycache__/
 parsing/
+*_old

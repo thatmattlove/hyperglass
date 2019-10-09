@@ -39,6 +39,11 @@ POSSIBILITY OF SUCH DAMAGE.
 # flake8: noqa: F401
 from hyperglass import command
 from hyperglass import configuration
-from hyperglass import render
-from hyperglass import exceptions
 from hyperglass import constants
+from hyperglass import exceptions
+from hyperglass import render
+
+# Stackprinter Configuration
+import stackprinter
+
+stackprinter.set_excepthook()

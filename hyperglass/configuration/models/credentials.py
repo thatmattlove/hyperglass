@@ -10,8 +10,8 @@ Validates input for overridden parameters.
 from pydantic import SecretStr
 
 # Project Imports
-from hyperglass.configuration.models._utils import clean_name
 from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.configuration.models._utils import clean_name
 
 
 class Credential(HyperglassModel):

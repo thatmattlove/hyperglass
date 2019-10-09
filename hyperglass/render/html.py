@@ -11,10 +11,9 @@ from logzero import logger as log
 from markdown2 import Markdown
 
 # Project Imports
-from hyperglass.configuration import devices
 from hyperglass.configuration import logzero_config  # NOQA: F401
-from hyperglass.configuration import stack  # NOQA: F401
-from hyperglass.configuration import params, networks
+from hyperglass.configuration import networks
+from hyperglass.configuration import params
 from hyperglass.exceptions import HyperglassError
 
 # Module Directories

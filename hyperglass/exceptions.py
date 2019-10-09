@@ -6,7 +6,7 @@ Custom exceptions for hyperglass
 class HyperglassError(Exception):
     """hyperglass base exception"""
 
-    def __init__(self, message="", alert="warning", keywords={}):
+    def __init__(self, message="", alert="warning", keywords=[]):
         self.message = message
         self.alert = alert
         self.keywords = keywords
@@ -96,6 +96,19 @@ class InputNotAllowed(HyperglassError):
     """
     Raised when input validation fails due to a blacklist or
     requires_ipv6_cidr check
+    """
+
+    def __init__(self, unformatted_msg, **kwargs):
+        self.message = unformatted_msg.format(**kwargs)
+        self.alert = "warning"
+        self.keywords = [value for value in kwargs.values()]
+        super().__init__(message=self.message, alert=self.alert, keywords=self.keywords)
+
+
+class ResponseEmpty(HyperglassError):
+    """
+    Raised when hyperglass is able to connect to the device and execute
+    a valid query, but the response is empty.
     """
 
     def __init__(self, unformatted_msg, **kwargs):

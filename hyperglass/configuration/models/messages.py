@@ -35,3 +35,4 @@ class Messages(HyperglassModel):
     noresponse_error: str = "No response."
     vrf_not_associated: str = "VRF {vrf_name} is not associated with {device_name}."
     no_matching_vrfs: str = "No VRFs Match"
+    no_output: str = "No output."

@@ -7,24 +7,24 @@ Validates input for overridden parameters.
 """
 
 # Third Party Imports
-from pydantic import SecretStr
 from pydantic import validator
 
 # Project Imports
-from hyperglass.configuration.models._utils import clean_name
 from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.configuration.models._utils import clean_name
+from hyperglass.configuration.models.credentials import Credential
 from hyperglass.exceptions import UnsupportedDevice
 
 
 class Proxy(HyperglassModel):
     """Model for per-proxy config in devices.yaml"""
 
+    name: str
     address: str
     port: int = 22
-    username: str
-    password: SecretStr
+    credential: Credential
     nos: str
-    ssh_command: str
+    ssh_command: str = "ssh -l {username} {host}"
 
     @validator("nos")
     def supported_nos(cls, v):  # noqa: N805

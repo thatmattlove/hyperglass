@@ -7,40 +7,40 @@ from pathlib import Path
 
 # Third Party Imports
 import aredis
+import stackprinter
 from logzero import logger as log
+from prometheus_client import CONTENT_TYPE_LATEST
 from prometheus_client import CollectorRegistry
 from prometheus_client import Counter
 from prometheus_client import generate_latest
 from prometheus_client import multiprocess
-from prometheus_client import CONTENT_TYPE_LATEST
 from sanic import Sanic
 from sanic import response
+from sanic.exceptions import InvalidUsage
 from sanic.exceptions import NotFound
 from sanic.exceptions import ServerError
-from sanic.exceptions import InvalidUsage
 from sanic.exceptions import ServiceUnavailable
 from sanic_limiter import Limiter
 from sanic_limiter import RateLimitExceeded
 from sanic_limiter import get_remote_address
 
 # Project Imports
-from hyperglass.render import render_html
 from hyperglass.command.execute import Execute
 from hyperglass.configuration import devices
-from hyperglass.configuration import vrfs
 from hyperglass.configuration import logzero_config  # noqa: F401
-from hyperglass.configuration import stack  # NOQA: F401
 from hyperglass.configuration import params
 from hyperglass.constants import Supported
-from hyperglass.exceptions import (
-    HyperglassError,
-    AuthError,
-    ScrapeError,
-    RestError,
-    InputInvalid,
-    InputNotAllowed,
-    DeviceTimeout,
-)
+from hyperglass.exceptions import AuthError
+from hyperglass.exceptions import DeviceTimeout
+from hyperglass.exceptions import HyperglassError
+from hyperglass.exceptions import InputInvalid
+from hyperglass.exceptions import InputNotAllowed
+from hyperglass.exceptions import ResponseEmpty
+from hyperglass.exceptions import RestError
+from hyperglass.exceptions import ScrapeError
+from hyperglass.render import render_html
+
+stackprinter.set_excepthook()
 
 log.debug(f"Configuration Parameters:\n {params.dict()}")
 
@@ -254,6 +254,8 @@ async def validate_input(query_data):  # noqa: C901
     query_target = supported_query_data.get("query_target", "")
     query_vrf = supported_query_data.get("query_vrf", "")
 
+    device = getattr(devices, query_location)
+
     # Verify that query_target is not empty
     if not query_target:
         log.debug("No input specified")
@@ -373,13 +375,11 @@ async def validate_input(query_data):  # noqa: C901
             }
         )
     # Verify that vrfs in query_vrf are defined
-    display_vrfs = [v["display_name"] for k, v in vrfs.vrfs.items()]
-    if query_vrf and not any(vrf in query_vrf for vrf in display_vrfs):
-        display_device = getattr(devices, query_location)
+    if query_vrf and not any(vrf in query_vrf for vrf in devices.display_vrfs):
         raise InvalidUsage(
             {
                 "message": params.messages.vrf_not_associated.format(
-                    vrf_name=query_vrf, device_name=display_device.display_name
+                    vrf_name=query_vrf, device_name=device.display_name
                 ),
                 "alert": "warning",
                 "keywords": [query_vrf, query_location],
@@ -388,9 +388,9 @@ async def validate_input(query_data):  # noqa: C901
     # If VRF display name from UI/API matches a configured display name, set the
     # query_vrf value to the configured VRF key name
     if query_vrf:
-        supported_query_data["query_vrf"] = [
-            k for k, v in vrfs.vrfs.items() if v["display_name"] == query_vrf
-        ][0]
+        for vrf in device.vrfs:
+            if vrf.display_name == query_vrf:
+                supported_query_data["query_vrf"] = vrf.name
     if not query_vrf:
         supported_query_data["query_vrf"] = "default"
     log.debug(f"Validated Query: {supported_query_data}")
@@ -457,12 +457,12 @@ async def hyperglass_main(request):
 
             log.debug(f"Query {cache_key} took {elapsedtime} seconds to run.")
 
-        except (InputInvalid, InputNotAllowed) as frontend_error:
+        except (InputInvalid, InputNotAllowed, ResponseEmpty) as frontend_error:
             raise InvalidUsage(frontend_error.__dict__())
         except (AuthError, RestError, ScrapeError, DeviceTimeout) as backend_error:
             raise ServiceUnavailable(backend_error.__dict__())
 
-        if not cache_value:
+        if cache_value is None:
             raise ServerError(
                 {"message": params.messages.general, "alert": "danger", "keywords": []}
             )

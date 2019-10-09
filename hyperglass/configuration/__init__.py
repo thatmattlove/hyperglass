@@ -8,25 +8,17 @@ from pathlib import Path
 
 # Third Party Imports
 import logzero
-import stackprinter
 import yaml
 from logzero import logger as log
 from pydantic import ValidationError
 
 # Project Imports
-from hyperglass.configuration.models import (
-    params as _params,
-    commands as _commands,
-    routers as _routers,
-    proxies as _proxies,
-    networks as _networks,
-    vrfs as _vrfs,
-    credentials as _credentials,
-)
-from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
-
-# Stackprinter Configuration
-stack = stackprinter.set_excepthook()
+from hyperglass.configuration.models import commands as _commands
+from hyperglass.configuration.models import params as _params
+from hyperglass.configuration.models import routers as _routers
+from hyperglass.exceptions import ConfigError
+from hyperglass.exceptions import ConfigInvalid
+from hyperglass.exceptions import ConfigMissing
 
 # Project Directories
 working_dir = Path(__file__).resolve().parent
@@ -65,7 +57,7 @@ except FileNotFoundError as no_devices_error:
         missing_item=str(working_dir.joinpath("devices.yaml"))
     ) from None
 except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
-    raise ConfigError(error_msg=yaml_error) from None
+    raise ConfigError(str(yaml_error)) from None
 
 # Map imported user config files to expected schema:
 try:
@@ -78,15 +70,7 @@ try:
     elif not user_commands:
         commands = _commands.Commands()
 
-    devices = _routers.Routers.import_params(user_devices.get("router", dict()))
-    credentials = _credentials.Credentials.import_params(
-        user_devices.get("credential", dict())
-    )
-    proxies = _proxies.Proxies.import_params(user_devices.get("proxy", dict()))
-    imported_networks = _networks.Networks.import_params(
-        user_devices.get("network", dict())
-    )
-    vrfs = _vrfs.Vrfs.import_params(user_devices.get("vrf", dict()))
+    devices = _routers.Routers._import(user_devices.get("routers", dict()))
 
 
 except ValidationError as validation_errors:
@@ -96,20 +80,6 @@ except ValidationError as validation_errors:
             field=": ".join([str(item) for item in error["loc"]]),
             error_msg=error["msg"],
         )
-
-# Validate that VRFs configured on a device are actually defined
-for dev in devices.hostnames:
-    dev_cls = getattr(devices, dev)
-    display_vrfs = []
-    for vrf in getattr(dev_cls, "_vrfs"):
-        if vrf not in vrfs._all:
-            raise ConfigInvalid(
-                field=vrf, error_msg=f"{vrf} is not in configured VRFs: {vrfs._all}"
-            )
-        vrf_attr = getattr(vrfs, vrf)
-        display_vrfs.append(vrf_attr.display_name)
-    devices.routers[dev]["display_vrfs"] = display_vrfs
-    setattr(dev_cls, "display_vrfs", display_vrfs)
 
 
 # Logzero Configuration
@@ -127,91 +97,112 @@ logzero_config = logzero.setup_default_logger(
 )
 
 
-class Networks:
-    def __init__(self):
-        self.routers = devices.routers
-        self.networks = imported_networks.networks
-
-    def networks_verbose(self):
-        locations_dict = {}
-        for (router, router_params) in self.routers.items():
-            for (netname, net_params) in self.networks.items():
-                if router_params["network"] == netname:
-                    net_display = net_params["display_name"]
-                    if net_display in locations_dict:
-                        locations_dict[net_display].append(
-                            {
-                                "location": router_params["location"],
-                                "hostname": router,
-                                "display_name": router_params["display_name"],
-                                "vrfs": router_params["vrfs"],
-                            }
-                        )
-                    elif net_display not in locations_dict:
-                        locations_dict[net_display] = [
-                            {
-                                "location": router_params["location"],
-                                "hostname": router,
-                                "display_name": router_params["display_name"],
-                                "vrfs": router_params["vrfs"],
-                            }
-                        ]
-        if not locations_dict:
-            raise ConfigError(error_msg="Unable to build network to device mapping")
-        return locations_dict
-
-    def networks_display(self):
-        locations_dict = {}
-        for (router, router_params) in self.routers.items():
-            for (netname, net_params) in self.networks.items():
-                if router_params["network"] == netname:
-                    net_display = net_params["display_name"]
-                    if net_display in locations_dict:
-                        locations_dict[net_display].append(
-                            router_params["display_name"]
-                        )
-                    elif net_display not in locations_dict:
-                        locations_dict[net_display] = [router_params["display_name"]]
-        if not locations_dict:
-            raise ConfigError(error_msg="Unable to build network to device mapping")
-        return [
-            {"network_name": netname, "location_names": display_name}
-            for (netname, display_name) in locations_dict.items()
-        ]
-
-    def frontend_networks(self):
-        frontend_dict = {}
-        for (router, router_params) in self.routers.items():
-            for (netname, net_params) in self.networks.items():
-                if router_params["network"] == netname:
-                    net_display = net_params["display_name"]
-                    if net_display in frontend_dict:
-                        frontend_dict[net_display].update(
-                            {
-                                router: {
-                                    "location": router_params["location"],
-                                    "display_name": router_params["display_name"],
-                                    "vrfs": router_params["display_vrfs"],
-                                }
-                            }
-                        )
-                    elif net_display not in frontend_dict:
-                        frontend_dict[net_display] = {
-                            router: {
-                                "location": router_params["location"],
-                                "display_name": router_params["display_name"],
-                                "vrfs": router_params["display_vrfs"],
-                            }
-                        }
-        if not frontend_dict:
-            raise ConfigError(error_msg="Unable to build network to device mapping")
-        return frontend_dict
+def build_frontend_networks():
+    """
+    {
+        "device.network.display_name": {
+            "device.name": {
+                "location": "device.location",
+                "display_name": "device.display_name",
+                "vrfs": [
+                    "Global",
+                    "vrf.display_name"
+                ]
+            }
+        }
+    }
+    """
+    frontend_dict = {}
+    for device in devices.routers:
+        if device.network.display_name in frontend_dict:
+            frontend_dict[device.network.display_name].update(
+                {
+                    device.name: {
+                        "location": device.location,
+                        "display_name": device.network.display_name,
+                        "vrfs": [vrf.display_name for vrf in device.vrfs],
+                    }
+                }
+            )
+        elif device.network.display_name not in frontend_dict:
+            frontend_dict[device.network.display_name] = {
+                device.name: {
+                    "location": device.location,
+                    "display_name": device.network.display_name,
+                    "vrfs": [vrf.display_name for vrf in device.vrfs],
+                }
+            }
+    frontend_dict["default_vrf"] = devices.default_vrf
+    if not frontend_dict:
+        raise ConfigError(error_msg="Unable to build network to device mapping")
+    return frontend_dict
 
 
-net = Networks()
-networks = net.networks_verbose()
-display_networks = net.networks_display()
-frontend_networks = net.frontend_networks()
+def build_frontend_devices():
+    """
+    {
+        "device.name": {
+            "location": "device.location",
+            "display_name": "device.display_name",
+            "vrfs": [
+                "Global",
+                "vrf.display_name"
+            ]
+        }
+    }
+    """
+    frontend_dict = {}
+    for device in devices.routers:
+        if device.name in frontend_dict:
+            frontend_dict[device.name].update(
+                {
+                    "location": device.location,
+                    "network": device.network.display_name,
+                    "display_name": device.display_name,
+                    "vrfs": [vrf.display_name for vrf in device.vrfs],
+                }
+            )
+        elif device.name not in frontend_dict:
+            frontend_dict[device.name] = {
+                "location": device.location,
+                "network": device.network.display_name,
+                "display_name": device.display_name,
+                "vrfs": [vrf.display_name for vrf in device.vrfs],
+            }
+    if not frontend_dict:
+        raise ConfigError(error_msg="Unable to build network to device mapping")
+    return frontend_dict
+
+
+def build_networks():
+    networks_dict = {}
+    for device in devices.routers:
+        if device.network.display_name in networks_dict:
+            networks_dict[device.network.display_name].append(
+                {
+                    "location": device.location,
+                    "hostname": device.name,
+                    "display_name": device.display_name,
+                    "vrfs": [vrf.name for vrf in device.vrfs],
+                }
+            )
+        elif device.network.display_name not in networks_dict:
+            networks_dict[device.network.display_name] = [
+                {
+                    "location": device.location,
+                    "hostname": device.name,
+                    "display_name": device.display_name,
+                    "vrfs": [vrf.name for vrf in device.vrfs],
+                }
+            ]
+    if not networks_dict:
+        raise ConfigError(error_msg="Unable to build network to device mapping")
+    return networks_dict
+
+
+networks = build_networks()
+frontend_networks = build_frontend_networks()
+frontend_devices = build_frontend_devices()
 
 frontend_fields = {
     "general": {"debug", "request_timeout"},

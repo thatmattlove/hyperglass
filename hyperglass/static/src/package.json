@@ -31,7 +31,7 @@
     "eslint-plugin-import": "^2.18.2"
   },
   "scripts": {
-    "build": "parcel build --no-cache --bundle-node-modules --public-url /ui/ --out-dir ./ui hyperglass.es6 hyperglass.css"
+    "build": "parcel build --no-cache --bundle-node-modules --public-url /ui/ --out-dir ../ui --out-file hyperglass.js bundle.es6 && parcel build --no-cache --bundle-node-modules --public-url /ui/ --out-dir ../ui --out-file hyperglass.css bundle.css"
   },
   "babel": {
     "presets": [

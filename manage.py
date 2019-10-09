@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
 
+# Standard Library Imports
 # Standard Imports
 import asyncio
-from functools import update_wrapper
-import os
-import grp
-import pwd
-import sys
 import glob
+import grp
+import json
+import os
+import pwd
 import random
 import shutil
 import string
+import sys
+from functools import update_wrapper
 from pathlib import Path
 
+# Third Party Imports
 # Module Imports
 import click
-import json
-from passlib.hash import pbkdf2_sha256
 import requests
 import stackprinter
+from passlib.hash import pbkdf2_sha256
 
 stackprinter.set_excepthook(style="darkbg2")
 
@@ -655,7 +657,7 @@ def render_assets():
         )
 
 
-@hg.command("migrate-configs", help="Copy TOML examples to usable config files")
+@hg.command("migrate-configs", help="Copy YAML examples to usable config files")
 def migrateconfig():
     """Copies example configuration files to usable config files"""
     try:

@@ -2,7 +2,10 @@
 Utility Functions for Pydantic Models
 """
 
+# Standard Library Imports
 import re
+
+# Third Party Imports
 from pydantic import BaseSettings
 
 
@@ -28,3 +31,15 @@ class HyperglassModel(BaseSettings):
         validate_all = True
         extra = "forbid"
         validate_assignment = True
+        alias_generator = clean_name
+
+
+class HyperglassModelExtra(HyperglassModel):
+    """Model for hyperglass configuration models with dynamic fields"""
+
+    pass
+
+    class Config:
+        """Default pydantic configuration"""
+
+        extra = "allow"

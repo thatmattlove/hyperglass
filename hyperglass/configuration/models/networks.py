@@ -7,13 +7,14 @@ Validates input for overridden parameters.
 """
 
 # Project Imports
-from hyperglass.configuration.models._utils import clean_name
 from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.configuration.models._utils import clean_name
 
 
 class Network(HyperglassModel):
     """Model for per-network/asn config in devices.yaml"""
 
+    name: str
     display_name: str
 
 

@@ -77,7 +77,7 @@ class Branding(HyperglassModel):
         title: str = "hyperglass"
         subtitle: str = "AS{primary_asn}"
         query_location: str = "Location"
-        query_type: str = "Query"
+        query_type: str = "Query Type"
         query_target: str = "Target"
         terms: str = "Terms"
         info: str = "Help"
@@ -87,7 +87,7 @@ class Branding(HyperglassModel):
         bgp_aspath: str = "BGP AS Path"
         ping: str = "Ping"
         traceroute: str = "Traceroute"
-        vrf: str = "VRF"
+        vrf: str = "Routing Table"
 
         class Error404(HyperglassModel):
             """Class model for 404 Error Page"""

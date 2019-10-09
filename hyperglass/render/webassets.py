@@ -11,11 +11,11 @@ import jinja2
 from logzero import logger as log
 
 # Project Imports
-from hyperglass.configuration import logzero_config  # NOQA: F401
-from hyperglass.configuration import stack  # NOQA: F401
-from hyperglass.configuration import params
-from hyperglass.configuration import frontend_params
 from hyperglass.configuration import frontend_networks
+from hyperglass.configuration import frontend_devices
+from hyperglass.configuration import frontend_params
+from hyperglass.configuration import logzero_config  # NOQA: F401
+from hyperglass.configuration import params
 from hyperglass.exceptions import HyperglassError
 
 # Module Directories
@@ -32,11 +32,17 @@ def render_frontend_config():
     Renders user config to JSON file so front end config can be used by
     Javascript
     """
-    rendered_frontend_file = hyperglass_root.joinpath("static/frontend.json")
+    rendered_frontend_file = hyperglass_root.joinpath("static/src/js/frontend.json")
     try:
         with rendered_frontend_file.open(mode="w") as frontend_file:
             frontend_file.write(
-                json.dumps({"config": frontend_params, "networks": frontend_networks})
+                json.dumps(
+                    {
+                        "config": frontend_params,
+                        "networks": frontend_networks,
+                        "devices": frontend_devices,
+                    }
+                )
             )
     except jinja2.exceptions as frontend_error:
         log.error(f"Error rendering front end config: {frontend_error}")
@@ -45,9 +51,9 @@ def render_frontend_config():
 
 def get_fonts():
     """Downloads google fonts"""
-    font_dir = hyperglass_root.joinpath("static/fonts")
+    font_dir = hyperglass_root.joinpath("static/src/sass/fonts")
     font_bin = str(
-        hyperglass_root.joinpath("static/node_modules/get-google-fonts/cli.js")
+        hyperglass_root.joinpath("static/src/node_modules/get-google-fonts/cli.js")
     )
     font_base = "https://fonts.googleapis.com/css?family={p}|{m}&display=swap"
     font_primary = "+".join(params.branding.font.primary.split(" ")).strip()
@@ -70,12 +76,11 @@ def get_fonts():
         raise HyperglassError(f"Error downloading font from URL {font_url}")
     else:
         proc.kill()
-        log.debug(f"Downloaded font from URL {font_url}")
 
 
 def render_theme():
     """Renders Jinja2 template to Sass file"""
-    rendered_theme_file = hyperglass_root.joinpath("static/theme.sass")
+    rendered_theme_file = hyperglass_root.joinpath("static/src/sass/theme.sass")
     try:
         template = env.get_template("templates/theme.sass.j2")
         rendered_theme = template.render(params.branding)
@@ -90,7 +95,7 @@ def build_assets():
     """Builds, bundles, and minifies Sass/CSS/JS web assets"""
     proc = subprocess.Popen(
         ["yarn", "--silent", "--emoji", "false", "--json", "--no-progress", "build"],
-        cwd=hyperglass_root.joinpath("static"),
+        cwd=hyperglass_root.joinpath("static/src"),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -120,22 +125,25 @@ def render_assets():
         render_frontend_config()
         log.debug("Rendered front end config")
     except HyperglassError as frontend_error:
-        raise HyperglassError(frontend_error)
+        raise HyperglassError(frontend_error) from None
+
     try:
         log.debug("Downloading theme fonts...")
         get_fonts()
         log.debug("Downloaded theme fonts")
     except HyperglassError as theme_error:
-        raise HyperglassError(theme_error)
+        raise HyperglassError(theme_error) from None
+
     try:
         log.debug("Rendering theme elements...")
         render_theme()
         log.debug("Rendered theme elements")
     except HyperglassError as theme_error:
-        raise HyperglassError(theme_error)
+        raise HyperglassError(theme_error) from None
+
     try:
         log.debug("Building web assets...")
         build_assets()
         log.debug("Built web assets")
     except HyperglassError as assets_error:
-        raise HyperglassError(assets_error)
+        raise HyperglassError(assets_error) from None
