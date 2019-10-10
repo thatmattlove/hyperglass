@@ -5,6 +5,8 @@ Imports config variables and overrides default class attributes.
 
 Validates input for overridden parameters.
 """
+# Disable string length warnings so I can actually read these commands
+# flake8: noqa: E501
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
@@ -69,10 +71,10 @@ class Commands(HyperglassModel):
             setattr(Commands, nos, Command(**cmds))
         return obj
 
-    class CiscoIOS(HyperglassModel):
+    class CiscoIOS(Command):
         """Class model for default cisco_ios commands"""
 
-        class IPv4Vrf(HyperglassModel):
+        class VPNIPv4(Command.VPNIPv4):
             """Default commands for dual afi commands"""
 
             bgp_community: str = "show bgp vpnv4 unicast vrf {vrf} community {target}"
@@ -83,7 +85,7 @@ class Commands(HyperglassModel):
                 "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
             )
 
-        class IPv6Vrf(HyperglassModel):
+        class VPNIPv6(Command.VPNIPv6):
             """Default commands for dual afi commands"""
 
             bgp_community: str = "show bgp vpnv6 unicast vrf {vrf} community {target}"
@@ -94,7 +96,7 @@ class Commands(HyperglassModel):
                 "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
             )
 
-        class IPv4Default(HyperglassModel):
+        class IPv4(Command.IPv4):
             """Default commands for ipv4 commands"""
 
             bgp_community: str = "show bgp ipv4 unicast community {target}"
@@ -103,7 +105,7 @@ class Commands(HyperglassModel):
             ping: str = "ping {target} repeat 5 source {source}"
             traceroute: str = "traceroute {target} timeout 1 probe 2 source {source}"
 
-        class IPv6Default(HyperglassModel):
+        class IPv6(Command.IPv6):
             """Default commands for ipv6 commands"""
 
             bgp_community: str = "show bgp ipv6 unicast community {target}"
@@ -114,123 +116,103 @@ class Commands(HyperglassModel):
                 "traceroute ipv6 {target} timeout 1 probe 2 source {source}"
             )
 
-        ipv4_default: IPv4Default = IPv4Default()
-        ipv6_default: IPv6Default = IPv6Default()
-        ipv4_vpn: IPv4Vrf = IPv4Vrf()
-        ipv6_vpn: IPv6Vrf = IPv6Vrf()
+        ipv4_default: IPv4 = IPv4()
+        ipv6_default: IPv6 = IPv6()
+        ipv4_vrf: VPNIPv4 = VPNIPv4()
+        ipv6_vrf: VPNIPv6 = VPNIPv6()
 
-    class CiscoXR(HyperglassModel):
+    class CiscoXR(Command):
         """Class model for default cisco_xr commands"""
 
-        class Dual(HyperglassModel):
-            """Default commands for dual afi commands"""
+        class IPv4(Command.IPv4):
+            """Class model for non-default dual afi commands"""
 
-            bgp_community: str = (
-                "show bgp all unicast community {target} | utility egrep -v "
-                '"\\(BGP |Table |Non-stop\\)"'
-            )
-            bgp_aspath: str = (
-                "show bgp all unicast regexp {target} | utility egrep -v "
-                '"\\(BGP |Table |Non-stop\\)"'
-            )
+            bgp_route: str = "show bgp ipv4 unicast {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
+            bgp_aspath: str = "show bgp ipv4 unicast regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            bgp_community: str = "show bgp ipv4 unicast community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            ping: str = "ping ipv4 {target} count 5 source {source}"
+            traceroute: str = "traceroute ipv4 {target} timeout 1 probe 2 source {source}"
 
-        class IPv4(HyperglassModel):
-            """Default commands for ipv4 commands"""
+        class IPv6(Command.IPv6):
+            """Class model for non-default ipv4 commands"""
 
-            bgp_route: str = (
-                "show bgp ipv4 unicast {target} | util egrep \\(BGP routing table "
-                "entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
-            )
-            ping: str = "ping ipv4 {target} count 5 source {src_addr_ipv4}"
-            traceroute: str = (
-                "traceroute ipv4 {target} timeout 1 probe 2 source {source}"
-            )
+            bgp_route: str = "show bgp ipv6 unicast {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
+            bgp_aspath: str = "show bgp ipv6 unicast regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            bgp_community: str = "show bgp ipv6 unicast community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            ping: str = "ping ipv6 {target} count 5 source {source}"
+            traceroute: str = "traceroute ipv6 {target} timeout 1 probe 2 source {source}"
 
-        class IPv6(HyperglassModel):
-            """Default commands for ipv6 commands"""
+        class VPNIPv4(Command.VPNIPv4):
+            """Class model for non-default ipv6 commands"""
 
-            bgp_route: str = (
-                "show bgp ipv6 unicast {target} | util egrep \\(BGP routing table "
-                "entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
-            )
-            ping: str = "ping ipv6 {target} count 5 source {src_addr_ipv6}"
-            traceroute: str = (
-                "traceroute ipv6 {target} timeout 1 probe 2 source {source}"
-            )
+            bgp_route: str = "show bgp vpnv4 unicast vrf {vrf} {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
+            bgp_aspath: str = "show bgp vpnv4 unicast vrf {vrf} regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            bgp_community: str = "show bgp vpnv4 unicast vrf {vrf} community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            ping: str = "ping vrf {vrf} {target} count 5 source {source}"
+            traceroute: str = "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
 
-        dual: Dual = Dual()
-        ipv4: IPv4 = IPv4()
-        ipv6: IPv6 = IPv6()
+        class VPNIPv6(Command.VPNIPv6):
+            """Class model for non-default ipv6 commands"""
 
-    class Juniper(HyperglassModel):
+            bgp_route: str = "show bgp vpnv6 unicast vrf {vrf} {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
+            bgp_aspath: str = "show bgp vpnv6 unicast vrf {vrf} regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            bgp_community: str = "show bgp vpnv6 unicast vrf {vrf} community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            ping: str = "ping vrf {vrf} {target} count 5 source {source}"
+            traceroute: str = "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
+
+        ipv4_default: IPv4 = IPv4()
+        ipv6_default: IPv6 = IPv6()
+        ipv4_vpn: VPNIPv4 = VPNIPv4()
+        ipv6_vpn: VPNIPv6 = VPNIPv6()
+
+    class Juniper(Command):
         """Class model for default juniper commands"""
 
-        class Dual(HyperglassModel):
-            """Default commands for dual afi commands"""
+        class IPv4(Command.IPv4):
+            """Class model for non-default dual afi commands"""
 
-            bgp_community = "show route protocol bgp community {target}"
-            bgp_aspath = "show route protocol bgp aspath-regex {target}"
+            bgp_route: str = "show route protocol bgp table inet.0 {target} detail"
+            bgp_aspath: str = "show route protocol bgp table inet.0 aspath-regex {target}"
+            bgp_community: str = "show route protocol bgp table inet.0 community {target}"
+            ping: str = "ping inet {target} count 5 source {source}"
+            traceroute: str = "traceroute inet {target} wait 1 source {source}"
 
-        class IPv4(HyperglassModel):
-            """Default commands for ipv4 commands"""
+        class IPv6(Command.IPv6):
+            """Class model for non-default ipv4 commands"""
 
-            bgp_route = "show route protocol bgp table inet.0 {target} detail"
-            ping = "ping inet {target} count 5 source {src_addr_ipv4}"
-            traceroute = "traceroute inet {target} wait 1 source {source}"
+            bgp_route: str = "show route protocol bgp table inet6.0 {target} detail"
+            bgp_aspath: str = "show route protocol bgp community {target}"
+            bgp_community: str = "show route protocol bgp aspath-regex {target}"
+            ping: str = "ping inet6 {target} count 5 source {source}"
+            traceroute: str = "traceroute inet6 {target} wait 1 source {source}"
 
-        class IPv6(HyperglassModel):
-            """Default commands for ipv6 commands"""
+        class VPNIPv4(Command.VPNIPv4):
+            """Class model for non-default ipv6 commands"""
 
-            bgp_route = "show route protocol bgp table inet6.0 {target} detail"
-            ping = "ping inet6 {target} count 5 source {src_addr_ipv6}"
-            traceroute = "traceroute inet6 {target} wait 1 source {source}"
+            bgp_route: str = "show route protocol bgp table {vrf} {target} detail"
+            bgp_aspath: str = "show route protocol bgp table {vrf} aspath-regex {target}"
+            bgp_community: str = "show route protocol bgp table {vrf} community {target}"
+            ping: str = "ping inet routing-instance {vrf} {target} count 5 source {source}"
+            traceroute: str = "traceroute inet routing-instance {vrf} {target} wait 1 source {source}"
 
-        dual: Dual = Dual()
-        ipv4: IPv4 = IPv4()
-        ipv6: IPv6 = IPv6()
+        class VPNIPv6(Command.VPNIPv6):
+            """Class model for non-default ipv6 commands"""
 
-    class Huawei(HyperglassModel):
+            bgp_route: str = "show route protocol bgp table {vrf} {target} detail"
+            bgp_aspath: str = "show route protocol bgp table {vrf} aspath-regex {target}"
+            bgp_community: str = "show route protocol bgp table {vrf} community {target}"
+            ping: str = "ping inet6 routing-instance {vrf} {target} count 5 source {source}"
+            traceroute: str = "traceroute inet6 routing-instance {vrf} {target} wait 1 source {source}"
+
+        ipv4_default: IPv4 = IPv4()
+        ipv6_default: IPv6 = IPv6()
+        ipv4_vpn: VPNIPv4 = VPNIPv4()
+        ipv6_vpn: VPNIPv6 = VPNIPv6()
+
+    class Huawei(Command):
         """Class model for default huawei commands"""
 
-        class IPv4Vrf(HyperglassModel):
-            """Default commands for dual afi commands"""
-
-            bgp_community: str = (
-                "display bgp vpnv4 vpn-instance {vrf} routing-table "
-                "regular-expression {target}"
-            )
-            bgp_aspath: str = (
-                "display bgp vpnv4 vpn-instance {vrf} routing-table "
-                "regular-expression {target}"
-            )
-            bgp_route: str = (
-                "display bgp vpnv4 vpn-instance {vrf} routing-table {target}"
-            )
-            ping: str = "ping -vpn-instance {vrf} -c 5 -a {source} {target}"
-            traceroute: str = (
-                "tracert -q 2 -f 1 -vpn-instance {vrf} -a {source} {target}"
-            )
-
-        class IPv6Vrf(HyperglassModel):
-            """Default commands for dual afi commands"""
-
-            bgp_community: str = (
-                "display bgp vpnv6 vpn-instance {vrf} routing-table "
-                "regular-expression {target}"
-            )
-            bgp_aspath: str = (
-                "display bgp vpnv6 vpn-instance {vrf} routing-table "
-                "regular-expression {target}"
-            )
-            bgp_route: str = (
-                "display bgp vpnv6 vpn-instance {vrf} routing-table {target}"
-            )
-            ping: str = "ping vpnv6 vpn-instance {vrf} -c 5 -a {source} {target}"
-            traceroute: str = (
-                "tracert -q 2 -f 1 vpn-instance {vrf} -a {source} {target}"
-            )
-
-        class IPv4Default(HyperglassModel):
+        class IPv4(Command.IPv4):
             """Default commands for ipv4 commands"""
 
             bgp_community: str = "display bgp routing-table regular-expression {target}"
@@ -239,21 +221,37 @@ class Commands(HyperglassModel):
             ping: str = "ping -c 5 -a {source} {target}"
             traceroute: str = "tracert -q 2 -f 1 -a {source} {target}"
 
-        class IPv6Default(HyperglassModel):
+        class IPv6(Command.IPv6):
             """Default commands for ipv6 commands"""
 
             bgp_community: str = "display bgp ipv6 routing-table community {target}"
-            bgp_aspath: str = (
-                "display bgp ipv6 routing-table regular-expression {target}"
-            )
+            bgp_aspath: str = "display bgp ipv6 routing-table regular-expression {target}"
             bgp_route: str = "display bgp ipv6 routing-table {target}"
             ping: str = "ping ipv6 -c 5 -a {source} {target}"
             traceroute: str = "tracert ipv6 -q 2 -f 1 -a {source} {target}"
 
-        ipv4_default: IPv4Default = IPv4Default()
-        ipv6_default: IPv6Default = IPv6Default()
-        ipv4_vrf: IPv4Vrf = IPv4Vrf()
-        ipv6_vrf: IPv6Vrf = IPv6Vrf()
+        class VPNIPv4(Command.VPNIPv4):
+            """Default commands for dual afi commands"""
+
+            bgp_community: str = "display bgp vpnv4 vpn-instance {vrf} routing-table regular-expression {target}"
+            bgp_aspath: str = "display bgp vpnv4 vpn-instance {vrf} routing-table regular-expression {target}"
+            bgp_route: str = "display bgp vpnv4 vpn-instance {vrf} routing-table {target}"
+            ping: str = "ping -vpn-instance {vrf} -c 5 -a {source} {target}"
+            traceroute: str = "tracert -q 2 -f 1 -vpn-instance {vrf} -a {source} {target}"
+
+        class VPNIPv6(Command.VPNIPv6):
+            """Default commands for dual afi commands"""
+
+            bgp_community: str = "display bgp vpnv6 vpn-instance {vrf} routing-table regular-expression {target}"
+            bgp_aspath: str = "display bgp vpnv6 vpn-instance {vrf} routing-table regular-expression {target}"
+            bgp_route: str = "display bgp vpnv6 vpn-instance {vrf} routing-table {target}"
+            ping: str = "ping vpnv6 vpn-instance {vrf} -c 5 -a {source} {target}"
+            traceroute: str = "tracert -q 2 -f 1 vpn-instance {vrf} -a {source} {target}"
+
+        ipv4_default: IPv4 = IPv4()
+        ipv6_default: IPv6 = IPv6()
+        ipv4_vrf: VPNIPv4 = VPNIPv4()
+        ipv6_vrf: VPNIPv6 = VPNIPv6()
 
     cisco_ios: Command = CiscoIOS()
     cisco_xr: Command = CiscoXR()
