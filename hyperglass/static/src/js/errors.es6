@@ -1,4 +1,5 @@
 import { frontEndAlert } from './components.es6';
+import jQuery from '../node_modules/jquery';
 
 class InputInvalid extends Error {
   constructor(validationMsg, invalidField, fieldContainer) {

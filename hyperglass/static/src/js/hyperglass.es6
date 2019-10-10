@@ -1,4 +1,5 @@
 // Module Imports
+import format from '../node_modules/string-format';
 import jQuery from '../node_modules/jquery';
 import ClipboardJS from '../node_modules/clipboard';
 
@@ -18,6 +19,9 @@ import { queryApp } from './query.es6';
 
 // JSON Config Import
 import hgConf from './frontend.json';
+
+// string-format config
+format.extend(String.prototype, {});
 
 const $ = jQuery;
 
@@ -104,9 +108,15 @@ $(document).ready(() => {
   }
 });
 
-queryType.on('changed.bs.select', () => {
-  const queryTypeId = queryType.val();
+queryType.on('changed.bs.select', (e) => {
+  const field = $(e.currentTarget);
+  const queryTypeId = field.val();
   const queryTypeBtn = $('.hg-info-btn');
+
+  if (field.next('button').hasClass('is-invalid')) {
+    field.next('button').removeClass('is-invalid');
+    field.nextAll('.invalid-feedback').remove();
+  }
   if ((queryTypeId === 'bgp_community') || (queryTypeId === 'bgp_aspath')) {
     queryTypeBtn.remove();
     queryTargetAppend.prepend(supportedBtn(queryTypeId));
@@ -116,11 +126,15 @@ queryType.on('changed.bs.select', () => {
 });
 
 queryLocation.on('changed.bs.select', (e, clickedIndex, isSelected, previousValue) => {
-  const net = $(e.currentTarget);
+  const field = $(e.currentTarget);
+  if (field.next('button').hasClass('is-invalid')) {
+    field.next('button').removeClass('is-invalid');
+    field.nextAll('.invalid-feedback').remove();
+  }
   vrfContainer.empty().removeClass('col');
-  const queryLocationIds = net.val();
+  const queryLocationIds = field.val();
   if (Array.isArray(queryLocationIds) && (queryLocationIds.length)) {
-    const queryLocationNet = net[0][clickedIndex].dataset.netname;
+    const queryLocationNet = field[0][clickedIndex].dataset.netname;
     const selectedVrfs = () => {
       const allVrfs = [];
       $.each(queryLocationIds, (i, loc) => {
@@ -189,9 +203,6 @@ lgForm.on('submit', (e) => {
   if (!Array.isArray(queryLocation)) {
     queryLocation = new Array(queryLocation);
   }
-  const queryTargetContainer = $('#query_target');
-  const queryTypeContainer = $('#query_type').next('.dropdown-toggle');
-  const queryLocationContainer = $('#location').next('.dropdown-toggle');
 
   try {
     /*
@@ -201,29 +212,33 @@ lgForm.on('submit', (e) => {
         3: place to put error message
     */
     if (!queryTarget) {
+      const msgVars = { field: hgConf.config.branding.text.query_target };
       throw new InputInvalid(
-        hgConf.config.messages.no_input,
-        queryTargetContainer,
-        queryTargetContainer.parent(),
+        hgConf.config.messages.no_input.format(msgVars),
+        $('#query_target'),
+        $('#query_target').parent(),
       );
     }
     if (!queryType) {
+      const msgVars = { field: hgConf.config.branding.text.query_type };
       throw new InputInvalid(
-        hgConf.config.messages.no_query_type,
-        queryTypeContainer,
-        queryTypeContainer.parent(),
+        hgConf.config.messages.no_input.format(msgVars),
+        $('#query_type').next('.dropdown-toggle'),
+        $('#query_type').next('.dropdown-toggle').parent(),
       );
     }
     if (queryLocation === undefined || queryLocation.length === 0) {
+      const msgVars = { field: hgConf.config.branding.text.query_location };
       throw new InputInvalid(
-        hgConf.config.messages.no_location,
-        queryLocationContainer,
-        queryLocationContainer.parent(),
+        hgConf.config.messages.no_input.format(msgVars),
+        $('#location').next('.dropdown-toggle'),
+        $('#location').next('.dropdown-toggle').parent(),
       );
     }
   } catch (err) {
-    err.field.addClass('is-invalid');
-    err.container.append(feedbackInvalid(err.message));
+    $(err.field).addClass('is-invalid');
+    $(err.container).find('.invalid-feedback').remove();
+    $(err.container).append(feedbackInvalid(err.message));
     submitIcon.empty().removeClass('hg-loading').html('<i class="remixicon-search-line"></i>');
     $(document).trigger('InvalidInputEvent', err.field);
     return false;
