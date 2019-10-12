@@ -8,10 +8,12 @@
 #   redis_port: 6379
 #   request_timeout: 30
 #   requires_ipv6_cidr:
-#     - cisco_ios
-#     - cisco_nxos
+#   - cisco_ios
+#   - cisco_nxos
 
 # branding:
+#   colors:
+#     background: '#fbfffe'
 #     danger: '#a21024'
 #     dark: '#383541'
 #     light: '#fbfffe'
@@ -53,14 +55,13 @@
 #     ping: Ping
 #     query_location: Location
 #     query_target: Target
-#     query_type: Query
+#     query_type: Query Type
 #     subtitle: AS{primary_asn}
 #     terms: Terms
 #     title: hyperglass
 #     title_mode: logo_only
 #     traceroute: Traceroute
-#     vrf: VRF
-
+#     vrf: Routing Table
 # features:
 #   bgp_aspath:
 #     enable: true
@@ -118,9 +119,8 @@
 #   invalid_input: '{target} is not a valid {query_type} target.'
 #   max_prefix: Prefix length must be shorter than /{max_length}. {target} is too specific.
 #   no_input: '{field} must be specified.'
-#   no_location: A location must be selected.
 #   no_matching_vrfs: No VRFs Match
-#   no_query_type: A query type must be specified.
+#   no_output: No output.
 #   noresponse_error: No response.
 #   request_timeout: Request timed out.
 #   requires_ipv6_cidr: '{device_name} requires IPv6 BGP lookups to be in CIDR notation.'
