@@ -118,8 +118,8 @@ class Commands(HyperglassModel):
 
         ipv4_default: IPv4 = IPv4()
         ipv6_default: IPv6 = IPv6()
-        ipv4_vrf: VPNIPv4 = VPNIPv4()
-        ipv6_vrf: VPNIPv6 = VPNIPv6()
+        ipv4_vpn: VPNIPv4 = VPNIPv4()
+        ipv6_vpn: VPNIPv6 = VPNIPv6()
 
     class CiscoXR(Command):
         """Class model for default cisco_xr commands"""
@@ -127,38 +127,38 @@ class Commands(HyperglassModel):
         class IPv4(Command.IPv4):
             """Class model for non-default dual afi commands"""
 
-            bgp_route: str = "show bgp ipv4 unicast {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
-            bgp_aspath: str = "show bgp ipv4 unicast regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-            bgp_community: str = "show bgp ipv4 unicast community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-            ping: str = "ping ipv4 {target} count 5 source {source}"
-            traceroute: str = "traceroute ipv4 {target} timeout 1 probe 2 source {source}"
+            bgp_route: str = r"show bgp ipv4 unicast {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
+            bgp_aspath: str = r"show bgp ipv4 unicast regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            bgp_community: str = r"show bgp ipv4 unicast community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            ping: str = r"ping ipv4 {target} count 5 source {source}"
+            traceroute: str = r"traceroute ipv4 {target} timeout 1 probe 2 source {source}"
 
         class IPv6(Command.IPv6):
             """Class model for non-default ipv4 commands"""
 
-            bgp_route: str = "show bgp ipv6 unicast {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
-            bgp_aspath: str = "show bgp ipv6 unicast regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-            bgp_community: str = "show bgp ipv6 unicast community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-            ping: str = "ping ipv6 {target} count 5 source {source}"
-            traceroute: str = "traceroute ipv6 {target} timeout 1 probe 2 source {source}"
+            bgp_route: str = r"show bgp ipv6 unicast {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
+            bgp_aspath: str = r"show bgp ipv6 unicast regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            bgp_community: str = r"show bgp ipv6 unicast community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            ping: str = r"ping ipv6 {target} count 5 source {source}"
+            traceroute: str = r"traceroute ipv6 {target} timeout 1 probe 2 source {source}"
 
         class VPNIPv4(Command.VPNIPv4):
             """Class model for non-default ipv6 commands"""
 
-            bgp_route: str = "show bgp vpnv4 unicast vrf {vrf} {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
-            bgp_aspath: str = "show bgp vpnv4 unicast vrf {vrf} regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-            bgp_community: str = "show bgp vpnv4 unicast vrf {vrf} community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-            ping: str = "ping vrf {vrf} {target} count 5 source {source}"
-            traceroute: str = "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
+            bgp_route: str = r"show bgp vpnv4 unicast vrf {vrf} {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
+            bgp_aspath: str = r"show bgp vpnv4 unicast vrf {vrf} regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            bgp_community: str = r"show bgp vpnv4 unicast vrf {vrf} community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            ping: str = r"ping vrf {vrf} {target} count 5 source {source}"
+            traceroute: str = r"traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
 
         class VPNIPv6(Command.VPNIPv6):
             """Class model for non-default ipv6 commands"""
 
-            bgp_route: str = "show bgp vpnv6 unicast vrf {vrf} {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
-            bgp_aspath: str = "show bgp vpnv6 unicast vrf {vrf} regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-            bgp_community: str = "show bgp vpnv6 unicast vrf {vrf} community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-            ping: str = "ping vrf {vrf} {target} count 5 source {source}"
-            traceroute: str = "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
+            bgp_route: str = r"show bgp vpnv6 unicast vrf {vrf} {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
+            bgp_aspath: str = r"show bgp vpnv6 unicast vrf {vrf} regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            bgp_community: str = r"show bgp vpnv6 unicast vrf {vrf} community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
+            ping: str = r"ping vrf {vrf} {target} count 5 source {source}"
+            traceroute: str = r"traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
 
         ipv4_default: IPv4 = IPv4()
         ipv6_default: IPv6 = IPv6()
@@ -250,13 +250,58 @@ class Commands(HyperglassModel):
 
         ipv4_default: IPv4 = IPv4()
         ipv6_default: IPv6 = IPv6()
-        ipv4_vrf: VPNIPv4 = VPNIPv4()
-        ipv6_vrf: VPNIPv6 = VPNIPv6()
+        ipv4_vpn: VPNIPv4 = VPNIPv4()
+        ipv6_vpn: VPNIPv6 = VPNIPv6()
+
+    class Arista(Command):
+        """Class model for non-default commands"""
+
+        class IPv4(Command.IPv4):
+            """Class model for non-default dual afi commands"""
+
+            bgp_route: str = "show ip bgp {target}"
+            bgp_aspath: str = "show ip bgp regexp {target}"
+            bgp_community: str = "show ip bgp community {target}"
+            ping: str = "ping ip {target} source {source}"
+            traceroute: str = "traceroute ip {target} source {source}"
+
+        class IPv6(Command.IPv6):
+            """Class model for non-default ipv4 commands"""
+
+            bgp_route: str = "show ipv6 bgp {target}"
+            bgp_aspath: str = "show ipv6 bgp regexp {target}"
+            bgp_community: str = "show ipv6 bgp community {target}"
+            ping: str = "ping ipv6 {target} source {source}"
+            traceroute: str = "traceroute ipv6 {target} source {source}"
+
+        class VPNIPv4(Command.VPNIPv4):
+            """Class model for non-default ipv6 commands"""
+
+            bgp_route: str = "show ip bgp {target} vrf {vrf}"
+            bgp_aspath: str = "show ip bgp regexp {target} vrf {vrf}"
+            bgp_community: str = "show ip bgp community {target} vrf {vrf}"
+            ping: str = "ping vrf {vrf} ip {target} source {source}"
+            traceroute: str = "traceroute vrf {vrf} ip {target} source {source}"
+
+        class VPNIPv6(Command.VPNIPv6):
+            """Class model for non-default ipv6 commands"""
+
+            bgp_route: str = "show ipv6 bgp {target} vrf {vrf}"
+            bgp_aspath: str = "show ipv6 bgp regexp {target} vrf {vrf}"
+            bgp_community: str = "show ipv6 bgp community {target} vrf {vrf}"
+            ping: str = "ping vrf {vrf} ipv6 {target} source {source}"
+            traceroute: str = "traceroute vrf {vrf} ipv6 {target} source {source}"
+
+        ipv4_default: IPv4 = IPv4()
+        ipv6_default: IPv6 = IPv6()
+        ipv4_vpn: VPNIPv4 = VPNIPv4()
+        ipv6_vpn: VPNIPv6 = VPNIPv6()
 
     cisco_ios: Command = CiscoIOS()
     cisco_xr: Command = CiscoXR()
     juniper: Command = Juniper()
     huawei: Command = Huawei()
+    arista: Command = Arista()
 
     class Config:
         """Pydantic Config Overrides"""
