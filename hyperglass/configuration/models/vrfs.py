@@ -27,7 +27,6 @@ from hyperglass.exceptions import ConfigError
 class DeviceVrf4(HyperglassModel):
     """Model for AFI definitions"""
 
-    afi_name: str = "ipv4"
     vrf_name: str
     source_address: IPv4Address
 
@@ -49,7 +48,6 @@ class DeviceVrf4(HyperglassModel):
 class DeviceVrf6(HyperglassModel):
     """Model for AFI definitions"""
 
-    afi_name: str = "ipv6"
     vrf_name: str
     source_address: IPv6Address
 
@@ -102,12 +100,10 @@ class DefaultVrf(HyperglassModel):
     access_list = [{"allow": IPv4Network("0.0.0.0/0")}, {"allow": IPv6Network("::/0")}]
 
     class DefaultVrf4(HyperglassModel):
-        afi_name: str = "ipv4"
         vrf_name: str = "default"
         source_address: IPv4Address = IPv4Address("127.0.0.1")
 
     class DefaultVrf6(HyperglassModel):
-        afi_name: str = "ipv4"
         vrf_name: str = "default"
         source_address: IPv6Address = IPv6Address("::1")
 

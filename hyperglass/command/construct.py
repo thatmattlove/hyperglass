@@ -94,7 +94,6 @@ class Construct:
                 json.dumps(
                     {
                         "query_type": "ping",
-                        "afi": afi.afi_name,
                         "vrf": afi.vrf_name,
                         "source": afi.source_address,
                         "target": self.query_target,
@@ -109,7 +108,6 @@ class Construct:
                     target=self.query_target,
                     source=afi.source_address,
                     vrf=afi.vrf_name,
-                    afi=afi.afi_name,
                 )
             )
 
@@ -136,7 +134,6 @@ class Construct:
                 json.dumps(
                     {
                         "query_type": "traceroute",
-                        "afi": afi.afi_name,
                         "vrf": afi.vrf_name,
                         "source": afi.source_address,
                         "target": self.query_target,
@@ -151,7 +148,6 @@ class Construct:
                     target=self.query_target,
                     source=afi.source_address,
                     vrf=afi.vrf_name,
-                    afi=afi.afi_name,
                 )
             )
 
@@ -175,7 +171,6 @@ class Construct:
                 json.dumps(
                     {
                         "query_type": "bgp_route",
-                        "afi": afi.afi_name,
                         "vrf": afi.vrf_name,
                         "source": afi.source_address,
                         "target": self.query_target,
@@ -190,7 +185,6 @@ class Construct:
                     target=self.format_target(self.query_target),
                     source=afi.source_address,
                     vrf=afi.vrf_name,
-                    afi=afi.afi_name,
                 )
             )
 
@@ -225,7 +219,6 @@ class Construct:
                     json.dumps(
                         {
                             "query_type": "bgp_community",
-                            "afi": afi_attr.afi_name,
                             "vrf": afi_attr.vrf_name,
                             "source": afi_attr.source_address,
                             "target": self.query_target,
@@ -242,7 +235,6 @@ class Construct:
                         target=self.query_target,
                         source=afi_attr.source_address,
                         vrf=afi_attr.vrf_name,
-                        afi=afi_attr.afi_name,
                     )
                 )
 
@@ -276,7 +268,6 @@ class Construct:
                     json.dumps(
                         {
                             "query_type": "bgp_aspath",
-                            "afi": afi_attr.afi_name,
                             "vrf": afi_attr.vrf_name,
                             "source": afi_attr.source_address,
                             "target": self.query_target,
@@ -291,7 +282,6 @@ class Construct:
                         target=self.query_target,
                         source=afi_attr.source_address,
                         vrf=afi_attr.vrf_name,
-                        afi=afi_attr.afi_name,
                     )
                 )
 

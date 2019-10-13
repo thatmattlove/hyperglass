@@ -111,7 +111,7 @@ class Commands(HyperglassModel):
             bgp_community: str = "show bgp ipv6 unicast community {target}"
             bgp_aspath: str = 'show bgp ipv6 unicast quote-regexp "{target}"'
             bgp_route: str = "show bgp ipv6 unicast {target} | exclude pathid:|Epoch"
-            ping: str = ("ping {afi} {target} repeat 5 source {source}")
+            ping: str = ("ping ipv6 {target} repeat 5 source {source}")
             traceroute: str = (
                 "traceroute ipv6 {target} timeout 1 probe 2 source {source}"
             )
