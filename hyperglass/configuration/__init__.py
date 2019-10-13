@@ -35,10 +35,10 @@ except FileNotFoundError as no_config_error:
 try:
     with open(working_dir.joinpath("commands.yaml")) as commands_yaml:
         user_commands = yaml.safe_load(commands_yaml)
-        log.info(f"Found commands: {user_commands}")
+        log.debug(f"Found commands: {user_commands}")
 except FileNotFoundError:
     user_commands = None
-    log.info(
+    log.debug(
         (
             f'No commands found in {working_dir.joinpath("commands.yaml")}. '
             "Defaults will be used."
