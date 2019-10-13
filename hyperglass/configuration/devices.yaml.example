@@ -1,46 +1,85 @@
 ---
-router:
-    edge01_hnl01:
-      address: 192.0.2.1
-      commands: cisco_ios
-      credential: default
-      display_name: New York, NY
-      location: nyc01
-      network: primary
-      nos: cisco_ios
-      port: 22
-      proxy: null
-      vrfs:
-        default:
-          ipv4:
-            source_address: 192.0.2.1
-          ipv6:
-            source_address: 2001:db8::1
-credential:
-    default:
-        username: hyperglass
-        password: secret
+# Credentials
+credentials:
+    - credential: &credential1
+        username: user1
+        password: secret1
+    - credential: &credential2
+        username: user2
+        password: secret2
 
-proxy:
-    servername:
-        address: 10.0.0.1
+# SSH Proxy/Tunnel Servers
+proxies:
+    - proxy: &proxy1
+        name: server01
+        address: 10.11.6.204
         port: 22
-        username: hyperglass
-        password: secret
+        credential: *cred_az01_ipam01
         nos: linux_ssh
-        ssh_command: ssh -l {username} {host} | tee /home/hyperglass/sshlog.log
+        ssh_command: ssh -l {username} {host}
 
-network:
-    primary:
-        display_name: Company Network
+# Networks
+networks:
+    - network: &net_primary
+        name: primary
+        display_name: Main Network
+    - network: &net_secondary
+        name: secondary
+        display_name: That Other Network
 
-vrf:
-  default:
-    access_list:
-      - deny: 192.168.0.0/16
-      - deny: 172.16.0.0/12
-      - deny: 2001:db8::/32
-      - allow: 0.0.0.0/0
-    display_name: Global
-    ipv4: true
-    ipv6: true
+# VRFs
+vrfs:
+    - &vrf_default
+      name: default 
+      display_name: Global
+      access_list:
+          - deny: 10.0.0.0/8
+          - deny: 192.168.0.0/16
+          - deny: 172.16.0.0/12
+          - allow: 0.0.0.0/0
+    - &vrf_customer_a
+      name: customer_a
+      display_name: Customer A
+      ipv4: &vrf_customer_a_ipv4
+          vrf_name: 1234_customer_a
+      ipv6: null
+      access_list:
+          - deny: 192.0.2.0/24
+          - allow: 10.0.0.0/8
+
+# Routers
+routers:
+    - name: router1
+      address: 10.0.0.1
+      network: *net_primary
+      credential: *credential1
+      location: nyc01
+      display_name: New York, NY
+      port: 22
+      nos: cisco_ios
+      vrfs:
+          - <<: *vrf_default
+            ipv4:
+                source_address: 192.0.2.1
+            ipv6:
+                source_address: 2604:c0c0::21:e1
+          - <<: *vrf_customer_a
+            ipv4:
+                <<: *vrf_customer_a_ipv4
+                source_address: 192.168.1.1
+      proxy: null
+    - name: router2
+      address: 10.0.0.2
+      network: *net_secondary
+      credential: *credential2
+      location: atl01
+      display_name: Atlanta, GA
+      port: 22
+      nos: juniper
+      vrfs:
+          - <<: *vrf_default
+            ipv4:
+                source_address: 199.34.92.3
+            ipv6:
+                source_address: 2604:c0c0::12:e1
+      proxy: *proxy1
