@@ -60,6 +60,16 @@ class Branding(HyperglassModel):
         width: int = 384
         favicons: str = "ui/images/favicons/"
 
+        @validator("favicons")
+        def favicons_trailing_slash(value):
+            """
+            If the favicons path does not end in a '/', append it.
+            """
+            chars = [char for char in value]
+            if chars[len(chars) - 1] != "/":
+                chars.append("/")
+            return "".join(chars)
+
     class PeeringDb(HyperglassModel):
         """Class model for params.branding.peering_db"""
 
