@@ -16,7 +16,6 @@ proxies:
         port: 22
         credential: *cred_az01_ipam01
         nos: linux_ssh
-        ssh_command: ssh -l {username} {host}
 
 # Networks
 networks:
