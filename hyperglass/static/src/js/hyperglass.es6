@@ -146,7 +146,7 @@ queryLocation.on('changed.bs.select', (e, clickedIndex, isSelected, previousValu
     const intersectingVrfs = Array.from(findIntersection(...selectedVrfs()));
     // Add the VRF select element
     if (vrfContainer.find('#query_vrf').length === 0) {
-      vrfContainer.addClass('col').html(vrfSelect(hgConf.config.branding.text.vrf));
+      vrfContainer.addClass('col').html(vrfSelect(hgConf.config.branding.text.query_vrf));
     }
     // Build the select options for each VRF in array
     const vrfHtmlList = [];
