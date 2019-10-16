@@ -32,5 +32,5 @@ class Messages(HyperglassModel):
     authentication_error: str = "Authentication error occurred."
     noresponse_error: str = "No response."
     vrf_not_associated: str = "VRF {vrf_name} is not associated with {device_name}."
-    no_matching_vrfs: str = "No VRFs Match"
+    no_matching_vrfs: str = "No VRFs in Common"
     no_output: str = "No output."

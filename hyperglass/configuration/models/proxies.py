@@ -23,8 +23,7 @@ class Proxy(HyperglassModel):
     address: str
     port: int = 22
     credential: Credential
-    nos: str
-    ssh_command: str = "ssh -l {username} {host}"
+    nos: str = "linux_ssh"
 
     @validator("nos")
     def supported_nos(cls, v):  # noqa: N805

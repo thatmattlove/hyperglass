@@ -18,7 +18,7 @@ from hyperglass.configuration.models._utils import HyperglassModel
 class Branding(HyperglassModel):
     """Class model for params.branding"""
 
-    site_name: str = "hyperglass"
+    site_title: str = "hyperglass"
 
     class Colors(HyperglassModel):
         """Class model for params.colors"""
@@ -61,7 +61,7 @@ class Branding(HyperglassModel):
         favicons: str = "ui/images/favicons/"
 
         @validator("favicons")
-        def favicons_trailing_slash(value):
+        def favicons_trailing_slash(cls, value):
             """
             If the favicons path does not end in a '/', append it.
             """
@@ -89,6 +89,7 @@ class Branding(HyperglassModel):
         query_location: str = "Location"
         query_type: str = "Query Type"
         query_target: str = "Target"
+        query_vrf: str = "Routing Table"
         terms: str = "Terms"
         info: str = "Help"
         peeringdb = "PeeringDB"
@@ -97,7 +98,6 @@ class Branding(HyperglassModel):
         bgp_aspath: str = "BGP AS Path"
         ping: str = "Ping"
         traceroute: str = "Traceroute"
-        vrf: str = "Routing Table"
 
         class Error404(HyperglassModel):
             """Class model for 404 Error Page"""
@@ -113,14 +113,8 @@ class Branding(HyperglassModel):
             subtitle: str = "Something Went Wrong"
             button: str = "Home"
 
-        class Error504(HyperglassModel):
-            """Class model for 504 Error Element"""
-
-            message: str = "Unable to reach {target}"
-
         error404: Error404 = Error404()
         error500: Error500 = Error500()
-        error504: Error504 = Error504()
 
     colors: Colors = Colors()
     credit: Credit = Credit()
