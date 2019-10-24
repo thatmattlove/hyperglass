@@ -83,7 +83,9 @@ def render_theme():
     rendered_theme_file = hyperglass_root.joinpath("static/src/sass/theme.sass")
     try:
         template = env.get_template("templates/theme.sass.j2")
+        log.debug(f"Branding variables:\n{params.branding.json(indent=4)}")
         rendered_theme = template.render(params.branding)
+        log.debug(f"Rendered theme:\n{str(rendered_theme)}")
         with rendered_theme_file.open(mode="w") as theme_file:
             theme_file.write(rendered_theme)
     except jinja2.exceptions as theme_error:
@@ -146,4 +148,4 @@ def render_assets():
         build_assets()
         log.debug("Built web assets")
     except HyperglassError as assets_error:
-        raise HyperglassError(assets_error) from None
+        raise HyperglassError(str(assets_error)) from None
