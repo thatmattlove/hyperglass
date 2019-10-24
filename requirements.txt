@@ -8,7 +8,7 @@ markdown2==2.3.8
 netmiko==2.4.1
 passlib==1.7.1
 prometheus_client==0.7.1
-pydantic==0.31.1
+pydantic==0.32.2
 pyyaml==5.1.1
 redis==3.2.1
 sanic-limiter==0.1.3
