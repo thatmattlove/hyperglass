@@ -5,6 +5,7 @@ $hg-danger:   {{ colors.danger }}
 $hg-warning: {{ colors.warning }}
 $hg-background: {{ colors.background }}
 
+// Functions
 @function findTextColor($color)
     $inverted: invert($color)
     @if (lightness($color) > 55%)
@@ -54,7 +55,7 @@ $hg-background: {{ colors.background }}
         $subtle-color: scale-color($color, $lightness: 40%)
         @return grayscale($subtle-color)
 
-//// Body Color
+// Body Color
 $body-bg:       $hg-background
 $body-color:    findTextColor($body-bg)
 
@@ -117,7 +118,7 @@ $dropdown-link-hover-color:     $hg-primary-color
 $dropdown-link-active-bg:       $hg-primary
 $dropdown-link-active-color:    $hg-primary-color
 
-////Forms
+//// Forms
 $input-bg:                      $hg-field-bg
 $input-color:                   $hg-field-color
 $input-border-color:            $hg-border
