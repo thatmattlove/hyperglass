@@ -14,7 +14,7 @@ proxies:
         name: server01
         address: 10.11.6.204
         port: 22
-        credential: *cred_az01_ipam01
+        credential: *credential1
         nos: linux_ssh
 
 # Networks
