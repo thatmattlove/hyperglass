@@ -33,7 +33,7 @@
 #     width: 384
 #   peering_db:
 #     enable: true
-#   site_name: hyperglass
+#   site_title: hyperglass
 #   terms:
 #     enable: true
 #   text:
