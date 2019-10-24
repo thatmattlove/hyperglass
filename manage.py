@@ -585,17 +585,18 @@ def render_hyperglass_assets():
     """Render theme template to Sass file and build web assets"""
     try:
         from hyperglass.render import render_assets
+        from hyperglass.exceptions import HyperglassError
     except ImportError as import_error:
         raise click.ClickException(
-            click.style("✗ Error importing hyperlgass: ", fg="red", bold=True)
+            click.style("✗ Error importing hyperglass: ", fg="red", bold=True)
             + click.style(import_error, fg="blue")
         )
     assets_rendered = False
     try:
         render_assets()
         assets_rendered = True
-    except:
-        raise
+    except HyperglassError as e:
+        raise click.ClickException(str(e))
     return assets_rendered
 
 
@@ -606,7 +607,7 @@ def start_dev_server(host, port):
         from hyperglass.configuration import params
     except ImportError as import_error:
         raise click.ClickException(
-            click.style("✗ Error importing hyperlgass: ", fg="red", bold=True)
+            click.style("✗ Error importing hyperglass: ", fg="red", bold=True)
             + click.style(import_error, fg="blue")
         )
     try:
@@ -655,6 +656,8 @@ def render_assets():
             click.style("✗ Error rendering assets: ", fg="red", bold=True)
             + click.style(e, fg="blue")
         )
+    if not assets_rendered:
+        raise click.ClickException("✗ Error rendering assets")
 
 
 @hg.command("migrate-configs", help="Copy YAML examples to usable config files")
