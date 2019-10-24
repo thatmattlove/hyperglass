@@ -48,20 +48,18 @@
 #       button: Home
 #       subtitle: Something Went Wrong
 #       title: Error
-#     error504:
-#       message: Unable to reach {target}
 #     info: Help
 #     peeringdb: PeeringDB
 #     ping: Ping
 #     query_location: Location
 #     query_target: Target
 #     query_type: Query Type
+#     query_vrf: Routing Table
 #     subtitle: AS{primary_asn}
 #     terms: Terms
 #     title: hyperglass
 #     title_mode: logo_only
 #     traceroute: Traceroute
-#     vrf: Routing Table
 # features:
 #   bgp_aspath:
 #     enable: true
