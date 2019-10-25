@@ -45,6 +45,7 @@ class Supported:
         "ciena_saos",
         "cisco_asa",
         "cisco_ios",
+        "cisco_ios_telnet",
         "cisco_nxos",
         "cisco_s300",
         "cisco_tp",
