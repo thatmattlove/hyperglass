@@ -224,8 +224,7 @@ class Construct:
                         {
                             "query_type": "bgp_community",
                             "vrf": afi_attr.vrf_name,
-                            "afi": query_protocol,
-                            "source": afi_attr.source_address.compressed,
+                            "afi": afi,
                             "target": self.query_target,
                         }
                     )
@@ -274,8 +273,7 @@ class Construct:
                         {
                             "query_type": "bgp_aspath",
                             "vrf": afi_attr.vrf_name,
-                            "afi": query_protocol,
-                            "source": afi_attr.source_address.compressed,
+                            "afi": afi,
                             "target": self.query_target,
                         }
                     )
