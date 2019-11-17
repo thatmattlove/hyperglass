@@ -52,8 +52,9 @@ class Construct:
             _target = re.sub(r"\/", r" ", target)
         else:
             _target = target
-        log.debug(f"Formatted target: {_target}")
-        return _target
+        target_string = str(_target)
+        log.debug(f"Formatted target: {target_string}")
+        return target_string
 
     @staticmethod
     def device_commands(nos, afi, query_type):
@@ -95,7 +96,8 @@ class Construct:
                     {
                         "query_type": "ping",
                         "vrf": afi.vrf_name,
-                        "source": afi.source_address,
+                        "afi": query_protocol,
+                        "source": afi.source_address.compressed,
                         "target": self.query_target,
                     }
                 )
@@ -135,7 +137,8 @@ class Construct:
                     {
                         "query_type": "traceroute",
                         "vrf": afi.vrf_name,
-                        "source": afi.source_address,
+                        "afi": query_protocol,
+                        "source": afi.source_address.compressed,
                         "target": self.query_target,
                     }
                 )
@@ -172,8 +175,9 @@ class Construct:
                     {
                         "query_type": "bgp_route",
                         "vrf": afi.vrf_name,
-                        "source": afi.source_address,
-                        "target": self.query_target,
+                        "afi": query_protocol,
+                        "source": afi.source_address.compressed,
+                        "target": self.format_target(self.query_target),
                     }
                 )
             )
@@ -220,7 +224,8 @@ class Construct:
                         {
                             "query_type": "bgp_community",
                             "vrf": afi_attr.vrf_name,
-                            "source": afi_attr.source_address,
+                            "afi": query_protocol,
+                            "source": afi_attr.source_address.compressed,
                             "target": self.query_target,
                         }
                     )
@@ -269,7 +274,8 @@ class Construct:
                         {
                             "query_type": "bgp_aspath",
                             "vrf": afi_attr.vrf_name,
-                            "source": afi_attr.source_address,
+                            "afi": query_protocol,
+                            "source": afi_attr.source_address.compressed,
                             "target": self.query_target,
                         }
                     )

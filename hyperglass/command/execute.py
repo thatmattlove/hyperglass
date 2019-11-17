@@ -226,7 +226,7 @@ class Connect:
         http_protocol = protocol_map.get(self.device.port, "http")
         endpoint = "{protocol}://{addr}:{port}/{uri}".format(
             protocol=http_protocol,
-            addr=self.device.address.exploded,
+            addr=self.device.address,
             port=self.device.port,
             uri=uri,
         )
@@ -236,12 +236,17 @@ class Connect:
 
         try:
             http_client = httpx.AsyncClient()
-            raw_response = await http_client.post(
-                endpoint, headers=headers, json=self.query, timeout=7
-            )
-            response = raw_response.text
+            responses = []
+            for query in self.query:
+                raw_response = await http_client.post(
+                    endpoint, headers=headers, json=query, timeout=7
+                )
+                log.debug(f"HTTP status code: {raw_response.status_code}")
 
-            log.debug(f"HTTP status code: {raw_response.status_code}")
+                raw = raw_response.text
+                responses.append(raw)
+
+            response = "\n\n".join(responses)
             log.debug(f"Output for query {self.query}:\n{response}")
         except (
             httpx.exceptions.ConnectTimeout,
