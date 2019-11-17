@@ -1,5 +1,12 @@
 import {
-  iconLoading, iconError, iconTimeout, iconSuccess, tagGroup, tagLabel, resultsTitle, outputBlock,
+  iconLoading,
+  iconError,
+  iconTimeout,
+  iconSuccess,
+  tagGroup,
+  tagLabel,
+  resultsTitle,
+  outputBlock,
 } from './components.es6';
 import jQuery from '../node_modules/jquery';
 import hgConf from './frontend.json';
@@ -36,15 +43,13 @@ function queryApp(queryType, queryTypeName, locationList, queryTarget, queryVrf)
   // );
 
   $('#hg-results-title').html(
-    resultsTitle(
-      queryTarget,
-      queryTypeName,
-      queryVrf,
-      hgConf.config.branding.text.vrf,
-    ),
+    resultsTitle(queryTarget, queryTypeName, queryVrf, hgConf.config.branding.text.query_vrf),
   );
 
-  $('#hg-submit-icon').empty().removeClass('hg-loading').html('<i class="remixicon-search-line"></i>');
+  $('#hg-submit-icon')
+    .empty()
+    .removeClass('hg-loading')
+    .html('<i class="remixicon-search-line"></i>');
 
   $.each(locationList, (n, loc) => {
     const locationName = $(`#${loc}`).data('display-name');
@@ -65,8 +70,13 @@ function queryApp(queryType, queryTypeName, locationList, queryTarget, queryVrf)
       .html(iconLoading(loc));
 
     const generateError = (errorClass, locError, text) => {
-      $(`#${locError}-heading`).removeClass('bg-overlay').addClass(`bg-${errorClass}`);
-      $(`#${locError}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass(`btn-${errorClass}`);
+      $(`#${locError}-heading`)
+        .removeClass('bg-overlay')
+        .addClass(`bg-${errorClass}`);
+      $(`#${locError}-heading`)
+        .find('.hg-menu-btn')
+        .removeClass('btn-loading')
+        .addClass(`btn-${errorClass}`);
       $(`#${locError}-status-container`)
         .removeClass('hg-loading')
         .find('.hg-status-btn')
@@ -77,12 +87,22 @@ function queryApp(queryType, queryTypeName, locationList, queryTarget, queryVrf)
     };
 
     const timeoutError = (locError, text) => {
-      $(`#${locError}-heading`).removeClass('bg-overlay').addClass('bg-warning');
-      $(`#${locError}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass('btn-warning');
-      $(`#${locError}-status-container`).removeClass('hg-loading').find('.hg-status-btn').empty()
+      $(`#${locError}-heading`)
+        .removeClass('bg-overlay')
+        .addClass('bg-warning');
+      $(`#${locError}-heading`)
+        .find('.hg-menu-btn')
+        .removeClass('btn-loading')
+        .addClass('btn-warning');
+      $(`#${locError}-status-container`)
+        .removeClass('hg-loading')
+        .find('.hg-status-btn')
+        .empty()
         .html(iconTimeout)
         .addClass('hg-done');
-      $(`#${locError}-text`).empty().html(text);
+      $(`#${locError}-text`)
+        .empty()
+        .html(text);
     };
 
     $.ajax({
@@ -102,15 +122,22 @@ function queryApp(queryType, queryTypeName, locationList, queryTarget, queryVrf)
     })
       .done((data, textStatus, jqXHR) => {
         const displayHtml = `<pre>${data.output}</pre>`;
-        $(`#${loc}-heading`).removeClass('bg-overlay').addClass('bg-primary');
-        $(`#${loc}-heading`).find('.hg-menu-btn').removeClass('btn-loading').addClass('btn-primary');
+        $(`#${loc}-heading`)
+          .removeClass('bg-overlay')
+          .addClass('bg-primary');
+        $(`#${loc}-heading`)
+          .find('.hg-menu-btn')
+          .removeClass('btn-loading')
+          .addClass('btn-primary');
         $(`#${loc}-status-container`)
           .removeClass('hg-loading')
           .find('.hg-status-btn')
           .empty()
           .html(iconSuccess)
           .addClass('hg-done');
-        $(`#${loc}-text`).empty().html(displayHtml);
+        $(`#${loc}-text`)
+          .empty()
+          .html(displayHtml);
       })
       .fail((jqXHR, textStatus, errorThrown) => {
         const statusCode = jqXHR.status;
@@ -121,7 +148,10 @@ function queryApp(queryType, queryTypeName, locationList, queryTarget, queryVrf)
           $('#hg-ratelimit-query').modal('show');
         } else if (statusCode === 500 && textStatus !== 'timeout') {
           timeoutError(loc, hgConf.config.messages.request_timeout);
-        } else if ((jqXHR.responseJSON.alert === 'danger') || (jqXHR.responseJSON.alert === 'warning')) {
+        } else if (
+          jqXHR.responseJSON.alert === 'danger'
+                    || jqXHR.responseJSON.alert === 'warning'
+        ) {
           generateError(jqXHR.responseJSON.alert, loc, jqXHR.responseJSON.output);
         }
       })
