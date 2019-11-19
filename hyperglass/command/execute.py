@@ -172,6 +172,7 @@ class Netmiko:
             response = config["messages"]["general"]
             status = codes["danger"]
             logger.error(f"{netmiko_exception}, {status}")
+        nm_connect_direct.disconnect()
         return response, status
 
     def proxied(self):
@@ -228,6 +229,7 @@ class Netmiko:
             logger.error(
                 f'{netmiko_exception}, {status},Proxy: {self.nm_host["proxy"]}'
             )
+        nm_connect_proxied.disconnect()
         return response, status
 
 
