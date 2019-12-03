@@ -7,6 +7,8 @@
 $family-sans-serif: "{{ branding["font"]["primary"]["name"] }}", sans-serif;
 $family-monospace: "{{ branding["font"]["mono"]["name"] }}", monospace;
 
+$code-size: {{ branding["font"]["mono"]["size"] }};
+
 /* Color Changes */
 $body-background-color: {{ branding["color"]["background"] }};
 $footer-background-color: transparent;

@@ -455,6 +455,9 @@ def params():
     branding["font"]["mono"]["url"] = config["branding"]["font"]["mono"].get(
         "url", "https://fonts.googleapis.com/css?family=Fira+Mono"
     )
+    branding["font"]["mono"]["size"] = config["branding"]["font"]["mono"].get(
+        "size", "0.95em"
+    )
     params_dict = dict(
         general=general, branding=branding, features=features, messages=messages
     )
