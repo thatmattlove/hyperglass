@@ -122,3 +122,4 @@ blacklist = [
 [branding.font.mono]
 # name = ""
 # url = ""
+# size = ""
