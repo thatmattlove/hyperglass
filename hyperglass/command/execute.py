@@ -163,6 +163,7 @@ class Netmiko:
             logger.debug(
                 f"Response for direction connection with command {self.command}:\n{response}"
             )
+            nm_connect_direct.disconnect()
         except (
             NetMikoAuthenticationException,
             NetMikoTimeoutException,
@@ -172,7 +173,6 @@ class Netmiko:
             response = config["messages"]["general"]
             status = codes["danger"]
             logger.error(f"{netmiko_exception}, {status}")
-        nm_connect_direct.disconnect()
         return response, status
 
     def proxied(self):
