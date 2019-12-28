@@ -89,6 +89,7 @@ class Construct:
         query = []
         query_protocol = f"ipv{ipaddress.ip_network(self.query_target).version}"
         afi = getattr(self.device_vrf, query_protocol)
+        cmd_type = self.get_cmd_type(query_protocol, self.query_vrf)
 
         if self.transport == "rest":
             query.append(
@@ -96,14 +97,13 @@ class Construct:
                     {
                         "query_type": "ping",
                         "vrf": afi.vrf_name,
-                        "afi": query_protocol,
+                        "afi": cmd_type,
                         "source": afi.source_address.compressed,
                         "target": self.query_target,
                     }
                 )
             )
         elif self.transport == "scrape":
-            cmd_type = self.get_cmd_type(query_protocol, self.query_vrf)
             cmd = self.device_commands(self.device.commands, cmd_type, "ping")
             query.append(
                 cmd.format(
@@ -130,6 +130,7 @@ class Construct:
         query = []
         query_protocol = f"ipv{ipaddress.ip_network(self.query_target).version}"
         afi = getattr(self.device_vrf, query_protocol)
+        cmd_type = self.get_cmd_type(query_protocol, self.query_vrf)
 
         if self.transport == "rest":
             query.append(
@@ -137,14 +138,13 @@ class Construct:
                     {
                         "query_type": "traceroute",
                         "vrf": afi.vrf_name,
-                        "afi": query_protocol,
+                        "afi": cmd_type,
                         "source": afi.source_address.compressed,
                         "target": self.query_target,
                     }
                 )
             )
         elif self.transport == "scrape":
-            cmd_type = self.get_cmd_type(query_protocol, self.query_vrf)
             cmd = self.device_commands(self.device.commands, cmd_type, "traceroute")
             query.append(
                 cmd.format(
@@ -168,6 +168,7 @@ class Construct:
         query = []
         query_protocol = f"ipv{ipaddress.ip_network(self.query_target).version}"
         afi = getattr(self.device_vrf, query_protocol)
+        cmd_type = self.get_cmd_type(query_protocol, self.query_vrf)
 
         if self.transport == "rest":
             query.append(
@@ -175,14 +176,13 @@ class Construct:
                     {
                         "query_type": "bgp_route",
                         "vrf": afi.vrf_name,
-                        "afi": query_protocol,
-                        "source": afi.source_address.compressed,
+                        "afi": cmd_type,
+                        "source": None,
                         "target": self.format_target(self.query_target),
                     }
                 )
             )
         elif self.transport == "scrape":
-            cmd_type = self.get_cmd_type(query_protocol, self.query_vrf)
             cmd = self.device_commands(self.device.commands, cmd_type, "bgp_route")
             query.append(
                 cmd.format(
@@ -218,19 +218,20 @@ class Construct:
 
         for afi in afis:
             afi_attr = getattr(self.device_vrf, afi)
+            cmd_type = self.get_cmd_type(afi, self.query_vrf)
             if self.transport == "rest":
                 query.append(
                     json.dumps(
                         {
                             "query_type": "bgp_community",
                             "vrf": afi_attr.vrf_name,
-                            "afi": afi,
+                            "afi": cmd_type,
                             "target": self.query_target,
+                            "source": None,
                         }
                     )
                 )
             elif self.transport == "scrape":
-                cmd_type = self.get_cmd_type(afi, self.query_vrf)
                 cmd = self.device_commands(
                     self.device.commands, cmd_type, "bgp_community"
                 )
@@ -267,19 +268,20 @@ class Construct:
 
         for afi in afis:
             afi_attr = getattr(self.device_vrf, afi)
+            cmd_type = self.get_cmd_type(afi, self.query_vrf)
             if self.transport == "rest":
                 query.append(
                     json.dumps(
                         {
                             "query_type": "bgp_aspath",
                             "vrf": afi_attr.vrf_name,
-                            "afi": afi,
+                            "afi": cmd_type,
                             "target": self.query_target,
+                            "source": None,
                         }
                     )
                 )
             elif self.transport == "scrape":
-                cmd_type = self.get_cmd_type(afi, self.query_vrf)
                 cmd = self.device_commands(self.device.commands, cmd_type, "bgp_aspath")
                 query.append(
                     cmd.format(

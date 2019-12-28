@@ -21,6 +21,7 @@ from netmiko import NetMikoTimeoutException
 # Project Imports
 from hyperglass.command.construct import Construct
 from hyperglass.command.validate import Validate
+from hyperglass.command.encode import jwt_decode, jwt_encode
 from hyperglass.configuration import devices
 from hyperglass.configuration import logzero_config  # noqa: F401
 from hyperglass.configuration import params
@@ -218,53 +219,51 @@ class Connect:
         """Sends HTTP POST to router running a hyperglass API agent"""
         log.debug(f"Query parameters: {self.query}")
 
-        uri = Supported.map_rest(self.device.nos)
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-Key": self.device.credential.password.get_secret_value(),
-        }
-        http_protocol = protocol_map.get(self.device.port, "http")
-        endpoint = "{protocol}://{addr}:{port}/{uri}".format(
-            protocol=http_protocol,
-            addr=self.device.address,
-            port=self.device.port,
-            uri=uri,
+        # uri = Supported.map_rest(self.device.nos)
+        headers = {"Content-Type": "application/json"}
+        http_protocol = protocol_map.get(self.device.port, "https")
+        endpoint = "{protocol}://{addr}:{port}/query".format(
+            protocol=http_protocol, addr=self.device.address, port=self.device.port
         )
 
         log.debug(f"HTTP Headers: {headers}")
         log.debug(f"URL endpoint: {endpoint}")
 
         try:
-            http_client = httpx.AsyncClient()
-            responses = []
-            for query in self.query:
-                raw_response = await http_client.post(
-                    endpoint, headers=headers, json=query, timeout=7
-                )
-                log.debug(f"HTTP status code: {raw_response.status_code}")
+            async with httpx.Client() as http_client:
+                responses = []
+                for query in self.query:
+                    encoded_query = await jwt_encode(
+                        payload=query,
+                        secret=self.device.credential.password.get_secret_value(),
+                        duration=params.general.request_timeout,
+                    )
+                    log.debug(f"Encoded JWT: {encoded_query}")
+                    raw_response = await http_client.post(
+                        endpoint,
+                        headers=headers,
+                        json={"encoded": encoded_query},
+                        timeout=params.general.request_timeout,
+                    )
+                    log.debug(f"HTTP status code: {raw_response.status_code}")
 
-                raw = raw_response.text
-                responses.append(raw)
+                    raw = raw_response.text
+                    log.debug(f"Raw Response: {raw}")
+
+                    if raw_response.status_code == 200:
+                        decoded = await jwt_decode(
+                            payload=raw_response.json()["encoded"],
+                            secret=self.device.credential.password.get_secret_value(),
+                        )
+                        log.debug(f"Decoded Response: {decoded}")
+
+                        responses.append(decoded)
+                    else:
+                        log.error(raw_response.text)
 
             response = "\n\n".join(responses)
             log.debug(f"Output for query {self.query}:\n{response}")
-        except (
-            httpx.exceptions.ConnectTimeout,
-            httpx.exceptions.CookieConflict,
-            httpx.exceptions.DecodingError,
-            httpx.exceptions.InvalidURL,
-            httpx.exceptions.PoolTimeout,
-            httpx.exceptions.ProtocolError,
-            httpx.exceptions.ReadTimeout,
-            httpx.exceptions.RedirectBodyUnavailable,
-            httpx.exceptions.RedirectLoop,
-            httpx.exceptions.ResponseClosed,
-            httpx.exceptions.ResponseNotRead,
-            httpx.exceptions.StreamConsumed,
-            httpx.exceptions.Timeout,
-            httpx.exceptions.TooManyRedirects,
-            httpx.exceptions.WriteTimeout,
-        ) as rest_error:
+        except httpx.exceptions.HTTPError as rest_error:
             rest_msg = " ".join(
                 re.findall(r"[A-Z][^A-Z]*", rest_error.__class__.__name__)
             )
