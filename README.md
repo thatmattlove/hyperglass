@@ -82,31 +82,25 @@ The initial release of hyperglass was the culmination of my first ever foray int
 
 ##### So far, I've already implemented the following:
 
-:heavy_check_mark: [Asyncio](https://docs.python.org/3/library/asyncio.html) end-to-end wherever possible
+:white_check_mark: [Asyncio](https://docs.python.org/3/library/asyncio.html) end-to-end wherever possible
 
-:heavy_check_mark: Migrated web framework from Flask to [Sanic](https://github.com/huge-success/sanic) (removes Gunicorn dependency)
+:white_check_mark: Migrated web framework from Flask to [Sanic](https://github.com/huge-success/sanic) (removes Gunicorn dependency)
 
-:heavy_check_mark: Migrated outbound http client framework from Requests to [HTTPX](https://github.com/encode/httpx) for FRR/BIRD connections
+:white_check_mark: Migrated outbound http client framework from Requests to [HTTPX](https://github.com/encode/httpx) for FRR/BIRD connections
 
-:heavy_check_mark: Migrated front-end framework from Bulma to [Bootstrap 4](https://getbootstrap.com/) using a custom theme, for which most visual aspects are still completely customizable.
+:white_check_mark: Migrated front-end framework from Bulma to [Bootstrap 4](https://getbootstrap.com/) using a custom theme, for which most visual aspects are still completely customizable.
 
-:heavy_check_mark: Front-end frameworks/dependencies are no longer bundled with hyperglass. [Yarn](https://yarnpkg.com/lang/en/) now handles package management, and [ParcelJS](https://parceljs.org/) now bundles and minifies all Javascript libraries, CSS frameworks and custom CSS, fonts, etc. making for a more consistent and controlable user experience.
+:white_check_mark: Front-end frameworks/dependencies are no longer bundled with hyperglass. [Yarn](https://yarnpkg.com/lang/en/) now handles package management, and [ParcelJS](https://parceljs.org/) now bundles and minifies all Javascript libraries, CSS frameworks and custom CSS, fonts, etc. making for a more consistent and controlable user experience.
 
-:heavy_check_mark: Migrated config file language from TOML to [YAML](https://en.wikipedia.org/wiki/YAML).
+:white_check_mark: Migrated config file language from TOML to [YAML](https://en.wikipedia.org/wiki/YAML).
 
-:heavy_check_mark: [Pydantic](https://github.com/samuelcolvin/pydantic/) for config file modeling and validation. This will reduce, if not remove, the likelihood of accidentally misconfiguring hyperglass, your devices, or custom commands. It also allows for a significantly more sensible way of setting reasonable defaults, which now exist for all configuration variables, except for devices.
+:white_check_mark: [Pydantic](https://github.com/samuelcolvin/pydantic/) for config file modeling and validation. This will reduce, if not remove, the likelihood of accidentally misconfiguring hyperglass, your devices, or custom commands. It also allows for a significantly more sensible way of setting reasonable defaults, which now exist for all configuration variables, except for devices.
 
-:heavy_check_mark: Ability to query multiple devices at once.
+:white_check_mark: Ability to query multiple devices at once.
 
-:heavy_check_mark: Custom commands are no longer NOS-specific. Command "profiles" can be arbitrarily created and associated with any device. This means that even if two different devices are running `cisco_ios`, one device can use one set of commands, and the other device can use a different set of commands.
+:white_check_mark: VRF Support. IPv4 & IPv6 VRFs can be configured on a per-device basis and queried from the hyperglass UI.
 
-:heavy_check_mark: Some other backend goodies like: A (configurable) global timeout, so if a device can't be reached for whatever reason, the user is not left to watch a loading bar. Faster SSH queries. *Way* faster queries when using an SSH proxy/tunnel. Drastically improved error handling with 100% customizable user-facing error messages. Front-end to back-end communication is now 100% JSON, which means hyperglass is also a looking glass API for your network, not just a GUI.
-
-##### What I'm still working on:
-
-:white_check_mark: VRF support. You'll be able to, per-device, enable queries to be VRF and AFI specific.
-
-:white_check_mark: *Possibly* move to [Netdev](https://github.com/selfuryon/netdev) instead of Netmiko for SSH connection handling for performance gains.
+:white_check_mark: Custom commands are no longer NOS-specific. Command "profiles" can be arbitrarily created and associated with any device. This means that even if two different devices are running `cisco_ios`, one device can use one set of commands, and the other device can use a different set of commands.
 
 :white_check_mark: Improved native Juniper support
 
@@ -114,8 +108,14 @@ The initial release of hyperglass was the culmination of my first ever foray int
 
 :white_check_mark: Native Huawei support
 
-:white_check_mark: Improved reverse proxy docs, mainly for adding GZIP compression support for static files
+:white_check_mark: Some other backend goodies like: A (configurable) global timeout, so if a device can't be reached for whatever reason, the user is not left to watch a loading bar. Faster SSH queries. *Way* faster queries when using an SSH proxy/tunnel. Drastically improved error handling with 100% customizable user-facing error messages. Front-end to back-end communication is now 100% JSON, which means hyperglass is also a looking glass API for your network, not just a GUI.
 
-:white_check_mark: Make Grafana dashboard available via Grafana's plugin marketplace
+##### What I'm still working on:
+
+:clock1: *Possibly* move to [Netdev](https://github.com/selfuryon/netdev) instead of Netmiko for SSH connection handling for performance gains.
+
+:clock1: Improved reverse proxy docs, mainly for adding GZIP compression support for static files
+
+:clock1: Make Grafana dashboard available via Grafana's plugin marketplace
 
 ...and several other things that probably won't make it into 1.0 :)
