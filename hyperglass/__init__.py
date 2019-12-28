@@ -43,7 +43,11 @@ from hyperglass import constants
 from hyperglass import exceptions
 from hyperglass import render
 
+import uvloop
+
 # Stackprinter Configuration
 import stackprinter
 
 stackprinter.set_excepthook()
+
+uvloop.install()
