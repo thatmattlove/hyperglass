@@ -11,36 +11,17 @@ def _logger():
     return _loguru_logger
 
 
-async def check_redis(host, port):
-    """Validate if Redis is running.
+def cpu_count():
+    """Get server's CPU core count.
 
-    Arguments:
-        host {str} -- IP address or hostname of Redis server
-        port {[type]} -- TCP port of Redis server
-
-    Raises:
-        ConfigInvalid: Raised if redis server is unreachable
+    Used for number of web server workers.
 
     Returns:
-        {bool} -- True if running, False if not
+        {int} -- CPU Cores
     """
-    import asyncio
-    from socket import gaierror
-    from hyperglass.exceptions import ConfigInvalid
+    import multiprocessing
 
-    try:
-        _reader, _writer = await asyncio.open_connection(str(host), int(port))
-    except gaierror:
-        raise ConfigInvalid(
-            "Redis isn't running: {host}:{port} is unreachable/unresolvable.",
-            alert="danger",
-            host=host,
-            port=port,
-        )
-    if _reader or _writer:
-        return True
-    else:
-        return False
+    return multiprocessing.cpu_count()
 
 
 log = _logger()
