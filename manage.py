@@ -30,6 +30,17 @@ cp = shutil.copyfile
 # Define working directory
 working_directory = os.path.dirname(os.path.abspath(__file__))
 
+# Helpers
+NL = "\n"
+WS1 = " "
+WS2 = "  "
+WS4 = "    "
+WS6 = "      "
+WS8 = "        "
+CL = ":"
+E_ROCKET = "\U0001F680"
+E_SPARKLES = "\U00002728"
+
 
 def async_command(func):
     func = asyncio.coroutine(func)
@@ -603,7 +614,7 @@ def render_hyperglass_assets():
 def start_dev_server(host, port):
     """Starts Sanic development server for testing without WSGI/Reverse Proxy"""
     try:
-        from hyperglass import hyperglass
+        from hyperglass.hyperglass import app, APP_PARAMS
         from hyperglass.configuration import params
     except ImportError as import_error:
         raise click.ClickException(
@@ -611,12 +622,37 @@ def start_dev_server(host, port):
             + click.style(import_error, fg="blue")
         )
     try:
-        click.secho(
-            f"✓ Starting hyperglass development server...", fg="green", bold=True
+        if host is not None:
+            APP_PARAMS["host"] = host
+        if port is not None:
+            APP_PARAMS["port"] = port
+
+        click.echo(
+            click.style(
+                NL + f"✓ Starting hyperglass web server on...", fg="green", bold=True
+            )
+            + NL
+            + E_SPARKLES
+            + NL
+            + E_SPARKLES * 2
+            + NL
+            + E_SPARKLES * 3
+            + NL
+            + WS8
+            + click.style("http://", fg="white")
+            + click.style(str(APP_PARAMS["host"]), fg="blue", bold=True)
+            + click.style(CL, fg="white")
+            + click.style(str(APP_PARAMS["port"]), fg="magenta", bold=True)
+            + NL
+            + WS4
+            + E_ROCKET
+            + NL
+            + NL
+            + WS1
+            + E_ROCKET
+            + NL
         )
-        hyperglass.app.run(
-            host=host, debug=params.general.debug, port=port, auto_reload=False
-        )
+        app.run(**APP_PARAMS)
     except Exception as e:
         raise click.ClickException(
             click.style("✗ Failed to start test server: ", fg="red", bold=True)
@@ -625,8 +661,8 @@ def start_dev_server(host, port):
 
 
 @hg.command("dev-server", help="Start development web server")
-@click.option("--host", type=str, default="0.0.0.0", help="Listening IP")
-@click.option("--port", type=int, default=5000, help="TCP Port")
+@click.option("--host", type=str, required=False, help="Listening IP")
+@click.option("--port", type=int, required=False, help="TCP Port")
 @click.option(
     "--assets/--no-assets", default=False, help="Render Theme & Build Web Assets"
 )

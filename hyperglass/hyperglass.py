@@ -1,13 +1,15 @@
 """Hyperglass Front End."""
 
 # Standard Library Imports
+import asyncio
 import operator
+import os
+import tempfile
 import time
 from pathlib import Path
 
 # Third Party Imports
 import aredis
-import stackprinter
 from prometheus_client import CONTENT_TYPE_LATEST
 from prometheus_client import CollectorRegistry
 from prometheus_client import Counter
@@ -37,11 +39,32 @@ from hyperglass.exceptions import ResponseEmpty
 from hyperglass.exceptions import RestError
 from hyperglass.exceptions import ScrapeError
 from hyperglass.render import render_html
+from hyperglass.util import cpu_count
 from hyperglass.util import log
 
-stackprinter.set_excepthook()
+log.debug(f"Configuration Parameters: {params.dict(by_alias=True)}")
 
-log.debug(f"Configuration Parameters:\n {params.dict()}")
+tempdir = tempfile.TemporaryDirectory(prefix="hyperglass_")
+os.environ["prometheus_multiproc_dir"] = tempdir.name
+
+# Static File Definitions
+static_dir = Path(__file__).parent / "static" / "ui"
+log.debug(f"Static Files: {static_dir}")
+
+# Main Sanic App Definition
+app = Sanic(__name__)
+app.static("/ui", str(static_dir))
+log.debug(app.config)
+
+# Sanic Web Server Parameters
+APP_PARAMS = {
+    "host": params.general.listen_address,
+    "port": params.general.listen_port,
+    "debug": params.general.debug,
+    "workers": cpu_count(),
+    "access_log": params.general.debug,
+    "auto_reload": params.general.debug,
+}
 
 # Redis Config
 redis_config = {
@@ -50,28 +73,14 @@ redis_config = {
     "decode_responses": True,
 }
 
-# Static File Definitions
-static_dir = Path(__file__).parent / "static" / "ui"
-
-# Main Sanic app definition
-log.debug(f"Static Files: {static_dir}")
-
-app = Sanic(__name__)
-app.static("/ui", str(static_dir))
-
-log.debug(app.config)
-
-# Redis Cache Config
-r_cache = aredis.StrictRedis(db=params.features.cache.redis_id, **redis_config)
-
 # Sanic-Limiter Config
 query_rate = params.features.rate_limit.query.rate
 query_period = params.features.rate_limit.query.period
 site_rate = params.features.rate_limit.site.rate
 site_period = params.features.rate_limit.site.period
-#
 rate_limit_query = f"{query_rate} per {query_period}"
 rate_limit_site = f"{site_rate} per {site_period}"
+
 log.debug(f"Query rate limit: {rate_limit_query}")
 log.debug(f"Site rate limit: {rate_limit_site}")
 
@@ -82,7 +91,32 @@ r_limiter_url = "redis://{host}:{port}/{db}".format(
     port=params.general.redis_port,
     db=params.features.rate_limit.redis_id,
 )
+r_cache = aredis.StrictRedis(db=params.features.cache.redis_id, **redis_config)
 r_limiter = aredis.StrictRedis(db=params.features.rate_limit.redis_id, **redis_config)
+
+
+async def check_redis():
+    """Ensure Redis is running before starting server.
+
+    Raises:
+        HyperglassError: Raised if Redis is not running.
+
+    Returns:
+        {bool} -- True if Redis is running.
+    """
+    try:
+        await r_cache.echo("hyperglass test")
+        await r_limiter.echo("hyperglass test")
+    except Exception:
+        raise HyperglassError(
+            f"Redis isn't running at: {redis_config['host']}:{redis_config['port']}",
+            alert="danger",
+        ) from None
+    return True
+
+
+# Verify Redis is running
+asyncio.run(check_redis())
 
 # Adds Sanic config variable for Sanic-Limiter
 app.config.update(RATELIMIT_STORAGE_URL=r_limiter_url)
@@ -128,7 +162,7 @@ async def metrics(request):
 
 @app.exception(InvalidUsage)
 async def handle_frontend_errors(request, exception):
-    """Handles user-facing feedback related to frontend/input errors"""
+    """Handles user-facing feedback related to frontend/input errors."""
     client_addr = get_remote_address(request)
     error = exception.args[0]
     alert = error["alert"]
@@ -149,7 +183,7 @@ async def handle_frontend_errors(request, exception):
 
 @app.exception(ServiceUnavailable)
 async def handle_backend_errors(request, exception):
-    """Handles user-facing feedback related to backend errors"""
+    """Handles user-facing feedback related to backend errors."""
     client_addr = get_remote_address(request)
     error = exception.args[0]
     alert = error["alert"]
@@ -170,7 +204,7 @@ async def handle_backend_errors(request, exception):
 
 @app.exception(NotFound)
 async def handle_404(request, exception):
-    """Renders full error page for invalid URI"""
+    """Renders full error page for invalid URI."""
     path = request.path
     html = render_html("404", uri=path)
     client_addr = get_remote_address(request)
@@ -181,7 +215,7 @@ async def handle_404(request, exception):
 
 @app.exception(RateLimitExceeded)
 async def handle_429(request, exception):
-    """Renders full error page for too many site queries"""
+    """Renders full error page for too many site queries."""
     html = render_html("ratelimit-site")
     client_addr = get_remote_address(request)
     count_ratelimit.labels(exception, client_addr).inc()
@@ -191,7 +225,7 @@ async def handle_429(request, exception):
 
 @app.exception(ServerError)
 async def handle_500(request, exception):
-    """General Error Page"""
+    """General Error Page."""
     client_addr = get_remote_address(request)
     count_errors.labels(500, exception, client_addr, None, None, None).inc()
     log.error(f"Error: {exception}, Source: {client_addr}")
@@ -200,7 +234,7 @@ async def handle_500(request, exception):
 
 
 async def clear_cache():
-    """Function to clear the Redis cache"""
+    """Function to clear the Redis cache."""
     try:
         await r_cache.flushdb()
         return "Successfully cleared cache"
@@ -212,20 +246,20 @@ async def clear_cache():
 @app.route("/", methods=["GET"])
 @limiter.limit(rate_limit_site, error_message="Site")
 async def site(request):
-    """Main front-end web application"""
+    """Main front-end web application."""
     return response.html(render_html("form", primary_asn=params.general.primary_asn))
 
 
 @app.route("/test", methods=["GET"])
 async def test_route(request):
-    """Test route for various tests"""
+    """Test route for various tests."""
     html = render_html("500")
     return response.html(html, status=500)
 
 
 async def validate_input(query_data):  # noqa: C901
-    """
-    Deletes any globally unsupported query parameters.
+    """Delete any globally unsupported query parameters.
+
     Performs validation functions per input type:
         - query_target:
             - Verifies input is not empty
@@ -406,8 +440,9 @@ async def validate_input(query_data):  # noqa: C901
     },
 )
 async def hyperglass_main(request):
-    """
-    Main backend application initiator. Ingests Ajax POST data from
+    """Main backend application initiator.
+
+    Ingests Ajax POST data from
     form submit, passes it to the backend application to perform the
     filtering/lookups.
     """
