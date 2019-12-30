@@ -35,6 +35,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
+# Third Party Imports
+# Stackprinter Configuration
+import stackprinter
+import uvloop
+
 # Project Imports
 # flake8: noqa: F401
 from hyperglass import command
@@ -43,11 +48,6 @@ from hyperglass import constants
 from hyperglass import exceptions
 from hyperglass import render
 from hyperglass import util
-
-import uvloop
-
-# Stackprinter Configuration
-import stackprinter
 
 stackprinter.set_excepthook()
 
