@@ -1,4 +1,5 @@
 """Constant definitions used throughout the application."""
+# Standard Library Imports
 import sys
 
 protocol_map = {80: "http", 8080: "http", 443: "https", 8443: "https"}

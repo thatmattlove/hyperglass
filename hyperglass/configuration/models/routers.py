@@ -16,7 +16,8 @@ from hyperglass.configuration.models.commands import Command
 from hyperglass.configuration.models.credentials import Credential
 from hyperglass.configuration.models.networks import Network
 from hyperglass.configuration.models.proxies import Proxy
-from hyperglass.configuration.models.vrfs import DefaultVrf, Vrf
+from hyperglass.configuration.models.vrfs import DefaultVrf
+from hyperglass.configuration.models.vrfs import Vrf
 from hyperglass.constants import Supported
 from hyperglass.exceptions import ConfigError
 from hyperglass.exceptions import UnsupportedDevice
@@ -115,6 +116,7 @@ class Router(HyperglassModel):
                     f'Field "display_name" for VRF "{vrf["name"]}" was not set. '
                     f'Generated "display_name" {vrf["display_name"]}'
                 )
+
                 # Validate the non-default VRF against the standard
                 # Vrf() class.
                 vrf = Vrf(**vrf)
