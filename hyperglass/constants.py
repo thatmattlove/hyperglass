@@ -6,8 +6,8 @@ protocol_map = {80: "http", 8080: "http", 443: "https", 8443: "https"}
 target_format_space = ("huawei", "huawei_vrpv8")
 
 LOG_FMT = (
-    "<lvl><b>[{level}]</b> {time:YYYYMMDD} <lw>|</lw> {time:HH:mm:ss} {name} "
-    "<lw>|</lw> {function}</lvl> <lvl><b>→</b></lvl> {message}"
+    "<lvl><b>[{level}]</b> {time:YYYYMMDD} {time:HH:mm:ss} <lw>|</lw> {name}<lw>:</lw>"
+    "<b>{line}</b> <lw>|</lw> {function}</lvl> <lvl><b>→</b></lvl> {message}"
 )
 LOG_LEVELS = [
     {"name": "DEBUG", "no": 10, "color": "<c>"},

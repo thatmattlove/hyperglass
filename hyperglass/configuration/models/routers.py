@@ -63,7 +63,7 @@ class Router(HyperglassModel):
             v = values["nos"]
         return v
 
-    @validator("vrfs", pre=True, whole=True)
+    @validator("vrfs", pre=True)
     def validate_vrfs(cls, value, values):
         """
           - Ensures source IP addresses are set for the default VRF

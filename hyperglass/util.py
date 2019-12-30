@@ -1,17 +1,14 @@
 """Utility fuctions."""
 
-# Third Party Imports
-from loguru import logger as _loguru_logger
 
-# Project Imports
-from hyperglass.constants import LOG_HANDLER
-from hyperglass.constants import LOG_LEVELS
-from hyperglass.exceptions import ConfigInvalid
+def _logger():
+    from loguru import logger as _loguru_logger
+    from hyperglass.constants import LOG_HANDLER
+    from hyperglass.constants import LOG_LEVELS
 
-_loguru_logger.remove()
-_loguru_logger.configure(handlers=[LOG_HANDLER], levels=LOG_LEVELS)
-
-log = _loguru_logger
+    _loguru_logger.remove()
+    _loguru_logger.configure(handlers=[LOG_HANDLER], levels=LOG_LEVELS)
+    return _loguru_logger
 
 
 async def check_redis(host, port):
@@ -29,6 +26,7 @@ async def check_redis(host, port):
     """
     import asyncio
     from socket import gaierror
+    from hyperglass.exceptions import ConfigInvalid
 
     try:
         _reader, _writer = await asyncio.open_connection(str(host), int(port))
@@ -43,3 +41,6 @@ async def check_redis(host, port):
         return True
     else:
         return False
+
+
+log = _logger()

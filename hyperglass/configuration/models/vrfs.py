@@ -7,7 +7,7 @@ from ipaddress import IPv6Address
 from ipaddress import IPv6Network
 from typing import Dict
 from typing import List
-from typing import Union
+from typing import Optional
 
 # Third Party Imports
 from pydantic import IPvAnyNetwork
@@ -66,20 +66,22 @@ class Vrf(HyperglassModel):
 
     name: str
     display_name: str
-    ipv4: Union[DeviceVrf4, None]
-    ipv6: Union[DeviceVrf6, None]
+    ipv4: Optional[DeviceVrf4]
+    ipv6: Optional[DeviceVrf6]
     access_list: List[Dict[constr(regex=("allow|deny")), IPvAnyNetwork]] = [
         {"allow": IPv4Network("0.0.0.0/0")},
         {"allow": IPv6Network("::/0")},
     ]
 
-    @validator("ipv4", "ipv6", pre=True, whole=True)
+    @validator("ipv4", "ipv6", pre=True, always=True)
     def set_default_vrf_name(cls, value, values):
-        if value is not None and value.get("vrf_name") is None:
+        if isinstance(value, DefaultVrf) and value.vrf_name is None:
+            value["vrf_name"] = values["name"]
+        elif isinstance(value, Dict) and value.get("vrf_name") is None:
             value["vrf_name"] = values["name"]
         return value
 
-    @validator("access_list", pre=True, whole=True, always=True)
+    @validator("access_list", pre=True)
     def validate_action(cls, value):
         for li in value:
             for action, network in li.items():
@@ -93,7 +95,10 @@ class DefaultVrf(HyperglassModel):
 
     name: str = "default"
     display_name: str = "Global"
-    access_list = [{"allow": IPv4Network("0.0.0.0/0")}, {"allow": IPv6Network("::/0")}]
+    access_list: List[Dict[constr(regex=("allow|deny")), IPvAnyNetwork]] = [
+        {"allow": IPv4Network("0.0.0.0/0")},
+        {"allow": IPv6Network("::/0")},
+    ]
 
     class DefaultVrf4(HyperglassModel):
         """Validation model for IPv4 default routing table VRF definition."""

@@ -42,6 +42,7 @@ from hyperglass import configuration
 from hyperglass import constants
 from hyperglass import exceptions
 from hyperglass import render
+from hyperglass import util
 
 import uvloop
 

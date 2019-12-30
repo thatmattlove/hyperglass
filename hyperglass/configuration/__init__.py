@@ -67,7 +67,9 @@ try:
         commands = _commands.Commands.import_params(user_commands)
     elif not user_commands:
         commands = _commands.Commands()
-
+    
+    import json
+    log.info(json.dumps(user_devices, indent=2))
     devices = _routers.Routers._import(user_devices.get("routers", dict()))
 
 
