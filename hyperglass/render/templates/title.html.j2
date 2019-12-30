@@ -7,19 +7,19 @@
 </div>
 
 {% elif branding.text.title_mode == 'all' %}
-<img src="{{ branding.logo.path }}" style="width: {{ branding.logo.width }}px;">
+<img src="{{ branding.logo.logo_path }}" style="width: {{ branding.logo.width }}px;">
 <p class="{{ size_title }}">{{ branding.text.title }}<p>
 <p class="{{ size_subtitle }}">{{ branding.text.subtitle.format(primary_asn=primary_asn) }}</p>
 
 {% elif branding.text.title_mode == 'logo_title' %}
 <div class="float-{{ direction }} mw-sm-100 mw-md-75 mw-lg-50 mw-xl-50">
-    <img class="img-fluid hg-logo" src="{{ branding.logo.path }}">
+    <img class="img-fluid hg-logo" src="{{ branding.logo.logo_path }}">
 </div>
 <p clas="{{ size_title }}">{{ branding.text.title }}</p>
 
 {% elif branding.text.title_mode == 'logo_only' %}
 <div class="float-{{ direction }} mw-sm-100 mw-md-75 mw-lg-50 mw-xl-50">
-    <img class="img-fluid hg-logo" src="{{ branding.logo.path }}">
+    <img class="img-fluid hg-logo" src="{{ branding.logo.logo_path }}">
 </div>
 {% endif %}
 
