@@ -1,10 +1,5 @@
-"""
-Defines models for all config variables.
+"""Validate command configuration variables."""
 
-Imports config variables and overrides default class attributes.
-
-Validates input for overridden parameters.
-"""
 # Disable string length warnings so I can actually read these commands
 # flake8: noqa: E501
 

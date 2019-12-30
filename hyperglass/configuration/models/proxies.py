@@ -1,10 +1,4 @@
-"""
-Defines models for Router config variables.
-
-Imports config variables and overrides default class attributes.
-
-Validates input for overridden parameters.
-"""
+"""Validate SSH proxy configuration variables."""
 
 # Third Party Imports
 from pydantic import validator
@@ -17,7 +11,7 @@ from hyperglass.exceptions import UnsupportedDevice
 
 
 class Proxy(HyperglassModel):
-    """Model for per-proxy config in devices.yaml"""
+    """Validation model for per-proxy config in devices.yaml."""
 
     name: str
     address: str
@@ -26,17 +20,17 @@ class Proxy(HyperglassModel):
     nos: str = "linux_ssh"
 
     @validator("nos")
-    def supported_nos(cls, v):  # noqa: N805
+    def supported_nos(cls, value):  # noqa: N805
         """
         Validates that passed nos string is supported by hyperglass.
         """
-        if not v == "linux_ssh":
-            raise UnsupportedDevice(f'"{v}" device type is not supported.')
-        return v
+        if not value == "linux_ssh":
+            raise UnsupportedDevice(f'"{value}" device type is not supported.')
+        return value
 
 
 class Proxies(HyperglassModel):
-    """Base model for proxies class"""
+    """Validation model for SSH proxy configuration."""
 
     @classmethod
     def import_params(cls, input_params):

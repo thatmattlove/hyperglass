@@ -1,4 +1,5 @@
-"""
+"""Execute validated & constructed query on device.
+
 Accepts input from front end application, validates the input and
 returns errors if input is invalid. Passes validated parameters to
 construct.py, which is used to build & run the Netmiko connectoins or
@@ -11,7 +12,6 @@ import re
 # Third Party Imports
 import httpx
 import sshtunnel
-from logzero import logger as log
 from netmiko import ConnectHandler
 from netmiko import NetMikoAuthenticationException
 from netmiko import NetmikoAuthError
@@ -20,10 +20,10 @@ from netmiko import NetMikoTimeoutException
 
 # Project Imports
 from hyperglass.command.construct import Construct
+from hyperglass.command.encode import jwt_decode
+from hyperglass.command.encode import jwt_encode
 from hyperglass.command.validate import Validate
-from hyperglass.command.encode import jwt_decode, jwt_encode
 from hyperglass.configuration import devices
-from hyperglass.configuration import logzero_config  # noqa: F401
 from hyperglass.configuration import params
 from hyperglass.constants import Supported
 from hyperglass.constants import protocol_map
@@ -32,6 +32,7 @@ from hyperglass.exceptions import DeviceTimeout
 from hyperglass.exceptions import ResponseEmpty
 from hyperglass.exceptions import RestError
 from hyperglass.exceptions import ScrapeError
+from hyperglass.util import log
 
 
 class Connect:
@@ -219,7 +220,6 @@ class Connect:
         """Sends HTTP POST to router running a hyperglass API agent"""
         log.debug(f"Query parameters: {self.query}")
 
-        # uri = Supported.map_rest(self.device.nos)
         headers = {"Content-Type": "application/json"}
         http_protocol = protocol_map.get(self.device.port, "https")
         endpoint = "{protocol}://{addr}:{port}/query".format(

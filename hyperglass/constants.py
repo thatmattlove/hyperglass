@@ -1,10 +1,24 @@
-"""
-Global Constants for hyperglass
-"""
+"""Constant definitions used throughout the application."""
+import sys
 
 protocol_map = {80: "http", 8080: "http", 443: "https", 8443: "https"}
 
 target_format_space = ("huawei", "huawei_vrpv8")
+
+LOG_FMT = (
+    "<lvl><b>[{level}]</b> {time:YYYYMMDD} <lw>|</lw> {time:HH:mm:ss} {name} "
+    "<lw>|</lw> {function}</lvl> <lvl><b>→</b></lvl> {message}"
+)
+LOG_LEVELS = [
+    {"name": "DEBUG", "no": 10, "color": "<c>"},
+    {"name": "INFO", "no": 20, "color": "<le>"},
+    {"name": "SUCCESS", "no": 25, "color": "<g>"},
+    {"name": "WARNING", "no": 30, "color": "<y>"},
+    {"name": "ERROR", "no": 40, "color": "<y>"},
+    {"name": "CRITICAL", "no": 50, "color": "<r>"},
+]
+
+LOG_HANDLER = {"sink": sys.stdout, "format": LOG_FMT, "level": "INFO"}
 
 
 class Supported:

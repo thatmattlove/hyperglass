@@ -1,24 +1,22 @@
-"""
-Imports configuration varibles from configuration files and returns
-default values if undefined.
-"""
+"""Import configuration files and returns default values if undefined."""
 
 # Standard Library Imports
 from pathlib import Path
 
 # Third Party Imports
-import logzero
 import yaml
-from logzero import logger as log
 from pydantic import ValidationError
 
 # Project Imports
 from hyperglass.configuration.models import commands as _commands
 from hyperglass.configuration.models import params as _params
 from hyperglass.configuration.models import routers as _routers
+from hyperglass.constants import LOG_HANDLER
+from hyperglass.constants import LOG_LEVELS
 from hyperglass.exceptions import ConfigError
 from hyperglass.exceptions import ConfigInvalid
 from hyperglass.exceptions import ConfigMissing
+from hyperglass.util import log
 
 # Project Directories
 working_dir = Path(__file__).resolve().parent
@@ -82,19 +80,14 @@ except ValidationError as validation_errors:
         )
 
 
-# Logzero Configuration
-log_level = 20
+# Logging Config
 if params.general.debug:
-    log_level = 10
-log_format = (
-    "%(color)s[%(asctime)s.%(msecs)03d %(module)s:%(funcName)s:%(lineno)d "
-    "%(levelname)s]%(end_color)s %(message)s"
-)
-date_format = "%Y-%m-%d %H:%M:%S"
-logzero_formatter = logzero.LogFormatter(fmt=log_format, datefmt=date_format)
-logzero_config = logzero.setup_default_logger(
-    formatter=logzero_formatter, level=log_level
-)
+    _log_level = "DEBUG"
+    LOG_HANDLER["level"] = _log_level
+    log.remove()
+    log.configure(handlers=[LOG_HANDLER], levels=LOG_LEVELS)
+
+log.debug("Debugging Enabled")
 
 
 def build_frontend_networks():

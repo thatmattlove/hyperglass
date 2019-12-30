@@ -1,4 +1,4 @@
-"""Hyperglass Front End"""
+"""Hyperglass Front End."""
 
 # Standard Library Imports
 import operator
@@ -8,7 +8,6 @@ from pathlib import Path
 # Third Party Imports
 import aredis
 import stackprinter
-from logzero import logger as log
 from prometheus_client import CONTENT_TYPE_LATEST
 from prometheus_client import CollectorRegistry
 from prometheus_client import Counter
@@ -27,7 +26,6 @@ from sanic_limiter import get_remote_address
 # Project Imports
 from hyperglass.command.execute import Execute
 from hyperglass.configuration import devices
-from hyperglass.configuration import logzero_config  # noqa: F401
 from hyperglass.configuration import params
 from hyperglass.constants import Supported
 from hyperglass.exceptions import AuthError
@@ -39,6 +37,7 @@ from hyperglass.exceptions import ResponseEmpty
 from hyperglass.exceptions import RestError
 from hyperglass.exceptions import ScrapeError
 from hyperglass.render import render_html
+from hyperglass.util import log
 
 stackprinter.set_excepthook()
 

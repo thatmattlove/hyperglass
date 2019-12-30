@@ -1,6 +1,5 @@
-"""
-Renders Jinja2 & Sass templates for use by the front end application
-"""
+"""Renders Jinja2 & Sass templates for use by the front end application."""
+
 # Standard Library Imports
 import json
 import subprocess
@@ -8,15 +7,14 @@ from pathlib import Path
 
 # Third Party Imports
 import jinja2
-from logzero import logger as log
 
 # Project Imports
-from hyperglass.configuration import frontend_networks
 from hyperglass.configuration import frontend_devices
+from hyperglass.configuration import frontend_networks
 from hyperglass.configuration import frontend_params
-from hyperglass.configuration import logzero_config  # NOQA: F401
 from hyperglass.configuration import params
 from hyperglass.exceptions import HyperglassError
+from hyperglass.util import log
 
 # Module Directories
 working_directory = Path(__file__).resolve().parent

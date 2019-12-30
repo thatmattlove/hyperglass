@@ -1,10 +1,4 @@
-"""
-Defines models for Networks config variables.
-
-Imports config variables and overrides default class attributes.
-
-Validates input for overridden parameters.
-"""
+"""Validate network configuration variables."""
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
@@ -12,14 +6,14 @@ from hyperglass.configuration.models._utils import clean_name
 
 
 class Network(HyperglassModel):
-    """Model for per-network/asn config in devices.yaml"""
+    """Validation Model for per-network/asn config in devices.yaml."""
 
     name: str
     display_name: str
 
 
 class Networks(HyperglassModel):
-    """Base model for networks class"""
+    """Base model for networks class."""
 
     @classmethod
     def import_params(cls, input_params):

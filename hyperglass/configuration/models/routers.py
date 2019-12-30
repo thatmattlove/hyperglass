@@ -1,10 +1,5 @@
-"""
-Defines models for Router config variables.
+"""Validate router configuration variables."""
 
-Imports config variables and overrides default class attributes.
-
-Validates input for overridden parameters.
-"""
 # Standard Library Imports
 import re
 from typing import List
@@ -12,7 +7,6 @@ from typing import Union
 
 # Third Party Imports
 from pydantic import validator
-from logzero import logger as log
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
@@ -22,14 +16,15 @@ from hyperglass.configuration.models.commands import Command
 from hyperglass.configuration.models.credentials import Credential
 from hyperglass.configuration.models.networks import Network
 from hyperglass.configuration.models.proxies import Proxy
-from hyperglass.configuration.models.vrfs import Vrf, DefaultVrf
+from hyperglass.configuration.models.vrfs import DefaultVrf, Vrf
 from hyperglass.constants import Supported
 from hyperglass.exceptions import ConfigError
 from hyperglass.exceptions import UnsupportedDevice
+from hyperglass.util import log
 
 
 class Router(HyperglassModel):
-    """Model for per-router config in devices.yaml."""
+    """Validation model for per-router config in devices.yaml."""
 
     name: str
     address: str
@@ -129,7 +124,7 @@ class Router(HyperglassModel):
 
 
 class Routers(HyperglassModelExtra):
-    """Base model for devices class."""
+    """Validation model for device configurations."""
 
     hostnames: List[str] = []
     vrfs: List[str] = []

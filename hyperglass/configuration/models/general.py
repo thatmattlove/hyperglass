@@ -1,10 +1,5 @@
-"""
-Defines models for General config variables.
+"""Validate general configuration variables."""
 
-Imports config variables and overrides default class attributes.
-
-Validates input for overridden parameters.
-"""
 # Standard Library Imports
 from typing import List
 
@@ -13,7 +8,7 @@ from hyperglass.configuration.models._utils import HyperglassModel
 
 
 class General(HyperglassModel):
-    """Class model for params.general"""
+    """Validation model for params.general."""
 
     debug: bool = False
     primary_asn: str = "65001"

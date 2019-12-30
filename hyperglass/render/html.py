@@ -1,20 +1,18 @@
-"""
-Renders Jinja2 & Sass templates for use by the front end application
-"""
+"""Renders Jinja2 & Sass templates for use by the front end application."""
+
 # Standard Library Imports
 from pathlib import Path
 
 # Third Party Imports
 import jinja2
 import yaml
-from logzero import logger as log
 from markdown2 import Markdown
 
 # Project Imports
-from hyperglass.configuration import logzero_config  # NOQA: F401
 from hyperglass.configuration import networks
 from hyperglass.configuration import params
 from hyperglass.exceptions import HyperglassError
+from hyperglass.util import log
 
 # Module Directories
 working_directory = Path(__file__).resolve().parent
@@ -190,7 +188,7 @@ def generate_markdown(section, file_name=None):
 
 
 def render_html(template_name, **kwargs):
-    """Renders Jinja2 HTML templates"""
+    """Render Jinja2 HTML templates."""
     details_name_list = ["footer", "bgp_aspath", "bgp_community"]
     details_dict = {}
     for details_name in details_name_list:

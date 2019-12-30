@@ -1,10 +1,4 @@
-"""
-Defines models for Credential config variables.
-
-Imports config variables and overrides default class attributes.
-
-Validates input for overridden parameters.
-"""
+"""Validate credential configuration variables."""
 
 # Third Party Imports
 from pydantic import SecretStr
@@ -15,14 +9,14 @@ from hyperglass.configuration.models._utils import clean_name
 
 
 class Credential(HyperglassModel):
-    """Model for per-credential config in devices.yaml"""
+    """Model for per-credential config in devices.yaml."""
 
     username: str
     password: SecretStr
 
 
 class Credentials(HyperglassModel):
-    """Base model for credentials class"""
+    """Base model for credentials class."""
 
     @classmethod
     def import_params(cls, input_params):

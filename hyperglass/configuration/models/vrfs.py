@@ -1,10 +1,5 @@
-"""
-Defines models for VRF config variables.
+"""Validate VRF configuration variables."""
 
-Imports config variables and overrides default class attributes.
-
-Validates input for overridden parameters.
-"""
 # Standard Library Imports
 from ipaddress import IPv4Address
 from ipaddress import IPv4Network
@@ -25,7 +20,7 @@ from hyperglass.exceptions import ConfigError
 
 
 class DeviceVrf4(HyperglassModel):
-    """Model for AFI definitions"""
+    """Validation model for IPv4 AFI definitions."""
 
     vrf_name: str
     source_address: IPv4Address
@@ -46,7 +41,7 @@ class DeviceVrf4(HyperglassModel):
 
 
 class DeviceVrf6(HyperglassModel):
-    """Model for AFI definitions"""
+    """Validation model for IPv6 AFI definitions."""
 
     vrf_name: str
     source_address: IPv6Address
@@ -67,7 +62,7 @@ class DeviceVrf6(HyperglassModel):
 
 
 class Vrf(HyperglassModel):
-    """Model for per VRF/afi config in devices.yaml"""
+    """Validation model for per VRF/afi config in devices.yaml."""
 
     name: str
     display_name: str
@@ -94,16 +89,21 @@ class Vrf(HyperglassModel):
 
 
 class DefaultVrf(HyperglassModel):
+    """Validation model for default routing table VRF."""
 
     name: str = "default"
     display_name: str = "Global"
     access_list = [{"allow": IPv4Network("0.0.0.0/0")}, {"allow": IPv6Network("::/0")}]
 
     class DefaultVrf4(HyperglassModel):
+        """Validation model for IPv4 default routing table VRF definition."""
+
         vrf_name: str = "default"
         source_address: IPv4Address = IPv4Address("127.0.0.1")
 
     class DefaultVrf6(HyperglassModel):
+        """Validation model for IPv6 default routing table VRF definition."""
+
         vrf_name: str = "default"
         source_address: IPv6Address = IPv6Address("::1")
 

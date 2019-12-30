@@ -1,10 +1,4 @@
-"""
-Defines models for all Branding variables.
-
-Imports config variables and overrides default class attributes.
-
-Validates input for overridden parameters.
-"""
+"""Validate branding configuration variables."""
 
 # Third Party Imports
 from pydantic import constr

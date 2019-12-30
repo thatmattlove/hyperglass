@@ -1,29 +1,25 @@
-"""
+"""Construct SSH command/API parameters from validated query data.
+
 Accepts filtered & validated input from execute.py, constructs SSH
 command for Netmiko library or API call parameters for supported
 hyperglass API modules.
 """
+
 # Standard Library Imports
 import ipaddress
 import json
 import operator
 import re
 
-# Third Party Imports
-from logzero import logger as log
-
 # Project Imports
 from hyperglass.configuration import commands
-from hyperglass.configuration import logzero_config  # NOQA: F401
 from hyperglass.constants import target_format_space
 from hyperglass.exceptions import HyperglassError
+from hyperglass.util import log
 
 
 class Construct:
-    """
-    Constructs SSH commands or REST API queries based on validated
-    input parameters.
-    """
+    """Construct SSH commands/REST API parameters from validated query data."""
 
     def get_device_vrf(self):
         _device_vrf = None

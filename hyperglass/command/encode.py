@@ -1,3 +1,5 @@
+"""Handle JSON Web Token Encoding & Decoding."""
+
 # Standard Library Imports
 import datetime
 
@@ -9,7 +11,7 @@ from hyperglass.exceptions import RestError
 
 
 async def jwt_decode(payload, secret):
-    """Decode & validate an encoded JSON Web Token (JWT)"""
+    """Decode & validate an encoded JSON Web Token (JWT)."""
     try:
         decoded = jwt.decode(payload, secret, algorithm="HS256")
         decoded = decoded["payload"]
@@ -19,7 +21,7 @@ async def jwt_decode(payload, secret):
 
 
 async def jwt_encode(payload, secret, duration):
-    """Encode a query to a JSON Web Token (JWT)"""
+    """Encode a query to a JSON Web Token (JWT)."""
     token = {
         "payload": payload,
         "nbf": datetime.datetime.utcnow(),

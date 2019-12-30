@@ -1,10 +1,5 @@
-"""
-Defines models for all Features variables.
+"""Validate feature configuration variables."""
 
-Imports config variables and overrides default class attributes.
-
-Validates input for overridden parameters.
-"""
 # Standard Library Imports
 from math import ceil
 
@@ -16,20 +11,20 @@ from hyperglass.configuration.models._utils import HyperglassModel
 
 
 class Features(HyperglassModel):
-    """Class model for params.features"""
+    """Validation model for params.features."""
 
     class BgpRoute(HyperglassModel):
-        """Class model for params.features.bgp_route"""
+        """Validation model for params.features.bgp_route."""
 
         enable: bool = True
 
     class BgpCommunity(HyperglassModel):
-        """Class model for params.features.bgp_community"""
+        """Validation model for params.features.bgp_community."""
 
         enable: bool = True
 
         class Regex(HyperglassModel):
-            """Class model for params.features.bgp_community.regex"""
+            """Validation model for params.features.bgp_community.regex."""
 
             decimal: str = r"^[0-9]{1,10}$"
             extended_as: str = r"^([0-9]{0,5})\:([0-9]{1,5})$"
@@ -38,12 +33,12 @@ class Features(HyperglassModel):
         regex: Regex = Regex()
 
     class BgpAsPath(HyperglassModel):
-        """Class model for params.features.bgp_aspath"""
+        """Validation model for params.features.bgp_aspath."""
 
         enable: bool = True
 
         class Regex(HyperglassModel):
-            """Class model for params.bgp_aspath.regex"""
+            """Validation model for params.bgp_aspath.regex."""
 
             mode: constr(regex="asplain|asdot") = "asplain"
             asplain: str = r"^(\^|^\_)(\d+\_|\d+\$|\d+\(\_\.\+\_\))+$"
@@ -54,17 +49,17 @@ class Features(HyperglassModel):
         regex: Regex = Regex()
 
     class Ping(HyperglassModel):
-        """Class model for params.features.ping"""
+        """Validation model for params.features.ping."""
 
         enable: bool = True
 
     class Traceroute(HyperglassModel):
-        """Class model for params.features.traceroute"""
+        """Validation model for params.features.traceroute."""
 
         enable: bool = True
 
     class Cache(HyperglassModel):
-        """Class model for params.features.cache"""
+        """Validation model for params.features.cache."""
 
         redis_id: int = 0
         timeout: int = 120
@@ -74,7 +69,7 @@ class Features(HyperglassModel):
         )
 
     class MaxPrefix(HyperglassModel):
-        """Class model for params.features.max_prefix"""
+        """Validation model for params.features.max_prefix."""
 
         enable: bool = False
         ipv4: int = 24
@@ -84,12 +79,12 @@ class Features(HyperglassModel):
         )
 
     class RateLimit(HyperglassModel):
-        """Class model for params.features.rate_limit"""
+        """Validation model for params.features.rate_limit."""
 
         redis_id: int = 1
 
         class Query(HyperglassModel):
-            """Class model for params.features.rate_limit.query"""
+            """Validation model for params.features.rate_limit.query."""
 
             rate: int = 5
             period: str = "minute"
@@ -101,7 +96,7 @@ class Features(HyperglassModel):
             button: str = "Try Again"
 
         class Site(HyperglassModel):
-            """Class model for params.features.rate_limit.site"""
+            """Validation model for params.features.rate_limit.site."""
 
             rate: int = 60
             period: str = "minute"

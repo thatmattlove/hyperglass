@@ -1,4 +1,5 @@
-"""
+"""Validate query data.
+
 Accepts raw input data from execute.py, passes it through specific
 filters based on query type, returns validity boolean and specific
 error message.
@@ -7,15 +8,12 @@ error message.
 import ipaddress
 import re
 
-# Third Party Imports
-from logzero import logger as log
-
 # Project Imports
-from hyperglass.configuration import logzero_config  # noqa: F401
 from hyperglass.configuration import params
 from hyperglass.exceptions import HyperglassError
 from hyperglass.exceptions import InputInvalid
 from hyperglass.exceptions import InputNotAllowed
+from hyperglass.util import log
 
 
 class IPType:

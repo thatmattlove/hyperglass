@@ -1,17 +1,11 @@
-"""
-Defines models for Messages config variables.
-
-Imports config variables and overrides default class attributes.
-
-Validates input for overridden parameters.
-"""
+"""Validate error message configuration variables."""
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
 
 
 class Messages(HyperglassModel):
-    """Class model for params.messages"""
+    """Validation model for params.messages."""
 
     no_input: str = "{field} must be specified."
     acl_denied: str = "{target} is a member of {denied_network}, which is not allowed."
