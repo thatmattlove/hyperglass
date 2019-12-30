@@ -50,7 +50,7 @@ class Branding(HyperglassModel):
     class Logo(HyperglassModel):
         """Class model for params.branding.logo"""
 
-        path: str = "ui/images/hyperglass-dark.png"
+        logo_path: str = "ui/images/hyperglass-dark.png"
         width: int = 384
         favicons: str = "ui/images/favicons/"
 
@@ -59,10 +59,13 @@ class Branding(HyperglassModel):
             """
             If the favicons path does not end in a '/', append it.
             """
-            chars = [char for char in value]
+            chars = list(value)
             if chars[len(chars) - 1] != "/":
                 chars.append("/")
             return "".join(chars)
+
+        class Config:
+            fields = {"logo_path": "path"}
 
     class PeeringDb(HyperglassModel):
         """Class model for params.branding.peering_db"""
