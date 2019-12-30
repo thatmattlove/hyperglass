@@ -67,9 +67,7 @@ try:
         commands = _commands.Commands.import_params(user_commands)
     elif not user_commands:
         commands = _commands.Commands()
-    
-    import json
-    log.info(json.dumps(user_devices, indent=2))
+
     devices = _routers.Routers._import(user_devices.get("routers", dict()))
 
 
@@ -83,9 +81,10 @@ except ValidationError as validation_errors:
 
 
 # Logging Config
+LOG_LEVEL = "INFO"
 if params.general.debug:
-    _log_level = "DEBUG"
-    LOG_HANDLER["level"] = _log_level
+    LOG_LEVEL = "DEBUG"
+    LOG_HANDLER["level"] = LOG_LEVEL
     log.remove()
     log.configure(handlers=[LOG_HANDLER], levels=LOG_LEVELS)
 
