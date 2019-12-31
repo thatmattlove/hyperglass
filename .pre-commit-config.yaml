@@ -7,5 +7,7 @@ repos:
     hooks:
       - id: line_count
         name: Line Count
+        stages:
+          - push
         entry: hooks.sh
         language: script

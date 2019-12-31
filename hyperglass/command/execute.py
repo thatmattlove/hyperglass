@@ -75,7 +75,6 @@ class Connect:
                 remote_bind_address=(self.device.address, self.device.port),
                 local_bind_address=("localhost", 0),
                 skip_tunnel_checkup=False,
-                logger=log,
             )
         except sshtunnel.BaseSSHTunnelForwarderError as scrape_proxy_error:
             log.error(
