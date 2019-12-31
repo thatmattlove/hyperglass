@@ -129,11 +129,19 @@ ets/traceroute_nanog.pdf" target="_blank">click here</a>.
 
 
 def generate_markdown(section, file_name=None):
-    """
-    Renders markdown as HTML. If file_name exists in appropriate
-    directory, it will be imported and used. If not, the default values
-    will be used. Also renders the Front Matter values within each
-    template.
+    """Render markdown as HTML.
+
+    Arguments:
+        section {str} -- Section name
+
+    Keyword Arguments:
+        file_name {str} -- Markdown file name (default: {None})
+
+    Raises:
+        HyperglassError: Raised if YAML front matter is unreadable
+
+    Returns:
+        {dict} -- Frontmatter dictionary
     """
     if section == "help":
         file = working_directory.joinpath("templates/info/help.md")
@@ -188,13 +196,22 @@ def generate_markdown(section, file_name=None):
 
 
 def render_html(template_name, **kwargs):
-    """Render Jinja2 HTML templates."""
+    """Render Jinja2 HTML templates.
+
+    Arguments:
+        template_name {str} -- Jinja2 template name
+
+    Raises:
+        HyperglassError: Raised if template is not found
+
+    Returns:
+        {str} -- Rendered template
+    """
     details_name_list = ["footer", "bgp_aspath", "bgp_community"]
     details_dict = {}
     for details_name in details_name_list:
         details_data = generate_markdown("details", details_name)
         details_dict.update({details_name: details_data})
-    info_list = ["bgp_route", "bgp_aspath", "bgp_community", "ping", "traceroute"]
     rendered_help = generate_markdown("help")
     log.debug(rendered_help)
     try:

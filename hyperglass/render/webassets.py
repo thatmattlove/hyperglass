@@ -26,10 +26,7 @@ env = jinja2.Environment(
 
 
 def render_frontend_config():
-    """
-    Renders user config to JSON file so front end config can be used by
-    Javascript
-    """
+    """Render user config to JSON for use by frontend."""
     rendered_frontend_file = hyperglass_root.joinpath("static/src/js/frontend.json")
     try:
         with rendered_frontend_file.open(mode="w") as frontend_file:
@@ -48,7 +45,7 @@ def render_frontend_config():
 
 
 def get_fonts():
-    """Downloads google fonts"""
+    """Download Google fonts."""
     font_dir = hyperglass_root.joinpath("static/src/sass/fonts")
     font_bin = str(
         hyperglass_root.joinpath("static/src/node_modules/get-google-fonts/cli.js")
@@ -77,7 +74,7 @@ def get_fonts():
 
 
 def render_theme():
-    """Renders Jinja2 template to Sass file"""
+    """Render Jinja2 template to Sass file."""
     rendered_theme_file = hyperglass_root.joinpath("static/src/sass/theme.sass")
     try:
         template = env.get_template("templates/theme.sass.j2")
@@ -92,7 +89,7 @@ def render_theme():
 
 
 def build_assets():
-    """Builds, bundles, and minifies Sass/CSS/JS web assets"""
+    """Build, bundle, and minify Sass/CSS/JS web assets."""
     proc = subprocess.Popen(
         ["yarn", "--silent", "--emoji", "false", "--json", "--no-progress", "build"],
         cwd=hyperglass_root.joinpath("static/src"),
@@ -116,10 +113,7 @@ def build_assets():
 
 
 def render_assets():
-    """
-    Controller function for rendering sass theme elements and building
-    web assets
-    """
+    """Run web asset rendering functions."""
     try:
         log.debug("Rendering front end config...")
         render_frontend_config()
