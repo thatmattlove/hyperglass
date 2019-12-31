@@ -25,8 +25,7 @@ LOG_HANDLER = {"sink": sys.stdout, "format": LOG_FMT, "level": "INFO"}
 
 
 class Supported:
-    """
-    Defines items supported by hyperglass.
+    """Define items supported by hyperglass.
 
     query_types: Supported query types used to validate Flask input.
 
@@ -120,41 +119,61 @@ class Supported:
 
     @staticmethod
     def is_supported(nos):
-        """
-        Returns boolean state of input Network Operating System against
-        rest OR scrape tuples.
+        """Verify if NOS is supported.
+
+        Arguments:
+            nos {str} -- NOS short name
+
+        Returns:
+            {bool} -- True if supported
         """
         return bool(nos in Supported.rest + Supported.scrape)
 
     @staticmethod
     def is_scrape(nos):
-        """
-        Returns boolean state of input Network Operating System against
-        scrape tuple.
+        """Verify if NOS transport is scrape.
+
+        Arguments:
+            nos {str} -- NOS short name
+
+        Returns:
+            {bool} -- True if scrape
         """
         return bool(nos in Supported.scrape)
 
     @staticmethod
     def is_rest(nos):
-        """
-        Returns boolean state of input Network Operating System against
-        rest tuple.
+        """Verify if NOS transport is REST.
+
+        Arguments:
+            nos {str} -- NOS short name
+
+        Returns:
+            {bool} -- True if REST
         """
         return bool(nos in Supported.rest)
 
     @staticmethod
     def is_supported_query(query_type):
-        """
-        Returns boolean state of input Network Operating System against
-        query_type tuple.
+        """Verify if query type is supported.
+
+        Arguments:
+            query_type {str} -- query type
+
+        Returns:
+            {bool} -- True if supported
         """
         return bool(query_type in Supported.query_types)
 
     @staticmethod
     def map_transport(nos):
-        """
-        Returns "scrape" if input nos is in Supported.scrape tuple, or
-        "rest" if input nos is in Supported.rest tuple.
+        """Map NOS to transport name.
+
+        Arguments:
+            nos {str} -- NOS short name
+
+        Returns:
+            {str} -- Transport name
         """
         transport = None
         if nos in Supported.scrape:
@@ -162,8 +181,3 @@ class Supported:
         elif nos in Supported.rest:
             transport = "rest"
         return transport
-
-    @staticmethod
-    def map_rest(nos):
-        uri_map = {"frr": "frr", "bird": "bird"}
-        return uri_map.get(nos)
