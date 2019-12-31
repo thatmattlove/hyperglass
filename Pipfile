@@ -26,6 +26,7 @@ flake8-print = "*"
 flake8-return = "*"
 pep8-naming = "*"
 flake8-docstrings = "*"
+pre-commit = "*"
 
 [packages]
 aredis = "==1.1.5"

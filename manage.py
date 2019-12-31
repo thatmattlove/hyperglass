@@ -842,5 +842,67 @@ def generate_secret(length):
     )
 
 
+@hg.command("line-count", help="Get line count for source code.")
+@click.option(
+    "-d",
+    "--directory",
+    type=str,
+    default="hyperglass",
+    help="Source code directory",
+)
+def line_count(directory):
+    """Get lines of code.
+
+    Arguments:
+        directory {str} -- Source code directory
+    """
+    from develop import count_lines
+
+    count = count_lines(directory)
+    click.echo(
+        NL
+        + click.style("Line Count: ", fg="blue")
+        + click.style(str(count), fg="green", bold=True)
+        + NL
+    )
+
+
+@hg.command("line-count-badge", help="Generates line count badge")
+@click.option(
+    "-d",
+    "--directory",
+    type=str,
+    default="hyperglass",
+    help="Source code directory",
+)
+def line_count_badge(directory):
+    """Generate shields.io-like badge for lines of code.
+
+    Arguments:
+        directory {str} -- Source code directory
+
+    Returns:
+        {int} -- Exit status
+    """
+    import anybadge
+    from develop import count_lines
+
+    this_dir = Path.cwd()
+    file_name = "line_count.svg"
+    badge_file = this_dir / file_name
+
+    if badge_file.exists():
+        badge_file.unlink()
+
+    count = count_lines(directory)
+    badge = anybadge.Badge(label="Lines of Code", value=count, default_color="#007ec6")
+    badge.write_badge(file_name)
+    click.echo(
+        click.style("Created line count badge. Lines: ", fg="white")
+        + click.style(str(count), fg="green", bold=True)
+    )
+    return 0
+
+
 if __name__ == "__main__":
     hg()
