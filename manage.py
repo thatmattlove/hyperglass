@@ -685,15 +685,11 @@ def dev_server(host, port, assets):
 @hg.command("render-assets", help="Render theme & build web assets")
 def render_assets():
     """Render theme template to Sass file and build web assets"""
-    try:
-        assets_rendered = render_hyperglass_assets()
-    except Exception as e:
-        raise click.ClickException(
-            click.style("✗ Error rendering assets: ", fg="red", bold=True)
-            + click.style(e, fg="blue")
-        )
+    assets_rendered = render_hyperglass_assets()
     if not assets_rendered:
         raise click.ClickException("✗ Error rendering assets")
+    elif assets_rendered:
+        click.secho("✓ Rendered assets", fg="green", bold=True)
 
 
 @hg.command("migrate-configs", help="Copy YAML examples to usable config files")

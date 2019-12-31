@@ -1,11 +1,13 @@
 """Renders Jinja2 & Sass templates for use by the front end application."""
 
 # Standard Library Imports
+import asyncio
 import json
-import subprocess
+import time
 from pathlib import Path
 
 # Third Party Imports
+import aiofiles
 import jinja2
 
 # Project Imports
@@ -21,16 +23,19 @@ working_directory = Path(__file__).resolve().parent
 hyperglass_root = working_directory.parent
 file_loader = jinja2.FileSystemLoader(str(working_directory))
 env = jinja2.Environment(
-    loader=file_loader, autoescape=True, extensions=["jinja2.ext.autoescape"]
+    loader=file_loader,
+    autoescape=True,
+    extensions=["jinja2.ext.autoescape"],
+    enable_async=True,
 )
 
 
-def render_frontend_config():
+async def render_frontend_config():
     """Render user config to JSON for use by frontend."""
     rendered_frontend_file = hyperglass_root.joinpath("static/src/js/frontend.json")
     try:
-        with rendered_frontend_file.open(mode="w") as frontend_file:
-            frontend_file.write(
+        async with aiofiles.open(rendered_frontend_file, mode="w") as frontend_file:
+            await frontend_file.write(
                 json.dumps(
                     {
                         "config": frontend_params,
@@ -39,12 +44,11 @@ def render_frontend_config():
                     }
                 )
             )
-    except jinja2.exceptions as frontend_error:
-        log.error(f"Error rendering front end config: {frontend_error}")
-        raise HyperglassError(frontend_error)
+    except Exception as frontend_error:
+        raise HyperglassError(f"Error rendering front end config: {frontend_error}")
 
 
-def get_fonts():
+async def get_fonts():
     """Download Google fonts."""
     font_dir = hyperglass_root.joinpath("static/src/sass/fonts")
     font_bin = str(
@@ -54,90 +58,93 @@ def get_fonts():
     font_primary = "+".join(params.branding.font.primary.split(" ")).strip()
     font_mono = "+".join(params.branding.font.mono.split(" ")).strip()
     font_url = font_base.format(p=font_primary + ":300,400,700", m=font_mono + ":400")
-    proc = subprocess.Popen(
-        ["node", font_bin, "-w", "-i", font_url, "-o", font_dir],
-        cwd=hyperglass_root.joinpath("static"),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
+    command = f"node {str(font_bin)} -w -i '{font_url}' -o {str(font_dir)}"
     try:
-        stdout, stderr = proc.communicate(timeout=60)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        stdout, stderr = proc.communicate()
-    if proc.returncode != 0:
-        output_error = stderr.decode("utf-8")
-        log.error(output_error)
-        raise HyperglassError(f"Error downloading font from URL {font_url}")
-    else:
-        proc.kill()
+        proc = await asyncio.create_subprocess_shell(
+            command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
+        for line in stdout.decode().strip().split("\n"):
+            log.debug(line)
+        if proc.returncode != 0:
+            output_error = stderr.decode("utf-8")
+            log.error(output_error)
+            raise RuntimeError(f"Error downloading font from URL {font_url}")
+        await proc.wait()
+    except Exception as e:
+        raise HyperglassError(str(e))
 
 
-def render_theme():
+async def render_theme():
     """Render Jinja2 template to Sass file."""
     rendered_theme_file = hyperglass_root.joinpath("static/src/sass/theme.sass")
     try:
         template = env.get_template("templates/theme.sass.j2")
+        rendered_theme = await template.render_async(params.branding)
+
         log.debug(f"Branding variables:\n{params.branding.json(indent=4)}")
-        rendered_theme = template.render(params.branding)
         log.debug(f"Rendered theme:\n{str(rendered_theme)}")
-        with rendered_theme_file.open(mode="w") as theme_file:
-            theme_file.write(rendered_theme)
+        async with aiofiles.open(rendered_theme_file, mode="w") as theme_file:
+            await theme_file.write(rendered_theme)
     except jinja2.exceptions as theme_error:
-        log.error(f"Error rendering theme: {theme_error}")
-        raise HyperglassError(theme_error)
+        raise HyperglassError(f"Error rendering theme: {theme_error}")
 
 
-def build_assets():
+async def build_assets():
     """Build, bundle, and minify Sass/CSS/JS web assets."""
-    proc = subprocess.Popen(
-        ["yarn", "--silent", "--emoji", "false", "--json", "--no-progress", "build"],
-        cwd=hyperglass_root.joinpath("static/src"),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
+    command = "yarn --silent --emoji false --json --no-progress build"
+    static_dir = hyperglass_root.joinpath("static/src")
     try:
-        stdout, stderr = proc.communicate(timeout=60)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        stdout, stderr = proc.communicate()
-    output_out = json.loads(stdout.decode("utf-8").split("\n")[0])
-    if proc.returncode != 0:
-        output_error = json.loads(stderr.decode("utf-8").strip("\n"))
-        log.error(output_error["data"])
-        raise HyperglassError(
-            f'Error building web assets with script {output_out["data"]}:'
-            f'{output_error["data"]}'
+        proc = await asyncio.create_subprocess_shell(
+            command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=static_dir,
         )
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
+        output_out = json.loads(stdout.decode("utf-8").split("\n")[0])
+        if proc.returncode != 0:
+            output_error = json.loads(stderr.decode("utf-8").strip("\n"))
+            raise RuntimeError(
+                f'Error building web assets with script {output_out["data"]}:'
+                f'{output_error["data"]}'
+            )
+        await proc.wait()
+    except Exception as e:
+        raise HyperglassError(str(e))
     log.debug(f'Built web assets with script {output_out["data"]}')
 
 
 def render_assets():
     """Run web asset rendering functions."""
+    start = time.time()
     try:
         log.debug("Rendering front end config...")
-        render_frontend_config()
+        asyncio.run(render_frontend_config())
         log.debug("Rendered front end config")
     except HyperglassError as frontend_error:
-        raise HyperglassError(frontend_error) from None
+        raise HyperglassError(str(frontend_error))
 
     try:
         log.debug("Downloading theme fonts...")
-        get_fonts()
+        asyncio.run(get_fonts())
         log.debug("Downloaded theme fonts")
     except HyperglassError as theme_error:
-        raise HyperglassError(theme_error) from None
+        raise HyperglassError(str(theme_error))
 
     try:
         log.debug("Rendering theme elements...")
-        render_theme()
+        asyncio.run(render_theme())
         log.debug("Rendered theme elements")
     except HyperglassError as theme_error:
-        raise HyperglassError(theme_error) from None
+        raise HyperglassError(str(theme_error))
 
     try:
         log.debug("Building web assets...")
-        build_assets()
+        asyncio.run(build_assets())
         log.debug("Built web assets")
     except HyperglassError as assets_error:
-        raise HyperglassError(str(assets_error)) from None
+        raise HyperglassError(str(assets_error))
+    end = time.time()
+    elapsed = round(end - start, 2)
+    log.debug(f"Rendered assets in {elapsed} seconds.")
