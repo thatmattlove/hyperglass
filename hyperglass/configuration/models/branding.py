@@ -1,6 +1,7 @@
 """Validate branding configuration variables."""
 
 # Third Party Imports
+from pydantic import StrictStr
 from pydantic import constr
 from pydantic import validator
 from pydantic.color import Color
@@ -40,8 +41,20 @@ class Branding(HyperglassModel):
     class Font(HyperglassModel):
         """Validation model for params.branding.font."""
 
-        primary: str = "Nunito"
-        mono: str = "Fira Code"
+        class Primary(HyperglassModel):
+            """Validation model for params.branding.font.primary."""
+
+            name: StrictStr = "Nunito"
+            size: StrictStr = "1rem"
+
+        class Mono(HyperglassModel):
+            """Validation model for params.branding.font.mono."""
+
+            name: StrictStr = "Fira Code"
+            size: StrictStr = "87.5%"
+
+        primary: Primary = Primary()
+        mono: Mono = Mono()
 
     class HelpMenu(HyperglassModel):
         """Validation model for params.branding.help_menu."""

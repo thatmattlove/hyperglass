@@ -37,8 +37,8 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 # Standard Library Imports
-from datetime import datetime
 import sys
+from datetime import datetime
 
 # Third Party Imports
 import stackprinter

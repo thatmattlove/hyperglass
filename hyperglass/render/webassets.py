@@ -63,8 +63,8 @@ async def _get_fonts():
     log.debug("Downloading theme fonts...")
 
     font_base = "https://fonts.googleapis.com/css?family={p}|{m}&display=swap"
-    font_primary = "+".join(params.branding.font.primary.split(" ")).strip()
-    font_mono = "+".join(params.branding.font.mono.split(" ")).strip()
+    font_primary = "+".join(params.branding.font.primary.name.split(" ")).strip()
+    font_mono = "+".join(params.branding.font.mono.name.split(" ")).strip()
     font_url = font_base.format(p=font_primary + ":300,400,700", m=font_mono + ":400")
 
     font_command = f"node {str(FONT_CMD)} -w -i '{font_url}' -o {str(FONT_DIR)}"
