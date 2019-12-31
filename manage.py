@@ -832,5 +832,19 @@ def fixpermissions(user, group):
         raise
 
 
+@hg.command("generate-secret", help="Generate agent secret")
+@click.option("-l", "--length", default=32, help="Secret length")
+def generate_secret(length):
+    import secrets
+
+    gen_secret = secrets.token_urlsafe(length)
+    click.echo(
+        NL
+        + click.style("Secret: ", fg="white")
+        + click.style(gen_secret, fg="magenta", bold=True)
+        + NL
+    )
+
+
 if __name__ == "__main__":
     hg()
