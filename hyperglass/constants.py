@@ -2,6 +2,8 @@
 # Standard Library Imports
 import sys
 
+MIN_PYTHON_VERSION = (3, 7)
+
 protocol_map = {80: "http", 8080: "http", 443: "https", 8443: "https"}
 
 target_format_space = ("huawei", "huawei_vrpv8")

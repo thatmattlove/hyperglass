@@ -39,8 +39,16 @@ from hyperglass.exceptions import ResponseEmpty
 from hyperglass.exceptions import RestError
 from hyperglass.exceptions import ScrapeError
 from hyperglass.render import render_html
+from hyperglass.util import check_python
 from hyperglass.util import cpu_count
 from hyperglass.util import log
+
+# Verify Python version meets minimum requirement
+try:
+    python_version = check_python()
+    log.info(f"Python {python_version} detected.")
+except RuntimeError as r:
+    raise HyperglassError(str(r), alert="danger") from None
 
 log.debug(f"Configuration Parameters: {params.dict(by_alias=True)}")
 

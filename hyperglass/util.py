@@ -24,4 +24,22 @@ def cpu_count():
     return multiprocessing.cpu_count()
 
 
+def check_python():
+    """Verify Python Version.
+
+    Raises:
+        RuntimeError: Raised if running Python version is invalid.
+
+    Returns:
+        {str} -- Python version
+    """
+    import sys
+    from hyperglass.constants import MIN_PYTHON_VERSION
+
+    pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
+    if sys.version_info < MIN_PYTHON_VERSION:
+        raise RuntimeError(f"Python {pretty_version}+ is required.")
+    return pretty_version
+
+
 log = _logger()

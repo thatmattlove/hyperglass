@@ -2,8 +2,8 @@
 import sys
 from distutils.core import setup
 
-if sys.version_info < (3, 6):
-    sys.exit("Python 3.6+ is required.")
+if sys.version_info < (3, 7):
+    sys.exit("Python 3.7+ is required.")
 
 
 with open("README.md", "r") as ld:
@@ -21,7 +21,7 @@ setup(
     author_email="matt@hyperglass.io",
     description=desc,
     url="https://github.com/checktheroads/hyperglass",
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     packages=["hyperglass"],
     install_requires=requirements,
     license="BSD 3-Clause Clear License",
