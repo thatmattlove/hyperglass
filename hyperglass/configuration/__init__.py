@@ -1,10 +1,12 @@
 """Import configuration files and returns default values if undefined."""
 
 # Standard Library Imports
+import asyncio
 from pathlib import Path
 
 # Third Party Imports
 import yaml
+from aiofile import AIOFile
 from pydantic import ValidationError
 
 # Project Imports
@@ -21,41 +23,98 @@ from hyperglass.util import log
 # Project Directories
 working_dir = Path(__file__).resolve().parent
 
-# Import main hyperglass configuration file
-try:
-    with open(working_dir.joinpath("hyperglass.yaml")) as config_yaml:
-        user_config = yaml.safe_load(config_yaml)
-except FileNotFoundError as no_config_error:
-    user_config = None
-    log.error(f"{no_config_error} - Default configuration will be used")
+# Config Files
+config_file_main = working_dir / "hyperglass.yaml"
+config_file_devices = working_dir / "devices.yaml"
+config_file_commands = working_dir / "commands.yaml"
 
-# Import commands file
-try:
-    with open(working_dir.joinpath("commands.yaml")) as commands_yaml:
-        user_commands = yaml.safe_load(commands_yaml)
-        log.debug(f"Found commands: {user_commands}")
-except FileNotFoundError:
-    user_commands = None
-    log.debug(
-        (
-            f'No commands found in {working_dir.joinpath("commands.yaml")}. '
-            "Defaults will be used."
-        )
-    )
-except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
-    raise ConfigError(error_msg=yaml_error) from None
 
-# Import device configuration file
+def _set_log_level(debug):
+    """Set log level based on debug state.
+
+    Arguments:
+        debug {bool} -- Debug state from config file
+
+    Returns:
+        {bool} -- True
+    """
+    if debug:
+        log_level = "DEBUG"
+        LOG_HANDLER["level"] = log_level
+        log.remove()
+        log.configure(handlers=[LOG_HANDLER], levels=LOG_LEVELS)
+        log.debug("Debugging Enabled")
+    return True
+
+
+async def _config_main():
+    """Open main config file and load YAML to dict.
+
+    Returns:
+        {dict} -- Main config file
+    """
+    try:
+        async with AIOFile(config_file_main, "r") as cf:
+            raw = await cf.read()
+            config = yaml.safe_load(raw)
+    except FileNotFoundError as nf:
+        config = None
+        log.warning(f"{str(nf)} - Default configuration will be used")
+    except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
+        raise ConfigError(error_msg=str(yaml_error)) from None
+    return config
+
+
+async def _config_commands():
+    """Open commands config file and load YAML to dict.
+
+    Returns:
+        {dict} -- Commands config file
+    """
+    try:
+        async with AIOFile(config_file_commands, "r") as cf:
+            raw = await cf.read()
+            config = yaml.safe_load(raw)
+            log.debug(f"Unvalidated commands: {config}")
+    except FileNotFoundError as nf:
+        config = None
+        log.warning(f"{str(nf)} - Default commands will be used.")
+    except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
+        raise ConfigError(error_msg=str(yaml_error)) from None
+    return config
+
+
+async def _config_devices():
+    """Open devices config file and load YAML to dict.
+
+    Returns:
+        {dict} -- Devices config file
+    """
+    try:
+        async with AIOFile(config_file_devices, "r") as cf:
+            raw = await cf.read()
+            config = yaml.safe_load(raw)
+            log.debug(f"Unvalidated device config: {config}")
+    except FileNotFoundError:
+        raise ConfigMissing(missing_item=str(config_file_devices)) from None
+    except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
+        raise ConfigError(error_msg=str(yaml_error)) from None
+    return config
+
+
+user_config = asyncio.run(_config_main())
+
+# Logging Config
 try:
-    with open(working_dir.joinpath("devices.yaml")) as devices_yaml:
-        user_devices = yaml.safe_load(devices_yaml)
-except FileNotFoundError as no_devices_error:
-    log.error(no_devices_error)
-    raise ConfigMissing(
-        missing_item=str(working_dir.joinpath("devices.yaml"))
-    ) from None
-except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
-    raise ConfigError(str(yaml_error)) from None
+    _debug = user_config["general"]["debug"]
+except KeyError:
+    _debug = True
+
+# Read raw debug value from config to enable debugging quickly needed.
+_set_log_level(_debug)
+
+user_commands = asyncio.run(_config_commands())
+user_devices = asyncio.run(_config_devices())
 
 # Map imported user config files to expected schema:
 try:
@@ -63,13 +122,13 @@ try:
         params = _params.Params(**user_config)
     elif not user_config:
         params = _params.Params()
+
     if user_commands:
         commands = _commands.Commands.import_params(user_commands)
     elif not user_commands:
         commands = _commands.Commands()
 
-    devices = _routers.Routers._import(user_devices.get("routers", dict()))
-
+    devices = _routers.Routers._import(user_devices.get("routers", {}))
 
 except ValidationError as validation_errors:
     errors = validation_errors.errors()
@@ -77,22 +136,16 @@ except ValidationError as validation_errors:
         raise ConfigInvalid(
             field=": ".join([str(item) for item in error["loc"]]),
             error_msg=error["msg"],
-        )
+        ) from None
+
+# Re-evaluate debug state after config is validated
+_set_log_level(params.general.debug)
 
 
-# Logging Config
-LOG_LEVEL = "INFO"
-if params.general.debug:
-    LOG_LEVEL = "DEBUG"
-    LOG_HANDLER["level"] = LOG_LEVEL
-    log.remove()
-    log.configure(handlers=[LOG_HANDLER], levels=LOG_LEVELS)
+def _build_frontend_networks():
+    """Build filtered JSON structure of networks for frontend.
 
-log.debug("Debugging Enabled")
-
-
-def build_frontend_networks():
-    """
+    Schema:
     {
         "device.network.display_name": {
             "device.name": {
@@ -105,6 +158,12 @@ def build_frontend_networks():
             }
         }
     }
+
+    Raises:
+        ConfigError: Raised if parsing/building error occurs.
+
+    Returns:
+        {dict} -- Frontend networks
     """
     frontend_dict = {}
     for device in devices.routers:
@@ -132,8 +191,10 @@ def build_frontend_networks():
     return frontend_dict
 
 
-def build_frontend_devices():
-    """
+def _build_frontend_devices():
+    """Build filtered JSON structure of devices for frontend.
+
+    Schema:
     {
         "device.name": {
             "location": "device.location",
@@ -144,6 +205,12 @@ def build_frontend_devices():
             ]
         }
     }
+
+    Raises:
+        ConfigError: Raised if parsing/building error occurs.
+
+    Returns:
+        {dict} -- Frontend devices
     """
     frontend_dict = {}
     for device in devices.routers:
@@ -168,7 +235,15 @@ def build_frontend_devices():
     return frontend_dict
 
 
-def build_networks():
+def _build_networks():
+    """Build filtered JSON Structure of networks & devices for Jinja templates.
+
+    Raises:
+        ConfigError: Raised if parsing/building error occurs. 
+
+    Returns:
+        {dict} -- Networks & devices
+    """
     networks_dict = {}
     for device in devices.routers:
         if device.network.display_name in networks_dict:
@@ -194,13 +269,12 @@ def build_networks():
     return networks_dict
 
 
-networks = build_networks()
-frontend_networks = build_frontend_networks()
-frontend_devices = build_frontend_devices()
-
-frontend_fields = {
+_frontend_fields = {
     "general": {"debug", "request_timeout"},
     "branding": {"text"},
     "messages": ...,
 }
-frontend_params = params.dict(include=frontend_fields)
+frontend_params = params.dict(include=_frontend_fields)
+networks = _build_networks()
+frontend_networks = _build_frontend_networks()
+frontend_devices = _build_frontend_devices()
