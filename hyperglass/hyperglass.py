@@ -155,7 +155,7 @@ count_notfound = Counter(
 @app.route("/metrics")
 @limiter.exempt
 async def metrics(request):
-    """Prometheus metrics"""
+    """Serve Prometheus metrics."""
     registry = CollectorRegistry()
     multiprocess.MultiProcessCollector(registry)
     latest = generate_latest(registry)
@@ -170,7 +170,7 @@ async def metrics(request):
 
 @app.exception(InvalidUsage)
 async def handle_frontend_errors(request, exception):
-    """Handles user-facing feedback related to frontend/input errors."""
+    """Handle user-facing feedback related to frontend/input errors."""
     client_addr = get_remote_address(request)
     error = exception.args[0]
     alert = error["alert"]
@@ -191,7 +191,7 @@ async def handle_frontend_errors(request, exception):
 
 @app.exception(ServiceUnavailable)
 async def handle_backend_errors(request, exception):
-    """Handles user-facing feedback related to backend errors."""
+    """Handle user-facing feedback related to backend errors."""
     client_addr = get_remote_address(request)
     error = exception.args[0]
     alert = error["alert"]
@@ -212,7 +212,7 @@ async def handle_backend_errors(request, exception):
 
 @app.exception(NotFound)
 async def handle_404(request, exception):
-    """Renders full error page for invalid URI."""
+    """Render full error page for invalid URI."""
     path = request.path
     html = render_html("404", uri=path)
     client_addr = get_remote_address(request)
@@ -223,7 +223,7 @@ async def handle_404(request, exception):
 
 @app.exception(RateLimitExceeded)
 async def handle_429(request, exception):
-    """Renders full error page for too many site queries."""
+    """Render full error page for too many site queries."""
     html = render_html("ratelimit-site")
     client_addr = get_remote_address(request)
     count_ratelimit.labels(exception, client_addr).inc()
@@ -233,7 +233,7 @@ async def handle_429(request, exception):
 
 @app.exception(ServerError)
 async def handle_500(request, exception):
-    """General Error Page."""
+    """Render general error page."""
     client_addr = get_remote_address(request)
     count_errors.labels(500, exception, client_addr, None, None, None).inc()
     log.error(f"Error: {exception}, Source: {client_addr}")
@@ -242,7 +242,7 @@ async def handle_500(request, exception):
 
 
 async def clear_cache():
-    """Function to clear the Redis cache."""
+    """Clear the Redis cache."""
     try:
         await r_cache.flushdb()
         return "Successfully cleared cache"
@@ -254,15 +254,8 @@ async def clear_cache():
 @app.route("/", methods=["GET"])
 @limiter.limit(rate_limit_site, error_message="Site")
 async def site(request):
-    """Main front-end web application."""
+    """Serve main application front end."""
     return response.html(render_html("form", primary_asn=params.general.primary_asn))
-
-
-@app.route("/test", methods=["GET"])
-async def test_route(request):
-    """Test route for various tests."""
-    html = render_html("500")
-    return response.html(html, status=500)
 
 
 async def validate_input(query_data):  # noqa: C901
@@ -448,9 +441,9 @@ async def validate_input(query_data):  # noqa: C901
     },
 )
 async def hyperglass_main(request):
-    """Main backend application initiator.
+    """Process XHR POST data.
 
-    Ingests Ajax POST data from
+    Ingests XHR POST data from
     form submit, passes it to the backend application to perform the
     filtering/lookups.
     """
