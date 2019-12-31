@@ -22,6 +22,14 @@ class Construct:
     """Construct SSH commands/REST API parameters from validated query data."""
 
     def get_device_vrf(self):
+        """Match query VRF to device VRF.
+
+        Raises:
+            HyperglassError: Raised if VRFs do not match.
+
+        Returns:
+            {object} -- Matched VRF object
+        """
         _device_vrf = None
         for vrf in self.device.vrfs:
             if vrf.name == self.query_vrf:
@@ -35,6 +43,13 @@ class Construct:
         return _device_vrf
 
     def __init__(self, device, query_data, transport):
+        """Initialize command construction.
+
+        Arguments:
+            device {object} -- Device object
+            query_data {object} -- Validated query object
+            transport {str} -- Transport name; 'scrape' or 'rest'
+        """
         self.device = device
         self.query_data = query_data
         self.transport = transport
@@ -43,7 +58,14 @@ class Construct:
         self.device_vrf = self.get_device_vrf()
 
     def format_target(self, target):
-        """Formats query target based on NOS requirement"""
+        """Format query target based on NOS requirement.
+
+        Arguments:
+            target {str} -- Query target
+
+        Returns:
+            {str} -- Formatted target
+        """
         if self.device.nos in target_format_space:
             _target = re.sub(r"\/", r" ", target)
         else:
@@ -54,20 +76,36 @@ class Construct:
 
     @staticmethod
     def device_commands(nos, afi, query_type):
-        """
-        Constructs class attribute path from input parameters, returns
-        class attribute value for command. This is required because
-        class attributes are set dynamically when devices.yaml is
-        imported, so the attribute path is unknown until runtime.
+        """Construct class attribute path for device commansd.
+
+        This is required because class attributes are set dynamically
+        when devices.yaml is imported, so the attribute path is unknown
+        until runtime.
+
+        Arguments:
+            nos {str} -- NOS short name
+            afi {str} -- Address family
+            query_type {str} -- Query type
+
+        Returns:
+            {str} -- Dotted attribute path, e.g. 'cisco_ios.ipv4.bgp_route'
         """
         cmd_path = f"{nos}.{afi}.{query_type}"
         return operator.attrgetter(cmd_path)(commands)
 
     @staticmethod
     def get_cmd_type(query_protocol, query_vrf):
-        """
-        Constructs AFI string. If query_vrf is specified, AFI prefix is
-        "vpnv", if not, AFI prefix is "ipv"
+        """Construct AFI string.
+
+        If query_vrf is specified, AFI prefix is "vpnv".
+        If not, AFI prefix is "ipv".
+
+        Arguments:
+            query_protocol {str} -- 'ipv4' or 'ipv6'
+            query_vrf {str} -- Query VRF name
+
+        Returns:
+            {str} -- Constructed command name
         """
         if query_vrf and query_vrf != "default":
             cmd_type = f"{query_protocol}_vpn"
@@ -76,8 +114,11 @@ class Construct:
         return cmd_type
 
     def ping(self):
-        """Constructs ping query parameters from pre-validated input"""
+        """Construct ping query parameters from pre-validated input.
 
+        Returns:
+            {str} -- SSH command or stringified JSON
+        """
         log.debug(
             f"Constructing ping query for {self.query_target} via {self.transport}"
         )
@@ -113,8 +154,10 @@ class Construct:
         return query
 
     def traceroute(self):
-        """
-        Constructs traceroute query parameters from pre-validated input.
+        """Construct traceroute query parameters from pre-validated input.
+
+        Returns:
+            {str} -- SSH command or stringified JSON
         """
         log.debug(
             (
@@ -154,8 +197,10 @@ class Construct:
         return query
 
     def bgp_route(self):
-        """
-        Constructs bgp_route query parameters from pre-validated input.
+        """Construct bgp_route query parameters from pre-validated input.
+
+        Returns:
+            {str} -- SSH command or stringified JSON
         """
         log.debug(
             f"Constructing bgp_route query for {self.query_target} via {self.transport}"
@@ -192,9 +237,10 @@ class Construct:
         return query
 
     def bgp_community(self):
-        """
-        Constructs bgp_community query parameters from pre-validated
-        input.
+        """Construct bgp_community query parameters from pre-validated input.
+
+        Returns:
+            {str} -- SSH command or stringified JSON
         """
         log.debug(
             (
@@ -243,8 +289,10 @@ class Construct:
         return query
 
     def bgp_aspath(self):
-        """
-        Constructs bgp_aspath query parameters from pre-validated input.
+        """Construct bgp_aspath query parameters from pre-validated input.
+
+        Returns:
+            {str} -- SSH command or stringified JSON
         """
         log.debug(
             (

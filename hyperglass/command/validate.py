@@ -17,13 +17,15 @@ from hyperglass.util import log
 
 
 class IPType:
-    """
+    """Build IPv4 & IPv6 attributes for input target.
+
     Passes input through IPv4/IPv6 regex patterns to determine if input
     is formatted as a host (e.g. 192.0.2.1), or as CIDR
     (e.g. 192.0.2.0/24). is_host() and is_cidr() return a boolean.
     """
 
     def __init__(self):
+        """Initialize attribute builder."""
         self.ipv4_host = (
             r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4]"
             r"[0-9]|[01]?[0-9][0-9]?)?$"
@@ -58,7 +60,14 @@ class IPType:
         )
 
     def is_host(self, target):
-        """Tests input to see if formatted as host"""
+        """Test target to see if it is formatted as a host address.
+
+        Arguments:
+            target {str} -- Target IPv4/IPv6 address
+
+        Returns:
+            {bool} -- True if host, False if not
+        """
         ip_version = ipaddress.ip_network(target).version
         state = False
         if ip_version == 4 and re.match(self.ipv4_host, target):
@@ -70,7 +79,14 @@ class IPType:
         return state
 
     def is_cidr(self, target):
-        """Tests input to see if formatted as CIDR"""
+        """Test target to see if it is formatted as CIDR.
+
+        Arguments:
+            target {str} -- Target IPv4/IPv6 address
+
+        Returns:
+            {bool} -- True if CIDR, False if not
+        """
         ip_version = ipaddress.ip_network(target).version
         state = False
         if ip_version == 4 and re.match(self.ipv4_cidr, target):
@@ -81,7 +97,17 @@ class IPType:
 
 
 def ip_validate(target):
-    """Validates if input is a valid IP address"""
+    """Validate if input is a valid IP address.
+
+    Arguments:
+        target {str} -- Unvalidated IPv4/IPv6 address
+
+    Raises:
+        ValueError: Raised if target is not a valid IPv4 or IPv6 address
+
+    Returns:
+        {object} -- Valid IPv4Network/IPv6Network object
+    """
     try:
         valid_ip = ipaddress.ip_network(target)
         if valid_ip.is_reserved or valid_ip.is_unspecified or valid_ip.is_loopback:
@@ -97,16 +123,31 @@ def ip_validate(target):
 
 
 def ip_access_list(query_data, device):
-    """
-    Check VRF access list for matching prefixes, returns an error if a
-    match is found.
+    """Check VRF access list for matching prefixes.
+
+    Arguments:
+        query_data {object} -- Query object
+        device {object} -- Device object
+
+    Raises:
+        HyperglassError: Raised if query VRF and ACL VRF do not match
+        ValueError: Raised if an ACL deny match is found
+        ValueError: Raised if no ACL permit match is found
+
+    Returns:
+        {str} -- Allowed target
     """
     log.debug(f'Checking Access List for: {query_data["query_target"]}')
 
-    def member_of(target, network):
-        """
-        Returns boolean if an input target IP is a member of an input
-        network.
+    def _member_of(target, network):
+        """Check if IP address belongs to network.
+
+        Arguments:
+            target {object} -- Target IPv4/IPv6 address
+            network {object} -- ACL network
+
+        Returns:
+            {bool} -- True if target is a member of network, False if not
         """
         log.debug(f"Checking membership of {target} for {network}")
 
@@ -141,12 +182,12 @@ def ip_access_list(query_data, device):
             a: n for a, n in ace.items() for ace in vrf_acl if n.version == target_ver
         }.items():
             # If the target is a member of an allowed network, exit successfully.
-            if member_of(target, net) and action == "allow":
+            if _member_of(target, net) and action == "allow":
                 log.debug(f"{target} is specifically allowed")
                 return target
 
             # If the target is a member of a denied network, return an error.
-            elif member_of(target, net) and action == "deny":
+            elif _member_of(target, net) and action == "deny":
                 log.debug(f"{target} is specifically denied")
                 _exception = ValueError(params.messages.acl_denied)
                 _exception.details = {"denied_network": str(net)}
@@ -160,8 +201,13 @@ def ip_access_list(query_data, device):
 
 
 def ip_attributes(target):
-    """
-    Construct dictionary of validated IP attributes for repeated use.
+    """Construct dictionary of validated IP attributes for repeated use.
+
+    Arguments:
+        target {str} -- Target IPv4/IPv6 address
+
+    Returns:
+        {dict} -- IP attribute dict
     """
     network = ipaddress.ip_network(target)
     addr = network.network_address
@@ -180,7 +226,21 @@ def ip_attributes(target):
 
 
 def ip_type_check(query_type, target, device):
-    """Checks multiple IP address related validation parameters"""
+    """Check multiple IP address related validation parameters.
+
+    Arguments:
+        query_type {str} -- Query type
+        target {str} -- Query target
+        device {object} -- Device
+
+    Raises:
+        ValueError: Raised if max prefix length check fails
+        ValueError: Raised if Requires IPv6 CIDR check fails
+        ValueError: Raised if directed CIDR check fails
+
+    Returns:
+        {str} -- target if checks pass
+    """
     prefix_attr = ip_attributes(target)
     log.debug(f"IP Attributes:\n{prefix_attr}")
 
@@ -218,7 +278,8 @@ def ip_type_check(query_type, target, device):
 
 
 class Validate:
-    """
+    """Validates query data with selected device.
+
     Accepts raw input and associated device parameters from execute.py
     and validates the input based on specific query type. Returns
     boolean for validity, specific error message, and status code.
@@ -232,7 +293,16 @@ class Validate:
         self.target = target
 
     def validate_ip(self):
-        """Validates IPv4/IPv6 Input"""
+        """Validate IPv4/IPv6 Input.
+
+        Raises:
+            InputInvalid: Raised if IP validation fails
+            InputNotAllowed: Raised if ACL checks fail
+            InputNotAllowed: Raised if IP type checks fail
+
+        Returns:
+            {str} -- target if validation passes
+        """
         log.debug(f"Validating {self.query_type} query for target {self.target}...")
 
         # Perform basic validation of an IP address, return error if
@@ -267,7 +337,15 @@ class Validate:
         return self.target
 
     def validate_dual(self):
-        """Validates Dual-Stack Input"""
+        """Validate dual-stack input such as bgp_community & bgp_aspath.
+
+        Raises:
+            InputInvalid: Raised if target community is invalid.
+            InputInvalid: Raised if target AS_PATh is invalid.
+
+        Returns:
+            {str} -- target if validation passes.
+        """
         log.debug(f"Validating {self.query_type} query for target {self.target}...")
 
         if self.query_type == "bgp_community":
@@ -307,6 +385,11 @@ class Validate:
         return self.target
 
     def validate_query(self):
+        """Validate input.
+
+        Returns:
+            {str} -- target if validation passes
+        """
         if self.query_type in ("bgp_community", "bgp_aspath"):
             return self.validate_dual()
         else:
