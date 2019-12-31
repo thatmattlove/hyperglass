@@ -36,8 +36,7 @@ from hyperglass.util import log
 
 
 class Connect:
-    """
-    Parent class for all connection types:
+    """Connect to target device via specified transport.
 
     scrape_direct() directly connects to devices via SSH
 
@@ -47,6 +46,13 @@ class Connect:
     """
 
     def __init__(self, device, query_data, transport):
+        """Initialize connection to device.
+
+        Arguments:
+            device {object} -- Matched device object
+            query_data {object} -- Query object
+            transport {str} -- 'scrape' or 'rest'
+        """
         self.device = device
         self.query_data = query_data
         self.query_type = self.query_data["query_type"]
@@ -60,11 +66,11 @@ class Connect:
         )()
 
     async def scrape_proxied(self):
-        """
+        """Connect to a device via an SSH proxy.
+
         Connects to the router via Netmiko library via the sshtunnel
         library, returns the command output.
         """
-
         log.debug(f"Connecting to {self.device.proxy} via sshtunnel library...")
         try:
             tunnel = sshtunnel.open_tunnel(
@@ -85,7 +91,7 @@ class Connect:
                 params.messages.connection_error,
                 device_name=self.device.display_name,
                 proxy=self.device.proxy.name,
-                error=scrape_proxy_error,
+                error=str(scrape_proxy_error),
             )
         with tunnel:
             log.debug(f"Established tunnel with {self.device.proxy}")
@@ -115,7 +121,7 @@ class Connect:
             except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
                 log.error(
                     f"Timeout connecting to device {self.device.location}: "
-                    f"{scrape_error}"
+                    f"{str(scrape_error)}"
                 )
                 raise DeviceTimeout(
                     params.messages.connection_error,
@@ -126,7 +132,7 @@ class Connect:
             except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
                 log.error(
                     f"Error authenticating to device {self.device.location}: "
-                    f"{auth_error}"
+                    f"{str(auth_error)}"
                 )
                 raise AuthError(
                     params.messages.connection_error,
@@ -137,7 +143,7 @@ class Connect:
             except sshtunnel.BaseSSHTunnelForwarderError as scrape_error:
                 log.error(
                     f"Error connecting to device proxy {self.device.proxy}: "
-                    f"{scrape_error}"
+                    f"{str(scrape_error)}"
                 )
                 raise ScrapeError(
                     params.messages.connection_error,
@@ -157,11 +163,11 @@ class Connect:
         return response
 
     async def scrape_direct(self):
-        """
+        """Connect directly to a device.
+
         Directly connects to the router via Netmiko library, returns the
         command output.
         """
-
         log.debug(f"Connecting directly to {self.device.location}...")
 
         scrape_host = {
@@ -187,7 +193,7 @@ class Connect:
             log.debug(f"Response type:\n{type(response)}")
         except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
             log.error(f"{params.general.request_timeout - 1} second timeout expired.")
-            log.error(scrape_error)
+            log.error(str(scrape_error))
             raise DeviceTimeout(
                 params.messages.connection_error,
                 device_name=self.device.display_name,
@@ -196,7 +202,7 @@ class Connect:
             )
         except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
             log.error(f"Error authenticating to device {self.device.location}")
-            log.error(auth_error)
+            log.error(str(auth_error))
 
             raise AuthError(
                 params.messages.connection_error,
@@ -216,7 +222,7 @@ class Connect:
         return response
 
     async def rest(self):
-        """Sends HTTP POST to router running a hyperglass API agent"""
+        """Connect to a device running hyperglass-agent via HTTP."""
         log.debug(f"Query parameters: {self.query}")
 
         headers = {"Content-Type": "application/json"}
@@ -300,23 +306,26 @@ class Connect:
 
 
 class Execute:
-    """
+    """Perform query execution on device.
+
     Ingests raw user input, performs validation of target input, pulls
     all configuraiton variables for the input router and connects to the
     selected device to execute the query.
     """
 
     def __init__(self, lg_data):
+        """Initialize execution object.
+
+        Arguments:
+            lg_data {object} -- Validated query object
+        """
         self.query_data = lg_data
         self.query_location = self.query_data["query_location"]
         self.query_type = self.query_data["query_type"]
         self.query_target = self.query_data["query_target"]
 
     async def response(self):
-        """
-        Initializes Execute.filter(), if input fails to pass filter,
-        returns errors to front end. Otherwise, executes queries.
-        """
+        """Initiate query validation and execution."""
         device = getattr(devices, self.query_location)
 
         log.debug(f"Received query for {self.query_data}")
