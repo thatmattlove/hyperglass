@@ -1,4 +1,5 @@
-"""
+"""hyperglass is a modern, customizable network looking glass written in Python 3.
+
 https://github.com/checktheroads/hyperglass
 
 The Clear BSD License
@@ -35,8 +36,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
+# Standard Library Imports
+import sys
+
 # Third Party Imports
-# Stackprinter Configuration
 import stackprinter
 import uvloop
 
