@@ -49,6 +49,7 @@ sshtunnel = "==0.1.5"
 stackprinter = "==0.2.3"
 uvloop = "==0.13.0"
 aiofiles = "*"
+aiofile = "*"
 
 [requires]
 python_version = "3.7"
