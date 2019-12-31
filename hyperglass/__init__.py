@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 # Standard Library Imports
+from datetime import datetime
 import sys
 
 # Third Party Imports
@@ -55,3 +56,11 @@ from hyperglass import util
 stackprinter.set_excepthook()
 
 uvloop.install()
+
+__name__ = "hyperglass"
+__version__ = "1.0.0"
+__author__ = "Matt Love"
+__copyright__ = f"Copyright {datetime.now().year} Matthew Love"
+__license__ = "BSD 3-Clause Clear License"
+
+meta = (__name__, __version__, __author__, __copyright__, __license__)
