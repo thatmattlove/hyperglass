@@ -3,11 +3,13 @@ repos:
   #   rev: v2.3.0
   #   hooks:
   #     - id: flake8
+  #       stages:
+  #          - push
   - repo: local
     hooks:
       - id: line_count
         name: Line Count
         stages:
-          - push
+          - commit
         entry: hooks.sh
         language: script
