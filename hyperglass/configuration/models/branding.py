@@ -10,12 +10,12 @@ from hyperglass.configuration.models._utils import HyperglassModel
 
 
 class Branding(HyperglassModel):
-    """Class model for params.branding"""
+    """Validation model for params.branding."""
 
     site_title: str = "hyperglass"
 
     class Colors(HyperglassModel):
-        """Class model for params.colors"""
+        """Validation model for params.colors."""
 
         primary: Color = "#40798c"
         secondary: Color = "#330036"
@@ -26,59 +26,60 @@ class Branding(HyperglassModel):
         background: Color = "#fbfffe"
 
         def dict(self, *args, **kwargs):
+            """Return dict for colors only."""
             _dict = {}
             for k, v in self.__dict__.items():
                 _dict.update({k: v.as_hex()})
             return _dict
 
     class Credit(HyperglassModel):
-        """Class model for params.branding.credit"""
+        """Validation model for params.branding.credit."""
 
         enable: bool = True
 
     class Font(HyperglassModel):
-        """Class model for params.branding.font"""
+        """Validation model for params.branding.font."""
 
         primary: str = "Nunito"
         mono: str = "Fira Code"
 
     class HelpMenu(HyperglassModel):
-        """Class model for params.branding.help_menu"""
+        """Validation model for params.branding.help_menu."""
 
         enable: bool = True
 
     class Logo(HyperglassModel):
-        """Class model for params.branding.logo"""
+        """Validation model for params.branding.logo."""
 
         logo_path: str = "ui/images/hyperglass-dark.png"
         width: int = 384
         favicons: str = "ui/images/favicons/"
 
         @validator("favicons")
-        def favicons_trailing_slash(cls, value):
-            """
-            If the favicons path does not end in a '/', append it.
-            """
+        def favicons_trailing_slash(cls, value):  # noqa: N805
+            """If the favicons path does not end in a '/', append it."""
             chars = list(value)
             if chars[len(chars) - 1] != "/":
                 chars.append("/")
             return "".join(chars)
 
         class Config:
+            """Override pydantic config."""
+
             fields = {"logo_path": "path"}
 
     class PeeringDb(HyperglassModel):
-        """Class model for params.branding.peering_db"""
+        """Validation model for params.branding.peering_db."""
 
         enable: bool = True
 
     class Terms(HyperglassModel):
-        """Class model for params.branding.terms"""
+        """Validation model for params.branding.terms."""
 
         enable: bool = True
 
     class Text(HyperglassModel):
-        """Class model for params.branding.text"""
+        """Validation model for params.branding.text."""
 
         title_mode: constr(regex=("logo_only|text_only|logo_title|all")) = "logo_only"
         title: str = "hyperglass"
@@ -97,14 +98,14 @@ class Branding(HyperglassModel):
         traceroute: str = "Traceroute"
 
         class Error404(HyperglassModel):
-            """Class model for 404 Error Page"""
+            """Validation model for 404 Error Page."""
 
             title: str = "Error"
             subtitle: str = "{uri} isn't a thing"
             button: str = "Home"
 
         class Error500(HyperglassModel):
-            """Class model for 500 Error Page"""
+            """Validation model for 500 Error Page."""
 
             title: str = "Error"
             subtitle: str = "Something Went Wrong"
