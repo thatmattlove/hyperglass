@@ -1,27 +1,17 @@
-"""
-Hyperglass web app initiator. Launches Sanic with appropriate number of
-workers per their documentation (equal to number of CPU cores).
-"""
-try:
-    import os
-    import tempfile
-    from hyperglass import hyperglass, APP_PARAMS
-except ImportError as import_error:
-    raise RuntimeError(import_error)
+"""hyperglass web app initiator."""
 
 
 def start():
-    """
-    Compiles configured Sass variables to CSS, then starts Sanic web
-    server.
-    """
-    tempdir = tempfile.TemporaryDirectory(prefix="hyperglass_")
-    os.environ["prometheus_multiproc_dir"] = tempdir.name
-
+    """Start Sanic web server."""
     try:
+        from hyperglass import hyperglass, APP_PARAMS
+
         hyperglass.app.run(**APP_PARAMS)
-    except Exception as hyperglass_error:
-        raise RuntimeError(hyperglass_error)
+
+    except ImportError as import_err:
+        raise RuntimeError(str(import_err))
+    except Exception as web_err:
+        raise RuntimeError(str(web_err))
 
 
 app = start()
