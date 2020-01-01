@@ -1,5 +1,8 @@
 """Validate network configuration variables."""
 
+# Third Party Imports
+from pydantic import StrictStr
+
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
 from hyperglass.configuration.models._utils import clean_name
@@ -8,8 +11,8 @@ from hyperglass.configuration.models._utils import clean_name
 class Network(HyperglassModel):
     """Validation Model for per-network/asn config in devices.yaml."""
 
-    name: str
-    display_name: str
+    name: StrictStr
+    display_name: StrictStr
 
 
 class Networks(HyperglassModel):
@@ -17,10 +20,17 @@ class Networks(HyperglassModel):
 
     @classmethod
     def import_params(cls, input_params):
-        """
-        Imports passed dict from YAML config, removes unsupported
-        characters from device names, dynamically sets attributes for
-        the credentials class.
+        """Import loaded YAML, initialize per-network definitions.
+
+        Remove unsupported characters from network names, dynamically
+        set attributes for the networks class. Add cls.networks
+        attribute so network objects can be accessed inside a dict.
+
+        Arguments:
+            input_params {dict} -- Unvalidated network definitions
+
+        Returns:
+            {object} -- Validated networks object
         """
         obj = Networks()
         networks = {}

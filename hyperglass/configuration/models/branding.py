@@ -69,7 +69,7 @@ class Branding(HyperglassModel):
         favicons: str = "ui/images/favicons/"
 
         @validator("favicons")
-        def favicons_trailing_slash(cls, value):  # noqa: N805
+        def favicons_trailing_slash(cls, value):
             """If the favicons path does not end in a '/', append it."""
             chars = list(value)
             if chars[len(chars) - 1] != "/":

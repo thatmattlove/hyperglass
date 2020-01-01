@@ -20,10 +20,13 @@ class Credentials(HyperglassModel):
 
     @classmethod
     def import_params(cls, input_params):
-        """
-        Imports passed dict from YAML config, removes unsupported
-        characters from device names, dynamically sets attributes for
-        the credentials class.
+        """Import credentials with corrected field names.
+
+        Arguments:
+            input_params {dict} -- Credential definition
+
+        Returns:
+            {object} -- Validated credential object
         """
         obj = Credentials()
         for (credname, params) in input_params.items():

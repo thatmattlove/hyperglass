@@ -1,6 +1,8 @@
 """Validate SSH proxy configuration variables."""
 
 # Third Party Imports
+from pydantic import StrictInt
+from pydantic import StrictStr
 from pydantic import validator
 
 # Project Imports
@@ -13,16 +15,21 @@ from hyperglass.exceptions import UnsupportedDevice
 class Proxy(HyperglassModel):
     """Validation model for per-proxy config in devices.yaml."""
 
-    name: str
-    address: str
-    port: int = 22
+    name: StrictStr
+    address: StrictStr
+    port: StrictInt = 22
     credential: Credential
-    nos: str = "linux_ssh"
+    nos: StrictStr = "linux_ssh"
 
     @validator("nos")
-    def supported_nos(cls, value):  # noqa: N805
-        """
-        Validates that passed nos string is supported by hyperglass.
+    def supported_nos(cls, value):
+        """Verify NOS is supported by hyperglass.
+
+        Raises:
+            UnsupportedDevice: Raised if NOS is not supported.
+
+        Returns:
+            {str} -- Valid NOS name
         """
         if not value == "linux_ssh":
             raise UnsupportedDevice(f'"{value}" device type is not supported.')
@@ -34,10 +41,16 @@ class Proxies(HyperglassModel):
 
     @classmethod
     def import_params(cls, input_params):
-        """
-        Imports passed dict from YAML config, removes unsupported
-        characters from device names, dynamically sets attributes for
-        the proxies class.
+        """Import loaded YAML, initialize per-proxy definitions.
+
+        Remove unsupported characters from proxy names, dynamically
+        set attributes for the proxies class.
+
+        Arguments:
+            input_params {dict} -- Unvalidated proxy definitions
+
+        Returns:
+            {object} -- Validated proxies object
         """
         obj = Proxies()
         for (devname, params) in input_params.items():

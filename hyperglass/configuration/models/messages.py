@@ -1,5 +1,8 @@
 """Validate error message configuration variables."""
 
+# Third Party Imports
+from pydantic import StrictStr
+
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
 
@@ -7,24 +10,24 @@ from hyperglass.configuration.models._utils import HyperglassModel
 class Messages(HyperglassModel):
     """Validation model for params.messages."""
 
-    no_input: str = "{field} must be specified."
-    acl_denied: str = "{target} is a member of {denied_network}, which is not allowed."
-    acl_not_allowed: str = "{target} is not allowed."
-    max_prefix: str = (
+    no_input: StrictStr = "{field} must be specified."
+    acl_denied: StrictStr = "{target} is a member of {denied_network}, which is not allowed."
+    acl_not_allowed: StrictStr = "{target} is not allowed."
+    max_prefix: StrictStr = (
         "Prefix length must be shorter than /{max_length}. {target} is too specific."
     )
-    requires_ipv6_cidr: str = (
+    requires_ipv6_cidr: StrictStr = (
         "{device_name} requires IPv6 BGP lookups to be in CIDR notation."
     )
-    feature_not_enabled: str = "{feature} is not enabled for {device_name}."
-    invalid_input: str = "{target} is not a valid {query_type} target."
-    invalid_field: str = "{input} is an invalid {field}."
-    general: str = "Something went wrong."
-    directed_cidr: str = "{query_type} queries can not be in CIDR format."
-    request_timeout: str = "Request timed out."
-    connection_error: str = "Error connecting to {device_name}: {error}"
-    authentication_error: str = "Authentication error occurred."
-    noresponse_error: str = "No response."
-    vrf_not_associated: str = "VRF {vrf_name} is not associated with {device_name}."
-    no_matching_vrfs: str = "No VRFs in Common"
-    no_output: str = "No output."
+    feature_not_enabled: StrictStr = "{feature} is not enabled for {device_name}."
+    invalid_input: StrictStr = "{target} is not a valid {query_type} target."
+    invalid_field: StrictStr = "{input} is an invalid {field}."
+    general: StrictStr = "Something went wrong."
+    directed_cidr: StrictStr = "{query_type} queries can not be in CIDR format."
+    request_timeout: StrictStr = "Request timed out."
+    connection_error: StrictStr = "Error connecting to {device_name}: {error}"
+    authentication_error: StrictStr = "Authentication error occurred."
+    noresponse_error: StrictStr = "No response."
+    vrf_not_associated: StrictStr = "VRF {vrf_name} is not associated with {device_name}."
+    no_matching_vrfs: StrictStr = "No VRFs in Common"
+    no_output: StrictStr = "No output."

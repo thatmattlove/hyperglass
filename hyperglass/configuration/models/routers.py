@@ -6,6 +6,8 @@ from typing import List
 from typing import Union
 
 # Third Party Imports
+from pydantic import StrictInt
+from pydantic import StrictStr
 from pydantic import validator
 
 # Project Imports
@@ -27,46 +29,65 @@ from hyperglass.util import log
 class Router(HyperglassModel):
     """Validation model for per-router config in devices.yaml."""
 
-    name: str
-    address: str
+    name: StrictStr
+    address: StrictStr
     network: Network
     credential: Credential
     proxy: Union[Proxy, None] = None
-    location: str
-    display_name: str
-    port: int
-    nos: str
+    location: StrictStr
+    display_name: StrictStr
+    port: StrictInt
+    nos: StrictStr
     commands: Union[Command, None] = None
     vrfs: List[Vrf] = [DefaultVrf()]
-    display_vrfs: List[str] = []
-    vrf_names: List[str] = []
+    display_vrfs: List[StrictStr] = []
+    vrf_names: List[StrictStr] = []
 
     @validator("nos")
-    def supported_nos(cls, v):  # noqa: N805
+    def supported_nos(cls, value):
+        """Validate that nos is supported by hyperglass.
+
+        Raises:
+            UnsupportedDevice: Raised if nos is unsupported.
+
+        Returns:
+            {str} -- Valid NOS
         """
-        Validates that passed nos string is supported by hyperglass.
-        """
-        if not Supported.is_supported(v):
-            raise UnsupportedDevice(f'"{v}" device type is not supported.')
-        return v
+        if not Supported.is_supported(value):
+            raise UnsupportedDevice(f'"{value}" device type is not supported.')
+        return value
 
     @validator("name", "location")
-    def clean_name(cls, v):  # noqa: N805
-        """Remove or replace unsupported characters from field values"""
-        return clean_name(v)
+    def clean_name(cls, value):
+        """Remove or replace unsupported characters from field values.
+
+        Arguments:
+            value {str} -- Raw name/location
+
+        Returns:
+            {} -- Valid name/location
+        """
+        return clean_name(value)
 
     @validator("commands", always=True)
-    def validate_commands(cls, v, values):  # noqa: N805
+    def validate_commands(cls, value, values):
+        """If a named command profile is not defined, use the NOS name.
+
+        Arguments:
+            value {str} -- Reference to command profile
+            values {dict} -- Other already-validated fields
+
+        Returns:
+            {str} -- Command profile or NOS name
         """
-        If a named command profile is not defined, use the NOS name.
-        """
-        if v is None:
-            v = values["nos"]
-        return v
+        if value is None:
+            value = values["nos"]
+        return value
 
     @validator("vrfs", pre=True)
     def validate_vrfs(cls, value, values):
-        """
+        """Validate VRF definitions.
+
           - Ensures source IP addresses are set for the default VRF
             (global routing table).
           - Initializes the default VRF with the DefaultVRF() class so
@@ -74,6 +95,16 @@ class Router(HyperglassModel):
             table.
           - If the 'display_name' is not set for a non-default VRF, try
             to make one that looks pretty based on the 'name'.
+
+        Arguments:
+            value {list} -- List of VRFs
+            values {dict} -- Other already-validated fields
+
+        Raises:
+            ConfigError: Raised if the VRF is missing a source address
+
+        Returns:
+            {list} -- List of valid VRFs
         """
         vrfs = []
         for vrf in value:
@@ -101,7 +132,9 @@ class Router(HyperglassModel):
                 # class. (See vrfs.py)
                 vrf = DefaultVrf(**vrf)
 
-            elif vrf_name != "default" and not isinstance(vrf.get("display_name"), str):
+            elif vrf_name != "default" and not isinstance(
+                vrf.get("display_name"), StrictStr
+            ):
 
                 # If no display_name is set for a non-default VRF, try
                 # to make one by replacing non-alphanumeric characters
@@ -128,25 +161,32 @@ class Router(HyperglassModel):
 class Routers(HyperglassModelExtra):
     """Validation model for device configurations."""
 
-    hostnames: List[str] = []
-    vrfs: List[str] = []
-    display_vrfs: List[str] = []
+    hostnames: List[StrictStr] = []
+    vrfs: List[StrictStr] = []
+    display_vrfs: List[StrictStr] = []
     routers: List[Router] = []
 
     @classmethod
     def _import(cls, input_params):
-        """
-        Imports passed list of dictionaries from YAML config, validates
-        each router config, sets class attributes for each router for
-        easy access. Also builds lists of common attributes for easy
-        access in other modules.
+        """Import loaded YAML, initialize per-network definitions.
+
+        Remove unsupported characters from device names, dynamically
+        set attributes for the devices class. Builds lists of common
+        attributes for easy access in other modules.
+
+        Arguments:
+            input_params {dict} -- Unvalidated router definitions
+
+        Returns:
+            {object} -- Validated routers object
         """
         vrfs = set()
         display_vrfs = set()
-        setattr(cls, "routers", [])
-        setattr(cls, "hostnames", [])
-        setattr(cls, "vrfs", [])
-        setattr(cls, "display_vrfs", [])
+        routers = Routers()
+        routers.routers = []
+        routers.hostnames = []
+        routers.vrfs = []
+        routers.display_vrfs = []
 
         for definition in input_params:
             # Validate each router config against Router() model/schema
@@ -154,14 +194,14 @@ class Routers(HyperglassModelExtra):
 
             # Set a class attribute for each router so each router's
             # attributes can be accessed with `devices.router_hostname`
-            setattr(cls, router.name, router)
+            setattr(routers, router.name, router)
 
             # Add router-level attributes (assumed to be unique) to
             # class lists, e.g. so all hostnames can be accessed as a
             # list with `devices.hostnames`, same for all router
             # classes, for when iteration over all routers is required.
-            cls.hostnames.append(router.name)
-            cls.routers.append(router)
+            routers.hostnames.append(router.name)
+            routers.routers.append(router)
 
             for vrf in router.vrfs:
                 # For each configured router VRF, add its name and
@@ -177,15 +217,14 @@ class Routers(HyperglassModelExtra):
                 # Add a 'default_vrf' attribute to the devices class
                 # which contains the configured default VRF display name
                 if vrf.name == "default" and not hasattr(cls, "default_vrf"):
-                    setattr(
-                        cls,
-                        "default_vrf",
-                        {"name": vrf.name, "display_name": vrf.display_name},
-                    )
+                    routers.default_vrf = {
+                        "name": vrf.name,
+                        "display_name": vrf.display_name,
+                    }
 
         # Convert the de-duplicated sets to a standard list, add lists
         # as class attributes
-        setattr(cls, "vrfs", list(vrfs))
-        setattr(cls, "display_vrfs", list(display_vrfs))
+        routers.vrfs = list(vrfs)
+        routers.display_vrfs = list(display_vrfs)
 
-        return cls
+        return routers

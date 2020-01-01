@@ -1,7 +1,5 @@
-"""
-Defines models for all config variables.
+"""Define models for all config variables.
 
-Imports config variables and overrides default class attributes.
-
-Validates input for overridden parameters.
+Import config variables and overrides default class attributes.
+Validate input for overridden parameters.
 """

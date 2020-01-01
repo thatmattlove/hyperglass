@@ -11,54 +11,26 @@ from typing import Optional
 
 # Third Party Imports
 from pydantic import IPvAnyNetwork
+from pydantic import StrictStr
 from pydantic import constr
 from pydantic import validator
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
-from hyperglass.exceptions import ConfigError
 
 
 class DeviceVrf4(HyperglassModel):
     """Validation model for IPv4 AFI definitions."""
 
-    vrf_name: str
+    vrf_name: StrictStr
     source_address: IPv4Address
-
-    @validator("source_address")
-    def check_ip_type(cls, value, values):
-        if value is not None and isinstance(value, IPv4Address):
-            if value.is_loopback:
-                raise ConfigError(
-                    (
-                        "The default routing table with source IPs must be defined. "
-                        "VRF: {vrf}, Source Address: {value}"
-                    ),
-                    vrf=values["vrf_name"],
-                    value=value,
-                )
-        return value
 
 
 class DeviceVrf6(HyperglassModel):
     """Validation model for IPv6 AFI definitions."""
 
-    vrf_name: str
+    vrf_name: StrictStr
     source_address: IPv6Address
-
-    @validator("source_address")
-    def check_ip_type(cls, value, values):
-        if value is not None and isinstance(value, IPv4Address):
-            if value.is_loopback:
-                raise ConfigError(
-                    (
-                        "The default routing table with source IPs must be defined. "
-                        "VRF: {vrf}, Source Address: {value}"
-                    ),
-                    vrf=values["vrf_name"],
-                    value=value,
-                )
-        return value
 
 
 class Vrf(HyperglassModel):
@@ -75,6 +47,11 @@ class Vrf(HyperglassModel):
 
     @validator("ipv4", "ipv6", pre=True, always=True)
     def set_default_vrf_name(cls, value, values):
+        """If per-AFI name is undefined, set it to the global VRF name.
+
+        Returns:
+            {str} -- VRF Name
+        """
         if isinstance(value, DefaultVrf) and value.vrf_name is None:
             value["vrf_name"] = values["name"]
         elif isinstance(value, Dict) and value.get("vrf_name") is None:
@@ -83,6 +60,11 @@ class Vrf(HyperglassModel):
 
     @validator("access_list", pre=True)
     def validate_action(cls, value):
+        """Transform ACL networks to IPv4Network/IPv6Network objects.
+
+        Returns:
+            {object} -- IPv4Network/IPv6Network object
+        """
         for li in value:
             for action, network in li.items():
                 if isinstance(network, (IPv4Network, IPv6Network)):
@@ -93,8 +75,8 @@ class Vrf(HyperglassModel):
 class DefaultVrf(HyperglassModel):
     """Validation model for default routing table VRF."""
 
-    name: str = "default"
-    display_name: str = "Global"
+    name: StrictStr = "default"
+    display_name: StrictStr = "Global"
     access_list: List[Dict[constr(regex=("allow|deny")), IPvAnyNetwork]] = [
         {"allow": IPv4Network("0.0.0.0/0")},
         {"allow": IPv6Network("::/0")},
@@ -103,14 +85,14 @@ class DefaultVrf(HyperglassModel):
     class DefaultVrf4(HyperglassModel):
         """Validation model for IPv4 default routing table VRF definition."""
 
-        vrf_name: str = "default"
-        source_address: IPv4Address = IPv4Address("127.0.0.1")
+        vrf_name: StrictStr = "default"
+        source_address: IPv4Address
 
     class DefaultVrf6(HyperglassModel):
         """Validation model for IPv6 default routing table VRF definition."""
 
-        vrf_name: str = "default"
-        source_address: IPv6Address = IPv6Address("::1")
+        vrf_name: StrictStr = "default"
+        source_address: IPv6Address
 
-    ipv4: DefaultVrf4 = DefaultVrf4()
-    ipv6: DefaultVrf6 = DefaultVrf6()
+    ipv4: Optional[DefaultVrf4]
+    ipv6: Optional[DefaultVrf6]

@@ -136,7 +136,7 @@ except ValidationError as validation_errors:
         raise ConfigInvalid(
             field=": ".join([str(item) for item in error["loc"]]),
             error_msg=error["msg"],
-        ) from None
+        )
 
 # Re-evaluate debug state after config is validated
 _set_log_level(params.general.debug)
@@ -239,7 +239,7 @@ def _build_networks():
     """Build filtered JSON Structure of networks & devices for Jinja templates.
 
     Raises:
-        ConfigError: Raised if parsing/building error occurs. 
+        ConfigError: Raised if parsing/building error occurs.
 
     Returns:
         {dict} -- Networks & devices
