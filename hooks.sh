@@ -18,7 +18,7 @@ function isort_all () {
     fi
 }
 
-make_badge
+# make_badge
 # isort_all
 
 exit 0

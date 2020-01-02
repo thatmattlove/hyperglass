@@ -15,7 +15,7 @@ This branch is *very much* under construction. There's a 99% chance that hypergl
 [**Documentation**](https://hyperglass.readthedocs.io)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Screenshots**](https://hyperglass.readthedocs.io/en/latest/screenshots/)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Live Demo**](https://hyperglass.allroads.io/)
 
 [![Build Status](https://travis-ci.org/checktheroads/hyperglass.svg?branch=master)](https://travis-ci.org/checktheroads/hyperglass)
-![LOC](https://raw.githubusercontent.com/checktheroads/hyperglass/v1.0.0/line_count.svg?sanitize=true)
+[![SCC Line Count](https://sloc.xyz/github/checktheroads/hyperglass/?category=code)](https://github.com/boyter/scc/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 </div>
