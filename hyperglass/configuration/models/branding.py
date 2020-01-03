@@ -1,7 +1,9 @@
 """Validate branding configuration variables."""
 
+from typing import Optional
+
 # Third Party Imports
-from pydantic import StrictStr
+from pydantic import StrictStr, StrictInt, StrictBool
 from pydantic import constr
 from pydantic import validator
 from pydantic.color import Color
@@ -13,7 +15,7 @@ from hyperglass.configuration.models._utils import HyperglassModel
 class Branding(HyperglassModel):
     """Validation model for params.branding."""
 
-    site_title: str = "hyperglass"
+    site_title: StrictStr = "hyperglass"
 
     class Colors(HyperglassModel):
         """Validation model for params.colors."""
@@ -36,7 +38,7 @@ class Branding(HyperglassModel):
     class Credit(HyperglassModel):
         """Validation model for params.branding.credit."""
 
-        enable: bool = True
+        enable: StrictBool = True
 
     class Font(HyperglassModel):
         """Validation model for params.branding.font."""
@@ -59,14 +61,15 @@ class Branding(HyperglassModel):
     class HelpMenu(HyperglassModel):
         """Validation model for params.branding.help_menu."""
 
-        enable: bool = True
+        enable: StrictBool = True
 
     class Logo(HyperglassModel):
         """Validation model for params.branding.logo."""
 
-        logo_path: str = "ui/images/hyperglass-dark.png"
-        width: int = 384
-        favicons: str = "ui/images/favicons/"
+        logo_path: StrictStr = "ui/images/hyperglass-dark.png"
+        width: StrictInt = 384
+        height: Optional[StrictInt]
+        favicons: StrictStr = "ui/images/favicons/"
 
         @validator("favicons")
         def favicons_trailing_slash(cls, value):
@@ -84,45 +87,45 @@ class Branding(HyperglassModel):
     class PeeringDb(HyperglassModel):
         """Validation model for params.branding.peering_db."""
 
-        enable: bool = True
+        enable: StrictBool = True
 
     class Terms(HyperglassModel):
         """Validation model for params.branding.terms."""
 
-        enable: bool = True
+        enable: StrictBool = True
 
     class Text(HyperglassModel):
         """Validation model for params.branding.text."""
 
         title_mode: constr(regex=("logo_only|text_only|logo_title|all")) = "logo_only"
-        title: str = "hyperglass"
-        subtitle: str = "AS{primary_asn}"
-        query_location: str = "Location"
-        query_type: str = "Query Type"
-        query_target: str = "Target"
-        query_vrf: str = "Routing Table"
-        terms: str = "Terms"
-        info: str = "Help"
+        title: StrictStr = "hyperglass"
+        subtitle: StrictStr = "AS{primary_asn}"
+        query_location: StrictStr = "Location"
+        query_type: StrictStr = "Query Type"
+        query_target: StrictStr = "Target"
+        query_vrf: StrictStr = "Routing Table"
+        terms: StrictStr = "Terms"
+        info: StrictStr = "Help"
         peeringdb = "PeeringDB"
-        bgp_route: str = "BGP Route"
-        bgp_community: str = "BGP Community"
-        bgp_aspath: str = "BGP AS Path"
-        ping: str = "Ping"
-        traceroute: str = "Traceroute"
+        bgp_route: StrictStr = "BGP Route"
+        bgp_community: StrictStr = "BGP Community"
+        bgp_aspath: StrictStr = "BGP AS Path"
+        ping: StrictStr = "Ping"
+        traceroute: StrictStr = "Traceroute"
 
         class Error404(HyperglassModel):
             """Validation model for 404 Error Page."""
 
-            title: str = "Error"
-            subtitle: str = "{uri} isn't a thing"
-            button: str = "Home"
+            title: StrictStr = "Error"
+            subtitle: StrictStr = "{uri} isn't a thing"
+            button: StrictStr = "Home"
 
         class Error500(HyperglassModel):
             """Validation model for 500 Error Page."""
 
-            title: str = "Error"
-            subtitle: str = "Something Went Wrong"
-            button: str = "Home"
+            title: StrictStr = "Error"
+            subtitle: StrictStr = "Something Went Wrong"
+            button: StrictStr = "Home"
 
         error404: Error404 = Error404()
         error500: Error500 = Error500()
