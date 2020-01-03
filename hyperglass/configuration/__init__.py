@@ -14,6 +14,7 @@ from hyperglass.configuration.models import commands as _commands
 from hyperglass.configuration.models import params as _params
 from hyperglass.configuration.models import routers as _routers
 from hyperglass.constants import LOG_HANDLER
+from hyperglass.constants import LOG_HANDLER_FILE
 from hyperglass.constants import LOG_LEVELS
 from hyperglass.exceptions import ConfigError
 from hyperglass.exceptions import ConfigInvalid
@@ -29,7 +30,7 @@ config_file_devices = working_dir / "devices.yaml"
 config_file_commands = working_dir / "commands.yaml"
 
 
-def _set_log_level(debug):
+def _set_log_level(debug, log_file=None):
     """Set log level based on debug state.
 
     Arguments:
@@ -38,12 +39,24 @@ def _set_log_level(debug):
     Returns:
         {bool} -- True
     """
+    stdout_handler = LOG_HANDLER.copy()
+    file_handler = LOG_HANDLER_FILE.copy()
+
     if debug:
         log_level = "DEBUG"
-        LOG_HANDLER["level"] = log_level
-        log.remove()
-        log.configure(handlers=[LOG_HANDLER], levels=LOG_LEVELS)
-        log.debug("Debugging Enabled")
+        stdout_handler["level"] = log_level
+        file_handler["level"] = log_level
+
+    if log_file is not None:
+        file_handler.update({"sink": log_file})
+        log_handlers = [stdout_handler, file_handler]
+    else:
+        log_handlers = [stdout_handler]
+
+    log.remove()
+    log.configure(handlers=log_handlers, levels=LOG_LEVELS)
+    if debug:
+        log.debug("Debugging enabled")
     return True
 
 
@@ -139,7 +152,7 @@ except ValidationError as validation_errors:
         )
 
 # Re-evaluate debug state after config is validated
-_set_log_level(params.general.debug)
+_set_log_level(params.general.debug, params.general.log_file)
 
 
 def _build_frontend_networks():
