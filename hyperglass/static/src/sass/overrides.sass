@@ -292,6 +292,10 @@
 .bootstrap-select > .dropdown-toggle.bs-placeholder
     color: $input-placeholder-color !important
 
+.bootstrap-select .dropdown-menu li a.dropdown-item:not(.selected):hover
+    background-color: $hg-overlay
+    color: findTextColor($hg-overlay)
+
 .hg-back:hover
     text-decoration: none
     border: 1px solid $hg-primary !important
