@@ -58,6 +58,7 @@ flake8-return = "^1.1.1"
 pep8-naming = "^0.9.1"
 flake8-docstrings = "^1.5.0"
 pre-commit = "^1.21.0"
+mccabe = "^0.6.1"
 
 [tool.isort]
 line_length = 88

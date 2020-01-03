@@ -1,9 +1,12 @@
 """Validate branding configuration variables."""
 
+# Standard Library Imports
 from typing import Optional
 
 # Third Party Imports
-from pydantic import StrictStr, StrictInt, StrictBool
+from pydantic import StrictBool
+from pydantic import StrictInt
+from pydantic import StrictStr
 from pydantic import constr
 from pydantic import validator
 from pydantic.color import Color

@@ -23,6 +23,8 @@ LOG_LEVELS = [
 
 LOG_HANDLER = {"sink": sys.stdout, "format": LOG_FMT, "level": "INFO"}
 
+LOG_HANDLER_FILE = {"format": LOG_FMT, "level": "INFO"}
+
 
 class Supported:
     """Define items supported by hyperglass.
