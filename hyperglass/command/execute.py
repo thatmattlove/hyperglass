@@ -26,7 +26,6 @@ from hyperglass.command.validate import Validate
 from hyperglass.configuration import devices
 from hyperglass.configuration import params
 from hyperglass.constants import Supported
-from hyperglass.constants import protocol_map
 from hyperglass.exceptions import AuthError
 from hyperglass.exceptions import DeviceTimeout
 from hyperglass.exceptions import ResponseEmpty
@@ -225,18 +224,31 @@ class Connect:
         """Connect to a device running hyperglass-agent via HTTP."""
         log.debug(f"Query parameters: {self.query}")
 
-        headers = {"Content-Type": "application/json"}
-        http_protocol = protocol_map.get(self.device.port, "https")
-        endpoint = "{protocol}://{addr}:{port}/query".format(
-            protocol=http_protocol, addr=self.device.address, port=self.device.port
+        client_params = {
+            "headers": {"Content-Type": "application/json"},
+            "timeout": params.general.request_timeout,
+        }
+        if self.device.ssl is not None and self.device.ssl.enable:
+            http_protocol = "https"
+            client_params.update({"verify": str(self.device.ssl.cert)})
+            log.debug(
+                (
+                    f"Using {str(self.device.ssl.cert)} to validate connection "
+                    f"to {self.device.name}"
+                )
+            )
+        else:
+            http_protocol = "http"
+        endpoint = "{protocol}://{address}:{port}/query/".format(
+            protocol=http_protocol, address=self.device.address, port=self.device.port
         )
 
-        log.debug(f"HTTP Headers: {headers}")
         log.debug(f"URL endpoint: {endpoint}")
 
         try:
-            async with httpx.Client() as http_client:
+            async with httpx.Client(**client_params) as http_client:
                 responses = []
+
                 for query in self.query:
                     encoded_query = await jwt_encode(
                         payload=query,
@@ -244,11 +256,9 @@ class Connect:
                         duration=params.general.request_timeout,
                     )
                     log.debug(f"Encoded JWT: {encoded_query}")
+
                     raw_response = await http_client.post(
-                        endpoint,
-                        headers=headers,
-                        json={"encoded": encoded_query},
-                        timeout=params.general.request_timeout,
+                        endpoint, json={"encoded": encoded_query}
                     )
                     log.debug(f"HTTP status code: {raw_response.status_code}")
 
@@ -278,7 +288,8 @@ class Connect:
                 device_name=self.device.display_name,
                 error=rest_msg,
             )
-        except OSError:
+        except OSError as ose:
+            log.critical(str(ose))
             raise RestError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,

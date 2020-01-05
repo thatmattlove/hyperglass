@@ -8,3 +8,4 @@ test.py
 __pycache__/
 parsing/
 *_old
+certs/
