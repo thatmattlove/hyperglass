@@ -3,7 +3,7 @@
 # Standard Library Imports
 import re
 from typing import List
-from typing import Union
+from typing import Optional
 
 # Third Party Imports
 from pydantic import StrictInt
@@ -18,6 +18,7 @@ from hyperglass.configuration.models.commands import Command
 from hyperglass.configuration.models.credentials import Credential
 from hyperglass.configuration.models.networks import Network
 from hyperglass.configuration.models.proxies import Proxy
+from hyperglass.configuration.models.ssl import Ssl
 from hyperglass.configuration.models.vrfs import DefaultVrf
 from hyperglass.configuration.models.vrfs import Vrf
 from hyperglass.constants import Supported
@@ -33,12 +34,13 @@ class Router(HyperglassModel):
     address: StrictStr
     network: Network
     credential: Credential
-    proxy: Union[Proxy, None] = None
+    proxy: Optional[Proxy]
     location: StrictStr
     display_name: StrictStr
     port: StrictInt
+    ssl: Optional[Ssl]
     nos: StrictStr
-    commands: Union[Command, None] = None
+    commands: Optional[Command]
     vrfs: List[Vrf] = [DefaultVrf()]
     display_vrfs: List[StrictStr] = []
     vrf_names: List[StrictStr] = []
