@@ -95,7 +95,9 @@ class HyperglassError(Exception):
 class _UnformattedHyperglassError(HyperglassError):
     """Base exception class for freeform error messages."""
 
-    def __init__(self, unformatted_msg="", alert="warning", **kwargs):
+    _alert = "warning"
+
+    def __init__(self, unformatted_msg="", alert=None, **kwargs):
         """Format error message with keyword arguments.
 
         Keyword Arguments:
@@ -104,10 +106,23 @@ class _UnformattedHyperglassError(HyperglassError):
             keywords {list} -- 'Important' keywords (default: {None})
         """
         self._message = unformatted_msg.format(**kwargs)
-        self._alert = alert
+        self._alert = alert or self._alert
         self._keywords = list(kwargs.values())
         super().__init__(
             message=self._message, alert=self._alert, keywords=self._keywords
+        )
+
+
+class _PredefinedHyperglassError(HyperglassError):
+    _message = "undefined"
+    _alert = "warning"
+
+    def __init__(self, alert=None, **kwargs):
+        self._fmt_msg = self._message.format(**kwargs)
+        self._alert = alert or self._alert
+        self._keywords = list(kwargs.values())
+        super().__init__(
+            message=self._fmt_msg, alert=self._alert, keywords=self._keywords
         )
 
 
@@ -115,13 +130,13 @@ class ConfigError(_UnformattedHyperglassError):
     """Raised for generic user-config issues."""
 
 
-class ConfigInvalid(_UnformattedHyperglassError):
+class ConfigInvalid(_PredefinedHyperglassError):
     """Raised when a config item fails type or option validation."""
 
     _message = 'The value field "{field}" is invalid: {error_msg}'
 
 
-class ConfigMissing(_UnformattedHyperglassError):
+class ConfigMissing(_PredefinedHyperglassError):
     """Raised when a required config file or item is missing or undefined."""
 
     _message = (

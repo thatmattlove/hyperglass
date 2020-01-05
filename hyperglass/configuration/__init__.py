@@ -145,6 +145,7 @@ try:
 
 except ValidationError as validation_errors:
     errors = validation_errors.errors()
+    log.error(errors)
     for error in errors:
         raise ConfigInvalid(
             field=": ".join([str(item) for item in error["loc"]]),
