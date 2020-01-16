@@ -33,6 +33,7 @@ stackprinter = "^0.2.3"
 uvloop = "^0.14.0"
 aiofile = "^1.5.2"
 requests = "^2.22.0"
+Pillow = "^7.0.0"
 
 [tool.poetry.dev-dependencies]
 anybadge = "^1.6.2"
