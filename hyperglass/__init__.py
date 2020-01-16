@@ -46,10 +46,10 @@ import uvloop
 
 # Project Imports
 # flake8: noqa: F401
-from hyperglass import execution
 from hyperglass import configuration
 from hyperglass import constants
 from hyperglass import exceptions
+from hyperglass import execution
 from hyperglass import render
 from hyperglass import util
 
