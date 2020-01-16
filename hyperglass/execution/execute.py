@@ -19,10 +19,10 @@ from netmiko import NetmikoTimeoutError
 from netmiko import NetMikoTimeoutException
 
 # Project Imports
-from hyperglass.command.construct import Construct
-from hyperglass.command.encode import jwt_decode
-from hyperglass.command.encode import jwt_encode
-from hyperglass.command.validate import Validate
+from hyperglass.execution.construct import Construct
+from hyperglass.execution.encode import jwt_decode
+from hyperglass.execution.encode import jwt_encode
+from hyperglass.execution.validate import Validate
 from hyperglass.configuration import devices
 from hyperglass.configuration import params
 from hyperglass.constants import Supported
@@ -54,8 +54,8 @@ class Connect:
         """
         self.device = device
         self.query_data = query_data
-        self.query_type = self.query_data["query_type"]
-        self.query_target = self.query_data["query_target"]
+        self.query_type = self.query_data.query_type
+        self.query_target = self.query_data.query_target
         self.transport = transport
         self.query = getattr(
             Construct(
@@ -331,9 +331,9 @@ class Execute:
             lg_data {object} -- Validated query object
         """
         self.query_data = lg_data
-        self.query_location = self.query_data["query_location"]
-        self.query_type = self.query_data["query_type"]
-        self.query_target = self.query_data["query_target"]
+        self.query_location = self.query_data.query_location
+        self.query_type = self.query_data.query_type
+        self.query_target = self.query_data.query_target
 
     async def response(self):
         """Initiate query validation and execution."""

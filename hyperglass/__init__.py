@@ -46,7 +46,7 @@ import uvloop
 
 # Project Imports
 # flake8: noqa: F401
-from hyperglass import command
+from hyperglass import execution
 from hyperglass import configuration
 from hyperglass import constants
 from hyperglass import exceptions

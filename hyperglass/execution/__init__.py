@@ -6,6 +6,6 @@ input, executes the commands/calls, returns the output to front end.
 
 # Project Imports
 # flake8: noqa: F401
-from hyperglass.command import construct
-from hyperglass.command import execute
-from hyperglass.command import validate
+from hyperglass.execution import construct
+from hyperglass.execution import execute
+from hyperglass.execution import validate

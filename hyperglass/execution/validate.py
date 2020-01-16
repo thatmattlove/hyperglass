@@ -137,7 +137,7 @@ def ip_access_list(query_data, device):
     Returns:
         {str} -- Allowed target
     """
-    log.debug(f'Checking Access List for: {query_data["query_target"]}')
+    log.debug(f"Checking Access List for: {query_data.query_target}")
 
     def _member_of(target, network):
         """Check if IP address belongs to network.
@@ -160,17 +160,17 @@ def ip_access_list(query_data, device):
             membership = True
         return membership
 
-    target = ipaddress.ip_network(query_data["query_target"])
+    target = ipaddress.ip_network(query_data.query_target)
 
     vrf_acl = None
     for vrf in device.vrfs:
-        if vrf.name == query_data["query_vrf"]:
+        if vrf.name == query_data.query_vrf:
             vrf_acl = vrf.access_list
     if not vrf_acl:
         raise HyperglassError(
             message="Unable to match query VRF to any configured VRFs",
             alert="danger",
-            keywords=[query_data["query_vrf"]],
+            keywords=[query_data.query_vrf],
         )
 
     target_ver = target.version
@@ -289,7 +289,7 @@ class Validate:
         """Initialize device parameters and error codes."""
         self.device = device
         self.query_data = query_data
-        self.query_type = self.query_data["query_type"]
+        self.query_type = self.query_data.query_type
         self.target = target
 
     def validate_ip(self):

@@ -53,8 +53,8 @@ class Construct:
         self.device = device
         self.query_data = query_data
         self.transport = transport
-        self.query_target = self.query_data["query_target"]
-        self.query_vrf = self.query_data["query_vrf"]
+        self.query_target = self.query_data.query_target
+        self.query_vrf = self.query_data.query_vrf
         self.device_vrf = self.get_device_vrf()
 
     def format_target(self, target):
