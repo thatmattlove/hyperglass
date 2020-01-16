@@ -19,10 +19,6 @@ from netmiko import NetmikoTimeoutError
 from netmiko import NetMikoTimeoutException
 
 # Project Imports
-from hyperglass.execution.construct import Construct
-from hyperglass.execution.encode import jwt_decode
-from hyperglass.execution.encode import jwt_encode
-from hyperglass.execution.validate import Validate
 from hyperglass.configuration import devices
 from hyperglass.configuration import params
 from hyperglass.constants import Supported
@@ -31,6 +27,10 @@ from hyperglass.exceptions import DeviceTimeout
 from hyperglass.exceptions import ResponseEmpty
 from hyperglass.exceptions import RestError
 from hyperglass.exceptions import ScrapeError
+from hyperglass.execution.construct import Construct
+from hyperglass.execution.encode import jwt_decode
+from hyperglass.execution.encode import jwt_encode
+from hyperglass.execution.validate import Validate
 from hyperglass.util import log
 
 
