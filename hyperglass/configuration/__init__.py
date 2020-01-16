@@ -16,6 +16,7 @@ from hyperglass.configuration.models import routers as _routers
 from hyperglass.constants import LOG_HANDLER
 from hyperglass.constants import LOG_HANDLER_FILE
 from hyperglass.constants import LOG_LEVELS
+from hyperglass.constants import Supported
 from hyperglass.exceptions import ConfigError
 from hyperglass.exceptions import ConfigInvalid
 from hyperglass.exceptions import ConfigMissing
@@ -234,7 +235,10 @@ def _build_frontend_devices():
                     "location": device.location,
                     "network": device.network.display_name,
                     "display_name": device.display_name,
-                    "vrfs": [vrf.display_name for vrf in device.vrfs],
+                    "vrfs": [
+                        {"id": vrf.name, "display_name": vrf.display_name}
+                        for vrf in device.vrfs
+                    ],
                 }
             )
         elif device.name not in frontend_dict:
@@ -242,7 +246,10 @@ def _build_frontend_devices():
                 "location": device.location,
                 "network": device.network.display_name,
                 "display_name": device.display_name,
-                "vrfs": [vrf.display_name for vrf in device.vrfs],
+                "vrfs": [
+                    {"id": vrf.name, "display_name": vrf.display_name}
+                    for vrf in device.vrfs
+                ],
             }
     if not frontend_dict:
         raise ConfigError(error_msg="Unable to build network to device mapping")
@@ -258,37 +265,87 @@ def _build_networks():
     Returns:
         {dict} -- Networks & devices
     """
-    networks_dict = {}
-    for device in devices.routers:
-        if device.network.display_name in networks_dict:
-            networks_dict[device.network.display_name].append(
-                {
-                    "location": device.location,
-                    "hostname": device.name,
-                    "display_name": device.display_name,
-                    "vrfs": [vrf.name for vrf in device.vrfs],
-                }
-            )
-        elif device.network.display_name not in networks_dict:
-            networks_dict[device.network.display_name] = [
-                {
-                    "location": device.location,
-                    "hostname": device.name,
-                    "display_name": device.display_name,
-                    "vrfs": [vrf.name for vrf in device.vrfs],
-                }
-            ]
-    if not networks_dict:
+    networks = []
+    _networks = list(set({device.network.display_name for device in devices.routers}))
+
+    for _network in _networks:
+        network_def = {"display_name": _network, "locations": []}
+        for device in devices.routers:
+            if device.network.display_name == _network:
+                network_def["locations"].append(
+                    {
+                        "name": device.name,
+                        "location": device.location,
+                        "display_name": device.display_name,
+                        "network": device.network.display_name,
+                        "vrfs": [
+                            {"id": vrf.name, "display_name": vrf.display_name}
+                            for vrf in device.vrfs
+                        ],
+                    }
+                )
+        networks.append(network_def)
+
+    if not networks:
         raise ConfigError(error_msg="Unable to build network to device mapping")
-    return networks_dict
+    return networks
 
 
-_frontend_fields = {
-    "general": {"debug", "request_timeout"},
-    "branding": {"text"},
-    "messages": ...,
-}
-frontend_params = params.dict(include=_frontend_fields)
+def _build_vrfs():
+    vrfs = []
+    for device in devices.routers:
+        for vrf in device.vrfs:
+            vrf_dict = {"id": vrf.name, "display_name": vrf.display_name}
+            if vrf_dict not in vrfs:
+                vrfs.append(vrf_dict)
+    return vrfs
+
+
+def _build_queries():
+    """Build a dict of supported query types and their display names.
+
+    Returns:
+        {dict} -- Supported query dict
+    """
+    queries = []
+    for query in Supported.query_types:
+        display_name = getattr(params.branding.text, query)
+        queries.append({"name": query, "display_name": display_name})
+    return queries
+
+
+vrfs = _build_vrfs()
+queries = _build_queries()
 networks = _build_networks()
 frontend_networks = _build_frontend_networks()
 frontend_devices = _build_frontend_devices()
+_frontend_fields = {
+    "general": {
+        "debug",
+        "primary_asn",
+        "request_timeout",
+        "org_name",
+        "google_analytics",
+        "opengraph",
+        "site_descriptin",
+    },
+    "branding": ...,
+    "features": {
+        "bgp_route": {"enable"},
+        "bgp_community": {"enable"},
+        "bgp_aspath": {"enable"},
+        "ping": {"enable"},
+        "traceroute": {"enable"},
+    },
+    "messages": ...,
+}
+_frontend_params = params.dict(include=_frontend_fields)
+_frontend_params.update(
+    {
+        "queries": queries,
+        "devices": frontend_devices,
+        "networks": networks,
+        "vrfs": vrfs,
+    }
+)
+frontend_params = _frontend_params

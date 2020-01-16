@@ -6,196 +6,126 @@ from pathlib import Path
 # Third Party Imports
 import jinja2
 import yaml
+from aiofile import AIOFile
 from markdown2 import Markdown
 
 # Project Imports
+from hyperglass.configuration import devices
 from hyperglass.configuration import networks
 from hyperglass.configuration import params
+from hyperglass.constants import DEFAULT_DETAILS
+from hyperglass.constants import DEFAULT_HELP
+from hyperglass.constants import DEFAULT_TERMS
+from hyperglass.exceptions import ConfigError
 from hyperglass.exceptions import HyperglassError
 from hyperglass.util import log
 
 # Module Directories
-working_directory = Path(__file__).resolve().parent
-hyperglass_root = working_directory.parent
-file_loader = jinja2.FileSystemLoader(str(working_directory))
-env = jinja2.Environment(
-    loader=file_loader, autoescape=True, extensions=["jinja2.ext.autoescape"]
+WORKING_DIR = Path(__file__).resolve().parent
+JINJA_LOADER = jinja2.FileSystemLoader(str(WORKING_DIR))
+JINJA_ENV = jinja2.Environment(
+    loader=JINJA_LOADER,
+    autoescape=True,
+    extensions=["jinja2.ext.autoescape"],
+    enable_async=True,
 )
 
-default_details = {
-    "footer": """
----
-template: footer
----
-By using {{ branding.site_name }}, you agree to be bound by the following terms of \
-use: All queries executed on this page are logged for analysis and troubleshooting. \
-Users are prohibited from automating queries, or attempting to process queries in \
-bulk. This service is provided on a best effort basis, and {{ general.org_name }} \
-makes no availability or performance warranties or guarantees whatsoever.
-""",
-    "bgp_aspath": r"""
----
-template: bgp_aspath
-title: Supported AS Path Patterns
----
-{{ branding.site_name }} accepts the following `AS_PATH` regular expression patterns:
-
-| Expression           | Match                                         |
-| :------------------- | :-------------------------------------------- |
-| `_65000$`            | Originated by 65000                           |
-| `^65000_`            | Received from 65000                           |
-| `_65000_`            | Via 65000                                     |
-| `_65000_65001_`      | Via 65000 and 65001                           |
-| `_65000(_.+_)65001$` | Anything from 65001 that passed through 65000 |
-""",
-    "bgp_community": """
----
-template: bgp_community
-title: BGP Communities
----
-{{ branding.site_name }} makes use of the following BGP communities:
-
-| Community | Description |
-| :-------- | :---------- |
-| `65000:1` | Example 1   |
-| `65000:2` | Example 2   |
-| `65000:3` | Example 3   |
-""",
+_MD_CONFIG = {
+    "extras": {
+        "break-on-newline": True,
+        "code-friendly": True,
+        "tables": True,
+        "html-classes": {"table": "table"},
+    }
 }
-
-default_info = {
-    "bgp_route": """
----
-template: bgp_route
----
-Performs BGP table lookup based on IPv4/IPv6 prefix.
-""",
-    "bgp_community": """
----
-template: bgp_community
----
-Performs BGP table lookup based on <a href="https://tools.ietf.org/html/rfc4360" target\
-="_blank">Extended</a> or <a href="https://tools.ietf.org/html/rfc8195" target=\
-"_blank">Large</a> community value.
-
-""",
-    "bgp_aspath": """
----
-template: bgp_aspath
----
-Performs BGP table lookup based on `AS_PATH` regular expression.
-
-""",
-    "ping": """
----
-template: ping
----
-Sends 5 ICMP echo requests to the target.
-""",
-    "traceroute": """
----
-template: traceroute
----
-Performs UDP Based traceroute to the target.<br>For information about how to \
-interpret traceroute results, <a href="https://hyperglass.readthedocs.io/en/latest/ass\
-ets/traceroute_nanog.pdf" target="_blank">click here</a>.
-""",
-}
+MARKDOWN = Markdown(**_MD_CONFIG)
 
 
-default_help = """
----
-template: default_help
----
-##### BGP Route
-Performs BGP table lookup based on IPv4/IPv6 prefix.
-<hr>
-##### BGP Community
-Performs BGP table lookup based on <a href="https://tools.ietf.org/html/rfc4360" target\
-="_blank">Extended</a> or <a href="https://tools.ietf.org/html/rfc8195" target=\
-"_blank">Large</a> community value.
-<hr>
-##### BGP AS Path
-Performs BGP table lookup based on `AS_PATH` regular expression.
-<hr>
-##### Ping
-Sends 5 ICMP echo requests to the target.
-<hr>
-##### Traceroute
-Performs UDP Based traceroute to the target.<br>For information about how to \
-interpret traceroute results, <a href="https://hyperglass.readthedocs.io/en/latest/ass\
-ets/traceroute_nanog.pdf" target="_blank">click here</a>.
-"""
+async def parse_md(raw_file):
+    file_list = raw_file.split("---", 2)
+    file_list_len = len(file_list)
+    if file_list_len == 1:
+        fm = {}
+        content = file_list[0]
+    elif file_list_len == 3 and file_list[1].strip():
+        try:
+            fm = yaml.safe_load(file_list[1])
+        except yaml.YAMLError as ye:
+            raise ConfigError(str(ye)) from None
+        content = file_list[2]
+    else:
+        fm = {}
+        content = ""
+    return (fm, content)
 
 
-def generate_markdown(section, file_name=None):
-    """Render markdown as HTML.
-
-    Arguments:
-        section {str} -- Section name
-
-    Keyword Arguments:
-        file_name {str} -- Markdown file name (default: {None})
-
-    Raises:
-        HyperglassError: Raised if YAML front matter is unreadable
-
-    Returns:
-        {dict} -- Frontmatter dictionary
-    """
-    if section == "help":
-        file = working_directory.joinpath("templates/info/help.md")
-        if file.exists():
-            with file.open(mode="r") as file_raw:
-                yaml_raw = file_raw.read()
-        else:
-            yaml_raw = default_help
-    elif section == "details":
-        file = working_directory.joinpath(f"templates/info/details/{file_name}.md")
-        if file.exists():
-            with file.open(mode="r") as file_raw:
-                yaml_raw = file_raw.read()
-        else:
-            yaml_raw = default_details[file_name]
-    _, frontmatter, content = yaml_raw.split("---", 2)
-    html_classes = {"table": "table"}
-    markdown = Markdown(
-        extras={
-            "break-on-newline": True,
-            "code-friendly": True,
-            "tables": True,
-            "html-classes": html_classes,
-        }
-    )
-    frontmatter_rendered = (
-        jinja2.Environment(
-            loader=jinja2.BaseLoader,
-            autoescape=True,
-            extensions=["jinja2.ext.autoescape"],
-        )
-        .from_string(frontmatter)
-        .render(params)
-    )
-    if frontmatter_rendered:
-        frontmatter_loaded = yaml.safe_load(frontmatter_rendered)
-    elif not frontmatter_rendered:
-        frontmatter_loaded = {"frontmatter": None}
-    content_rendered = (
-        jinja2.Environment(
-            loader=jinja2.BaseLoader,
-            autoescape=True,
-            extensions=["jinja2.ext.autoescape"],
-        )
-        .from_string(content)
-        .render(params, info=frontmatter_loaded)
-    )
-    help_dict = dict(content=markdown.convert(content_rendered), **frontmatter_loaded)
-    if not help_dict:
-        raise HyperglassError(f"Error reading YAML frontmatter for {file_name}")
-    return help_dict
+async def get_file(path_obj):
+    async with AIOFile(path_obj, "r") as raw_file:
+        file = await raw_file.read()
+        return file
 
 
-def render_html(template_name, **kwargs):
+async def render_help():
+    if params.branding.help_menu.file is not None:
+        help_file = await get_file(params.branding.help_menu.file)
+    else:
+        help_file = DEFAULT_HELP
+
+    fm, content = await parse_md(help_file)
+
+    content_template = JINJA_ENV.from_string(content)
+    content_rendered = await content_template.render_async(params, info=fm)
+
+    return {"content": MARKDOWN.convert(content_rendered), **fm}
+
+
+async def render_terms():
+
+    if params.branding.terms.file is not None:
+        terms_file = await get_file(params.branding.terms.file)
+    else:
+        terms_file = DEFAULT_TERMS
+
+    fm, content = await parse_md(terms_file)
+    content_template = JINJA_ENV.from_string(content)
+    content_rendered = await content_template.render_async(params, info=fm)
+
+    return {"content": MARKDOWN.convert(content_rendered), **fm}
+
+
+async def render_details():
+    details = []
+    for vrf in devices.vrf_objects:
+        detail = {"name": vrf.name, "display_name": vrf.display_name}
+        info_attrs = ("bgp_aspath", "bgp_community")
+        command_info = []
+        for attr in info_attrs:
+            file = getattr(vrf.info, attr)
+            if file is not None:
+                raw_content = await get_file(file)
+                fm, content = await parse_md(raw_content)
+            else:
+                fm, content = await parse_md(DEFAULT_DETAILS[attr])
+
+            content_template = JINJA_ENV.from_string(content)
+            content_rendered = await content_template.render_async(params, info=fm)
+            content_html = MARKDOWN.convert(content_rendered)
+
+            command_info.append(
+                {
+                    "id": f"{vrf.name}-{attr}",
+                    "name": attr,
+                    "frontmatter": fm,
+                    "content": content_html,
+                }
+            )
+
+        detail.update({"commands": command_info})
+        details.append(detail)
+    return details
+
+
+async def render_html(template_name, **kwargs):
     """Render Jinja2 HTML templates.
 
     Arguments:
@@ -207,23 +137,118 @@ def render_html(template_name, **kwargs):
     Returns:
         {str} -- Rendered template
     """
-    details_name_list = ["footer", "bgp_aspath", "bgp_community"]
-    details_dict = {}
-    for details_name in details_name_list:
-        details_data = generate_markdown("details", details_name)
-        details_dict.update({details_name: details_data})
-    rendered_help = generate_markdown("help")
-    log.debug(rendered_help)
     try:
         template_file = f"templates/{template_name}.html.j2"
-        template = env.get_template(template_file)
-        return template.render(
-            params,
-            rendered_help=rendered_help,
-            details=details_dict,
-            networks=networks,
-            **kwargs,
-        )
+        template = JINJA_ENV.get_template(template_file)
+
     except jinja2.TemplateNotFound as template_error:
-        log.error(f"Error rendering Jinja2 template {Path(template_file).resolve()}.")
+        log.error(
+            f"Error rendering Jinja2 template {str(Path(template_file).resolve())}."
+        )
         raise HyperglassError(template_error)
+
+    rendered_help = await render_help()
+    rendered_terms = await render_terms()
+    rendered_details = await render_details()
+
+    sub_templates = {
+        "details": rendered_details,
+        "help": rendered_help,
+        "terms": rendered_terms,
+        "networks": networks,
+        **kwargs,
+    }
+
+    return await template.render_async(params, **sub_templates)
+
+
+# async def generate_markdown(section, file_name=None):
+#     """Render markdown as HTML.
+
+#     Arguments:
+#         section {str} -- Section name
+
+#     Keyword Arguments:
+#         file_name {str} -- Markdown file name (default: {None})
+
+#     Raises:
+#         HyperglassError: Raised if YAML front matter is unreadable
+
+#     Returns:
+#         {dict} -- Frontmatter dictionary
+#     """
+#     if section == "help" and params.branding.help_menu.file is not None:
+#         info = await get_file(params.branding.help_menu.file)
+#     elif section == "help" and params.branding.help_menu.file is None:
+#         info = DEFAULT_HELP
+#     elif section == "details":
+#         file = WORKING_DIR.joinpath(f"templates/info/details/{file_name}.md")
+#         if file.exists():
+#             with file.open(mode="r") as file_raw:
+#                 yaml_raw = file_raw.read()
+#         else:
+#             yaml_raw = DEFAULT_DETAILS[file_name]
+#     _, frontmatter, content = yaml_raw.split("---", 2)
+#     md_config = {
+#         "extras": {
+#             "break-on-newline": True,
+#             "code-friendly": True,
+#             "tables": True,
+#             "html-classes": {"table": "table"},
+#         }
+#     }
+#     markdown = Markdown(**md_config)
+
+#     frontmatter_rendered = JINJA_ENV.from_string(frontmatter).render(params)
+
+#     if frontmatter_rendered:
+#         frontmatter_loaded = yaml.safe_load(frontmatter_rendered)
+#     elif not frontmatter_rendered:
+#         frontmatter_loaded = {"frontmatter": None}
+
+#     content_rendered = await JINJA_ENV.from_string(content).render_async(
+#         params, info=frontmatter_loaded
+#     )
+
+#     help_dict = dict(content=markdown.convert(content_rendered), **frontmatter_loaded)
+#     if not help_dict:
+#         raise HyperglassError(f"Error reading YAML frontmatter for {file_name}")
+#     return help_dict
+
+
+# async def render_html(template_name, **kwargs):
+#     """Render Jinja2 HTML templates.
+
+#     Arguments:
+#         template_name {str} -- Jinja2 template name
+
+#     Raises:
+#         HyperglassError: Raised if template is not found
+
+#     Returns:
+#         {str} -- Rendered template
+#     """
+#     detail_items = ("footer", "bgp_aspath", "bgp_community")
+#     details = {}
+
+#     for details_name in detail_items:
+#         details_data = await generate_markdown("details", details_name)
+#         details.update({details_name: details_data})
+
+#     rendered_help = await generate_markdown("help")
+
+#     try:
+#         template_file = f"templates/{template_name}.html.j2"
+#         template = JINJA_ENV.get_template(template_file)
+
+#     except jinja2.TemplateNotFound as template_error:
+#         log.error(f"Error rendering Jinja2 template {Path(template_file).resolve()}.")
+#         raise HyperglassError(template_error)
+
+#     return await template.render_async(
+#         params,
+#         rendered_help=rendered_help,
+#         details=details,
+#         networks=networks,
+#         **kwargs,
+#     )

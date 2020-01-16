@@ -25,6 +25,112 @@ LOG_HANDLER = {"sink": sys.stdout, "format": LOG_FMT, "level": "INFO"}
 
 LOG_HANDLER_FILE = {"format": LOG_FMT, "level": "INFO"}
 
+DEFAULT_TERMS = """
+---
+template: footer
+---
+By using {{ branding.site_name }}, you agree to be bound by the following terms of \
+use: All queries executed on this page are logged for analysis and troubleshooting. \
+Users are prohibited from automating queries, or attempting to process queries in \
+bulk. This service is provided on a best effort basis, and {{ general.org_name }} \
+makes no availability or performance warranties or guarantees whatsoever.
+"""
+
+DEFAULT_DETAILS = {
+    "bgp_aspath": r"""
+---
+template: bgp_aspath
+title: Supported AS Path Patterns
+---
+{{ branding.site_name }} accepts the following `AS_PATH` regular expression patterns:
+
+| Expression           | Match                                         |
+| :------------------- | :-------------------------------------------- |
+| `_65000$`            | Originated by 65000                           |
+| `^65000_`            | Received from 65000                           |
+| `_65000_`            | Via 65000                                     |
+| `_65000_65001_`      | Via 65000 and 65001                           |
+| `_65000(_.+_)65001$` | Anything from 65001 that passed through 65000 |
+""",
+    "bgp_community": """
+---
+template: bgp_community
+title: BGP Communities
+---
+{{ branding.site_name }} makes use of the following BGP communities:
+
+| Community | Description |
+| :-------- | :---------- |
+| `65000:1` | Example 1   |
+| `65000:2` | Example 2   |
+| `65000:3` | Example 3   |
+""",
+}
+
+DEFAULT_INFO = {
+    "bgp_route": """
+---
+template: bgp_route
+---
+Performs BGP table lookup based on IPv4/IPv6 prefix.
+""",
+    "bgp_community": """
+---
+template: bgp_community
+---
+Performs BGP table lookup based on <a href="https://tools.ietf.org/html/rfc4360" target\
+="_blank">Extended</a> or <a href="https://tools.ietf.org/html/rfc8195" target=\
+"_blank">Large</a> community value.
+
+""",
+    "bgp_aspath": """
+---
+template: bgp_aspath
+---
+Performs BGP table lookup based on `AS_PATH` regular expression.
+
+""",
+    "ping": """
+---
+template: ping
+---
+Sends 5 ICMP echo requests to the target.
+""",
+    "traceroute": """
+---
+template: traceroute
+---
+Performs UDP Based traceroute to the target.<br>For information about how to \
+interpret traceroute results, <a href="https://hyperglass.readthedocs.io/en/latest/ass\
+ets/traceroute_nanog.pdf" target="_blank">click here</a>.
+""",
+}
+
+
+DEFAULT_HELP = """
+---
+template: default_help
+---
+##### BGP Route
+Performs BGP table lookup based on IPv4/IPv6 prefix.
+<hr>
+##### BGP Community
+Performs BGP table lookup based on <a href="https://tools.ietf.org/html/rfc4360" target\
+="_blank">Extended</a> or <a href="https://tools.ietf.org/html/rfc8195" target=\
+"_blank">Large</a> community value.
+<hr>
+##### BGP AS Path
+Performs BGP table lookup based on `AS_PATH` regular expression.
+<hr>
+##### Ping
+Sends 5 ICMP echo requests to the target.
+<hr>
+##### Traceroute
+Performs UDP Based traceroute to the target.<br>For information about how to \
+interpret traceroute results, <a href="https://hyperglass.readthedocs.io/en/latest/ass\
+ets/traceroute_nanog.pdf" target="_blank">click here</a>.
+"""
+
 
 class Supported:
     """Define items supported by hyperglass.

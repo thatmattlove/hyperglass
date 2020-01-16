@@ -2,7 +2,6 @@
 
 # Standard Library Imports
 import asyncio
-import operator
 import os
 import tempfile
 import time
@@ -16,7 +15,7 @@ from prometheus_client import Counter
 from prometheus_client import generate_latest
 from prometheus_client import multiprocess
 from sanic import Sanic
-from sanic import response
+from sanic import response as sanic_response
 from sanic.exceptions import InvalidUsage
 from sanic.exceptions import NotFound
 from sanic.exceptions import ServerError
@@ -26,10 +25,8 @@ from sanic_limiter import RateLimitExceeded
 from sanic_limiter import get_remote_address
 
 # Project Imports
-from hyperglass.command.execute import Execute
-from hyperglass.configuration import devices
+from hyperglass.configuration import frontend_params
 from hyperglass.configuration import params
-from hyperglass.constants import Supported
 from hyperglass.exceptions import AuthError
 from hyperglass.exceptions import DeviceTimeout
 from hyperglass.exceptions import HyperglassError
@@ -38,6 +35,8 @@ from hyperglass.exceptions import InputNotAllowed
 from hyperglass.exceptions import ResponseEmpty
 from hyperglass.exceptions import RestError
 from hyperglass.exceptions import ScrapeError
+from hyperglass.execution.execute import Execute
+from hyperglass.models.query import Query
 from hyperglass.render import render_html
 from hyperglass.util import check_python
 from hyperglass.util import cpu_count
@@ -46,7 +45,7 @@ from hyperglass.util import log
 # Verify Python version meets minimum requirement
 try:
     python_version = check_python()
-    log.info(f"Python {python_version} detected.")
+    log.info(f"Python {python_version} detected")
 except RuntimeError as r:
     raise HyperglassError(str(r), alert="danger") from None
 
@@ -152,6 +151,21 @@ count_notfound = Counter(
 )
 
 
+@app.middleware("request")
+async def request_middleware(request):
+    """Respond to OPTIONS methods."""
+    if request.method == "OPTIONS":  # noqa: R503
+        return sanic_response.json({"content": "ok"}, status=204)
+
+
+@app.middleware("response")
+async def response_middleware(request, response):
+    """Add CORS headers to responses."""
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+    response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+
+
 @app.route("/metrics")
 @limiter.exempt
 async def metrics(request):
@@ -159,7 +173,7 @@ async def metrics(request):
     registry = CollectorRegistry()
     multiprocess.MultiProcessCollector(registry)
     latest = generate_latest(registry)
-    return response.text(
+    return sanic_response.text(
         latest,
         headers={
             "Content-Type": CONTENT_TYPE_LATEST,
@@ -183,7 +197,7 @@ async def handle_frontend_errors(request, exception):
         request.json.get("target"),
     ).inc()
     log.error(f'Error: {error["message"]}, Source: {client_addr}')
-    return response.json(
+    return sanic_response.json(
         {"output": error["message"], "alert": alert, "keywords": error["keywords"]},
         status=400,
     )
@@ -204,7 +218,7 @@ async def handle_backend_errors(request, exception):
         request.json.get("target"),
     ).inc()
     log.error(f'Error: {error["message"]}, Source: {client_addr}')
-    return response.json(
+    return sanic_response.json(
         {"output": error["message"], "alert": alert, "keywords": error["keywords"]},
         status=503,
     )
@@ -218,7 +232,7 @@ async def handle_404(request, exception):
     client_addr = get_remote_address(request)
     count_notfound.labels(exception, path, client_addr).inc()
     log.error(f"Error: {exception}, Path: {path}, Source: {client_addr}")
-    return response.html(html, status=404)
+    return sanic_response.html(html, status=404)
 
 
 @app.exception(RateLimitExceeded)
@@ -228,7 +242,7 @@ async def handle_429(request, exception):
     client_addr = get_remote_address(request)
     count_ratelimit.labels(exception, client_addr).inc()
     log.error(f"Error: {exception}, Source: {client_addr}")
-    return response.html(html, status=429)
+    return sanic_response.html(html, status=429)
 
 
 @app.exception(ServerError)
@@ -238,7 +252,7 @@ async def handle_500(request, exception):
     count_errors.labels(500, exception, client_addr, None, None, None).inc()
     log.error(f"Error: {exception}, Source: {client_addr}")
     html = render_html("500")
-    return response.html(html, status=500)
+    return sanic_response.html(html, status=500)
 
 
 async def clear_cache():
@@ -251,187 +265,25 @@ async def clear_cache():
         raise HyperglassError(f"Error clearing cache: {error_exception}")
 
 
-@app.route("/", methods=["GET"])
+@app.route("/", methods=["GET", "OPTIONS"])
 @limiter.limit(rate_limit_site, error_message="Site")
 async def site(request):
     """Serve main application front end."""
-    return response.html(render_html("form", primary_asn=params.general.primary_asn))
+    html = await render_html("form", primary_asn=params.general.primary_asn)
+    return sanic_response.html(html)
 
 
-async def validate_input(query_data):  # noqa: C901
-    """Delete any globally unsupported query parameters.
+@app.route("/config", methods=["GET", "OPTIONS"])
+async def frontend_config(request):
+    """Provide validated user/default config for front end consumption.
 
-    Performs validation functions per input type:
-        - query_target:
-            - Verifies input is not empty
-            - Verifies input is a string
-        - query_location:
-            - Verfies input is not empty
-            - Verifies input is a list
-            - Verifies locations in list are defined
-        - query_type:
-            - Verifies input is not empty
-            - Verifies input is a string
-            - Verifies query type is enabled and supported
-        - query_vrf: (if feature enabled)
-            - Verfies input is a list
-            - Verifies VRFs in list are defined
+    Returns:
+        {dict} -- Filtered configuration
     """
-    # Delete any globally unsupported parameters
-    supported_query_data = {
-        k: v for k, v in query_data.items() if k in Supported.query_parameters
-    }
-
-    # Unpack query data
-    query_location = supported_query_data.get("query_location", "")
-    query_type = supported_query_data.get("query_type", "")
-    query_target = supported_query_data.get("query_target", "")
-    query_vrf = supported_query_data.get("query_vrf", "")
-
-    device = getattr(devices, query_location)
-
-    # Verify that query_target is not empty
-    if not query_target:
-        log.debug("No input specified")
-        raise InvalidUsage(
-            {
-                "message": params.messages.no_input.format(
-                    field=params.branding.text.query_target
-                ),
-                "alert": "warning",
-                "keywords": [params.branding.text.query_target],
-            }
-        )
-    # Verify that query_target is a string
-    if not isinstance(query_target, str):
-        log.debug("Target is not a string")
-        raise InvalidUsage(
-            {
-                "message": params.messages.invalid_field.format(
-                    input=query_target, field=params.branding.text.query_target
-                ),
-                "alert": "warning",
-                "keywords": [params.branding.text.query_target, query_target],
-            }
-        )
-    # Verify that query_location is not empty
-    if not query_location:
-        log.debug("No selection specified")
-        raise InvalidUsage(
-            {
-                "message": params.messages.no_input.format(
-                    field=params.branding.text.query_location
-                ),
-                "alert": "warning",
-                "keywords": [params.branding.text.query_location],
-            }
-        )
-    # Verify that query_location is a string
-    if not isinstance(query_location, str):
-        log.debug("Query Location is not a string")
-        raise InvalidUsage(
-            {
-                "message": params.messages.invalid_field.format(
-                    input=query_location, field=params.branding.text.query_location
-                ),
-                "alert": "warning",
-                "keywords": [params.branding.text.query_location, query_location],
-            }
-        )
-    # Verify that locations in query_location are actually defined
-    if query_location not in devices.hostnames:
-        raise InvalidUsage(
-            {
-                "message": params.messages.invalid_field.format(
-                    input=query_location, field=params.branding.text.query_location
-                ),
-                "alert": "warning",
-                "keywords": [params.branding.text.query_location, query_location],
-            }
-        )
-    # Verify that query_type is not empty
-    if not query_type:
-        log.debug("No query specified")
-        raise InvalidUsage(
-            {
-                "message": params.messages.no_input.format(
-                    field=params.branding.text.query_type
-                ),
-                "alert": "warning",
-                "keywords": [params.branding.text.query_location],
-            }
-        )
-    if not isinstance(query_type, str):
-        log.debug("Query Type is not a string")
-        raise InvalidUsage(
-            {
-                "message": params.messages.invalid_field.format(
-                    input=query_type, field=params.branding.text.query_type
-                ),
-                "alert": "warning",
-                "keywords": [params.branding.text.query_type, query_type],
-            }
-        )
-    # Verify that query_type is actually supported
-    query_is_supported = Supported.is_supported_query(query_type)
-    if not query_is_supported:
-        log.debug("Query not supported")
-        raise InvalidUsage(
-            {
-                "message": params.messages.invalid_field.format(
-                    input=query_type, field=params.branding.text.query_type
-                ),
-                "alert": "warning",
-                "keywords": [params.branding.text.query_location, query_type],
-            }
-        )
-    elif query_is_supported:
-        query_is_enabled = operator.attrgetter(f"{query_type}.enable")(params.features)
-        if not query_is_enabled:
-            raise InvalidUsage(
-                {
-                    "message": params.messages.invalid_field.format(
-                        input=query_type, field=params.branding.text.query_type
-                    ),
-                    "alert": "warning",
-                    "keywords": [params.branding.text.query_location, query_type],
-                }
-            )
-    # Verify that query_vrf is a string
-    if query_vrf and not isinstance(query_vrf, str):
-        raise InvalidUsage(
-            {
-                "message": params.messages.invalid_field.format(
-                    input=query_vrf, field=params.branding.text.query_vrf
-                ),
-                "alert": "warning",
-                "keywords": [params.branding.text.query_vrf, query_vrf],
-            }
-        )
-    # Verify that vrfs in query_vrf are defined
-    if query_vrf and not any(vrf in query_vrf for vrf in devices.display_vrfs):
-        raise InvalidUsage(
-            {
-                "message": params.messages.vrf_not_associated.format(
-                    vrf_name=query_vrf, device_name=device.display_name
-                ),
-                "alert": "warning",
-                "keywords": [query_vrf, query_location],
-            }
-        )
-    # If VRF display name from UI/API matches a configured display name, set the
-    # query_vrf value to the configured VRF key name
-    if query_vrf:
-        for vrf in device.vrfs:
-            if vrf.display_name == query_vrf:
-                supported_query_data["query_vrf"] = vrf.name
-    if not query_vrf:
-        supported_query_data["query_vrf"] = "default"
-    log.debug(f"Validated Query: {supported_query_data}")
-    return supported_query_data
+    return sanic_response.json(frontend_params)
 
 
-@app.route("/query", methods=["POST"])
+@app.route("/query", methods=["POST", "OPTIONS"])
 @limiter.limit(
     rate_limit_query,
     error_message={
@@ -452,7 +304,11 @@ async def hyperglass_main(request):
     log.debug(f"Unvalidated input: {raw_query_data}")
 
     # Perform basic input validation
-    query_data = await validate_input(raw_query_data)
+    # query_data = await validate_input(raw_query_data)
+    try:
+        query_data = Query(**raw_query_data)
+    except InputInvalid as he:
+        raise InvalidUsage(he.__dict__())
 
     # Get client IP address for Prometheus logging & rate limiting
     client_addr = get_remote_address(request)
@@ -460,18 +316,17 @@ async def hyperglass_main(request):
     # Increment Prometheus counter
     count_data.labels(
         client_addr,
-        query_data.get("query_type"),
-        query_data.get("query_location"),
-        query_data.get("query_target"),
-        query_data.get("query_vrf"),
+        query_data.query_type,
+        query_data.query_location,
+        query_data.query_target,
+        query_data.query_vrf,
     ).inc()
 
     log.debug(f"Client Address: {client_addr}")
 
-    # Stringify the form response containing serialized JSON for the
-    # request, use as key for k/v cache store so each command output
-    # value is unique
-    cache_key = str(query_data)
+    # Use hashed query_data string as key for for k/v cache store so
+    # each command output value is unique.
+    cache_key = hash(query_data)
 
     # Define cache entry expiry time
     cache_timeout = params.features.cache.timeout
@@ -479,7 +334,8 @@ async def hyperglass_main(request):
 
     # Check if cached entry exists
     if not await r_cache.get(cache_key):
-        log.debug(f"Sending query {cache_key} to execute module...")
+        log.debug(f"Created new cache key {cache_key} entry for query {query_data}")
+        log.debug("Beginning query execution...")
 
         # Pass request to execution module
         try:
@@ -516,4 +372,4 @@ async def hyperglass_main(request):
     log.debug(f"Cache match for: {cache_key}, returning cached entry")
     log.debug(f"Cache Output: {response_output}")
 
-    return response.json({"output": response_output}, status=200)
+    return sanic_response.json({"output": response_output}, status=200)
