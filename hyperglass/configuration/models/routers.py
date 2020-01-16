@@ -149,7 +149,7 @@ class Router(HyperglassModel):
 
                 log.debug(
                     f'Field "display_name" for VRF "{vrf["name"]}" was not set. '
-                    f'Generated "display_name" {vrf["display_name"]}'
+                    f"Generated '{vrf['display_name']}'"
                 )
 
                 # Validate the non-default VRF against the standard
@@ -167,6 +167,7 @@ class Routers(HyperglassModelExtra):
     vrfs: List[StrictStr] = []
     display_vrfs: List[StrictStr] = []
     routers: List[Router] = []
+    networks: List[StrictStr] = []
 
     @classmethod
     def _import(cls, input_params):
@@ -183,7 +184,9 @@ class Routers(HyperglassModelExtra):
             {object} -- Validated routers object
         """
         vrfs = set()
+        networks = set()
         display_vrfs = set()
+        vrf_objects = set()
         routers = Routers()
         routers.routers = []
         routers.hostnames = []
@@ -224,9 +227,19 @@ class Routers(HyperglassModelExtra):
                         "display_name": vrf.display_name,
                     }
 
+                # Add the native VRF objects to a set (for automatic
+                # de-duping), but exlcude device-specific fields.
+                _copy_params = {
+                    "deep": True,
+                    "exclude": {"ipv4": {"source_address"}, "ipv6": {"source_address"}},
+                }
+                vrf_objects.add(vrf.copy(**_copy_params))
+
         # Convert the de-duplicated sets to a standard list, add lists
         # as class attributes
         routers.vrfs = list(vrfs)
         routers.display_vrfs = list(display_vrfs)
+        routers.vrf_objects = list(vrf_objects)
+        routers.networks = list(networks)
 
         return routers

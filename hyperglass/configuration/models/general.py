@@ -17,6 +17,7 @@ from pydantic import validator
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.configuration.models.opengraph import OpenGraph
 
 
 class General(HyperglassModel):
@@ -25,6 +26,24 @@ class General(HyperglassModel):
     debug: StrictBool = False
     primary_asn: StrictStr = "65001"
     org_name: StrictStr = "The Company"
+    site_description: StrictStr = "{org_name} Network Looking Glass"
+    site_keywords: List[StrictStr] = [
+        "hyperglass",
+        "looking glass",
+        "lg",
+        "peer",
+        "peering",
+        "ipv4",
+        "ipv6",
+        "transit",
+        "community",
+        "communities",
+        "bgp",
+        "routing",
+        "network",
+        "isp",
+    ]
+    opengraph: OpenGraph = OpenGraph()
     google_analytics: StrictStr = ""
     redis_host: StrictStr = "localhost"
     redis_port: StrictInt = 6379
@@ -33,6 +52,19 @@ class General(HyperglassModel):
     listen_address: Union[IPvAnyAddress, StrictStr] = "localhost"
     listen_port: StrictInt = 8001
     log_file: Optional[FilePath]
+
+    @validator("site_description")
+    def validate_site_description(cls, value, values):
+        """Format the site descripion with the org_name field.
+
+        Arguments:
+            value {str} -- site_description
+            values {str} -- Values before site_description
+
+        Returns:
+            {str} -- Formatted description
+        """
+        return value.format(org_name=values["org_name"])
 
     @validator("log_file")
     def validate_log_file(cls, value):

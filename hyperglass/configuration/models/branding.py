@@ -1,13 +1,17 @@
 """Validate branding configuration variables."""
 
 # Standard Library Imports
+from pathlib import Path
 from typing import Optional
 
 # Third Party Imports
+from pydantic import FilePath
+from pydantic import HttpUrl
 from pydantic import StrictBool
 from pydantic import StrictInt
 from pydantic import StrictStr
 from pydantic import constr
+from pydantic import root_validator
 from pydantic import validator
 from pydantic.color import Color
 
@@ -65,11 +69,14 @@ class Branding(HyperglassModel):
         """Validation model for params.branding.help_menu."""
 
         enable: StrictBool = True
+        file: Optional[FilePath]
+        title: StrictStr = "Help"
 
     class Logo(HyperglassModel):
         """Validation model for params.branding.logo."""
 
-        logo_path: StrictStr = "ui/images/hyperglass-dark.png"
+        light: Optional[FilePath]
+        dark: Optional[FilePath]
         width: StrictInt = 384
         height: Optional[StrictInt]
         favicons: StrictStr = "ui/images/favicons/"
@@ -82,20 +89,72 @@ class Branding(HyperglassModel):
                 chars.append("/")
             return "".join(chars)
 
+        @root_validator(pre=True)
+        def validate_logo_model(cls, values):
+            """Set default opengraph image location.
+
+            Arguments:
+                values {dict} -- Unvalidated model
+
+            Returns:
+                {dict} -- Modified model
+            """
+            logo_light = values.get("light")
+            logo_dark = values.get("dark")
+            default_logo_light = (
+                Path(__file__).parent.parent.parent
+                / "static/ui/images/hyperglass-light.png"
+            )
+            default_logo_dark = (
+                Path(__file__).parent.parent.parent
+                / "static/ui/images/hyperglass-dark.png"
+            )
+
+            # Use light logo as dark logo if dark logo is undefined.
+            if logo_light is not None and logo_dark is None:
+                values["dark"] = logo_light
+
+            # Use dark logo as light logo if light logo is undefined.
+            if logo_dark is not None and logo_light is None:
+                values["light"] = logo_dark
+
+            # Set default logo paths if logo is undefined.
+            if logo_light is None and logo_dark is None:
+                values["light"] = default_logo_light
+                values["dark"] = default_logo_dark
+
+            return values
+
+        @validator("light", "dark")
+        def validate_logos(cls, value):
+            """Convert file path to URL path.
+
+            Arguments:
+                value {FilePath} -- Path to logo file.
+
+            Returns:
+                {str} -- Formatted logo path
+            """
+            return "".join(str(value).split("static")[1::])
+
         class Config:
             """Override pydantic config."""
 
             fields = {"logo_path": "path"}
 
-    class PeeringDb(HyperglassModel):
-        """Validation model for params.branding.peering_db."""
+    class ExternalLink(HyperglassModel):
+        """Validation model for params.branding.external_link."""
 
         enable: StrictBool = True
+        title: StrictStr = "PeeringDB"
+        url: HttpUrl = "https://www.peeringdb.com/AS{primary_asn}"
 
     class Terms(HyperglassModel):
         """Validation model for params.branding.terms."""
 
         enable: StrictBool = True
+        file: Optional[FilePath]
+        title: StrictStr = "Terms"
 
     class Text(HyperglassModel):
         """Validation model for params.branding.text."""
@@ -138,6 +197,6 @@ class Branding(HyperglassModel):
     font: Font = Font()
     help_menu: HelpMenu = HelpMenu()
     logo: Logo = Logo()
-    peering_db: PeeringDb = PeeringDb()
+    external_link: ExternalLink = ExternalLink()
     terms: Terms = Terms()
     text: Text = Text()

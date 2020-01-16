@@ -10,6 +10,7 @@ from typing import List
 from typing import Optional
 
 # Third Party Imports
+from pydantic import FilePath
 from pydantic import IPvAnyNetwork
 from pydantic import StrictStr
 from pydantic import constr
@@ -17,6 +18,13 @@ from pydantic import validator
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
+
+
+class Info(HyperglassModel):
+    """Validation model for per-VRF help files."""
+
+    bgp_aspath: Optional[FilePath]
+    bgp_community: Optional[FilePath]
 
 
 class DeviceVrf4(HyperglassModel):
@@ -36,8 +44,9 @@ class DeviceVrf6(HyperglassModel):
 class Vrf(HyperglassModel):
     """Validation model for per VRF/afi config in devices.yaml."""
 
-    name: str
-    display_name: str
+    name: StrictStr
+    display_name: StrictStr
+    info: Info = Info()
     ipv4: Optional[DeviceVrf4]
     ipv6: Optional[DeviceVrf6]
     access_list: List[Dict[constr(regex=("allow|deny")), IPvAnyNetwork]] = [
@@ -71,12 +80,32 @@ class Vrf(HyperglassModel):
                     li[action] = str(network)
         return value
 
+    def __hash__(self):
+        """Make VRF object hashable so the object can be deduplicated with set().
+
+        Returns:
+            {int} -- Hash of VRF name
+        """
+        return hash((self.name,))
+
+    def __eq__(self, other):
+        """Make VRF object comparable so the object can be deduplicated with set().
+
+        Arguments:
+            other {object} -- Object to compare
+
+        Returns:
+            {bool} -- True if comparison attributes are the same value
+        """
+        return self.name == other.name
+
 
 class DefaultVrf(HyperglassModel):
     """Validation model for default routing table VRF."""
 
     name: StrictStr = "default"
     display_name: StrictStr = "Global"
+    info: Info = Info()
     access_list: List[Dict[constr(regex=("allow|deny")), IPvAnyNetwork]] = [
         {"allow": IPv4Network("0.0.0.0/0")},
         {"allow": IPv6Network("::/0")},
