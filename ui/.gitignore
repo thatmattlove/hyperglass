@@ -11,3 +11,5 @@ frontend.json
 node_modules/
 # Downloaded Google Fonts
 fonts/
+.next
+out
