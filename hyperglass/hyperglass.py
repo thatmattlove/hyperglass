@@ -9,6 +9,7 @@ from pathlib import Path
 
 # Third Party Imports
 import aredis
+from aiofile import AIOFile
 from prometheus_client import CONTENT_TYPE_LATEST
 from prometheus_client import CollectorRegistry
 from prometheus_client import Counter
@@ -21,7 +22,8 @@ from sanic.exceptions import NotFound
 from sanic.exceptions import ServerError
 from sanic.exceptions import ServiceUnavailable
 from sanic_limiter import Limiter
-from sanic_limiter import RateLimitExceeded
+
+# from sanic_limiter import RateLimitExceeded
 from sanic_limiter import get_remote_address
 
 # Project Imports
@@ -37,7 +39,6 @@ from hyperglass.exceptions import RestError
 from hyperglass.exceptions import ScrapeError
 from hyperglass.execution.execute import Execute
 from hyperglass.models.query import Query
-from hyperglass.render import render_html
 from hyperglass.util import check_python
 from hyperglass.util import cpu_count
 from hyperglass.util import log
@@ -55,12 +56,22 @@ tempdir = tempfile.TemporaryDirectory(prefix="hyperglass_")
 os.environ["prometheus_multiproc_dir"] = tempdir.name
 
 # Static File Definitions
-static_dir = Path(__file__).parent / "static" / "ui"
-log.debug(f"Static Files: {static_dir}")
+STATIC_DIR = Path(__file__).parent / "static"
+UI_DIR = STATIC_DIR / "ui"
+IMAGES_DIR = STATIC_DIR / "images"
+NEXT_DIR = UI_DIR / "_next"
+INDEX = UI_DIR / "index.html"
+NOTFOUND = UI_DIR / "404.html"
+NOFLASH = UI_DIR / "noflash.js"
+log.debug(f"Static Files: {STATIC_DIR}")
 
 # Main Sanic App Definition
 app = Sanic(__name__)
-app.static("/ui", str(static_dir))
+app.static("/ui", str(UI_DIR))
+app.static("/_next", str(NEXT_DIR))
+app.static("/images", str(IMAGES_DIR))
+app.static("/ui/images", str(IMAGES_DIR))
+app.static("/noflash.js", str(NOFLASH))
 log.debug(app.config)
 
 # Sanic Web Server Parameters
@@ -228,31 +239,35 @@ async def handle_backend_errors(request, exception):
 async def handle_404(request, exception):
     """Render full error page for invalid URI."""
     path = request.path
-    html = render_html("404", uri=path)
+    # html = render_html("404", uri=path)
     client_addr = get_remote_address(request)
     count_notfound.labels(exception, path, client_addr).inc()
     log.error(f"Error: {exception}, Path: {path}, Source: {client_addr}")
-    return sanic_response.html(html, status=404)
+    # return sanic_response.html(html, status=404)
+
+    async with AIOFile(NOTFOUND, "r") as nf:
+        html = await nf.read()
+        return sanic_response.html(html)
 
 
-@app.exception(RateLimitExceeded)
-async def handle_429(request, exception):
-    """Render full error page for too many site queries."""
-    html = render_html("ratelimit-site")
-    client_addr = get_remote_address(request)
-    count_ratelimit.labels(exception, client_addr).inc()
-    log.error(f"Error: {exception}, Source: {client_addr}")
-    return sanic_response.html(html, status=429)
+# @app.exception(RateLimitExceeded)
+# async def handle_429(request, exception):
+#     """Render full error page for too many site queries."""
+#     html = render_html("ratelimit-site")
+#     client_addr = get_remote_address(request)
+#     count_ratelimit.labels(exception, client_addr).inc()
+#     log.error(f"Error: {exception}, Source: {client_addr}")
+#     return sanic_response.html(html, status=429)
 
 
-@app.exception(ServerError)
-async def handle_500(request, exception):
-    """Render general error page."""
-    client_addr = get_remote_address(request)
-    count_errors.labels(500, exception, client_addr, None, None, None).inc()
-    log.error(f"Error: {exception}, Source: {client_addr}")
-    html = render_html("500")
-    return sanic_response.html(html, status=500)
+# @app.exception(ServerError)
+# async def handle_500(request, exception):
+#     """Render general error page."""
+#     client_addr = get_remote_address(request)
+#     count_errors.labels(500, exception, client_addr, None, None, None).inc()
+#     log.error(f"Error: {exception}, Source: {client_addr}")
+#     html = render_html("500")
+#     return sanic_response.html(html, status=500)
 
 
 async def clear_cache():
@@ -269,8 +284,12 @@ async def clear_cache():
 @limiter.limit(rate_limit_site, error_message="Site")
 async def site(request):
     """Serve main application front end."""
-    html = await render_html("form", primary_asn=params.general.primary_asn)
-    return sanic_response.html(html)
+
+    # html = await render_html("form", primary_asn=params.general.primary_asn)
+    # return sanic_response.html(html)
+    async with AIOFile(INDEX, "r") as entry:
+        html = await entry.read()
+        return sanic_response.html(html)
 
 
 @app.route("/config", methods=["GET", "OPTIONS"])
@@ -326,7 +345,7 @@ async def hyperglass_main(request):
 
     # Use hashed query_data string as key for for k/v cache store so
     # each command output value is unique.
-    cache_key = hash(query_data)
+    cache_key = hash(str(query_data))
 
     # Define cache entry expiry time
     cache_timeout = params.features.cache.timeout

@@ -1,0 +1,1 @@
+{"ast":null,"code":"import { useMemo } from \"react\";\nexport default ((mode = \"light\", light = \"black\", dark = \"white\") => useMemo(() => mode ? light : dark));","map":null,"metadata":{},"sourceType":"module"}

@@ -26,6 +26,7 @@ class General(HyperglassModel):
     debug: StrictBool = False
     primary_asn: StrictStr = "65001"
     org_name: StrictStr = "The Company"
+    site_title: StrictStr = "hyperglass"
     site_description: StrictStr = "{org_name} Network Looking Glass"
     site_keywords: List[StrictStr] = [
         "hyperglass",

@@ -1,0 +1,28 @@
+{
+  "@chakra-ui/core": [
+    {
+      "id": "K+JJ",
+      "name": "./node_modules/thousands/index.js",
+      "file": "static/chunks/7.43e9146479a9ba2b923b.js",
+      "publicPath": "static/chunks/7.43e9146479a9ba2b923b.js"
+    },
+    {
+      "id": "PJYZ",
+      "name": "./node_modules/@babel/runtime/helpers/assertThisInitialized.js",
+      "file": "static/chunks/7.43e9146479a9ba2b923b.js",
+      "publicPath": "static/chunks/7.43e9146479a9ba2b923b.js"
+    },
+    {
+      "id": "QVwu",
+      "name": "./node_modules/@chakra-ui/core/dist/es/index.js",
+      "file": "static/chunks/7.43e9146479a9ba2b923b.js",
+      "publicPath": "static/chunks/7.43e9146479a9ba2b923b.js"
+    },
+    {
+      "id": "i0Wh",
+      "name": "./node_modules/react-spring/renderprops.cjs.js",
+      "file": "static/chunks/7.43e9146479a9ba2b923b.js",
+      "publicPath": "static/chunks/7.43e9146479a9ba2b923b.js"
+    }
+  ]
+}

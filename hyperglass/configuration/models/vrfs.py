@@ -12,19 +12,38 @@ from typing import Optional
 # Third Party Imports
 from pydantic import FilePath
 from pydantic import IPvAnyNetwork
+from pydantic import StrictBool
 from pydantic import StrictStr
 from pydantic import constr
 from pydantic import validator
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.configuration.models._utils import HyperglassModelExtra
+
+
+class InfoConfigParams(HyperglassModelExtra):
+    """Validation model for per-help params."""
+
+    title: Optional[StrictStr]
+
+
+class InfoConfig(HyperglassModel):
+    """Validation model for help configuration."""
+
+    enable: StrictBool = True
+    file: Optional[FilePath]
+    params: InfoConfigParams = InfoConfigParams()
 
 
 class Info(HyperglassModel):
-    """Validation model for per-VRF help files."""
+    """Validation model for per-VRF, per-Command help."""
 
-    bgp_aspath: Optional[FilePath]
-    bgp_community: Optional[FilePath]
+    bgp_aspath: InfoConfig = InfoConfig()
+    bgp_community: InfoConfig = InfoConfig()
+    bgp_route: InfoConfig = InfoConfig()
+    ping: InfoConfig = InfoConfig()
+    traceroute: InfoConfig = InfoConfig()
 
 
 class DeviceVrf4(HyperglassModel):

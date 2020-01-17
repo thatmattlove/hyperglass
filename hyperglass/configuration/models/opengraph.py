@@ -32,7 +32,7 @@ class OpenGraph(HyperglassModel):
         if value is None:
             value = (
                 Path(__file__).parent.parent.parent
-                / "static/ui/images/hyperglass-opengraph.png"
+                / "static/images/hyperglass-opengraph.png"
             )
         with PilImage.open(value) as img:
             width, height = img.size

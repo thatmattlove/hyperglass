@@ -1,0 +1,96 @@
+{
+    "name": "hyperglass-ui",
+    "version": "1.0.0",
+    "description": "UI for hyperglass, the modern network looking glass",
+    "author": "Matt Love",
+    "license": "BSD-3-Clause-Clear",
+    "private": false,
+    "scripts": {
+        "dev": "next",
+        "build": "next build && next export -o ../hyperglass/static/ui",
+        "start": "next start"
+    },
+    "dependencies": {
+        "@chakra-ui/core": "^0.5.2",
+        "@emotion/core": "^10.0.27",
+        "@emotion/styled": "^10.0.27",
+        "@styled-system/should-forward-prop": "^5.1.4",
+        "axios": "^0.19.1",
+        "axios-hooks": "^1.9.0",
+        "chroma-js": "^2.1.0",
+        "emotion-theming": "^10.0.27",
+        "framer-motion": "^1.7.0",
+        "lodash": "^4.17.15",
+        "next": "^9.1.7",
+        "react": "^16.12.0",
+        "react-dom": "^16.12.0",
+        "react-hook-form": "^4.4.8",
+        "react-icons": "^3.8.0",
+        "react-markdown": "^4.3.1",
+        "react-select": "^3.0.8",
+        "react-string-replace": "^0.4.4",
+        "string-format": "^2.0.0",
+        "styled-system": "^5.1.4",
+        "yup": "^0.28.0"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^2.15.0",
+        "@typescript-eslint/parser": "^2.15.0",
+        "babel-eslint": "^10.0.3",
+        "eslint": "^6.8.0",
+        "eslint-config-airbnb": "^18.0.1",
+        "eslint-config-prettier": "^6.9.0",
+        "eslint-config-react-app": "^5.1.0",
+        "eslint-import-resolver-webpack": "^0.12.1",
+        "eslint-plugin-flowtype": "^4.5.3",
+        "eslint-plugin-import": "^2.19.1",
+        "eslint-plugin-jsx-a11y": "^6.2.3",
+        "eslint-plugin-prettier": "^3.1.2",
+        "eslint-plugin-react": "^7.17.0",
+        "eslint-plugin-react-hooks": "^2.3.0",
+        "prettier": "^1.19.1"
+    },
+    "babel": {
+        "presets": [
+            "next/babel"
+        ]
+    },
+    "eslintConfig": {
+        "parser": "babel-eslint",
+        "rules": {
+            "max-len": [
+                "error",
+                100
+            ],
+            "react/prop-types": 0,
+            "react/jsx-filename-extension": 0,
+            "react/jsx-props-no-spreading": 0,
+            "no-bitwise": 0,
+            "object-shorthand": 0,
+            "no-plusplus": 0,
+            "no-param-reassign": 0,
+            "no-unused-expressions": 0,
+            "no-nested-ternary": 0,
+            "no-underscore-dangle": 0,
+            "camelcase": 0
+        },
+        "extends": [
+            "airbnb",
+            "prettier",
+            "prettier/react"
+        ],
+        "env": {
+            "browser": true
+        },
+        "settings": {
+            "import/core-modules": [
+                "styled-jsx/css"
+            ],
+            "import/resolver": {
+                "webpack": {
+                    "config": "webpack.config.js"
+                }
+            }
+        }
+    }
+}

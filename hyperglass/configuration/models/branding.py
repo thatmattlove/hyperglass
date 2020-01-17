@@ -22,8 +22,6 @@ from hyperglass.configuration.models._utils import HyperglassModel
 class Branding(HyperglassModel):
     """Validation model for params.branding."""
 
-    site_title: StrictStr = "hyperglass"
-
     class Colors(HyperglassModel):
         """Validation model for params.colors."""
 
@@ -103,11 +101,11 @@ class Branding(HyperglassModel):
             logo_dark = values.get("dark")
             default_logo_light = (
                 Path(__file__).parent.parent.parent
-                / "static/ui/images/hyperglass-light.png"
+                / "static/images/hyperglass-light.png"
             )
             default_logo_dark = (
                 Path(__file__).parent.parent.parent
-                / "static/ui/images/hyperglass-dark.png"
+                / "static/images/hyperglass-dark.png"
             )
 
             # Use light logo as dark logo if dark logo is undefined.

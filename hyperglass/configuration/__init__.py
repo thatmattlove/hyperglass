@@ -5,14 +5,20 @@ import asyncio
 from pathlib import Path
 
 # Third Party Imports
+import ujson as json
 import yaml
 from aiofile import AIOFile
 from pydantic import ValidationError
 
 # Project Imports
+from hyperglass.configuration.markdown import get_markdown
 from hyperglass.configuration.models import commands as _commands
 from hyperglass.configuration.models import params as _params
 from hyperglass.configuration.models import routers as _routers
+from hyperglass.constants import CREDIT
+from hyperglass.constants import DEFAULT_HELP
+from hyperglass.constants import DEFAULT_DETAILS
+from hyperglass.constants import DEFAULT_TERMS
 from hyperglass.constants import LOG_HANDLER
 from hyperglass.constants import LOG_HANDLER_FILE
 from hyperglass.constants import LOG_LEVELS
@@ -314,6 +320,60 @@ def _build_queries():
     return queries
 
 
+content_params = json.loads(
+    params.general.json(
+        include={"primary_asn", "org_name", "site_title", "site_description"}
+    )
+)
+
+
+def _build_vrf_help():
+    """Build a dict of vrfs as keys, help content as values.
+
+    Returns:
+        {dict} -- Formatted VRF help
+    """
+    all_help = {}
+    for vrf in devices.vrf_objects:
+        vrf_help = {}
+        for command in Supported.query_types:
+            cmd = getattr(vrf.info, command)
+            help_params = content_params
+            if cmd.params.title is None:
+                cmd.params.title = (
+                    f"{vrf.display_name}: {getattr(params.branding.text, command)}"
+                )
+            help_params.update(cmd.params.dict())
+            md = asyncio.run(
+                get_markdown(
+                    config_path=cmd,
+                    default=DEFAULT_DETAILS[command],
+                    params=help_params,
+                )
+            )
+            vrf_help.update(
+                {command: {"content": md, "enable": cmd.enable, "params": help_params}}
+            )
+        all_help.update({vrf.name: vrf_help})
+    return all_help
+
+
+content_vrf = _build_vrf_help()
+
+content_help = asyncio.run(
+    get_markdown(
+        config_path=params.branding.help_menu,
+        default=DEFAULT_HELP,
+        params=content_params,
+    )
+)
+content_terms = asyncio.run(
+    get_markdown(
+        config_path=params.branding.terms, default=DEFAULT_TERMS, params=content_params
+    )
+)
+content_credit = CREDIT
+
 vrfs = _build_vrfs()
 queries = _build_queries()
 networks = _build_networks()
@@ -346,6 +406,12 @@ _frontend_params.update(
         "devices": frontend_devices,
         "networks": networks,
         "vrfs": vrfs,
+        "content": {
+            "help_menu": content_help,
+            "terms": content_terms,
+            "credit": content_credit,
+            "vrf": content_vrf,
+        },
     }
 )
 frontend_params = _frontend_params
