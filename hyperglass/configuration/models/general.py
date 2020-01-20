@@ -18,6 +18,7 @@ from pydantic import validator
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.configuration.models.docs import Docs
 from hyperglass.configuration.models.opengraph import OpenGraph
 
 
@@ -46,6 +47,7 @@ class General(HyperglassModel):
         "isp",
     ]
     opengraph: OpenGraph = OpenGraph()
+    docs: Docs = Docs()
     google_analytics: StrictStr = ""
     redis_host: StrictStr = "localhost"
     redis_port: StrictInt = 6379
@@ -54,6 +56,7 @@ class General(HyperglassModel):
     listen_address: Optional[Union[IPvAnyAddress, StrictStr]]
     listen_port: StrictInt = 8001
     log_file: Optional[FilePath]
+    cors_origins: List[StrictStr] = []
 
     @validator("listen_address", pre=True, always=True)
     def validate_listen_address(cls, value, values):

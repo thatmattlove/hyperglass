@@ -611,21 +611,22 @@ def build_ui():
 def dev_server(host, port, build):
     """Renders theme and web build, then starts dev web server"""
     try:
-        from hyperglass.hyperglass import app, APP_PARAMS
+        from hyperglass.hyperglass import app, ASGI_PARAMS
     except ImportError as import_error:
         raise click.ClickException(
             click.style("✗ Error importing hyperglass: ", fg="red", bold=True)
             + click.style(import_error, fg="blue")
         )
+    asgi_params = ASGI_PARAMS.copy()
     if host is not None:
-        APP_PARAMS["host"] = host
+        asgi_params["host"] = host
     if port is not None:
-        APP_PARAMS["port"] = port
+        asgi_params["port"] = port
 
     write_env_variables(
         {
             "NODE_ENV": "development",
-            "_HYPERGLASS_URL_": f'http://{APP_PARAMS["host"]}:{APP_PARAMS["port"]}/',
+            "_HYPERGLASS_URL_": f'http://{asgi_params["host"]}:{asgi_params["port"]}/',
         }
     )
     if build:
@@ -637,9 +638,9 @@ def dev_server(host, port, build):
                 + click.style(e, fg="white")
             ) from None
         if build_complete:
-            start_dev_server(app, APP_PARAMS)
+            start_dev_server(app, asgi_params)
     if not build:
-        start_dev_server(app, APP_PARAMS)
+        start_dev_server(app, asgi_params)
 
 
 @hg.command("migrate-configs", help="Copy YAML examples to usable config files")

@@ -4,9 +4,9 @@
 def start():
     """Start the web server with Uvicorn ASGI."""
     import uvicorn
-    from hyperglass.hyperglass import app, APP_PARAMS
+    from hyperglass.hyperglass import app, ASGI_PARAMS
 
-    uvicorn.run(app, **APP_PARAMS)
+    uvicorn.run(app, **ASGI_PARAMS)
 
 
 app = start()

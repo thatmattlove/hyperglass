@@ -1,7 +1,6 @@
 """Hyperglass Front End."""
 
 # Standard Library Imports
-import asyncio
 import os
 import tempfile
 import time
@@ -17,12 +16,14 @@ from prometheus_client import Counter
 from prometheus_client import generate_latest
 from prometheus_client import multiprocess
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse
 from starlette.responses import UJSONResponse
 from starlette.staticfiles import StaticFiles
 
 # Project Imports
+from hyperglass import __version__
 from hyperglass.configuration import frontend_params
 from hyperglass.configuration import params
 from hyperglass.exceptions import AuthError
@@ -37,6 +38,7 @@ from hyperglass.execution.execute import Execute
 from hyperglass.models.query import Query
 from hyperglass.util import check_python
 from hyperglass.util import log
+from hyperglass.util import write_env
 
 # Verify Python version meets minimum requirement
 try:
@@ -57,14 +59,41 @@ IMAGES_DIR = STATIC_DIR / "images"
 NEXT_DIR = UI_DIR / "_next"
 log.debug(f"Static Files: {STATIC_DIR}")
 
+docs_mode_map = {"swagger": "docs_url", "redoc": "redoc_url"}
+
+docs_config = {"docs_url": None, "redoc_url": None}
+
+if params.general.docs.enable:
+    if params.general.docs.mode == "swagger":
+        docs_config["docs_url"] = params.general.docs.uri
+        docs_config["redoc_url"] = None
+    elif params.general.docs.mode == "redoc":
+        docs_config["docs_url"] = None
+        docs_config["redoc_url"] = params.general.docs.uri
+
+
 # Main App Definition
-app = FastAPI()
+app = FastAPI(
+    debug=params.general.debug,
+    title=params.general.site_title,
+    description=params.general.site_description,
+    version=__version__,
+    **docs_config,
+)
 app.mount("/ui", StaticFiles(directory=UI_DIR), name="ui")
 app.mount("/_next", StaticFiles(directory=NEXT_DIR), name="_next")
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 app.mount("/ui/images", StaticFiles(directory=IMAGES_DIR), name="ui/images")
 
-APP_PARAMS = {
+# CORS Configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=params.general.cors_origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+ASGI_PARAMS = {
     "host": str(params.general.listen_address),
     "port": params.general.listen_port,
     "debug": params.general.debug,
@@ -72,7 +101,7 @@ APP_PARAMS = {
 
 # Redis Config
 redis_config = {
-    "host": params.general.redis_host,
+    "host": str(params.general.redis_host),
     "port": params.general.redis_port,
     "decode_responses": True,
 }
@@ -80,6 +109,7 @@ redis_config = {
 r_cache = aredis.StrictRedis(db=params.features.cache.redis_id, **redis_config)
 
 
+@app.on_event("startup")
 async def check_redis():
     """Ensure Redis is running before starting server.
 
@@ -89,19 +119,29 @@ async def check_redis():
     Returns:
         {bool} -- True if Redis is running.
     """
+    redis_host = redis_config["host"]
+    redis_port = redis_config["port"]
     try:
         await r_cache.echo("hyperglass test")
-        # await r_limiter.echo("hyperglass test")
     except Exception:
         raise HyperglassError(
-            f"Redis isn't running at: {redis_config['host']}:{redis_config['port']}",
-            alert="danger",
+            f"Redis isn't running at: {redis_host}:{redis_port}", alert="danger"
         ) from None
+    log.debug(f"Redis is running at: {redis_host}:{redis_port}")
     return True
 
 
-# Verify Redis is running
-asyncio.run(check_redis())
+@app.on_event("startup")
+async def write_env_variables():
+    """Write environment varibles for Next.js/Node.
+
+    Returns:
+        {bool} -- True if successful
+    """
+    result = await write_env({"NODE_ENV": "production", "_HYPERGLASS_URL_": "/"})
+    if result:
+        log.debug(result)
+    return True
 
 
 # Prometheus Config
@@ -141,20 +181,16 @@ async def metrics(request):
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request, exc):
-    """Handle application errors."""
+    """Handle web server errors."""
     return UJSONResponse(
-        {
-            "output": exc.detail.get("message", params.messages.general),
-            "alert": exc.detail.get("alert", "error"),
-            "keywords": exc.detail.get("keywords", []),
-        },
+        {"output": exc.detail, "alert": "danger", "keywords": []},
         status_code=exc.status_code,
     )
 
 
 @app.exception_handler(HyperglassError)
 async def http_exception_handler(request, exc):
-    """Handle request validation errors."""
+    """Handle application errors."""
     return UJSONResponse(
         {"output": exc.message, "alert": exc.alert, "keywords": exc.keywords},
         status_code=400,
