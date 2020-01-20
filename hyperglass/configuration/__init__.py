@@ -7,10 +7,10 @@ from pathlib import Path
 # Third Party Imports
 import ujson as json
 import yaml
+from aiofile import AIOFile
 from pydantic import ValidationError
 
 # Project Imports
-from aiofile import AIOFile
 from hyperglass.configuration.markdown import get_markdown
 from hyperglass.configuration.models import commands as _commands
 from hyperglass.configuration.models import params as _params
