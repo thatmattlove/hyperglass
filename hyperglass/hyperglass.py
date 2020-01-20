@@ -85,11 +85,18 @@ app.mount("/_next", StaticFiles(directory=NEXT_DIR), name="_next")
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 app.mount("/ui/images", StaticFiles(directory=IMAGES_DIR), name="ui/images")
 
+DEV_URL = f"http://localhost:{str(params.general.listen_port)}/api/"
+PROD_URL = "/api/"
+
+CORS_ORIGINS = params.general.cors_origins.copy()
+if params.general.developer_mode:
+    CORS_ORIGINS.append(DEV_URL)
+
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=params.general.cors_origins,
-    allow_methods=["*"],
+    allow_origins=CORS_ORIGINS,
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -138,7 +145,11 @@ async def write_env_variables():
     Returns:
         {bool} -- True if successful
     """
-    result = await write_env({"NODE_ENV": "production", "_HYPERGLASS_URL_": "/"})
+    if params.general.developer_mode:
+        env_vars = {"NODE_ENV": "development", "_HYPERGLASS_URL_": DEV_URL}
+    else:
+        env_vars = {"NODE_ENV": "production", "_HYPERGLASS_URL_": PROD_URL}
+    result = await write_env(env_vars)
     if result:
         log.debug(result)
     return True
@@ -207,7 +218,7 @@ async def clear_cache():
         raise HyperglassError(f"Error clearing cache: {error_exception}")
 
 
-@app.get("/config")
+@app.get("/api/config")
 async def frontend_config():
     """Provide validated user/default config for front end consumption.
 
@@ -217,7 +228,7 @@ async def frontend_config():
     return UJSONResponse(frontend_params, status_code=200)
 
 
-@app.post("/query/")
+@app.post("/api/query/")
 async def hyperglass_main(query_data: Query, request: Request):
     """Process XHR POST data.
 
@@ -293,12 +304,4 @@ async def hyperglass_main(query_data: Query, request: Request):
     log.debug(f"Cache match for: {cache_key}, returning cached entry")
     log.debug(f"Cache Output: {response_output}")
 
-    return UJSONResponse(
-        {"output": response_output},
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-        },
-    )
+    return UJSONResponse({"output": response_output}, status_code=200)

@@ -51,7 +51,7 @@ const Result = React.forwardRef(
         const selectionBg = { dark: theme.colors.white, light: theme.colors.black };
         const selectionColor = { dark: theme.colors.black, light: theme.colors.white };
         const [{ data, loading, error }, refetch] = useAxios({
-            url: "/query",
+            url: "/api/query",
             method: "post",
             data: {
                 query_location: queryLocation,

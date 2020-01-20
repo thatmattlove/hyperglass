@@ -6,8 +6,8 @@ const env = envVars.NODE_ENV;
 const envUrl = envVars._HYPERGLASS_URL_;
 
 const devProxy = {
-    "/config": { target: envUrl + "config", pathRewrite: { "^/config": "" } },
-    "/query": { target: envUrl + "query", pathRewrite: { "^/query": "" } },
+    "/api/config": { target: envUrl + "config", pathRewrite: { "^/api/config": "" } },
+    "/api/query": { target: envUrl + "query", pathRewrite: { "^/api/query": "" } },
     "/images": { target: envUrl + "images", pathRewrite: { "^/images": "" } }
 };
 

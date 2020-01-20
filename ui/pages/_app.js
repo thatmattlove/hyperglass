@@ -5,7 +5,7 @@ import PreConfig from "~/components/PreConfig";
 
 const Hyperglass = ({ Component, pageProps }) => {
     const [{ data, loading, error }, refetch] = useAxios({
-        url: "/config",
+        url: "/api/config",
         method: "get"
     });
     return (
