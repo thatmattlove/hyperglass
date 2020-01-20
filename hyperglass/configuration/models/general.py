@@ -2,6 +2,7 @@
 
 # Standard Library Imports
 from datetime import datetime
+from ipaddress import ip_address
 from pathlib import Path
 from typing import List
 from typing import Optional
@@ -50,9 +51,35 @@ class General(HyperglassModel):
     redis_port: StrictInt = 6379
     requires_ipv6_cidr: List[StrictStr] = ["cisco_ios", "cisco_nxos"]
     request_timeout: StrictInt = 30
-    listen_address: Union[IPvAnyAddress, StrictStr] = "localhost"
+    listen_address: Optional[Union[IPvAnyAddress, StrictStr]]
     listen_port: StrictInt = 8001
     log_file: Optional[FilePath]
+
+    @validator("listen_address", pre=True, always=True)
+    def validate_listen_address(cls, value, values):
+        """Set default listen_address based on debug mode.
+
+        Arguments:
+            value {str|IPvAnyAddress|None} -- listen_address
+            values {dict} -- already-validated entries before listen_address
+
+        Returns:
+            {str} -- Validated listen_address
+        """
+        if value is None and not values["debug"]:
+            listen_address = "localhost"
+        elif value is None and values["debug"]:
+            listen_address = ip_address("0.0.0.0")  # noqa: S104
+        elif isinstance(value, str) and value != "localhost":
+            try:
+                listen_address = ip_address(value)
+            except ValueError:
+                raise ValueError(str(value))
+        elif isinstance(value, str) and value == "localhost":
+            listen_address = value
+        else:
+            raise ValueError(str(value))
+        return listen_address
 
     @validator("site_description")
     def validate_site_description(cls, value, values):
