@@ -1,12 +1,12 @@
 {
-    "name": "hyperglass-ui",
+    "name": "ui",
     "version": "1.0.0",
     "description": "UI for hyperglass, the modern network looking glass",
     "author": "Matt Love",
     "license": "BSD-3-Clause-Clear",
     "private": false,
     "scripts": {
-        "dev": "next",
+        "dev": "node nextdev",
         "build": "next build && next export -o ../hyperglass/static/ui",
         "start": "next start"
     },
@@ -31,6 +31,7 @@
         "react-string-replace": "^0.4.4",
         "string-format": "^2.0.0",
         "styled-system": "^5.1.4",
+        "use-media": "^1.4.0",
         "yup": "^0.28.0"
     },
     "devDependencies": {
@@ -48,6 +49,8 @@
         "eslint-plugin-prettier": "^3.1.2",
         "eslint-plugin-react": "^7.17.0",
         "eslint-plugin-react-hooks": "^2.3.0",
+        "express": "^4.17.1",
+        "http-proxy-middleware": "^0.20.0",
         "prettier": "^1.19.1"
     },
     "babel": {
