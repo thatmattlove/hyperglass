@@ -44,7 +44,7 @@ class HyperglassError(Exception):
         """
         return f"[{self.alert.upper()}] {self._message}"
 
-    def __dict__(self):
+    def dict(self):
         """Return the instance's attributes as a dictionary.
 
         Returns:

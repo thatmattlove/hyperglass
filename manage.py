@@ -21,7 +21,6 @@ from pathlib import Path
 import click
 import requests
 import stackprinter
-from passlib.hash import pbkdf2_sha256
 
 stackprinter.set_excepthook(style="darkbg2")
 
@@ -40,6 +39,7 @@ WS6 = "      "
 WS8 = "        "
 CL = ":"
 E_CHECK = "\U00002705"
+E_ERROR = "\U0000274C"
 E_ROCKET = "\U0001F680"
 E_SPARKLES = "\U00002728"
 
@@ -535,102 +535,45 @@ async def clearcache():
         raise
 
 
-@hg.command("generate-key", help="Generate API key & hash")
-@click.option(
-    "-l", "--length", "string_length", type=int, default=16, show_default=True
-)
-def generatekey(string_length):
-    """
-    Generates 16 character API Key for hyperglass-frr API, and a
-    corresponding PBKDF2 SHA256 Hash.
-    """
-    ld = string.ascii_letters + string.digits
-    nl = "\n"
-    api_key = "".join(random.choice(ld) for i in range(string_length))
-    key_hash = pbkdf2_sha256.hash(api_key)
-    line_len = len(key_hash)
-    ak_info = "  Your API Key is: "
-    ak_help1 = "  Put this in the"
-    ak_help2 = " configuration.yaml "
-    ak_help3 = "of your API module."
-    kh_info = "  Your Key Hash is: "
-    kh_help1 = "  Use this as the password for the corresponding device in"
-    kh_help2 = " devices.yaml"
-    kh_help3 = "."
-    ak_info_len = len(ak_info + api_key)
-    ak_help_len = len(ak_help1 + ak_help2 + ak_help3)
-    kh_info_len = len(kh_info + key_hash)
-    kh_help_len = len(kh_help1 + kh_help2 + kh_help3)
-    ak_kh = [ak_info_len, ak_help_len, kh_info_len, kh_help_len]
-    ak_kh.sort()
-    longest_line = ak_kh[-1] + 2
-    s_box = {"fg": "white", "dim": True, "bold": True}
-    s_txt = {"fg": "white"}
-    s_ak = {"fg": "green", "bold": True}
-    s_kh = {"fg": "blue", "bold": True}
-    s_file = {"fg": "yellow"}
-    click.echo(
-        click.style("┌" + ("─" * longest_line) + "┐", **s_box)
-        + click.style(nl + "│", **s_box)
-        + click.style(ak_info, **s_txt)
-        + click.style(api_key, **s_ak)
-        + click.style(" " * (longest_line - ak_info_len) + "│", **s_box)
-        + click.style(nl + "│", **s_box)
-        + click.style(ak_help1, **s_txt)
-        + click.style(ak_help2, **s_file)
-        + click.style(ak_help3, **s_txt)
-        + click.style(" " * (longest_line - ak_help_len) + "│", **s_box)
-        + click.style(nl + "├" + ("─" * longest_line) + "┤", **s_box)
-        + click.style(nl + "│", **s_box)
-        + click.style(kh_info, **s_txt)
-        + click.style(key_hash, **s_kh)
-        + click.style(" " * (longest_line - kh_info_len) + "│", **s_box)
-        + click.style(nl + "│", **s_box)
-        + click.style(kh_help1, **s_txt)
-        + click.style(kh_help2, **s_file)
-        + click.style(kh_help3, **s_txt)
-        + click.style(" " * (longest_line - kh_help_len) + "│", **s_box)
-        + click.style(nl + "└" + ("─" * longest_line) + "┘", **s_box)
-    )
-
-
 def start_dev_server(app, params):
     """Starts Sanic development server for testing without WSGI/Reverse Proxy"""
+    import uvicorn
 
+    msg_start = "Starting hyperglass web server on"
+    msg_uri = "http://"
+    msg_host = str(params["host"])
+    msg_port = str(params["port"])
+    msg_len = len("".join([msg_start, WS1, msg_uri, msg_host, CL, msg_port]))
     try:
         click.echo(
             NL
+            + WS1 * msg_len
+            + WS8
+            + E_ROCKET
+            + NL
             + E_CHECK
             + WS1
-            + click.style(f"Starting hyperglass web server on", fg="green", bold=True)
+            + click.style(msg_start, fg="green", bold=True)
             + WS1
-            + NL
-            + E_SPARKLES
-            + NL
-            + E_SPARKLES * 2
-            + NL
-            + E_SPARKLES * 3
-            + NL
-            + WS8
-            + click.style("http://", fg="white")
-            + click.style(str(params["host"]), fg="blue", bold=True)
+            + click.style(msg_uri, fg="white")
+            + click.style(msg_host, fg="blue", bold=True)
             + click.style(CL, fg="white")
-            + click.style(str(params["port"]), fg="magenta", bold=True)
-            + NL
-            + WS4
-            + E_ROCKET
-            + NL
-            + NL
+            + click.style(msg_port, fg="magenta", bold=True)
             + WS1
             + E_ROCKET
+            + NL
+            + WS1
             + NL
         )
-        app.run(**params)
+        uvicorn.run(app, **params)
+        
     except Exception as e:
         raise click.ClickException(
-            click.style("✗ Failed to start test server: ", fg="red", bold=True)
-            + click.style(e, fg="red")
-        )
+            E_ERROR
+            + WS1
+            + click.style("Failed to start test server: ", fg="red", bold=True)
+            + click.style(str(e), fg="red")
+        ) from None
 
 
 def write_env_variables(variables):

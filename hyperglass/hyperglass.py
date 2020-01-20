@@ -9,22 +9,18 @@ from pathlib import Path
 
 # Third Party Imports
 import aredis
-from aiofile import AIOFile
+from fastapi import FastAPI
+from fastapi import HTTPException
 from prometheus_client import CONTENT_TYPE_LATEST
 from prometheus_client import CollectorRegistry
 from prometheus_client import Counter
 from prometheus_client import generate_latest
 from prometheus_client import multiprocess
-from sanic import Sanic
-from sanic import response as sanic_response
-from sanic.exceptions import InvalidUsage
-from sanic.exceptions import NotFound
-from sanic.exceptions import ServerError
-from sanic.exceptions import ServiceUnavailable
-from sanic_limiter import Limiter
-
-# from sanic_limiter import RateLimitExceeded
-from sanic_limiter import get_remote_address
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.requests import Request
+from starlette.responses import PlainTextResponse
+from starlette.responses import UJSONResponse
+from starlette.staticfiles import StaticFiles
 
 # Project Imports
 from hyperglass.configuration import frontend_params
@@ -40,7 +36,6 @@ from hyperglass.exceptions import ScrapeError
 from hyperglass.execution.execute import Execute
 from hyperglass.models.query import Query
 from hyperglass.util import check_python
-from hyperglass.util import cpu_count
 from hyperglass.util import log
 
 # Verify Python version meets minimum requirement
@@ -60,28 +55,19 @@ STATIC_DIR = Path(__file__).parent / "static"
 UI_DIR = STATIC_DIR / "ui"
 IMAGES_DIR = STATIC_DIR / "images"
 NEXT_DIR = UI_DIR / "_next"
-INDEX = UI_DIR / "index.html"
-NOTFOUND = UI_DIR / "404.html"
-NOFLASH = UI_DIR / "noflash.js"
 log.debug(f"Static Files: {STATIC_DIR}")
 
-# Main Sanic App Definition
-app = Sanic(__name__)
-app.static("/ui", str(UI_DIR))
-app.static("/_next", str(NEXT_DIR))
-app.static("/images", str(IMAGES_DIR))
-app.static("/ui/images", str(IMAGES_DIR))
-app.static("/noflash.js", str(NOFLASH))
-log.debug(app.config)
+# Main App Definition
+app = FastAPI()
+app.mount("/ui", StaticFiles(directory=UI_DIR), name="ui")
+app.mount("/_next", StaticFiles(directory=NEXT_DIR), name="_next")
+app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
+app.mount("/ui/images", StaticFiles(directory=IMAGES_DIR), name="ui/images")
 
-# Sanic Web Server Parameters
 APP_PARAMS = {
-    "host": params.general.listen_address,
+    "host": str(params.general.listen_address),
     "port": params.general.listen_port,
     "debug": params.general.debug,
-    "workers": cpu_count(),
-    "access_log": params.general.debug,
-    "auto_reload": params.general.debug,
 }
 
 # Redis Config
@@ -91,26 +77,7 @@ redis_config = {
     "decode_responses": True,
 }
 
-# Sanic-Limiter Config
-query_rate = params.features.rate_limit.query.rate
-query_period = params.features.rate_limit.query.period
-site_rate = params.features.rate_limit.site.rate
-site_period = params.features.rate_limit.site.period
-rate_limit_query = f"{query_rate} per {query_period}"
-rate_limit_site = f"{site_rate} per {site_period}"
-
-log.debug(f"Query rate limit: {rate_limit_query}")
-log.debug(f"Site rate limit: {rate_limit_site}")
-
-# Redis Config for Sanic-Limiter storage
-r_limiter_db = params.features.rate_limit.redis_id
-r_limiter_url = "redis://{host}:{port}/{db}".format(
-    host=params.general.redis_host,
-    port=params.general.redis_port,
-    db=params.features.rate_limit.redis_id,
-)
 r_cache = aredis.StrictRedis(db=params.features.cache.redis_id, **redis_config)
-r_limiter = aredis.StrictRedis(db=params.features.rate_limit.redis_id, **redis_config)
 
 
 async def check_redis():
@@ -124,7 +91,7 @@ async def check_redis():
     """
     try:
         await r_cache.echo("hyperglass test")
-        await r_limiter.echo("hyperglass test")
+        # await r_limiter.echo("hyperglass test")
     except Exception:
         raise HyperglassError(
             f"Redis isn't running at: {redis_config['host']}:{redis_config['port']}",
@@ -136,11 +103,6 @@ async def check_redis():
 # Verify Redis is running
 asyncio.run(check_redis())
 
-# Adds Sanic config variable for Sanic-Limiter
-app.config.update(RATELIMIT_STORAGE_URL=r_limiter_url)
-
-# Initializes Sanic-Limiter
-limiter = Limiter(app, key_func=get_remote_address, global_limits=[rate_limit_site])
 
 # Prometheus Config
 count_data = Counter(
@@ -162,29 +124,13 @@ count_notfound = Counter(
 )
 
 
-@app.middleware("request")
-async def request_middleware(request):
-    """Respond to OPTIONS methods."""
-    if request.method == "OPTIONS":  # noqa: R503
-        return sanic_response.json({"content": "ok"}, status=204)
-
-
-@app.middleware("response")
-async def response_middleware(request, response):
-    """Add CORS headers to responses."""
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
-    response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
-
-
-@app.route("/metrics")
-@limiter.exempt
+@app.get("/metrics")
 async def metrics(request):
     """Serve Prometheus metrics."""
     registry = CollectorRegistry()
     multiprocess.MultiProcessCollector(registry)
     latest = generate_latest(registry)
-    return sanic_response.text(
+    return PlainTextResponse(
         latest,
         headers={
             "Content-Type": CONTENT_TYPE_LATEST,
@@ -193,81 +139,26 @@ async def metrics(request):
     )
 
 
-@app.exception(InvalidUsage)
-async def handle_frontend_errors(request, exception):
-    """Handle user-facing feedback related to frontend/input errors."""
-    client_addr = get_remote_address(request)
-    error = exception.args[0]
-    alert = error["alert"]
-    log.info(error)
-    count_errors.labels(
-        "Front End Error",
-        client_addr,
-        request.json.get("query_type"),
-        request.json.get("location"),
-        request.json.get("target"),
-    ).inc()
-    log.error(f'Error: {error["message"]}, Source: {client_addr}')
-    return sanic_response.json(
-        {"output": error["message"], "alert": alert, "keywords": error["keywords"]},
-        status=400,
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc):
+    """Handle application errors."""
+    return UJSONResponse(
+        {
+            "output": exc.detail.get("message", params.messages.general),
+            "alert": exc.detail.get("alert", "error"),
+            "keywords": exc.detail.get("keywords", []),
+        },
+        status_code=exc.status_code,
     )
 
 
-@app.exception(ServiceUnavailable)
-async def handle_backend_errors(request, exception):
-    """Handle user-facing feedback related to backend errors."""
-    client_addr = get_remote_address(request)
-    error = exception.args[0]
-    alert = error["alert"]
-    log.info(error)
-    count_errors.labels(
-        "Back End Error",
-        client_addr,
-        request.json.get("query_type"),
-        request.json.get("location"),
-        request.json.get("target"),
-    ).inc()
-    log.error(f'Error: {error["message"]}, Source: {client_addr}')
-    return sanic_response.json(
-        {"output": error["message"], "alert": alert, "keywords": error["keywords"]},
-        status=503,
+@app.exception_handler(HyperglassError)
+async def http_exception_handler(request, exc):
+    """Handle request validation errors."""
+    return UJSONResponse(
+        {"output": exc.message, "alert": exc.alert, "keywords": exc.keywords},
+        status_code=400,
     )
-
-
-@app.exception(NotFound)
-async def handle_404(request, exception):
-    """Render full error page for invalid URI."""
-    path = request.path
-    # html = render_html("404", uri=path)
-    client_addr = get_remote_address(request)
-    count_notfound.labels(exception, path, client_addr).inc()
-    log.error(f"Error: {exception}, Path: {path}, Source: {client_addr}")
-    # return sanic_response.html(html, status=404)
-
-    async with AIOFile(NOTFOUND, "r") as nf:
-        html = await nf.read()
-        return sanic_response.html(html)
-
-
-# @app.exception(RateLimitExceeded)
-# async def handle_429(request, exception):
-#     """Render full error page for too many site queries."""
-#     html = render_html("ratelimit-site")
-#     client_addr = get_remote_address(request)
-#     count_ratelimit.labels(exception, client_addr).inc()
-#     log.error(f"Error: {exception}, Source: {client_addr}")
-#     return sanic_response.html(html, status=429)
-
-
-# @app.exception(ServerError)
-# async def handle_500(request, exception):
-#     """Render general error page."""
-#     client_addr = get_remote_address(request)
-#     count_errors.labels(500, exception, client_addr, None, None, None).inc()
-#     log.error(f"Error: {exception}, Source: {client_addr}")
-#     html = render_html("500")
-#     return sanic_response.html(html, status=500)
 
 
 async def clear_cache():
@@ -280,57 +171,27 @@ async def clear_cache():
         raise HyperglassError(f"Error clearing cache: {error_exception}")
 
 
-@app.route("/", methods=["GET", "OPTIONS"])
-@limiter.limit(rate_limit_site, error_message="Site")
-async def site(request):
-    """Serve main application front end."""
-
-    # html = await render_html("form", primary_asn=params.general.primary_asn)
-    # return sanic_response.html(html)
-    async with AIOFile(INDEX, "r") as entry:
-        html = await entry.read()
-        return sanic_response.html(html)
-
-
-@app.route("/config", methods=["GET", "OPTIONS"])
-async def frontend_config(request):
+@app.get("/config")
+async def frontend_config():
     """Provide validated user/default config for front end consumption.
 
     Returns:
         {dict} -- Filtered configuration
     """
-    return sanic_response.json(frontend_params)
+    return UJSONResponse(frontend_params, status_code=200)
 
 
-@app.route("/query", methods=["POST", "OPTIONS"])
-@limiter.limit(
-    rate_limit_query,
-    error_message={
-        "output": params.features.rate_limit.query.message,
-        "alert": "danger",
-        "keywords": [],
-    },
-)
-async def hyperglass_main(request):
+@app.post("/query/")
+async def hyperglass_main(query_data: Query, request: Request):
     """Process XHR POST data.
 
     Ingests XHR POST data from
     form submit, passes it to the backend application to perform the
     filtering/lookups.
     """
-    # Get JSON data from Ajax POST
-    raw_query_data = request.json
-    log.debug(f"Unvalidated input: {raw_query_data}")
-
-    # Perform basic input validation
-    # query_data = await validate_input(raw_query_data)
-    try:
-        query_data = Query(**raw_query_data)
-    except InputInvalid as he:
-        raise InvalidUsage(he.__dict__())
 
     # Get client IP address for Prometheus logging & rate limiting
-    client_addr = get_remote_address(request)
+    client_addr = request.client.host
 
     # Increment Prometheus counter
     count_data.labels(
@@ -368,13 +229,18 @@ async def hyperglass_main(request):
             log.debug(f"Query {cache_key} took {elapsedtime} seconds to run.")
 
         except (InputInvalid, InputNotAllowed, ResponseEmpty) as frontend_error:
-            raise InvalidUsage(frontend_error.__dict__())
+            raise HTTPException(detail=frontend_error.dict(), status_code=400)
         except (AuthError, RestError, ScrapeError, DeviceTimeout) as backend_error:
-            raise ServiceUnavailable(backend_error.__dict__())
+            raise HTTPException(detail=backend_error.dict(), status_code=500)
 
         if cache_value is None:
-            raise ServerError(
-                {"message": params.messages.general, "alert": "danger", "keywords": []}
+            raise HTTPException(
+                detail={
+                    "message": params.messages.general,
+                    "alert": "danger",
+                    "keywords": [],
+                },
+                status_code=500,
             )
 
         # Create a cache entry
@@ -391,4 +257,12 @@ async def hyperglass_main(request):
     log.debug(f"Cache match for: {cache_key}, returning cached entry")
     log.debug(f"Cache Output: {response_output}")
 
-    return sanic_response.json({"output": response_output}, status=200)
+    return UJSONResponse(
+        {"output": response_output},
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+        },
+    )

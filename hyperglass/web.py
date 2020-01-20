@@ -2,16 +2,11 @@
 
 
 def start():
-    """Start Sanic web server."""
-    try:
-        from hyperglass import hyperglass, APP_PARAMS
+    """Start the web server with Uvicorn ASGI."""
+    import uvicorn
+    from hyperglass.hyperglass import app, APP_PARAMS
 
-        hyperglass.app.run(**APP_PARAMS)
-
-    except ImportError as import_err:
-        raise RuntimeError(str(import_err))
-    except Exception as web_err:
-        raise RuntimeError(str(web_err))
+    uvicorn.run(app, **APP_PARAMS)
 
 
 app = start()
