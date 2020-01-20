@@ -26,6 +26,7 @@ class General(HyperglassModel):
     """Validation model for params.general."""
 
     debug: StrictBool = False
+    developer_mode: StrictBool = False
     primary_asn: StrictStr = "65001"
     org_name: StrictStr = "The Company"
     site_title: StrictStr = "hyperglass"
