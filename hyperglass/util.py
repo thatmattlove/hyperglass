@@ -84,11 +84,11 @@ async def build_ui():
     return output_out["data"]
 
 
-async def write_env(vars):
+async def write_env(variables):
     """Write environment variables to temporary JSON file.
 
     Arguments:
-        vars {dict} -- Environment variables to write.
+        variables {dict} -- Environment variables to write.
 
     Raises:
         RuntimeError: Raised on any errors.
@@ -97,8 +97,8 @@ async def write_env(vars):
     import ujson as json
     from pathlib import Path
 
-    env_file = Path("/tmp/hyperglass.env.json")
-    env_vars = json.dumps(vars)
+    env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
+    env_vars = json.dumps(variables)
 
     try:
         async with AIOFile(env_file, "w+") as ef:
@@ -107,4 +107,4 @@ async def write_env(vars):
     except Exception as e:
         raise RuntimeError(str(e))
 
-    return True
+    return f"Wrote {env_vars} to {str(env_file)}"
