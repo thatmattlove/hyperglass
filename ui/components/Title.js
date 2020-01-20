@@ -1,62 +1,98 @@
 import React from "react";
-import { Button, Flex, Heading, Image, Stack, useColorMode } from "@chakra-ui/core";
+import { Button, Heading, Image, Stack, useColorMode } from "@chakra-ui/core";
+import { motion, AnimatePresence } from "framer-motion";
+import useConfig from "~/components/HyperglassProvider";
+import useMedia from "~/components/MediaProvider";
 
-const TitleOnly = ({ text }) => (
-    <Heading as="h1" size="2xl">
+const subtitleAnimation = {
+    transition: { duration: 0.2, type: "tween" },
+    initial: { opacity: 1, scale: 1 },
+    animate: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.3 }
+};
+
+const titleSize = { true: "2xl", false: "lg" };
+const titleMargin = { true: 2, false: 0 };
+
+const TitleOnly = ({ text, showSubtitle }) => (
+    <Heading as="h1" mb={titleMargin[showSubtitle]} size={titleSize[showSubtitle]}>
         {text}
     </Heading>
 );
 
-const SubtitleOnly = ({ text }) => (
-    <Heading as="h3" size="md">
+const SubtitleOnly = React.forwardRef(({ text, size = "md", ...props }, ref) => (
+    <Heading ref={ref} as="h3" size={size} {...props}>
         {text}
     </Heading>
-);
+));
 
-const TextOnly = ({ text }) => (
-    <Stack spacing={2}>
-        <TitleOnly text={text.title} />
-        <SubtitleOnly text={text.subtitle} />
+const AnimatedSubtitle = motion.custom(SubtitleOnly);
+
+const textAlignment = { false: ["right", "center"], true: ["left", "center"] };
+
+const TextOnly = ({ text, mediaSize, showSubtitle, ...props }) => (
+    <Stack spacing={2} textAlign={textAlignment[showSubtitle]} {...props}>
+        <TitleOnly text={text.title} showSubtitle={showSubtitle} />
+        <AnimatePresence>
+            {showSubtitle && <AnimatedSubtitle text={text.subtitle} {...subtitleAnimation} />}
+        </AnimatePresence>
     </Stack>
 );
 
-const LogoOnly = ({ text, logo }) => {
+const Logo = ({ text, logo }) => {
     const { colorMode } = useColorMode();
     const logoColor = { light: logo.dark, dark: logo.light };
     const logoPath = logoColor[colorMode];
-    return (
-        <Image
-            src={`http://localhost:8001${logoPath}`}
-            alt={text.title}
-            w={logo.width}
-            h={logo.height || null}
-        />
-    );
+    return <Image src={logoPath} alt={text.title} />;
 };
 
-const LogoTitle = ({ text, logo }) => (
+const LogoTitle = ({ text, logo, showSubtitle }) => (
     <>
-        <LogoOnly text={text} logo={logo} />
-        <SubtitleOnly text={text.title} />
+        <Logo text={text} logo={logo} />
+        <AnimatePresence>
+            {showSubtitle && (
+                <AnimatedSubtitle mt={2} text={text.subtitle} {...subtitleAnimation} />
+            )}
+        </AnimatePresence>
     </>
 );
 
-const All = ({ text, logo }) => (
+const All = ({ text, logo, mediaSize, showSubtitle }) => (
     <>
-        <LogoOnly text={text} logo={logo} />
-        <TextOnly text={text} />
+        <Logo text={text} logo={logo} />
+        <TextOnly mediaSize={mediaSize} showSubtitle={showSubtitle} mt={2} text={text} />
     </>
 );
 
-const modeMap = { text_only: TextOnly, logo_only: LogoOnly, logo_title: LogoTitle, all: All };
+const modeMap = { text_only: TextOnly, logo_only: Logo, logo_title: LogoTitle, all: All };
 
-export default React.forwardRef(({ text, logo, resetForm }, ref) => {
-    const MatchedMode = modeMap[text.title_mode];
+const btnJustify = {
+    true: ["flex-end", "center"],
+    false: ["flex-start", "center"]
+};
+export default React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
+    const { branding } = useConfig();
+    const { mediaSize } = useMedia();
+    const titleMode = branding.text.title_mode;
+    const MatchedMode = modeMap[titleMode];
     return (
-        <Button variant="link" onClick={resetForm} _focus={{ boxShadow: "non" }}>
-            <Flex ref={ref}>
-                <MatchedMode text={text} logo={logo} />
-            </Flex>
+        <Button
+            ref={ref}
+            variant="link"
+            onClick={onClick}
+            flexWrap="wrap"
+            _focus={{ boxShadow: "none" }}
+            _hover={{ textDecoration: "none" }}
+            justifyContent={btnJustify[isSubmitting]}
+            px={0}
+            {...props}
+        >
+            <MatchedMode
+                mediaSize={mediaSize}
+                showSubtitle={!isSubmitting}
+                text={branding.text}
+                logo={branding.logo}
+            />
         </Button>
     );
 });

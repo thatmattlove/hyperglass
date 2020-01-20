@@ -71,7 +71,7 @@ export default ({ general, help, extLink, credit, terms, content }) => {
                 />
             )}
             <Flex
-                py={2}
+                py={[4, 4, 2, 2]}
                 px={6}
                 w="100%"
                 as="footer"

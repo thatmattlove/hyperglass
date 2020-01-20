@@ -10,10 +10,9 @@ import QueryType from "~/components/QueryType";
 import QueryTarget from "~/components/QueryTarget";
 import QueryVrf from "~/components/QueryVrf";
 import SubmitButton from "~/components/SubmitButton";
+import useConfig from "~/components/HyperglassProvider";
 
 format.extend(String.prototype, {});
-
-const all = (...items) => [...items].every(i => (i ? true : false));
 
 const formSchema = config =>
     yup.object().shape({
@@ -33,13 +32,20 @@ const formSchema = config =>
     });
 
 const FormRow = ({ children, ...props }) => (
-    <Flex flexDirection="row" flexWrap="wrap" w="100%" my={4} {...props}>
+    <Flex
+        flexDirection="row"
+        flexWrap="wrap"
+        w="100%"
+        justifyContent={["center", "center", "space-between", "space-between"]}
+        {...props}
+    >
         {children}
     </Flex>
 );
 
-export default React.forwardRef(
-    ({ config, isSubmitting, setSubmitting, setFormData, ...props }, ref) => {
+const HyperglassForm = React.forwardRef(
+    ({ isSubmitting, setSubmitting, setFormData, ...props }, ref) => {
+        const config = useConfig();
         const { handleSubmit, register, setValue, errors } = useForm({
             validationSchema: formSchema(config)
         });
@@ -47,8 +53,6 @@ export default React.forwardRef(
         const [queryType, setQueryType] = useState("");
         const [queryVrf, setQueryVrf] = useState("");
         const [availVrfs, setAvailVrfs] = useState([]);
-        // const [showHelpIcon, setShowHelpIcon] = useState(false);
-
         const onSubmit = values => {
             setFormData(values);
             setSubmitting(true);
@@ -138,17 +142,25 @@ export default React.forwardRef(
                                 register={register}
                             />
                         </FormField>
-                        <FormField
-                            flexGrow={0}
-                            label="Submit"
-                            error={errors.query_target}
-                            hiddenLabels
+                    </FormRow>
+                    <FormRow mt={0} justifyContent="flex-end">
+                        <Flex
+                            w="100%"
+                            maxW="100%"
+                            ml="auto"
+                            my={2}
+                            mr={[0, 0, 2, 2]}
+                            flexDirection="column"
+                            flex="0 0 0"
                         >
                             <SubmitButton isLoading={isSubmitting} />
-                        </FormField>
+                        </Flex>
                     </FormRow>
                 </form>
             </Box>
         );
     }
 );
+
+HyperglassForm.displayName = "HyperglassForm";
+export default HyperglassForm;

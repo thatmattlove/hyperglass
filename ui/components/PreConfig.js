@@ -1,21 +1,18 @@
 import React from "react";
-import { Button, Flex, Heading, Spinner, useTheme, useColorMode } from "@chakra-ui/core";
+import {
+    Button,
+    ColorModeProvider,
+    CSSReset,
+    Flex,
+    Heading,
+    Spinner,
+    ThemeProvider,
+    useTheme,
+    useColorMode
+} from "@chakra-ui/core";
+import { defaultTheme } from "~/theme";
 
-const ErrorMsg = ({ title }) => (
-    <>
-        <Heading mb={4} color="danger.500" as="h1" fontSize="2xl">
-            {title}
-        </Heading>
-    </>
-);
-
-const ErrorBtn = ({ text, onClick }) => (
-    <Button variant="outline" variantColor="danger" onClick={onClick}>
-        {text}
-    </Button>
-);
-
-export default ({ loading, error, refresh }) => {
+const PreConfig = ({ loading, error, refresh }) => {
     const theme = useTheme();
     const { colorMode } = useColorMode();
     const bg = { light: theme.colors.white, dark: theme.colors.dark };
@@ -45,15 +42,26 @@ export default ({ loading, error, refresh }) => {
                 {loading && <Spinner color="primary.500" w="6rem" h="6rem" />}
                 {!loading && error && (
                     <>
-                        <ErrorMsg
-                            title={
-                                error.response?.data?.output || error.message || "An Error Occurred"
-                            }
-                        />
-                        <ErrorBtn text="Retry" onClick={refresh} />
+                        <Heading mb={4} color="danger.500" as="h1" fontSize="2xl">
+                            {error.response?.data?.output || error.message || "An Error Occurred"}
+                        </Heading>
+                        <Button variant="outline" variantColor="danger" onClick={refresh}>
+                            Retry
+                        </Button>
                     </>
                 )}
             </Flex>
         </Flex>
+    );
+};
+
+export default ({ loading, error, refresh }) => {
+    return (
+        <ThemeProvider theme={defaultTheme}>
+            <ColorModeProvider>
+                <CSSReset />
+                <PreConfig loading={loading} error={error} refresh={refresh} />
+            </ColorModeProvider>
+        </ThemeProvider>
     );
 };

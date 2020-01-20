@@ -2,20 +2,27 @@ import React from "react";
 import { Flex, useColorMode, useTheme } from "@chakra-ui/core";
 
 export default React.forwardRef(
-    ({ value, label, labelBg, labelColor, valueBg, valueColor }, ref) => {
+    ({ value, label, labelColor, valueBg, valueColor, ...props }, ref) => {
         const theme = useTheme();
         const { colorMode } = useColorMode();
-        const _labelBg = { light: theme.colors.black, dark: theme.colors.gray[200] };
-        const _labelColor = { light: theme.colors.white, dark: theme.colors.white };
+        const _labelColor = { dark: "whiteAlpha.700", light: "blackAlpha.700" };
         const _valueBg = { light: theme.colors.primary[600], dark: theme.colors.primary[600] };
-        const _valueColor = { light: theme.colors.white, dark: theme.colors.white };
+        const _valueColor = { light: "white", dark: "white" };
         return (
-            <Flex ref={ref} flexWrap="wrap" alignItems="center" justifyContent="flex-start" mx={2}>
+            <Flex
+                ref={ref}
+                flexWrap="nowrap"
+                alignItems="center"
+                justifyContent="flex-start"
+                mx={[1, 2, 2, 2]}
+                my={2}
+                {...props}
+            >
                 <Flex
                     display="inline-flex"
                     justifyContent="center"
                     lineHeight="1.5"
-                    px={3}
+                    px={[1, 3, 3, 3]}
                     whiteSpace="nowrap"
                     mb={2}
                     mr={0}
@@ -25,8 +32,8 @@ export default React.forwardRef(
                     borderTopLeftRadius={4}
                     borderBottomRightRadius={0}
                     borderTopRightRadius={0}
-                    fontSize="sm"
                     fontWeight="bold"
+                    fontSize={["xs", "sm", "sm", "sm"]}
                 >
                     {value}
                 </Flex>
@@ -39,13 +46,13 @@ export default React.forwardRef(
                     mb={2}
                     ml={0}
                     mr={0}
-                    bg={labelBg || _labelBg[colorMode]}
+                    boxShadow={`inset 0px 0px 0px 1px ${valueBg || _valueBg[colorMode]}`}
                     color={labelColor || _labelColor[colorMode]}
                     borderBottomRightRadius={4}
                     borderTopRightRadius={4}
                     borderBottomLeftRadius={0}
                     borderTopLeftRadius={0}
-                    fontSize="sm"
+                    fontSize={["xs", "sm", "sm", "sm"]}
                 >
                     {label}
                 </Flex>

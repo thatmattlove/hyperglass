@@ -1,18 +1,29 @@
 import React from "react";
-import { Icon, Spinner, Stack, Text, Tooltip, useColorMode, useTheme } from "@chakra-ui/core";
+import {
+    AccordionIcon,
+    Icon,
+    Spinner,
+    Stack,
+    Text,
+    Tooltip,
+    useColorMode,
+    useTheme
+} from "@chakra-ui/core";
+import useConfig from "~/components/HyperglassProvider";
 
-export default React.forwardRef(({ config, title, loading, error }, ref) => {
+export default React.forwardRef(({ title, loading, error }, ref) => {
+    const config = useConfig();
     const theme = useTheme();
     const { colorMode } = useColorMode();
-    const statusColor = { dark: theme.colors.primary[300], light: theme.colors.primary[500] };
-    const defaultWarningColor = { dark: theme.colors.danger[300], light: theme.colors.danger[500] };
+    const statusColor = { dark: "primary.300", light: "primary.500" };
+    const defaultWarningColor = { dark: "danger.300", light: "danger.500" };
     const warningColor = { dark: 300, light: 500 };
     const defaultStatusColor = {
-        dark: theme.colors.success[300],
-        light: theme.colors.success[500]
+        dark: "success.300",
+        light: "success.500"
     };
     return (
-        <Stack ref={ref} isInline alignItems="center">
+        <Stack ref={ref} isInline alignItems="center" w="100%">
             {loading ? (
                 <Spinner size="sm" mr={4} color={statusColor[colorMode]} />
             ) : error ? (
@@ -36,6 +47,7 @@ export default React.forwardRef(({ config, title, loading, error }, ref) => {
                 <Icon name="check" color={defaultStatusColor[colorMode]} mr={4} size={6} />
             )}
             <Text fontSize="lg">{title}</Text>
+            <AccordionIcon ml="auto" />
         </Stack>
     );
 });

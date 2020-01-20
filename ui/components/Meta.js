@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useTheme } from "@chakra-ui/core";
+import useConfig from "~/components/HyperglassProvider";
 import { googleFontUrl } from "~/util";
 
-export default ({ config }) => {
+export default () => {
+    const config = useConfig();
     const theme = useTheme();
     const [location, setLocation] = useState({});
     const title = config?.general.org_name || "hyperglass";
