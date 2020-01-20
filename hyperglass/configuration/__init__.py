@@ -142,6 +142,12 @@ try:
         params = _params.Params(**user_config)
     elif not user_config:
         params = _params.Params()
+    try:
+        params.branding.text.subtitle = params.branding.text.subtitle.format(
+            **params.general.dict()
+        )
+    except KeyError:
+        pass
 
     if user_commands:
         commands = _commands.Commands.import_params(user_commands)
