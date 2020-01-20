@@ -24,7 +24,7 @@ class Query(BaseModel):
     query_vrf: Optional[StrictStr]
     query_target: StrictStr
 
-    @validator("query_location")
+    @validator("query_location", pre=True, always=True)
     def validate_query_location(cls, value):
         """Ensure query_location is defined.
 
@@ -102,7 +102,7 @@ class Query(BaseModel):
                     raise InputInvalid(
                         params.messages.vrf_not_associated,
                         alert="warning",
-                        vrf_name=value,
+                        vrf_name=vrf.display_name,
                         device_name=device.display_name,
                     )
         if value is None:
