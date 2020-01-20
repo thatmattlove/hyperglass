@@ -23,6 +23,11 @@ export default ({ placeholder = "Select...", isFullWidth, size, children, ...pro
     const { height } = sizeMap[size];
     const optionBgActive = { dark: theme.colors.primary[400], light: theme.colors.primary[600] };
     const optionBgColor = opposingColor(theme, optionBgActive[colorMode]);
+    const optionSelectedBg = {
+        dark: theme.colors.whiteAlpha[400],
+        light: theme.colors.blackAlpha[400]
+    };
+    const optionSelectedColor = opposingColor(theme, optionSelectedBg[colorMode]);
     const selectedDisabled = theme.colors.whiteAlpha[400];
     const placeholderColor = {
         dark: theme.colors.whiteAlpha[400],
@@ -64,7 +69,7 @@ export default ({ placeholder = "Select...", isFullWidth, size, children, ...pro
                     backgroundColor: state.isDisabled
                         ? selectedDisabled
                         : state.isSelected
-                        ? colorSetPrimaryBg[colorMode]
+                        ? optionSelectedBg[colorMode]
                         : state.isFocused
                         ? colorSetPrimaryBg[colorMode]
                         : "transparent",
@@ -73,7 +78,7 @@ export default ({ placeholder = "Select...", isFullWidth, size, children, ...pro
                         : state.isFocused
                         ? colorSetPrimaryColor
                         : state.isSelected
-                        ? colorSetPrimaryColor
+                        ? optionSelectedColor
                         : menuColor[colorMode],
                     fontSize: theme.fontSizes[size],
                     "&:active": {
