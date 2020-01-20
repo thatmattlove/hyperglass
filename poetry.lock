@@ -10,6 +10,14 @@ version = "1.5.2"
 develop = ["cython", "pytest (4.0.2)", "pytest-asyncio (>=0.9.0,<0.10.0)", "pytest-cov"]
 
 [[package]]
+category = "main"
+description = "File support for asyncio."
+name = "aiofiles"
+optional = false
+python-versions = "*"
+version = "0.4.0"
+
+[[package]]
 category = "dev"
 description = "Simple, flexible badge generator for project badges."
 name = "anybadge"
@@ -1092,7 +1100,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [metadata]
-content-hash = "77699838d06a0c63e72ce8bb68740bb4696274eff8115ded0c3da03f9459b7ff"
+content-hash = "8a4dcbd8ac789a86e1ef255ee8f802454197eb91d25dcbd33142a8a97b454778"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1104,6 +1112,10 @@ aiofile = [
     {file = "aiofile-1.5.2-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:d1da2fc9aa7509d29ea09617bf533bd1045f79cfdfb10ee83da90ba2212720a2"},
     {file = "aiofile-1.5.2-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:312d50ed7e646a40ab2a5457fdf382870aca926f956921ab8c7ab72c3922f372"},
     {file = "aiofile-1.5.2.tar.gz", hash = "sha256:229078abbaab87adfcaad0fa7766b9b8251d42d0242deac6166da433b027ef1f"},
+]
+aiofiles = [
+    {file = "aiofiles-0.4.0-py3-none-any.whl", hash = "sha256:1e644c2573f953664368de28d2aa4c89dfd64550429d0c27c4680ccd3aa4985d"},
+    {file = "aiofiles-0.4.0.tar.gz", hash = "sha256:021ea0ba314a86027c166ecc4b4c07f2d40fc0f4b3a950d1868a0f2571c2bbee"},
 ]
 anybadge = [
     {file = "anybadge-1.6.2-py2.py3-none-any.whl", hash = "sha256:1e366bff42ad8efc6195a6ef0578b0d3ac80487247215c9a06433dce03f8d21b"},

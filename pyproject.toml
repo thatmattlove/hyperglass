@@ -32,6 +32,7 @@ stackprinter = "^0.2.3"
 ujson = "^1.35"
 uvicorn = "^0.11.1"
 uvloop = "^0.14.0"
+aiofiles = "^0.4.0"
 
 [tool.poetry.dev-dependencies]
 anybadge = "^1.6.2"
