@@ -7,17 +7,17 @@ from pathlib import Path
 # Third Party Imports
 import ujson as json
 import yaml
-from aiofile import AIOFile
 from pydantic import ValidationError
 
 # Project Imports
+from aiofile import AIOFile
 from hyperglass.configuration.markdown import get_markdown
 from hyperglass.configuration.models import commands as _commands
 from hyperglass.configuration.models import params as _params
 from hyperglass.configuration.models import routers as _routers
 from hyperglass.constants import CREDIT
-from hyperglass.constants import DEFAULT_HELP
 from hyperglass.constants import DEFAULT_DETAILS
+from hyperglass.constants import DEFAULT_HELP
 from hyperglass.constants import DEFAULT_TERMS
 from hyperglass.constants import LOG_HANDLER
 from hyperglass.constants import LOG_HANDLER_FILE
