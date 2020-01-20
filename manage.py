@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# flake8: noqa
 
 # Standard Library Imports
 # Standard Imports
@@ -38,6 +39,7 @@ WS4 = "    "
 WS6 = "      "
 WS8 = "        "
 CL = ":"
+E_CHECK = "\U00002705"
 E_ROCKET = "\U0001F680"
 E_SPARKLES = "\U00002728"
 
@@ -592,45 +594,16 @@ def generatekey(string_length):
     )
 
 
-def render_hyperglass_assets():
-    """Render theme template to Sass file and build web assets"""
-    try:
-        from hyperglass.render import render_assets
-        from hyperglass.exceptions import HyperglassError
-    except ImportError as import_error:
-        raise click.ClickException(
-            click.style("✗ Error importing hyperglass: ", fg="red", bold=True)
-            + click.style(import_error, fg="blue")
-        )
-    assets_rendered = False
-    try:
-        render_assets()
-        assets_rendered = True
-    except HyperglassError as e:
-        raise click.ClickException(str(e))
-    return assets_rendered
-
-
-def start_dev_server(host, port):
+def start_dev_server(app, params):
     """Starts Sanic development server for testing without WSGI/Reverse Proxy"""
-    try:
-        from hyperglass.hyperglass import app, APP_PARAMS
-        from hyperglass.configuration import params
-    except ImportError as import_error:
-        raise click.ClickException(
-            click.style("✗ Error importing hyperglass: ", fg="red", bold=True)
-            + click.style(import_error, fg="blue")
-        )
-    try:
-        if host is not None:
-            APP_PARAMS["host"] = host
-        if port is not None:
-            APP_PARAMS["port"] = port
 
+    try:
         click.echo(
-            click.style(
-                NL + f"✓ Starting hyperglass web server on...", fg="green", bold=True
-            )
+            NL
+            + E_CHECK
+            + WS1
+            + click.style(f"Starting hyperglass web server on", fg="green", bold=True)
+            + WS1
             + NL
             + E_SPARKLES
             + NL
@@ -640,9 +613,9 @@ def start_dev_server(host, port):
             + NL
             + WS8
             + click.style("http://", fg="white")
-            + click.style(str(APP_PARAMS["host"]), fg="blue", bold=True)
+            + click.style(str(params["host"]), fg="blue", bold=True)
             + click.style(CL, fg="white")
-            + click.style(str(APP_PARAMS["port"]), fg="magenta", bold=True)
+            + click.style(str(params["port"]), fg="magenta", bold=True)
             + NL
             + WS4
             + E_ROCKET
@@ -652,7 +625,7 @@ def start_dev_server(host, port):
             + E_ROCKET
             + NL
         )
-        app.run(**APP_PARAMS)
+        app.run(**params)
     except Exception as e:
         raise click.ClickException(
             click.style("✗ Failed to start test server: ", fg="red", bold=True)
@@ -660,36 +633,70 @@ def start_dev_server(host, port):
         )
 
 
+def write_env_variables(variables):
+    from hyperglass.util import write_env
+
+    result = asyncio.run(write_env(variables))
+    return result
+
+
+@hg.command("build-ui", help="Create a new UI build")
+def build_ui():
+    """Create a new UI build.
+
+    Raises:
+        click.ClickException: Raised on any errors.
+    """
+    from hyperglass.util import build_ui
+
+    click.secho("Starting new UI build...", fg="white")
+    try:
+        success = asyncio.run(build_ui())
+        click.echo(
+            click.style("Completed build, ran", fg="green", bold=True)
+            + WS1
+            + click.style(success, fg="blue", bold=True)
+        )
+    except Exception as e:
+        raise click.ClickException(str(e)) from None
+
+
 @hg.command("dev-server", help="Start development web server")
 @click.option("--host", type=str, required=False, help="Listening IP")
 @click.option("--port", type=int, required=False, help="TCP Port")
-@click.option(
-    "--assets/--no-assets", default=False, help="Render Theme & Build Web Assets"
-)
-def dev_server(host, port, assets):
-    """Renders theme and web assets, then starts dev web server"""
-    if assets:
+@click.option("-b", "--build", is_flag=True, help="Render Theme & Build Web Assets")
+def dev_server(host, port, build):
+    """Renders theme and web build, then starts dev web server"""
+    try:
+        from hyperglass.hyperglass import app, APP_PARAMS
+    except ImportError as import_error:
+        raise click.ClickException(
+            click.style("✗ Error importing hyperglass: ", fg="red", bold=True)
+            + click.style(import_error, fg="blue")
+        )
+    if host is not None:
+        APP_PARAMS["host"] = host
+    if port is not None:
+        APP_PARAMS["port"] = port
+
+    write_env_variables(
+        {
+            "NODE_ENV": "development",
+            "_HYPERGLASS_URL_": f'http://{APP_PARAMS["host"]}:{APP_PARAMS["port"]}/',
+        }
+    )
+    if build:
         try:
-            assets_rendered = render_hyperglass_assets()
+            build_complete = build_ui()
         except Exception as e:
             raise click.ClickException(
-                click.style("✗ Error rendering assets: ", fg="red", bold=True)
-                + click.style(e, fg="blue")
-            )
-        if assets_rendered:
-            start_dev_server(host, port)
-    if not assets:
-        start_dev_server(host, port)
-
-
-@hg.command("render-assets", help="Render theme & build web assets")
-def render_assets():
-    """Render theme template to Sass file and build web assets"""
-    assets_rendered = render_hyperglass_assets()
-    if not assets_rendered:
-        raise click.ClickException("✗ Error rendering assets")
-    elif assets_rendered:
-        click.secho("✓ Rendered assets", fg="green", bold=True)
+                click.style("✗ Error building: ", fg="red", bold=True)
+                + click.style(e, fg="white")
+            ) from None
+        if build_complete:
+            start_dev_server(app, APP_PARAMS)
+    if not build:
+        start_dev_server(app, APP_PARAMS)
 
 
 @hg.command("migrate-configs", help="Copy YAML examples to usable config files")
@@ -844,11 +851,7 @@ def generate_secret(length):
 
 @hg.command("line-count", help="Get line count for source code.")
 @click.option(
-    "-d",
-    "--directory",
-    type=str,
-    default="hyperglass",
-    help="Source code directory",
+    "-d", "--directory", type=str, default="hyperglass", help="Source code directory"
 )
 def line_count(directory):
     """Get lines of code.
@@ -869,11 +872,7 @@ def line_count(directory):
 
 @hg.command("line-count-badge", help="Generates line count badge")
 @click.option(
-    "-d",
-    "--directory",
-    type=str,
-    default="hyperglass",
-    help="Source code directory",
+    "-d", "--directory", type=str, default="hyperglass", help="Source code directory"
 )
 def line_count_badge(directory):
     """Generate shields.io-like badge for lines of code.
