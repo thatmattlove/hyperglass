@@ -520,24 +520,37 @@ def test_hyperglass(
         click.secho(f"Exception occurred:\n{e}")
 
 
-@hg.command("clear-cache", help="Clear Flask cache")
+@hg.command("clear-cache", help="Clear Redis cache")
 @async_command
 async def clearcache():
     """Clears the Flask-Caching cache"""
     try:
-        import hyperglass.hyperglass
+        from hyperglass.util import clear_redis_cache
+        from hyperglass.configuration import params
 
-        message = await hyperglass.hyperglass.clear_cache()
-        # click.secho("✓ Successfully cleared cache.", fg="green", bold=True)
-        click.secho("✓ " + str(message), fg="green", bold=True)
+        await clear_redis_cache(
+            params.features.cache.redis_id,
+            {"host": str(params.general.redis_host), "port": params.general.redis_port},
+        )
     except (ImportError, RuntimeWarning):
-        click.secho("✗ Failed to clear cache.", fg="red", bold=True)
-        raise
+        raise click.ClickException(
+            NL
+            + E_ERROR
+            + WS1
+            + click.style("Failed to clear cache:", fg="white")
+            + WS1
+            + click.style(str(e), fg="red", bold=True)
+        )
+    click.echo(
+        NL
+        + E_CHECK
+        + WS1
+        + click.style("Successfully cleared cache.", fg="green", bold=True)
+    )
 
 
-def start_dev_server(app, params):
+def start_dev_server(start, params):
     """Starts Sanic development server for testing without WSGI/Reverse Proxy"""
-    import uvicorn
 
     msg_start = "Starting hyperglass web server on"
     msg_uri = "http://"
@@ -565,8 +578,8 @@ def start_dev_server(app, params):
             + WS1
             + NL
         )
-        uvicorn.run(app, **params)
-        
+        start()
+
     except Exception as e:
         raise click.ClickException(
             E_ERROR
@@ -609,11 +622,14 @@ def build_ui():
 def dev_server(build):
     """Renders theme and web build, then starts dev web server"""
     try:
-        from hyperglass.hyperglass import app, ASGI_PARAMS
+        from hyperglass.api import start, ASGI_PARAMS
     except ImportError as import_error:
         raise click.ClickException(
-            click.style("✗ Error importing hyperglass: ", fg="red", bold=True)
-            + click.style(import_error, fg="blue")
+            E_ERROR
+            + WS1
+            + click.style("Error importing hyperglass:", fg="red", bold=True)
+            + WS1
+            + click.style(str(import_error), fg="blue")
         )
     if build:
         try:
@@ -624,9 +640,9 @@ def dev_server(build):
                 + click.style(e, fg="white")
             ) from None
         if build_complete:
-            start_dev_server(app, ASGI_PARAMS)
+            start_dev_server(start, ASGI_PARAMS)
     if not build:
-        start_dev_server(app, ASGI_PARAMS)
+        start_dev_server(start, ASGI_PARAMS)
 
 
 @hg.command("migrate-configs", help="Copy YAML examples to usable config files")

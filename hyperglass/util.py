@@ -108,3 +108,53 @@ async def write_env(variables):
         raise RuntimeError(str(e))
 
     return f"Wrote {env_vars} to {str(env_file)}"
+
+
+async def check_redis(db, config):
+    """Ensure Redis is running before starting server.
+
+    Arguments:
+        db {int} -- Redis database ID
+        config {dict} -- Redis configuration parameters
+
+    Raises:
+        RuntimeError: Raised if Redis is not running.
+
+    Returns:
+        {bool} -- True if redis is running.
+    """
+    import aredis
+
+    redis_instance = aredis.StrictRedis(db=db, **config)
+    redis_host = config["host"]
+    redis_port = config["port"]
+    try:
+        await redis_instance.echo("hyperglass test")
+    except Exception:
+        raise RuntimeError(
+            f"Redis isn't running at: {redis_host}:{redis_port}"
+        ) from None
+    return True
+
+
+async def clear_redis_cache(db, config):
+    """Clear the Redis cache.
+
+    Arguments:
+        db {int} -- Redis database ID
+        config {dict} -- Redis configuration parameters
+
+    Raises:
+        RuntimeError: Raised if clearing the cache produces an error.
+
+    Returns:
+        {bool} -- True if cache was cleared.
+    """
+    import aredis
+
+    try:
+        redis_instance = aredis.StrictRedis(db=db, **config)
+        await redis_instance.flushdb()
+    except Exception as e:
+        raise RuntimeError(f"Error clearing cache: {str(e)}") from None
+    return True

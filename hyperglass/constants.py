@@ -1,6 +1,15 @@
 """Constant definitions used throughout the application."""
 # Standard Library Imports
 import sys
+from datetime import datetime
+
+__name__ = "hyperglass"
+__version__ = "1.0.0"
+__author__ = "Matt Love"
+__copyright__ = f"Copyright {datetime.now().year} Matthew Love"
+__license__ = "BSD 3-Clause Clear License"
+
+METADATA = (__name__, __version__, __author__, __copyright__, __license__)
 
 MIN_PYTHON_VERSION = (3, 7)
 

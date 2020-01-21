@@ -46,20 +46,16 @@ import uvloop
 
 # Project Imports
 # flake8: noqa: F401
+from hyperglass import api
 from hyperglass import configuration
 from hyperglass import constants
 from hyperglass import exceptions
 from hyperglass import execution
+from hyperglass import query
 from hyperglass import util
 
 stackprinter.set_excepthook()
 
 uvloop.install()
 
-__name__ = "hyperglass"
-__version__ = "1.0.0"
-__author__ = "Matt Love"
-__copyright__ = f"Copyright {datetime.now().year} Matthew Love"
-__license__ = "BSD 3-Clause Clear License"
-
-meta = (__name__, __version__, __author__, __copyright__, __license__)
+__name__, __version__, __author__, __copyright__, __license__ = constants.METADATA

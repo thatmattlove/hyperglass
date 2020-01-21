@@ -7,7 +7,7 @@ exclude=.git, __pycache__,
 filename=*.py
 per-file-ignores=
     # Disable redefinition warning for exception handlers
-    hyperglass/hyperglass.py:F811
+    hyperglass/api.py:F811
     # Disable string length warnings so I can actually read the commands
     hyperglass/configuration/models/commands.py:E501,C0301
     # Disable string length warnings so I can actually read the messages

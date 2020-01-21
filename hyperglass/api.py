@@ -1,20 +1,10 @@
-"""Hyperglass Front End."""
-
-# Standard Library Imports
+"""hyperglass web app initiator."""
 import os
 import tempfile
-import time
 from pathlib import Path
 
-# Third Party Imports
-import aredis
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from fastapi import HTTPException
-from prometheus_client import CONTENT_TYPE_LATEST
-from prometheus_client import CollectorRegistry
-from prometheus_client import Counter
-from prometheus_client import generate_latest
-from prometheus_client import multiprocess
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
@@ -22,10 +12,15 @@ from starlette.responses import PlainTextResponse
 from starlette.responses import UJSONResponse
 from starlette.staticfiles import StaticFiles
 
-# Project Imports
-from hyperglass import __version__
+from prometheus_client import CONTENT_TYPE_LATEST
+from prometheus_client import CollectorRegistry
+from prometheus_client import Counter
+from prometheus_client import generate_latest
+from prometheus_client import multiprocess
+
 from hyperglass.configuration import frontend_params
 from hyperglass.configuration import params
+from hyperglass.constants import __version__
 from hyperglass.exceptions import AuthError
 from hyperglass.exceptions import DeviceTimeout
 from hyperglass.exceptions import HyperglassError
@@ -34,30 +29,21 @@ from hyperglass.exceptions import InputNotAllowed
 from hyperglass.exceptions import ResponseEmpty
 from hyperglass.exceptions import RestError
 from hyperglass.exceptions import ScrapeError
-from hyperglass.execution.execute import Execute
 from hyperglass.models.query import Query
+from hyperglass.query import handle_query, REDIS_CONFIG
 from hyperglass.util import check_python
+from hyperglass.util import check_redis
 from hyperglass.util import log
 from hyperglass.util import write_env
 
-# Verify Python version meets minimum requirement
-try:
-    python_version = check_python()
-    log.info(f"Python {python_version} detected")
-except RuntimeError as r:
-    raise HyperglassError(str(r), alert="danger") from None
-
-log.debug(f"Configuration Parameters: {params.dict(by_alias=True)}")
-
-tempdir = tempfile.TemporaryDirectory(prefix="hyperglass_")
-os.environ["prometheus_multiproc_dir"] = tempdir.name
-
-# Static File Definitions
 STATIC_DIR = Path(__file__).parent / "static"
 UI_DIR = STATIC_DIR / "ui"
 IMAGES_DIR = STATIC_DIR / "images"
 NEXT_DIR = UI_DIR / "_next"
-log.debug(f"Static Files: {STATIC_DIR}")
+
+STATIC_FILES = "\n".join([str(STATIC_DIR), str(UI_DIR), str(IMAGES_DIR), str(NEXT_DIR)])
+
+log.debug(f"Static Files: {STATIC_FILES}")
 
 docs_mode_map = {"swagger": "docs_url", "redoc": "redoc_url"}
 
@@ -106,18 +92,23 @@ ASGI_PARAMS = {
     "debug": params.general.debug,
 }
 
-# Redis Config
-redis_config = {
-    "host": str(params.general.redis_host),
-    "port": params.general.redis_port,
-    "decode_responses": True,
-}
 
-r_cache = aredis.StrictRedis(db=params.features.cache.redis_id, **redis_config)
+@app.on_event("startup")
+async def check_python_version():
+    """Ensure Python version meets minimum requirement.
+
+    Raises:
+        HyperglassError: Raised if Python version is invalid.
+    """
+    try:
+        python_version = check_python()
+        log.info(f"Python {python_version} detected")
+    except RuntimeError as r:
+        raise HyperglassError(str(r), alert="danger") from None
 
 
 @app.on_event("startup")
-async def check_redis():
+async def check_redis_instance():
     """Ensure Redis is running before starting server.
 
     Raises:
@@ -126,15 +117,12 @@ async def check_redis():
     Returns:
         {bool} -- True if Redis is running.
     """
-    redis_host = redis_config["host"]
-    redis_port = redis_config["port"]
     try:
-        await r_cache.echo("hyperglass test")
-    except Exception:
-        raise HyperglassError(
-            f"Redis isn't running at: {redis_host}:{redis_port}", alert="danger"
-        ) from None
-    log.debug(f"Redis is running at: {redis_host}:{redis_port}")
+        await check_redis(db=params.features.cache.redis_id, config=REDIS_CONFIG)
+    except RuntimeError as e:
+        raise HyperglassError(str(e), alert="danger") from None
+
+    log.debug(f"Redis is running at: {REDIS_CONFIG['host']}:{REDIS_CONFIG['port']}")
     return True
 
 
@@ -153,6 +141,24 @@ async def write_env_variables():
     if result:
         log.debug(result)
     return True
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc):
+    """Handle web server errors."""
+    return UJSONResponse(
+        {"output": exc.detail, "alert": "danger", "keywords": []},
+        status_code=exc.status_code,
+    )
+
+
+@app.exception_handler(HyperglassError)
+async def http_exception_handler(request, exc):
+    """Handle application errors."""
+    return UJSONResponse(
+        {"output": exc.message, "alert": exc.alert, "keywords": exc.keywords},
+        status_code=400,
+    )
 
 
 # Prometheus Config
@@ -174,6 +180,9 @@ count_notfound = Counter(
     "count_notfound", "404 Not Found Counter", ["message", "path", "source"]
 )
 
+tempdir = tempfile.TemporaryDirectory(prefix="hyperglass_")
+os.environ["prometheus_multiproc_dir"] = tempdir.name
+
 
 @app.get("/metrics")
 async def metrics(request):
@@ -190,34 +199,6 @@ async def metrics(request):
     )
 
 
-@app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request, exc):
-    """Handle web server errors."""
-    return UJSONResponse(
-        {"output": exc.detail, "alert": "danger", "keywords": []},
-        status_code=exc.status_code,
-    )
-
-
-@app.exception_handler(HyperglassError)
-async def http_exception_handler(request, exc):
-    """Handle application errors."""
-    return UJSONResponse(
-        {"output": exc.message, "alert": exc.alert, "keywords": exc.keywords},
-        status_code=400,
-    )
-
-
-async def clear_cache():
-    """Clear the Redis cache."""
-    try:
-        await r_cache.flushdb()
-        return "Successfully cleared cache"
-    except Exception as error_exception:
-        log.error(f"Error clearing cache: {error_exception}")
-        raise HyperglassError(f"Error clearing cache: {error_exception}")
-
-
 @app.get("/api/config")
 async def frontend_config():
     """Provide validated user/default config for front end consumption.
@@ -229,7 +210,9 @@ async def frontend_config():
 
 
 @app.post("/api/query/")
-async def hyperglass_main(query_data: Query, request: Request):
+async def hyperglass_main(
+    query_data: Query, request: Request, background_tasks: BackgroundTasks
+):
     """Process XHR POST data.
 
     Ingests XHR POST data from
@@ -251,57 +234,21 @@ async def hyperglass_main(query_data: Query, request: Request):
 
     log.debug(f"Client Address: {client_addr}")
 
-    # Use hashed query_data string as key for for k/v cache store so
-    # each command output value is unique.
-    cache_key = hash(str(query_data))
+    try:
+        response = await handle_query(query_data)
+    except (InputInvalid, InputNotAllowed, ResponseEmpty) as frontend_error:
+        raise HTTPException(detail=frontend_error.dict(), status_code=400)
+    except (AuthError, RestError, ScrapeError, DeviceTimeout) as backend_error:
+        raise HTTPException(detail=backend_error.dict(), status_code=500)
 
-    # Define cache entry expiry time
-    cache_timeout = params.features.cache.timeout
-    log.debug(f"Cache Timeout: {cache_timeout}")
+    return UJSONResponse({"output": response}, status_code=200)
 
-    # Check if cached entry exists
-    if not await r_cache.get(cache_key):
-        log.debug(f"Created new cache key {cache_key} entry for query {query_data}")
-        log.debug("Beginning query execution...")
 
-        # Pass request to execution module
-        try:
-            starttime = time.time()
+def start():
+    """Start the web server with Uvicorn ASGI."""
+    import uvicorn
 
-            cache_value = await Execute(query_data).response()
+    uvicorn.run(app, **ASGI_PARAMS)
 
-            endtime = time.time()
-            elapsedtime = round(endtime - starttime, 4)
 
-            log.debug(f"Query {cache_key} took {elapsedtime} seconds to run.")
-
-        except (InputInvalid, InputNotAllowed, ResponseEmpty) as frontend_error:
-            raise HTTPException(detail=frontend_error.dict(), status_code=400)
-        except (AuthError, RestError, ScrapeError, DeviceTimeout) as backend_error:
-            raise HTTPException(detail=backend_error.dict(), status_code=500)
-
-        if cache_value is None:
-            raise HTTPException(
-                detail={
-                    "message": params.messages.general,
-                    "alert": "danger",
-                    "keywords": [],
-                },
-                status_code=500,
-            )
-
-        # Create a cache entry
-        await r_cache.set(cache_key, str(cache_value))
-        await r_cache.expire(cache_key, cache_timeout)
-
-        log.debug(f"Added cache entry for query: {cache_key}")
-
-    # If it does, return the cached entry
-    cache_response = await r_cache.get(cache_key)
-
-    response_output = cache_response
-
-    log.debug(f"Cache match for: {cache_key}, returning cached entry")
-    log.debug(f"Cache Output: {response_output}")
-
-    return UJSONResponse({"output": response_output}, status_code=200)
+app = start()
