@@ -1,10 +1,18 @@
 """hyperglass web app initiator."""
+# Standard Library Imports
 import os
 import tempfile
 from pathlib import Path
 
-from fastapi import FastAPI, BackgroundTasks
+# Third Party Imports
+from fastapi import BackgroundTasks
+from fastapi import FastAPI
 from fastapi import HTTPException
+from prometheus_client import CONTENT_TYPE_LATEST
+from prometheus_client import CollectorRegistry
+from prometheus_client import Counter
+from prometheus_client import generate_latest
+from prometheus_client import multiprocess
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
@@ -12,12 +20,7 @@ from starlette.responses import PlainTextResponse
 from starlette.responses import UJSONResponse
 from starlette.staticfiles import StaticFiles
 
-from prometheus_client import CONTENT_TYPE_LATEST
-from prometheus_client import CollectorRegistry
-from prometheus_client import Counter
-from prometheus_client import generate_latest
-from prometheus_client import multiprocess
-
+# Project Imports
 from hyperglass.configuration import frontend_params
 from hyperglass.configuration import params
 from hyperglass.constants import __version__
@@ -30,9 +33,11 @@ from hyperglass.exceptions import ResponseEmpty
 from hyperglass.exceptions import RestError
 from hyperglass.exceptions import ScrapeError
 from hyperglass.models.query import Query
-from hyperglass.query import handle_query, REDIS_CONFIG
+from hyperglass.query import REDIS_CONFIG
+from hyperglass.query import handle_query
 from hyperglass.util import check_python
 from hyperglass.util import check_redis
+from hyperglass.util import clear_redis_cache
 from hyperglass.util import log
 from hyperglass.util import write_env
 
@@ -143,6 +148,16 @@ async def write_env_variables():
     return True
 
 
+@app.on_event("shutdown")
+async def clear_cache():
+    """Clear the Redis cache on shutdown."""
+    try:
+        await clear_redis_cache(db=params.features.cache.redis_id, config=REDIS_CONFIG)
+    except RuntimeError as e:
+        log.error(str(e))
+        pass
+
+
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request, exc):
     """Handle web server errors."""
@@ -249,6 +264,3 @@ def start():
     import uvicorn
 
     uvicorn.run(app, **ASGI_PARAMS)
-
-
-app = start()
