@@ -5,9 +5,11 @@ import tempfile
 from pathlib import Path
 
 # Third Party Imports
-from fastapi import BackgroundTasks
 from fastapi import FastAPI
 from fastapi import HTTPException
+from fastapi.openapi.docs import get_redoc_html
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.openapi.utils import get_openapi
 from prometheus_client import CONTENT_TYPE_LATEST
 from prometheus_client import CollectorRegistry
 from prometheus_client import Counter
@@ -33,6 +35,7 @@ from hyperglass.exceptions import ResponseEmpty
 from hyperglass.exceptions import RestError
 from hyperglass.exceptions import ScrapeError
 from hyperglass.models.query import Query
+from hyperglass.models.response import QueryResponse
 from hyperglass.query import REDIS_CONFIG
 from hyperglass.query import handle_query
 from hyperglass.util import check_python
@@ -50,31 +53,23 @@ STATIC_FILES = "\n".join([str(STATIC_DIR), str(UI_DIR), str(IMAGES_DIR), str(NEX
 
 log.debug(f"Static Files: {STATIC_FILES}")
 
-docs_mode_map = {"swagger": "docs_url", "redoc": "redoc_url"}
-
-docs_config = {"docs_url": None, "redoc_url": None}
-
-if params.general.docs.enable:
-    if params.general.docs.mode == "swagger":
-        docs_config["docs_url"] = params.general.docs.uri
-        docs_config["redoc_url"] = None
-    elif params.general.docs.mode == "redoc":
-        docs_config["docs_url"] = None
-        docs_config["redoc_url"] = params.general.docs.uri
-
-
 # Main App Definition
 app = FastAPI(
     debug=params.general.debug,
     title=params.general.site_title,
     description=params.general.site_description,
     version=__version__,
-    **docs_config,
+    default_response_class=UJSONResponse,
+    docs_url=None,
+    redoc_url=None,
 )
 app.mount("/ui", StaticFiles(directory=UI_DIR), name="ui")
 app.mount("/_next", StaticFiles(directory=NEXT_DIR), name="_next")
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 app.mount("/ui/images", StaticFiles(directory=IMAGES_DIR), name="ui/images")
+
+if params.general.docs.enable:
+    log.debug(f"API Docs config: {app.openapi()}")
 
 DEV_URL = f"http://localhost:{str(params.general.listen_port)}/api/"
 PROD_URL = "/api/"
@@ -90,6 +85,21 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+
+
+def custom_openapi():
+    """Generate custom OpenAPI config."""
+    openapi_schema = get_openapi(
+        title=params.general.site_title,
+        version=__version__,
+        description=params.general.site_description,
+        routes=app.routes,
+    )
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
 
 ASGI_PARAMS = {
     "host": str(params.general.listen_address),
@@ -199,7 +209,7 @@ tempdir = tempfile.TemporaryDirectory(prefix="hyperglass_")
 os.environ["prometheus_multiproc_dir"] = tempdir.name
 
 
-@app.get("/metrics")
+@app.get("/metrics", include_in_schema=False)
 async def metrics(request):
     """Serve Prometheus metrics."""
     registry = CollectorRegistry()
@@ -214,7 +224,7 @@ async def metrics(request):
     )
 
 
-@app.get("/api/config")
+@app.get("/api/config", include_in_schema=False)
 async def frontend_config():
     """Provide validated user/default config for front end consumption.
 
@@ -224,16 +234,15 @@ async def frontend_config():
     return UJSONResponse(frontend_params, status_code=200)
 
 
-@app.post("/api/query/")
-async def hyperglass_main(
-    query_data: Query, request: Request, background_tasks: BackgroundTasks
-):
-    """Process XHR POST data.
-
-    Ingests XHR POST data from
-    form submit, passes it to the backend application to perform the
-    filtering/lookups.
-    """
+@app.post(
+    "/api/query/",
+    summary=params.general.docs.endpoint_summary,
+    description=params.general.docs.endpoint_description,
+    response_model=QueryResponse,
+    tags=[params.general.docs.group_title],
+)
+async def query(query_data: Query, request: Request):
+    """Ingest request data pass it to the backend application to perform the query."""
 
     # Get client IP address for Prometheus logging & rate limiting
     client_addr = request.client.host
@@ -257,6 +266,17 @@ async def hyperglass_main(
         raise HTTPException(detail=backend_error.dict(), status_code=500)
 
     return UJSONResponse({"output": response}, status_code=200)
+
+
+@app.get("/api/docs", include_in_schema=False)
+async def docs():
+    """Serve custom docs."""
+    if params.general.docs.enable:
+        docs_func_map = {"swagger": get_swagger_ui_html, "redoc": get_redoc_html}
+        docs_func = docs_func_map[params.general.docs.mode]
+        return docs_func(openapi_url=app.openapi_url, title=app.title + " - API Docs")
+    else:
+        raise HTTPException(detail="Not found", status_code=404)
 
 
 def start():
