@@ -30,16 +30,16 @@ class Char:
 class Emoji:
     """Helper class for unicode emoji."""
 
-    BUTTERFLY = "\U0001F98B" + " "
-    CHECK = "\U00002705" + " "
-    INFO = "\U00002755"
-    ERROR = "\U0000274C" + " "
-    ROCKET = "\U0001F680" + " "
-    SPARKLES = "\U00002728" + " "
-    PAPERCLIP = "\U0001F4CE" + " "
-    KEY = "\U0001F511"
-    LOCK = "\U0001F512"
-    CLAMP = "\U0001F5DC" + " "
+    BUTTERFLY = "\U0001F98B "
+    CHECK = "\U00002705 "
+    INFO = "\U00002755 "
+    ERROR = "\U0000274C "
+    ROCKET = "\U0001F680 "
+    SPARKLES = "\U00002728 "
+    PAPERCLIP = "\U0001F4CE "
+    KEY = "\U0001F511 "
+    LOCK = "\U0001F512 "
+    CLAMP = "\U0001F5DC "
 
 
 WS = Char(" ")

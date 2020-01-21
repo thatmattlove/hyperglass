@@ -104,7 +104,7 @@ def migrateconfig():
 
 @hg.command(
     "systemd",
-    help=cmd_help(E.CLAMP, "Copy systemd example to file system"),
+    help=cmd_help(E.CLAMP, " Copy systemd example to file system"),
     cls=HelpColorsCommand,
     help_options_custom_colors=random_colors("-d"),
 )
