@@ -24,7 +24,7 @@ const Debugger = () => {
     const { isOpen: themeOpen, onOpen: onThemeOpen, onClose: themeClose } = useDisclosure();
     const config = useConfig();
     const theme = useTheme();
-    const bg = { light: "white", dark: "white" };
+    const bg = { light: "white", dark: "black" };
     const color = { light: "black", dark: "white" };
     const { colorMode } = useColorMode();
     const { mediaSize } = useMedia();
@@ -38,11 +38,13 @@ const Debugger = () => {
                 mx={-4}
                 px={4}
                 isInline
-                position="fixed"
-                bottom="10%"
+                // position="fixed"
+                position="relative"
+                // bottom="10%"
                 left={0}
                 right={0}
                 justifyContent="center"
+                zIndex={1000}
             >
                 <Tag variantColor="gray">{colorMode.toUpperCase()}</Tag>
                 <Tag variantColor="teal">{prettyMediaSize[mediaSize]}</Tag>

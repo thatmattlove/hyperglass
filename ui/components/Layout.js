@@ -83,7 +83,6 @@ const Layout = () => {
                         )}
                     </AnimatePresence>
                 </Flex>
-                {config.general.debug && <Debugger />}
                 <Footer
                     general={config.general}
                     content={config.content}
@@ -92,6 +91,7 @@ const Layout = () => {
                     credit={config.branding.credit}
                     extLink={config.branding.external_link}
                 />
+                {config.general.debug && <Debugger />}
             </Flex>
         </>
     );
