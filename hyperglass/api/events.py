@@ -3,12 +3,12 @@
 from starlette.exceptions import HTTPException
 
 # Project Imports
+from hyperglass.configuration import REDIS_CONFIG
 from hyperglass.configuration import URL_DEV
 from hyperglass.configuration import URL_PROD
 from hyperglass.configuration import frontend_params
 from hyperglass.configuration import params
 from hyperglass.exceptions import HyperglassError
-from hyperglass.query import REDIS_CONFIG
 from hyperglass.util import build_frontend
 from hyperglass.util import check_python
 from hyperglass.util import check_redis
