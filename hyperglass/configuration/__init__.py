@@ -421,3 +421,12 @@ _frontend_params.update(
     }
 )
 frontend_params = _frontend_params
+
+URL_DEV = f"http://localhost:{str(params.general.listen_port)}/api/"
+URL_PROD = "/api/"
+
+REDIS_CONFIG = {
+    "host": str(params.general.redis_host),
+    "port": params.general.redis_port,
+    "decode_responses": True,
+}

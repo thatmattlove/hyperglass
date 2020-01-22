@@ -18,3 +18,4 @@ class Docs(HyperglassModel):
     endpoint_summary: StrictStr = "Query Endpoint"
     endpoint_description: StrictStr = "Request a query response per-location."
     group_title: StrictStr = "Queries"
+    openapi_url: AnyUri = "/openapi.json"

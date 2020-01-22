@@ -34,6 +34,8 @@ LOG_HANDLER = {"sink": sys.stdout, "format": LOG_FMT, "level": "INFO"}
 
 LOG_HANDLER_FILE = {"format": LOG_FMT, "level": "INFO"}
 
+STATUS_CODE_MAP = {"warning": 400, "error": 400, "danger": 500}
+
 CREDIT = """
 Powered by [**hyperglass**](https://github.com/checktheroads/hyperglass). Source code \
 licensed \
