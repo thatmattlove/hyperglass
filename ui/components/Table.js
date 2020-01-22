@@ -1,6 +1,5 @@
 import React from "react";
 import { Box, useColorMode } from "@chakra-ui/core";
-import useColored from "~/hooks/useColored";
 
 const Table = props => <Box as="table" textAlign="left" mt={4} width="full" {...props} />;
 

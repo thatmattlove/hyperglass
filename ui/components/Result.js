@@ -73,7 +73,6 @@ const Result = React.forwardRef(
             (error && error.response?.data?.output) ||
             (error && error.message) ||
             config.messages.general;
-        error && console.log("ERROR", errorMsg);
         return (
             <AccordionItem
                 isDisabled={loading}
