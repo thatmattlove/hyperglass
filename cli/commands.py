@@ -10,8 +10,6 @@ import click
 # Project Imports
 from cli.echo import cmd_help
 from cli.echo import error
-from cli.echo import status
-from cli.echo import success_info
 from cli.echo import value
 from cli.formatting import HelpColorsCommand
 from cli.formatting import HelpColorsGroup
@@ -19,6 +17,7 @@ from cli.formatting import random_colors
 from cli.static import CLI_HELP
 from cli.static import LABEL
 from cli.static import E
+from cli.util import build_ui
 from cli.util import fix_ownership
 from cli.util import fix_permissions
 from cli.util import migrate_config
@@ -42,26 +41,14 @@ def hg():
     pass
 
 
-@hg.command("build-ui", short_help=cmd_help(E.BUTTERFLY, "Create a new UI build"))
-def build_ui():
+@hg.command("build-ui", help=cmd_help(E.BUTTERFLY, "Create a new UI build"))
+def build_frontend():
     """Create a new UI build.
 
     Raises:
         click.ClickException: Raised on any errors.
     """
-    try:
-        import asyncio
-        from hyperglass.util import build_ui
-    except ImportError as e:
-        error("Error importing UI builder", e)
-
-    status("Starting new UI build...")
-
-    try:
-        success = asyncio.run(build_ui())
-        success_info("Completed build, ran", success)
-    except Exception as e:
-        error("Error building UI", e)
+    return build_ui()
 
 
 @hg.command(

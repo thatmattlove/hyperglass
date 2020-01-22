@@ -9,6 +9,8 @@ from cli.echo import status
 from cli.echo import success
 from cli.static import CL
 from cli.static import NL
+from cli.static import SUCCESS
+from cli.static import VALUE
 from cli.static import WS
 from cli.static import E
 
@@ -145,3 +147,50 @@ def migrate_systemd(source, destination):
         error("Error migrating example systemd service", e)
 
     success(f"Successfully migrated systemd service to: {newfile}")
+
+
+def build_ui():
+    """Create a new UI build.
+
+    Raises:
+        click.ClickException: Raised on any errors.
+    """
+    try:
+        import asyncio
+        from hyperglass.configuration import params, frontend_params
+        from hyperglass.util import build_frontend
+    except ImportError as e:
+        error("Error importing UI builder", e)
+
+    status("Starting new UI build...")
+
+    if params.general.developer_mode:
+        dev_mode = "production"
+    else:
+        dev_mode = "development"
+
+    try:
+        success = asyncio.run(
+            build_frontend(
+                dev_mode=params.general.developer_mode,
+                dev_url=f"http://localhost:{str(params.general.listen_port)}/api/",
+                prod_url="/api/",
+                params=frontend_params,
+                force=True,
+            )
+        )
+        if success:
+            click.echo(
+                NL[1]
+                + E.CHECK
+                + click.style("Completed UI build in", **SUCCESS)
+                + WS[1]
+                + click.style(dev_mode, **VALUE)
+                + WS[1]
+                + click.style("mode", **SUCCESS)
+                + NL[1]
+            )
+    except Exception as e:
+        error("Error building UI", e)
+
+    return True
