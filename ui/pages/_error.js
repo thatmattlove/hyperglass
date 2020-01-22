@@ -91,7 +91,7 @@ const ErrorPage = ({ msg, statusCode }) => {
 
 ErrorPage.getInitialProps = ({ res, err }) => {
     const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
-    const msg = err ? err.message : res.req.url;
+    const msg = err ? err.message : res.req?.url || "Error";
     return { msg, statusCode };
 };
 

@@ -2,12 +2,13 @@
 const express = require("express");
 const next = require("next");
 const envVars = require("/tmp/hyperglass.env.json");
-const env = envVars.NODE_ENV;
-const envUrl = envVars._HYPERGLASS_URL_;
+const { configFile } = envVars;
+const config = require(String(configFile));
+
+const { NODE_ENV: env, _HYPERGLASS_URL_: envUrl } = config;
 
 const devProxy = {
-    "/api/config": { target: envUrl + "config", pathRewrite: { "^/api/config": "" } },
-    "/api/query": { target: envUrl + "query", pathRewrite: { "^/api/query": "" } },
+    "/api/query/": { target: envUrl + "query/", pathRewrite: { "^/api/query/": "" } },
     "/images": { target: envUrl + "images", pathRewrite: { "^/images": "" } }
 };
 

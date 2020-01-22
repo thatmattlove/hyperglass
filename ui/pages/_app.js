@@ -1,23 +1,13 @@
 import React from "react";
-import useAxios from "axios-hooks";
 import { HyperglassProvider } from "~/components/HyperglassProvider";
-import PreConfig from "~/components/PreConfig";
+
+const config = process.env._HYPERGLASS_CONFIG_;
 
 const Hyperglass = ({ Component, pageProps }) => {
-    const [{ data, loading, error }, refetch] = useAxios({
-        url: "/api/config",
-        method: "get"
-    });
     return (
-        <>
-            {!data ? (
-                <PreConfig loading={loading} error={error} refresh={refetch} />
-            ) : (
-                <HyperglassProvider config={data}>
-                    <Component {...pageProps} />
-                </HyperglassProvider>
-            )}
-        </>
+        <HyperglassProvider config={config}>
+            <Component {...pageProps} />
+        </HyperglassProvider>
     );
 };
 
