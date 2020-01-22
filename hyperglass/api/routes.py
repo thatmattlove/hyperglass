@@ -1,36 +1,28 @@
-"""Hyperglass Front End."""
+"""API Routes."""
 
 # Standard Library Imports
 import time
 
 # Third Party Imports
 import aredis
+from fastapi import HTTPException
+from fastapi.openapi.docs import get_redoc_html
+from fastapi.openapi.docs import get_swagger_ui_html
+from starlette.requests import Request
 
 # Project Imports
+from hyperglass.configuration import REDIS_CONFIG
 from hyperglass.configuration import params
 from hyperglass.exceptions import HyperglassError
 from hyperglass.execution.execute import Execute
+from hyperglass.models.query import Query
 from hyperglass.util import log
-
-log.debug(f"Configuration Parameters: {params.dict(by_alias=True)}")
-
-# Redis Config
-REDIS_CONFIG = {
-    "host": str(params.general.redis_host),
-    "port": params.general.redis_port,
-    "decode_responses": True,
-}
 
 Cache = aredis.StrictRedis(db=params.features.cache.redis_id, **REDIS_CONFIG)
 
 
-async def handle_query(query_data):
-    """Process XHR POST data.
-
-    Ingests XHR POST data from
-    form submit, passes it to the backend application to perform the
-    filtering/lookups.
-    """
+async def query(query_data: Query, request: Request):
+    """Ingest request data pass it to the backend application to perform the query."""
 
     # Use hashed query_data string as key for for k/v cache store so
     # each command output value is unique.
@@ -67,4 +59,20 @@ async def handle_query(query_data):
     log.debug(f"Cache match for: {cache_key}, returning cached entry")
     log.debug(f"Cache Output: {cache_response}")
 
-    return cache_response
+    return {"output": cache_response, "level": "success", "keywords": []}
+
+
+async def docs():
+    """Serve custom docs."""
+    if params.general.docs.enable:
+        docs_func_map = {"swagger": get_swagger_ui_html, "redoc": get_redoc_html}
+        docs_func = docs_func_map[params.general.docs.mode]
+        return docs_func(
+            openapi_url=params.general.docs.openapi_url,
+            title=params.general.site_title + " - API Docs",
+        )
+    else:
+        raise HTTPException(detail="Not found", status_code=404)
+
+
+endpoints = [query, docs]
