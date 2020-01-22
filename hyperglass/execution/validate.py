@@ -169,7 +169,7 @@ def ip_access_list(query_data, device):
     if not vrf_acl:
         raise HyperglassError(
             message="Unable to match query VRF to any configured VRFs",
-            alert="danger",
+            level="danger",
             keywords=[query_data.query_vrf],
         )
 

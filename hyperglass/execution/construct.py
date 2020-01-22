@@ -37,7 +37,7 @@ class Construct:
         if not _device_vrf:
             raise HyperglassError(
                 message="Unable to match query VRF to any configured VRFs",
-                alert="danger",
+                level="danger",
                 keywords=[self.query_vrf],
             )
         return _device_vrf

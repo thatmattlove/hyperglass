@@ -51,7 +51,7 @@ const Result = React.forwardRef(
         const selectionBg = { dark: theme.colors.white, light: theme.colors.black };
         const selectionColor = { dark: theme.colors.black, light: theme.colors.white };
         const [{ data, loading, error }, refetch] = useAxios({
-            url: "/api/query",
+            url: "/api/query/",
             method: "post",
             data: {
                 query_location: queryLocation,
@@ -73,6 +73,7 @@ const Result = React.forwardRef(
             (error && error.response?.data?.output) ||
             (error && error.message) ||
             config.messages.general;
+        error && console.log("ERROR", errorMsg);
         return (
             <AccordionItem
                 isDisabled={loading}
@@ -127,7 +128,7 @@ const Result = React.forwardRef(
                                     rounded="lg"
                                     my={2}
                                     py={4}
-                                    status={error.response?.data?.alert || "error"}
+                                    status={error.response?.data?.level || "error"}
                                 >
                                     <FormattedError keywords={errorKw} message={errorMsg} />
                                 </Alert>

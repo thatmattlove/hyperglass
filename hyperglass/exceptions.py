@@ -1,29 +1,30 @@
 """Custom exceptions for hyperglass."""
 
-# Standard Library Imports
+# Third Party Imports
 import ujson as _json
 
 # Project Imports
+from hyperglass.constants import STATUS_CODE_MAP
 from hyperglass.util import log
 
 
 class HyperglassError(Exception):
     """hyperglass base exception."""
 
-    def __init__(self, message="", alert="warning", keywords=None):
+    def __init__(self, message="", level="warning", keywords=None):
         """Initialize the hyperglass base exception class.
 
         Keyword Arguments:
             message {str} -- Error message (default: {""})
-            alert {str} -- Error severity (default: {"warning"})
+            level {str} -- Error severity (default: {"warning"})
             keywords {list} -- 'Important' keywords (default: {None})
         """
         self._message = message
-        self._alert = alert
+        self._level = level
         self._keywords = keywords or []
-        if self._alert == "warning":
+        if self._level == "warning":
             log.error(repr(self))
-        elif self._alert == "danger":
+        elif self._level == "danger":
             log.critical(repr(self))
         else:
             log.info(repr(self))
@@ -42,7 +43,7 @@ class HyperglassError(Exception):
         Returns:
             {str} -- Error message with code
         """
-        return f"[{self.alert.upper()}] {self._message}"
+        return f"[{self.level.upper()}] {self._message}"
 
     def dict(self):
         """Return the instance's attributes as a dictionary.
@@ -52,7 +53,7 @@ class HyperglassError(Exception):
         """
         return {
             "message": self._message,
-            "alert": self._alert,
+            "level": self._level,
             "keywords": self._keywords,
         }
 
@@ -74,13 +75,13 @@ class HyperglassError(Exception):
         return self._message
 
     @property
-    def alert(self):
-        """Return the instance's `alert` attribute.
+    def level(self):
+        """Return the instance's `level` attribute.
 
         Returns:
             {str} -- Alert name
         """
-        return self._alert
+        return self._level
 
     @property
     def keywords(self):
@@ -91,38 +92,47 @@ class HyperglassError(Exception):
         """
         return self._keywords
 
+    @property
+    def status_code(self):
+        """Return HTTP status code based on level level.
+
+        Returns:
+            {int} -- HTTP Status Code
+        """
+        return STATUS_CODE_MAP.get(self._level, 500)
+
 
 class _UnformattedHyperglassError(HyperglassError):
     """Base exception class for freeform error messages."""
 
-    _alert = "warning"
+    _level = "warning"
 
-    def __init__(self, unformatted_msg="", alert=None, **kwargs):
+    def __init__(self, unformatted_msg="", level=None, **kwargs):
         """Format error message with keyword arguments.
 
         Keyword Arguments:
             message {str} -- Error message (default: {""})
-            alert {str} -- Error severity (default: {"warning"})
+            level {str} -- Error severity (default: {"warning"})
             keywords {list} -- 'Important' keywords (default: {None})
         """
         self._message = unformatted_msg.format(**kwargs)
-        self._alert = alert or self._alert
+        self._level = level or self._level
         self._keywords = list(kwargs.values())
         super().__init__(
-            message=self._message, alert=self._alert, keywords=self._keywords
+            message=self._message, level=self._level, keywords=self._keywords
         )
 
 
 class _PredefinedHyperglassError(HyperglassError):
     _message = "undefined"
-    _alert = "warning"
+    _level = "warning"
 
-    def __init__(self, alert=None, **kwargs):
+    def __init__(self, level=None, **kwargs):
         self._fmt_msg = self._message.format(**kwargs)
-        self._alert = alert or self._alert
+        self._level = level or self._level
         self._keywords = list(kwargs.values())
         super().__init__(
-            message=self._fmt_msg, alert=self._alert, keywords=self._keywords
+            message=self._fmt_msg, level=self._level, keywords=self._keywords
         )
 
 
@@ -148,25 +158,25 @@ class ConfigMissing(_PredefinedHyperglassError):
 class ScrapeError(_UnformattedHyperglassError):
     """Raised when a scrape/netmiko error occurs."""
 
-    _alert = "danger"
+    _level = "danger"
 
 
 class AuthError(_UnformattedHyperglassError):
     """Raised when authentication to a device fails."""
 
-    _alert = "danger"
+    _level = "danger"
 
 
 class RestError(_UnformattedHyperglassError):
     """Raised upon a rest API client error."""
 
-    _alert = "danger"
+    _level = "danger"
 
 
 class DeviceTimeout(_UnformattedHyperglassError):
     """Raised when the connection to a device times out."""
 
-    _alert = "danger"
+    _level = "danger"
 
 
 class InputInvalid(_UnformattedHyperglassError):

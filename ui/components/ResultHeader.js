@@ -36,7 +36,7 @@ export default React.forwardRef(({ title, loading, error }, ref) => {
                         name="warning"
                         color={
                             error.response
-                                ? theme.colors[error.response?.data?.alert][warningColor[colorMode]]
+                                ? theme.colors[error.response?.data?.level][warningColor[colorMode]]
                                 : defaultWarningColor[colorMode]
                         }
                         mr={4}
