@@ -26,28 +26,22 @@ from starlette.staticfiles import StaticFiles
 from hyperglass.configuration import frontend_params
 from hyperglass.configuration import params
 from hyperglass.constants import __version__
-from hyperglass.exceptions import AuthError
-from hyperglass.exceptions import DeviceTimeout
 from hyperglass.exceptions import HyperglassError
-from hyperglass.exceptions import InputInvalid
-from hyperglass.exceptions import InputNotAllowed
-from hyperglass.exceptions import ResponseEmpty
-from hyperglass.exceptions import RestError
-from hyperglass.exceptions import ScrapeError
 from hyperglass.models.query import Query
 from hyperglass.models.response import QueryResponse
 from hyperglass.query import REDIS_CONFIG
 from hyperglass.query import handle_query
+from hyperglass.util import build_frontend
 from hyperglass.util import check_python
 from hyperglass.util import check_redis
 from hyperglass.util import clear_redis_cache
 from hyperglass.util import log
-from hyperglass.util import write_env
 
 STATIC_DIR = Path(__file__).parent / "static"
 UI_DIR = STATIC_DIR / "ui"
 IMAGES_DIR = STATIC_DIR / "images"
 NEXT_DIR = UI_DIR / "_next"
+INDEX = UI_DIR / "index.html"
 
 STATIC_FILES = "\n".join([str(STATIC_DIR), str(UI_DIR), str(IMAGES_DIR), str(NEXT_DIR)])
 
@@ -62,11 +56,12 @@ app = FastAPI(
     default_response_class=UJSONResponse,
     docs_url=None,
     redoc_url=None,
+    openapi_url=params.general.docs.openapi_url,
 )
-app.mount("/ui", StaticFiles(directory=UI_DIR), name="ui")
+# app.mount("/ui", StaticFiles(directory=UI_DIR), name="ui")
+# app.mount("/ui/images", StaticFiles(directory=IMAGES_DIR), name="ui/images")
 app.mount("/_next", StaticFiles(directory=NEXT_DIR), name="_next")
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
-app.mount("/ui/images", StaticFiles(directory=IMAGES_DIR), name="ui/images")
 
 if params.general.docs.enable:
     log.debug(f"API Docs config: {app.openapi()}")
@@ -142,19 +137,24 @@ async def check_redis_instance():
 
 
 @app.on_event("startup")
-async def write_env_variables():
-    """Write environment varibles for Next.js/Node.
+async def build_ui():
+    """Perform a UI build prior to starting the application.
+
+    Raises:
+        HTTPException: Raised if any build errors occur.
 
     Returns:
-        {bool} -- True if successful
+        {bool} -- True if successful.
     """
-    if params.general.developer_mode:
-        env_vars = {"NODE_ENV": "development", "_HYPERGLASS_URL_": DEV_URL}
-    else:
-        env_vars = {"NODE_ENV": "production", "_HYPERGLASS_URL_": PROD_URL}
-    result = await write_env(env_vars)
-    if result:
-        log.debug(result)
+    try:
+        await build_frontend(
+            dev_mode=params.general.developer_mode,
+            dev_url=DEV_URL,
+            prod_url=PROD_URL,
+            params=frontend_params,
+        )
+    except RuntimeError as e:
+        raise HTTPException(detail=str(e), status_code=500)
     return True
 
 
@@ -178,11 +178,11 @@ async def http_exception_handler(request, exc):
 
 
 @app.exception_handler(HyperglassError)
-async def http_exception_handler(request, exc):
+async def app_exception_handler(request, exc):
     """Handle application errors."""
     return UJSONResponse(
         {"output": exc.message, "alert": exc.alert, "keywords": exc.keywords},
-        status_code=400,
+        status_code=exc.status_code,
     )
 
 
@@ -224,16 +224,6 @@ async def metrics(request):
     )
 
 
-@app.get("/api/config", include_in_schema=False)
-async def frontend_config():
-    """Provide validated user/default config for front end consumption.
-
-    Returns:
-        {dict} -- Filtered configuration
-    """
-    return UJSONResponse(frontend_params, status_code=200)
-
-
 @app.post(
     "/api/query/",
     summary=params.general.docs.endpoint_summary,
@@ -258,12 +248,7 @@ async def query(query_data: Query, request: Request):
 
     log.debug(f"Client Address: {client_addr}")
 
-    try:
-        response = await handle_query(query_data)
-    except (InputInvalid, InputNotAllowed, ResponseEmpty) as frontend_error:
-        raise HTTPException(detail=frontend_error.dict(), status_code=400)
-    except (AuthError, RestError, ScrapeError, DeviceTimeout) as backend_error:
-        raise HTTPException(detail=backend_error.dict(), status_code=500)
+    response = await handle_query(query_data)
 
     return UJSONResponse({"output": response}, status_code=200)
 
@@ -277,6 +262,9 @@ async def docs():
         return docs_func(openapi_url=app.openapi_url, title=app.title + " - API Docs")
     else:
         raise HTTPException(detail="Not found", status_code=404)
+
+
+app.mount("/", StaticFiles(directory=UI_DIR, html=True), name="ui")
 
 
 def start():
