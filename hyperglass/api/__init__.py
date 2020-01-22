@@ -45,9 +45,14 @@ app = FastAPI(
     docs_url=None,
     redoc_url=None,
     openapi_url=params.general.docs.openapi_url,
-    on_shutdown=on_shutdown,
-    on_startup=on_startup,
 )
+
+# Add Event Handlers
+for startup in on_startup:
+    app.add_event_handler("startup", startup)
+
+for shutdown in on_shutdown:
+    app.add_event_handler("shutdown", shutdown)
 
 # HTTP Error Handler
 app.add_exception_handler(StarletteHTTPException, http_handler)

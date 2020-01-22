@@ -26,7 +26,7 @@ async def check_python_version():
         python_version = check_python()
         log.info(f"Python {python_version} detected")
     except RuntimeError as r:
-        raise HyperglassError(str(r), alert="danger") from None
+        raise HyperglassError(str(r), level="danger") from None
 
 
 async def check_redis_instance():
@@ -41,7 +41,7 @@ async def check_redis_instance():
     try:
         await check_redis(db=params.features.cache.redis_id, config=REDIS_CONFIG)
     except RuntimeError as e:
-        raise HyperglassError(str(e), alert="danger") from None
+        raise HyperglassError(str(e), level="danger") from None
 
     log.debug(f"Redis is running at: {REDIS_CONFIG['host']}:{REDIS_CONFIG['port']}")
     return True
