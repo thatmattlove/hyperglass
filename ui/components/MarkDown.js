@@ -1,4 +1,5 @@
 import React from "react";
+import dynamic from "next/dynamic";
 import {
     Checkbox as ChakraCheckbox,
     Divider,
@@ -7,11 +8,14 @@ import {
     Link as ChakraLink,
     List as ChakraList,
     ListItem as ChakraListItem,
+    Spinner,
     Text as ChakraText
 } from "@chakra-ui/core";
-import ReactMarkdown from "react-markdown";
 import CustomCodeBlock from "~/components/CodeBlock";
 import { TableCell, TableHeader, Table } from "~/components/Table";
+
+// Dynaimc Imports
+const ReactMarkdown = dynamic(() => import("react-markdown"), { loading: Spinner });
 
 const Checkbox = ({ checked, children }) => (
     <ChakraCheckbox isChecked={checked}>{children}</ChakraCheckbox>
