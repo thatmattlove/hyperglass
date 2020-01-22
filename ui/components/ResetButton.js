@@ -10,7 +10,6 @@ export default React.forwardRef(({ isSubmitting, onClick }, ref) => (
         variant="ghost"
         color="current"
         onClick={onClick}
-        pl={0}
     >
         <FiChevronLeft size={24} />
     </Button>
