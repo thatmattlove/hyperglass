@@ -167,11 +167,6 @@ class Branding(HyperglassModel):
         terms: StrictStr = "Terms"
         info: StrictStr = "Help"
         peeringdb = "PeeringDB"
-        bgp_route: StrictStr = "BGP Route"
-        bgp_community: StrictStr = "BGP Community"
-        bgp_aspath: StrictStr = "BGP AS Path"
-        ping: StrictStr = "Ping"
-        traceroute: StrictStr = "Traceroute"
 
         class Error404(HyperglassModel):
             """Validation model for 404 Error Page."""

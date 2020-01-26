@@ -2,6 +2,7 @@
 
 # Standard Library Imports
 import asyncio
+import copy
 from pathlib import Path
 
 # Third Party Imports
@@ -22,7 +23,7 @@ from hyperglass.constants import DEFAULT_TERMS
 from hyperglass.constants import LOG_HANDLER
 from hyperglass.constants import LOG_HANDLER_FILE
 from hyperglass.constants import LOG_LEVELS
-from hyperglass.constants import Supported
+from hyperglass.constants import SUPPORTED_QUERY_TYPES
 from hyperglass.exceptions import ConfigError
 from hyperglass.exceptions import ConfigInvalid
 from hyperglass.exceptions import ConfigMissing
@@ -317,12 +318,12 @@ def _build_queries():
     """Build a dict of supported query types and their display names.
 
     Returns:
-        {dict} -- Supported query dict
+        {list} -- Supported query list
     """
     queries = []
-    for query in Supported.query_types:
-        display_name = getattr(params.branding.text, query)
-        queries.append({"name": query, "display_name": display_name})
+    for query in SUPPORTED_QUERY_TYPES:
+        query_params = getattr(params.features, query)
+        queries.append({"name": query, "display_name": query_params.display_name})
     return queries
 
 
@@ -341,15 +342,18 @@ def _build_vrf_help():
     """
     all_help = {}
     for vrf in devices.vrf_objects:
+
         vrf_help = {}
-        for command in Supported.query_types:
+        for command in SUPPORTED_QUERY_TYPES:
             cmd = getattr(vrf.info, command)
-            help_params = content_params
-            if cmd.params.title is None:
-                cmd.params.title = (
-                    f"{vrf.display_name}: {getattr(params.branding.text, command)}"
-                )
-            help_params.update(cmd.params.dict())
+            help_params = {**content_params, **cmd.params.dict()}
+
+            if help_params["title"] is None:
+                command_params = getattr(params.features, command)
+                help_params[
+                    "title"
+                ] = f"{vrf.display_name}: {command_params.display_name}"
+
             md = asyncio.run(
                 get_markdown(
                     config_path=cmd,
@@ -357,25 +361,35 @@ def _build_vrf_help():
                     params=help_params,
                 )
             )
+
             vrf_help.update(
                 {command: {"content": md, "enable": cmd.enable, "params": help_params}}
             )
+
         all_help.update({vrf.name: vrf_help})
+
     return all_help
 
 
 content_vrf = _build_vrf_help()
 
+content_help_params = copy.copy(content_params)
+content_help_params["title"] = params.branding.help_menu.title
 content_help = asyncio.run(
     get_markdown(
         config_path=params.branding.help_menu,
         default=DEFAULT_HELP,
-        params=content_params,
+        params=content_help_params,
     )
 )
+
+content_terms_params = copy.copy(content_params)
+content_terms_params["title"] = params.branding.terms.title
 content_terms = asyncio.run(
     get_markdown(
-        config_path=params.branding.terms, default=DEFAULT_TERMS, params=content_params
+        config_path=params.branding.terms,
+        default=DEFAULT_TERMS,
+        params=content_terms_params,
     )
 )
 content_credit = CREDIT
@@ -393,15 +407,15 @@ _frontend_fields = {
         "org_name",
         "google_analytics",
         "opengraph",
-        "site_descriptin",
+        "site_description",
     },
     "branding": ...,
     "features": {
-        "bgp_route": {"enable"},
-        "bgp_community": {"enable"},
-        "bgp_aspath": {"enable"},
-        "ping": {"enable"},
-        "traceroute": {"enable"},
+        "bgp_route": {"enable", "display_name"},
+        "bgp_community": {"enable", "display_name"},
+        "bgp_aspath": {"enable", "display_name"},
+        "ping": {"enable", "display_name"},
+        "traceroute": {"enable", "display_name"},
     },
     "messages": ...,
 }

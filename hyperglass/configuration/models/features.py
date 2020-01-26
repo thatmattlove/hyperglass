@@ -20,11 +20,13 @@ class Features(HyperglassModel):
         """Validation model for params.features.bgp_route."""
 
         enable: StrictBool = True
+        display_name: StrictStr = "BGP Route"
 
     class BgpCommunity(HyperglassModel):
         """Validation model for params.features.bgp_community."""
 
         enable: StrictBool = True
+        display_name: StrictStr = "BGP Community"
 
         class Regex(HyperglassModel):
             """Validation model for params.features.bgp_community.regex."""
@@ -39,6 +41,7 @@ class Features(HyperglassModel):
         """Validation model for params.features.bgp_aspath."""
 
         enable: StrictBool = True
+        display_name: StrictStr = "BGP AS Path"
 
         class Regex(HyperglassModel):
             """Validation model for params.bgp_aspath.regex."""
@@ -55,11 +58,13 @@ class Features(HyperglassModel):
         """Validation model for params.features.ping."""
 
         enable: StrictBool = True
+        display_name: StrictStr = "Ping"
 
     class Traceroute(HyperglassModel):
         """Validation model for params.features.traceroute."""
 
         enable: StrictBool = True
+        display_name: StrictStr = "Traceroute"
 
     class Cache(HyperglassModel):
         """Validation model for params.features.cache."""
@@ -81,38 +86,6 @@ class Features(HyperglassModel):
             "Prefix length must be smaller than /{m}. <b>{i}</b> is too specific."
         )
 
-    class RateLimit(HyperglassModel):
-        """Validation model for params.features.rate_limit."""
-
-        redis_id: StrictInt = 1
-
-        class Query(HyperglassModel):
-            """Validation model for params.features.rate_limit.query."""
-
-            rate: StrictInt = 5
-            period: StrictStr = "minute"
-            title: StrictStr = "Query Limit Reached"
-            message: StrictStr = (
-                "Query limit of {rate} per {period} reached. "
-                "Please wait one minute and try again."
-            ).format(rate=rate, period=period)
-            button: StrictStr = "Try Again"
-
-        class Site(HyperglassModel):
-            """Validation model for params.features.rate_limit.site."""
-
-            rate: StrictInt = 60
-            period: StrictStr = "minute"
-            title: StrictStr = "Limit Reached"
-            subtitle: StrictStr = (
-                "You have accessed this site more than {rate} "
-                "times in the last {period}."
-            ).format(rate=rate, period=period)
-            button: StrictStr = "Try Again"
-
-        query: Query = Query()
-        site: Site = Site()
-
     bgp_route: BgpRoute = BgpRoute()
     bgp_community: BgpCommunity = BgpCommunity()
     bgp_aspath: BgpAsPath = BgpAsPath()
@@ -120,4 +93,3 @@ class Features(HyperglassModel):
     traceroute: Traceroute = Traceroute()
     cache: Cache = Cache()
     max_prefix: MaxPrefix = MaxPrefix()
-    rate_limit: RateLimit = RateLimit()
