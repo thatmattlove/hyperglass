@@ -5,6 +5,7 @@ from pathlib import Path
 
 # Third Party Imports
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
@@ -13,7 +14,9 @@ from starlette.staticfiles import StaticFiles
 
 # Project Imports
 from hyperglass.api.error_handlers import app_handler
+from hyperglass.api.error_handlers import default_handler
 from hyperglass.api.error_handlers import http_handler
+from hyperglass.api.error_handlers import validation_handler
 from hyperglass.api.events import on_shutdown
 from hyperglass.api.events import on_startup
 from hyperglass.api.routes import docs
@@ -59,6 +62,12 @@ app.add_exception_handler(StarletteHTTPException, http_handler)
 
 # Backend Application Error Handler
 app.add_exception_handler(HyperglassError, app_handler)
+
+# Validation Error Handler
+app.add_exception_handler(RequestValidationError, validation_handler)
+
+# Uncaught Error Handler
+app.add_exception_handler(Exception, default_handler)
 
 
 def _custom_openapi():
