@@ -187,8 +187,8 @@ class Routers(HyperglassModelExtra):
         networks = set()
         display_vrfs = set()
         vrf_objects = set()
+        router_objects = []
         routers = Routers()
-        routers.routers = []
         routers.hostnames = []
         routers.vrfs = []
         routers.display_vrfs = []
@@ -206,7 +206,7 @@ class Routers(HyperglassModelExtra):
             # list with `devices.hostnames`, same for all router
             # classes, for when iteration over all routers is required.
             routers.hostnames.append(router.name)
-            routers.routers.append(router)
+            router_objects.append(router)
 
             for vrf in router.vrfs:
                 # For each configured router VRF, add its name and
@@ -241,5 +241,8 @@ class Routers(HyperglassModelExtra):
         routers.display_vrfs = list(display_vrfs)
         routers.vrf_objects = list(vrf_objects)
         routers.networks = list(networks)
+
+        # Sort router list by router name attribute
+        routers.routers = sorted(router_objects, key=lambda x: x.display_name)
 
         return routers
