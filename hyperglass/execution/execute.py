@@ -8,6 +8,7 @@ hyperglass-frr API calls, returns the output back to the front end.
 
 # Standard Library Imports
 import re
+import signal
 
 # Third Party Imports
 import httpx
@@ -92,8 +93,25 @@ class Connect:
                 proxy=self.device.proxy.name,
                 error=str(scrape_proxy_error),
             )
+
+        def handle_timeout(*args, **kwargs):
+            tunnel.close()
+            raise DeviceTimeout(
+                params.messages.connection_error,
+                device_name=self.device.display_name,
+                proxy=self.device.proxy.name,
+                error=params.messages.request_timeout,
+            )
+
+        signal.signal(signal.SIGALRM, handle_timeout)
+        signal.alarm(params.general.request_timeout - 1)
+
         with tunnel:
-            log.debug(f"Established tunnel with {self.device.proxy}")
+            log.debug(
+                "Established tunnel with {d}. Local bind port: {p}",
+                d=self.device.proxy,
+                p=tunnel.local_bind_port,
+            )
             scrape_host = {
                 "host": "localhost",
                 "port": tunnel.local_bind_port,
@@ -103,24 +121,28 @@ class Connect:
                 "global_delay_factor": 0.2,
                 "timeout": params.general.request_timeout - 1,
             }
-            log.debug(f"SSH proxy local binding: localhost:{tunnel.local_bind_port}")
+
             try:
-                log.debug(
-                    f"Connecting to {self.device.location} " "via Netmiko library..."
-                )
+                log.debug("Connecting to {loc}...", loc=self.device.location)
+
                 nm_connect_direct = ConnectHandler(**scrape_host)
+
                 responses = []
                 for query in self.query:
                     raw = nm_connect_direct.send_command(query)
                     responses.append(raw)
                     log.debug(f'Raw response for command "{query}":\n{raw}')
                 response = "\n\n".join(responses)
+
+                nm_connect_direct.disconnect()
+
                 log.debug(f"Response type:\n{type(response)}")
 
             except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
                 log.error(
-                    f"Timeout connecting to device {self.device.location}: "
-                    f"{str(scrape_error)}"
+                    "Timeout connecting to device {loc}: {e}",
+                    loc=self.device.location,
+                    e=str(scrape_error),
                 )
                 raise DeviceTimeout(
                     params.messages.connection_error,
@@ -130,8 +152,9 @@ class Connect:
                 )
             except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
                 log.error(
-                    f"Error authenticating to device {self.device.location}: "
-                    f"{str(auth_error)}"
+                    "Error authenticating to device {loc}: {e}",
+                    loc=self.device.location,
+                    e=str(auth_error),
                 )
                 raise AuthError(
                     params.messages.connection_error,
@@ -139,11 +162,7 @@ class Connect:
                     proxy=self.device.proxy.name,
                     error=params.messages.authentication_error,
                 ) from None
-            except sshtunnel.BaseSSHTunnelForwarderError as scrape_error:
-                log.error(
-                    f"Error connecting to device proxy {self.device.proxy}: "
-                    f"{str(scrape_error)}"
-                )
+            except sshtunnel.BaseSSHTunnelForwarderError:
                 raise ScrapeError(
                     params.messages.connection_error,
                     device_name=self.device.display_name,
@@ -151,14 +170,13 @@ class Connect:
                     error=params.messages.general,
                 )
         if response is None:
-            log.error(f"No response from device {self.device.location}")
             raise ScrapeError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,
                 proxy=None,
                 error=params.messages.noresponse_error,
             )
-        log.debug(f"Output for query: {self.query}:\n{response}")
+        signal.alarm(0)
         return response
 
     async def scrape_direct(self):
@@ -176,22 +194,35 @@ class Connect:
             "username": self.device.credential.username,
             "password": self.device.credential.password.get_secret_value(),
             "global_delay_factor": 0.2,
-            "timeout": params.general.request_timeout - 1,
+            "timeout": params.general.request_timeout,
         }
 
         try:
-            log.debug(f"Device Parameters: {scrape_host}")
-            log.debug(f"Connecting to {self.device.location} via Netmiko library")
             nm_connect_direct = ConnectHandler(**scrape_host)
+
+            def handle_timeout(*args, **kwargs):
+                nm_connect_direct.disconnect()
+                raise DeviceTimeout(
+                    params.messages.connection_error,
+                    device_name=self.device.display_name,
+                    proxy=self.device.proxy.name,
+                    error=params.messages.request_timeout,
+                )
+
+            signal.signal(signal.SIGALRM, handle_timeout)
+            signal.alarm(params.general.request_timeout - 1)
+
             responses = []
+
             for query in self.query:
                 raw = nm_connect_direct.send_command(query)
                 responses.append(raw)
                 log.debug(f'Raw response for command "{query}":\n{raw}')
             response = "\n\n".join(responses)
-            log.debug(f"Response type:\n{type(response)}")
+
+            nm_connect_direct.diconnect()
+
         except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
-            log.error(f"{params.general.request_timeout - 1} second timeout expired.")
             log.error(str(scrape_error))
             raise DeviceTimeout(
                 params.messages.connection_error,
@@ -200,8 +231,11 @@ class Connect:
                 error=params.messages.request_timeout,
             )
         except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
-            log.error(f"Error authenticating to device {self.device.location}")
-            log.error(str(auth_error))
+            log.error(
+                "Error authenticating to device {loc}: {e}",
+                loc=self.device.location,
+                e=str(auth_error),
+            )
 
             raise AuthError(
                 params.messages.connection_error,
@@ -210,14 +244,13 @@ class Connect:
                 error=params.messages.authentication_error,
             )
         if response is None:
-            log.error(f"No response from device {self.device.location}")
             raise ScrapeError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,
                 proxy=None,
                 error=params.messages.noresponse_error,
             )
-        log.debug(f"Output for query: {self.query}:\n{response}")
+        signal.alarm(0)
         return response
 
     async def rest(self):
@@ -312,7 +345,6 @@ class Connect:
                 error=params.messages.noresponse_error,
             )
 
-        log.debug(f"Output for query: {self.query}:\n{response}")
         return response
 
 
@@ -345,6 +377,7 @@ class Execute:
         # Run query parameters through validity checks
         validation = Validate(device, self.query_data, self.query_target)
         valid_input = validation.validate_query()
+
         if valid_input:
             log.debug(f"Validation passed for query: {self.query_data}")
             pass
@@ -357,13 +390,18 @@ class Execute:
 
         if Supported.is_rest(device.nos):
             output = await connect.rest()
+
         elif Supported.is_scrape(device.nos):
             if device.proxy:
                 output = await connect.scrape_proxied()
             else:
                 output = await connect.scrape_direct()
+
         if output == "":
             raise ResponseEmpty(
                 params.messages.no_output, device_name=device.display_name
             )
+
+        log.debug(f"Output for query: {self.query}:\n{output}")
+
         return output
