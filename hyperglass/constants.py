@@ -159,6 +159,15 @@ For information about how to interpret traceroute results, [click here]\
 (https://hyperglass.readthedocs.io/en/latest/assets/traceroute_nanog.pdf).
 """
 
+SUPPORTED_QUERY_FIELDS = ("query_location", "query_type", "query_target", "query_vrf")
+SUPPORTED_QUERY_TYPES = (
+    "bgp_route",
+    "bgp_community",
+    "bgp_aspath",
+    "ping",
+    "traceroute",
+)
+
 
 class Supported:
     """Define items supported by hyperglass.

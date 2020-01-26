@@ -91,7 +91,7 @@ const Layout = () => {
                     credit={config.branding.credit}
                     extLink={config.branding.external_link}
                 />
-                {config.general.debug && <Debugger />}
+                {config.general.developer_mode && <Debugger />}
             </Flex>
         </>
     );
