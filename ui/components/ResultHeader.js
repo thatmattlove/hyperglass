@@ -1,22 +1,9 @@
 import React from "react";
-import {
-    AccordionIcon,
-    Icon,
-    Spinner,
-    Stack,
-    Text,
-    Tooltip,
-    useColorMode,
-    useTheme
-} from "@chakra-ui/core";
-import useConfig from "~/components/HyperglassProvider";
+import { AccordionIcon, Icon, Spinner, Stack, Text, Tooltip, useColorMode } from "@chakra-ui/core";
 
-export default React.forwardRef(({ title, loading, error }, ref) => {
-    const config = useConfig();
-    const theme = useTheme();
+export default React.forwardRef(({ title, loading, error, errorMsg, errorLevel }, ref) => {
     const { colorMode } = useColorMode();
     const statusColor = { dark: "primary.300", light: "primary.500" };
-    const defaultWarningColor = { dark: "danger.300", light: "danger.500" };
     const warningColor = { dark: 300, light: 500 };
     const defaultStatusColor = {
         dark: "success.300",
@@ -27,18 +14,10 @@ export default React.forwardRef(({ title, loading, error }, ref) => {
             {loading ? (
                 <Spinner size="sm" mr={4} color={statusColor[colorMode]} />
             ) : error ? (
-                <Tooltip
-                    hasArrow
-                    label={error.response?.data?.output || error.message || config.messages.general}
-                    placement="top"
-                >
+                <Tooltip hasArrow label={errorMsg} placement="top">
                     <Icon
                         name="warning"
-                        color={
-                            error.response
-                                ? theme.colors[error.response?.data?.level][warningColor[colorMode]]
-                                : defaultWarningColor[colorMode]
-                        }
+                        color={`${errorLevel}.${warningColor[colorMode]}`}
                         mr={4}
                         size={6}
                     />

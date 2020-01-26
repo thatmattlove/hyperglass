@@ -4,6 +4,7 @@ import {
     AccordionHeader,
     AccordionPanel,
     Alert,
+    AlertDescription,
     Box,
     ButtonGroup,
     css,
@@ -19,6 +20,7 @@ import useConfig from "~/components/HyperglassProvider";
 import CopyButton from "~/components/CopyButton";
 import RequeryButton from "~/components/RequeryButton";
 import ResultHeader from "~/components/ResultHeader";
+import { startCase } from "lodash";
 
 const FormattedError = ({ keywords, message }) => {
     const patternStr = `(${keywords.join("|")})`;
@@ -40,6 +42,8 @@ const AccordionHeaderWrapper = styled(Flex)`
         box-shadow: "outline";
     }
 `;
+
+const statusMap = { success: "success", warning: "warning", error: "warning", danger: "error" };
 
 const Result = React.forwardRef(
     ({ device, timeout, queryLocation, queryType, queryVrf, queryTarget }, ref) => {
@@ -69,10 +73,21 @@ const Result = React.forwardRef(
                 .replace(/\n\n/g, "");
 
         const errorKw = (error && error.response?.data?.keywords) || [];
-        const errorMsg =
-            (error && error.response?.data?.output) ||
-            (error && error.message) ||
-            config.messages.general;
+
+        let errorMsg;
+        if (error && error.response?.data?.output) {
+            errorMsg = error.response.data.output;
+        } else if (error && error.message.startsWith("timeout")) {
+            errorMsg = config.messages.request_timeout;
+        } else if (error && error.message) {
+            errorMsg = startCase(error.message);
+        } else {
+            errorMsg = config.messages.general;
+        }
+
+        const errorLevel =
+            (error?.response?.data?.level && statusMap[error.response?.data?.level]) ?? "error";
+
         return (
             <AccordionItem
                 isDisabled={loading}
@@ -84,11 +99,17 @@ const Result = React.forwardRef(
             >
                 <AccordionHeaderWrapper hoverBg={theme.colors.blackAlpha[50]}>
                     <AccordionHeader flex="1 0 auto" py={2} _hover={{}} _focus={{}} w="unset">
-                        <ResultHeader title={device.display_name} loading={loading} error={error} />
+                        <ResultHeader
+                            title={device.display_name}
+                            loading={loading}
+                            error={error}
+                            errorMsg={errorMsg}
+                            errorLevel={errorLevel}
+                        />
                     </AccordionHeader>
                     <ButtonGroup px={3} py={2}>
-                        <CopyButton copyValue={cleanOutput} variant="ghost" />
-                        <RequeryButton requery={refetch} variant="ghost" />
+                        <CopyButton copyValue={cleanOutput} variant="ghost" isDisabled={loading} />
+                        <RequeryButton requery={refetch} variant="ghost" isDisabled={loading} />
                     </ButtonGroup>
                 </AccordionHeaderWrapper>
                 <AccordionPanel
@@ -123,12 +144,7 @@ const Result = React.forwardRef(
                                 </Box>
                             )}
                             {error && (
-                                <Alert
-                                    rounded="lg"
-                                    my={2}
-                                    py={4}
-                                    status={error.response?.data?.level || "error"}
-                                >
+                                <Alert rounded="lg" my={2} py={4} status={errorLevel}>
                                     <FormattedError keywords={errorKw} message={errorMsg} />
                                 </Alert>
                             )}
