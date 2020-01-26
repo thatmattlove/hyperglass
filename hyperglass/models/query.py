@@ -1,8 +1,7 @@
 """Input query validation model."""
 
 # Standard Library Imports
-import operator
-from typing import Optional
+import hashlib
 
 # Third Party Imports
 from pydantic import BaseModel
@@ -12,17 +11,24 @@ from pydantic import validator
 # Project Imports
 from hyperglass.configuration import devices
 from hyperglass.configuration import params
-from hyperglass.constants import Supported
 from hyperglass.exceptions import InputInvalid
+from hyperglass.models.types import SupportedQuery
+from hyperglass.models.validators import validate_aspath
+from hyperglass.models.validators import validate_community
+from hyperglass.models.validators import validate_ip
 
 
 class Query(BaseModel):
     """Validation model for input query parameters."""
 
     query_location: StrictStr
-    query_type: StrictStr
-    query_vrf: Optional[StrictStr]
+    query_type: SupportedQuery
     query_target: StrictStr
+    query_vrf: StrictStr
+
+    def digest(self):
+        """Create SHA256 hash digest of model representation."""
+        return hashlib.sha256(repr(self).encode()).hexdigest()
 
     @validator("query_location", pre=True, always=True)
     def validate_query_location(cls, value):
@@ -40,41 +46,10 @@ class Query(BaseModel):
         if value not in devices.hostnames:
             raise InputInvalid(
                 params.messages.invalid_field,
-                alert="warning",
+                level="warning",
                 input=value,
                 field=params.branding.text.query_location,
             )
-        return value
-
-    @validator("query_type")
-    def validate_query_type(cls, value):
-        """Ensure query_type is supported.
-
-        Arguments:
-            value {str} -- Unvalidated query_type
-
-        Raises:
-            InputInvalid: Raised if query_type is not supported.
-
-        Returns:
-            {str} -- Valid query_type
-        """
-        if value not in Supported.query_types:
-            raise InputInvalid(
-                params.messages.invalid_field,
-                alert="warning",
-                input=value,
-                field=params.branding.text.query_type,
-            )
-        else:
-            enabled = operator.attrgetter(f"{value}.enable")(params.features)
-            if not enabled:
-                raise InputInvalid(
-                    params.messages.invalid_field,
-                    alert="warning",
-                    input=value,
-                    field=params.branding.text.query_type,
-                )
         return value
 
     @validator("query_vrf", always=True, pre=True)
@@ -101,10 +76,28 @@ class Query(BaseModel):
                 else:
                     raise InputInvalid(
                         params.messages.vrf_not_associated,
-                        alert="warning",
+                        level="warning",
                         vrf_name=vrf.display_name,
                         device_name=device.display_name,
                     )
         if value is None:
             value = default_vrf
         return value
+
+    @validator("query_target", always=True)
+    def validate_query_target(cls, value, values):
+        """Validate query target value based on query_type."""
+
+        query_type = values["query_type"]
+
+        # Use relevant function based on query_type.
+        validator_map = {
+            "bgp_aspath": validate_aspath,
+            "bgp_community": validate_community,
+            "bgp_route": validate_ip,
+            "ping": validate_ip,
+            "traceroute": validate_ip,
+        }
+        validate_func = validator_map[query_type]
+
+        return validate_func(value, query_type)

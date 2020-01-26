@@ -26,7 +26,7 @@ async def query(query_data: Query, request: Request):
 
     # Use hashed query_data string as key for for k/v cache store so
     # each command output value is unique.
-    cache_key = hash(str(query_data))
+    cache_key = query_data.digest()
 
     # Define cache entry expiry time
     cache_timeout = params.features.cache.timeout
