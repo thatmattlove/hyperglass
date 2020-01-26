@@ -15,7 +15,7 @@ per-file-ignores=
     # Disable classmethod warning for validator decorators
     hyperglass/configuration/models/*.py:N805,E0213,R0903
     hyperglass/models/*.py:N805,E0213,R0903
-ignore=W503,C0330,R504
+ignore=W503,C0330,R504,D202
 select=B, BLK, C, D, E, F, I, II, N, P, PIE, S, R, W
 disable-noqa=False
 hang-closing=False
