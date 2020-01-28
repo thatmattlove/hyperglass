@@ -27,6 +27,38 @@ def cpu_count():
     return multiprocessing.cpu_count()
 
 
+async def check_path(path, mode="r"):
+    """Verify if a path exists and is accessible.
+
+    Arguments:
+        path {Path|str} -- Path object or string of path
+        mode {str} -- File mode, r or w
+
+    Raises:
+        RuntimeError: Raised if file does not exist or is not accessible
+
+    Returns:
+        {Path|None} -- Path object if checks pass, None if not.
+    """
+    from pathlib import Path
+    from aiofile import AIOFile
+
+    try:
+        if not isinstance(path, Path):
+            path = Path(path)
+
+        if not path.exists():
+            raise FileNotFoundError(f"{str(path)} does not exist.")
+
+        async with AIOFile(path, mode):
+            result = path
+
+    except Exception:
+        result = None
+
+    return result
+
+
 def check_python():
     """Verify Python Version.
 

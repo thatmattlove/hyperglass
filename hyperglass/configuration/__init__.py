@@ -3,7 +3,9 @@
 # Standard Library Imports
 import asyncio
 import copy
+import getpass
 import math
+import os
 from pathlib import Path
 
 # Third Party Imports
@@ -28,15 +30,87 @@ from hyperglass.constants import SUPPORTED_QUERY_TYPES
 from hyperglass.exceptions import ConfigError
 from hyperglass.exceptions import ConfigInvalid
 from hyperglass.exceptions import ConfigMissing
+from hyperglass.util import check_path
 from hyperglass.util import log
 
 # Project Directories
-working_dir = Path(__file__).resolve().parent
+WORKING_DIR = Path(__file__).resolve().parent
+CONFIG_PATHS = (
+    Path("/etc/hyperglass/"),
+    Path.home() / "hyperglass",
+    WORKING_DIR.parent.parent,
+    WORKING_DIR.parent,
+    WORKING_DIR,
+)
+CONFIG_FILES = (
+    ("hyperglass.yaml", False),
+    ("devices.yaml", True),
+    ("commands.yaml", False),
+)
 
-# Config Files
-config_file_main = working_dir / "hyperglass.yaml"
-config_file_devices = working_dir / "devices.yaml"
-config_file_commands = working_dir / "commands.yaml"
+
+async def _check_config_paths():
+    """Verify supported configuration directories exist and are readable."""
+    config_path = None
+    for path in CONFIG_PATHS:
+        checked = await check_path(path)
+        if checked is not None:
+            config_path = checked
+            break
+    if config_path is None:
+        raise ConfigError(
+            """
+No configuration directories were determined to both exist and be readable
+by hyperglass. hyperglass is running as user '{un}' (UID '{uid}'), and tried to access
+the following directories:
+{dir}""".format(
+                un=getpass.getuser(),
+                uid=os.getuid(),
+                dir="\n".join([" - " + str(p) for p in CONFIG_PATHS]),
+            )
+        )
+    log.info("Configuration directory: {d}", d=str(config_path))
+    return config_path
+
+
+async def _check_config_files(directory):
+    """Verify config files exist and are readable.
+
+    Arguments:
+        directory {Path} -- Config directory Path object
+
+    Raises:
+        ConfigMissing: Raised if a required config file does not pass checks.
+
+    Returns:
+        {tuple} -- main config, devices config, commands config
+    """
+    files = ()
+    for file in CONFIG_FILES:
+        file_name, required = file
+        file_path = directory / file_name
+
+        checked = await check_path(file_path)
+
+        if checked is None and required:
+            raise ConfigMissing(missing_item=str(file_path))
+
+        if checked is None and not required:
+            log.warning(
+                "'{f}' was not found, but is not required to run hyperglass. "
+                + "Defaults will be used.",
+                f=str(file_path),
+            )
+        files += (file_path,)
+
+    return files
+
+
+CONFIG_PATH = asyncio.run(_check_config_paths())
+
+CONFIG_MAIN, CONFIG_DEVICES, CONFIG_COMMANDS = asyncio.run(
+    _check_config_files(CONFIG_PATH)
+)
 
 
 def _set_log_level(debug, log_file=None):
@@ -75,13 +149,11 @@ async def _config_main():
     Returns:
         {dict} -- Main config file
     """
+    config = {}
     try:
-        async with AIOFile(config_file_main, "r") as cf:
+        async with AIOFile(CONFIG_MAIN, "r") as cf:
             raw = await cf.read()
             config = yaml.safe_load(raw)
-    except FileNotFoundError as nf:
-        config = None
-        log.warning(f"{str(nf)} - Default configuration will be used")
     except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
         raise ConfigError(error_msg=str(yaml_error)) from None
     return config
@@ -93,16 +165,16 @@ async def _config_commands():
     Returns:
         {dict} -- Commands config file
     """
-    try:
-        async with AIOFile(config_file_commands, "r") as cf:
-            raw = await cf.read()
-            config = yaml.safe_load(raw)
-            log.debug(f"Unvalidated commands: {config}")
-    except FileNotFoundError as nf:
-        config = None
-        log.warning(f"{str(nf)} - Default commands will be used.")
-    except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
-        raise ConfigError(error_msg=str(yaml_error)) from None
+    if CONFIG_COMMANDS is None:
+        config = {}
+    else:
+        try:
+            async with AIOFile(CONFIG_COMMANDS, "r") as cf:
+                raw = await cf.read()
+                config = yaml.safe_load(raw) or {}
+                log.debug(f"Unvalidated commands: {config}")
+        except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
+            raise ConfigError(error_msg=str(yaml_error)) from None
     return config
 
 
@@ -113,12 +185,10 @@ async def _config_devices():
         {dict} -- Devices config file
     """
     try:
-        async with AIOFile(config_file_devices, "r") as cf:
+        async with AIOFile(CONFIG_DEVICES, "r") as cf:
             raw = await cf.read()
             config = yaml.safe_load(raw)
             log.debug(f"Unvalidated device config: {config}")
-    except FileNotFoundError:
-        raise ConfigMissing(missing_item=str(config_file_devices)) from None
     except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
         raise ConfigError(error_msg=str(yaml_error)) from None
     return config
@@ -132,26 +202,17 @@ try:
 except KeyError:
     _debug = True
 
-# Read raw debug value from config to enable debugging quickly needed.
+# Read raw debug value from config to enable debugging quickly.
 _set_log_level(_debug)
 
-user_commands = asyncio.run(_config_commands())
-user_devices = asyncio.run(_config_devices())
+_user_commands = asyncio.run(_config_commands())
+_user_devices = asyncio.run(_config_devices())
 
 # Map imported user config files to expected schema:
 try:
-    if user_config:
-        params = _params.Params(**user_config)
-    elif not user_config:
-        params = _params.Params()
-
-    if user_commands:
-        commands = _commands.Commands.import_params(user_commands)
-    elif not user_commands:
-        commands = _commands.Commands()
-
-    devices = _routers.Routers._import(user_devices.get("routers", {}))
-
+    params = _params.Params(**user_config)
+    commands = _commands.Commands.import_params(_user_commands)
+    devices = _routers.Routers._import(_user_devices.get("routers", {}))
 except ValidationError as validation_errors:
     errors = validation_errors.errors()
     log.error(errors)
