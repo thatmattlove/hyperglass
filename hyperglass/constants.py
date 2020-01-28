@@ -168,6 +168,15 @@ SUPPORTED_QUERY_TYPES = (
     "traceroute",
 )
 
+FUNC_COLOR_MAP = {
+    "primary": "cyan",
+    "secondary": "blue",
+    "success": "green",
+    "warning": "yellow",
+    "error": "orange",
+    "danger": "red",
+}
+
 
 class Supported:
     """Define items supported by hyperglass.

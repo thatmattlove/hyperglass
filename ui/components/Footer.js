@@ -22,9 +22,9 @@ const Footer = () => {
     const [helpVisible, showHelp] = useState(false);
     const [termsVisible, showTerms] = useState(false);
     const [creditVisible, showCredit] = useState(false);
-    const extUrl = config.external_link.url.includes("{primary_asn}")
-        ? config.external_link.url.format({ primary_asn: config.primary_asn })
-        : config.external_link.url || "/";
+    const extUrl = config.web.external_link.url.includes("{primary_asn}")
+        ? config.web.external_link.url.format({ primary_asn: config.primary_asn })
+        : config.web.external_link.url || "/";
     const handleCollapse = i => {
         if (i === "help") {
             showTerms(false);
@@ -42,31 +42,31 @@ const Footer = () => {
     };
     return (
         <>
-            {config.help.enable && (
+            {config.web.help_menu.enable && (
                 <FooterContent
                     isOpen={helpVisible}
                     content={config.content.help_menu}
-                    title={config.help.title}
+                    title={config.web.help_menu.title}
                     bg={footerBg[colorMode]}
                     borderColor={contentBorder[colorMode]}
                     side="left"
                 />
             )}
-            {config.terms.enable && (
+            {config.web.terms.enable && (
                 <FooterContent
                     isOpen={termsVisible}
                     content={config.content.terms}
-                    title={config.terms.title}
+                    title={config.web.terms.title}
                     bg={footerBg[colorMode]}
                     borderColor={contentBorder[colorMode]}
                     side="left"
                 />
             )}
-            {config.credit.enable && (
+            {config.web.credit.enable && (
                 <FooterContent
                     isOpen={creditVisible}
                     content={config.content.credit}
-                    title={config.credit.title}
+                    title={config.web.credit.title}
                     bg={footerBg[colorMode]}
                     borderColor={contentBorder[colorMode]}
                     side="right"
@@ -84,14 +84,14 @@ const Footer = () => {
                 color={footerColor[colorMode]}
                 justifyContent="space-between"
             >
-                {config.terms.enable && (
+                {config.web.terms.enable && (
                     <FooterButton side="left" onClick={() => handleCollapse("terms")}>
-                        {config.terms.title}
+                        {config.web.terms.title}
                     </FooterButton>
                 )}
-                {config.help.enable && (
+                {config.web.help_menu.enable && (
                     <FooterButton side="left" onClick={() => handleCollapse("help")}>
-                        {config.help.title}
+                        {config.web.help_menu.title}
                     </FooterButton>
                 )}
                 <Flex
@@ -102,12 +102,12 @@ const Footer = () => {
                     marginRight="auto"
                     p={0}
                 />
-                {config.credit.enable && (
+                {config.web.credit.enable && (
                     <FooterButton side="right" onClick={() => handleCollapse("credit")}>
                         <FiCode />
                     </FooterButton>
                 )}
-                {config.external_link.enable && (
+                {config.web.external_link.enable && (
                     <FooterButton
                         as="a"
                         href={extUrl}
@@ -117,7 +117,7 @@ const Footer = () => {
                         rightIcon={GoLinkExternal}
                         size="xs"
                     >
-                        {config.external_link.title}
+                        {config.web.external_link.title}
                     </FooterButton>
                 )}
             </Flex>

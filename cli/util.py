@@ -164,7 +164,7 @@ def build_ui():
 
     status("Starting new UI build...")
 
-    if params.general.developer_mode:
+    if params.developer_mode:
         dev_mode = "production"
     else:
         dev_mode = "development"
@@ -172,8 +172,8 @@ def build_ui():
     try:
         success = asyncio.run(
             build_frontend(
-                dev_mode=params.general.developer_mode,
-                dev_url=f"http://localhost:{str(params.general.listen_port)}/api/",
+                dev_mode=params.developer_mode,
+                dev_url=f"http://localhost:{str(params.listen_port)}/api/",
                 prod_url="/api/",
                 params=frontend_params,
                 force=True,

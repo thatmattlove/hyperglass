@@ -8,6 +8,7 @@ from pydantic import constr
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.constants import SUPPORTED_QUERY_TYPES
 
 
 class BgpCommunity(HyperglassModel):
@@ -76,6 +77,42 @@ class Queries(HyperglassModel):
         message: StrictStr = (
             "Prefix length must be smaller than /{m}. <b>{i}</b> is too specific."
         )
+
+    @property
+    def map(self):
+        """Return a dict of all query display names, internal names, and enable state.
+
+        Returns:
+            {dict} -- Dict of queries.
+        """
+        _map = {}
+        for query in SUPPORTED_QUERY_TYPES:
+            query_obj = getattr(self, query)
+            _map[query] = {
+                "name": query,
+                "display_name": query_obj.display_name,
+                "enable": query_obj.enable,
+            }
+        return _map
+
+    @property
+    def list(self):
+        """Return a list of all query display names, internal names, and enable state.
+
+        Returns:
+            {list} -- Dict of queries.
+        """
+        _list = []
+        for query in SUPPORTED_QUERY_TYPES:
+            query_obj = getattr(self, query)
+            _list.append(
+                {
+                    "name": query,
+                    "display_name": query_obj.display_name,
+                    "enable": query_obj.enable,
+                }
+            )
+        return _list
 
     bgp_route: BgpRoute = BgpRoute()
     bgp_community: BgpCommunity = BgpCommunity()

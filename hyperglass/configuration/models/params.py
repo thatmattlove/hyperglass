@@ -32,7 +32,7 @@ class Params(HyperglassModel):
     debug: StrictBool = False
     developer_mode: StrictBool = False
     primary_asn: Union[StrictInt, StrictStr] = "65001"
-    org_name: StrictStr = "The Company"
+    org_name: StrictStr = "Beloved Hyperglass User"
     site_title: StrictStr = "hyperglass"
     site_description: StrictStr = "{org_name} Network Looking Glass"
     site_keywords: List[StrictStr] = [

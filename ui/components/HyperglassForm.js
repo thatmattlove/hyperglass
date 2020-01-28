@@ -133,7 +133,7 @@ const HyperglassForm = React.forwardRef(
                                 vrfContent && <HelpModal item={vrfContent} name="query_type" />
                             }
                         >
-                            <QueryType onChange={handleChange} queryTypes={config.queries} />
+                            <QueryType onChange={handleChange} queryTypes={config.queries.list} />
                         </FormField>
                     </FormRow>
                     <FormRow>

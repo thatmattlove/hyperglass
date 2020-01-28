@@ -332,19 +332,6 @@ def _build_vrfs():
     return vrfs
 
 
-def _build_queries():
-    """Build a dict of supported query types and their display names.
-
-    Returns:
-        {list} -- Supported query list
-    """
-    queries = []
-    for query in SUPPORTED_QUERY_TYPES:
-        query_params = getattr(params.queries, query)
-        queries.append({"name": query, "display_name": query_params.display_name})
-    return queries
-
-
 content_params = json.loads(
     params.json(include={"primary_asn", "org_name", "site_title", "site_description"})
 )
@@ -409,7 +396,6 @@ content_terms = asyncio.run(
 content_credit = CREDIT
 
 vrfs = _build_vrfs()
-queries = _build_queries()
 networks = _build_networks()
 frontend_networks = _build_frontend_networks()
 frontend_devices = _build_frontend_devices()
@@ -421,19 +407,12 @@ _frontend_fields = {
     "google_analytics": ...,
     "site_description": ...,
     "web": ...,
-    "queries": {
-        "bgp_route": {"enable", "display_name"},
-        "bgp_community": {"enable", "display_name"},
-        "bgp_aspath": {"enable", "display_name"},
-        "ping": {"enable", "display_name"},
-        "traceroute": {"enable", "display_name"},
-    },
     "messages": ...,
 }
 _frontend_params = params.dict(include=_frontend_fields)
 _frontend_params.update(
     {
-        "queries": queries,
+        "queries": {**params.queries.map, "list": params.queries.list},
         "devices": frontend_devices,
         "networks": networks,
         "vrfs": vrfs,
