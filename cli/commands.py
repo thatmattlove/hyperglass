@@ -84,9 +84,10 @@ def start(build):
     cls=HelpColorsCommand,
     help_options_custom_colors=random_colors(),
 )
-def migrateconfig():
+@click.option("-d", "--directory", required=True, help="Target directory")
+def migrateconfig(directory):
     """Copy example configuration files to usable config files."""
-    migrate_config(WORKING_DIR / "hyperglas/configuration/")
+    migrate_config(Path(directory))
 
 
 @hg.command(

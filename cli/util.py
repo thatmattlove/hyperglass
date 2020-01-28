@@ -1,4 +1,7 @@
 """CLI utility functions."""
+# Standard Library Imports
+from pathlib import Path
+
 # Third Party Imports
 import click
 
@@ -13,6 +16,8 @@ from cli.static import SUCCESS
 from cli.static import VALUE
 from cli.static import WS
 from cli.static import E
+
+PROJECT_ROOT = Path(__file__).parent.parent
 
 
 def async_command(func):
@@ -107,24 +112,33 @@ def migrate_config(config_dir):
     """Copy example config files and remove .example extensions."""
     status("Migrating example config files...")
 
-    import os
-    import glob
     import shutil
 
-    examples = glob.iglob(os.path.join(config_dir, "*.example"))
+    examples = Path(PROJECT_ROOT / "examples").glob("*.yaml.example")
 
+    if not isinstance(config_dir, Path):
+        config_dir = Path(config_dir)
+
+    if not config_dir.exists():
+        error(f"{str(config_dir)} does not exist")
+
+    migrated = 0
     for file in examples:
-        basefile, extension = os.path.splitext(file)
+        target_file = config_dir / file.with_suffix("").name
         try:
-            if os.path.exists(basefile):
-                info(f"{basefile} already exists")
+            if target_file.exists():
+                info(f"{str(target_file)} already exists")
             else:
-                shutil.copyfile(file, basefile)
-                success(f"Migrated {basefile}")
+                shutil.copyfile(file, target_file)
+                migrated += 1
+                info(f"Migrated {str(target_file)}")
         except Exception as e:
-            error(f"Failed to migrate {basefile}", e)
+            error(f"Failed to migrate {str(target_file)}", e)
 
-    success("Successfully migrated example config files")
+    if migrated == 0:
+        info(f"Migrated {migrated} example config files")
+    elif migrated > 0:
+        success(f"Successfully migrated {migrated} example config files")
 
 
 def migrate_systemd(source, destination):
