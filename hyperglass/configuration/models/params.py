@@ -51,7 +51,6 @@ class Params(HyperglassModel):
         "network",
         "isp",
     ]
-    google_analytics: StrictStr = ""
     requires_ipv6_cidr: List[StrictStr] = ["cisco_ios", "cisco_nxos"]
     request_timeout: StrictInt = 30
     listen_address: Optional[Union[IPvAnyAddress, StrictStr]]
