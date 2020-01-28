@@ -167,6 +167,7 @@ class Branding(HyperglassModel):
         terms: StrictStr = "Terms"
         info: StrictStr = "Help"
         peeringdb = "PeeringDB"
+        fqdn_tooltip: StrictStr = "Use {protocol}"
 
         class Error404(HyperglassModel):
             """Validation model for 404 Error Page."""
