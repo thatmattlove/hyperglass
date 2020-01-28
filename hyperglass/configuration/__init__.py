@@ -169,7 +169,7 @@ from params.
 """
 try:
     params.web.text.subtitle = params.web.text.subtitle.format(
-        **params.dict(exclude={"web", "features", "messages"})
+        **params.dict(exclude={"web", "queries", "messages"})
     )
     if params.cache.timeout >= 60:
         _cache_timeout = math.ceil(params.cache.timeout / 60)
@@ -340,7 +340,7 @@ def _build_queries():
     """
     queries = []
     for query in SUPPORTED_QUERY_TYPES:
-        query_params = getattr(params.features, query)
+        query_params = getattr(params.queries, query)
         queries.append({"name": query, "display_name": query_params.display_name})
     return queries
 
@@ -365,7 +365,7 @@ def _build_vrf_help():
             help_params = {**content_params, **cmd.params.dict()}
 
             if help_params["title"] is None:
-                command_params = getattr(params.features, command)
+                command_params = getattr(params.queries, command)
                 help_params[
                     "title"
                 ] = f"{vrf.display_name}: {command_params.display_name}"
@@ -421,7 +421,7 @@ _frontend_fields = {
     "google_analytics": ...,
     "site_description": ...,
     "web": ...,
-    "features": {
+    "queries": {
         "bgp_route": {"enable", "display_name"},
         "bgp_community": {"enable", "display_name"},
         "bgp_aspath": {"enable", "display_name"},

@@ -18,7 +18,7 @@ def validate_ip(value, query_type):
     Returns:
         Union[IPv4Address, IPv6Address] -- Validated IP address object
     """
-    query_type_params = getattr(params.features, query_type)
+    query_type_params = getattr(params.queries, query_type)
     try:
 
         # Attempt to use IP object factory to create an IP address object
@@ -60,22 +60,22 @@ def validate_community(value, query_type):
     """Validate input communities against configured or default regex pattern."""
 
     # RFC4360: Extended Communities (New Format)
-    if re.match(params.features.bgp_community.regex.extended_as, value):
+    if re.match(params.queries.bgp_community.regex.extended_as, value):
         pass
 
     # RFC4360: Extended Communities (32 Bit Format)
-    elif re.match(params.features.bgp_community.regex.decimal, value):
+    elif re.match(params.queries.bgp_community.regex.decimal, value):
         pass
 
     # RFC8092: Large Communities
-    elif re.match(params.features.bgp_community.regex.large, value):
+    elif re.match(params.queries.bgp_community.regex.large, value):
         pass
 
     else:
         raise InputInvalid(
             params.messages.invalid_input,
             target=value,
-            query_type=params.features.bgp_community.display_name,
+            query_type=params.queries.bgp_community.display_name,
         )
     return value
 
@@ -83,14 +83,14 @@ def validate_community(value, query_type):
 def validate_aspath(value, query_type):
     """Validate input AS_PATH against configured or default regext pattern."""
 
-    mode = params.features.bgp_aspath.regex.mode
-    pattern = getattr(params.features.bgp_aspath.regex, mode)
+    mode = params.queries.bgp_aspath.regex.mode
+    pattern = getattr(params.queries.bgp_aspath.regex, mode)
 
     if not re.match(pattern, value):
         raise InputInvalid(
             params.messages.invalid_input,
             target=value,
-            query_type=params.features.bgp_aspath.display_name,
+            query_type=params.queries.bgp_aspath.display_name,
         )
 
     return value

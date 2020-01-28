@@ -76,7 +76,7 @@ const Results = ({ queryLocation, queryType, queryVrf, queryTarget, setSubmittin
                                     transition={{ duration: 0.3, delay: 0.3 }}
                                     exit={{ opacity: 0, x: -100 }}
                                     label={config.web.text.query_type}
-                                    value={config.features[queryType].display_name}
+                                    value={config.queries[queryType].display_name}
                                     valueBg={theme.colors.cyan[500]}
                                     fontSize={["xs", "sm", "sm", "sm"]}
                                 />

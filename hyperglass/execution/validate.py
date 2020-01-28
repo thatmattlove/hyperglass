@@ -219,8 +219,8 @@ def ip_type_check(query_type, target, device):
 
     # If enable_max_prefix feature enabled, require that BGP Route
     # queries be smaller than configured size limit.
-    if query_type == "bgp_route" and params.features.max_prefix.enable:
-        max_length = getattr(params.features.max_prefix, prefix_attr["afi"])
+    if query_type == "bgp_route" and params.queries.max_prefix.enable:
+        max_length = getattr(params.queries.max_prefix, prefix_attr["afi"])
         if prefix_attr["length"] > max_length:
             log.debug("Failed max prefix length check")
             _exception = ValueError(params.messages.max_prefix)
@@ -245,7 +245,7 @@ def ip_type_check(query_type, target, device):
     if query_type in ("ping", "traceroute") and IPType().is_cidr(target):
         log.debug("Failed CIDR format for ping/traceroute check")
         _exception = ValueError(params.messages.directed_cidr)
-        query_type_params = getattr(params.features, query_type)
+        query_type_params = getattr(params.queries, query_type)
         _exception.details = {"query_type": query_type_params.display_name}
         raise _exception
     return target
