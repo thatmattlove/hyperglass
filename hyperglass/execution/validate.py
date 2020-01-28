@@ -232,7 +232,7 @@ def ip_type_check(query_type, target, device):
     if (
         query_type == "bgp_route"
         and prefix_attr["version"] == 6
-        and device.nos in params.general.requires_ipv6_cidr
+        and device.nos in params.requires_ipv6_cidr
         and IPType().is_host(target)
     ):
         log.debug("Failed requires IPv6 CIDR check")

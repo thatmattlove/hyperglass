@@ -13,7 +13,7 @@ from hyperglass.configuration.models._utils import HyperglassModel
 
 
 class OpenGraph(HyperglassModel):
-    """Validation model for params.general.opengraph."""
+    """Validation model for params.opengraph."""
 
     width: Optional[StrictInt]
     height: Optional[StrictInt]

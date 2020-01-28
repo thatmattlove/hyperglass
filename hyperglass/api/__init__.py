@@ -33,21 +33,21 @@ UI_DIR = STATIC_DIR / "ui"
 IMAGES_DIR = STATIC_DIR / "images"
 
 ASGI_PARAMS = {
-    "host": str(params.general.listen_address),
-    "port": params.general.listen_port,
-    "debug": params.general.debug,
+    "host": str(params.listen_address),
+    "port": params.listen_port,
+    "debug": params.debug,
 }
 
 # Main App Definition
 app = FastAPI(
-    debug=params.general.debug,
-    title=params.general.site_title,
-    description=params.general.site_description,
+    debug=params.debug,
+    title=params.site_title,
+    description=params.site_description,
     version=__version__,
     default_response_class=UJSONResponse,
     docs_url=None,
     redoc_url=None,
-    openapi_url=params.general.docs.openapi_url,
+    openapi_url=params.docs.openapi_url,
 )
 
 # Add Event Handlers
@@ -73,9 +73,9 @@ app.add_exception_handler(Exception, default_handler)
 def _custom_openapi():
     """Generate custom OpenAPI config."""
     openapi_schema = get_openapi(
-        title=params.general.site_title,
+        title=params.site_title,
         version=__version__,
-        description=params.general.site_description,
+        description=params.site_description,
         routes=app.routes,
     )
     app.openapi_schema = openapi_schema
@@ -84,11 +84,11 @@ def _custom_openapi():
 
 app.openapi = _custom_openapi
 
-if params.general.docs.enable:
+if params.docs.enable:
     log.debug(f"API Docs config: {app.openapi()}")
 
-CORS_ORIGINS = params.general.cors_origins.copy()
-if params.general.developer_mode:
+CORS_ORIGINS = params.cors_origins.copy()
+if params.developer_mode:
     CORS_ORIGINS.append(URL_DEV)
 
 # CORS Configuration
@@ -103,10 +103,10 @@ app.add_api_route(
     path="/api/query/",
     endpoint=query,
     methods=["POST"],
-    summary=params.general.docs.endpoint_summary,
-    description=params.general.docs.endpoint_description,
+    summary=params.docs.endpoint_summary,
+    description=params.docs.endpoint_description,
     response_model=QueryResponse,
-    tags=[params.general.docs.group_title],
+    tags=[params.docs.group_title],
     response_class=UJSONResponse,
 )
 app.add_api_route(path="api/docs", endpoint=docs, include_in_schema=False)

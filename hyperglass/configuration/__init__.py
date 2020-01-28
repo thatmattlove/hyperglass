@@ -145,7 +145,7 @@ try:
         params = _params.Params()
     try:
         params.branding.text.subtitle = params.branding.text.subtitle.format(
-            **params.general.dict()
+            **params.dict(exclude={"branding", "features", "messages"})
         )
     except KeyError:
         pass
@@ -167,7 +167,7 @@ except ValidationError as validation_errors:
         )
 
 # Re-evaluate debug state after config is validated
-_set_log_level(params.general.debug, params.general.log_file)
+_set_log_level(params.debug, params.log_file)
 
 
 def _build_frontend_networks():
@@ -328,9 +328,7 @@ def _build_queries():
 
 
 content_params = json.loads(
-    params.general.json(
-        include={"primary_asn", "org_name", "site_title", "site_description"}
-    )
+    params.json(include={"primary_asn", "org_name", "site_title", "site_description"})
 )
 
 
@@ -436,11 +434,11 @@ _frontend_params.update(
 )
 frontend_params = _frontend_params
 
-URL_DEV = f"http://localhost:{str(params.general.listen_port)}/api/"
+URL_DEV = f"http://localhost:{str(params.listen_port)}/api/"
 URL_PROD = "/api/"
 
 REDIS_CONFIG = {
-    "host": str(params.general.redis_host),
-    "port": params.general.redis_port,
+    "host": str(params.redis_host),
+    "port": params.redis_port,
     "decode_responses": True,
 }

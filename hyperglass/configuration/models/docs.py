@@ -10,7 +10,7 @@ from hyperglass.configuration.models._utils import HyperglassModel
 
 
 class Docs(HyperglassModel):
-    """Validation model for params.general.docs."""
+    """Validation model for params.docs."""
 
     enable: StrictBool = True
     mode: constr(regex=r"(swagger|redoc)") = "swagger"

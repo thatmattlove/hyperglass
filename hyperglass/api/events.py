@@ -58,7 +58,7 @@ async def build_ui():
     """
     try:
         await build_frontend(
-            dev_mode=params.general.developer_mode,
+            dev_mode=params.developer_mode,
             dev_url=URL_DEV,
             prod_url=URL_PROD,
             params=frontend_params,

@@ -64,12 +64,11 @@ async def query(query_data: Query, request: Request):
 
 async def docs():
     """Serve custom docs."""
-    if params.general.docs.enable:
+    if params.docs.enable:
         docs_func_map = {"swagger": get_swagger_ui_html, "redoc": get_redoc_html}
-        docs_func = docs_func_map[params.general.docs.mode]
+        docs_func = docs_func_map[params.docs.mode]
         return docs_func(
-            openapi_url=params.general.docs.openapi_url,
-            title=params.general.site_title + " - API Docs",
+            openapi_url=params.docs.openapi_url, title=params.site_title + " - API Docs"
         )
     else:
         raise HTTPException(detail="Not found", status_code=404)

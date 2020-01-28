@@ -104,7 +104,7 @@ class Connect:
             )
 
         signal.signal(signal.SIGALRM, handle_timeout)
-        signal.alarm(params.general.request_timeout - 1)
+        signal.alarm(params.request_timeout - 1)
 
         with tunnel:
             log.debug(
@@ -119,7 +119,7 @@ class Connect:
                 "username": self.device.credential.username,
                 "password": self.device.credential.password.get_secret_value(),
                 "global_delay_factor": 0.2,
-                "timeout": params.general.request_timeout - 1,
+                "timeout": params.request_timeout - 1,
             }
 
             try:
@@ -194,7 +194,7 @@ class Connect:
             "username": self.device.credential.username,
             "password": self.device.credential.password.get_secret_value(),
             "global_delay_factor": 0.2,
-            "timeout": params.general.request_timeout,
+            "timeout": params.request_timeout,
         }
 
         try:
@@ -210,7 +210,7 @@ class Connect:
                 )
 
             signal.signal(signal.SIGALRM, handle_timeout)
-            signal.alarm(params.general.request_timeout - 1)
+            signal.alarm(params.request_timeout - 1)
 
             responses = []
 
@@ -259,7 +259,7 @@ class Connect:
 
         client_params = {
             "headers": {"Content-Type": "application/json"},
-            "timeout": params.general.request_timeout,
+            "timeout": params.request_timeout,
         }
         if self.device.ssl is not None and self.device.ssl.enable:
             http_protocol = "https"
@@ -286,7 +286,7 @@ class Connect:
                     encoded_query = await jwt_encode(
                         payload=query,
                         secret=self.device.credential.password.get_secret_value(),
-                        duration=params.general.request_timeout,
+                        duration=params.request_timeout,
                     )
                     log.debug(f"Encoded JWT: {encoded_query}")
 
