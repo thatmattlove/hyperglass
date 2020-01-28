@@ -31,7 +31,7 @@ class Params(HyperglassModel):
     # Top Level Params
     debug: StrictBool = False
     developer_mode: StrictBool = False
-    primary_asn: StrictStr = "65001"
+    primary_asn: Union[StrictInt, StrictStr] = "65001"
     org_name: StrictStr = "The Company"
     site_title: StrictStr = "hyperglass"
     site_description: StrictStr = "{org_name} Network Looking Glass"
@@ -120,4 +120,18 @@ class Params(HyperglassModel):
             value = Path(
                 f'/tmp/hyperglass_{now.strftime(r"%Y%M%d-%H%M%S")}.log'  # noqa: S108
             )
+        return value
+
+    @validator("primary_asn")
+    def validate_primary_asn(cls, value):
+        """Stringify primary_asn if passed as an integer.
+
+        Arguments:
+            value {str|int} -- Unvalidated Primary ASN
+
+        Returns:
+            {str} -- Stringified Primary ASN.
+        """
+        if not isinstance(value, str):
+            value = str(value)
         return value
