@@ -17,6 +17,7 @@ from pydantic.color import Color
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.configuration.models.opengraph import OpenGraph
 
 
 class Web(HyperglassModel):
@@ -168,6 +169,7 @@ class Web(HyperglassModel):
         info: StrictStr = "Help"
         peeringdb = "PeeringDB"
         fqdn_tooltip: StrictStr = "Use {protocol}"
+        cache: StrictStr = "Results will be cached for {timeout} {period}."
 
         class Error404(HyperglassModel):
             """Validation model for 404 Error Page."""
@@ -188,9 +190,10 @@ class Web(HyperglassModel):
 
     colors: Colors = Colors()
     credit: Credit = Credit()
+    external_link: ExternalLink = ExternalLink()
     font: Font = Font()
     help_menu: HelpMenu = HelpMenu()
     logo: Logo = Logo()
-    external_link: ExternalLink = ExternalLink()
+    opengraph: OpenGraph = OpenGraph()
     terms: Terms = Terms()
     text: Text = Text()
