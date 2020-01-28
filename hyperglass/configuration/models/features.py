@@ -1,8 +1,5 @@
 """Validate feature configuration variables."""
 
-# Standard Library Imports
-from math import ceil
-
 # Third Party Imports
 from pydantic import StrictBool
 from pydantic import StrictInt
@@ -66,16 +63,6 @@ class Features(HyperglassModel):
         enable: StrictBool = True
         display_name: StrictStr = "Traceroute"
 
-    class Cache(HyperglassModel):
-        """Validation model for params.features.cache."""
-
-        redis_id: StrictInt = 0
-        timeout: StrictInt = 120
-        show_text: StrictBool = True
-        text: StrictStr = "Results will be cached for {timeout} minutes.".format(
-            timeout=ceil(timeout / 60)
-        )
-
     class MaxPrefix(HyperglassModel):
         """Validation model for params.features.max_prefix."""
 
@@ -91,5 +78,4 @@ class Features(HyperglassModel):
     bgp_aspath: BgpAsPath = BgpAsPath()
     ping: Ping = Ping()
     traceroute: Traceroute = Traceroute()
-    cache: Cache = Cache()
     max_prefix: MaxPrefix = MaxPrefix()

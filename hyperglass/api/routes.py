@@ -18,7 +18,7 @@ from hyperglass.execution.execute import Execute
 from hyperglass.models.query import Query
 from hyperglass.util import log
 
-Cache = aredis.StrictRedis(db=params.features.cache.redis_id, **REDIS_CONFIG)
+Cache = aredis.StrictRedis(db=params.cache.database, **REDIS_CONFIG)
 
 
 async def query(query_data: Query, request: Request):
@@ -29,7 +29,7 @@ async def query(query_data: Query, request: Request):
     cache_key = query_data.digest()
 
     # Define cache entry expiry time
-    cache_timeout = params.features.cache.timeout
+    cache_timeout = params.cache.timeout
     log.debug(f"Cache Timeout: {cache_timeout}")
 
     # Check if cached entry exists

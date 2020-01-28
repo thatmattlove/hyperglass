@@ -18,10 +18,10 @@ from pydantic import validator
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.configuration.models.cache import Cache
 from hyperglass.configuration.models.docs import Docs
 from hyperglass.configuration.models.features import Features
 from hyperglass.configuration.models.messages import Messages
-from hyperglass.configuration.models.opengraph import OpenGraph
 from hyperglass.configuration.models.web import Web
 
 
@@ -52,8 +52,6 @@ class Params(HyperglassModel):
         "isp",
     ]
     google_analytics: StrictStr = ""
-    redis_host: StrictStr = "localhost"
-    redis_port: StrictInt = 6379
     requires_ipv6_cidr: List[StrictStr] = ["cisco_ios", "cisco_nxos"]
     request_timeout: StrictInt = 30
     listen_address: Optional[Union[IPvAnyAddress, StrictStr]]
@@ -62,10 +60,10 @@ class Params(HyperglassModel):
     cors_origins: List[StrictStr] = []
 
     # Sub Level Params
+    cache: Cache = Cache()
     docs: Docs = Docs()
     features: Features = Features()
     messages: Messages = Messages()
-    opengraph: OpenGraph = OpenGraph()
     web: Web = Web()
 
     @validator("listen_address", pre=True, always=True)

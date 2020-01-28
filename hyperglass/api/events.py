@@ -39,7 +39,7 @@ async def check_redis_instance():
         {bool} -- True if Redis is running.
     """
     try:
-        await check_redis(db=params.features.cache.redis_id, config=REDIS_CONFIG)
+        await check_redis(db=params.cache.database, config=REDIS_CONFIG)
     except RuntimeError as e:
         raise HyperglassError(str(e), level="danger") from None
 
@@ -71,7 +71,7 @@ async def build_ui():
 async def clear_cache():
     """Clear the Redis cache on shutdown."""
     try:
-        await clear_redis_cache(db=params.features.cache.redis_id, config=REDIS_CONFIG)
+        await clear_redis_cache(db=params.cache.database, config=REDIS_CONFIG)
     except RuntimeError as e:
         log.error(str(e))
         pass

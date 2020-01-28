@@ -3,6 +3,7 @@
 # Standard Library Imports
 import asyncio
 import copy
+import math
 from pathlib import Path
 
 # Third Party Imports
@@ -143,12 +144,6 @@ try:
         params = _params.Params(**user_config)
     elif not user_config:
         params = _params.Params()
-    try:
-        params.web.text.subtitle = params.web.text.subtitle.format(
-            **params.dict(exclude={"branding", "features", "messages"})
-        )
-    except KeyError:
-        pass
 
     if user_commands:
         commands = _commands.Commands.import_params(user_commands)
@@ -165,6 +160,29 @@ except ValidationError as validation_errors:
             field=": ".join([str(item) for item in error["loc"]]),
             error_msg=error["msg"],
         )
+
+"""
+Perform post-config initialization string formatting or other
+functions that require access to other config levels. E.g.,
+something in 'params.web.text' needs to be formatted with a value
+from params.
+"""
+try:
+    params.web.text.subtitle = params.web.text.subtitle.format(
+        **params.dict(exclude={"web", "features", "messages"})
+    )
+    if params.cache.timeout >= 60:
+        _cache_timeout = math.ceil(params.cache.timeout / 60)
+        _cache_period = "minutes"
+    elif params.cache.timeout < 60:
+        _cache_timeout = params.cache.timeout
+        _cache_period = "seconds"
+    params.web.text.cache = params.web.text.cache.format(
+        timeout=_cache_timeout, period=_cache_period
+    )
+except KeyError:
+    pass
+
 
 # Re-evaluate debug state after config is validated
 _set_log_level(params.debug, params.log_file)
@@ -396,16 +414,13 @@ networks = _build_networks()
 frontend_networks = _build_frontend_networks()
 frontend_devices = _build_frontend_devices()
 _frontend_fields = {
-    "general": {
-        "debug",
-        "primary_asn",
-        "request_timeout",
-        "org_name",
-        "google_analytics",
-        "opengraph",
-        "site_description",
-    },
-    "branding": ...,
+    "debug": ...,
+    "primary_asn": ...,
+    "request_timeout": ...,
+    "org_name": ...,
+    "google_analytics": ...,
+    "site_description": ...,
+    "web": ...,
     "features": {
         "bgp_route": {"enable", "display_name"},
         "bgp_community": {"enable", "display_name"},
@@ -436,7 +451,7 @@ URL_DEV = f"http://localhost:{str(params.listen_port)}/api/"
 URL_PROD = "/api/"
 
 REDIS_CONFIG = {
-    "host": str(params.redis_host),
-    "port": params.redis_port,
+    "host": str(params.cache.host),
+    "port": params.cache.port,
     "decode_responses": True,
 }
