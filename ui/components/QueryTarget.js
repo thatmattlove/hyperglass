@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
-import { Input, useColorMode, useTheme } from "@chakra-ui/core";
+import { Input, useColorMode } from "@chakra-ui/core";
 
 const StyledInput = styled(Input)`
     &::placeholder {
@@ -8,26 +8,63 @@ const StyledInput = styled(Input)`
     }
 `;
 
-export default ({ placeholder, register }) => {
-    const theme = useTheme();
+const fqdnPattern = /(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)/gim;
+
+const bg = { dark: "whiteAlpha.100", light: "white" };
+const color = { dark: "whiteAlpha.800", light: "gray.400" };
+const border = { dark: "whiteAlpha.50", light: "gray.100" };
+const placeholderColor = { dark: "whiteAlpha.400", light: "gray.400" };
+
+const QueryTarget = ({
+    placeholder,
+    register,
+    setFqdn,
+    name,
+    value,
+    setValue,
+    resolveTarget,
+    displayValue,
+    setDisplayValue
+}) => {
     const { colorMode } = useColorMode();
-    const bg = colorMode === "dark" ? theme.colors.whiteAlpha[100] : theme.colors.white;
-    const color = colorMode === "dark" ? theme.colors.whiteAlpha[800] : theme.colors.gray[400];
-    const border = colorMode === "dark" ? theme.colors.whiteAlpha[50] : theme.colors.gray[100];
-    const borderRadius = theme.space[1];
-    const placeholderColor =
-        colorMode === "dark" ? theme.colors.whiteAlpha[400] : theme.colors.gray[400];
+
+    const handleBlur = () => {
+        if (resolveTarget && displayValue && fqdnPattern.test(displayValue)) {
+            setFqdn(displayValue);
+        } else if (resolveTarget && !displayValue) {
+            setFqdn(false);
+        }
+    };
+    const handleChange = e => {
+        setDisplayValue(e.target.value);
+        setValue({ field: name, value: e.target.value });
+    };
+    const handleKeyDown = e => {
+        if ([9, 13].includes(e.keyCode)) {
+            handleBlur();
+        }
+    };
     return (
-        <StyledInput
-            name="query_target"
-            ref={register}
-            placeholder={placeholder}
-            placeholderColor={placeholderColor}
-            size="lg"
-            bg={bg}
-            color={color}
-            borderColor={border}
-            borderRadius={borderRadius}
-        />
+        <>
+            <input hidden readOnly name={name} ref={register} value={value} />
+            <StyledInput
+                size="lg"
+                name="query_target_display"
+                bg={bg[colorMode]}
+                onBlur={handleBlur}
+                onFocus={handleBlur}
+                onKeyDown={handleKeyDown}
+                value={displayValue}
+                borderRadius="0.25rem"
+                onChange={handleChange}
+                color={color[colorMode]}
+                placeholder={placeholder}
+                borderColor={border[colorMode]}
+                placeholderColor={placeholderColor[colorMode]}
+            />
+        </>
     );
 };
+
+QueryTarget.displayName = "QueryTarget";
+export default QueryTarget;

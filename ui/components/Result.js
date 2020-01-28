@@ -4,7 +4,6 @@ import {
     AccordionHeader,
     AccordionPanel,
     Alert,
-    AlertDescription,
     Box,
     ButtonGroup,
     css,
@@ -30,7 +29,7 @@ const FormattedError = ({ keywords, message }) => {
             {match}
         </Text>
     ));
-    return <Text>{errorFmt}</Text>;
+    return <Text>{keywords.length !== 0 ? errorFmt : message}</Text>;
 };
 
 const AccordionHeaderWrapper = styled(Flex)`
@@ -79,11 +78,15 @@ const Result = React.forwardRef(
             errorMsg = error.response.data.output;
         } else if (error && error.message.startsWith("timeout")) {
             errorMsg = config.messages.request_timeout;
+        } else if (error?.response?.statusText) {
+            errorMsg = startCase(error.response.statusText);
         } else if (error && error.message) {
             errorMsg = startCase(error.message);
         } else {
             errorMsg = config.messages.general;
         }
+
+        error && console.dir(error);
 
         const errorLevel =
             (error?.response?.data?.level && statusMap[error.response?.data?.level]) ?? "error";

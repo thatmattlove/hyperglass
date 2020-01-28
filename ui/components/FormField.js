@@ -1,8 +1,19 @@
 import React from "react";
 import { Flex, FormControl, FormLabel, FormErrorMessage, useColorMode } from "@chakra-ui/core";
-import HelpModal from "~/components/HelpModal";
 
-export default ({ label, name, error, hiddenLabels, helpIcon, children, ...props }) => {
+export default ({
+    label,
+    name,
+    error,
+    hiddenLabels,
+    helpIcon,
+    targetInfo,
+    setTarget,
+    labelAddOn,
+    fieldAddOn,
+    children,
+    ...props
+}) => {
     const { colorMode } = useColorMode();
     const labelColor = { dark: "whiteAlpha.600", light: "blackAlpha.600" };
     return (
@@ -22,11 +33,20 @@ export default ({ label, name, error, hiddenLabels, helpIcon, children, ...props
                 color={labelColor[colorMode]}
                 pl={1}
                 opacity={hiddenLabels ? 0 : null}
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                pr={0}
             >
                 {label}
-                {helpIcon?.enable && <HelpModal item={helpIcon} name={name} />}
+                {labelAddOn || null}
             </FormLabel>
             {children}
+            {fieldAddOn && (
+                <Flex justifyContent="flex-end" pt={3}>
+                    {fieldAddOn}
+                </Flex>
+            )}
             <FormErrorMessage opacity={hiddenLabels ? 0 : null}>
                 {error && error.message}
             </FormErrorMessage>

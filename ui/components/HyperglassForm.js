@@ -5,10 +5,12 @@ import lodash from "lodash";
 import * as yup from "yup";
 import format from "string-format";
 import FormField from "~/components/FormField";
+import HelpModal from "~/components/HelpModal";
 import QueryLocation from "~/components/QueryLocation";
 import QueryType from "~/components/QueryType";
 import QueryTarget from "~/components/QueryTarget";
 import QueryVrf from "~/components/QueryVrf";
+import ResolvedTarget from "~/components/ResolvedTarget";
 import SubmitButton from "~/components/SubmitButton";
 import useConfig from "~/components/HyperglassProvider";
 
@@ -49,11 +51,16 @@ const HyperglassForm = React.forwardRef(
         const { handleSubmit, register, setValue, errors } = useForm({
             validationSchema: formSchema(config)
         });
+
         const [queryLocation, setQueryLocation] = useState([]);
         const [queryType, setQueryType] = useState("");
         const [queryVrf, setQueryVrf] = useState("");
+        const [queryTarget, setQueryTarget] = useState("");
         const [availVrfs, setAvailVrfs] = useState([]);
+        const [fqdnTarget, setFqdnTarget] = useState("");
+        const [displayTarget, setDisplayTarget] = useState("");
         const onSubmit = values => {
+            console.log(values);
             setFormData(values);
             setSubmitting(true);
         };
@@ -81,17 +88,28 @@ const HyperglassForm = React.forwardRef(
                 ? setQueryType(e.value)
                 : e.field === "query_vrf"
                 ? setQueryVrf(e.value)
+                : e.field === "query_target"
+                ? setQueryTarget(e.value)
                 : null;
         };
 
+        const vrfContent = config.content.vrf[queryVrf]?.[queryType];
+        const validFqdnQueryType =
+            ["ping", "traceroute", "bgp_route"].includes(queryType) &&
+            fqdnTarget &&
+            queryVrf === "default"
+                ? fqdnTarget
+                : null;
+
         useEffect(() => {
             register({ name: "query_location" });
+            register({ name: "query_target" });
             register({ name: "query_type" });
             register({ name: "query_vrf" });
         });
         return (
             <Box
-                maxW={["100%", "100%", "75%", "50%"]}
+                maxW={["100%", "100%", "75%", "75%"]}
                 w="100%"
                 p={0}
                 mx="auto"
@@ -113,7 +131,9 @@ const HyperglassForm = React.forwardRef(
                             label={config.branding.text.query_type}
                             name="query_type"
                             error={errors.query_type}
-                            helpIcon={config.content.vrf[queryVrf]?.[queryType] ?? null}
+                            labelAddOn={
+                                vrfContent && <HelpModal item={vrfContent} name="query_type" />
+                            }
                         >
                             <QueryType onChange={handleChange} queryTypes={config.queries} />
                         </FormField>
@@ -136,10 +156,28 @@ const HyperglassForm = React.forwardRef(
                             label={config.branding.text.query_target}
                             name="query_target"
                             error={errors.query_target}
+                            fieldAddOn={
+                                validFqdnQueryType && (
+                                    <ResolvedTarget
+                                        formQueryTarget={queryTarget}
+                                        target={validFqdnQueryType}
+                                        setTarget={handleChange}
+                                    />
+                                )
+                            }
                         >
                             <QueryTarget
+                                name="query_target"
                                 placeholder={config.branding.text.query_target}
                                 register={register}
+                                resolveTarget={["ping", "traceroute", "bgp_route"].includes(
+                                    queryType
+                                )}
+                                value={queryTarget}
+                                setFqdn={setFqdnTarget}
+                                setValue={handleChange}
+                                displayValue={displayTarget}
+                                setDisplayValue={setDisplayTarget}
                             />
                         </FormField>
                     </FormRow>
