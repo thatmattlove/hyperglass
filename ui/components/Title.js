@@ -71,9 +71,9 @@ const btnJustify = {
     false: ["flex-start", "center"]
 };
 export default React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
-    const { branding } = useConfig();
+    const { web } = useConfig();
     const { mediaSize } = useMedia();
-    const titleMode = branding.text.title_mode;
+    const titleMode = web.text.title_mode;
     const MatchedMode = modeMap[titleMode];
     return (
         <Button
@@ -90,8 +90,8 @@ export default React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
             <MatchedMode
                 mediaSize={mediaSize}
                 showSubtitle={!isSubmitting}
-                text={branding.text}
-                logo={branding.logo}
+                text={web.text}
+                logo={web.logo}
             />
         </Button>
     );

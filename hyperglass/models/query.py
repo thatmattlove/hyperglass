@@ -48,7 +48,7 @@ class Query(BaseModel):
                 params.messages.invalid_field,
                 level="warning",
                 input=value,
-                field=params.branding.text.query_location,
+                field=params.web.text.query_location,
             )
         return value
 

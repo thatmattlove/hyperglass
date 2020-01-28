@@ -144,7 +144,7 @@ try:
     elif not user_config:
         params = _params.Params()
     try:
-        params.branding.text.subtitle = params.branding.text.subtitle.format(
+        params.web.text.subtitle = params.web.text.subtitle.format(
             **params.dict(exclude={"branding", "features", "messages"})
         )
     except KeyError:
@@ -372,22 +372,20 @@ def _build_vrf_help():
 content_vrf = _build_vrf_help()
 
 content_help_params = copy.copy(content_params)
-content_help_params["title"] = params.branding.help_menu.title
+content_help_params["title"] = params.web.help_menu.title
 content_help = asyncio.run(
     get_markdown(
-        config_path=params.branding.help_menu,
+        config_path=params.web.help_menu,
         default=DEFAULT_HELP,
         params=content_help_params,
     )
 )
 
 content_terms_params = copy.copy(content_params)
-content_terms_params["title"] = params.branding.terms.title
+content_terms_params["title"] = params.web.terms.title
 content_terms = asyncio.run(
     get_markdown(
-        config_path=params.branding.terms,
-        default=DEFAULT_TERMS,
-        params=content_terms_params,
+        config_path=params.web.terms, default=DEFAULT_TERMS, params=content_terms_params
     )
 )
 content_credit = CREDIT

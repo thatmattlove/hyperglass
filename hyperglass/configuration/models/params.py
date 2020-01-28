@@ -18,16 +18,17 @@ from pydantic import validator
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
-from hyperglass.configuration.models.branding import Branding
 from hyperglass.configuration.models.docs import Docs
 from hyperglass.configuration.models.features import Features
 from hyperglass.configuration.models.messages import Messages
 from hyperglass.configuration.models.opengraph import OpenGraph
+from hyperglass.configuration.models.web import Web
 
 
 class Params(HyperglassModel):
     """Validation model for all configuration variables."""
 
+    # Top Level Params
     debug: StrictBool = False
     developer_mode: StrictBool = False
     primary_asn: StrictStr = "65001"
@@ -50,8 +51,6 @@ class Params(HyperglassModel):
         "network",
         "isp",
     ]
-    opengraph: OpenGraph = OpenGraph()
-    docs: Docs = Docs()
     google_analytics: StrictStr = ""
     redis_host: StrictStr = "localhost"
     redis_port: StrictInt = 6379
@@ -61,6 +60,13 @@ class Params(HyperglassModel):
     listen_port: StrictInt = 8001
     log_file: Optional[FilePath]
     cors_origins: List[StrictStr] = []
+
+    # Sub Level Params
+    docs: Docs = Docs()
+    features: Features = Features()
+    messages: Messages = Messages()
+    opengraph: OpenGraph = OpenGraph()
+    web: Web = Web()
 
     @validator("listen_address", pre=True, always=True)
     def validate_listen_address(cls, value, values):
@@ -118,7 +124,3 @@ class Params(HyperglassModel):
                 f'/tmp/hyperglass_{now.strftime(r"%Y%M%d-%H%M%S")}.log'  # noqa: S108
             )
         return value
-
-    features: Features = Features()
-    branding: Branding = Branding()
-    messages: Messages = Messages()

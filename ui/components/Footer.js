@@ -3,13 +3,15 @@ import { Flex, useColorMode, useTheme } from "@chakra-ui/core";
 import { FiCode } from "react-icons/fi";
 import { GoLinkExternal } from "react-icons/go";
 import format from "string-format";
+import useConfig from "~/components/HyperglassProvider";
 import FooterButton from "~/components/FooterButton";
 import FooterContent from "~/components/FooterContent";
 
 format.extend(String.prototype, {});
 
-export default ({ general, help, extLink, credit, terms, content }) => {
+const Footer = () => {
     const theme = useTheme();
+    const config = useConfig();
     const { colorMode } = useColorMode();
     const footerBg = { light: theme.colors.blackAlpha[50], dark: theme.colors.whiteAlpha[100] };
     const footerColor = { light: theme.colors.black, dark: theme.colors.white };
@@ -20,9 +22,9 @@ export default ({ general, help, extLink, credit, terms, content }) => {
     const [helpVisible, showHelp] = useState(false);
     const [termsVisible, showTerms] = useState(false);
     const [creditVisible, showCredit] = useState(false);
-    const extUrl = extLink.url.includes("{primary_asn}")
-        ? extLink.url.format({ primary_asn: general.primary_asn })
-        : extLink.url || "/";
+    const extUrl = config.external_link.url.includes("{primary_asn}")
+        ? config.external_link.url.format({ primary_asn: config.primary_asn })
+        : config.external_link.url || "/";
     const handleCollapse = i => {
         if (i === "help") {
             showTerms(false);
@@ -40,31 +42,31 @@ export default ({ general, help, extLink, credit, terms, content }) => {
     };
     return (
         <>
-            {help.enable && (
+            {config.help.enable && (
                 <FooterContent
                     isOpen={helpVisible}
-                    content={content.help_menu}
-                    title={help.title}
+                    content={config.content.help_menu}
+                    title={config.help.title}
                     bg={footerBg[colorMode]}
                     borderColor={contentBorder[colorMode]}
                     side="left"
                 />
             )}
-            {terms.enable && (
+            {config.terms.enable && (
                 <FooterContent
                     isOpen={termsVisible}
-                    content={content.terms}
-                    title={terms.title}
+                    content={config.content.terms}
+                    title={config.terms.title}
                     bg={footerBg[colorMode]}
                     borderColor={contentBorder[colorMode]}
                     side="left"
                 />
             )}
-            {credit.enable && (
+            {config.credit.enable && (
                 <FooterContent
                     isOpen={creditVisible}
-                    content={content.credit}
-                    title={credit.title}
+                    content={config.content.credit}
+                    title={config.credit.title}
                     bg={footerBg[colorMode]}
                     borderColor={contentBorder[colorMode]}
                     side="right"
@@ -82,14 +84,14 @@ export default ({ general, help, extLink, credit, terms, content }) => {
                 color={footerColor[colorMode]}
                 justifyContent="space-between"
             >
-                {terms.enable && (
+                {config.terms.enable && (
                     <FooterButton side="left" onClick={() => handleCollapse("terms")}>
-                        {terms.title}
+                        {config.terms.title}
                     </FooterButton>
                 )}
-                {help.enable && (
+                {config.help.enable && (
                     <FooterButton side="left" onClick={() => handleCollapse("help")}>
-                        {help.title}
+                        {config.help.title}
                     </FooterButton>
                 )}
                 <Flex
@@ -100,12 +102,12 @@ export default ({ general, help, extLink, credit, terms, content }) => {
                     marginRight="auto"
                     p={0}
                 />
-                {credit.enable && (
+                {config.credit.enable && (
                     <FooterButton side="right" onClick={() => handleCollapse("credit")}>
                         <FiCode />
                     </FooterButton>
                 )}
-                {extLink.enable && (
+                {config.external_link.enable && (
                     <FooterButton
                         as="a"
                         href={extUrl}
@@ -115,10 +117,13 @@ export default ({ general, help, extLink, credit, terms, content }) => {
                         rightIcon={GoLinkExternal}
                         size="xs"
                     >
-                        {extLink.title}
+                        {config.external_link.title}
                     </FooterButton>
                 )}
             </Flex>
         </>
     );
 };
+
+Footer.displayName = "Footer";
+export default Footer;

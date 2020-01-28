@@ -8,10 +8,10 @@ export default () => {
     const config = useConfig();
     const theme = useTheme();
     const [location, setLocation] = useState({});
-    const title = config?.general.org_name || "hyperglass";
-    const description = config?.general.site_description || "The modern looking glass.";
+    const title = config?.org_name || "hyperglass";
+    const description = config?.site_description || "The modern looking glass.";
     const siteName = `${title} - ${description}`;
-    const keywords = config?.general.site_keywords || [
+    const keywords = config?.site_keywords || [
         "hyperglass",
         "looking glass",
         "lg",
@@ -27,15 +27,13 @@ export default () => {
         "network",
         "isp"
     ];
-    const author = config?.general.org_name || "Matt Love, matt@hyperglass.io";
-    const language = config?.general.language || "en";
+    const author = config?.org_name || "Matt Love, matt@hyperglass.io";
+    const language = config?.language || "en";
     const currentYear = new Date().getFullYear();
-    const copyright = config
-        ? `${currentYear} ${config.general.org_name}`
-        : `${currentYear} hyperglass`;
-    const ogImage = config?.general.opengraph.image || null;
-    const ogImageHeight = config?.general.opengraph.height || null;
-    const ogImageWidth = config?.general.opengraph.width || null;
+    const copyright = config ? `${currentYear} ${config.org_name}` : `${currentYear} hyperglass`;
+    const ogImage = config?.opengraph.image || null;
+    const ogImageHeight = config?.opengraph.height || null;
+    const ogImageWidth = config?.opengraph.width || null;
     const primaryFont = googleFontUrl(theme.fonts.body);
     const monoFont = googleFontUrl(theme.fonts.mono);
     useEffect(() => {

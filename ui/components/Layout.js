@@ -27,7 +27,7 @@ const Layout = () => {
         setSubmitting(false);
     };
     const headerHeight =
-        config.branding.text.title_mode === "all"
+        config.web.text.title_mode === "all"
             ? headerHeightAll[isSubmitting]
             : headerHeightDefault[isSubmitting];
     return (
@@ -83,15 +83,8 @@ const Layout = () => {
                         )}
                     </AnimatePresence>
                 </Flex>
-                <Footer
-                    general={config.general}
-                    content={config.content}
-                    terms={config.branding.terms}
-                    help={config.branding.help_menu}
-                    credit={config.branding.credit}
-                    extLink={config.branding.external_link}
-                />
-                {config.general.developer_mode && <Debugger />}
+                <Footer />
+                {config.developer_mode && <Debugger />}
             </Flex>
         </>
     );

@@ -21,16 +21,14 @@ const formSchema = config =>
         query_location: yup
             .array()
             .of(yup.string())
-            .required(
-                config.messages.no_input.format({ field: config.branding.text.query_location })
-            ),
+            .required(config.messages.no_input.format({ field: config.web.text.query_location })),
         query_type: yup
             .string()
-            .required(config.messages.no_input.format({ field: config.branding.text.query_type })),
+            .required(config.messages.no_input.format({ field: config.web.text.query_type })),
         query_vrf: yup.string(),
         query_target: yup
             .string()
-            .required(config.messages.no_input.format({ field: config.branding.text.query_target }))
+            .required(config.messages.no_input.format({ field: config.web.text.query_target }))
     });
 
 const FormRow = ({ children, ...props }) => (
@@ -121,14 +119,14 @@ const HyperglassForm = React.forwardRef(
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <FormRow>
                         <FormField
-                            label={config.branding.text.query_location}
+                            label={config.web.text.query_location}
                             name="query_location"
                             error={errors.query_location}
                         >
                             <QueryLocation onChange={handleChange} locations={config.networks} />
                         </FormField>
                         <FormField
-                            label={config.branding.text.query_type}
+                            label={config.web.text.query_type}
                             name="query_type"
                             error={errors.query_type}
                             labelAddOn={
@@ -141,19 +139,19 @@ const HyperglassForm = React.forwardRef(
                     <FormRow>
                         {availVrfs.length > 0 && (
                             <FormField
-                                label={config.branding.text.query_vrf}
+                                label={config.web.text.query_vrf}
                                 name="query_vrf"
                                 error={errors.query_vrf}
                             >
                                 <QueryVrf
-                                    placeholder={config.branding.text.query_vrf}
+                                    placeholder={config.web.text.query_vrf}
                                     vrfs={availVrfs}
                                     onChange={handleChange}
                                 />
                             </FormField>
                         )}
                         <FormField
-                            label={config.branding.text.query_target}
+                            label={config.web.text.query_target}
                             name="query_target"
                             error={errors.query_target}
                             fieldAddOn={
@@ -168,7 +166,7 @@ const HyperglassForm = React.forwardRef(
                         >
                             <QueryTarget
                                 name="query_target"
-                                placeholder={config.branding.text.query_target}
+                                placeholder={config.web.text.query_target}
                                 register={register}
                                 resolveTarget={["ping", "traceroute", "bgp_route"].includes(
                                     queryType

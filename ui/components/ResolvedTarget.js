@@ -66,7 +66,7 @@ const ResolvedTarget = React.forwardRef(({ target, setTarget, formQueryTarget },
                     <Tag>
                         <Tooltip
                             hasArrow
-                            label={config.branding.text.fqdn_tooltip.format({ protocol: "IPv4" })}
+                            label={config.web.text.fqdn_tooltip.format({ protocol: "IPv4" })}
                             placement="bottom"
                         >
                             <Button
@@ -98,7 +98,7 @@ const ResolvedTarget = React.forwardRef(({ target, setTarget, formQueryTarget },
                     <Tag>
                         <Tooltip
                             hasArrow
-                            label={config.branding.text.fqdn_tooltip.format({ protocol: "IPv6" })}
+                            label={config.web.text.fqdn_tooltip.format({ protocol: "IPv6" })}
                             placement="bottom"
                         >
                             <Button

@@ -19,7 +19,7 @@ from pydantic.color import Color
 from hyperglass.configuration.models._utils import HyperglassModel
 
 
-class Branding(HyperglassModel):
+class Web(HyperglassModel):
     """Validation model for params.branding."""
 
     class Colors(HyperglassModel):
