@@ -21,7 +21,7 @@ const QueryTarget = ({
     setFqdn,
     name,
     value,
-    setValue,
+    setTarget,
     resolveTarget,
     displayValue,
     setDisplayValue
@@ -37,7 +37,7 @@ const QueryTarget = ({
     };
     const handleChange = e => {
         setDisplayValue(e.target.value);
-        setValue({ field: name, value: e.target.value });
+        setTarget({ field: name, value: e.target.value });
     };
     const handleKeyDown = e => {
         if ([9, 13].includes(e.keyCode)) {

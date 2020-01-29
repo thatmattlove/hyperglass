@@ -402,6 +402,6 @@ class Execute:
                 params.messages.no_output, device_name=device.display_name
             )
 
-        log.debug(f"Output for query: {self.query}:\n{output}")
+        log.debug(f"Output for query: {self.query_data}:\n{output}")
 
         return output

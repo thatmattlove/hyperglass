@@ -9,19 +9,19 @@ format.extend(String.prototype, {});
 const labelBg = { dark: "secondary", light: "secondary" };
 const labelBgSuccess = { dark: "success", light: "success" };
 
-const ResolvedTarget = React.forwardRef(({ target, setTarget, formQueryTarget }, ref) => {
+const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget }, ref) => {
     const { colorMode } = useColorMode();
     const config = useConfig();
     const labelBgStatus = { true: labelBgSuccess[colorMode], false: labelBg[colorMode] };
     const params4 = {
         url: "https://cloudflare-dns.com/dns-query",
-        params: { name: target, type: "A" },
+        params: { name: fqdnTarget, type: "A" },
         headers: { accept: "application/dns-json" },
         timeout: 1000
     };
     const params6 = {
         url: "https://cloudflare-dns.com/dns-query",
-        params: { name: target, type: "AAAA" },
+        params: { name: fqdnTarget, type: "AAAA" },
         headers: { accept: "application/dns-json" },
         timeout: 1000
     };
@@ -39,20 +39,17 @@ const ResolvedTarget = React.forwardRef(({ target, setTarget, formQueryTarget },
     };
 
     const isSelected = value => {
-        console.log("value: ", value, "formQuerytarget: ", formQueryTarget, "target: ", target);
-        return labelBgStatus[value === formQueryTarget];
+        return labelBgStatus[value === queryTarget];
     };
 
     useEffect(() => {
-        if (data6 && data6.Answer && data6.Answer[0].type === 28 && data === "") {
+        if (data6 && data6.Answer && data6.Answer[0].type === 28) {
             handleOverride(data6.Answer[0].data);
-        }
-    }, [data6, data]);
-    useEffect(() => {
-        if (data4 && data4.Answer && data4.Answer[0].type === 28 && data === "") {
+        } else if (data4 && data4.Answer && data4.Answer[0].type === 1 && !data6?.Answer) {
             handleOverride(data4.Answer[0].data);
         }
-    }, [data4, data]);
+    }, [data4, data6, data]);
+
     return (
         <Stack
             ref={ref}

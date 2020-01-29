@@ -157,8 +157,8 @@ const HyperglassForm = React.forwardRef(
                             fieldAddOn={
                                 validFqdnQueryType && (
                                     <ResolvedTarget
-                                        formQueryTarget={queryTarget}
-                                        target={validFqdnQueryType}
+                                        queryTarget={queryTarget}
+                                        fqdnTarget={validFqdnQueryType}
                                         setTarget={handleChange}
                                     />
                                 )
@@ -173,7 +173,7 @@ const HyperglassForm = React.forwardRef(
                                 )}
                                 value={queryTarget}
                                 setFqdn={setFqdnTarget}
-                                setValue={handleChange}
+                                setTarget={handleChange}
                                 displayValue={displayTarget}
                                 setDisplayValue={setDisplayTarget}
                             />
