@@ -9,7 +9,7 @@
 [**Documentation**](https://hyperglass.readthedocs.io)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Screenshots**](https://hyperglass.readthedocs.io/en/latest/screenshots/)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Live Demo**](https://hyperglass.allroads.io/)
 
 [![Build Status](https://travis-ci.org/checktheroads/hyperglass.svg?branch=master)](https://travis-ci.org/checktheroads/hyperglass)
-![GitHub issues](https://img.shields.io/github/issues/checktheroads/hyperglass.svg)
+[![Financial Contributors on Open Collective](https://opencollective.com/hyperglass/all/badge.svg?label=financial+contributors)](https://opencollective.com/hyperglass) ![GitHub issues](https://img.shields.io/github/issues/checktheroads/hyperglass.svg)
 ![Pylint](https://raw.githubusercontent.com/checktheroads/hyperglass/master/pylint.svg?sanitize=true)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
@@ -65,6 +65,36 @@ There is now a [hyperglass team](https://keybase.io/team/hyperglass) on [Keybase
 ## Acknowledgements
 
 -   This project originally started as a fork of [vraulsan](https://github.com/vraulsan)'s [looking-glass](https://github.com/vraulsan/looking-glass) project. The guts of the Flask components still remain from that project, but almost everything else has been rewritten. Nevertheless, the inspiration for building hyperglass came from here.
+
+## Contributors
+
+### Code Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/checktheroads/hyperglass/graphs/contributors"><img src="https://opencollective.com/hyperglass/contributors.svg?width=890&button=false" /></a>
+
+### Financial Contributors
+
+Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/hyperglass/contribute)]
+
+#### Individuals
+
+<a href="https://opencollective.com/hyperglass"><img src="https://opencollective.com/hyperglass/individuals.svg?width=890"></a>
+
+#### Organizations
+
+Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/hyperglass/contribute)]
+
+<a href="https://opencollective.com/hyperglass/organization/0/website"><img src="https://opencollective.com/hyperglass/organization/0/avatar.svg"></a>
+<a href="https://opencollective.com/hyperglass/organization/1/website"><img src="https://opencollective.com/hyperglass/organization/1/avatar.svg"></a>
+<a href="https://opencollective.com/hyperglass/organization/2/website"><img src="https://opencollective.com/hyperglass/organization/2/avatar.svg"></a>
+<a href="https://opencollective.com/hyperglass/organization/3/website"><img src="https://opencollective.com/hyperglass/organization/3/avatar.svg"></a>
+<a href="https://opencollective.com/hyperglass/organization/4/website"><img src="https://opencollective.com/hyperglass/organization/4/avatar.svg"></a>
+<a href="https://opencollective.com/hyperglass/organization/5/website"><img src="https://opencollective.com/hyperglass/organization/5/avatar.svg"></a>
+<a href="https://opencollective.com/hyperglass/organization/6/website"><img src="https://opencollective.com/hyperglass/organization/6/avatar.svg"></a>
+<a href="https://opencollective.com/hyperglass/organization/7/website"><img src="https://opencollective.com/hyperglass/organization/7/avatar.svg"></a>
+<a href="https://opencollective.com/hyperglass/organization/8/website"><img src="https://opencollective.com/hyperglass/organization/8/avatar.svg"></a>
+<a href="https://opencollective.com/hyperglass/organization/9/website"><img src="https://opencollective.com/hyperglass/organization/9/avatar.svg"></a>
 
 ## License
 
