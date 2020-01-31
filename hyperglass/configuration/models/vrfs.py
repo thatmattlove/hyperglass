@@ -5,21 +5,71 @@ from ipaddress import IPv4Address
 from ipaddress import IPv4Network
 from ipaddress import IPv6Address
 from ipaddress import IPv6Network
-from typing import Dict
 from typing import List
 from typing import Optional
 
 # Third Party Imports
 from pydantic import FilePath
-from pydantic import IPvAnyNetwork
 from pydantic import StrictBool
 from pydantic import StrictStr
+from pydantic import conint
 from pydantic import constr
+from pydantic import root_validator
 from pydantic import validator
 
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
 from hyperglass.configuration.models._utils import HyperglassModelExtra
+
+
+class AccessList4(HyperglassModel):
+    """Validation model for IPv4 access-lists."""
+
+    network: IPv4Network = "0.0.0.0/0"
+    action: constr(regex="permit|deny") = "permit"
+    ge: conint(ge=0, le=32) = 0
+    le: conint(ge=0, le=32) = 32
+
+    @validator("ge")
+    def validate_model(cls, value, values):
+        """Ensure ge is at least the size of the input prefix.
+
+        Arguments:
+            value {int} -- Initial ge value
+            values {dict} -- Other post-validation fields
+
+        Returns:
+            {int} -- Validated ge value
+        """
+        net_len = values["network"].prefixlen
+        if net_len > value:
+            value = net_len
+        return value
+
+
+class AccessList6(HyperglassModel):
+    """Validation model for IPv6 access-lists."""
+
+    network: IPv6Network = "::/0"
+    action: constr(regex=r"permit|deny") = "permit"
+    ge: conint(ge=0, le=128) = 0
+    le: conint(ge=0, le=128) = 128
+
+    @validator("ge")
+    def validate_model(cls, value, values):
+        """Ensure ge is at least the size of the input prefix.
+
+        Arguments:
+            value {int} -- Initial ge value
+            values {dict} -- Other post-validation fields
+
+        Returns:
+            {int} -- Validated ge value
+        """
+        net_len = values["network"].prefixlen
+        if net_len > value:
+            value = net_len
+        return value
 
 
 class InfoConfigParams(HyperglassModelExtra):
@@ -46,18 +96,18 @@ class Info(HyperglassModel):
     traceroute: InfoConfig = InfoConfig()
 
 
-class DeviceVrf4(HyperglassModel):
+class DeviceVrf4(HyperglassModelExtra):
     """Validation model for IPv4 AFI definitions."""
 
-    vrf_name: StrictStr
     source_address: IPv4Address
+    access_list: List[AccessList4] = [AccessList4()]
 
 
-class DeviceVrf6(HyperglassModel):
+class DeviceVrf6(HyperglassModelExtra):
     """Validation model for IPv6 AFI definitions."""
 
-    vrf_name: StrictStr
     source_address: IPv6Address
+    access_list: List[AccessList6] = [AccessList6()]
 
 
 class Vrf(HyperglassModel):
@@ -68,36 +118,51 @@ class Vrf(HyperglassModel):
     info: Info = Info()
     ipv4: Optional[DeviceVrf4]
     ipv6: Optional[DeviceVrf6]
-    access_list: List[Dict[constr(regex=("allow|deny")), IPvAnyNetwork]] = [
-        {"allow": IPv4Network("0.0.0.0/0")},
-        {"allow": IPv6Network("::/0")},
-    ]
 
-    @validator("ipv4", "ipv6", pre=True, always=True)
-    def set_default_vrf_name(cls, value, values):
-        """If per-AFI name is undefined, set it to the global VRF name.
+    @root_validator
+    def set_dynamic(cls, values):
+        """Set dynamic attributes before VRF initialization.
 
-        Returns:
-            {str} -- VRF Name
-        """
-        if isinstance(value, DefaultVrf) and value.vrf_name is None:
-            value["vrf_name"] = values["name"]
-        elif isinstance(value, Dict) and value.get("vrf_name") is None:
-            value["vrf_name"] = values["name"]
-        return value
-
-    @validator("access_list", pre=True)
-    def validate_action(cls, value):
-        """Transform ACL networks to IPv4Network/IPv6Network objects.
+        Arguments:
+            values {dict} -- Post-validation VRF attributes
 
         Returns:
-            {object} -- IPv4Network/IPv6Network object
+            {dict} -- VRF with new attributes set
         """
-        for li in value:
-            for action, network in li.items():
-                if isinstance(network, (IPv4Network, IPv6Network)):
-                    li[action] = str(network)
-        return value
+        if values["name"] == "default":
+            protocol4 = "ipv4_default"
+            protocol6 = "ipv6_default"
+
+        else:
+            protocol4 = "ipv4_vpn"
+            protocol6 = "ipv6_vpn"
+
+        if values.get("ipv4") is not None:
+            values["ipv4"].protocol = protocol4
+            values["ipv4"].version = 4
+
+        if values.get("ipv6") is not None:
+            values["ipv6"].protocol = protocol6
+            values["ipv6"].version = 6
+
+        return values
+
+    def __getitem__(self, i):
+        """Access the VRF's AFI by IP protocol number.
+
+        Arguments:
+            i {int} -- IP Protocol number (4|6)
+
+        Raises:
+            AttributeError: Raised if passed number is not 4 or 6.
+
+        Returns:
+            {object} -- AFI object
+        """
+        if i not in (4, 6):
+            raise AttributeError(f"Must be 4 or 6, got '{i}")
+
+        return getattr(self, f"ipv{i}")
 
     def __hash__(self):
         """Make VRF object hashable so the object can be deduplicated with set().
@@ -116,31 +181,30 @@ class Vrf(HyperglassModel):
         Returns:
             {bool} -- True if comparison attributes are the same value
         """
-        return self.name == other.name
+        result = False
+        if isinstance(other, HyperglassModel):
+            result = self.name == other.name
+        return result
 
 
 class DefaultVrf(HyperglassModel):
     """Validation model for default routing table VRF."""
 
-    name: StrictStr = "default"
+    name: constr(regex="default") = "default"
     display_name: StrictStr = "Global"
     info: Info = Info()
-    access_list: List[Dict[constr(regex=("allow|deny")), IPvAnyNetwork]] = [
-        {"allow": IPv4Network("0.0.0.0/0")},
-        {"allow": IPv6Network("::/0")},
-    ]
 
     class DefaultVrf4(HyperglassModel):
         """Validation model for IPv4 default routing table VRF definition."""
 
-        vrf_name: StrictStr = "default"
         source_address: IPv4Address
+        access_list: List[AccessList4] = [AccessList4()]
 
     class DefaultVrf6(HyperglassModel):
         """Validation model for IPv6 default routing table VRF definition."""
 
-        vrf_name: StrictStr = "default"
         source_address: IPv6Address
+        access_list: List[AccessList6] = [AccessList6()]
 
     ipv4: Optional[DefaultVrf4]
     ipv6: Optional[DefaultVrf6]

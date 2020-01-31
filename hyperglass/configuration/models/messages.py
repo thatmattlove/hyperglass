@@ -29,5 +29,6 @@ class Messages(HyperglassModel):
     authentication_error: StrictStr = "Authentication error occurred."
     noresponse_error: StrictStr = "No response."
     vrf_not_associated: StrictStr = "VRF {vrf_name} is not associated with {device_name}."
+    vrf_not_found: StrictStr = "VRF {vrf_name} is not defined."
     no_matching_vrfs: StrictStr = "No VRFs in Common"
     no_output: StrictStr = "No output."

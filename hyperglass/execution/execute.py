@@ -31,7 +31,6 @@ from hyperglass.exceptions import ScrapeError
 from hyperglass.execution.construct import Construct
 from hyperglass.execution.encode import jwt_decode
 from hyperglass.execution.encode import jwt_encode
-from hyperglass.execution.validate import Validate
 from hyperglass.util import log
 
 
@@ -58,12 +57,8 @@ class Connect:
         self.query_type = self.query_data.query_type
         self.query_target = self.query_data.query_target
         self.transport = transport
-        self.query = getattr(
-            Construct(
-                device=self.device, query_data=self.query_data, transport=self.transport
-            ),
-            self.query_type,
-        )()
+        self._query = Construct(device=self.device, query_data=self.query_data)
+        self.query = self._query.queries()
 
     async def scrape_proxied(self):
         """Connect to a device via an SSH proxy.
@@ -373,14 +368,6 @@ class Execute:
 
         log.debug(f"Received query for {self.query_data}")
         log.debug(f"Matched device config: {device}")
-
-        # Run query parameters through validity checks
-        validation = Validate(device, self.query_data, self.query_target)
-        valid_input = validation.validate_query()
-
-        if valid_input:
-            log.debug(f"Validation passed for query: {self.query_data}")
-            pass
 
         connect = None
         output = params.messages.general

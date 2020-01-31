@@ -6,334 +6,127 @@ hyperglass API modules.
 """
 
 # Standard Library Imports
-import ipaddress
-import json
 import operator
 import re
 
+# Third Party Imports
+import ujson
+
 # Project Imports
 from hyperglass.configuration import commands
-from hyperglass.constants import target_format_space
-from hyperglass.exceptions import HyperglassError
+from hyperglass.constants import TARGET_FORMAT_SPACE
+from hyperglass.constants import TRANSPORT_REST
 from hyperglass.util import log
 
 
 class Construct:
     """Construct SSH commands/REST API parameters from validated query data."""
 
-    def get_device_vrf(self):
-        """Match query VRF to device VRF.
-
-        Raises:
-            HyperglassError: Raised if VRFs do not match.
-
-        Returns:
-            {object} -- Matched VRF object
-        """
-        _device_vrf = None
-        for vrf in self.device.vrfs:
-            if vrf.name == self.query_vrf:
-                _device_vrf = vrf
-        if not _device_vrf:
-            raise HyperglassError(
-                message="Unable to match query VRF to any configured VRFs",
-                level="danger",
-                keywords=[self.query_vrf],
-            )
-        return _device_vrf
-
-    def __init__(self, device, query_data, transport):
+    def __init__(self, device, query_data):
         """Initialize command construction.
 
         Arguments:
             device {object} -- Device object
             query_data {object} -- Validated query object
-            transport {str} -- Transport name; 'scrape' or 'rest'
         """
+        log.debug(
+            "Constructing {q} query for '{t}'",
+            q=query_data.query_type,
+            t=str(query_data.query_target),
+        )
         self.device = device
         self.query_data = query_data
-        self.transport = transport
-        self.query_target = self.query_data.query_target
-        self.query_vrf = self.query_data.query_vrf
-        self.device_vrf = self.get_device_vrf()
 
-    def format_target(self, target):
-        """Format query target based on NOS requirement.
+        # Set transport method based on NOS type
+        self.transport = "scrape"
+        if self.device.nos in TRANSPORT_REST:
+            self.transport = "rest"
+
+        # Remove slashes from target for required platforms
+        if self.device.nos in TARGET_FORMAT_SPACE:
+            self.query_data.query_target = re.sub(
+                r"\/", r" ", str(self.query_data.query_target)
+            )
+
+        # Set AFIs for based on query type
+        if self.query_data.query_type in ("bgp_route", "ping", "traceroute"):
+            """
+            For IP queries, AFIs are enabled (not null/None) VRF -> AFI definitions
+            where the IP version matches the IP version of the target.
+            """
+            self.afis = [
+                v
+                for v in (
+                    self.query_data.query_vrf.ipv4,
+                    self.query_data.query_vrf.ipv6,
+                )
+                if v is not None and self.query_data.query_target.version == v.version
+            ]
+        elif self.query_data.query_type in ("bgp_aspath", "bgp_community"):
+            """
+            For AS Path/Community queries, AFIs are just enabled VRF -> AFI definitions,
+            no IP version checking is performed (since there is no IP).
+            """
+            self.afis = [
+                v
+                for v in (
+                    self.query_data.query_vrf.ipv4,
+                    self.query_data.query_vrf.ipv6,
+                )
+                if v is not None
+            ]
+
+    def json(self, afi):
+        """Return JSON version of validated query for REST devices.
 
         Arguments:
-            target {str} -- Query target
+            afi {object} -- AFI object
 
         Returns:
-            {str} -- Formatted target
+            {str} -- JSON query string
         """
-        if self.device.nos in target_format_space:
-            _target = re.sub(r"\/", r" ", target)
-        else:
-            _target = target
-        target_string = str(_target)
-        log.debug(f"Formatted target: {target_string}")
-        return target_string
+        log.debug("Building JSON query for {q}", q=repr(self.query_data))
+        return ujson.dumps(
+            {
+                "query_type": self.query_data.query_type,
+                "vrf": self.query_data.query_vrf.name,
+                "afi": afi.protocol,
+                "source": str(afi.source_address),
+                "target": str(self.query_data.query_target),
+            }
+        )
 
-    @staticmethod
-    def device_commands(nos, afi, query_type):
-        """Construct class attribute path for device commansd.
-
-        This is required because class attributes are set dynamically
-        when devices.yaml is imported, so the attribute path is unknown
-        until runtime.
+    def scrape(self, afi):
+        """Return formatted command for 'Scrape' endpoints (SSH).
 
         Arguments:
-            nos {str} -- NOS short name
-            afi {str} -- Address family
-            query_type {str} -- Query type
+            afi {object} -- AFI object
 
         Returns:
-            {str} -- Dotted attribute path, e.g. 'cisco_ios.ipv4.bgp_route'
+            {str} -- Command string
         """
-        cmd_path = f"{nos}.{afi}.{query_type}"
-        return operator.attrgetter(cmd_path)(commands)
-
-    @staticmethod
-    def get_cmd_type(query_protocol, query_vrf):
-        """Construct AFI string.
-
-        If query_vrf is specified, AFI prefix is "vpnv".
-        If not, AFI prefix is "ipv".
-
-        Arguments:
-            query_protocol {str} -- 'ipv4' or 'ipv6'
-            query_vrf {str} -- Query VRF name
-
-        Returns:
-            {str} -- Constructed command name
-        """
-        if query_vrf and query_vrf != "default":
-            cmd_type = f"{query_protocol}_vpn"
-        else:
-            cmd_type = f"{query_protocol}_default"
-        return cmd_type
-
-    def ping(self):
-        """Construct ping query parameters from pre-validated input.
-
-        Returns:
-            {str} -- SSH command or stringified JSON
-        """
-        log.debug(
-            f"Constructing ping query for {self.query_target} via {self.transport}"
+        command = operator.attrgetter(
+            f"{self.device.nos}.{afi.protocol}.{self.query_data.query_type}"
+        )(commands)
+        return command.format(
+            target=self.query_data.query_target,
+            source=str(afi.source_address),
+            vrf=self.query_data.query_vrf.name,
         )
 
-        query = []
-        query_protocol = f"ipv{ipaddress.ip_network(self.query_target).version}"
-        afi = getattr(self.device_vrf, query_protocol)
-        cmd_type = self.get_cmd_type(query_protocol, self.query_vrf)
-
-        if self.transport == "rest":
-            query.append(
-                json.dumps(
-                    {
-                        "query_type": "ping",
-                        "vrf": afi.vrf_name,
-                        "afi": cmd_type,
-                        "source": afi.source_address.compressed,
-                        "target": self.query_target,
-                    }
-                )
-            )
-        elif self.transport == "scrape":
-            cmd = self.device_commands(self.device.commands, cmd_type, "ping")
-            query.append(
-                cmd.format(
-                    target=self.query_target,
-                    source=afi.source_address,
-                    vrf=afi.vrf_name,
-                )
-            )
-
-        log.debug(f"Constructed query: {query}")
-        return query
-
-    def traceroute(self):
-        """Construct traceroute query parameters from pre-validated input.
+    def queries(self):
+        """Return queries for each enabled AFI.
 
         Returns:
-            {str} -- SSH command or stringified JSON
+            {list} -- List of queries to run
         """
-        log.debug(
-            (
-                f"Constructing traceroute query for {self.query_target} "
-                f"via {self.transport}"
-            )
-        )
-
         query = []
-        query_protocol = f"ipv{ipaddress.ip_network(self.query_target).version}"
-        afi = getattr(self.device_vrf, query_protocol)
-        cmd_type = self.get_cmd_type(query_protocol, self.query_vrf)
 
-        if self.transport == "rest":
-            query.append(
-                json.dumps(
-                    {
-                        "query_type": "traceroute",
-                        "vrf": afi.vrf_name,
-                        "afi": cmd_type,
-                        "source": afi.source_address.compressed,
-                        "target": self.query_target,
-                    }
-                )
-            )
-        elif self.transport == "scrape":
-            cmd = self.device_commands(self.device.commands, cmd_type, "traceroute")
-            query.append(
-                cmd.format(
-                    target=self.query_target,
-                    source=afi.source_address,
-                    vrf=afi.vrf_name,
-                )
-            )
-
-        log.debug(f"Constructed query: {query}")
-        return query
-
-    def bgp_route(self):
-        """Construct bgp_route query parameters from pre-validated input.
-
-        Returns:
-            {str} -- SSH command or stringified JSON
-        """
-        log.debug(
-            f"Constructing bgp_route query for {self.query_target} via {self.transport}"
-        )
-
-        query = []
-        query_protocol = f"ipv{ipaddress.ip_network(self.query_target).version}"
-        afi = getattr(self.device_vrf, query_protocol)
-        cmd_type = self.get_cmd_type(query_protocol, self.query_vrf)
-
-        if self.transport == "rest":
-            query.append(
-                json.dumps(
-                    {
-                        "query_type": "bgp_route",
-                        "vrf": afi.vrf_name,
-                        "afi": cmd_type,
-                        "source": None,
-                        "target": self.format_target(self.query_target),
-                    }
-                )
-            )
-        elif self.transport == "scrape":
-            cmd = self.device_commands(self.device.commands, cmd_type, "bgp_route")
-            query.append(
-                cmd.format(
-                    target=self.format_target(self.query_target),
-                    source=afi.source_address,
-                    vrf=afi.vrf_name,
-                )
-            )
-
-        log.debug(f"Constructed query: {query}")
-        return query
-
-    def bgp_community(self):
-        """Construct bgp_community query parameters from pre-validated input.
-
-        Returns:
-            {str} -- SSH command or stringified JSON
-        """
-        log.debug(
-            (
-                f"Constructing bgp_community query for "
-                f"{self.query_target} via {self.transport}"
-            )
-        )
-
-        query = []
-        afis = []
-
-        for vrf_key, vrf_value in {
-            p: e for p, e in self.device_vrf.dict().items() if p in ("ipv4", "ipv6")
-        }.items():
-            if vrf_value:
-                afis.append(vrf_key)
-
-        for afi in afis:
-            afi_attr = getattr(self.device_vrf, afi)
-            cmd_type = self.get_cmd_type(afi, self.query_vrf)
+        for afi in self.afis:
             if self.transport == "rest":
-                query.append(
-                    json.dumps(
-                        {
-                            "query_type": "bgp_community",
-                            "vrf": afi_attr.vrf_name,
-                            "afi": cmd_type,
-                            "target": self.query_target,
-                            "source": None,
-                        }
-                    )
-                )
-            elif self.transport == "scrape":
-                cmd = self.device_commands(
-                    self.device.commands, cmd_type, "bgp_community"
-                )
-                query.append(
-                    cmd.format(
-                        target=self.query_target,
-                        source=afi_attr.source_address,
-                        vrf=afi_attr.vrf_name,
-                    )
-                )
-
-        log.debug(f"Constructed query: {query}")
-        return query
-
-    def bgp_aspath(self):
-        """Construct bgp_aspath query parameters from pre-validated input.
-
-        Returns:
-            {str} -- SSH command or stringified JSON
-        """
-        log.debug(
-            (
-                f"Constructing bgp_aspath query for "
-                f"{self.query_target} via {self.transport}"
-            )
-        )
-
-        query = []
-        afis = []
-
-        for vrf_key, vrf_value in {
-            p: e for p, e in self.device_vrf.dict().items() if p in ("ipv4", "ipv6")
-        }.items():
-            if vrf_value:
-                afis.append(vrf_key)
-
-        for afi in afis:
-            afi_attr = getattr(self.device_vrf, afi)
-            cmd_type = self.get_cmd_type(afi, self.query_vrf)
-            if self.transport == "rest":
-                query.append(
-                    json.dumps(
-                        {
-                            "query_type": "bgp_aspath",
-                            "vrf": afi_attr.vrf_name,
-                            "afi": cmd_type,
-                            "target": self.query_target,
-                            "source": None,
-                        }
-                    )
-                )
-            elif self.transport == "scrape":
-                cmd = self.device_commands(self.device.commands, cmd_type, "bgp_aspath")
-                query.append(
-                    cmd.format(
-                        target=self.query_target,
-                        source=afi_attr.source_address,
-                        vrf=afi_attr.vrf_name,
-                    )
-                )
+                query.append(self.json(afi=afi))
+            else:
+                query.append(self.scrape(afi=afi))
 
         log.debug(f"Constructed query: {query}")
         return query

@@ -19,12 +19,28 @@ from hyperglass.configuration.models.credentials import Credential
 from hyperglass.configuration.models.networks import Network
 from hyperglass.configuration.models.proxies import Proxy
 from hyperglass.configuration.models.ssl import Ssl
-from hyperglass.configuration.models.vrfs import DefaultVrf
+from hyperglass.configuration.models.vrfs import Info
 from hyperglass.configuration.models.vrfs import Vrf
 from hyperglass.constants import Supported
 from hyperglass.exceptions import ConfigError
 from hyperglass.exceptions import UnsupportedDevice
 from hyperglass.util import log
+
+_default_vrf = {
+    "name": "default",
+    "display_name": "Global",
+    "info": Info(),
+    "ipv4": {
+        "source_address": None,
+        "access_list": [
+            {"network": "0.0.0.0/0", "action": "permit", "ge": 0, "le": 32}
+        ],
+    },
+    "ipv6": {
+        "source_address": None,
+        "access_list": [{"network": "::/0", "action": "permit", "ge": 0, "le": 128}],
+    },
+}
 
 
 class Router(HyperglassModel):
@@ -41,7 +57,7 @@ class Router(HyperglassModel):
     ssl: Optional[Ssl]
     nos: StrictStr
     commands: Optional[Command]
-    vrfs: List[Vrf] = [DefaultVrf()]
+    vrfs: List[Vrf] = [_default_vrf]
     display_vrfs: List[StrictStr] = []
     vrf_names: List[StrictStr] = []
 
@@ -117,8 +133,10 @@ class Router(HyperglassModel):
 
                 if vrf_afi is not None and vrf_afi.get("source_address") is None:
 
-                    # If AFI is actually defined (enabled), and if the
-                    # source_address field is not set, raise an error
+                    """
+                    If AFI is actually defined (enabled), and if the
+                    source_address field is not set, raise an error
+                    """
                     raise ConfigError(
                         (
                             "VRF '{vrf}' in router '{router}' is missing a source "
@@ -128,20 +146,17 @@ class Router(HyperglassModel):
                         router=values.get("name"),
                         afi=afi.replace("ip", "IP"),
                     )
-            if vrf_name == "default":
 
-                # Validate the default VRF against the DefaultVrf()
-                # class. (See vrfs.py)
-                vrf = DefaultVrf(**vrf)
-
-            elif vrf_name != "default" and not isinstance(
+            if vrf_name != "default" and not isinstance(
                 vrf.get("display_name"), StrictStr
             ):
 
-                # If no display_name is set for a non-default VRF, try
-                # to make one by replacing non-alphanumeric characters
-                # with whitespaces and using str.title() to make each
-                # word look "pretty".
+                """
+                If no display_name is set for a non-default VRF, try
+                to make one by replacing non-alphanumeric characters
+                with whitespaces and using str.title() to make each
+                word look "pretty".
+                """
                 new_name = vrf["name"]
                 new_name = re.sub(r"[^a-zA-Z0-9]", " ", new_name)
                 new_name = re.split(" ", new_name)
@@ -152,9 +167,11 @@ class Router(HyperglassModel):
                     f"Generated '{vrf['display_name']}'"
                 )
 
-                # Validate the non-default VRF against the standard
-                # Vrf() class.
-                vrf = Vrf(**vrf)
+                """
+                Validate the non-default VRF against the standard
+                Vrf() class.
+                """
+            vrf = Vrf(**vrf)
 
             vrfs.append(vrf)
         return vrfs
@@ -197,46 +214,60 @@ class Routers(HyperglassModelExtra):
             # Validate each router config against Router() model/schema
             router = Router(**definition)
 
-            # Set a class attribute for each router so each router's
-            # attributes can be accessed with `devices.router_hostname`
+            """
+            Set a class attribute for each router so each router's
+            attributes can be accessed with `devices.router_hostname`
+            """
             setattr(routers, router.name, router)
 
-            # Add router-level attributes (assumed to be unique) to
-            # class lists, e.g. so all hostnames can be accessed as a
-            # list with `devices.hostnames`, same for all router
-            # classes, for when iteration over all routers is required.
+            """
+            Add router-level attributes (assumed to be unique) to
+            class lists, e.g. so all hostnames can be accessed as a
+            list with `devices.hostnames`, same for all router
+            classes, for when iteration over all routers is required.
+            """
             routers.hostnames.append(router.name)
             router_objects.append(router)
 
             for vrf in router.vrfs:
-                # For each configured router VRF, add its name and
-                # display_name to a class set (for automatic de-duping).
+                """
+                For each configured router VRF, add its name and
+                display_name to a class set (for automatic de-duping).
+                """
                 vrfs.add(vrf.name)
                 display_vrfs.add(vrf.display_name)
 
-                # Also add the names to a router-level list so each
-                # router's VRFs and display VRFs can be easily accessed.
+                """
+                Also add the names to a router-level list so each
+                router's VRFs and display VRFs can be easily accessed.
+                """
                 router.display_vrfs.append(vrf.display_name)
                 router.vrf_names.append(vrf.name)
 
-                # Add a 'default_vrf' attribute to the devices class
-                # which contains the configured default VRF display name
+                """
+                Add a 'default_vrf' attribute to the devices class
+                which contains the configured default VRF display name.
+                """
                 if vrf.name == "default" and not hasattr(cls, "default_vrf"):
                     routers.default_vrf = {
                         "name": vrf.name,
                         "display_name": vrf.display_name,
                     }
 
-                # Add the native VRF objects to a set (for automatic
-                # de-duping), but exlcude device-specific fields.
+                """
+                Add the native VRF objects to a set (for automatic
+                de-duping), but exlcude device-specific fields.
+                """
                 _copy_params = {
                     "deep": True,
                     "exclude": {"ipv4": {"source_address"}, "ipv6": {"source_address"}},
                 }
                 vrf_objects.add(vrf.copy(**_copy_params))
 
-        # Convert the de-duplicated sets to a standard list, add lists
-        # as class attributes
+        """
+        Convert the de-duplicated sets to a standard list, add lists
+        as class attributes.
+        """
         routers.vrfs = list(vrfs)
         routers.display_vrfs = list(display_vrfs)
         routers.vrf_objects = list(vrf_objects)
