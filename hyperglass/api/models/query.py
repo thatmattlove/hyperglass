@@ -9,14 +9,14 @@ from pydantic import StrictStr
 from pydantic import validator
 
 # Project Imports
+from hyperglass.api.models.types import SupportedQuery
+from hyperglass.api.models.validators import validate_aspath
+from hyperglass.api.models.validators import validate_community
+from hyperglass.api.models.validators import validate_ip
 from hyperglass.configuration import devices
 from hyperglass.configuration import params
 from hyperglass.configuration.models.vrfs import Vrf
 from hyperglass.exceptions import InputInvalid
-from hyperglass.models.types import SupportedQuery
-from hyperglass.models.validators import validate_aspath
-from hyperglass.models.validators import validate_community
-from hyperglass.models.validators import validate_ip
 
 
 def get_vrf_object(vrf_name):

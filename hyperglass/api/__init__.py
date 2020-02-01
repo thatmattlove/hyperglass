@@ -19,6 +19,7 @@ from hyperglass.api.error_handlers import http_handler
 from hyperglass.api.error_handlers import validation_handler
 from hyperglass.api.events import on_shutdown
 from hyperglass.api.events import on_startup
+from hyperglass.api.models.response import QueryResponse
 from hyperglass.api.routes import docs
 from hyperglass.api.routes import queries
 from hyperglass.api.routes import query
@@ -27,7 +28,6 @@ from hyperglass.configuration import URL_DEV
 from hyperglass.configuration import params
 from hyperglass.constants import __version__
 from hyperglass.exceptions import HyperglassError
-from hyperglass.models.response import QueryResponse
 from hyperglass.util import log
 
 STATIC_DIR = Path(__file__).parent.parent / "static"
@@ -117,7 +117,7 @@ app.add_api_route(
     tags=[params.docs.group_title],
     response_class=UJSONResponse,
 )
-app.add_api_route(path="api/docs", endpoint=docs, include_in_schema=False)
+app.add_api_route(path="/api/docs", endpoint=docs, include_in_schema=False)
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 app.mount("/", StaticFiles(directory=UI_DIR, html=True), name="ui")
 

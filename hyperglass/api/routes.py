@@ -11,12 +11,12 @@ from fastapi.openapi.docs import get_swagger_ui_html
 from starlette.requests import Request
 
 # Project Imports
+from hyperglass.api.models.query import Query
 from hyperglass.configuration import REDIS_CONFIG
 from hyperglass.configuration import devices
 from hyperglass.configuration import params
 from hyperglass.exceptions import HyperglassError
 from hyperglass.execution.execute import Execute
-from hyperglass.models.query import Query
 from hyperglass.util import log
 
 Cache = aredis.StrictRedis(db=params.cache.database, **REDIS_CONFIG)
