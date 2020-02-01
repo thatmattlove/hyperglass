@@ -18,6 +18,7 @@ from pydantic.color import Color
 # Project Imports
 from hyperglass.configuration.models._utils import HyperglassModel
 from hyperglass.configuration.models.opengraph import OpenGraph
+from hyperglass.constants import DNS_OVER_HTTPS
 from hyperglass.constants import FUNC_COLOR_MAP
 
 
@@ -251,10 +252,31 @@ class Theme(HyperglassModel):
     fonts: Fonts = Fonts()
 
 
+class DnsOverHttps(HyperglassModel):
+    """Validation model for DNS over HTTPS resolution."""
+
+    name: constr(regex="|".join(DNS_OVER_HTTPS.keys())) = "cloudflare"
+
+    @root_validator
+    def validate_dns(cls, values):
+        """Assign url field to model based on selected provider.
+
+        Arguments:
+            values {dict} -- Dict of selected provider
+
+        Returns:
+            {dict} -- Dict with url attribute
+        """
+        provider = values["name"]
+        values["url"] = DNS_OVER_HTTPS[provider]
+        return values
+
+
 class Web(HyperglassModel):
     """Validation model for all web/browser-related configuration."""
 
     credit: Credit = Credit()
+    dns_provider: DnsOverHttps = DnsOverHttps()
     external_link: ExternalLink = ExternalLink()
     font: Font = Font()
     help_menu: HelpMenu = HelpMenu()

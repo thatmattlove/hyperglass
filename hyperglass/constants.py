@@ -36,6 +36,11 @@ LOG_HANDLER_FILE = {"format": LOG_FMT, "level": "INFO"}
 
 STATUS_CODE_MAP = {"warning": 400, "error": 400, "danger": 500}
 
+DNS_OVER_HTTPS = {
+    "google": "https://dns.google/resolve",
+    "cloudflare": "https://cloudflare-dns.com/dns-query",
+}
+
 CREDIT = """
 Powered by [**hyperglass**](https://github.com/checktheroads/hyperglass). Source code \
 licensed \

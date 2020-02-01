@@ -13,14 +13,15 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
     const { colorMode } = useColorMode();
     const config = useConfig();
     const labelBgStatus = { true: labelBgSuccess[colorMode], false: labelBg[colorMode] };
+    const dnsUrl = config.web.dns_provider.url;
     const params4 = {
-        url: "https://cloudflare-dns.com/dns-query",
+        url: dnsUrl,
         params: { name: fqdnTarget, type: "A" },
         headers: { accept: "application/dns-json" },
         timeout: 1000
     };
     const params6 = {
-        url: "https://cloudflare-dns.com/dns-query",
+        url: dnsUrl,
         params: { name: fqdnTarget, type: "AAAA" },
         headers: { accept: "application/dns-json" },
         timeout: 1000
