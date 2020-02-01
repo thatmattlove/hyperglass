@@ -8,4 +8,3 @@ input, executes the commands/calls, returns the output to front end.
 # flake8: noqa: F401
 from hyperglass.execution import construct
 from hyperglass.execution import execute
-from hyperglass.execution import validate

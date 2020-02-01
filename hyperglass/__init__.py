@@ -4,7 +4,7 @@ https://github.com/checktheroads/hyperglass
 
 The Clear BSD License
 
-Copyright (c) 2019 Matthew Love
+Copyright (c) 2020 Matthew Love
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

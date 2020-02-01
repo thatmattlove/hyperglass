@@ -1,3 +1,5 @@
+"""Input validation functions for submitted queries."""
+
 # Standard Library Imports
 import operator
 import re
