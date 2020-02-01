@@ -29,12 +29,12 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
     const [{ data: data4, loading: loading4, error: error4 }] = useAxios(params4);
     const [{ data: data6, loading: loading6, error: error6 }] = useAxios(params6);
 
-    const [data, setData] = useState("");
+    // const [data, setData] = useState("");
 
-    data && setTarget({ field: "query_target", value: data });
+    // data && setTarget({ field: "query_target", value: data });
 
     const handleOverride = overridden => {
-        setData(overridden);
+        // setData(overridden);
         setTarget({ field: "query_target", value: overridden });
     };
 
@@ -48,8 +48,7 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
         } else if (data4 && data4.Answer && data4.Answer[0].type === 1 && !data6?.Answer) {
             handleOverride(data4.Answer[0].data);
         }
-    }, [data4, data6, data]);
-
+    }, [data4, data6]);
     return (
         <Stack
             ref={ref}
@@ -73,7 +72,7 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
                                 py="0.1rem"
                                 px={2}
                                 mr={2}
-                                variantColor={isSelected(data4.Answer[0].data)}
+                                variantColor={labelBgStatus[data4.Answer[0].data === queryTarget]}
                                 borderRadius="md"
                                 onClick={() => handleOverride(data4.Answer[0].data)}
                             >

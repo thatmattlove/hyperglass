@@ -58,7 +58,6 @@ const HyperglassForm = React.forwardRef(
         const [fqdnTarget, setFqdnTarget] = useState("");
         const [displayTarget, setDisplayTarget] = useState("");
         const onSubmit = values => {
-            console.log(values);
             setFormData(values);
             setSubmitting(true);
         };
