@@ -29,12 +29,7 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
     const [{ data: data4, loading: loading4, error: error4 }] = useAxios(params4);
     const [{ data: data6, loading: loading6, error: error6 }] = useAxios(params6);
 
-    // const [data, setData] = useState("");
-
-    // data && setTarget({ field: "query_target", value: data });
-
     const handleOverride = overridden => {
-        // setData(overridden);
         setTarget({ field: "query_target", value: overridden });
     };
 
