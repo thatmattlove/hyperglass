@@ -12,6 +12,7 @@ from starlette.requests import Request
 
 # Project Imports
 from hyperglass.configuration import REDIS_CONFIG
+from hyperglass.configuration import devices
 from hyperglass.configuration import params
 from hyperglass.exceptions import HyperglassError
 from hyperglass.execution.execute import Execute
@@ -74,4 +75,25 @@ async def docs():
         raise HTTPException(detail="Not found", status_code=404)
 
 
-endpoints = [query, docs]
+async def routers():
+    """Serve list of configured routers and attributes."""
+    return [
+        d.dict(
+            include={
+                "name": ...,
+                "network": ...,
+                "location": ...,
+                "display_name": ...,
+                "vrfs": {-1: {"name", "display_name"}},
+            }
+        )
+        for d in devices.routers
+    ]
+
+
+async def queries():
+    """Serve list of enabled query types."""
+    return params.queries.list
+
+
+endpoints = [query, docs, routers]

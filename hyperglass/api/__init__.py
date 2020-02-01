@@ -20,7 +20,9 @@ from hyperglass.api.error_handlers import validation_handler
 from hyperglass.api.events import on_shutdown
 from hyperglass.api.events import on_startup
 from hyperglass.api.routes import docs
+from hyperglass.api.routes import queries
 from hyperglass.api.routes import query
+from hyperglass.api.routes import routers
 from hyperglass.configuration import URL_DEV
 from hyperglass.configuration import params
 from hyperglass.constants import __version__
@@ -99,6 +101,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_api_route(
+    path="/api/devices", endpoint=routers, methods=["GET"], response_class=UJSONResponse
+)
+app.add_api_route(
+    path="/api/queries", endpoint=queries, methods=["GET"], response_class=UJSONResponse
+)
 app.add_api_route(
     path="/api/query/",
     endpoint=query,
