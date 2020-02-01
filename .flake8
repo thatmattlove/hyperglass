@@ -8,10 +8,11 @@ filename=*.py
 per-file-ignores=
     # Disable redefinition warning for exception handlers
     hyperglass/api.py:F811
-    # Disable string length warnings so I can actually read the commands
+    # Disable string length warnings so one can actually read the commands
     hyperglass/configuration/models/commands.py:E501,C0301
-    # Disable string length warnings so I can actually read the messages
+    hyperglass/configuration/models/docs.py:E501,C0301
     hyperglass/configuration/models/messages.py:E501,C0301
+    hyperglass/api/models/response.py:E501,C0301
     # Disable classmethod warning for validator decorators
     hyperglass/configuration/models/*.py:N805,E0213,R0903
     hyperglass/models/*.py:N805,E0213,R0903

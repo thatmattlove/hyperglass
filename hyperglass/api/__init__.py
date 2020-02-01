@@ -20,6 +20,8 @@ from hyperglass.api.error_handlers import validation_handler
 from hyperglass.api.events import on_shutdown
 from hyperglass.api.events import on_startup
 from hyperglass.api.models.response import QueryResponse
+from hyperglass.api.models.response import RoutersResponse
+from hyperglass.api.models.response import SupportedQueryResponse
 from hyperglass.api.routes import docs
 from hyperglass.api.routes import queries
 from hyperglass.api.routes import query
@@ -102,19 +104,33 @@ app.add_middleware(
 )
 
 app.add_api_route(
-    path="/api/devices", endpoint=routers, methods=["GET"], response_class=UJSONResponse
+    path="/api/devices",
+    endpoint=routers,
+    methods=["GET"],
+    response_model=RoutersResponse,
+    response_class=UJSONResponse,
+    summary=params.docs.devices.summary,
+    description=params.docs.devices.description,
+    tags=[params.docs.devices.title],
 )
 app.add_api_route(
-    path="/api/queries", endpoint=queries, methods=["GET"], response_class=UJSONResponse
+    path="/api/queries",
+    endpoint=queries,
+    methods=["GET"],
+    response_class=UJSONResponse,
+    response_model=SupportedQueryResponse,
+    summary=params.docs.queries.summary,
+    description=params.docs.queries.description,
+    tags=[params.docs.queries.title],
 )
 app.add_api_route(
     path="/api/query/",
     endpoint=query,
     methods=["POST"],
-    summary=params.docs.endpoint_summary,
-    description=params.docs.endpoint_description,
+    summary=params.docs.query.summary,
+    description=params.docs.query.description,
     response_model=QueryResponse,
-    tags=[params.docs.group_title],
+    tags=[params.docs.query.title],
     response_class=UJSONResponse,
 )
 app.add_api_route(path="/api/docs", endpoint=docs, include_in_schema=False)
