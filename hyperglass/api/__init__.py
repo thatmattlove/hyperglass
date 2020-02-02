@@ -51,7 +51,7 @@ app = FastAPI(
     default_response_class=UJSONResponse,
     docs_url=None,
     redoc_url=None,
-    openapi_url=params.docs.openapi_url,
+    openapi_url=params.docs.openapi_uri,
 )
 
 # Add Event Handlers
@@ -133,7 +133,10 @@ app.add_api_route(
     tags=[params.docs.query.title],
     response_class=UJSONResponse,
 )
-app.add_api_route(path="/api/docs", endpoint=docs, include_in_schema=False)
+
+if params.docs.enable:
+    app.add_api_route(path=params.docs.uri, endpoint=docs, include_in_schema=False)
+
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 app.mount("/", StaticFiles(directory=UI_DIR, html=True), name="ui")
 

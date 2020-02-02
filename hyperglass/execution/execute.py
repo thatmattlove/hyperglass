@@ -169,7 +169,7 @@ class Connect:
                 params.messages.connection_error,
                 device_name=self.device.display_name,
                 proxy=None,
-                error=params.messages.noresponse_error,
+                error=params.messages.no_response,
             )
         signal.alarm(0)
         return response
@@ -243,7 +243,7 @@ class Connect:
                 params.messages.connection_error,
                 device_name=self.device.display_name,
                 proxy=None,
-                error=params.messages.noresponse_error,
+                error=params.messages.no_response,
             )
         signal.alarm(0)
         return response
@@ -337,7 +337,7 @@ class Connect:
             raise RestError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,
-                error=params.messages.noresponse_error,
+                error=params.messages.no_response,
             )
 
         return response

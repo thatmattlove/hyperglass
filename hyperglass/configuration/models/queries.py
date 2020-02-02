@@ -1,8 +1,8 @@
 """Validate query configuration parameters."""
 
 # Third Party Imports
+from pydantic import Field
 from pydantic import StrictBool
-from pydantic import StrictInt
 from pydantic import StrictStr
 from pydantic import constr
 
@@ -11,72 +11,135 @@ from hyperglass.configuration.models._utils import HyperglassModel
 from hyperglass.constants import SUPPORTED_QUERY_TYPES
 
 
+class BgpCommunityPattern(HyperglassModel):
+    """Validation model for bgp_community regex patterns."""
+
+    decimal: StrictStr = Field(
+        r"^[0-9]{1,10}$",
+        title="Decimal Community",
+        description="Regular expression pattern for validating decimal type BGP Community strings.",
+    )
+    extended_as: StrictStr = Field(
+        r"^([0-9]{0,5})\:([0-9]{1,5})$",
+        title="Extended AS Community",
+        description="Regular expression pattern for validating extended AS type BGP Community strings, e.g. `65000:1`",
+    )
+    large: StrictStr = Field(
+        r"^([0-9]{1,10})\:([0-9]{1,10})\:[0-9]{1,10}$",
+        title="Large Community",
+        description="Regular expression pattern for validating large community strings, e.g. `65000:65001:65002`",
+    )
+
+    class Config:
+        """Pydantic model configuration."""
+
+        title = "Pattern"
+        description = (
+            "Regular expression patterns used to validate BGP Community queries."
+        )
+
+
+class BgpAsPathPattern(HyperglassModel):
+    """Validation model for bgp_aspath regex patterns."""
+
+    mode: constr(regex=r"asplain|asdot") = Field(
+        "asplain",
+        title="AS Path Mode",
+        description="Set ASN display mode. This field is dependent on how your network devices are configured.",
+    )
+    asplain: StrictStr = Field(
+        r"^(\^|^\_)(\d+\_|\d+\$|\d+\(\_\.\+\_\))+$",
+        title="AS Plain",
+        description="Regular expression pattern for validating [AS Plain](/fixme) type BGP AS Path queries.",
+    )
+    asdot: StrictStr = Field(
+        r"^(\^|^\_)((\d+\.\d+)\_|(\d+\.\d+)\$|(\d+\.\d+)\(\_\.\+\_\))+$",
+        title="AS Dot",
+        description="Regular expression pattern for validating [AS Dot](/fixme) type BGP AS Path queries.",
+    )
+
+    class Config:
+        """Pydantic model configuration."""
+
+        title = "Pattern"
+        description = (
+            "Regular expression patterns used to validate BGP AS Path queries."
+        )
+
+
 class BgpCommunity(HyperglassModel):
     """Validation model for bgp_community configuration."""
 
-    class Pattern(HyperglassModel):
-        """Validation model for bgp_community regex patterns."""
-
-        decimal: StrictStr = r"^[0-9]{1,10}$"
-        extended_as: StrictStr = r"^([0-9]{0,5})\:([0-9]{1,5})$"
-        large: StrictStr = r"^([0-9]{1,10})\:([0-9]{1,10})\:[0-9]{1,10}$"
-
-    enable: StrictBool = True
-    display_name: StrictStr = "BGP Community"
-    pattern: Pattern = Pattern()
+    enable: StrictBool = Field(
+        True,
+        title="Enable",
+        description="Enable or disable the BGP Community query type.",
+    )
+    display_name: StrictStr = Field(
+        "BGP Community",
+        title="Display Name",
+        description="Text displayed for the BGP Community query type in the hyperglas UI.",
+    )
+    pattern: BgpCommunityPattern = BgpCommunityPattern()
 
 
 class BgpRoute(HyperglassModel):
     """Validation model for bgp_route configuration."""
 
-    enable: StrictBool = True
-    display_name: StrictStr = "BGP Route"
+    enable: StrictBool = Field(
+        True, title="Enable", description="Enable or disable the BGP Route query type."
+    )
+    display_name: StrictStr = Field(
+        "BGP Route",
+        title="Display Name",
+        description="Text displayed for the BGP Route query type in the hyperglas UI.",
+    )
 
 
 class BgpAsPath(HyperglassModel):
     """Validation model for bgp_aspath configuration."""
 
-    enable: StrictBool = True
-    display_name: StrictStr = "BGP AS Path"
-
-    class Pattern(HyperglassModel):
-        """Validation model for bgp_aspath regex patterns."""
-
-        mode: constr(regex="asplain|asdot") = "asplain"
-        asplain: StrictStr = r"^(\^|^\_)(\d+\_|\d+\$|\d+\(\_\.\+\_\))+$"
-        asdot: StrictStr = (
-            r"^(\^|^\_)((\d+\.\d+)\_|(\d+\.\d+)\$|(\d+\.\d+)\(\_\.\+\_\))+$"
-        )
-
-    pattern: Pattern = Pattern()
+    enable: StrictBool = Field(
+        True,
+        title="Enable",
+        description="Enable or disable the BGP AS Path query type.",
+    )
+    display_name: StrictStr = Field(
+        "BGP AS Path",
+        title="Display Name",
+        description="Text displayed for the BGP AS Path query type in the hyperglas UI.",
+    )
+    pattern: BgpAsPathPattern = BgpAsPathPattern()
 
 
 class Ping(HyperglassModel):
     """Validation model for ping configuration."""
 
-    enable: StrictBool = True
-    display_name: StrictStr = "Ping"
+    enable: StrictBool = Field(
+        True, title="Enable", description="Enable or disable the Ping query type."
+    )
+    display_name: StrictStr = Field(
+        "Ping",
+        title="Display Name",
+        description="Text displayed for the Ping query type in the hyperglas UI.",
+    )
 
 
 class Traceroute(HyperglassModel):
     """Validation model for traceroute configuration."""
 
-    enable: StrictBool = True
-    display_name: StrictStr = "Traceroute"
+    enable: StrictBool = Field(
+        True, title="Enable", description="Enable or disable the Traceroute query type."
+    )
+    display_name: StrictStr = Field(
+        "Traceroute",
+        title="Display Name",
+        description="Text displayed for the Traceroute query type in the hyperglas UI.",
+    )
 
 
 class Queries(HyperglassModel):
     """Validation model for all query types."""
-
-    class MaxPrefix(HyperglassModel):
-        """Validation model for params.features.max_prefix."""
-
-        enable: StrictBool = False
-        ipv4: StrictInt = 24
-        ipv6: StrictInt = 64
-        message: StrictStr = (
-            "Prefix length must be smaller than /{m}. <b>{i}</b> is too specific."
-        )
 
     @property
     def map(self):
@@ -119,4 +182,31 @@ class Queries(HyperglassModel):
     bgp_aspath: BgpAsPath = BgpAsPath()
     ping: Ping = Ping()
     traceroute: Traceroute = Traceroute()
-    max_prefix: MaxPrefix = MaxPrefix()
+
+    class Config:
+        """Pydantic model configuration."""
+
+        title = "Queries"
+        description = "Enable, disable, or configure query types."
+        fields = {
+            "bgp_route": {
+                "title": "BGP Route",
+                "description": "Enable, disable, or configure the BGP Route query type.",
+            },
+            "bgp_community": {
+                "title": "BGP Community",
+                "description": "Enable, disable, or configure the BGP Community query type.",
+            },
+            "bgp_aspath": {
+                "title": "BGP AS Path",
+                "description": "Enable, disable, or configure the BGP AS Path query type.",
+            },
+            "ping": {
+                "title": "Ping",
+                "description": "Enable, disable, or configure the Ping query type.",
+            },
+            "traceroute": {
+                "title": "Traceroute",
+                "description": "Enable, disable, or configure the Traceroute query type.",
+            },
+        }

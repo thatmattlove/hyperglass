@@ -1,6 +1,7 @@
 """Validate network configuration variables."""
 
 # Third Party Imports
+from pydantic import Field
 from pydantic import StrictStr
 
 # Project Imports
@@ -11,8 +12,16 @@ from hyperglass.configuration.models._utils import clean_name
 class Network(HyperglassModel):
     """Validation Model for per-network/asn config in devices.yaml."""
 
-    name: StrictStr
-    display_name: StrictStr
+    name: StrictStr = Field(
+        ...,
+        title="Network Name",
+        description="Internal name of the device's primary network.",
+    )
+    display_name: StrictStr = Field(
+        ...,
+        title="Network Display Name",
+        description="Display name of the device's primary network.",
+    )
 
 
 class Networks(HyperglassModel):

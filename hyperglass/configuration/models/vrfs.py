@@ -9,6 +9,7 @@ from typing import List
 from typing import Optional
 
 # Third Party Imports
+from pydantic import Field
 from pydantic import FilePath
 from pydantic import StrictBool
 from pydantic import StrictStr
@@ -25,10 +26,26 @@ from hyperglass.configuration.models._utils import HyperglassModelExtra
 class AccessList4(HyperglassModel):
     """Validation model for IPv4 access-lists."""
 
-    network: IPv4Network = "0.0.0.0/0"
-    action: constr(regex="permit|deny") = "permit"
-    ge: conint(ge=0, le=32) = 0
-    le: conint(ge=0, le=32) = 32
+    network: IPv4Network = Field(
+        "0.0.0.0/0",
+        title="Network",
+        description="IPv4 Network/Prefix that should be permitted or denied. ",
+    )
+    action: constr(regex=r"permit|deny") = Field(
+        "permit",
+        title="Action",
+        description="Permit or deny any networks contained within the prefix.",
+    )
+    ge: conint(ge=0, le=32) = Field(
+        0,
+        title="Greater Than or Equal To",
+        description="Similar to `ge` in a Cisco prefix-list, the `ge` field defines the **bottom** threshold for prefix size. For example, a value of `24` would result in a query for `192.0.2.0/23` being denied, but a query for `192.0.2.0/32` would be permitted. If this field is set to a value smaller than the `network` field's prefix length, this field's value will be overwritten to the prefix length of the prefix in the `network` field.",
+    )
+    le: conint(ge=0, le=32) = Field(
+        32,
+        title="Less Than or Equal To",
+        description="Similar to `le` in a Cisco prefix-list, the `le` field defines the **top** threshold for prefix size. For example, a value of `24` would result in a query for `192.0.2.0/23` being permitted, but a query for `192.0.2.0/32` would be denied.",
+    )
 
     @validator("ge")
     def validate_model(cls, value, values):
@@ -50,10 +67,31 @@ class AccessList4(HyperglassModel):
 class AccessList6(HyperglassModel):
     """Validation model for IPv6 access-lists."""
 
-    network: IPv6Network = "::/0"
-    action: constr(regex=r"permit|deny") = "permit"
-    ge: conint(ge=0, le=128) = 0
-    le: conint(ge=0, le=128) = 128
+    network: IPv6Network = Field(
+        "::/0",
+        title="Network",
+        description="IPv6 Network/Prefix that should be permitted or denied. ",
+    )
+    action: constr(regex=r"permit|deny") = Field(
+        "permit",
+        title="Action",
+        description="Permit or deny any networks contained within the prefix.",
+        # regex="permit|deny",
+    )
+    ge: conint(ge=0, le=128) = Field(
+        0,
+        title="Greater Than or Equal To",
+        description="Similar to `ge` in a Cisco prefix-list, the `ge` field defines the **bottom** threshold for prefix size. For example, a value of `64` would result in a query for `2001:db8::/48` being denied, but a query for `2001:db8::1/128` would be permitted. If this field is set to a value smaller than the `network` field's prefix length, this field's value will be overwritten to the prefix length of the prefix in the `network` field.",
+        # ge=0,
+        # le=128,
+    )
+    le: conint(ge=0, le=128) = Field(
+        128,
+        title="Less Than or Equal To",
+        description="Similar to `le` in a Cisco prefix-list, the `le` field defines the **top** threshold for prefix size. For example, a value of `64` would result in a query for `2001:db8::/48` being permitted, but a query for `2001:db8::1/128` would be denied.",
+        # ge=0,
+        # le=128,
+    )
 
     @validator("ge")
     def validate_model(cls, value, values):
@@ -77,6 +115,12 @@ class InfoConfigParams(HyperglassModelExtra):
 
     title: Optional[StrictStr]
 
+    class Config:
+        """Pydantic model configuration."""
+
+        title = "Help Parameters"
+        description = "Set dynamic or reusable values which may be used in the help/information content. Params my be access by using Python string formatting syntax, e.g. `{param_name}`. Any arbitrary values may be added."
+
 
 class InfoConfig(HyperglassModel):
     """Validation model for help configuration."""
@@ -84,6 +128,20 @@ class InfoConfig(HyperglassModel):
     enable: StrictBool = True
     file: Optional[FilePath]
     params: InfoConfigParams = InfoConfigParams()
+
+    class Config:
+        """Pydantic model configuration."""
+
+        fields = {
+            "enable": {
+                "title": "Enable",
+                "description": "Enable or disable the display of help/information content for this query type.",
+            },
+            "file": {
+                "title": "File Name",
+                "description": "Path to a valid text or Markdown file containing custom content.",
+            },
+        }
 
 
 class Info(HyperglassModel):
@@ -94,6 +152,34 @@ class Info(HyperglassModel):
     bgp_route: InfoConfig = InfoConfig()
     ping: InfoConfig = InfoConfig()
     traceroute: InfoConfig = InfoConfig()
+
+    class Config:
+        """Pydantic model configuration."""
+
+        title = "VRF Information"
+        description = "Per-VRF help & information content."
+        fields = {
+            "bgp_aspath": {
+                "title": "BGP AS Path",
+                "description": "Show information about bgp_aspath queries when selected.",
+            },
+            "bgp_community": {
+                "title": "BGP Community",
+                "description": "Show information about bgp_community queries when selected.",
+            },
+            "bgp_route": {
+                "title": "BGP Route",
+                "description": "Show information about bgp_route queries when selected.",
+            },
+            "ping": {
+                "title": "Ping",
+                "description": "Show information about ping queries when selected.",
+            },
+            "traceroute": {
+                "title": "Traceroute",
+                "description": "Show information about traceroute queries when selected.",
+            },
+        }
 
 
 class DeviceVrf4(HyperglassModelExtra):
@@ -186,25 +272,18 @@ class Vrf(HyperglassModel):
             result = self.name == other.name
         return result
 
+    class Config:
+        """Pydantic model configuration."""
 
-class DefaultVrf(HyperglassModel):
-    """Validation model for default routing table VRF."""
-
-    name: constr(regex="default") = "default"
-    display_name: StrictStr = "Global"
-    info: Info = Info()
-
-    class DefaultVrf4(HyperglassModel):
-        """Validation model for IPv4 default routing table VRF definition."""
-
-        source_address: IPv4Address
-        access_list: List[AccessList4] = [AccessList4()]
-
-    class DefaultVrf6(HyperglassModel):
-        """Validation model for IPv6 default routing table VRF definition."""
-
-        source_address: IPv6Address
-        access_list: List[AccessList6] = [AccessList6()]
-
-    ipv4: Optional[DefaultVrf4]
-    ipv6: Optional[DefaultVrf6]
+        title = "VRF"
+        description = "Per-VRF configuration."
+        fields = {
+            "name": {
+                "title": "Name",
+                "description": "VRF name as configured on the router/device.",
+            },
+            "display_name": {
+                "title": "Display Name",
+                "description": "Display name of VRF for use in the hyperglass UI. If none is specified, hyperglass will attempt to generate one.",
+            },
+        }
