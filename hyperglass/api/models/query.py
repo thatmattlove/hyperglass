@@ -1,22 +1,21 @@
 """Input query validation model."""
 
-# Standard Library Imports
+# Standard Library
 import hashlib
 
-# Third Party Imports
-from pydantic import BaseModel
-from pydantic import StrictStr
-from pydantic import validator
+# Third Party
+from pydantic import BaseModel, StrictStr, validator
 
-# Project Imports
-from hyperglass.api.models.types import SupportedQuery
-from hyperglass.api.models.validators import validate_aspath
-from hyperglass.api.models.validators import validate_community
-from hyperglass.api.models.validators import validate_ip
-from hyperglass.configuration import devices
-from hyperglass.configuration import params
-from hyperglass.configuration.models.vrfs import Vrf
+# Project
+from hyperglass.util import log
 from hyperglass.exceptions import InputInvalid
+from hyperglass.configuration import params, devices
+from hyperglass.api.models.types import SupportedQuery
+from hyperglass.api.models.validators import (
+    validate_ip,
+    validate_aspath,
+    validate_community,
+)
 
 
 def get_vrf_object(vrf_name):
@@ -51,14 +50,43 @@ class Query(BaseModel):
 
     query_location: StrictStr
     query_type: SupportedQuery
-    query_vrf: Vrf
+    query_vrf: StrictStr
     query_target: StrictStr
+
+    class Config:
+        """Pydantic model configuration."""
+
+        fields = {
+            "query_location": {
+                "title": params.web.text.query_location,
+                "description": "Router/Location Name",
+                "example": "router01",
+            },
+            "query_type": {
+                "title": params.web.text.query_type,
+                "description": "Type of Query to Execute",
+                "example": "bgp_route",
+            },
+            "query_vrf": {
+                "title": params.web.text.query_vrf,
+                "description": "Routing Table/VRF",
+                "example": "default",
+            },
+            "query_target": {
+                "title": params.web.text.query_target,
+                "description": "IP Address, Community, or AS Path",
+                "example": "1.1.1.0/24",
+            },
+        }
+        schema_extra = {
+            "x-code-samples": [{"lang": "Python", "source": "print('stuff')"}]
+        }
 
     def digest(self):
         """Create SHA256 hash digest of model representation."""
         return hashlib.sha256(repr(self).encode()).hexdigest()
 
-    @validator("query_location", pre=True, always=True)
+    @validator("query_location")
     def validate_query_location(cls, value):
         """Ensure query_location is defined.
 
@@ -80,7 +108,7 @@ class Query(BaseModel):
             )
         return value
 
-    @validator("query_vrf", always=True, pre=True)
+    @validator("query_vrf")
     def validate_query_vrf(cls, value, values):
         """Ensure query_vrf is defined.
 
@@ -108,10 +136,11 @@ class Query(BaseModel):
             )
         return device_vrf
 
-    @validator("query_target", always=True)
+    @validator("query_target")
     def validate_query_target(cls, value, values):
         """Validate query target value based on query_type."""
 
+        log.debug(values)
         query_type = values["query_type"]
 
         # Use relevant function based on query_type.

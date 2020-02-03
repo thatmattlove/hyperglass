@@ -1,23 +1,20 @@
 """API Routes."""
 
-# Standard Library Imports
+# Standard Library
 import time
 
-# Third Party Imports
+# Third Party
 import aredis
 from fastapi import HTTPException
-from fastapi.openapi.docs import get_redoc_html
-from fastapi.openapi.docs import get_swagger_ui_html
 from starlette.requests import Request
+from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 
-# Project Imports
-from hyperglass.api.models.query import Query
-from hyperglass.configuration import REDIS_CONFIG
-from hyperglass.configuration import devices
-from hyperglass.configuration import params
-from hyperglass.exceptions import HyperglassError
-from hyperglass.execution.execute import Execute
+# Project
 from hyperglass.util import log
+from hyperglass.exceptions import HyperglassError
+from hyperglass.configuration import REDIS_CONFIG, params, devices
+from hyperglass.api.models.query import Query
+from hyperglass.execution.execute import Execute
 
 Cache = aredis.StrictRedis(db=params.cache.database, **REDIS_CONFIG)
 

@@ -1,15 +1,14 @@
 """Input validation functions for submitted queries."""
 
-# Standard Library Imports
-import operator
+# Standard Library
 import re
+import operator
 from ipaddress import ip_network
 
-# Project Imports
-from hyperglass.configuration import params
-from hyperglass.exceptions import InputInvalid
-from hyperglass.exceptions import InputNotAllowed
+# Project
 from hyperglass.util import log
+from hyperglass.exceptions import InputInvalid, InputNotAllowed
+from hyperglass.configuration import params
 
 
 def _member_of(target, network):

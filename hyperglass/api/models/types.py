@@ -1,6 +1,6 @@
 """Custom validation types."""
 
-# Project Imports
+# Project
 from hyperglass.constants import SUPPORTED_QUERY_TYPES
 
 

@@ -1,9 +1,9 @@
 """API Error Handlers."""
 
-# Third Party Imports
+# Third Party
 from starlette.responses import UJSONResponse
 
-# Project Imports
+# Project
 from hyperglass.configuration import params
 
 
@@ -36,5 +36,5 @@ async def validation_handler(request, exc):
     error = exc.errors()[0]
     return UJSONResponse(
         {"output": error["msg"], "level": "error", "keywords": error["loc"]},
-        status_code=400,
+        status_code=422,
     )

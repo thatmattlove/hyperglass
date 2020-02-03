@@ -1,19 +1,23 @@
 """API Events."""
-# Third Party Imports
+# Third Party
 from starlette.exceptions import HTTPException
 
-# Project Imports
-from hyperglass.configuration import REDIS_CONFIG
-from hyperglass.configuration import URL_DEV
-from hyperglass.configuration import URL_PROD
-from hyperglass.configuration import frontend_params
-from hyperglass.configuration import params
+# Project
+from hyperglass.util import (
+    log,
+    check_redis,
+    check_python,
+    build_frontend,
+    clear_redis_cache,
+)
 from hyperglass.exceptions import HyperglassError
-from hyperglass.util import build_frontend
-from hyperglass.util import check_python
-from hyperglass.util import check_redis
-from hyperglass.util import clear_redis_cache
-from hyperglass.util import log
+from hyperglass.configuration import (
+    URL_DEV,
+    URL_PROD,
+    REDIS_CONFIG,
+    params,
+    frontend_params,
+)
 
 
 async def check_python_version():

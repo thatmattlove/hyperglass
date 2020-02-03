@@ -1,0 +1,1 @@
+curl %s/api/queries

@@ -1,22 +1,15 @@
 """Response model."""
 
-# Standard Library Imports
+# Standard Library
 # flake8: noqa
 import math
 import secrets
+from typing import List, Union, Optional
 from datetime import datetime
-from typing import List
-from typing import Optional
-from typing import Union
 
-# Third Party Imports
+# Third Party
 import ujson
-from pydantic import BaseModel
-from pydantic import StrictFloat
-from pydantic import StrictInt
-from pydantic import StrictStr
-from pydantic import constr
-from pydantic import validator
+from pydantic import BaseModel, StrictInt, StrictStr, StrictFloat, constr, validator
 
 
 """Patterns:
