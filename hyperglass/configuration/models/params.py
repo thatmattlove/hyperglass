@@ -1,29 +1,29 @@
 """Configuration validation entry point."""
 
-# Standard Library Imports
+# Standard Library
+from typing import List, Union, Optional
+from pathlib import Path
 from datetime import datetime
 from ipaddress import ip_address
-from pathlib import Path
-from typing import List
-from typing import Optional
-from typing import Union
 
-# Third Party Imports
-from pydantic import Field
-from pydantic import FilePath
-from pydantic import IPvAnyAddress
-from pydantic import StrictBool
-from pydantic import StrictInt
-from pydantic import StrictStr
-from pydantic import validator
+# Third Party
+from pydantic import (
+    Field,
+    FilePath,
+    StrictInt,
+    StrictStr,
+    StrictBool,
+    IPvAnyAddress,
+    validator,
+)
 
-# Project Imports
-from hyperglass.configuration.models._utils import HyperglassModel
-from hyperglass.configuration.models.cache import Cache
-from hyperglass.configuration.models.docs import Docs
-from hyperglass.configuration.models.messages import Messages
-from hyperglass.configuration.models.queries import Queries
+# Project
 from hyperglass.configuration.models.web import Web
+from hyperglass.configuration.models.docs import Docs
+from hyperglass.configuration.models.cache import Cache
+from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.configuration.models.queries import Queries
+from hyperglass.configuration.models.messages import Messages
 
 
 class Params(HyperglassModel):

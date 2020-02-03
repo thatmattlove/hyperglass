@@ -1,9 +1,9 @@
 """Validate command configuration variables."""
 
-# Third Party Imports
+# Third Party
 from pydantic import StrictStr
 
-# Project Imports
+# Project
 from hyperglass.configuration.models._utils import HyperglassModel
 
 

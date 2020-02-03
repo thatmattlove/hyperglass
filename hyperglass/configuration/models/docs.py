@@ -1,13 +1,9 @@
 """Configuration for API docs feature."""
-# Third Party Imports
-from pydantic import Field
-from pydantic import StrictBool
-from pydantic import StrictStr
-from pydantic import constr
+# Third Party
+from pydantic import Field, HttpUrl, StrictStr, StrictBool, constr
 
-# Project Imports
-from hyperglass.configuration.models._utils import AnyUri
-from hyperglass.configuration.models._utils import HyperglassModel
+# Project
+from hyperglass.configuration.models._utils import AnyUri, HyperglassModel
 
 
 class EndpointConfig(HyperglassModel):
@@ -37,9 +33,14 @@ class Docs(HyperglassModel):
         True, title="Enable", description="Enable or disable API documentation."
     )
     mode: constr(regex=r"(swagger|redoc)") = Field(
-        "swagger",
+        "redoc",
         title="Docs Mode",
         description="OpenAPI UI library to use for the hyperglass API docs. Currently, the options are [Swagger UI](/fixme) and [Redoc](/fixme).",
+    )
+    base_url: HttpUrl = Field(
+        "https://lg.example.net",
+        title="Base URL",
+        description="Base URL used in request samples.",
     )
     uri: AnyUri = Field(
         "/api/docs",
@@ -50,6 +51,16 @@ class Docs(HyperglassModel):
         "/openapi.json",
         title="OpenAPI URI",
         description="Path to the automatically generated `openapi.json` file.",
+    )
+    title: StrictStr = Field(
+        "{site_title} API Documentation",
+        title="Title",
+        description="API documentation title. `{site_title}` may be used to display the `site_title` parameter.",
+    )
+    description: StrictStr = Field(
+        "",
+        title="Description",
+        description="API documentation description appearing below the title.",
     )
     query: EndpointConfig = EndpointConfig(
         title="Submit Query",

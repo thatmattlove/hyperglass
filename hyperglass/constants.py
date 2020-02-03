@@ -1,5 +1,5 @@
 """Constant definitions used throughout the application."""
-# Standard Library Imports
+# Standard Library
 import sys
 from datetime import datetime
 

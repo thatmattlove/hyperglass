@@ -1,5 +1,5 @@
 """Static string definitions."""
-# Third Party Imports
+# Third Party
 import click
 
 

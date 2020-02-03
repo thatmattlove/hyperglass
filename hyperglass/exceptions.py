@@ -1,11 +1,11 @@
 """Custom exceptions for hyperglass."""
 
-# Third Party Imports
+# Third Party
 import ujson as _json
 
-# Project Imports
-from hyperglass.constants import STATUS_CODE_MAP
+# Project
 from hyperglass.util import log
+from hyperglass.constants import STATUS_CODE_MAP
 
 
 class HyperglassError(Exception):

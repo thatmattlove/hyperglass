@@ -1,11 +1,10 @@
 """Validate credential configuration variables."""
 
-# Third Party Imports
+# Third Party
 from pydantic import SecretStr
 
-# Project Imports
-from hyperglass.configuration.models._utils import HyperglassModel
-from hyperglass.configuration.models._utils import clean_name
+# Project
+from hyperglass.configuration.models._utils import HyperglassModel, clean_name
 
 
 class Credential(HyperglassModel):

@@ -5,18 +5,17 @@ command for Netmiko library or API call parameters for supported
 hyperglass API modules.
 """
 
-# Standard Library Imports
-import operator
+# Standard Library
 import re
+import operator
 
-# Third Party Imports
+# Third Party
 import ujson
 
-# Project Imports
-from hyperglass.configuration import commands
-from hyperglass.constants import TARGET_FORMAT_SPACE
-from hyperglass.constants import TRANSPORT_REST
+# Project
 from hyperglass.util import log
+from hyperglass.constants import TRANSPORT_REST, TARGET_FORMAT_SPACE
+from hyperglass.configuration import commands
 
 
 class Construct:

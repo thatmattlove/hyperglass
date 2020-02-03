@@ -1,14 +1,12 @@
 """Validate SSL configuration variables."""
 
-# Standard Library Imports
+# Standard Library
 from typing import Optional
 
-# Third Party Imports
-from pydantic import Field
-from pydantic import FilePath
-from pydantic import StrictBool
+# Third Party
+from pydantic import Field, FilePath, StrictBool
 
-# Project Imports
+# Project
 from hyperglass.configuration.models._utils import HyperglassModel
 
 

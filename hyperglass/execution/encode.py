@@ -1,12 +1,12 @@
 """Handle JSON Web Token Encoding & Decoding."""
 
-# Standard Library Imports
+# Standard Library
 import datetime
 
-# Third Party Imports
+# Third Party
 import jwt
 
-# Project Imports
+# Project
 from hyperglass.exceptions import RestError
 
 

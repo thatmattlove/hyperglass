@@ -36,22 +36,20 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
+# Standard Library
 # Standard Library Imports
 import sys
 from datetime import datetime
 
+# Third Party
+import uvloop
 # Third Party Imports
 import stackprinter
-import uvloop
 
+# Project
 # Project Imports
 # flake8: noqa: F401
-from hyperglass import api
-from hyperglass import configuration
-from hyperglass import constants
-from hyperglass import exceptions
-from hyperglass import execution
-from hyperglass import util
+from hyperglass import api, util, constants, execution, exceptions, configuration
 
 stackprinter.set_excepthook()
 

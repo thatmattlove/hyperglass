@@ -1,9 +1,9 @@
 """Markdown processing utility functions."""
 
-# Third Party Imports
+# Third Party
 from aiofile import AIOFile
 
-# Project Imports
+# Project
 from hyperglass.util import log
 
 

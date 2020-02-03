@@ -1,19 +1,21 @@
 """Helper functions for CLI message printing."""
-# Third Party Imports
+# Third Party
 import click
 
-# Project Imports
-from cli.static import CL
-from cli.static import CMD_HELP
-from cli.static import ERROR
-from cli.static import INFO
-from cli.static import LABEL
-from cli.static import NL
-from cli.static import STATUS
-from cli.static import SUCCESS
-from cli.static import VALUE
-from cli.static import WS
-from cli.static import E
+# Project
+from cli.static import (
+    CL,
+    NL,
+    WS,
+    INFO,
+    ERROR,
+    LABEL,
+    VALUE,
+    STATUS,
+    SUCCESS,
+    CMD_HELP,
+    E,
+)
 
 
 def cmd_help(emoji="", help_text=""):

@@ -1,16 +1,12 @@
 """Validation model for Redis cache config."""
 
-# Standard Library Imports
+# Standard Library
 from typing import Union
 
-# Third Party Imports
-from pydantic import Field
-from pydantic import IPvAnyAddress
-from pydantic import StrictBool
-from pydantic import StrictInt
-from pydantic import StrictStr
+# Third Party
+from pydantic import Field, StrictInt, StrictStr, StrictBool, IPvAnyAddress
 
-# Project Imports
+# Project
 from hyperglass.configuration.models._utils import HyperglassModel
 
 

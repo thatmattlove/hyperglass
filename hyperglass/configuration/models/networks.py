@@ -1,12 +1,12 @@
 """Validate network configuration variables."""
 
+# Third Party
 # Third Party Imports
-from pydantic import Field
-from pydantic import StrictStr
+from pydantic import Field, StrictStr
 
+# Project
 # Project Imports
-from hyperglass.configuration.models._utils import HyperglassModel
-from hyperglass.configuration.models._utils import clean_name
+from hyperglass.configuration.models._utils import HyperglassModel, clean_name
 
 
 class Network(HyperglassModel):

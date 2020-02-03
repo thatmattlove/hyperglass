@@ -6,32 +6,34 @@ construct.py, which is used to build & run the Netmiko connectoins or
 hyperglass-frr API calls, returns the output back to the front end.
 """
 
-# Standard Library Imports
+# Standard Library
 import re
 import signal
 
-# Third Party Imports
+# Third Party
 import httpx
 import sshtunnel
-from netmiko import ConnectHandler
-from netmiko import NetMikoAuthenticationException
-from netmiko import NetmikoAuthError
-from netmiko import NetmikoTimeoutError
-from netmiko import NetMikoTimeoutException
+from netmiko import (
+    ConnectHandler,
+    NetmikoAuthError,
+    NetmikoTimeoutError,
+    NetMikoTimeoutException,
+    NetMikoAuthenticationException,
+)
 
-# Project Imports
-from hyperglass.configuration import devices
-from hyperglass.configuration import params
-from hyperglass.constants import Supported
-from hyperglass.exceptions import AuthError
-from hyperglass.exceptions import DeviceTimeout
-from hyperglass.exceptions import ResponseEmpty
-from hyperglass.exceptions import RestError
-from hyperglass.exceptions import ScrapeError
-from hyperglass.execution.construct import Construct
-from hyperglass.execution.encode import jwt_decode
-from hyperglass.execution.encode import jwt_encode
+# Project
 from hyperglass.util import log
+from hyperglass.constants import Supported
+from hyperglass.exceptions import (
+    AuthError,
+    RestError,
+    ScrapeError,
+    DeviceTimeout,
+    ResponseEmpty,
+)
+from hyperglass.configuration import params, devices
+from hyperglass.execution.encode import jwt_decode, jwt_encode
+from hyperglass.execution.construct import Construct
 
 
 class Connect:

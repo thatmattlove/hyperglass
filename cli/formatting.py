@@ -24,10 +24,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-# Standard Library Imports
+# Standard Library
 import random
 
-# Third Party Imports
+# Third Party
 import click
 
 

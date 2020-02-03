@@ -1,12 +1,12 @@
 """hyperglass setuptools."""
 
-# Standard Library Imports
+# Standard Library
 import sys
+from pathlib import Path
 from configparser import ConfigParser
 from distutils.core import setup
-from pathlib import Path
 
-# Project Imports
+# Project
 from hyperglass import meta
 
 # Project metadata

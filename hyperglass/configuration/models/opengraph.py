@@ -1,14 +1,14 @@
-# Standard Library Imports
-from pathlib import Path
+"""Validate OpenGraph Configuration Parameters."""
+
+# Standard Library
 from typing import Optional
+from pathlib import Path
 
-# Third Party Imports
+# Third Party
 import PIL.Image as PilImage
-from pydantic import FilePath
-from pydantic import StrictInt
-from pydantic import root_validator
+from pydantic import FilePath, StrictInt, root_validator
 
-# Project Imports
+# Project
 from hyperglass.configuration.models._utils import HyperglassModel
 
 
@@ -31,8 +31,8 @@ class OpenGraph(HyperglassModel):
         """
         supported_extensions = (".jpg", ".jpeg", ".png")
         if (
-            values["image"].suffix is not None
-            and values["image"] not in supported_extensions
+            values["image"] is not None
+            and values["image"].suffix not in supported_extensions
         ):
             raise ValueError(
                 "OpenGraph image must be one of {e}".format(

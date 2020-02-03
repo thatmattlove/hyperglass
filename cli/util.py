@@ -1,21 +1,13 @@
 """CLI utility functions."""
-# Standard Library Imports
+# Standard Library
 from pathlib import Path
 
-# Third Party Imports
+# Third Party
 import click
 
-# Project Imports
-from cli.echo import error
-from cli.echo import info
-from cli.echo import status
-from cli.echo import success
-from cli.static import CL
-from cli.static import NL
-from cli.static import SUCCESS
-from cli.static import VALUE
-from cli.static import WS
-from cli.static import E
+# Project
+from cli.echo import info, error, status, success
+from cli.static import CL, NL, WS, VALUE, SUCCESS, E
 
 PROJECT_ROOT = Path(__file__).parent.parent
 

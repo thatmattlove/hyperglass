@@ -1,14 +1,11 @@
 """Validate query configuration parameters."""
 
-# Third Party Imports
-from pydantic import Field
-from pydantic import StrictBool
-from pydantic import StrictStr
-from pydantic import constr
+# Third Party
+from pydantic import Field, StrictStr, StrictBool, constr
 
-# Project Imports
-from hyperglass.configuration.models._utils import HyperglassModel
+# Project
 from hyperglass.constants import SUPPORTED_QUERY_TYPES
+from hyperglass.configuration.models._utils import HyperglassModel
 
 
 class BgpCommunityPattern(HyperglassModel):

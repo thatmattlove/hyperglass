@@ -1,25 +1,26 @@
 """Validate branding configuration variables."""
 
-# Standard Library Imports
-from pathlib import Path
+# Standard Library
 from typing import Optional
+from pathlib import Path
 
-# Third Party Imports
-from pydantic import FilePath
-from pydantic import HttpUrl
-from pydantic import StrictBool
-from pydantic import StrictInt
-from pydantic import StrictStr
-from pydantic import constr
-from pydantic import root_validator
-from pydantic import validator
+# Third Party
+from pydantic import (
+    HttpUrl,
+    FilePath,
+    StrictInt,
+    StrictStr,
+    StrictBool,
+    constr,
+    validator,
+    root_validator,
+)
 from pydantic.color import Color
 
-# Project Imports
+# Project
+from hyperglass.constants import DNS_OVER_HTTPS, FUNC_COLOR_MAP
 from hyperglass.configuration.models._utils import HyperglassModel
 from hyperglass.configuration.models.opengraph import OpenGraph
-from hyperglass.constants import DNS_OVER_HTTPS
-from hyperglass.constants import FUNC_COLOR_MAP
 
 
 class Analytics(HyperglassModel):
@@ -118,10 +119,10 @@ class Logo(HyperglassModel):
         logo_light = values.get("light")
         logo_dark = values.get("dark")
         default_logo_light = (
-            Path(__file__).parent.parent.parent / "static/images/hyperglass-light.png"
+            Path(__file__).parent.parent.parent / "static/images/hyperglass-dark.png"
         )
         default_logo_dark = (
-            Path(__file__).parent.parent.parent / "static/images/hyperglass-dark.png"
+            Path(__file__).parent.parent.parent / "static/images/hyperglass-light.png"
         )
 
         # Use light logo as dark logo if dark logo is undefined.

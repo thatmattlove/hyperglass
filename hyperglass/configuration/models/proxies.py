@@ -1,15 +1,12 @@
 """Validate SSH proxy configuration variables."""
 
-# Third Party Imports
-from pydantic import StrictInt
-from pydantic import StrictStr
-from pydantic import validator
+# Third Party
+from pydantic import StrictInt, StrictStr, validator
 
-# Project Imports
-from hyperglass.configuration.models._utils import HyperglassModel
-from hyperglass.configuration.models._utils import clean_name
-from hyperglass.configuration.models.credentials import Credential
+# Project
 from hyperglass.exceptions import UnsupportedDevice
+from hyperglass.configuration.models._utils import HyperglassModel, clean_name
+from hyperglass.configuration.models.credentials import Credential
 
 
 class Proxy(HyperglassModel):

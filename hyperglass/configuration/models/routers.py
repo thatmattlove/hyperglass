@@ -1,30 +1,27 @@
 """Validate router configuration variables."""
 
-# Standard Library Imports
+# Standard Library
 import re
-from typing import List
-from typing import Optional
+from typing import List, Optional
 
-# Third Party Imports
-from pydantic import StrictInt
-from pydantic import StrictStr
-from pydantic import validator
+# Third Party
+from pydantic import StrictInt, StrictStr, validator
 
-# Project Imports
-from hyperglass.configuration.models._utils import HyperglassModel
-from hyperglass.configuration.models._utils import HyperglassModelExtra
-from hyperglass.configuration.models._utils import clean_name
-from hyperglass.configuration.models.commands import Command
-from hyperglass.configuration.models.credentials import Credential
-from hyperglass.configuration.models.networks import Network
-from hyperglass.configuration.models.proxies import Proxy
-from hyperglass.configuration.models.ssl import Ssl
-from hyperglass.configuration.models.vrfs import Info
-from hyperglass.configuration.models.vrfs import Vrf
-from hyperglass.constants import Supported
-from hyperglass.exceptions import ConfigError
-from hyperglass.exceptions import UnsupportedDevice
+# Project
 from hyperglass.util import log
+from hyperglass.constants import Supported
+from hyperglass.exceptions import ConfigError, UnsupportedDevice
+from hyperglass.configuration.models.ssl import Ssl
+from hyperglass.configuration.models.vrfs import Vrf, Info
+from hyperglass.configuration.models._utils import (
+    HyperglassModel,
+    HyperglassModelExtra,
+    clean_name,
+)
+from hyperglass.configuration.models.proxies import Proxy
+from hyperglass.configuration.models.commands import Command
+from hyperglass.configuration.models.networks import Network
+from hyperglass.configuration.models.credentials import Credential
 
 _default_vrf = {
     "name": "default",

@@ -1,28 +1,24 @@
 #!/usr/bin/env python3
 """CLI Command definitions."""
 
-# Standard Library Imports
+# Standard Library
 from pathlib import Path
 
-# Third Party Imports
+# Third Party
 import click
 
-# Project Imports
-from cli.echo import cmd_help
-from cli.echo import error
-from cli.echo import value
-from cli.formatting import HelpColorsCommand
-from cli.formatting import HelpColorsGroup
-from cli.formatting import random_colors
-from cli.static import CLI_HELP
-from cli.static import LABEL
-from cli.static import E
-from cli.util import build_ui
-from cli.util import fix_ownership
-from cli.util import fix_permissions
-from cli.util import migrate_config
-from cli.util import migrate_systemd
-from cli.util import start_web_server
+# Project
+from cli.echo import error, value, cmd_help
+from cli.util import (
+    build_ui,
+    fix_ownership,
+    migrate_config,
+    fix_permissions,
+    migrate_systemd,
+    start_web_server,
+)
+from cli.static import LABEL, CLI_HELP, E
+from cli.formatting import HelpColorsGroup, HelpColorsCommand, random_colors
 
 # Define working directory
 WORKING_DIR = Path(__file__).parent
