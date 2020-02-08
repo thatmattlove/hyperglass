@@ -3,7 +3,6 @@ const githubURL = "https://github.com/checktheroads/hyperglass";
 module.exports = {
     title: "hyperglass",
     tagline: "documentation for the modern network looking glass",
-    metaTitle: "",
     url: "https://hyperglass.io",
     baseUrl: "/",
     favicon: "img/favicon.ico",
