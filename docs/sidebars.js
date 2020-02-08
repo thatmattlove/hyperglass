@@ -6,6 +6,6 @@ module.exports = {
             items: ["introduction", "getting-started", "configuration"]
         },
         { type: "category", label: "Features", items: ["mdx"] },
-        { type: "doc", label: "Supported Platforms", href: "/docs/platforms" }
+        { type: "doc", id: "/docs/platforms" }
     ]
 };
