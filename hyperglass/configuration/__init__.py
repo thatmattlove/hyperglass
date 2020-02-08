@@ -255,7 +255,6 @@ def _build_frontend_networks():
     {
         "device.network.display_name": {
             "device.name": {
-                "location": "device.location",
                 "display_name": "device.display_name",
                 "vrfs": [
                     "Global",
@@ -277,7 +276,6 @@ def _build_frontend_networks():
             frontend_dict[device.network.display_name].update(
                 {
                     device.name: {
-                        "location": device.location,
                         "display_name": device.network.display_name,
                         "vrfs": [vrf.display_name for vrf in device.vrfs],
                     }
@@ -286,7 +284,6 @@ def _build_frontend_networks():
         elif device.network.display_name not in frontend_dict:
             frontend_dict[device.network.display_name] = {
                 device.name: {
-                    "location": device.location,
                     "display_name": device.network.display_name,
                     "vrfs": [vrf.display_name for vrf in device.vrfs],
                 }
@@ -303,7 +300,6 @@ def _build_frontend_devices():
     Schema:
     {
         "device.name": {
-            "location": "device.location",
             "display_name": "device.display_name",
             "vrfs": [
                 "Global",
@@ -323,7 +319,6 @@ def _build_frontend_devices():
         if device.name in frontend_dict:
             frontend_dict[device.name].update(
                 {
-                    "location": device.location,
                     "network": device.network.display_name,
                     "display_name": device.display_name,
                     "vrfs": [
@@ -334,7 +329,6 @@ def _build_frontend_devices():
             )
         elif device.name not in frontend_dict:
             frontend_dict[device.name] = {
-                "location": device.location,
                 "network": device.network.display_name,
                 "display_name": device.display_name,
                 "vrfs": [
@@ -366,7 +360,6 @@ def _build_networks():
                 network_def["locations"].append(
                     {
                         "name": device.name,
-                        "location": device.location,
                         "display_name": device.display_name,
                         "network": device.network.display_name,
                         "vrfs": [

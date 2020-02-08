@@ -2,7 +2,7 @@
 
 Accepts input from front end application, validates the input and
 returns errors if input is invalid. Passes validated parameters to
-construct.py, which is used to build & run the Netmiko connectoins or
+construct.py, which is used to build & run the Netmiko connections or
 hyperglass-frr API calls, returns the output back to the front end.
 """
 
@@ -81,7 +81,7 @@ class Connect:
             )
         except sshtunnel.BaseSSHTunnelForwarderError as scrape_proxy_error:
             log.error(
-                f"Error connecting to device {self.device.location} via "
+                f"Error connecting to device {self.device.name} via "
                 f"proxy {self.device.proxy.name}"
             )
             raise ScrapeError(
@@ -120,7 +120,7 @@ class Connect:
             }
 
             try:
-                log.debug("Connecting to {loc}...", loc=self.device.location)
+                log.debug("Connecting to {loc}...", loc=self.device.name)
 
                 nm_connect_direct = ConnectHandler(**scrape_host)
 
@@ -138,7 +138,7 @@ class Connect:
             except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
                 log.error(
                     "Timeout connecting to device {loc}: {e}",
-                    loc=self.device.location,
+                    loc=self.device.name,
                     e=str(scrape_error),
                 )
                 raise DeviceTimeout(
@@ -150,7 +150,7 @@ class Connect:
             except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
                 log.error(
                     "Error authenticating to device {loc}: {e}",
-                    loc=self.device.location,
+                    loc=self.device.name,
                     e=str(auth_error),
                 )
                 raise AuthError(
@@ -182,7 +182,7 @@ class Connect:
         Directly connects to the router via Netmiko library, returns the
         command output.
         """
-        log.debug(f"Connecting directly to {self.device.location}...")
+        log.debug(f"Connecting directly to {self.device.name}...")
 
         scrape_host = {
             "host": self.device.address,
@@ -230,7 +230,7 @@ class Connect:
         except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
             log.error(
                 "Error authenticating to device {loc}: {e}",
-                loc=self.device.location,
+                loc=self.device.name,
                 e=str(auth_error),
             )
 
@@ -335,7 +335,7 @@ class Connect:
             )
 
         if not response:
-            log.error(f"No response from device {self.device.location}")
+            log.error(f"No response from device {self.device.name}")
             raise RestError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,
@@ -349,7 +349,7 @@ class Execute:
     """Perform query execution on device.
 
     Ingests raw user input, performs validation of target input, pulls
-    all configuraiton variables for the input router and connects to the
+    all configuration variables for the input router and connects to the
     selected device to execute the query.
     """
 

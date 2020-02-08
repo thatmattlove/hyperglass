@@ -48,7 +48,6 @@ class Router(HyperglassModel):
     network: Network
     credential: Credential
     proxy: Optional[Proxy]
-    location: StrictStr
     display_name: StrictStr
     port: StrictInt
     ssl: Optional[Ssl]
@@ -72,7 +71,7 @@ class Router(HyperglassModel):
             raise UnsupportedDevice(f'"{value}" device type is not supported.')
         return value
 
-    @validator("name", "location")
+    @validator("name")
     def clean_name(cls, value):
         """Remove or replace unsupported characters from field values.
 
