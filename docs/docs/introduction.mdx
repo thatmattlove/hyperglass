@@ -15,6 +15,28 @@ import styles from "../src/pages/styles.module.css";
 
 hyperglass was created with the lofty goal of benefiting the internet community at-large by providing a faster, easier, and more secure way for operators to provide looking glass services to their customers, peers, and other network operators.
 
+# Features
+
+- BGP Route, BGP Community, BGP AS Path, Ping, & Traceroute
+- Full IPv6 support
+- Customizable everything: features, theme, UI/API text, error messages, commands
+- Built in support for:
+    - Cisco IOS/IOS-XE
+    - Cisco IOS-XR
+    - Juniper JunOS
+    - Arista EOS
+    - Huawei
+    - FRRouting
+    - BIRD
+- Configurable support for any other [supported platform](/docs/platforms)
+- Optionally access devices via an SSH proxy/jump server
+- VRF support
+- Access List/prefix-list style query control to whitelist or blacklist query targets on a per-VRF basis
+- REST API with automatic, configurable OpenAPI documentation
+- Modern, responsive UI built on [ReactJS](https://reactjs.org/), with [NextJS](https://nextjs.org/) & [Chakra UI](https://chakra-ui.com/)
+- Query multiple devices simultaneously
+
+
 <Link 
     className={classnames('button button--outline button--secondary button--lg', styles.getStarted,)}
     to={useBaseUrl('docs/getting-started')}>

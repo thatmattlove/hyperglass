@@ -6,20 +6,13 @@
 
 /* You can override the default Infima variables here. */
 :root {
-    /* --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: rgb(33, 175, 144);
-  --ifm-color-primary-darker: rgb(31, 165, 136);
-  --ifm-color-primary-darkest: rgb(26, 136, 112);
-  --ifm-color-primary-light: rgb(70, 203, 174);
-  --ifm-color-primary-lighter: rgb(102, 212, 189);
-  --ifm-color-primary-lightest: rgb(146, 224, 208); */
-    --ifm-color-secondary: #330036;
-    --ifm-color-secondary-dark: #2e0031;
-    --ifm-color-secondary-darker: #2b002e;
-    --ifm-color-secondary-darkest: #240026;
-    --ifm-color-secondary-light: #38003b;
-    --ifm-color-secondary-lighter: #3b003e;
-    --ifm-color-secondary-lightest: #420046;
+    --ifm-color-secondary: #314cb6;
+    --ifm-color-secondary-dark: #2c44a4;
+    --ifm-color-secondary-darker: #2a419b;
+    --ifm-color-secondary-darkest: #22357f;
+    --ifm-color-secondary-light: #3654c8;
+    --ifm-color-secondary-lighter: #3e5bcb;
+    --ifm-color-secondary-lightest: #5a72d3;
     --ifm-color-primary: #ff5e5b;
     --ifm-color-primary-dark: #ff3c38;
     --ifm-color-primary-darker: #ff2b27;
@@ -35,4 +28,8 @@
     display: block;
     margin: 0 calc(-1 * var(--ifm-pre-padding));
     padding: 0 var(--ifm-pre-padding);
+}
+
+table td:nth-child(1) {
+    white-space: nowrap;
 }

@@ -7,6 +7,7 @@ description: Configuring hyperglass
 ---
 
 import Admonition from "react-admonitions";
+import R from "../src/components/required";
 
 hyperglass is meant to be _extremely_ customizable, but with reasonable defaults that most operators won't need to override. Even though there are a _lot_ of configuration options, all of them can be left untouched and hyperglass will work (although, it's recommended to at least set the organization name).
 
@@ -70,3 +71,14 @@ There are a lot more options, but this is enough to get started.
     </a>
     .
 </Admonition>
+
+## All Device Parameters
+
+| Parameter           | Type    | Description                                                                                             |
+| ------------------- | ------- | ------------------------------------------------------------------------------------------------------- |
+| <R/> `name`         | String  | Device hostname. This is not user-facing.                                                               |
+| <R/> `address`      | String  | Device management hostname or IP address.                                                               |
+| <R/> `network`      | String  | Primary network this device is a member of. Used for device grouping. Usually something like 'AS65000'. |
+| <R/> `display_name` | String  | Device's user-facing name.                                                                              |
+| <R/> `port`         | Integer | TCP port used to connect to the device.                                                                 |
+| <R/> `nos`          | String  | Network Operating System. Must be a [supported platform](/docs/platforms)                               |
