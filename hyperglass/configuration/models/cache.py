@@ -28,7 +28,7 @@ class Cache(HyperglassModel):
     show_text: StrictBool = Field(
         True,
         title="Show Text",
-        description="Show the [`cache`](/fixme) text in the hyperglass UI.",
+        description="Show the [cache](/fixme) text in the hyperglass UI.",
     )
 
     class Config:
@@ -36,3 +36,4 @@ class Cache(HyperglassModel):
 
         title = "Cache"
         description = "Redis server & cache timeout configuration."
+        schema_extra = {"level": 2}

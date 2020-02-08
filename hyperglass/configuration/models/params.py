@@ -85,13 +85,21 @@ class Params(HyperglassModel):
         title="Request Timeout",
         description="Global timeout in seconds for all requests. The frontend application (UI) uses this field's exact value when submitting queries. The backend application uses this field's value, minus one second, for its own timeout handling. This is to ensure a contextual timeout error is presented to the end user in the event of a backend application timeout.",
     )
-    listen_address: Optional[Union[IPvAnyAddress, StrictStr]]
+    listen_address: Optional[Union[IPvAnyAddress, StrictStr]] = Field(
+        None,
+        title="Listen Address",
+        description="Local IP Address or hostname the hyperglass application listens on to serve web traffic.",
+    )
     listen_port: StrictInt = Field(
         8001,
         title="Listen Port",
         description="Local TCP port the hyperglass application listens on to serve web traffic.",
     )
-    log_file: Optional[FilePath]
+    log_file: Optional[FilePath] = Field(
+        None,
+        title="Log File",
+        description="Path to a log file to which hyperglass can write logs. If none is set, hyperglass will write logs to a file located at `/tmp/`, with a uniquely generated name for each time hyperglass is started.",
+    )
     cors_origins: List[StrictStr] = Field(
         [],
         title="Cross-Origin Resource Sharing",
@@ -108,16 +116,7 @@ class Params(HyperglassModel):
     class Config:
         """Pydantic model configuration."""
 
-        fields = {
-            "listen_address": {
-                "title": "Listen Address",
-                "description": "Local IP Address or hostname the hyperglass application listens on to serve web traffic.",
-            },
-            "log_file": {
-                "title": "Log File",
-                "description": "Path to a log file to which hyperglass can write logs. If none is set, hyperglass will write logs to a file located at `/tmp/`, with a uniquely generated name for each time hyperglass is started.",
-            },
-        }
+        schema_extra = {"level": 1}
 
     @validator("listen_address", pre=True, always=True)
     def validate_listen_address(cls, value, values):

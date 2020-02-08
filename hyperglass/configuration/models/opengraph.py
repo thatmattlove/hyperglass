@@ -74,3 +74,4 @@ class OpenGraph(HyperglassModel):
                 "description": "Valid path to a JPG or PNG file to use as the OpenGraph image.",
             },
         }
+        schema_extra = {"level": 3}

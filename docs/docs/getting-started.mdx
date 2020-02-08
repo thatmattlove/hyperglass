@@ -1,0 +1,104 @@
+---
+id: getting-started
+title: Getting Started
+sidebar_label: Getting Started
+keywords: [install, configuration]
+description: Getting started with hyperglass
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Admonition from "react-admonitions"
+
+# Download & Install
+
+## System Dependencies
+
+### Python
+hyperglass is written in Python 3 and requires Python version 3.6 as a minimum dependency. If your system has a version of Python older than this, you may want to consider using hyperglass in a virtual environment. For development, hyperglass uses the [Poetry](https://python-poetry.org/) dependency and virtual environment tool, so it's probably easiest to use Poetry if you need to use a virtual environment.
+
+If you're confident upgrading your system's version of Python won't break your system (many Linux operating systems rely heavily on Python for package management and other system functions), you can install Python 3.6:
+
+<Tabs
+  defaultValue="debian"
+  values={[
+    { label: 'Debian/Ubuntu', value: 'debian' },
+    { label: 'RHEL/CentOS', value: 'rhel' }]}>
+
+<TabItem value="debian">
+
+```bash
+sudo apt install -y python3.6-dev python3-pip
+```
+
+</TabItem>
+
+<TabItem value="rhel">
+
+```bash
+sudo yum install centos-release-scl
+sudo yum install rh-python36
+```
+
+</TabItem>
+
+</Tabs>
+
+You can then verify your Python 3 version:
+
+```bash
+python3 --version
+# Python 3.6.9
+```
+
+### Other Dependencies
+The hyperglass UI is written in [ReactJS](https://reactjs.org/). As such, some Javascript dependencies are required:
+
+<Tabs
+  defaultValue="debian"
+  values={[
+    { label: 'Debian/Ubuntu', value: 'debian' },
+    { label: 'RHEL/CentOS', value: 'rhel' }]}>
+
+<TabItem value="debian">
+
+```bash
+# Add NodeJS
+curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+
+# Add Yarn Package Manager
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+
+# Install
+sudo apt update
+sudo apt install -y nodejs yarn
+```
+
+</TabItem>
+
+<TabItem value="rhel">
+
+```bash
+# Add NodeJS
+curl -sL https://rpm.nodesource.com/setup_13.x | sudo bash -
+
+# Add Yarn Package Manager
+curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo
+sudo yum -y install gcc-c++ make nodejs yarn
+```
+
+</TabItem>
+
+</Tabs>
+
+<Admonition type="tip" title="From the developer" iconType="emoji">
+I've attempted to abstract away most of the Javascript-related configuration and operational steps, because I think I might be the only network engineer on the planet who actually doesn't mind JS 😂. If you run into any issues with the NodeJS/Yarn installation processes, don't hesitate to <a href="https://github.com/checktheroads/hyperglass/issues">raise an issue</a> on Github, and I'll do my best to help out.
+</Admonition>
+
+## Application 
+
+<Admonition type="important" title="To Do" iconType="emoji">
+    Attempt to package and distribute via PIP
+</Admonition>
+

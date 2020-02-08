@@ -40,6 +40,7 @@ class Emoji:
     KEY = "\U0001F511 "
     LOCK = "\U0001F512 "
     CLAMP = "\U0001F5DC "
+    BOOKS = "\U0001F4DA "
 
 
 WS = Char(" ")

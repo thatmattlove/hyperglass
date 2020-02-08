@@ -8,7 +8,25 @@ from hyperglass.constants import SUPPORTED_QUERY_TYPES
 from hyperglass.configuration.models._utils import HyperglassModel
 
 
-class BgpCommunityPattern(HyperglassModel):
+class HyperglassLevel3(HyperglassModel):
+    """Automatic docs sorting subclass."""
+
+    class Config:
+        """Pydantic model configuration."""
+
+        schema_extra = {"level": 3}
+
+
+class HyperglassLevel4(HyperglassModel):
+    """Automatic docs sorting subclass."""
+
+    class Config:
+        """Pydantic model configuration."""
+
+        schema_extra = {"level": 4}
+
+
+class BgpCommunityPattern(HyperglassLevel4):
     """Validation model for bgp_community regex patterns."""
 
     decimal: StrictStr = Field(
@@ -36,7 +54,7 @@ class BgpCommunityPattern(HyperglassModel):
         )
 
 
-class BgpAsPathPattern(HyperglassModel):
+class BgpAsPathPattern(HyperglassLevel4):
     """Validation model for bgp_aspath regex patterns."""
 
     mode: constr(regex=r"asplain|asdot") = Field(
@@ -64,7 +82,7 @@ class BgpAsPathPattern(HyperglassModel):
         )
 
 
-class BgpCommunity(HyperglassModel):
+class BgpCommunity(HyperglassLevel3):
     """Validation model for bgp_community configuration."""
 
     enable: StrictBool = Field(
@@ -80,7 +98,7 @@ class BgpCommunity(HyperglassModel):
     pattern: BgpCommunityPattern = BgpCommunityPattern()
 
 
-class BgpRoute(HyperglassModel):
+class BgpRoute(HyperglassLevel3):
     """Validation model for bgp_route configuration."""
 
     enable: StrictBool = Field(
@@ -93,7 +111,7 @@ class BgpRoute(HyperglassModel):
     )
 
 
-class BgpAsPath(HyperglassModel):
+class BgpAsPath(HyperglassLevel3):
     """Validation model for bgp_aspath configuration."""
 
     enable: StrictBool = Field(
@@ -109,7 +127,7 @@ class BgpAsPath(HyperglassModel):
     pattern: BgpAsPathPattern = BgpAsPathPattern()
 
 
-class Ping(HyperglassModel):
+class Ping(HyperglassLevel3):
     """Validation model for ping configuration."""
 
     enable: StrictBool = Field(
@@ -122,7 +140,7 @@ class Ping(HyperglassModel):
     )
 
 
-class Traceroute(HyperglassModel):
+class Traceroute(HyperglassLevel3):
     """Validation model for traceroute configuration."""
 
     enable: StrictBool = Field(
@@ -207,3 +225,4 @@ class Queries(HyperglassModel):
                 "description": "Enable, disable, or configure the Traceroute query type.",
             },
         }
+        schema_extra = {"level": 2}

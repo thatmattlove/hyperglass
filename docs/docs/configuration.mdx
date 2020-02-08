@@ -1,0 +1,72 @@
+---
+id: configuration
+title: Configuration
+sidebar_label: Configuration
+keywords: [configuration]
+description: Configuring hyperglass
+---
+
+import Admonition from "react-admonitions";
+
+hyperglass is meant to be _extremely_ customizable, but with reasonable defaults that most operators won't need to override. Even though there are a _lot_ of configuration options, all of them can be left untouched and hyperglass will work (although, it's recommended to at least set the organization name).
+
+<Admonition type="tip" iconType="emoji" title="Validation">
+    On the back end, hyperglass uses strict configuration schema validation, so it's virtually
+    impossible to configure hyperglass incorrectly without receiving a contextual warning about
+    what's missing or incorrect about a configuration.
+</Admonition>
+
+# Configuration Files
+
+hyperglass configuration consists of three separate [YAML](https://yaml.org/) configuration files:
+
+-   `hyperglass.yaml`
+    -   Defines configuration parameters for the application and UI
+    -   _This file is not required for hyperglass to run_
+-   `devices.yaml`
+    -   Defines devices (routers), SSH proxy servers, and credentials
+    -   **This file is required for hyperglass to run**
+-   `commands.yaml`
+    -   Defines commands for custom network operating systems, or overrides default hyperglass command sets.
+    -   _This file is not required for hyperglass to run_
+
+Configuration files may be located in one of the following directories:
+
+-   `/etc/hyperglass`
+-   `~/hyperglass`
+
+# Adding Devices
+
+To add, as an example, a Cisco router, add the following to your `devices.yaml`, with the relevant details changed for your device:
+
+```yaml
+routers:
+    - name: router01.pop01
+      address: 10.0.0.1
+      network: AS65000
+      credential:
+          username: username
+          password: password
+      location: pop01
+      display_name: Phoenix, AZ
+      port: 22
+      nos: cisco_ios
+      vrfs:
+          - name: default
+            ipv4:
+                source_address: 192.0.2.1
+            ipv6:
+                source_address: 2001:db8::1
+```
+
+There are a lot more options, but this is enough to get started.
+
+<Admonition type="tip" iconType="emoji" title="YAML">
+    If you have a lot of devices with shared configuration parameters, you may want to look into{" "}
+    <strong>YAML Anchors and Aliases</strong>. If you've never used them before, they can be pretty
+    weird looking at first read. Atlassian{" "}
+    <a href="https://confluence.atlassian.com/bitbucket/yaml-anchors-960154027.html">
+        has a pretty decent guide
+    </a>
+    .
+</Admonition>

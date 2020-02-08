@@ -3,7 +3,7 @@
 import stackprinter
 
 # Project
-from cli import echo, util, static, commands, formatting  # noqa: F401
+from cli import echo, util, static, commands, formatting, schema  # noqa: F401
 
 stackprinter.set_excepthook(style="darkbg2")
 

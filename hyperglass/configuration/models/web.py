@@ -23,7 +23,25 @@ from hyperglass.configuration.models._utils import HyperglassModel
 from hyperglass.configuration.models.opengraph import OpenGraph
 
 
-class Analytics(HyperglassModel):
+class HyperglassLevel3(HyperglassModel):
+    """Automatic docs sorting subclass."""
+
+    class Config:
+        """Pydantic model configuration."""
+
+        schema_extra = {"level": 3}
+
+
+class HyperglassLevel4(HyperglassModel):
+    """Automatic docs sorting subclass."""
+
+    class Config:
+        """Pydantic model configuration."""
+
+        schema_extra = {"level": 4}
+
+
+class Analytics(HyperglassLevel3):
     """Validation model for Google Analytics."""
 
     enable: StrictBool = False
@@ -48,13 +66,13 @@ class Analytics(HyperglassModel):
         return value
 
 
-class Credit(HyperglassModel):
+class Credit(HyperglassLevel3):
     """Validation model for developer credit."""
 
     enable: StrictBool = True
 
 
-class ExternalLink(HyperglassModel):
+class ExternalLink(HyperglassLevel3):
     """Validation model for external link."""
 
     enable: StrictBool = True
@@ -62,26 +80,7 @@ class ExternalLink(HyperglassModel):
     url: HttpUrl = "https://www.peeringdb.com/AS{primary_asn}"
 
 
-class Font(HyperglassModel):
-    """Validation model for params.branding.font."""
-
-    class Primary(HyperglassModel):
-        """Validation model for params.branding.font.primary."""
-
-        name: StrictStr = "Nunito"
-        size: StrictStr = "1rem"
-
-    class Mono(HyperglassModel):
-        """Validation model for params.branding.font.mono."""
-
-        name: StrictStr = "Fira Code"
-        size: StrictStr = "87.5%"
-
-    primary: Primary = Primary()
-    mono: Mono = Mono()
-
-
-class HelpMenu(HyperglassModel):
+class HelpMenu(HyperglassLevel3):
     """Validation model for generic help menu."""
 
     enable: StrictBool = True
@@ -89,7 +88,7 @@ class HelpMenu(HyperglassModel):
     title: StrictStr = "Help"
 
 
-class Logo(HyperglassModel):
+class Logo(HyperglassLevel3):
     """Validation model for logo configuration."""
 
     light: Optional[FilePath]
@@ -158,7 +157,7 @@ class Logo(HyperglassModel):
         fields = {"logo_path": "path"}
 
 
-class Terms(HyperglassModel):
+class Terms(HyperglassLevel3):
     """Validation model for terms & conditions."""
 
     enable: StrictBool = True
@@ -166,7 +165,7 @@ class Terms(HyperglassModel):
     title: StrictStr = "Terms"
 
 
-class Text(HyperglassModel):
+class Text(HyperglassLevel3):
     """Validation model for params.branding.text."""
 
     title_mode: constr(regex=("logo_only|text_only|logo_title|all")) = "logo_only"
@@ -179,81 +178,63 @@ class Text(HyperglassModel):
     fqdn_tooltip: StrictStr = "Use {protocol}"  # Formatted by Javascript
     cache: StrictStr = "Results will be cached for {timeout} {period}."
 
-    class Error404(HyperglassModel):
-        """Validation model for 404 Error Page."""
 
-        title: StrictStr = "Error"
-        subtitle: StrictStr = "{uri} isn't a thing"
-        button: StrictStr = "Home"
+class ThemeColors(HyperglassLevel4):
+    """Validation model for theme colors."""
 
-    class Error500(HyperglassModel):
-        """Validation model for 500 Error Page."""
+    black: Color = "#262626"
+    white: Color = "#f7f7f7"
+    gray: Color = "#c1c7cc"
+    red: Color = "#d84b4b"
+    orange: Color = "ff6b35"
+    yellow: Color = "#edae49"
+    green: Color = "#35b246"
+    blue: Color = "#314cb6"
+    teal: Color = "#35b299"
+    cyan: Color = "#118ab2"
+    pink: Color = "#f2607d"
+    purple: Color = "#8d30b5"
+    primary: Optional[Color]
+    secondary: Optional[Color]
+    success: Optional[Color]
+    warning: Optional[Color]
+    error: Optional[Color]
+    danger: Optional[Color]
 
-        title: StrictStr = "Error"
-        subtitle: StrictStr = "Something Went Wrong"
-        button: StrictStr = "Home"
+    @validator(*FUNC_COLOR_MAP.keys(), pre=True, always=True)
+    def validate_colors(cls, value, values, field):
+        """Set default functional color mapping.
+        Arguments:
+            value {str|None} -- Functional color
+            values {str} -- Already-validated colors
+        Returns:
+            {str} -- Mapped color.
+        """
+        if value is None:
+            default_color = FUNC_COLOR_MAP[field.name]
+            value = str(values[default_color])
+        return value
 
-    error404: Error404 = Error404()
-    error500: Error500 = Error500()
+    def dict(self, *args, **kwargs):
+        """Return dict for colors only."""
+        return {k: v.as_hex() for k, v in self.__dict__.items()}
 
 
-class Theme(HyperglassModel):
+class ThemeFonts(HyperglassLevel4):
+    """Validation model for theme fonts."""
+
+    body: StrictStr = "Nunito"
+    mono: StrictStr = "Fira Code"
+
+
+class Theme(HyperglassLevel3):
     """Validation model for theme variables."""
 
-    class Colors(HyperglassModel):
-        """Validation model for theme colors."""
-
-        black: Color = "#262626"
-        white: Color = "#f7f7f7"
-        gray: Color = "#c1c7cc"
-        red: Color = "#d84b4b"
-        orange: Color = "ff6b35"
-        yellow: Color = "#edae49"
-        green: Color = "#35b246"
-        blue: Color = "#314cb6"
-        teal: Color = "#35b299"
-        cyan: Color = "#118ab2"
-        pink: Color = "#f2607d"
-        purple: Color = "#8d30b5"
-        primary: Optional[Color]
-        secondary: Optional[Color]
-        success: Optional[Color]
-        warning: Optional[Color]
-        error: Optional[Color]
-        danger: Optional[Color]
-
-        @validator(*FUNC_COLOR_MAP.keys(), pre=True, always=True)
-        def validate_colors(cls, value, values, field):
-            """Set default functional color mapping.
-
-            Arguments:
-                value {str|None} -- Functional color
-                values {str} -- Already-validated colors
-
-            Returns:
-                {str} -- Mapped color.
-            """
-
-            if value is None:
-                default_color = FUNC_COLOR_MAP[field.name]
-                value = str(values[default_color])
-            return value
-
-        def dict(self, *args, **kwargs):
-            """Return dict for colors only."""
-            return {k: v.as_hex() for k, v in self.__dict__.items()}
-
-    class Fonts(HyperglassModel):
-        """Validation model for theme fonts."""
-
-        body: StrictStr = "Nunito"
-        mono: StrictStr = "Fira Code"
-
-    colors: Colors = Colors()
-    fonts: Fonts = Fonts()
+    colors: ThemeColors = ThemeColors()
+    fonts: ThemeFonts = ThemeFonts()
 
 
-class DnsOverHttps(HyperglassModel):
+class DnsOverHttps(HyperglassLevel3):
     """Validation model for DNS over HTTPS resolution."""
 
     name: constr(regex="|".join(DNS_OVER_HTTPS.keys())) = "cloudflare"
@@ -279,10 +260,14 @@ class Web(HyperglassModel):
     credit: Credit = Credit()
     dns_provider: DnsOverHttps = DnsOverHttps()
     external_link: ExternalLink = ExternalLink()
-    font: Font = Font()
     help_menu: HelpMenu = HelpMenu()
     logo: Logo = Logo()
     opengraph: OpenGraph = OpenGraph()
     terms: Terms = Terms()
     text: Text = Text()
     theme: Theme = Theme()
+
+    class Config:
+        """Pydantic model configuration."""
+
+        schema_extra = {"level": 2}

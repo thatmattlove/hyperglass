@@ -50,7 +50,7 @@ class Messages(HyperglassModel):
     request_timeout: StrictStr = Field(
         "Request timed out.",
         title="Request Timeout",
-        description="Displayed when the [`request_timeout`](/fixme) time expires.",
+        description="Displayed when the [request_timeout](/fixme) time expires.",
     )
     connection_error: StrictStr = Field(
         "Error connecting to {device_name}: {error}",
@@ -87,3 +87,4 @@ class Messages(HyperglassModel):
 
         title = "Messages"
         description = "Customize almost all user-facing UI & API messages."
+        schema_extra = {"level": 2}
