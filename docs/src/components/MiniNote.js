@@ -1,8 +1,8 @@
 import React from "react";
 
-export default ({ children }) => (
+export default ({ children, newLine = true }) => (
     <>
-        <br />
+        {newLine && <br />}
         <span
             style={{
                 fontSize: "var(--ifm-font-size-sm)",

@@ -1,0 +1,21 @@
+@import url("https://fonts.googleapis.com/css?family=Nunito&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Fira+Code|Nunito&display=swap");
+
+.font {
+    background-color: var(--ifm-blockquote-color);
+    padding: 0.2rem;
+    color: var(--ifm-code-color);
+    border-radius: var(--ifm-code-border-radius);
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.fontBody {
+    font-family: Nunito, sans-serif;
+}
+.fontMono {
+    font-family: "Fira Code", monospace;
+}

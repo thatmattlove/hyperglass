@@ -186,7 +186,7 @@ class ThemeColors(HyperglassLevel4):
     white: Color = "#f7f7f7"
     gray: Color = "#c1c7cc"
     red: Color = "#d84b4b"
-    orange: Color = "ff6b35"
+    orange: Color = "#ff6b35"
     yellow: Color = "#edae49"
     green: Color = "#35b246"
     blue: Color = "#314cb6"
@@ -204,6 +204,7 @@ class ThemeColors(HyperglassLevel4):
     @validator(*FUNC_COLOR_MAP.keys(), pre=True, always=True)
     def validate_colors(cls, value, values, field):
         """Set default functional color mapping.
+
         Arguments:
             value {str|None} -- Functional color
             values {str} -- Already-validated colors
