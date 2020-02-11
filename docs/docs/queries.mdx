@@ -1,0 +1,49 @@
+---
+id: queries
+title: Queries
+sidebar_label: Queries
+keywords: [hyperglass, queries]
+description: hyperglass query types
+---
+
+import Link from "@docusaurus/Link";
+import Code from "../src/components/JSXCode";
+
+Each query type may be disabled, enabled, or customized.
+
+## `bgp_route`
+
+| Parameter      |  Type   | Default       | Description                                            |
+| :------------- | :-----: | :------------ | :----------------------------------------------------- |
+| `enable`       | Boolean | `true`        | Enable or disable the BGP Route query type.            |
+| `display_name` | String  | `'BGP Route'` | Text displayed for the BGP Route query type in the UI. |
+
+## `bgp_community`
+
+| Parameter      |  Type   | Default           | Description                                                |
+| :------------- | :-----: | :---------------- | :--------------------------------------------------------- |
+| `enable`       | Boolean | `true`            | Enable or disable the BGP Community query type.            |
+| `display_name` | String  | `'BGP Community'` | Text displayed for the BGP Community query type in the UI. |
+| `pattern`      |         |                   |                                                            |
+
+## `bgp_aspath`
+
+| Parameter      |  Type   | Default         | Description                                              |
+| :------------- | :-----: | :-------------- | :------------------------------------------------------- |
+| `enable`       | Boolean | `true`          | Enable or disable the BGP AS Path query type.            |
+| `display_name` | String  | `'BGP AS Path'` | Text displayed for the BGP AS Path query type in the UI. |
+| `pattern`      |         |                 |                                                          |
+
+## `ping`
+
+| Parameter      |  Type   | Default  | Description                                       |
+| :------------- | :-----: | :------- | :------------------------------------------------ |
+| `enable`       | Boolean | `true`   | Enable or disable the Ping query type.            |
+| `display_name` | String  | `'Ping'` | Text displayed for the Ping query type in the UI. |
+
+## `traceroute`
+
+| Parameter      |  Type   | Default        | Description                                             |
+| :------------- | :-----: | :------------- | :------------------------------------------------------ |
+| `enable`       | Boolean | `true`         | Enable or disable the Traceroute query type.            |
+| `display_name` | String  | `'Traceroute'` | Text displayed for the Traceroute query type in the UI. |

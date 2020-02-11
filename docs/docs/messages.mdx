@@ -1,0 +1,49 @@
+---
+id: messages
+title: Messages
+sidebar_label: Messages
+keywords: [configuration, messages, text, ui, customization]
+description: hyperglass messages configuration
+---
+
+import Link from "@docusaurus/Link";
+import Code from "../src/components/JSXCode";
+
+All user-facing status messages can be customized if needed.
+
+| Parameter              |  Type  | Default                                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                 |
+| :--------------------- | :----: | :-------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `acl_denied`           | String | `'"{target} is a member of {denied_network}, which is not allowed."'` | Displayed when a query target is explicitly denied by a matched VRF's ACL entry. `{target}` and `{denied_network}` will be replaced with the denied query target and the ACL entry that caused it to be denied.                                                                                                                                                                                             |
+| `acl_not_allowed`      | String | `'{target} is not allowed.'`                                          | Displayed when a query target is implicitly denied by a matched VRF's ACL. `{target}` will be replaced with the denied query target.                                                                                                                                                                                                                                                                        |
+| `authentication_error` | String | `'Authentication error occurred.'`                                    | Displayed when hyperglass is unable to authenticate to a configured device. Usually, this indicates a configuration error. `{device_name}` and `{error}` will be replaced with the device in question and the specific connection error.                                                                                                                                                                    |
+| `connection_error`     | String | `'Error connecting to {device_name}: {error}'`                        | Displayed when hyperglass is unable to connect to a configured device. Usually, this indicates a configuration error. `{device_name}` and `{error}` will be replaced with the device in question and the specific connection error.                                                                                                                                                                         |
+| `feature_not_enabled`  | String | `'{feature} is not enabled for {device_name}.'`                       | Displayed when a query type is submitted that is not supported or disabled. The UI performs validation of supported query types prior to submitting any requests, so this is primarily relevant to the hyperglass API. `{feature}` and `{device_name}` will be replaced with the disabled feature and the selected device/location.                                                                         |
+| `general`              | String | `'Something went wrong.'`                                             | Displayed when generalized errors occur. Seeing this error message may indicate a bug in hyperglass, as most other errors produced are highly contextual. If you see this in the wild, try enabling <Link to="/docs/configuration#global-settings"><Code>debug</Code></Link> mode and review the logs to pinpoint the source of the error.                                                                  |
+| `invalid_field`        | String | `'{input} is an invalid {field}.'`                                    | Displayed when a query field contains an invalid or unsupported value. `{input}` and `{field}` will be replaced with the invalid input value and corresponding field name.                                                                                                                                                                                                                                  |
+| `invalid_input`        | String | `'{target} is not a valid {query_type} target.'`                      | Displayed when a query target's value is invalid in relation to the corresponding query type. `{target}` and `{query_type}` will be replaced with the invalid target and corresponding query type.                                                                                                                                                                                                          |
+| `no_input`             | String | `'{field} must be specified.'`                                        | Displayed when no a required field is not specified. `{field}` will be replaced with the `display_name` of the field that was omitted.                                                                                                                                                                                                                                                                      |
+| `no_output`            | String | `'No output.'`                                                        | Displayed when hyperglass can connect to a device and execute a query, but the response is empty.                                                                                                                                                                                                                                                                                                           |
+| `no_response`          | String | `'No response.'`                                                      | Displayed when hyperglass can connect to a device, but no output is able to be read. Seeing this error may indicate a bug in hyperglass or one of its dependencies. If you see this in the wild, try enabling <Link to="/docs/configuration#global-settings"><Code>debug</Code></Link> mode and review the logs to pinpoint the source of the error.                                                        |
+| `request_timeout`      | String | `'Request timed out.'`                                                | Displayed when the <Link to="/docs/configuration#global-settings"><Code>request_timeout</Code></Link> time expires.                                                                                                                                                                                                                                                                                         |
+| `vrf_not_associated`   | String | `'VRF {vrf_name} is not associated with {device_name}.'`              | Displayed when a query request's VRF field value contains a VRF that is not configured or associated with the corresponding location/device. The UI automatically filters out VRFs that are not configured on a selected device, so this error is most likely to appear when using the hyperglass API. `{vrf_name}` and `{device_name}` will be replaced with the VRF in question and corresponding device. |
+| `vrf_not_found`        | String | `'RF {vrf_name} is not defined.'`                                     | Displayed when a query VRF is not configured on any devices. The UI only shows configured VRFs, so this error is most likely to appear when using the hyperglass API. `{vrf_name}` will be replaced with the VRF in question.                                                                                                                                                                               |
+
+## Example
+
+```yaml
+messages:
+    acl_denied: "{target} is a member of {denied_network}, which is not allowed."
+    acl_not_allowed: "{target} is not allowed."
+    authentication_error: Authentication error occurred.
+    connection_error: "Error connecting to {device_name}: {error}"
+    feature_not_enabled: "{feature} is not enabled for {device_name}."
+    general: Something went wrong.
+    invalid_field: "{input} is an invalid {field}."
+    invalid_input: "{target} is not a valid {query_type} target."
+    no_input: "{field} must be specified."
+    no_output: No output.
+    no_response: No response.
+    request_timeout: Request timed out.
+    vrf_not_associated: VRF {vrf_name} is not associated with {device_name}.
+    vrf_not_found: VRF {vrf_name} is not defined.
+```

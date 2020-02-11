@@ -1,0 +1,89 @@
+---
+id: api
+title: API
+sidebar_label: API
+keywords: [configuration, api, rest]
+description: hyperglass API configuration
+---
+
+import Link from "@docusaurus/Link";
+import Admonition from "react-admonitions";
+import MiniNote from "../src/components/MiniNote";
+import Code from "../src/components/JSXCode";
+import PageLink from "../src/components/PageLink";
+
+The hyperglass API is based on the powerful [FastAPI](https://fastapi.tiangolo.com/) framework, which includes automatic API documentation using the [OpenAPI](https://www.openapis.org/) specification. If you plan to provide your users with API access to your hyperglass instance, it is highly recommended to leave this enabled.
+
+FastAPI provides built in support for both [Swagger UI](https://swagger.io/tools/swagger-ui/) and [Redoc](https://redocly.github.io/redoc/), which are open source projects that create a pretty web UI from an OpenAPI specification.
+
+## Settings
+
+| Parameter     |  Type   | Default                            | Description                                                                                                                                                |
+| :------------ | :-----: | :--------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enable`      | Boolean | `true`                             | Enable or disable the API documentation.                                                                                                                   |
+| `title`       | String  | `'{site_title} API Documentation'` | API documentation title. `{site_title}` will be replaced with the <Link to="/docs/configuration#global-settings"><Code>site_title</Code></Link> parameter. |
+| `description` | String  |                                    | API documentation description appearing below the title.                                                                                                   |
+| `base_url`    | String  | `'https://lg.example.net'`         | The base URL for your hyperglass site. Used by OpenAPI for dynamically creating hyperlinks.                                                                |
+| `mode`        | String  | `'redoc'`                          | OpenAPI UI library to use for the hyperglass API docs. <MiniNote>Must be <Code>redoc</Code> or <Code>swagger</Code></MiniNote>                             |
+| `uri`         | String  | `'/api/docs'`                      | HTTP URI/path where API documentation can be accessed.                                                                                                     |
+| `openapi_uri` | String  | `'/openapi.json'`                  | Path to the automatically generated `openapi.json` file.                                                                                                   |
+| `queries`     |         |                                    | `/queries` endpoint settings <PageLink to="#queries">➡️</PageLink>                                                                                         |
+| `query`       |         |                                    | `/query` endpoint settings <PageLink to="#query">➡️</PageLink>                                                                                             |
+| `devices`     |         |                                    | `/devices` endpoint settings <PageLink to="#devices">➡️</PageLink>                                                                                         |
+
+### `queries`
+
+| Parameter     |  Type  | Default                            | Description                                                  |
+| :------------ | :----: | :--------------------------------- | :----------------------------------------------------------- |
+| `title`       | String | `'Supported Queries'`              | Displayed as the header text above the API endpoint section. |
+| `description` | String | `'List of supported query types.'` | Displayed inside each API endpoint section.                  |
+| `summary`     | String | `'Query Types'`                    | Displayed beside the API endpoint URI.                       |
+
+### `query`
+
+| Parameter     |  Type  | Default                                    | Description                                                  |
+| :------------ | :----: | :----------------------------------------- | :----------------------------------------------------------- |
+| `title`       | String | `'Submit Query'`                           | Displayed as the header text above the API endpoint section. |
+| `description` | String | `'Request a query response per-location.'` | Displayed inside each API endpoint section.                  |
+| `summary`     | String | `'Query the Looking Glass'`                | Displayed beside the API endpoint URI.                       |
+
+### `devices`
+
+| Parameter     |  Type  | Default                                                                                         | Description                                                  |
+| :------------ | :----: | :---------------------------------------------------------------------------------------------- | :----------------------------------------------------------- |
+| `title`       | String | `'Devices'`                                                                                     | Displayed as the header text above the API endpoint section. |
+| `description` | String | `'List of all devices/locations with associated identifiers, display names, networks, & VRFs.'` | Displayed inside each API endpoint section.                  |
+| `summary`     | String | `'Devices List'`                                                                                | Displayed beside the API endpoint URI.                       |
+
+## Example
+
+```yaml
+docs:
+    base_url: https://lg.example.net
+    description: ""
+    devices:
+        description: List of all devices/locations with associated identifiers, display
+            names, networks, & VRFs.
+        summary: Devices List
+        title: Devices
+    enable: true
+    mode: redoc
+    openapi_uri: /openapi.json
+    queries:
+        description: List of supported query types.
+        summary: Query Types
+        title: Supported Queries
+    query:
+        description: Request a query response per-location.
+        summary: Query the Looking Glass
+        title: Submit Query
+    title: "{site_title} API Documentation"
+    uri: /api/docs
+```
+
+<Admonition type="tip" title="From the developer">
+    I'm partial to Redoc, partially because I find it to be more aesthetically pleasing, and
+    partially because it's written in <a href="https://reactjs.org/">ReactJS</a>, just like the
+    hyperglass UI. At some point, I plan to migrate away from the built-in Redoc page and integrate
+    Redoc directly with hyperglass.
+</Admonition>

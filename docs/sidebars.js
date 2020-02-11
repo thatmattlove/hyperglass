@@ -3,9 +3,18 @@ module.exports = {
         {
             type: "category",
             label: "Installation",
-            items: ["introduction", "getting-started", "configuration", "devices", "ui"]
+            items: [
+                "introduction",
+                "getting-started",
+                "configuration",
+                "devices",
+                "ui",
+                "cache",
+                "api",
+                "messages",
+                "queries"
+            ]
         },
-        { type: "category", label: "Features", items: ["mdx"] },
         { type: "doc", id: "platforms" }
     ]
 };

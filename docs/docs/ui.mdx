@@ -13,12 +13,9 @@ import MiniNote from "../src/components/MiniNote";
 import Code from "../src/components/JSXCode";
 import Color from "../src/components/Color";
 import Font from "../src/components/Font";
+import PageLink from "../src/components/PageLink";
 
-export const PageLink = ({ children, to }) => (
-    <Link to={to} style={{ textDecoration: "unset" }}>
-        {children}
-    </Link>
-);
+The `web` subsection contains multiple subsections of its own, should you wish to customize various aspects of the UI:
 
 | Section         | Description                    |                 All Options                 |
 | :-------------- | :----------------------------- | :-----------------------------------------: |
@@ -29,6 +26,72 @@ export const PageLink = ({ children, to }) => (
 | `opengraph`     | [OpenGraph](https://ogp.me/)   |   <PageLink to="#opengraph">➡️</PageLink>   |
 | `terms`         | Terms & Conditions             |     <PageLink to="#terms">➡️</PageLink>     |
 | `theme`         | Colors & Fonts                 |     <PageLink to="#theme">➡️</PageLink>     |
+
+## Example
+
+```yaml
+web:
+    credit:
+        enable: true
+    dns_provider:
+        name: google
+        url: https://dns.google/resolve
+    external_link:
+        enable: true
+        title: PeeringDB
+        url: https://www.peeringdb.com/AS{primary_asn}
+    help_menu:
+        enable: true
+        file: null
+        title: Help
+    logo:
+        dark: /images/hyperglass-light.png
+        favicons: ui/images/favicons/
+        height: null
+        light: /images/hyperglass-dark.png
+        width: 384
+    opengraph:
+        height: 1132
+        image: /images/hyperglass-opengraph.png
+        width: 7355
+    terms:
+        enable: true
+        file: null
+        title: Terms
+    text:
+        cache: Results will be cached for 2 minutes.
+        fqdn_tooltip: 'Use {protocol}'
+        query_location: Location
+        query_target: Target
+        query_type: Query Type
+        query_vrf: Routing Table
+        subtitle: AS65001
+        title: hyperglass
+        title_mode: text_only
+    theme:
+        colors:
+            black: "#262626"
+            blue: "#314cb6"
+            cyan: "#118ab2"
+            danger: "#d84b4b"
+            error: "#ff6b35"
+            gray: "#c1c7cc"
+            green: "#35b246"
+            orange: "#ff6b35"
+            pink: "#f2607d"
+            primary: "#118ab2"
+            purple: "#8d30b5"
+            red: "#d84b4b"
+            secondary: "#314cb6"
+            success: "#35b246"
+            teal: "#35b299"
+            warning: "#edae49"
+            white: "#f7f7f7"
+            yellow: "#edae49"
+        fonts:
+            body: Nunito
+            mono: Fira Code
+```
 
 ## `credit`
 
@@ -52,11 +115,11 @@ export const PageLink = ({ children, to }) => (
 
 ## `external_link`
 
-| Parameter |  Type   | Default                                       | Description                                       |
-| :-------- | :-----: | :-------------------------------------------- | :------------------------------------------------ |
-| `enable`  | Boolean | `true`                                        | Enable or disable the display of an external link |
-| `title`   | String  | `'PeeringDB'`                                 | Link title/label                                  |
-| `url`     | String  | `'https://www.peeringdb.com/AS{primary_asn}'` | Target URL                                        |
+| Parameter |  Type   | Default                                       | Description                                                                                                                                          |
+| :-------- | :-----: | :-------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enable`  | Boolean | `true`                                        | Enable or disable the display of an external link                                                                                                    |
+| `title`   | String  | `'PeeringDB'`                                 | Link title/label                                                                                                                                     |
+| `url`     | String  | `'https://www.peeringdb.com/AS{primary_asn}'` | Target URL. `{primary_asn}` will be replaced with the `primary_asn` value from <Link to="/docs/configuration#global-settings">Global Settings</Link> |
 
 ## `logo`
 
@@ -86,6 +149,67 @@ By default, no Opengraph image is set. If you define one with `image`, hyperglas
 | `enable`  | Boolean | `true`    | Enable or display the display of terms & conditions                                           |
 | `file`    | String  |           | Path to a plain text or markdown file with content to override the default terms & conditions |
 | `title`   | String  | `'Terms'` | Terms & conditions title                                                                      |
+
+## `text`
+
+| Parameter        |  Type  | Default                                            | Description                                                                                                                                                                                                                                 |
+| :--------------- | :----: | :------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `cache`          | String | `'Results will be cached for {timeout} {period}.'` | User-facing text regarding the cache timeout. `{timeout}` and `{period}` are replaced with the a generated value derived from the length of the <Link to="/docs/configuration#global-settings"><Code>request_timeout</Code></Link> setting. |
+| `fqdn_tooltip`   | String | `'Use {protocol}'`                                 | Text displayed when a user hovers over the IPv4 or IPv6 button on an FQDN target resolved by DNS. `{protocol}` is replaced with the relevant IP protocol.                                                                                   |
+| `query_location` | String | `'Location'`                                       | Query Location (router) form label.                                                                                                                                                                                                         |
+| `query_target`   | String | `'Target'`                                         | Query Target (IP/hostname/community/AS Path) form label.                                                                                                                                                                                    |
+| `query_type`     | String | `'Query Type'`                                     | Query Type (BGP Route, Ping, Traceroute, etc.) form label.                                                                                                                                                                                  |
+| `query_vrf`      | String | `'Routing Table'`                                  | Query VRF form label.                                                                                                                                                                                                                       |
+| `subtitle`       | String | `'AS{primary_asn}'`                                | Subtitle text. `{primary_asn}` will be replaced with the <PageLink to="/docs/configuration#global-settings"><Code>primary_asn</Code></PageLink> value.                                                                                      |
+| `title`          | String | `'hyperglass'`                                     | Title text.                                                                                                                                                                                                                                 |
+| `title_mode`     | String | `'text_only'`                                      | Set the title mode. <MiniNote>Must be <Code>text_only</Code>, <Code>logo_only</Code>, <Code>logo_title</Code>, or <Code>all</Code></MiniNote>                                                                                               |
+
+<Admonition type="important" title="Title Mode">
+    The <Code>title_mode</Code> parameter behaves in the following manner:
+    <br/>
+    <table>
+        <thead>
+            <tr>
+                <th align="left">Mode</th>
+                <th>Behavior</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <Code>text_only</Code>
+                </td>
+                <td>
+                    Shows the <Code>title</Code> and <Code>subtitle</Code> only.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Code>logo_only</Code>
+                </td>
+                <td>
+                    Shows the <Link to="#logo"><Code>logo</Code></Link> only.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Code>logo_title</Code>
+                </td>
+                <td>
+                    Shows the <Link to="#logo"><Code>logo</Code></Link> and <Code>title</Code> only.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Code>all</Code>
+                </td>
+                <td>
+                    Shows the <Link to="#logo"><Code>logo</Code></Link>, <Code>title</Code>, and <Code>subtitle</Code>.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</Admonition>
 
 ## `theme`
 
@@ -125,3 +249,5 @@ Currently, only [Google Fonts](https://fonts.google.com/) are supported.
 | :-------- | :----: | :----------------------- | :-------------------------------------- |
 | `body`    | String | <Font name='Nunito'/>    | Main body font                          |
 | `mono`    | String | <Font name='Fira Code'/> | Monospace font, used for command output |
+
+
