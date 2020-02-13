@@ -1,0 +1,3 @@
+.getStarted[class][class]:not(.button--active):not(:hover) {
+    color: var(--ifm-color-secondary);
+}

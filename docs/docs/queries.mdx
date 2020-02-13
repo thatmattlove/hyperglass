@@ -8,8 +8,10 @@ description: hyperglass query types
 
 import Link from "@docusaurus/Link";
 import Code from "../src/components/JSXCode";
+import MiniNote from "../src/components/MiniNote";
+import RP from "../src/components/RegexPattern";
 
-Each query type may be disabled, enabled, or customized.
+Each query type may be disabled, enabled, or customized. The `display_name` parameter defines how the query type will be displayed in the UI's Query Type select element.
 
 ## `bgp_route`
 
@@ -20,19 +22,39 @@ Each query type may be disabled, enabled, or customized.
 
 ## `bgp_community`
 
-| Parameter      |  Type   | Default           | Description                                                |
-| :------------- | :-----: | :---------------- | :--------------------------------------------------------- |
-| `enable`       | Boolean | `true`            | Enable or disable the BGP Community query type.            |
-| `display_name` | String  | `'BGP Community'` | Text displayed for the BGP Community query type in the UI. |
-| `pattern`      |         |                   |                                                            |
+| Parameter      |  Type   | Default           | Description                                                                     |
+| :------------- | :-----: | :---------------- | :------------------------------------------------------------------------------ |
+| `enable`       | Boolean | `true`            | Enable or disable the BGP Community query type.                                 |
+| `display_name` | String  | `'BGP Community'` | Text displayed for the BGP Community query type in the UI.                      |
+| `pattern`      |         |                   | <Link to="#community-patterns">BGP Community Regular Expression Patterns</Link> |
+
+### Community Patterns
+
+hyperglass allows you to override the default regular expression patterns used to validate UI and API queries. hyperglass supports [Decimal (well known)](https://tools.ietf.org/html/rfc1997) communities, [Extended AS](https://tools.ietf.org/html/rfc4360) communities, and [Large](https://tools.ietf.org/html/rfc8092) communities.
+
+| Parameter     |  Type  | Default                            | Description                                                                                                                    |
+| :------------ | :----: | :--------------------------------- | :----------------------------------------------------------------------------------------------------------------------------- |
+| `decimal`     | String | <RP pattern="community_decimal"/>  | Regular expression pattern for validating decimal type BGP Community strings.                                                  |
+| `extended_as` | String | <RP pattern="community_extended"/> | Regular expression pattern for validating extended AS type BGP Community strings, e.g. `65000:1`                               |
+| `large`       | String | <RP pattern="community_large"/>    | Regular expression pattern for validating [large community](http://largebgpcommunities.net/) strings, e.g. `65000:65001:65002` |
 
 ## `bgp_aspath`
 
-| Parameter      |  Type   | Default         | Description                                              |
-| :------------- | :-----: | :-------------- | :------------------------------------------------------- |
-| `enable`       | Boolean | `true`          | Enable or disable the BGP AS Path query type.            |
-| `display_name` | String  | `'BGP AS Path'` | Text displayed for the BGP AS Path query type in the UI. |
-| `pattern`      |         |                 |                                                          |
+| Parameter      |  Type   | Default         | Description                                                                            |
+| :------------- | :-----: | :-------------- | :------------------------------------------------------------------------------------- |
+| `enable`       | Boolean | `true`          | Enable or disable the BGP AS Path query type.                                          |
+| `display_name` | String  | `'BGP AS Path'` | Text displayed for the BGP AS Path query type in the UI.                               |
+| `pattern`      |         |                 | <Link to="#as-path-patterns">BGP AS Path Settings & Regular Expression Patterns</Link> |
+
+### AS Path Patterns
+
+AS Path regular expression patterns may also be customized, should you wish to more granularly control what your network considers a valid AS Path pattern. hyperglass makes two "modes" available for validation - [**`asplain`** and **`asdot`**](https://tools.ietf.org/html/rfc5396).
+
+| Parameter |  Type  | Default                        | Description                                                                                                                                                       |
+| :-------- | :----: | :----------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mode`    | String | `'asplain'`                    | Set ASN display mode. This field is dependent on how your network devices are configured. <MiniNote>Must be <Code>asplain</Code> or <Code>asdot</Code></MiniNote> |
+| `asplain` | String | <RP pattern="aspath_asplain"/> | Regular expression pattern for validating **asplain** type BGP AS Path queries.                                                                                   |
+| `asdot`   | String | <RP pattern="aspath_asdot"/>   | Regular expression pattern for validating **asdot** type BGP AS Path queries.                                                                                     |
 
 ## `ping`
 
@@ -47,3 +69,32 @@ Each query type may be disabled, enabled, or customized.
 | :------------- | :-----: | :------------- | :------------------------------------------------------ |
 | `enable`       | Boolean | `true`         | Enable or disable the Traceroute query type.            |
 | `display_name` | String  | `'Traceroute'` | Text displayed for the Traceroute query type in the UI. |
+
+## Example
+
+```yaml
+queries:
+    bgp_aspath:
+        display_name: BGP AS Path
+        enable: true
+        pattern:
+            asdot: '^(\^|^\_)((\d+\.\d+)\_|(\d+\.\d+)\$|(\d+\.\d+)\(\_\.\+\_\))+$'
+            asplain: '^(\^|^\_)(\d+\_|\d+\$|\d+\(\_\.\+\_\))+$'
+            mode: asplain
+    bgp_community:
+        display_name: BGP Community
+        enable: true
+        pattern:
+            decimal: "^[0-9]{1,10}$"
+            extended_as: '^([0-9]{0,5})\:([0-9]{1,5})$'
+            large: '^([0-9]{1,10})\:([0-9]{1,10})\:[0-9]{1,10}$'
+    bgp_route:
+        display_name: BGP Route
+        enable: true
+    ping:
+        display_name: Ping
+        enable: true
+    traceroute:
+        display_name: Traceroute
+        enable: true
+```

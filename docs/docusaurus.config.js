@@ -22,11 +22,6 @@ module.exports = {
                     href: "https://demo.hyperglass.io",
                     label: "Demo",
                     position: "left"
-                },
-                {
-                    href: githubURL,
-                    label: "GitHub",
-                    position: "right"
                 }
             ]
         },

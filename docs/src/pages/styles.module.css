@@ -34,6 +34,13 @@
     width: 200px;
 }
 
+.getStarted[class][class]:not(.button--active):not(:hover) {
+    color: white;
+    border-color: white;
+}
+
 .getStarted[class]:hover {
-    color: var(--ifm-color-content-secondary);
+    background-color: var(--ifm-color-secondary);
+    color: white;
+    border-color: none;
 }
