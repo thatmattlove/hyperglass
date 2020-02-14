@@ -32,10 +32,7 @@ jobs:
         with:
           python_version: 3.6.10
           poetry_version: 1.0.0
-          args: install
-      - name: Lint
-        run: |
-          poetry run flake8 hyperglass
+          args: install && run flake8 hyperglass
       # - name: Lint
       #   uses: abatilo/actions-poetry@v1.5.0
       #   with:
