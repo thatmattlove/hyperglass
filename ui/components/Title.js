@@ -85,6 +85,7 @@ export default React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
             _hover={{ textDecoration: "none" }}
             justifyContent={btnJustify[isSubmitting]}
             px={0}
+            maxW={["90%", "90%", "25%", "25%"]}
             {...props}
         >
             <MatchedMode
