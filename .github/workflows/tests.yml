@@ -24,6 +24,9 @@ jobs:
       - name: Install Python Dependencies
         run: |
           pip install .
+          which poetry
+          poetry shell
+          poetry install
       - name: lint
         uses: ricardochaves/python-lint@v1.1.0
         with:
