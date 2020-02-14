@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 const express = require("express");
+const proxyMiddleware = require("http-proxy-middleware");
 const next = require("next");
 const envVars = require("/tmp/hyperglass.env.json");
 const { configFile } = envVars;
@@ -8,7 +9,7 @@ const config = require(String(configFile));
 const { NODE_ENV: env, _HYPERGLASS_URL_: envUrl } = config;
 
 const devProxy = {
-    "/api/query/": { target: envUrl + "query/", pathRewrite: { "^/api/query/": "" } },
+    "/api/query/": { target: envUrl + "api/query/", pathRewrite: { "^/api/query/": "" } },
     "/images": { target: envUrl + "images", pathRewrite: { "^/images": "" } }
 };
 
@@ -28,7 +29,6 @@ app.prepare()
 
         // Set up the proxy.
         if (dev && devProxy) {
-            const proxyMiddleware = require("http-proxy-middleware");
             Object.keys(devProxy).forEach(function(context) {
                 server.use(proxyMiddleware(context, devProxy[context]));
             });
