@@ -129,6 +129,17 @@ d = ["aiohttp (>=3.3.2)", "aiohttp-cors"]
 
 [[package]]
 category = "main"
+description = "A thin, practical wrapper around terminal coloring, styling, and positioning"
+name = "blessings"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "1.7"
+
+[package.dependencies]
+six = "*"
+
+[[package]]
+category = "main"
 description = "Python package for providing Mozilla's CA Bundle."
 name = "certifi"
 optional = false
@@ -634,6 +645,19 @@ python-versions = ">=2.7,!=3.0,!=3.1,!=3.2,!=3.3"
 version = "1.0.2"
 
 [[package]]
+category = "main"
+description = "Collection of common interactive command line user interfaces, based on Inquirer.js"
+name = "inquirer"
+optional = false
+python-versions = "*"
+version = "2.6.3"
+
+[package.dependencies]
+blessings = "1.7"
+python-editor = "1.0.4"
+readchar = "2.0.1"
+
+[[package]]
 category = "dev"
 description = "A Python utility / library to sort Python imports."
 name = "isort"
@@ -872,11 +896,27 @@ version = "3.4"
 
 [[package]]
 category = "main"
+description = "Programmatically open an editor, capture the result."
+name = "python-editor"
+optional = false
+python-versions = "*"
+version = "1.0.4"
+
+[[package]]
+category = "main"
 description = "YAML parser and emitter for Python"
 name = "pyyaml"
 optional = false
 python-versions = "*"
 version = "5.3"
+
+[[package]]
+category = "main"
+description = "Utilities to read single characters and key-strokes"
+name = "readchar"
+optional = false
+python-versions = "*"
+version = "2.0.1"
 
 [[package]]
 category = "dev"
@@ -962,7 +1002,7 @@ dev = ["check-manifest"]
 test = ["tox (>=1.8.1)"]
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Debug-friendly stack traces, with variable values and semantic highlighting"
 name = "stackprinter"
 optional = false
@@ -1137,7 +1177,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools"]
 
 [metadata]
-content-hash = "16990e4f8fc82e42569619b1af6a372dd5825bd53ddecd63504194d1ec1e6f34"
+content-hash = "416c043c10ed68323afdf9aa286261be5b7787e6408b4a3b056286129871e303"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -1200,6 +1240,11 @@ bcrypt = [
 black = [
     {file = "black-19.10b0-py36-none-any.whl", hash = "sha256:1b30e59be925fafc1ee4565e5e08abef6b03fe455102883820fe5ee2e4734e0b"},
     {file = "black-19.10b0.tar.gz", hash = "sha256:c2edb73a08e9e0e6f65a0e6af18b059b8b1cdd5bef997d7a0b181df93dc81539"},
+]
+blessings = [
+    {file = "blessings-1.7-py2-none-any.whl", hash = "sha256:caad5211e7ba5afe04367cdd4cfc68fa886e2e08f6f35e76b7387d2109ccea6e"},
+    {file = "blessings-1.7-py3-none-any.whl", hash = "sha256:b1fdd7e7a675295630f9ae71527a8ebc10bfefa236b3d6aa4932ee4462c17ba3"},
+    {file = "blessings-1.7.tar.gz", hash = "sha256:98e5854d805f50a5b58ac2333411b0482516a8210f23f43308baeb58d77c157d"},
 ]
 certifi = [
     {file = "certifi-2019.11.28-py2.py3-none-any.whl", hash = "sha256:017c25db2a153ce562900032d5bc68e9f191e44e9a0f762f373977de9df1fbb3"},
@@ -1435,6 +1480,10 @@ importlib-resources = [
     {file = "importlib_resources-1.0.2-py2.py3-none-any.whl", hash = "sha256:6e2783b2538bd5a14678284a3962b0660c715e5a0f10243fd5e00a4b5974f50b"},
     {file = "importlib_resources-1.0.2.tar.gz", hash = "sha256:d3279fd0f6f847cced9f7acc19bd3e5df54d34f93a2e7bb5f238f81545787078"},
 ]
+inquirer = [
+    {file = "inquirer-2.6.3-py2.py3-none-any.whl", hash = "sha256:c77fd8c3c053e1b4aa7ac1e0300cbdec5fe887e144d7bdb40f9f97f96a0eb909"},
+    {file = "inquirer-2.6.3.tar.gz", hash = "sha256:5f6e5dcbc881f43554b6fdfea245e417c6ed05c930cdb6e09b5df7357c288e06"},
+]
 isort = [
     {file = "isort-4.3.21-py2.py3-none-any.whl", hash = "sha256:6e811fcb295968434526407adb8796944f1988c5b65e8139058f2014cbe100fd"},
     {file = "isort-4.3.21.tar.gz", hash = "sha256:54da7e92468955c4fceacd0c86bd0ec997b0e1ee80d97f67c35a78b719dccab1"},
@@ -1560,6 +1609,13 @@ pyserial = [
     {file = "pyserial-3.4-py2.py3-none-any.whl", hash = "sha256:e0770fadba80c31013896c7e6ef703f72e7834965954a78e71a3049488d4d7d8"},
     {file = "pyserial-3.4.tar.gz", hash = "sha256:6e2d401fdee0eab996cf734e67773a0143b932772ca8b42451440cfed942c627"},
 ]
+python-editor = [
+    {file = "python-editor-1.0.4.tar.gz", hash = "sha256:51fda6bcc5ddbbb7063b2af7509e43bd84bfc32a4ff71349ec7847713882327b"},
+    {file = "python_editor-1.0.4-py2-none-any.whl", hash = "sha256:5f98b069316ea1c2ed3f67e7f5df6c0d8f10b689964a4a811ff64f0106819ec8"},
+    {file = "python_editor-1.0.4-py2.7.egg", hash = "sha256:ea87e17f6ec459e780e4221f295411462e0d0810858e055fc514684350a2f522"},
+    {file = "python_editor-1.0.4-py3-none-any.whl", hash = "sha256:1bf6e860a8ad52a14c3ee1252d5dc25b2030618ed80c022598f00176adc8367d"},
+    {file = "python_editor-1.0.4-py3.5.egg", hash = "sha256:c3da2053dbab6b29c94e43c486ff67206eafbe7eb52dbec7390b5e2fb05aac77"},
+]
 pyyaml = [
     {file = "PyYAML-5.3-cp27-cp27m-win32.whl", hash = "sha256:940532b111b1952befd7db542c370887a8611660d2b9becff75d39355303d82d"},
     {file = "PyYAML-5.3-cp27-cp27m-win_amd64.whl", hash = "sha256:059b2ee3194d718896c0ad077dd8c043e5e909d9180f387ce42012662a4946d6"},
@@ -1572,6 +1628,10 @@ pyyaml = [
     {file = "PyYAML-5.3-cp38-cp38-win32.whl", hash = "sha256:70024e02197337533eef7b85b068212420f950319cc8c580261963aefc75f811"},
     {file = "PyYAML-5.3-cp38-cp38-win_amd64.whl", hash = "sha256:cb1f2f5e426dc9f07a7681419fe39cee823bb74f723f36f70399123f439e9b20"},
     {file = "PyYAML-5.3.tar.gz", hash = "sha256:e9f45bd5b92c7974e59bcd2dcc8631a6b6cc380a904725fce7bc08872e691615"},
+]
+readchar = [
+    {file = "readchar-2.0.1-py2-none-any.whl", hash = "sha256:ed00b7a49bb12f345319d9fa393f289f03670310ada2beb55e8c3f017c648f1e"},
+    {file = "readchar-2.0.1-py3-none-any.whl", hash = "sha256:3ac34aab28563bc895f73233d5c08b28f951ca190d5850b8d4bec973132a8dca"},
 ]
 regex = [
     {file = "regex-2020.1.8-cp27-cp27m-win32.whl", hash = "sha256:4e8f02d3d72ca94efc8396f8036c0d3bcc812aefc28ec70f35bb888c74a25161"},
