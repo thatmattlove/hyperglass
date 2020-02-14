@@ -21,18 +21,24 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: v1.0.0
+      - name: Install Application
+        run: |
+          'curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python'
+          poetry --version
+          poetry install
+          poetry run flake8 hyperglass
       # - name: Install Python Dependencies
       #   run: |
       #     pip install --user pipx
       #     export PATH=/home/runner/.local/bin:$PATH
       #     pipx ensurepath
       #     pipx install poetry
-      - name: Install Application
-        uses: abatilo/actions-poetry@v1.5.0
-        with:
-          python_version: 3.6.10
-          poetry_version: 1.0.0
-          args: install && run flake8 hyperglass
+      # - name: Install Application
+      #   uses: abatilo/actions-poetry@v1.5.0
+      #   with:
+      #     python_version: 3.6.10
+      #     poetry_version: 1.0.0
+      #     args: install && run flake8 hyperglass
       # - name: Lint
       #   uses: abatilo/actions-poetry@v1.5.0
       #   with:
