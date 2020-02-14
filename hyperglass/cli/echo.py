@@ -1,73 +1,127 @@
 """Helper functions for CLI message printing."""
+# Standard Library
+import re
+
 # Third Party
-import click
+from click import echo, style
 
 # Project
-from hyperglass.cli.static import (
-    CL,
-    NL,
-    WS,
-    INFO,
-    ERROR,
-    LABEL,
-    VALUE,
-    STATUS,
-    SUCCESS,
-    CMD_HELP,
-    E,
-)
+from hyperglass.cli.static import CMD_HELP, Message
+from hyperglass.cli.exceptions import CliError
 
 
 def cmd_help(emoji="", help_text=""):
     """Print formatted command help."""
-    return emoji + click.style(help_text, **CMD_HELP)
+    return emoji + style(help_text, **CMD_HELP)
 
 
-def success(msg):
-    """Print formatted success messages."""
-    click.echo(E.CHECK + click.style(str(msg), **SUCCESS))
+def _base_formatter(state, text, callback, **kwargs):
+    """Format text block, replace template strings with keyword arguments.
+
+    Arguments:
+        state {dict} -- Text format attributes
+        label {dict} -- Keyword format attributes
+        text {[type]} -- Text to format
+        callback {function} -- Callback function
+
+    Returns:
+        {str|ClickException} -- Formatted output
+    """
+    fmt = Message(state)
+
+    if callback is None:
+        callback = style
+
+    for k, v in kwargs.items():
+        if not isinstance(v, str):
+            v = str(v)
+        kwargs[k] = style(v, **fmt.kw)
+
+    text_all = re.split(r"(\{\w+\})", text)
+    text_all = [style(i, **fmt.msg) for i in text_all]
+    text_all = [i.format(**kwargs) for i in text_all]
+
+    if fmt.emoji:
+        text_all.insert(0, fmt.emoji)
+
+    text_fmt = "".join(text_all)
+
+    return callback(text_fmt)
 
 
-def success_info(label, msg):
-    """Print formatted labeled success messages."""
-    click.echo(
-        E.CHECK
-        + click.style(str(label), **SUCCESS)
-        + CL[1]
-        + WS[1]
-        + click.style(str(msg), **INFO)
-    )
+def info(text, callback=echo, **kwargs):
+    """Generate formatted informational text.
+
+    Arguments:
+        text {str} -- Text to format
+        callback {callable} -- Callback function (default: {echo})
+
+    Returns:
+        {str} -- Informational output
+    """
+    return _base_formatter(state="info", text=text, callback=callback, **kwargs)
 
 
-def info(msg):
-    """Print formatted informational messages."""
-    click.echo(E.INFO + click.style(str(msg), **INFO))
+def error(text, callback=CliError, **kwargs):
+    """Generate formatted exception.
+
+    Arguments:
+        text {str} -- Text to format
+        callback {callable} -- Callback function (default: {echo})
+
+    Raises:
+        ClickException: Raised after formatting
+    """
+    raise _base_formatter(state="error", text=text, callback=callback, **kwargs)
 
 
-def status(msg):
-    """Print formatted status messages."""
-    click.echo(click.style(str(msg), **STATUS))
+def success(text, callback=echo, **kwargs):
+    """Generate formatted success text.
+
+    Arguments:
+        text {str} -- Text to format
+        callback {callable} -- Callback function (default: {echo})
+
+    Returns:
+        {str} -- Success output
+    """
+    return _base_formatter(state="success", text=text, callback=callback, **kwargs)
 
 
-def error(msg, exc):
-    """Raise click exception with formatted output."""
-    raise click.ClickException(
-        NL
-        + E.ERROR
-        + click.style(str(msg), **LABEL)
-        + CL[1]
-        + WS[1]
-        + click.style(str(exc), **ERROR)
-    ) from None
+def warning(text, callback=echo, **kwargs):
+    """Generate formatted warning text.
+
+    Arguments:
+        text {str} -- Text to format
+        callback {callable} -- Callback function (default: {echo})
+
+    Returns:
+        {str} -- Warning output
+    """
+    return _base_formatter(state="warning", text=text, callback=callback, **kwargs)
 
 
-def value(label, msg):
-    """Print formatted label: value."""
-    click.echo(
-        NL[1]
-        + click.style(str(label), **LABEL)
-        + CL[1]
-        + WS[1]
-        + click.style(str(msg), **VALUE)
-        + NL[1]
-    )
+def label(text, callback=echo, **kwargs):
+    """Generate formatted info text with accented labels.
+
+    Arguments:
+        text {str} -- Text to format
+        callback {callable} -- Callback function (default: {echo})
+
+    Returns:
+        {str} -- Label output
+    """
+    return _base_formatter(state="label", text=text, callback=callback, **kwargs)
+
+
+def status(text, callback=echo, **kwargs):
+    """Generate formatted status text.
+
+    Arguments:
+        text {str} -- Text to format
+        callback {callable} -- Callback function (default: {echo})
+
+    Returns:
+        {str} -- Status output
+    """
+    return _base_formatter(state="status", text=text, callback=callback, **kwargs)

@@ -1,10 +1,6 @@
 """hyperglass cli module."""
-# Third Party
-import stackprinter
 
 # Project
-from hyperglass.cli import commands
+from hyperglass.cli.commands import hg
 
-stackprinter.set_excepthook(style="darkbg2")
-
-CLI = commands.hg
+CLI = hg

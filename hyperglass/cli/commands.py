@@ -1,21 +1,16 @@
 """CLI Command definitions."""
 
 # Standard Library
+import os
 from pathlib import Path
 
 # Third Party
-import click
+import inquirer
+from click import group, option, confirm
 
 # Project
-from hyperglass.cli.echo import error, value, cmd_help
-from hyperglass.cli.util import (
-    build_ui,
-    fix_ownership,
-    migrate_config,
-    fix_permissions,
-    migrate_systemd,
-    start_web_server,
-)
+from hyperglass.cli.echo import error, label, cmd_help
+from hyperglass.cli.util import build_ui, start_web_server
 from hyperglass.cli.static import LABEL, CLI_HELP, E
 from hyperglass.cli.formatting import HelpColorsGroup, HelpColorsCommand, random_colors
 
@@ -23,13 +18,11 @@ from hyperglass.cli.formatting import HelpColorsGroup, HelpColorsCommand, random
 WORKING_DIR = Path(__file__).parent
 
 
-@click.group(
+@group(
     cls=HelpColorsGroup,
     help=CLI_HELP,
     help_headers_color=LABEL,
-    help_options_custom_colors=random_colors(
-        "build-ui", "start", "migrate-examples", "systemd", "permissions", "secret"
-    ),
+    help_options_custom_colors=random_colors("build-ui", "start", "secret", "setup"),
 )
 def hg():
     """Initialize Click Command Group."""
@@ -52,15 +45,13 @@ def build_frontend():
     cls=HelpColorsCommand,
     help_options_custom_colors=random_colors("-b"),
 )
-@click.option(
-    "-b", "--build", is_flag=True, help="Render theme & build frontend assets"
-)
+@option("-b", "--build", is_flag=True, help="Render theme & build frontend assets")
 def start(build):
     """Start web server and optionally build frontend assets."""
     try:
         from hyperglass.api import start, ASGI_PARAMS
     except ImportError as e:
-        error("Error importing hyperglass", e)
+        error("Error importing hyperglass: {e}", e=e)
 
     if build:
         build_complete = build_ui()
@@ -73,56 +64,12 @@ def start(build):
 
 
 @hg.command(
-    "migrate-examples",
-    short_help=cmd_help(E.PAPERCLIP, "Copy example configs to production config files"),
-    help=cmd_help(E.PAPERCLIP, "Copy example configs to production config files"),
-    cls=HelpColorsCommand,
-    help_options_custom_colors=random_colors(),
-)
-@click.option("-d", "--directory", required=True, help="Target directory")
-def migrateconfig(directory):
-    """Copy example configuration files to usable config files."""
-    migrate_config(Path(directory))
-
-
-@hg.command(
-    "systemd",
-    help=cmd_help(E.CLAMP, " Copy systemd example to file system"),
-    cls=HelpColorsCommand,
-    help_options_custom_colors=random_colors("-d"),
-)
-@click.option(
-    "-d",
-    "--directory",
-    default="/etc/systemd/system",
-    help="Destination Directory [default: 'etc/systemd/system']",
-)
-def migratesystemd(directory):
-    """Copy example systemd service file to /etc/systemd/system/."""
-    migrate_systemd(WORKING_DIR / "hyperglass/hyperglass.service.example", directory)
-
-
-@hg.command(
-    "permissions",
-    help=cmd_help(E.KEY, "Fix ownership & permissions of 'hyperglass/'"),
-    cls=HelpColorsCommand,
-    help_options_custom_colors=random_colors("--user", "--group"),
-)
-@click.option("--user", default="www-data")
-@click.option("--group", default="www-data")
-def permissions(user, group):
-    """Run `chmod` and `chown` on the hyperglass/hyperglass directory."""
-    fix_permissions(user, group, WORKING_DIR)
-    fix_ownership(WORKING_DIR)
-
-
-@hg.command(
     "secret",
     help=cmd_help(E.LOCK, "Generate agent secret"),
     cls=HelpColorsCommand,
     help_options_custom_colors=random_colors("-l"),
 )
-@click.option(
+@option(
     "-l", "--length", "length", default=32, help="Number of characters [default: 32]"
 )
 def generate_secret(length):
@@ -134,4 +81,49 @@ def generate_secret(length):
     import secrets
 
     gen_secret = secrets.token_urlsafe(length)
-    value("Secret", gen_secret)
+    label("Secret: {s}", s=gen_secret)
+
+
+@hg.command(
+    "setup", help=cmd_help(E.TOOLBOX, "Run the setup wizard"), cls=HelpColorsCommand
+)
+def setup():
+    """Define application directory, move example files, generate systemd service."""
+    from hyperglass.cli.util import create_dir, move_files, make_systemd, write_to_file
+
+    user_path = Path.home() / "hyperglass"
+    root_path = Path("/etc/hyperglass/")
+
+    install_paths = [
+        inquirer.List(
+            "install_path",
+            message="Choose a directory for hyperglass",
+            choices=[user_path, root_path],
+        )
+    ]
+    answer = inquirer.prompt(install_paths)
+    install_path = answer["install_path"]
+    ui_dir = install_path / "static" / "ui"
+    custom_dir = install_path / "static" / "custom"
+
+    create_dir(install_path)
+    create_dir(ui_dir, parents=True)
+    create_dir(custom_dir, parents=True)
+
+    example_dir = WORKING_DIR.parent / "examples"
+    files = example_dir.iterdir()
+
+    if confirm(
+        "Do you want to install example configuration files? (This is non-destructive)"
+    ):
+        move_files(example_dir, install_path, files)
+
+    if install_path == user_path:
+        user = os.getlogin()
+    else:
+        user = "root"
+
+    if confirm("Do you want to generate a systemd service file?"):
+        systemd_file = install_path / "hyperglass.service"
+        systemd = make_systemd(user)
+        write_to_file(systemd_file, systemd)
