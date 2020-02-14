@@ -1,6 +1,6 @@
 name: Run Tests
 on:
-  pull_request:
+  push:
     branches:
       - v1.0.0
 
