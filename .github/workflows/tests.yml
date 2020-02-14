@@ -1,0 +1,35 @@
+name: Run Tests
+on:
+  pull_request:
+    branches:
+      - v1.0.0
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Setup Python 3.6.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.6.8
+      - name: Install System Dependencies
+        run: |
+          apt install -y redis-server
+      - name: Install Python Dependencies
+        run: |
+          pip install .
+      - name: lint
+        uses: ricardochaves/python-lint@v1.1.0
+        with:
+          use-black: true
+          use-flake8: true
+          use-isort: true
+          use-pylint: false
+          use-pycodestyle: false
+          use-mypy: false
+          extra-pylint-options: ""
+          extra-pycodestyle-options: ""
+          extra-flake8-options: ""
+          extra-black-options: ""
+          extra-mypy-options: ""
+          extra-isort-options: ""

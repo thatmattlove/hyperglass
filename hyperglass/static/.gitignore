@@ -1,15 +1,9 @@
 .DS_Store
+src
+ui/*
+!ui/.gitkeep
+
 # dev/test files
 *.tmp*
 test*
 *.log
-# generated theme file from hyperglass/hyperglass/render/templates/theme.sass.j2
-theme.sass
-# generated JSON file from ingested & validated YAML config
-frontend.json
-# NPM modules
-node_modules/
-# Downloaded Google Fonts
-fonts/
-ui/*
-!ui/.gitkeep

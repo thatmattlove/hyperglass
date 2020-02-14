@@ -1,10 +1,16 @@
 # NPM/Yarn
-hyperglass/static/package.json linguist-vendored
-hyperglass/static/yarn.lock linguist-vendored
+hyperglass/ui/package.json linguist-vendored
+hyperglass/ui/yarn.lock linguist-vendored
+hyperglass/docs/package.json linguist-vendored
+hyperglass/docs/yarn.lock linguist-vendored
 
-# Templates/Examples
-*.html.j2 linguist-language=HTML
-*.sass.j2 linguist-language=Sass
+# Static Assets
+*.png linguist-vendored
+*.ico linguist-vendored
+browserconfig.xml linguist-generated
+site.webmanifest linguist-generated
+
+# Example Files
 *.yaml.example linguist-language=YAML
 *.yml.example linguist-language=YAML
 *.md.example linguist-language=Markdown
