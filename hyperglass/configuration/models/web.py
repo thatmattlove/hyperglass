@@ -1,6 +1,7 @@
 """Validate branding configuration variables."""
 
 # Standard Library
+import os
 from typing import Optional
 from pathlib import Path
 
@@ -91,8 +92,8 @@ class HelpMenu(HyperglassLevel3):
 class Logo(HyperglassLevel3):
     """Validation model for logo configuration."""
 
-    light: Optional[FilePath]
-    dark: Optional[FilePath]
+    light: StrictStr = "images/hyperglass-light.png"
+    dark: StrictStr = "images/hyperglass-dark.png"
     width: StrictInt = 384
     height: Optional[StrictInt]
     favicons: StrictStr = "ui/images/favicons/"
@@ -105,40 +106,6 @@ class Logo(HyperglassLevel3):
             chars.append("/")
         return "".join(chars)
 
-    @root_validator(pre=True)
-    def validate_logo_model(cls, values):
-        """Set default opengraph image location.
-
-        Arguments:
-            values {dict} -- Unvalidated model
-
-        Returns:
-            {dict} -- Modified model
-        """
-        logo_light = values.get("light")
-        logo_dark = values.get("dark")
-        default_logo_light = (
-            Path(__file__).parent.parent.parent / "static/images/hyperglass-dark.png"
-        )
-        default_logo_dark = (
-            Path(__file__).parent.parent.parent / "static/images/hyperglass-light.png"
-        )
-
-        # Use light logo as dark logo if dark logo is undefined.
-        if logo_light is not None and logo_dark is None:
-            values["dark"] = logo_light
-
-        # Use dark logo as light logo if light logo is undefined.
-        if logo_dark is not None and logo_light is None:
-            values["light"] = logo_dark
-
-        # Set default logo paths if logo is undefined.
-        if logo_light is None and logo_dark is None:
-            values["light"] = default_logo_light
-            values["dark"] = default_logo_dark
-
-        return values
-
     @validator("light", "dark")
     def validate_logos(cls, value):
         """Convert file path to URL path.
@@ -149,7 +116,23 @@ class Logo(HyperglassLevel3):
         Returns:
             {str} -- Formatted logo path
         """
-        return "".join(str(value).split("static")[1::])
+        base_path = value.split("/")
+
+        if base_path[0] == "/":
+            value = "/".join(base_path[1:])
+
+        if base_path[0] not in ("images", "custom"):
+            raise ValueError(
+                "Logo files must be in the 'custom/' directory of your hyperglass directory. Got: {f}",
+                f=value,
+            )
+        if base_path[0] == "custom":
+            config_path = Path(os.environ["hyperglass_directory"])
+            custom_file = config_path / "static" / value
+            if not custom_file.exists():
+                raise ValueError("'{f}' does not exist", f=str(custom_file))
+
+        return value
 
     class Config:
         """Override pydantic config."""
