@@ -31,13 +31,13 @@ jobs:
         uses: abatilo/actions-poetry@v1.5.0
         with:
           python_version: 3.6.10
-          poetry_version: 0.12.17
+          poetry_version: 1.0.0
           args: install
       - name: Lint
         uses: abatilo/actions-poetry@v1.5.0
         with:
           python_version: 3.6.10
-          poetry_version: 0.12.17
+          poetry_version: 1.0.0
           args: run flake8 hyperglass
       # - name: lint
       #   uses: ricardochaves/python-lint@v1.1.0
