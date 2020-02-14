@@ -27,21 +27,31 @@ jobs:
           export PATH=/home/runner/.local/bin:$PATH
           pipx ensurepath
           pipx install poetry
-          poetry shell
-          poetry install
-      - name: lint
-        uses: ricardochaves/python-lint@v1.1.0
+      - name: Install Application
+        uses: abatilo/actions-poetry@v1.5.0
         with:
-          python-root-list: hyperglass
-          use-black: true
-          use-flake8: true
-          use-isort: true
-          use-pylint: false
-          use-pycodestyle: false
-          use-mypy: false
-          extra-pylint-options: ""
-          extra-pycodestyle-options: ""
-          extra-flake8-options: ""
-          extra-black-options: ""
-          extra-mypy-options: ""
-          extra-isort-options: ""
+          python_version: 3.6.10
+          poetry_version: 0.12.17
+          args: install
+      - name: Lint
+        uses: abatilo/actions-poetry@v1.5.0
+        with:
+          python_version: 3.6.10
+          poetry_version: 0.12.17
+          args: run flake8 hyperglass
+      # - name: lint
+      #   uses: ricardochaves/python-lint@v1.1.0
+      #   with:
+      #     python-root-list: hyperglass
+      #     use-black: true
+      #     use-flake8: true
+      #     use-isort: true
+      #     use-pylint: false
+      #     use-pycodestyle: false
+      #     use-mypy: false
+      #     extra-pylint-options: ""
+      #     extra-pycodestyle-options: ""
+      #     extra-flake8-options: ""
+      #     extra-black-options: ""
+      #     extra-mypy-options: ""
+      #     extra-isort-options: ""
