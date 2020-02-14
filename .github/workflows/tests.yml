@@ -23,8 +23,7 @@ jobs:
           ref: v1.0.0
       - name: Install Application
         run: |
-          sudo apt install curl
-          'curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python'
+          'curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3'
           poetry --version
           poetry install
           poetry run flake8 hyperglass
