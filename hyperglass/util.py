@@ -1,4 +1,4 @@
-"""Utility fuctions."""
+"""Utility functions."""
 
 
 def _logger():
@@ -77,8 +77,8 @@ def check_python():
     return pretty_version
 
 
-async def build_ui():
-    """Execute `yarn build` from UI directory.
+async def build_ui(app_path):
+    """Execute `next build` & `next export` from UI directory.
 
     Raises:
         RuntimeError: Raised if exit code is not 0.
@@ -88,28 +88,35 @@ async def build_ui():
     from pathlib import Path
 
     ui_dir = Path(__file__).parent.parent / "ui"
+    build_dir = app_path / "static" / "ui"
 
-    yarn_command = "yarn --silent --emoji false --no-progress build"
-    try:
-        proc = await asyncio.create_subprocess_shell(
-            cmd=yarn_command,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            cwd=ui_dir,
-        )
+    build_command = "node_modules/.bin/next build"
+    export_command = "node_modules/.bin/next export -o {f}".format(f=build_dir)
 
-        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
-        messages = stdout.decode("utf-8").strip()
-        errors = stderr.decode("utf-8").strip()
+    all_messages = []
+    for command in (build_command, export_command):
+        try:
+            proc = await asyncio.create_subprocess_shell(
+                cmd=command,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=ui_dir,
+            )
 
-        if proc.returncode != 0:
-            raise RuntimeError(f"\nMessages:\n{messages}\nErrors:\n{errors}")
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
+            messages = stdout.decode("utf-8").strip()
+            errors = stderr.decode("utf-8").strip()
 
-        await proc.wait()
-    except Exception as e:
-        raise RuntimeError(str(e))
+            if proc.returncode != 0:
+                raise RuntimeError(f"\nMessages:\n{messages}\nErrors:\n{errors}")
 
-    return messages
+            await proc.wait()
+            all_messages.append(messages)
+
+        except Exception as e:
+            raise RuntimeError(str(e))
+
+    return "\n".join(all_messages)
 
 
 async def write_env(variables):
@@ -188,7 +195,7 @@ async def clear_redis_cache(db, config):
     return True
 
 
-async def build_frontend(dev_mode, dev_url, prod_url, params, force=False):
+async def build_frontend(dev_mode, dev_url, prod_url, params, app_path, force=False):
     """Perform full frontend UI build process.
 
     Securely creates temporary file, writes frontend configuration
@@ -223,8 +230,11 @@ async def build_frontend(dev_mode, dev_url, prod_url, params, force=False):
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
 
     env_vars = {"_HYPERGLASS_CONFIG_": params}
-    # Set NextJS production/development mode and base URL based on
-    # developer_mode setting.
+
+    """
+    Set NextJS production/development mode and base URL based on
+    developer_mode setting.
+    """
     if dev_mode:
         env_vars.update({"NODE_ENV": "development", "_HYPERGLASS_URL_": dev_url})
     else:
@@ -233,25 +243,33 @@ async def build_frontend(dev_mode, dev_url, prod_url, params, force=False):
     try:
         env_json = json.dumps(env_vars)
 
-        # Create SHA256 hash from all parameters passed to UI, use as
-        # build identifier.
+        """
+        Create SHA256 hash from all parameters passed to UI, use as
+        build identifier.
+        """
         build_id = hashlib.sha256(env_json.encode()).hexdigest()
 
-        # Read hard-coded environment file from last build. If build ID
-        # matches this build's ID, don't run a new build.
         if env_file.exists() and not force:
+            """
+            Read hard-coded environment file from last build. If build
+            ID matches this build's ID, don't run a new build.
+            """
             async with AIOFile(env_file, "r") as ef:
                 ef_json = await ef.read()
                 ef_id = json.loads(ef_json).get("buildId", "empty")
 
+                log.debug("Previous Build ID: {id}", id=ef_id)
+
                 if ef_id == build_id:
                     log.debug(
-                        "No changes to UI parameters since last build, skipping..."
+                        "UI parameters unchanged since last build, skipping UI build..."
                     )
                     return True
 
-        # Create temporary file. .json file extension is added for easy
-        # webpack JSON parsing.
+        """
+        Create temporary file. json file extension is added for easy
+        webpack JSON parsing.
+        """
         temp_file = tempfile.NamedTemporaryFile(
             mode="w+", prefix="hyperglass_", suffix=".json", delete=not dev_mode
         )
@@ -272,12 +290,12 @@ async def build_frontend(dev_mode, dev_url, prod_url, params, force=False):
 
                 # While temporary file is still open, initiate UI build process.
                 if not dev_mode or force:
-                    build_result = await build_ui()
+                    build_result = await build_ui(app_path=app_path)
 
                     if build_result:
                         log.debug("Completed UI build")
                 elif dev_mode and not force:
-                    log.debug("Running in developer mode, did not run `yarn build`")
+                    log.debug("Running in developer mode, did not build new UI files")
 
     except Exception as e:
         raise RuntimeError(str(e))
