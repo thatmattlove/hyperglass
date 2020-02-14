@@ -11,7 +11,7 @@ jobs:
       - name: Setup Python 3.6.8
         uses: actions/setup-python@v1
         with:
-          python-version: 3.6.8
+          python-version: 3.6.10
       - name: Install System Dependencies
         run: |
           apt install -y redis-server
