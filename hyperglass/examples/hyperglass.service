@@ -1,0 +1,12 @@
+[Unit]
+Description=hyperglass
+After=network.target
+Requires=redis-server.service
+
+[Service]
+User=www-data
+Group=www-data
+ExecStart=/usr/local/bin/python3 -m sanic hyperglass.web.app
+
+[Install]
+WantedBy=multi-user.target
