@@ -49,7 +49,7 @@ import stackprinter
 # Project
 # Project Imports
 # flake8: noqa: F401
-from hyperglass import api, util, constants, execution, exceptions, configuration
+from hyperglass import api, cli, util, constants, execution, exceptions, configuration
 
 stackprinter.set_excepthook()
 

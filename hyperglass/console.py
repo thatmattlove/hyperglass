@@ -2,7 +2,7 @@
 """hyperglass CLI management tool."""
 
 # Project
-from cli import CLI
+from hyperglass.cli import CLI
 
 if __name__ == "__main__":
     CLI()

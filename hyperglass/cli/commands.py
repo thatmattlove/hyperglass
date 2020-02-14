@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """CLI Command definitions."""
 
 # Standard Library
@@ -8,8 +7,8 @@ from pathlib import Path
 import click
 
 # Project
-from cli.echo import error, value, cmd_help
-from cli.util import (
+from hyperglass.cli.echo import error, value, cmd_help
+from hyperglass.cli.util import (
     build_ui,
     fix_ownership,
     migrate_config,
@@ -17,8 +16,8 @@ from cli.util import (
     migrate_systemd,
     start_web_server,
 )
-from cli.static import LABEL, CLI_HELP, E
-from cli.formatting import HelpColorsGroup, HelpColorsCommand, random_colors
+from hyperglass.cli.static import LABEL, CLI_HELP, E
+from hyperglass.cli.formatting import HelpColorsGroup, HelpColorsCommand, random_colors
 
 # Define working directory
 WORKING_DIR = Path(__file__).parent
@@ -29,13 +28,7 @@ WORKING_DIR = Path(__file__).parent
     help=CLI_HELP,
     help_headers_color=LABEL,
     help_options_custom_colors=random_colors(
-        "build-ui",
-        "start",
-        "migrate-examples",
-        "systemd",
-        "permissions",
-        "secret",
-        "docs-schema",
+        "build-ui", "start", "migrate-examples", "systemd", "permissions", "secret"
     ),
 )
 def hg():
@@ -142,34 +135,3 @@ def generate_secret(length):
 
     gen_secret = secrets.token_urlsafe(length)
     value("Secret", gen_secret)
-
-
-@hg.command(
-    "docs-schema",
-    help=cmd_help(E.BOOKS, "Generate docs schema"),
-    cls=HelpColorsCommand,
-    help_options_custom_colors=random_colors("-p"),
-)
-@click.option(
-    "-p", "--print", "print_table", is_flag=True, help="Print table to console"
-)
-def build_docs_schema(print_table):
-    from rich.console import Console
-    from rich.table import Table
-    from cli.schema import schema_top_level
-
-    data = schema_top_level()
-
-    if print_table:
-        console = Console()
-
-        for section, table_data in data.items():
-            table = Table(show_header=True, header_style="bold magenta")
-            for col in table_data[0]:
-                table.add_column(col)
-
-            for row in table_data[1::]:
-                table.add_row(*(str(i) for i in row))
-
-            click.echo(console.print(section, style="bold red"))
-            click.echo(console.print(table))

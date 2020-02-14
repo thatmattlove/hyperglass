@@ -6,8 +6,8 @@ from pathlib import Path
 import click
 
 # Project
-from cli.echo import info, error, status, success
-from cli.static import CL, NL, WS, VALUE, SUCCESS, E
+from hyperglass.cli.echo import info, error, status, success
+from hyperglass.cli.static import CL, NL, WS, VALUE, SUCCESS, E
 
 PROJECT_ROOT = Path(__file__).parent.parent
 

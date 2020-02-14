@@ -3,7 +3,7 @@
 import stackprinter
 
 # Project
-from cli import echo, util, static, commands, formatting, schema  # noqa: F401
+from hyperglass.cli import commands
 
 stackprinter.set_excepthook(style="darkbg2")
 

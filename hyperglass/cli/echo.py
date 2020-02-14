@@ -3,7 +3,7 @@
 import click
 
 # Project
-from cli.static import (
+from hyperglass.cli.static import (
     CL,
     NL,
     WS,

@@ -73,21 +73,16 @@ class AccessList6(HyperglassModel):
         "permit",
         title="Action",
         description="Permit or deny any networks contained within the prefix.",
-        # regex="permit|deny",
     )
     ge: conint(ge=0, le=128) = Field(
         0,
         title="Greater Than or Equal To",
         description="Similar to `ge` in a Cisco prefix-list, the `ge` field defines the **bottom** threshold for prefix size. For example, a value of `64` would result in a query for `2001:db8::/48` being denied, but a query for `2001:db8::1/128` would be permitted. If this field is set to a value smaller than the `network` field's prefix length, this field's value will be overwritten to the prefix length of the prefix in the `network` field.",
-        # ge=0,
-        # le=128,
     )
     le: conint(ge=0, le=128) = Field(
         128,
         title="Less Than or Equal To",
         description="Similar to `le` in a Cisco prefix-list, the `le` field defines the **top** threshold for prefix size. For example, a value of `64` would result in a query for `2001:db8::/48` being permitted, but a query for `2001:db8::1/128` would be denied.",
-        # ge=0,
-        # le=128,
     )
 
     @validator("ge")
