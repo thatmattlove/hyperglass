@@ -24,6 +24,7 @@ jobs:
       - name: Install Python Dependencies
         run: |
           pip install --user pipx
+          export PATH=/home/runner/.local/bin:$PATH
           pipx ensurepath
           pipx install poetry
           poetry shell
