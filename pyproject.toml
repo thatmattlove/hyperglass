@@ -10,7 +10,7 @@ authors = ["Matt Love <matt@hyperglass.io>"]
 license = "BSD-3-Clause-Clear"
 
 [tool.poetry.scripts]
-hyperglass = "hyperglass.console"
+hyperglass = "hyperglass.console:CLI"
 
 [tool.poetry.dependencies]
 aiofile = "^1.5.2"
