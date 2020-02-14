@@ -202,7 +202,6 @@ class Connect:
                 raise DeviceTimeout(
                     params.messages.connection_error,
                     device_name=self.device.display_name,
-                    proxy=self.device.proxy.name,
                     error=params.messages.request_timeout,
                 )
 
@@ -217,7 +216,7 @@ class Connect:
                 log.debug(f'Raw response for command "{query}":\n{raw}')
             response = "\n\n".join(responses)
 
-            nm_connect_direct.diconnect()
+            nm_connect_direct.disconnect()
 
         except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
             log.error(str(scrape_error))
