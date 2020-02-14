@@ -23,6 +23,7 @@ jobs:
           ref: v1.0.0
       - name: Install Application
         run: |
+          sudo apt install curl
           'curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python'
           poetry --version
           poetry install
