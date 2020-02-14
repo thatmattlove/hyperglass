@@ -37,23 +37,62 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 # Standard Library
-# Standard Library Imports
+import os
 import sys
-from datetime import datetime
+import getpass
+from pathlib import Path
 
 # Third Party
 import uvloop
 
-# Third Party Imports
-import stackprinter
-
 # Project
-# Project Imports
-# flake8: noqa: F401
-from hyperglass import api, cli, util, constants, execution, exceptions, configuration
+from hyperglass.constants import METADATA
 
-stackprinter.set_excepthook()
+try:
+    import stackprinter
+except ImportError:
+    pass
+else:
+    if sys.stdout.isatty():
+        _style = "darkbg2"
+    else:
+        _style = "plaintext"
+    stackprinter.set_excepthook(style=_style)
+
+config_path = None
+
+_CONFIG_PATHS = (Path.home() / "hyperglass", Path("/etc/hyperglass/"))
+
+for path in _CONFIG_PATHS:
+    try:
+        if not isinstance(path, Path):
+            path = Path(path)
+
+        if path.exists():
+            tmp = path / "test.tmp"
+            tmp.touch()
+            if tmp.exists():
+                config_path = path
+                tmp.unlink()
+                break
+    except Exception:
+        config_path = None
+
+if config_path is None:
+    raise RuntimeError(
+        """
+No configuration directories were determined to both exist and be readable
+by hyperglass. hyperglass is running as user '{un}' (UID '{uid}'), and tried to access
+the following directories:
+{dir}""".format(
+            un=getpass.getuser(),
+            uid=os.getuid(),
+            dir="\n".join([" - " + str(p) for p in _CONFIG_PATHS]),
+        )
+    )
+
+os.environ["hyperglass_directory"] = str(config_path)
 
 uvloop.install()
 
-__name__, __version__, __author__, __copyright__, __license__ = constants.METADATA
+__name__, __version__, __author__, __copyright__, __license__ = METADATA

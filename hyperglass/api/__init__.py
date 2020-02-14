@@ -19,7 +19,7 @@ from hyperglass.constants import __version__
 from hyperglass.api.events import on_startup, on_shutdown
 from hyperglass.api.routes import docs, query, queries, routers
 from hyperglass.exceptions import HyperglassError
-from hyperglass.configuration import URL_DEV, params
+from hyperglass.configuration import URL_DEV, STATIC_PATH, params
 from hyperglass.api.error_handlers import (
     app_handler,
     http_handler,
@@ -35,9 +35,11 @@ from hyperglass.api.models.response import (
 
 WORKING_DIR = Path(__file__).parent
 STATIC_DIR = WORKING_DIR.parent / "static"
-UI_DIR = STATIC_DIR / "ui"
 IMAGES_DIR = STATIC_DIR / "images"
 EXAMPLES_DIR = WORKING_DIR / "examples"
+
+UI_DIR = STATIC_PATH / "ui"
+CUSTOM_DIR = STATIC_PATH / "custom"
 
 EXAMPLE_DEVICES_PY = EXAMPLES_DIR / "devices.py"
 EXAMPLE_QUERIES_PY = EXAMPLES_DIR / "queries.py"
@@ -58,6 +60,11 @@ if params.docs.enable:
         DOCS_PARAMS.update({"docs_url": None, "redoc_url": params.docs.uri})
     elif params.docs.mode == "swagger":
         DOCS_PARAMS.update({"docs_url": params.docs.uri, "redoc_url": None})
+
+for directory in (UI_DIR, IMAGES_DIR):
+    if not directory.exists():
+        log.warning("Directory '{d}' does not exist, creating...", d=str(directory))
+        directory.mkdir()
 
 # Main App Definition
 app = FastAPI(
@@ -200,6 +207,7 @@ if params.docs.enable:
     log.debug(f"API Docs config: {app.openapi()}")
 
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
+app.mount("/custom", StaticFiles(directory=CUSTOM_DIR), name="custom")
 app.mount("/", StaticFiles(directory=UI_DIR, html=True), name="ui")
 
 

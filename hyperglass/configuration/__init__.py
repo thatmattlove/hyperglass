@@ -5,7 +5,6 @@ import os
 import copy
 import math
 import asyncio
-import getpass
 from pathlib import Path
 
 # Third Party
@@ -32,44 +31,16 @@ from hyperglass.configuration.models import routers as _routers
 from hyperglass.configuration.models import commands as _commands
 from hyperglass.configuration.markdown import get_markdown
 
+CONFIG_PATH = Path(os.environ["hyperglass_directory"])
+log.info("Configuration directory: {d}", d=str(CONFIG_PATH))
+
 # Project Directories
 WORKING_DIR = Path(__file__).resolve().parent
-CONFIG_PATHS = (
-    Path("/etc/hyperglass/"),
-    Path.home() / "hyperglass",
-    WORKING_DIR.parent.parent,
-    WORKING_DIR.parent,
-    WORKING_DIR,
-)
 CONFIG_FILES = (
     ("hyperglass.yaml", False),
     ("devices.yaml", True),
     ("commands.yaml", False),
 )
-
-
-async def _check_config_paths():
-    """Verify supported configuration directories exist and are readable."""
-    config_path = None
-    for path in CONFIG_PATHS:
-        checked = await check_path(path)
-        if checked is not None:
-            config_path = checked
-            break
-    if config_path is None:
-        raise ConfigError(
-            """
-No configuration directories were determined to both exist and be readable
-by hyperglass. hyperglass is running as user '{un}' (UID '{uid}'), and tried to access
-the following directories:
-{dir}""".format(
-                un=getpass.getuser(),
-                uid=os.getuid(),
-                dir="\n".join([" - " + str(p) for p in CONFIG_PATHS]),
-            )
-        )
-    log.info("Configuration directory: {d}", d=str(config_path))
-    return config_path
 
 
 async def _check_config_files(directory):
@@ -105,7 +76,7 @@ async def _check_config_files(directory):
     return files
 
 
-CONFIG_PATH = asyncio.run(_check_config_paths())
+STATIC_PATH = CONFIG_PATH / "static"
 
 CONFIG_MAIN, CONFIG_DEVICES, CONFIG_COMMANDS = asyncio.run(
     _check_config_files(CONFIG_PATH)
@@ -171,7 +142,7 @@ async def _config_commands():
             async with AIOFile(CONFIG_COMMANDS, "r") as cf:
                 raw = await cf.read()
                 config = yaml.safe_load(raw) or {}
-                log.debug(f"Unvalidated commands: {config}")
+                log.debug("Unvalidated commands: {c}", c=config)
         except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
             raise ConfigError(error_msg=str(yaml_error)) from None
     return config
@@ -187,7 +158,7 @@ async def _config_devices():
         async with AIOFile(CONFIG_DEVICES, "r") as cf:
             raw = await cf.read()
             config = yaml.safe_load(raw)
-            log.debug(f"Unvalidated device config: {config}")
+            log.debug("Unvalidated device config: {c}", c=config)
     except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
         raise ConfigError(error_msg=str(yaml_error)) from None
     return config
@@ -197,7 +168,7 @@ user_config = asyncio.run(_config_main())
 
 # Logging Config
 try:
-    _debug = user_config["general"]["debug"]
+    _debug = user_config["debug"]
 except KeyError:
     _debug = True
 
@@ -454,6 +425,7 @@ frontend_networks = _build_frontend_networks()
 frontend_devices = _build_frontend_devices()
 _frontend_fields = {
     "debug": ...,
+    "developer_mode": ...,
     "primary_asn": ...,
     "request_timeout": ...,
     "org_name": ...,
@@ -479,7 +451,7 @@ _frontend_params.update(
 )
 frontend_params = _frontend_params
 
-URL_DEV = f"http://localhost:{str(params.listen_port)}/api/"
+URL_DEV = f"http://localhost:{str(params.listen_port)}/"
 URL_PROD = "/api/"
 
 REDIS_CONFIG = {

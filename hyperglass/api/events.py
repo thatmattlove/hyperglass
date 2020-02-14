@@ -14,6 +14,7 @@ from hyperglass.exceptions import HyperglassError
 from hyperglass.configuration import (
     URL_DEV,
     URL_PROD,
+    CONFIG_PATH,
     REDIS_CONFIG,
     params,
     frontend_params,
@@ -66,6 +67,7 @@ async def build_ui():
             dev_url=URL_DEV,
             prod_url=URL_PROD,
             params=frontend_params,
+            app_path=CONFIG_PATH,
         )
     except RuntimeError as e:
         raise HTTPException(detail=str(e), status_code=500)
