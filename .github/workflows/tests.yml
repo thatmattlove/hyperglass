@@ -22,9 +22,12 @@ jobs:
       #     sudo apt install -y redis-server
       - name: Clone Repository
         uses: actions/checkout@v2
+        with:
+          ref: v1.0.0
       - name: Install Python Dependencies
         run: |
-          cd ./hyperglass
+          pwd
+          ls -lsah
           pip install .
       - name: lint
         uses: ricardochaves/python-lint@v1.1.0
