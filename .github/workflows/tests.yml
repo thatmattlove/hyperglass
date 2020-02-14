@@ -17,21 +17,17 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.6.10
-      # - name: Install System Dependencies
-      #   run: |
-      #     sudo apt install -y redis-server
       - name: Clone Repository
         uses: actions/checkout@v2
         with:
           ref: v1.0.0
       - name: Install Python Dependencies
         run: |
-          pwd
-          ls -lsah
           pip install .
       - name: lint
         uses: ricardochaves/python-lint@v1.1.0
         with:
+          python-root-list: hyperglass
           use-black: true
           use-flake8: true
           use-isort: true
