@@ -23,8 +23,9 @@ jobs:
           ref: v1.0.0
       - name: Install Python Dependencies
         run: |
-          pip install .
-          which poetry
+          pip install --user pipx
+          pipx ensurepath
+          pipx install poetry
           poetry shell
           poetry install
       - name: lint
