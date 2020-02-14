@@ -21,12 +21,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: v1.0.0
-      - name: Install Application
-        run: |
-          'curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3'
-          poetry --version
-          poetry install
-          poetry run flake8 hyperglass
+      - name: Install Poetry
+        uses: dschep/install-poetry-action@v1.3
+      - name: Install Python Dependencies
+        run: poetry install
+      - name: Lint
+        run: poetry run flake8 hyperglass
       # - name: Install Python Dependencies
       #   run: |
       #     pip install --user pipx
