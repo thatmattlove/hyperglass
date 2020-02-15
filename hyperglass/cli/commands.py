@@ -1,8 +1,8 @@
 """CLI Command definitions."""
 
 # Standard Library
-import os
 import sys
+from getpass import getuser
 from pathlib import Path
 
 # Third Party
@@ -144,7 +144,7 @@ def setup(unattended):
         move_files(example_dir, install_path, files)
 
     if install_path == user_path:
-        user = os.getlogin()
+        user = getuser()
     else:
         user = "root"
 
