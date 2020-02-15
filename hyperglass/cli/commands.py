@@ -85,9 +85,20 @@ def generate_secret(length):
 
 
 @hg.command(
-    "setup", help=cmd_help(E.TOOLBOX, "Run the setup wizard"), cls=HelpColorsCommand
+    "setup",
+    help=cmd_help(E.TOOLBOX, "Run the setup wizard"),
+    cls=HelpColorsCommand,
+    help_options_custom_colors=random_colors("-d"),
 )
-def setup():
+@option(
+    "-d",
+    "--use-defaults",
+    "unattended",
+    default=False,
+    is_flag=True,
+    help="Use hyperglass defaults (requires no input)",
+)
+def setup(unattended):
     """Define application directory, move example files, generate systemd service."""
     from hyperglass.cli.util import create_dir, move_files, make_systemd, write_to_file
 
@@ -101,8 +112,12 @@ def setup():
             choices=[user_path, root_path],
         )
     ]
-    answer = inquirer.prompt(install_paths)
-    install_path = answer["install_path"]
+    if not unattended:
+        answer = inquirer.prompt(install_paths)
+        install_path = answer["install_path"]
+    elif unattended:
+        install_path = user_path
+
     ui_dir = install_path / "static" / "ui"
     custom_dir = install_path / "static" / "custom"
 
@@ -113,9 +128,13 @@ def setup():
     example_dir = WORKING_DIR.parent / "examples"
     files = example_dir.iterdir()
 
-    if confirm(
+    do_move = True
+    if not unattended and not confirm(
         "Do you want to install example configuration files? (This is non-destructive)"
     ):
+        do_move = False
+
+    if do_move:
         move_files(example_dir, install_path, files)
 
     if install_path == user_path:
@@ -123,7 +142,13 @@ def setup():
     else:
         user = "root"
 
-    if confirm("Do you want to generate a systemd service file?"):
+    do_systemd = True
+    if not unattended and not confirm(
+        "Do you want to generate a systemd service file?"
+    ):
+        do_systemd = False
+
+    if do_systemd:
         systemd_file = install_path / "hyperglass.service"
         systemd = make_systemd(user)
         write_to_file(systemd_file, systemd)
