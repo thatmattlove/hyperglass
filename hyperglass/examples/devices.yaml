@@ -2,40 +2,40 @@
 # Credentials
 credentials:
     - credential: &credential1
-        username: user1
-        password: secret1
+          username: user1
+          password: secret1
     - credential: &credential2
-        username: user2
-        password: secret2
+          username: user2
+          password: secret2
 
 # SSH Proxy/Tunnel Servers
 proxies:
     - proxy: &proxy1
-        name: server01
-        address: 10.11.6.204
-        port: 22
-        credential: *credential1
-        nos: linux_ssh
+          name: server01
+          address: 10.11.6.204
+          port: 22
+          credential: *credential1
+          nos: linux_ssh
 
 # Networks
 networks:
     - network: &net_primary
-        name: primary
-        display_name: Main Network
+          name: primary
+          display_name: Main Network
     - network: &net_secondary
-        name: secondary
-        display_name: That Other Network
+          name: secondary
+          display_name: That Other Network
 
 # VRFs
 vrfs:
     - &vrf_default
-      name: default 
+      name: default
       display_name: Global
       access_list:
           - deny: 10.0.0.0/8
           - deny: 192.168.0.0/16
           - deny: 172.16.0.0/12
-          - allow: 0.0.0.0/0
+          - permit: 0.0.0.0/0
     - &vrf_customer_a
       name: customer_a
       display_name: Customer A
@@ -44,7 +44,7 @@ vrfs:
       ipv6: null
       access_list:
           - deny: 192.0.2.0/24
-          - allow: 10.0.0.0/8
+          - permit: 10.0.0.0/8
 
 # Routers
 routers:
