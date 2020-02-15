@@ -37,15 +37,13 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 # Standard Library
-import os
 import sys
-import getpass
-from pathlib import Path
 
 # Third Party
 import uvloop
 
 # Project
+from hyperglass.util import set_app_path
 from hyperglass.constants import METADATA
 
 try:
@@ -59,39 +57,7 @@ else:
         _style = "plaintext"
     stackprinter.set_excepthook(style=_style)
 
-config_path = None
-
-_CONFIG_PATHS = (Path.home() / "hyperglass", Path("/etc/hyperglass/"))
-
-for path in _CONFIG_PATHS:
-    try:
-        if not isinstance(path, Path):
-            path = Path(path)
-
-        if path.exists():
-            tmp = path / "test.tmp"
-            tmp.touch()
-            if tmp.exists():
-                config_path = path
-                tmp.unlink()
-                break
-    except Exception:
-        config_path = None
-
-if config_path is None:
-    raise RuntimeError(
-        """
-No configuration directories were determined to both exist and be readable
-by hyperglass. hyperglass is running as user '{un}' (UID '{uid}'), and tried to access
-the following directories:
-{dir}""".format(
-            un=getpass.getuser(),
-            uid=os.getuid(),
-            dir="\n".join([" - " + str(p) for p in _CONFIG_PATHS]),
-        )
-    )
-
-os.environ["hyperglass_directory"] = str(config_path)
+set_app_path()
 
 uvloop.install()
 

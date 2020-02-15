@@ -365,7 +365,7 @@ async def build_frontend(  # noqa: C901
         Compare repository's static assets with build directory's
         assets. If the contents don't match, re-copy the files.
         """
-        asset_dir = Path(__file__).parent.parent / "assets"
+        asset_dir = Path(__file__).parent.parent / "images"
         target_dir = app_path / "static" / "images"
         comparison = dircmp(asset_dir, target_dir, ignore=[".DS_Store"])
 
@@ -380,4 +380,44 @@ async def build_frontend(  # noqa: C901
     except Exception as e:
         raise RuntimeError(str(e))
 
+    return True
+
+
+def set_app_path(required=False):
+    """Find app directory and set value to environment variable."""
+    import os
+    from pathlib import Path
+    from getpass import getuser
+
+    matched_path = None
+
+    config_paths = (Path.home() / "hyperglass", Path("/etc/hyperglass/"))
+
+    for path in config_paths:
+        try:
+            if path.exists():
+                tmp = path / "test.tmp"
+                tmp.touch()
+                if tmp.exists():
+                    matched_path = path
+                    tmp.unlink()
+                    break
+        except Exception:
+            matched_path = None
+
+    if required and matched_path is None:
+        # Only raise an error if required is True
+        raise RuntimeError(
+            """
+    No configuration directories were determined to both exist and be readable
+    by hyperglass. hyperglass is running as user '{un}' (UID '{uid}'), and tried
+    to access the following directories:
+    {dir}""".format(
+                un=getuser(),
+                uid=os.getuid(),
+                dir="\n".join([" - " + str(p) for p in config_paths]),
+            )
+        )
+
+    os.environ["hyperglass_directory"] = str(matched_path)
     return True

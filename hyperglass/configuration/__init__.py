@@ -14,7 +14,7 @@ from aiofile import AIOFile
 from pydantic import ValidationError
 
 # Project
-from hyperglass.util import log, check_path
+from hyperglass.util import log, check_path, set_app_path
 from hyperglass.constants import (
     CREDIT,
     LOG_LEVELS,
@@ -30,6 +30,8 @@ from hyperglass.configuration.models import params as _params
 from hyperglass.configuration.models import routers as _routers
 from hyperglass.configuration.models import commands as _commands
 from hyperglass.configuration.markdown import get_markdown
+
+set_app_path()
 
 CONFIG_PATH = Path(os.environ["hyperglass_directory"])
 log.info("Configuration directory: {d}", d=str(CONFIG_PATH))
