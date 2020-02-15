@@ -195,7 +195,69 @@ async def clear_redis_cache(db, config):
     return True
 
 
-async def build_frontend(dev_mode, dev_url, prod_url, params, app_path, force=False):
+async def move_files(src, dst, files):  # noqa: C901
+    """Move iterable of files from source to destination.
+
+    Arguments:
+        src {Path} -- Current directory of files
+        dst {Path} -- Target destination directory
+        files {Iterable} -- Iterable of files
+    """
+    import shutil
+    from pathlib import Path
+    from typing import Iterable
+
+    def error(*args, **kwargs):
+        msg = ", ".join(args)
+        kwargs = {k: str(v) for k, v in kwargs.items()}
+        error_msg = msg.format(**kwargs)
+        log.error(error_msg)
+        return RuntimeError(error_msg)
+
+    if not isinstance(src, Path):
+        try:
+            src = Path(src)
+        except TypeError:
+            raise error("{p} is not a valid path", p=src)
+
+    if not isinstance(dst, Path):
+        try:
+            dst = Path(dst)
+        except TypeError:
+            raise error("{p} is not a valid path", p=dst)
+
+    if not isinstance(files, Iterable):
+        raise error(
+            "{fa} must be an iterable (list, tuple, or generator). Received {f}",
+            fa="Files argument",
+            f=files,
+        )
+
+    for path in (src, dst):
+        if not path.exists():
+            raise error("{p} does not exist", p=path)
+
+    migrated = ()
+
+    for file in files:
+        dst_file = dst / file.name
+
+        if not file.exists():
+            raise error("{f} does not exist", f=file)
+
+        try:
+            if not dst_file.exists():
+                shutil.copyfile(file, dst_file)
+                migrated += (str(dst_file),)
+        except Exception as e:
+            raise error("Failed to migrate {f}: {e}", f=dst_file, e=e)
+
+    return migrated
+
+
+async def build_frontend(  # noqa: C901
+    dev_mode, dev_url, prod_url, params, app_path, force=False
+):
     """Perform full frontend UI build process.
 
     Securely creates temporary file, writes frontend configuration
@@ -223,6 +285,8 @@ async def build_frontend(dev_mode, dev_url, prod_url, params, app_path, force=Fa
     """
     import hashlib
     import tempfile
+    import shutil
+    from filecmp import dircmp
     from pathlib import Path
     from aiofile import AIOFile
     import ujson as json
@@ -297,6 +361,22 @@ async def build_frontend(dev_mode, dev_url, prod_url, params, app_path, force=Fa
                 elif dev_mode and not force:
                     log.debug("Running in developer mode, did not build new UI files")
 
+        """
+        Compare repository's static assets with build directory's
+        assets. If the contents don't match, re-copy the files.
+        """
+        asset_dir = Path(__file__).parent.parent / "assets"
+        target_dir = app_path / "static" / "images"
+        comparison = dircmp(asset_dir, target_dir, ignore=[".DS_Store"])
+
+        if not comparison.left_list == comparison.right_list:
+            shutil.copytree(asset_dir, target_dir)
+            if not comparison.left_list == comparison.right_list:
+                raise Exception(
+                    "Files in '{a}' do not match files in '{b}'".format(
+                        a=str(asset_dir), b=str(target_dir)
+                    )
+                )
     except Exception as e:
         raise RuntimeError(str(e))
 

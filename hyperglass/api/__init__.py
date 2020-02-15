@@ -34,12 +34,11 @@ from hyperglass.api.models.response import (
 )
 
 WORKING_DIR = Path(__file__).parent
-STATIC_DIR = WORKING_DIR.parent / "static"
-IMAGES_DIR = STATIC_DIR / "images"
 EXAMPLES_DIR = WORKING_DIR / "examples"
 
 UI_DIR = STATIC_PATH / "ui"
 CUSTOM_DIR = STATIC_PATH / "custom"
+IMAGES_DIR = STATIC_PATH / "images"
 
 EXAMPLE_DEVICES_PY = EXAMPLES_DIR / "devices.py"
 EXAMPLE_QUERIES_PY = EXAMPLES_DIR / "queries.py"
