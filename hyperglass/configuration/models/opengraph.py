@@ -1,15 +1,18 @@
 """Validate OpenGraph Configuration Parameters."""
 
 # Standard Library
+import os
 from typing import Optional
 from pathlib import Path
 
 # Third Party
 import PIL.Image as PilImage
-from pydantic import FilePath, StrictInt, root_validator
+from pydantic import StrictInt, StrictStr, root_validator
 
 # Project
-from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.configuration.models._utils import HyperglassModel, validate_image
+
+CONFIG_PATH = Path(os.environ["hyperglass_directory"])
 
 
 class OpenGraph(HyperglassModel):
@@ -17,10 +20,10 @@ class OpenGraph(HyperglassModel):
 
     width: Optional[StrictInt]
     height: Optional[StrictInt]
-    image: Optional[FilePath]
+    image: Optional[StrictStr]
 
     @root_validator
-    def validate_image(cls, values):
+    def validate_opengraph(cls, values):
         """Set default opengraph image location.
 
         Arguments:
@@ -40,13 +43,13 @@ class OpenGraph(HyperglassModel):
                 )
             )
         if values["image"] is None:
-            image = (
-                Path(__file__).parent.parent.parent
-                / "static/images/hyperglass-opengraph.png"
-            )
-            values["image"] = "".join(str(image).split("static")[1::])
+            values["image"] = "images/hyperglass-opengraph.png"
 
-        with PilImage.open(image) as img:
+        values["image"] = validate_image(values["image"])
+
+        image_file = CONFIG_PATH / "static" / values["image"]
+
+        with PilImage.open(image_file) as img:
             width, height = img.size
             if values["width"] is None:
                 values["width"] = width

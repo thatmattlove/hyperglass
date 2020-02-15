@@ -1,7 +1,9 @@
 """Utility Functions for Pydantic Models."""
 
 # Standard Library
+import os
 import re
+from pathlib import Path
 
 # Third Party
 from pydantic import BaseModel
@@ -77,3 +79,33 @@ class AnyUri(str):
     def __repr__(self):
         """Stringify custom field representation."""
         return f"AnyUri({super().__repr__()})"
+
+
+def validate_image(value):
+    """Convert file path to URL path.
+
+    Arguments:
+        value {FilePath} -- Path to logo file.
+
+    Returns:
+        {str} -- Formatted logo path
+    """
+    base_path = value.split("/")
+
+    if base_path[0] == "/":
+        value = "/".join(base_path[1:])
+
+    if base_path[0] not in ("images", "custom"):
+        raise ValueError(
+            "Logo files must be in the 'custom/' directory of your hyperglass directory. Got: {f}",
+            f=value,
+        )
+
+    if base_path[0] == "custom":
+        config_path = Path(os.environ["hyperglass_directory"])
+        custom_file = config_path / "static" / value
+
+        if not custom_file.exists():
+            raise ValueError("'{f}' does not exist", f=str(custom_file))
+
+    return value

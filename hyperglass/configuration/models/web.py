@@ -1,9 +1,7 @@
 """Validate branding configuration variables."""
 
 # Standard Library
-import os
 from typing import Optional
-from pathlib import Path
 
 # Third Party
 from pydantic import (
@@ -20,7 +18,7 @@ from pydantic.color import Color
 
 # Project
 from hyperglass.constants import DNS_OVER_HTTPS, FUNC_COLOR_MAP
-from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.configuration.models._utils import HyperglassModel, validate_image
 from hyperglass.configuration.models.opengraph import OpenGraph
 
 
@@ -116,23 +114,7 @@ class Logo(HyperglassLevel3):
         Returns:
             {str} -- Formatted logo path
         """
-        base_path = value.split("/")
-
-        if base_path[0] == "/":
-            value = "/".join(base_path[1:])
-
-        if base_path[0] not in ("images", "custom"):
-            raise ValueError(
-                "Logo files must be in the 'custom/' directory of your hyperglass directory. Got: {f}",
-                f=value,
-            )
-        if base_path[0] == "custom":
-            config_path = Path(os.environ["hyperglass_directory"])
-            custom_file = config_path / "static" / value
-            if not custom_file.exists():
-                raise ValueError("'{f}' does not exist", f=str(custom_file))
-
-        return value
+        return validate_image(value)
 
     class Config:
         """Override pydantic config."""
