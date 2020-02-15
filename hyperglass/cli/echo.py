@@ -10,9 +10,13 @@ from hyperglass.cli.static import CMD_HELP, Message
 from hyperglass.cli.exceptions import CliError
 
 
-def cmd_help(emoji="", help_text=""):
+def cmd_help(emoji="", help_text="", supports_color=False):
     """Print formatted command help."""
-    return emoji + style(help_text, **CMD_HELP)
+    if supports_color:
+        help_str = emoji + style(help_text, **CMD_HELP)
+    else:
+        help_str = help_text
+    return help_str
 
 
 def _base_formatter(state, text, callback, **kwargs):

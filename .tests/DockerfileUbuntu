@@ -1,4 +1,6 @@
 FROM ubuntu:bionic as base
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -10,7 +12,8 @@ ENV PATH="$PATH:$HOME/.poetry/bin"
 FROM base
 WORKDIR ./hyperglass
 ENV python=python3
-RUN ln -s $(which python3) /usr/bin/python \
+RUN bash -c 'BASH_ENV=/etc/profile exec bash' \
+    && ln -s $(which python3) /usr/bin/python \
     && python --version \
     && $HOME/.poetry/bin/poetry install --no-ansi \
     && $HOME/.poetry/bin/poetry run hyperglass setup -d

@@ -2,6 +2,7 @@
 
 # Standard Library
 import os
+import sys
 from pathlib import Path
 
 # Third Party
@@ -17,10 +18,13 @@ from hyperglass.cli.formatting import HelpColorsGroup, HelpColorsCommand, random
 # Define working directory
 WORKING_DIR = Path(__file__).parent
 
+supports_color = "utf" in sys.getfilesystemencoding().lower()
+
 
 @group(
     cls=HelpColorsGroup,
     help=CLI_HELP,
+    context_settings={"color": supports_color},
     help_headers_color=LABEL,
     help_options_custom_colors=random_colors("build-ui", "start", "secret", "setup"),
 )
@@ -29,7 +33,9 @@ def hg():
     pass
 
 
-@hg.command("build-ui", help=cmd_help(E.BUTTERFLY, "Create a new UI build"))
+@hg.command(
+    "build-ui", help=cmd_help(E.BUTTERFLY, "Create a new UI build", supports_color)
+)
 def build_frontend():
     """Create a new UI build.
 
@@ -41,7 +47,7 @@ def build_frontend():
 
 @hg.command(
     "start",
-    help=cmd_help(E.ROCKET, "Start web server"),
+    help=cmd_help(E.ROCKET, "Start web server", supports_color),
     cls=HelpColorsCommand,
     help_options_custom_colors=random_colors("-b"),
 )
@@ -65,7 +71,7 @@ def start(build):
 
 @hg.command(
     "secret",
-    help=cmd_help(E.LOCK, "Generate agent secret"),
+    help=cmd_help(E.LOCK, "Generate agent secret", supports_color),
     cls=HelpColorsCommand,
     help_options_custom_colors=random_colors("-l"),
 )
@@ -86,7 +92,7 @@ def generate_secret(length):
 
 @hg.command(
     "setup",
-    help=cmd_help(E.TOOLBOX, "Run the setup wizard"),
+    help=cmd_help(E.TOOLBOX, "Run the setup wizard", supports_color),
     cls=HelpColorsCommand,
     help_options_custom_colors=random_colors("-d"),
 )
