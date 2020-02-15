@@ -1,9 +1,0 @@
-.DS_Store
-src
-ui/*
-!ui/.gitkeep
-
-# dev/test files
-*.tmp*
-test*
-*.log
