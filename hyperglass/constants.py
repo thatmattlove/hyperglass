@@ -11,7 +11,7 @@ __license__ = "BSD 3-Clause Clear License"
 
 METADATA = (__name__, __version__, __author__, __copyright__, __license__)
 
-MIN_PYTHON_VERSION = (3, 7)
+MIN_PYTHON_VERSION = (3, 6)
 
 protocol_map = {80: "http", 8080: "http", 443: "https", 8443: "https"}
 

@@ -4,7 +4,6 @@
 import os
 import copy
 import math
-import asyncio
 from pathlib import Path
 
 # Third Party
@@ -15,6 +14,7 @@ from pydantic import ValidationError
 
 # Project
 from hyperglass.util import log, check_path, set_app_path
+from hyperglass.compat import aiorun
 from hyperglass.constants import (
     CREDIT,
     LOG_LEVELS,
@@ -80,9 +80,7 @@ async def _check_config_files(directory):
 
 STATIC_PATH = CONFIG_PATH / "static"
 
-CONFIG_MAIN, CONFIG_DEVICES, CONFIG_COMMANDS = asyncio.run(
-    _check_config_files(CONFIG_PATH)
-)
+CONFIG_MAIN, CONFIG_DEVICES, CONFIG_COMMANDS = aiorun(_check_config_files(CONFIG_PATH))
 
 
 def _set_log_level(debug, log_file=None):
@@ -166,7 +164,7 @@ async def _config_devices():
     return config
 
 
-user_config = asyncio.run(_config_main())
+user_config = aiorun(_config_main())
 
 # Logging Config
 try:
@@ -177,8 +175,8 @@ except KeyError:
 # Read raw debug value from config to enable debugging quickly.
 _set_log_level(_debug)
 
-_user_commands = asyncio.run(_config_commands())
-_user_devices = asyncio.run(_config_devices())
+_user_commands = aiorun(_config_commands())
+_user_devices = aiorun(_config_devices())
 
 # Map imported user config files to expected schema:
 try:
@@ -383,7 +381,7 @@ def _build_vrf_help():
                     "title"
                 ] = f"{vrf.display_name}: {command_params.display_name}"
 
-            md = asyncio.run(
+            md = aiorun(
                 get_markdown(
                     config_path=cmd,
                     default=DEFAULT_DETAILS[command],
@@ -404,7 +402,7 @@ content_vrf = _build_vrf_help()
 
 content_help_params = copy.copy(content_params)
 content_help_params["title"] = params.web.help_menu.title
-content_help = asyncio.run(
+content_help = aiorun(
     get_markdown(
         config_path=params.web.help_menu,
         default=DEFAULT_HELP,
@@ -414,7 +412,7 @@ content_help = asyncio.run(
 
 content_terms_params = copy.copy(content_params)
 content_terms_params["title"] = params.web.terms.title
-content_terms = asyncio.run(
+content_terms = aiorun(
     get_markdown(
         config_path=params.web.terms, default=DEFAULT_TERMS, params=content_terms_params
     )

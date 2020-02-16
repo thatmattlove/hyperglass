@@ -165,9 +165,9 @@ def build_ui():
         ClickException: Raised on any errors.
     """
     try:
-        import asyncio
-        from hyperglass.configuration import params, frontend_params, CONFIG_PATH
+        from hyperglass.compat import aiorun
         from hyperglass.util import build_frontend
+        from hyperglass.configuration import params, frontend_params, CONFIG_PATH
     except ImportError as e:
         error("Error importing UI builder: {e}", e=e)
 
@@ -179,7 +179,7 @@ def build_ui():
         dev_mode = "development"
 
     try:
-        build_success = asyncio.run(
+        build_success = aiorun(
             build_frontend(
                 dev_mode=params.developer_mode,
                 dev_url=f"http://localhost:{str(params.listen_port)}/",
