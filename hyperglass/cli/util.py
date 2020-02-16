@@ -201,17 +201,15 @@ def build_ui():
 def create_dir(path, **kwargs):
     """Validate and attempt to create a directory, if it does not exist."""
 
+    # If input path is not a path object, try to make it one
     if not isinstance(path, Path):
-        # If input path is not a path object, try to make it one
-
         try:
             path = Path(path)
         except TypeError:
             error("{p} is not a valid path", p=path)
 
+    # If path does not exist, try to create it
     if not path.exists():
-        # If path does not exist, try to create it
-
         try:
             path.mkdir(**kwargs)
         except PermissionError:
@@ -221,12 +219,12 @@ def create_dir(path, **kwargs):
                 p=path,
             )
 
+        # Verify the path was actually created
         if path.exists():
-            # Verify the path was actually created
             success("Created {p}", p=path)
 
+    # If the path already exists, inform the user
     elif path.exists():
-        # If the path already exists, inform the user
         info("{p} already exists", p=path)
 
     return True

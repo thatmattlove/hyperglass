@@ -256,10 +256,7 @@ async def move_files(src, dst, files):  # noqa: C901
 
 
 def migrate_static_assets(app_path):
-    """Compare repository's static assets with build directory's assets.
-
-    If the contents don't match, re-copy the files.
-    """
+    """Synchronize the project assets with the installation assets."""
     import shutil
     from pathlib import Path
     from filecmp import dircmp
@@ -267,14 +264,26 @@ def migrate_static_assets(app_path):
     asset_dir = Path(__file__).parent.parent / "images"
     target_dir = app_path / "static" / "images"
 
-    if not target_dir.exists():
-        target_dir.mkdir(parents=True)
+    target_exists = target_dir.exists()
 
-    comparison = dircmp(asset_dir, target_dir, ignore=[".DS_Store"])
-
-    if not comparison.left_list == comparison.right_list:
+    if not target_exists:
         shutil.copytree(asset_dir, target_dir)
-        if not comparison.left_list == comparison.right_list:
+
+    # Compare the contents of the project's asset directory (considered
+    # the source of truth) with the installation directory. If they do
+    # not match, delete the installation directory's asset directory and
+    # re-copy it.
+    compare_initial = dircmp(asset_dir, target_dir, ignore=[".DS_Store"])
+
+    if not compare_initial.left_list == compare_initial.right_list:
+        shutil.rmtree(target_dir)
+        shutil.copytree(asset_dir, target_dir)
+
+        # Re-compare the source and destination directory contents to
+        # ensure they match.
+        compare_post = dircmp(asset_dir, target_dir, ignore=[".DS_Store"])
+
+        if not compare_post.left_list == compare_post.right_list:
             return (
                 False,
                 "Files in {a} do not match files in {b}",
@@ -383,19 +392,15 @@ async def build_frontend(  # noqa: C901
 
     env_vars = {"_HYPERGLASS_CONFIG_": params}
 
-    """
-    Set NextJS production/development mode and base URL based on
-    developer_mode setting.
-    """
+    # Set NextJS production/development mode and base URL based on
+    # developer_mode setting.
     if dev_mode:
         env_vars.update({"NODE_ENV": "development", "_HYPERGLASS_URL_": dev_url})
     else:
         env_vars.update({"NODE_ENV": "production", "_HYPERGLASS_URL_": prod_url})
 
-    """
-    Check if hyperglass/ui/node_modules has been initialized. If not,
-    initialize it.
-    """
+    # Check if hyperglass/ui/node_modules has been initialized. If not,
+    # initialize it.
     initialized = await check_node_modules()
     if initialized:
         log.debug("node_modules is already initialized")
@@ -407,17 +412,13 @@ async def build_frontend(  # noqa: C901
     try:
         env_json = json.dumps(env_vars)
 
-        """
-        Create SHA256 hash from all parameters passed to UI, use as
-        build identifier.
-        """
+        # Create SHA256 hash from all parameters passed to UI, use as
+        # build identifier.
         build_id = hashlib.sha256(env_json.encode()).hexdigest()
 
+        # Read hard-coded environment file from last build. If build ID
+        # matches this build's ID, don't run a new build.
         if env_file.exists() and not force:
-            """
-            Read hard-coded environment file from last build. If build
-            ID matches this build's ID, don't run a new build.
-            """
             async with AIOFile(env_file, "r") as ef:
                 ef_json = await ef.read()
                 ef_id = json.loads(ef_json).get("buildId", "empty")
@@ -430,10 +431,8 @@ async def build_frontend(  # noqa: C901
                     )
                     return True
 
-        """
-        Create temporary file. json file extension is added for easy
-        webpack JSON parsing.
-        """
+        # Create temporary file. json file extension is added for easy
+        # webpack JSON parsing.
         temp_file = tempfile.NamedTemporaryFile(
             mode="w+", prefix="hyperglass_", suffix=".json", delete=not dev_mode
         )
