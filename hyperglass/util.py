@@ -255,6 +255,67 @@ async def move_files(src, dst, files):  # noqa: C901
     return migrated
 
 
+async def check_node_modules():
+    """Check if node_modules exists and has contents.
+
+    Returns:
+        {bool} -- True if exists and has contents.
+    """
+    from pathlib import Path
+
+    ui_path = Path(__file__).parent.parent / "ui"
+    node_modules = ui_path / "node_modules"
+
+    exists = node_modules.exists()
+    valid = exists
+
+    if exists and not tuple(node_modules.iterdir()):
+        valid = False
+
+    return valid
+
+
+async def node_initial():
+    """Initialize node_modules.
+
+    Raises:
+        RuntimeError: Raised if exit code is not 0
+        RuntimeError: Raised if other exceptions occur
+
+    Returns:
+        {str} -- Command output
+    """
+    import asyncio
+    from pathlib import Path
+
+    ui_path = Path(__file__).parent.parent / "ui"
+
+    command = "yarn --prod --silent --emoji false"
+    all_messages = []
+    try:
+        proc = await asyncio.create_subprocess_shell(
+            cmd=command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=ui_path,
+        )
+
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
+        messages = stdout.decode("utf-8").strip()
+        errors = stderr.decode("utf-8").strip()
+
+        if proc.returncode != 0:
+            raise RuntimeError(f"\nMessages:\n{messages}\nErrors:\n{errors}")
+
+        await proc.wait()
+        all_messages.append(messages)
+
+    except Exception as e:
+        raise RuntimeError(str(e))
+
+    return "\n".join(all_messages)
+
+
 async def build_frontend(  # noqa: C901
     dev_mode, dev_url, prod_url, params, app_path, force=False
 ):
@@ -303,6 +364,18 @@ async def build_frontend(  # noqa: C901
         env_vars.update({"NODE_ENV": "development", "_HYPERGLASS_URL_": dev_url})
     else:
         env_vars.update({"NODE_ENV": "production", "_HYPERGLASS_URL_": prod_url})
+
+    """
+    Check if hyperglass/ui/node_modules has been initialized. If not,
+    initialize it.
+    """
+    initialized = await check_node_modules()
+    if initialized:
+        log.debug("node_modules is already initialized")
+    elif not initialized:
+        log.debug("node_modules has not been initialized. Starting initialization...")
+        node_setup = await node_initial()
+        log.debug(node_setup)
 
     try:
         env_json = json.dumps(env_vars)
