@@ -8,6 +8,9 @@ test.py
 __pycache__/
 *.py[cod]
 
+# Pyenv
+.python-version
+
 # C extensions
 *.so
 
