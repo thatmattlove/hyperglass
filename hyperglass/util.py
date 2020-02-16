@@ -268,6 +268,9 @@ def migrate_static_assets(app_path):
     target_dir = app_path / "static" / "images"
     comparison = dircmp(asset_dir, target_dir, ignore=[".DS_Store"])
 
+    if not target_dir.exists():
+        target_dir.mkdir()
+
     if not comparison.left_list == comparison.right_list:
         shutil.copytree(asset_dir, target_dir)
         if not comparison.left_list == comparison.right_list:
