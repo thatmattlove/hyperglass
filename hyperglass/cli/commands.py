@@ -7,7 +7,7 @@ from pathlib import Path
 
 # Third Party
 import inquirer
-from click import group, option, confirm
+from click import group, option, confirm, help_option
 
 # Project
 from hyperglass.cli.echo import error, label, cmd_help
@@ -21,12 +21,35 @@ WORKING_DIR = Path(__file__).parent
 supports_color = "utf" in sys.getfilesystemencoding().lower()
 
 
+def _print_version(ctx, param, value):
+    from hyperglass import __version__
+
+    if not value or ctx.resilient_parsing:
+        return
+    label("hyperglass version: {v}", v=__version__)
+    ctx.exit()
+
+
 @group(
     cls=HelpColorsGroup,
     help=CLI_HELP,
-    context_settings={"color": supports_color},
+    context_settings={"help_option_names": ["-h", "--help"], "color": supports_color},
     help_headers_color=LABEL,
     help_options_custom_colors=random_colors("build-ui", "start", "secret", "setup"),
+)
+@option(
+    "-v",
+    "--version",
+    is_flag=True,
+    callback=_print_version,
+    expose_value=False,
+    is_eager=True,
+    help=cmd_help(E.NUMBERS, "hyperglass version", supports_color),
+)
+@help_option(
+    "-h",
+    "--help",
+    help=cmd_help(E.FOLDED_HANDS, "Show this help message", supports_color),
 )
 def hg():
     """Initialize Click Command Group."""
@@ -57,6 +80,7 @@ def start(build):
     try:
         from hyperglass.api import start, ASGI_PARAMS
     except ImportError as e:
+        raise Exception(str(e))
         error("Error importing hyperglass: {e}", e=e)
 
     if build:
