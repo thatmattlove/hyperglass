@@ -69,12 +69,13 @@ def check_python():
         {str} -- Python version
     """
     import sys
+    import platform
     from hyperglass.constants import MIN_PYTHON_VERSION
 
     pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
     if sys.version_info < MIN_PYTHON_VERSION:
         raise RuntimeError(f"Python {pretty_version}+ is required.")
-    return pretty_version
+    return platform.python_version()
 
 
 async def build_ui(app_path):
@@ -460,7 +461,7 @@ async def build_frontend(  # noqa: C901
                 elif dev_mode and not force:
                     log.debug("Running in developer mode, did not build new UI files")
 
-        migrate_static_assets()
+        migrate_static_assets(app_path)
 
     except Exception as e:
         raise RuntimeError(str(e))

@@ -214,4 +214,6 @@ def start():
     """Start the web server with Uvicorn ASGI."""
     import uvicorn
 
+    # TODO: figure out workers issue
+    # uvicorn.run("hyperglass.api:app", **ASGI_PARAMS) # noqa: E800
     uvicorn.run(app, **ASGI_PARAMS)

@@ -10,6 +10,7 @@ from hyperglass.util import (
     build_frontend,
     clear_redis_cache,
 )
+from hyperglass.constants import MIN_PYTHON_VERSION
 from hyperglass.exceptions import HyperglassError
 from hyperglass.configuration import (
     URL_DEV,
@@ -29,9 +30,10 @@ async def check_python_version():
     """
     try:
         python_version = check_python()
-        log.info(f"Python {python_version} detected")
-    except RuntimeError as r:
-        raise HyperglassError(str(r), level="danger") from None
+        required = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
+        log.info(f"Python {python_version} detected ({required} required)")
+    except RuntimeError as e:
+        raise HyperglassError(str(e), level="danger") from None
 
 
 async def check_redis_instance():
