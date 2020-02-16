@@ -106,7 +106,13 @@ def generate_secret(length):
 )
 def setup(unattended):
     """Define application directory, move example files, generate systemd service."""
-    from hyperglass.cli.util import create_dir, move_files, make_systemd, write_to_file
+    from hyperglass.cli.util import (
+        create_dir,
+        move_files,
+        make_systemd,
+        write_to_file,
+        migrate_static_assets,
+    )
 
     user_path = Path.home() / "hyperglass"
     root_path = Path("/etc/hyperglass/")
@@ -158,3 +164,5 @@ def setup(unattended):
         systemd_file = install_path / "hyperglass.service"
         systemd = make_systemd(user)
         write_to_file(systemd_file, systemd)
+
+    migrate_static_assets(install_path)

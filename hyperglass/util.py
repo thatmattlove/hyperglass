@@ -255,6 +255,31 @@ async def move_files(src, dst, files):  # noqa: C901
     return migrated
 
 
+def migrate_static_assets(app_path):
+    """Compare repository's static assets with build directory's assets.
+
+    If the contents don't match, re-copy the files.
+    """
+    import shutil
+    from pathlib import Path
+    from filecmp import dircmp
+
+    asset_dir = Path(__file__).parent.parent / "images"
+    target_dir = app_path / "static" / "images"
+    comparison = dircmp(asset_dir, target_dir, ignore=[".DS_Store"])
+
+    if not comparison.left_list == comparison.right_list:
+        shutil.copytree(asset_dir, target_dir)
+        if not comparison.left_list == comparison.right_list:
+            return (
+                False,
+                "Files in {a} do not match files in {b}",
+                str(asset_dir),
+                str(target_dir),
+            )
+    return (True, "Migrated assets from {a} to {b}", str(asset_dir), str(target_dir))
+
+
 async def check_node_modules():
     """Check if node_modules exists and has contents.
 
@@ -346,8 +371,6 @@ async def build_frontend(  # noqa: C901
     """
     import hashlib
     import tempfile
-    import shutil
-    from filecmp import dircmp
     from pathlib import Path
     from aiofile import AIOFile
     import ujson as json
@@ -434,22 +457,8 @@ async def build_frontend(  # noqa: C901
                 elif dev_mode and not force:
                     log.debug("Running in developer mode, did not build new UI files")
 
-        """
-        Compare repository's static assets with build directory's
-        assets. If the contents don't match, re-copy the files.
-        """
-        asset_dir = Path(__file__).parent.parent / "images"
-        target_dir = app_path / "static" / "images"
-        comparison = dircmp(asset_dir, target_dir, ignore=[".DS_Store"])
+        migrate_static_assets()
 
-        if not comparison.left_list == comparison.right_list:
-            shutil.copytree(asset_dir, target_dir)
-            if not comparison.left_list == comparison.right_list:
-                raise Exception(
-                    "Files in '{a}' do not match files in '{b}'".format(
-                        a=str(asset_dir), b=str(target_dir)
-                    )
-                )
     except Exception as e:
         raise RuntimeError(str(e))
 

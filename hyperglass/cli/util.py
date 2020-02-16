@@ -358,3 +358,20 @@ def write_to_file(file, data):
     elif file.exists():
         success("Wrote systemd file {f}", f=file)
     return True
+
+
+def migrate_static_assets(app_path):
+    """Migrate app's static assets to app_path.
+
+    Arguments:
+        app_path {Path} -- hyperglass runtime path
+    """
+    from hyperglass.util import migrate_static_assets as _migrate
+
+    migrated, msg, a, b = _migrate(app_path)
+    if not migrated:
+        callback = error
+    elif migrated:
+        callback = success
+
+    callback(msg, a=a, b=b)
