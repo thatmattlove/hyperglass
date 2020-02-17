@@ -1,15 +1,12 @@
 ---
-# general:
-#   debug: false
-#   google_analytics: ''
-#   org_name: The Company
-#   primary_asn: '65001'
-#   redis_host: localhost
-#   redis_port: 6379
-#   request_timeout: 30
-#   requires_ipv6_cidr:
-#   - cisco_ios
-#   - cisco_nxos
+fake_key: true
+#  debug: false
+#  google_analytics: ''
+#  org_name: The Company
+#  primary_asn: '65001'
+#  redis_host: localhost
+#  redis_port: 6379
+#  request_timeout: 30
 
 # branding:
 #   colors:
