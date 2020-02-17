@@ -11,7 +11,7 @@ from hyperglass.configuration.models.params import Params
 from hyperglass.configuration.models.routers import Routers
 from hyperglass.configuration.models.commands import Commands
 
-EXAMPLES = Path(__file__).cwd().parent / "hyperglass" / "examples"
+EXAMPLES = Path(__file__).parent.parent / "hyperglass" / "examples"
 
 DEVICES = EXAMPLES / "devices.yaml"
 COMMANDS = EXAMPLES / "commands.yaml"
