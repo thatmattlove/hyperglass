@@ -12,7 +12,7 @@ function isort_all () {
 }
 
 function validate_examples () {
-  python3 ./tests/validate_examples.py
+  python3 .tests/validate_examples.py
   if [[! $? == 0]]; then 
     exit 1
   fi
