@@ -123,7 +123,7 @@ async def _config_main():
     try:
         async with AIOFile(CONFIG_MAIN, "r") as cf:
             raw = await cf.read()
-            config = yaml.safe_load(raw)
+            config = yaml.safe_load(raw) or {}
     except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
         raise ConfigError(error_msg=str(yaml_error)) from None
     return config
