@@ -314,7 +314,7 @@ async def check_node_modules():
     return valid
 
 
-async def node_initial():
+async def node_initial(dev_mode=False):
     """Initialize node_modules.
 
     Raises:
@@ -329,7 +329,12 @@ async def node_initial():
 
     ui_path = Path(__file__).parent.parent / "ui"
 
-    command = "yarn --prod --silent --emoji false"
+    mode = ""
+    if not dev_mode:
+        mode = "--prod"
+
+    command = "yarn {m} --silent --emoji false".format(m=mode)
+
     all_messages = []
     try:
         proc = await asyncio.create_subprocess_shell(
@@ -407,7 +412,7 @@ async def build_frontend(  # noqa: C901
         log.debug("node_modules is already initialized")
     elif not initialized:
         log.debug("node_modules has not been initialized. Starting initialization...")
-        node_setup = await node_initial()
+        node_setup = await node_initial(dev_mode)
         log.debug(node_setup)
 
     try:
