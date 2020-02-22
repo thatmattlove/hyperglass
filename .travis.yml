@@ -12,7 +12,3 @@ jobs:
       script: docker run hyperglass/ubuntu /bin/sh -c "cd /tmp/hyperglass; poetry run flake8 hyperglass"
     - stage: Test
       script: docker run hyperglass/ubuntu /tmp/dockersetup.sh
-    # - stage: Start
-    #   script: docker run hyperglass/ubuntu /bin/sh -c "cd /tmp/hyperglass; poetry run hyperglass start &> /var/log/hyperglassci.log &"
-    # - stage: Test
-    #   script: docker run hyperglass/ubuntu /bin/sh -c "curl -s -o /dev/null -w "%{http_code}" http://localhost:8001"
