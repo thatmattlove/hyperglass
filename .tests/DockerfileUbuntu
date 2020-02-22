@@ -12,17 +12,14 @@ RUN apt-get update \
     && curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 \
     && python3 --version \
     && echo "NodeJS $(node --version)" \
-    && echo "Yarn $(yarn --version)" \
-    && git clone --single-branch --branch v1.0.0 --depth 1 https://github.com/checktheroads/hyperglass
+    && echo "Yarn $(yarn --version)"
+    # && git clone --single-branch --branch v1.0.0 --depth 1 https://github.com/checktheroads/hyperglass
+COPY ./ /tmp/hyperglass
 ENV PATH=$PATH:/root/.poetry/bin
 # ENV BASH_ENV=/etc/profile exec bash
 
 FROM base as install
-WORKDIR ./hyperglass
+WORKDIR /tmp/hyperglass
 RUN poetry install --no-ansi
-
-FROM install as setup
-WORKDIR ./hyperglass
-RUN poetry run hyperglass setup -d
-EXPOSE 8001
-CMD poetry run hyperglass start
+COPY ./dockersetup.sh /dockersetup.sh
+ENTRYPOINT ["/dockersetup.sh"]
