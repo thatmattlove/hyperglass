@@ -1,0 +1,10 @@
+---
+language: minimal
+services:
+  - docker
+  - redis
+before_install:
+  - docker build -t hyperglass/ubuntu -f ./tests/DockerfileUbuntu .
+
+script:
+  - bash /tmp/dockersetup.sh

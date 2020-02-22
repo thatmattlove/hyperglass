@@ -22,4 +22,3 @@ FROM base as install
 WORKDIR /tmp/hyperglass
 RUN poetry install --no-ansi
 COPY ./dockersetup.sh /dockersetup.sh
-ENTRYPOINT ["/dockersetup.sh"]
