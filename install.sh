@@ -406,6 +406,7 @@ install_app () {
 
     if [[ ! $? == 0 ]]; then
         echo "[ERROR] An error occurred while trying to install hyperglass."
+        exit 1
     else
         local successful=$(has_cmd "hyperglass")
         if [[ successful == 0 ]]; then
