@@ -16,6 +16,7 @@ BREW_UPDATE="brew update"
 INSTALL_MAP=(["apt"]="$APT_INSTALL" ["yum"]="$YUM_INSTALL" ["brew"]="$BREW_INSTALL")
 UPDATE_MAP=(["apt"]="$APT_UPDATE" ["yum"]="$YUM_UPDATE" ["brew"]="$BREW_UPDATE")
 
+APP_TARGET="git+https://github.com/checktheroads/hyperglass.git@v1.0.0"
 INSTALLER=""
 NEEDS_UPDATE="0"
 NEEDS_PYTHON="1"
@@ -31,6 +32,17 @@ has_cmd () {
     else
         echo "1"
     fi
+}
+
+clean_temp () {
+    echo "Cleaning up temporary files..."
+    rm -rf /tmp/yarnkey.gpg
+    rm -rf /tmp/nodesetup.sh
+}
+
+catch_interrupt () {
+    kill $PID
+    exit
 }
 
 semver () {
@@ -388,15 +400,21 @@ install_redis () {
     fi
 }
 
-clean_temp () {
-    echo "Cleaning up temporary files..."
-    rm -rf /tmp/yarnkey.gpg
-    rm -rf /tmp/nodesetup.sh
-}
+install_app () {
+    echo "[INFO] Installing hyperglass..."
+    pip3 install $APP_TARGET
 
-catch_interrupt () {
-    kill $PID
-    exit
+    if [[ ! $? == 0 ]]; then
+        echo "[ERROR] An error occurred while trying to install hyperglass."
+    else
+        local successful=$(has_cmd "hyperglass")
+        if [[ successful == 0 ]]; then
+            echo "[SUCCESS] Installed hyperglass."
+        else
+            echo "[ERROR] hyperglass installation succeeded, but the hyperglass command was not found."
+            exit 1
+        fi
+    fi
 }
 
 trap catch_interrupt SIGINT
@@ -440,10 +458,14 @@ while true; do
     if [[ $? == 0 ]]; then
         clean_temp
         echo "[SUCCESS] Finished installed dependencies."
-        exit 0
     else
         clean_temp
         echo "[ERROR] An error occurred while attempting to install dependencies."
         exit 1
     fi
+
+    install_app
+
+    echo 'hyperglass installation was successful! You can now run `hyperglass --help` to see available commands.'
+    exit 0
 done
