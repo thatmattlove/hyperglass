@@ -22,5 +22,5 @@ RUN poetry install --no-ansi
 
 FROM install as setup
 WORKDIR /tmp/hyperglass
-COPY .tests/dockersetup.sh /tmp/dockersetup.sh
+COPY .tests/app/setup.sh /tmp/setup.sh
 RUN ls -lsah /tmp

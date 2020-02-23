@@ -1,14 +1,24 @@
 ---
 language: minimal
-services:
-  - docker
-  - redis
-before_install:
-  - docker build -t hyperglass/ubuntu -f .tests/DockerfileUbuntu .
 
 jobs:
   include:
     - stage: Lint
+      services:
+        - docker
+      before_install:
+        - docker build -t hyperglass/ubuntu -f .tests/app/ubuntu/Dockerfile .
       script: docker run hyperglass/ubuntu /bin/sh -c "cd /tmp/hyperglass; poetry run flake8 hyperglass"
-    - stage: Test
-      script: docker run hyperglass/ubuntu /tmp/dockersetup.sh
+    - stage: Installer - Ubuntu
+      services:
+        - docker
+      before_install:
+        - docker build -t install_ubuntu -f .tests/install/ubuntu/Dockerfile .
+      script: docker run install_ubuntu /bin/bash /tmp/install.sh
+    - stage: App - Ubuntu
+      services:
+        - docker
+        - redis
+      before_install:
+        - docker build -t hyperglass/ubuntu -f .tests/app/ubuntu/Dockerfile .
+      script: docker run hyperglass/ubuntu /tmp/setup.sh
