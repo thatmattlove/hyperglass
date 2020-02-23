@@ -28,7 +28,7 @@ fi
 echo "[SUCCESS] Started hyperglass."
 echo "[INFO] Running HTTP test..."
 
-STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8001)
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001)
 
 echo "[INFO] Status code: $STATUS"
 
