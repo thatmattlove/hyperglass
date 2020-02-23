@@ -1,8 +1,4 @@
-#!/bin/sh -l
-
-get_status () {
-    echo $(curl -s -o /dev/null -w "%{http_code}" http://localhost:8001)
-}
+#!/usr/bin/env bash
 
 echo "[INFO] Starting Redis..."
 redis-server &
@@ -13,6 +9,8 @@ echo "[INFO] Starting setup..."
 poetry run hyperglass setup -d
 echo "[SUCCESS] Setup completed."
 sleep 2
+
+echo "listen_address: 127.0.0.1" >> /root/hyperglass/hyperglass.yaml
 
 echo "[INFO] Starting UI build."
 poetry run hyperglass build-ui
@@ -29,9 +27,15 @@ fi
 
 echo "[SUCCESS] Started hyperglass."
 echo "[INFO] Running HTTP test..."
-echo "[INFO] Status code: $(get_status)"
+
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8001)
+
+echo "[INFO] Status code: $STATUS"
 
 if [[ ! $? == 0 ]]; then
+    echo "[ERROR] HTTP test failed."
+    exit 1
+elif [[ ! "$STATUS" == "200" ]]; then
     echo "[ERROR] HTTP test failed."
     exit 1
 fi
