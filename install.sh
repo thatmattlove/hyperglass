@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 MIN_PYTHON_MAJOR="3"
 MIN_PYTHON_MINOR="6"
 MIN_NODE_MAJOR="13"
@@ -420,17 +422,20 @@ install_app () {
     echo "[INFO] Installing hyperglass..."
 
     curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -o /tmp/get-poetry.py
-    python3 /tmp/get-poetry.py -f -y
+    python3 /tmp/get-poetry.py -f -y > /dev/null
     sleep 1
     source $HOME/.profile
 
+    [ -d "/tmp/hyperglass" ] && rm -rf /tmp/hyperglass
+    [ -d "/tmp/build" ] && rm -rf /tmp/build
+    
     git clone --branch v1.0.0 --depth 1 https://github.com/checktheroads/hyperglass.git /tmp/hyperglass
     cd /tmp/hyperglass
     poetry build
     mkdir /tmp/build
     tar -xvf /tmp/hyperglass/dist/hyperglass-1.0.0.tar.gz -C /tmp/build
     cd /tmp/build/hyperglass-1.0.0
-    pip3 install .
+    pip3 install . > /dev/null
 
     if [[ ! $? == 0 ]]; then
         echo "[ERROR] An error occurred while trying to install hyperglass."
@@ -440,7 +445,7 @@ install_app () {
         export LC_ALL=C.UTF-8
         export LANG=C.UTF-8
         local successful=$(has_cmd "hyperglass")
-        if [[ successful == 0 ]]; then
+        if [[ $successful == 0 ]]; then
             echo "[SUCCESS] Installed hyperglass."
         else
             echo "[ERROR] hyperglass installation succeeded, but the hyperglass command was not found."
