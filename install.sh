@@ -436,6 +436,9 @@ install_app () {
         echo "[ERROR] An error occurred while trying to install hyperglass."
         exit 1
     else
+        source $HOME/.profile
+        export LC_ALL=C.UTF-8
+        export LANG=C.UTF-8
         local successful=$(has_cmd "hyperglass")
         if [[ successful == 0 ]]; then
             echo "[SUCCESS] Installed hyperglass."
