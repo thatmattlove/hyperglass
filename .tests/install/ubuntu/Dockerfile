@@ -1,8 +1,8 @@
 FROM ubuntu:bionic as base
 WORKDIR /tmp
+COPY .tests/install/ubuntu/setup.sh /tmp/init.sh
 COPY ./install.sh /tmp/install.sh
-RUN apt-get update && apt-get install -y apt-utils \
-    && apt-get install -y curl git gnupg build-essential
+RUN bash /tmp/init.sh
 
 # FROM base as install
 # RUN bash /tmp/install.sh
