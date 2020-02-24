@@ -503,21 +503,10 @@ description = "Git Object Database"
 name = "gitdb"
 optional = false
 python-versions = ">=3.4"
-version = "4.0.0"
-
-[package.dependencies]
-smmap = ">=3"
-
-[[package]]
-category = "dev"
-description = "Git Object Database"
-name = "gitdb2"
-optional = false
-python-versions = ">=3.4"
 version = "4.0.1"
 
 [package.dependencies]
-gitdb = ">=4"
+smmap = ">=3.0.1,<4"
 
 [[package]]
 category = "dev"
@@ -525,10 +514,10 @@ description = "Python Git Library"
 name = "gitpython"
 optional = false
 python-versions = ">=3.4"
-version = "3.0.8"
+version = "3.1.0"
 
 [package.dependencies]
-gitdb2 = ">=3"
+gitdb = ">=4.0.1,<5"
 
 [[package]]
 category = "main"
@@ -976,7 +965,7 @@ description = "A pure Python implementation of a sliding window memory map manag
 name = "smmap"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "3.0.0"
+version = "3.0.1"
 
 [[package]]
 category = "main"
@@ -1427,16 +1416,12 @@ future = [
     {file = "future-0.18.2.tar.gz", hash = "sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"},
 ]
 gitdb = [
-    {file = "gitdb-4.0.0-py2.py3-none-any.whl", hash = "sha256:03013fe466cff860ce0dd12d666e4ca0be4c8b2ad611727fb524ba519eec905c"},
-    {file = "gitdb-4.0.0.tar.gz", hash = "sha256:1bad024b93eb39e01641acf88809b25293d7f4d8fa4d2ff229069a91130a8e2c"},
-]
-gitdb2 = [
-    {file = "gitdb2-4.0.1-py2.py3-none-any.whl", hash = "sha256:db61e0786993eb2bf11fe79d76f90eaba2ec1fc3104e450f5117c1dd23a4ba65"},
-    {file = "gitdb2-4.0.1.tar.gz", hash = "sha256:06045ac819e8a30ee12eb17f84e7dc0a2a1d91c6240add65a4b065c8358ad2ec"},
+    {file = "gitdb-4.0.1-py2.py3-none-any.whl", hash = "sha256:24572287933a9e5bf45260cd7a5629e5b3b190ec3c2c6a5d5e4125dd06ff4027"},
+    {file = "gitdb-4.0.1.tar.gz", hash = "sha256:d82c6b76ce8496c5209adf1c0ab969a6e1a8a31510ceb5f57a206fc7c77c0fea"},
 ]
 gitpython = [
-    {file = "GitPython-3.0.8-py3-none-any.whl", hash = "sha256:a43a5d88a5bbc3cf32bb5223e4b4e68fd716db5e9996cad6e561bbfee6e5f4af"},
-    {file = "GitPython-3.0.8.tar.gz", hash = "sha256:620b3c729bbc143b498cfea77e302999deedc55faec5b1067086c9ef90e101bc"},
+    {file = "GitPython-3.1.0-py3-none-any.whl", hash = "sha256:43da89427bdf18bf07f1164c6d415750693b4d50e28fc9b68de706245147b9dd"},
+    {file = "GitPython-3.1.0.tar.gz", hash = "sha256:e426c3b587bd58c482f0b7fe6145ff4ac7ae6c82673fc656f489719abca6f4cb"},
 ]
 h11 = [
     {file = "h11-0.9.0-py2.py3-none-any.whl", hash = "sha256:4bc6d6a1238b7615b266ada57e0618568066f57dd6fa967d1290ec9309b2f2f1"},
@@ -1698,8 +1683,8 @@ six = [
     {file = "six-1.14.0.tar.gz", hash = "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"},
 ]
 smmap = [
-    {file = "smmap-3.0.0-py2.py3-none-any.whl", hash = "sha256:7845d7d51201380e857420bf11e169a936e27b9764ac118310999d1c1ae58b82"},
-    {file = "smmap-3.0.0.tar.gz", hash = "sha256:cc601e2d7bb9e9218f83f0ce8b6d3a4da614acd5e41ac694eb34a030329ad723"},
+    {file = "smmap-3.0.1-py2.py3-none-any.whl", hash = "sha256:5fead614cf2de17ee0707a8c6a5f2aa5a2fc6c698c70993ba42f515485ffda78"},
+    {file = "smmap-3.0.1.tar.gz", hash = "sha256:171484fe62793e3626c8b05dd752eb2ca01854b0c55a1efc0dc4210fccb65446"},
 ]
 sniffio = [
     {file = "sniffio-1.1.0-py3-none-any.whl", hash = "sha256:20ed6d5b46f8ae136d00b9dcb807615d83ed82ceea6b2058cecb696765246da5"},
