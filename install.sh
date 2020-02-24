@@ -16,7 +16,6 @@ BREW_UPDATE="brew update"
 INSTALL_MAP=(["apt"]="$APT_INSTALL" ["yum"]="$YUM_INSTALL" ["brew"]="$BREW_INSTALL")
 UPDATE_MAP=(["apt"]="$APT_UPDATE" ["yum"]="$YUM_UPDATE" ["brew"]="$BREW_UPDATE")
 
-APP_TARGET="git+https://github.com/checktheroads/hyperglass.git@v1.0.0"
 INSTALLER=""
 NEEDS_UPDATE="0"
 NEEDS_PYTHON="1"
@@ -41,8 +40,8 @@ clean_temp () {
 }
 
 catch_interrupt () {
-    kill $PID
-    exit
+    echo "Stopping..."
+    exit 1
 }
 
 semver () {
@@ -174,7 +173,7 @@ python_post () {
             echo "[ERROR] Tried to install Python 3, but post-install check failed."
         fi
     else
-        echo "[ERROR] Tried to install Python 3, but encountered an error. Consult the Python 3 installation instructions for your system."
+        echo '[ERROR] Tried to install Python 3, but encountered an error. Consult the Python 3 installation instructions for your system.'
     fi
 }
 
@@ -187,7 +186,7 @@ node_post () {
             echo "[ERROR] Tried to install NodeJS, but post-install check failed."
         fi
     else
-        echo "[ERROR] Tried to install NodeJS, but encountered an error. Try running `${INSTALL_MAP[$INSTALLER]} nodejs` to investigate."
+        echo '[ERROR] Tried to install NodeJS, but encountered an error.'
     fi
 }
 
@@ -200,7 +199,7 @@ yarn_post () {
             echo "[ERROR] Tried to install Yarn, but post-install check failed."
         fi
     else
-        echo "[ERROR] Tried to install Yarn, but encountered an error. Try running `${INSTALL_MAP[$INSTALLER]} yarn` to investigate."
+        echo '[ERROR] Tried to install Yarn, but encountered an error.'
     fi
 }
 
@@ -213,7 +212,7 @@ redis_post () {
             echo "[ERROR] Tried to install Redis, but post-install check failed."
         fi
     else
-        echo "[ERROR] Tried to install Redis, but encountered an error. Try running `${INSTALL_MAP[$INSTALLER]} $redis_name` to investigate."
+        echo '[ERROR] Tried to install Redis, but encountered an error.'
     fi
 }
 
@@ -247,62 +246,79 @@ yarn_yum_prepare () {
 
 node_apt () {
     apt-get install -y nodejs
+    sleep 1
     node_post $?
 }
 
 node_yum () {
     yum -y install gcc-c++ make nodejs
+    sleep 1
     node_post $?
 }
 
 node_brew () {
     brew install node
+    sleep 1
     node_post $?
 }
 
 yarn_apt () {
     apt-get install -y yarn
+    sleep 1
     yarn_post $?
 }
 
 yarn_yum () {
     yum -y install gcc-c++ make yarn
+    sleep 1
     yarn_post $?
 }
 
 yarn_brew () {
     brew install yarn
+    sleep 1
     yarn_post $?
 }
 
 python_apt () {
-    apt-get install -y python3.6-dev python3-pip
+    apt-get install -y python3.6-dev python3-pip > /dev/null
+    sleep 1
+    # curl -sSL http://mirrors.kernel.org/ubuntu/pool/main/p/python3.6/python3.6_3.6.9-1~18.04_amd64.deb -o /tmp/python3.deb
+    # curl -sSL http://mirrors.kernel.org/ubuntu/pool/universe/p/python-pip/python3-pip_9.0.1-2_all.deb -o /tmp/pip3.deb
+    # apt-get install -y /tmp/python3.deb
+    # apt-get install -y /tmp/pip3.deb
+    # source $HOME/.profile
     python_post $?
 }
 
 python_yum () {
     yum install centos-release-scl
     yum install rh-python36
+    sleep 1
     python_post $?
 }
 
 python_brew () {
     brew install python3
+    sleep 1
     python_post $?
 }
 
 redis_apt () {
     apt-get install -y redis-server
+    sleep 1
     redis_post $?
 }
 
 redis_yum () {
     yum -y install redis
+    sleep 1
     redis_post $?
 }
 
 redis_brew () {
     brew install redis
+    sleep 1
     redis_post $?
 }
 
@@ -402,7 +418,19 @@ install_redis () {
 
 install_app () {
     echo "[INFO] Installing hyperglass..."
-    pip3 install $APP_TARGET
+
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -o /tmp/get-poetry.py
+    python3 /tmp/get-poetry.py -f -y
+    sleep 1
+    source $HOME/.profile
+
+    git clone --branch v1.0.0 --depth 1 https://github.com/checktheroads/hyperglass.git /tmp/hyperglass
+    cd /tmp/hyperglass
+    poetry build
+    mkdir /tmp/build
+    tar -xvf /tmp/hyperglass/dist/hyperglass-1.0.0.tar.gz -C /tmp/build
+    cd /tmp/build/hyperglass-1.0.0
+    pip3 install .
 
     if [[ ! $? == 0 ]]; then
         echo "[ERROR] An error occurred while trying to install hyperglass."
@@ -416,6 +444,7 @@ install_app () {
             exit 1
         fi
     fi
+    rm -rf /tmp/build
 }
 
 trap catch_interrupt SIGINT
