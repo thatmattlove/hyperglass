@@ -88,7 +88,7 @@ async def build_ui(app_path):
     import asyncio
     from pathlib import Path
 
-    ui_dir = Path(__file__).parent.parent / "ui"
+    ui_dir = Path(__file__).parent / "ui"
     build_dir = app_path / "static" / "ui"
 
     build_command = "node_modules/.bin/next build"
@@ -262,7 +262,7 @@ def migrate_static_assets(app_path):
     from pathlib import Path
     from filecmp import dircmp
 
-    asset_dir = Path(__file__).parent.parent / "images"
+    asset_dir = Path(__file__).parent / "images"
     target_dir = app_path / "static" / "images"
 
     target_exists = target_dir.exists()
@@ -302,7 +302,7 @@ async def check_node_modules():
     """
     from pathlib import Path
 
-    ui_path = Path(__file__).parent.parent / "ui"
+    ui_path = Path(__file__).parent / "ui"
     node_modules = ui_path / "node_modules"
 
     exists = node_modules.exists()
@@ -327,7 +327,7 @@ async def node_initial(dev_mode=False):
     import asyncio
     from pathlib import Path
 
-    ui_path = Path(__file__).parent.parent / "ui"
+    ui_path = Path(__file__).parent / "ui"
 
     mode = ""
     if not dev_mode:

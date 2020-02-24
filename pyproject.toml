@@ -11,8 +11,6 @@ readme = "README.md"
 homepage = "https://hyperglass.io"
 repository = "https://github.com/checktheroads/hyperglass"
 license = "BSD-3-Clause-Clear"
-packages = [{include = "images"}, {include = "ui"}]
-include = ["images/**/*", "ui/**/*"]
 
 [tool.poetry.scripts]
 hyperglass = "hyperglass.console:CLI"
