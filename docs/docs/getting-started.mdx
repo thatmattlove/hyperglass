@@ -7,15 +7,36 @@ description: Getting started with hyperglass
 ---
 
 import Tabs from '@theme/Tabs';
+import Link from "@docusaurus/Link";
 import TabItem from '@theme/TabItem';
-import Admonition from "react-admonitions"
+import Admonition from "react-admonitions";
+import Code from "../src/components/JSXCode";
 
-# Download & Install
+
+# Automatic installation
+
+If your system runs on:
+
+- Ubuntu Linux
+- ~~CentOS/Red Had Linux~~
+- macOS (requires [homebrew](https://brew.sh))
+
+You should be able to proceed with the automatic installation:
+
+```bash
+curl https://raw.githubusercontent.com/checktheroads/hyperglass/v1.0.0/install.sh | sudo bash
+```
+
+<Admonition type="warning" title="Piping to bash" iconType="emoji">
+  You should be <i>very</i> worried when someone asks you to do what I just did. Downloading a bash script from the internet and piping it to <Code>bash</Code> with root privileges is a terrible idea, unless you fully trust the source. Please don't trust me - go <Link to="https://github.com/checktheroads/hyperglass/blob/v1.0.0/install.sh">look at the code</Link> and determine for your self if it's safe to execute. If you feel it's not, please proceed with the manual installation.
+</Admonition>
+
+# Manual Installation
 
 ## System Dependencies
 
 ### Python
-hyperglass is written in Python 3 and requires Python version 3.6 as a minimum dependency. If your system has a version of Python older than this, you may want to consider using hyperglass in a virtual environment. For development, hyperglass uses the [Poetry](https://python-poetry.org/) dependency and virtual environment tool, so it's probably easiest to use Poetry if you need to use a virtual environment.
+hyperglass is written in Python 3 and requires Python version 3.6 as a minimum dependency.
 
 If you're confident upgrading your system's version of Python won't break your system (many Linux operating systems rely heavily on Python for package management and other system functions), you can install Python 3.6:
 
@@ -52,7 +73,7 @@ python3 --version
 ```
 
 ### Other Dependencies
-The hyperglass UI is written in [ReactJS](https://reactjs.org/). As such, some Javascript dependencies are required:
+The hyperglass UI is written in [ReactJS](https://reactjs.org/). As such, some Javascript dependencies are required. hyperglass also relies on [Redis](https://redis.io/) for caching purposes.
 
 <Tabs
   defaultValue="debian"
@@ -63,10 +84,10 @@ The hyperglass UI is written in [ReactJS](https://reactjs.org/). As such, some J
 <TabItem value="debian">
 
 ```bash
-# Add NodeJS
+# Add NodeJS Repository
 curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
 
-# Add Yarn Package Manager
+# Add Yarn Package Manager Repository
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 
@@ -80,11 +101,13 @@ sudo apt install -y nodejs yarn redis-server
 <TabItem value="rhel">
 
 ```bash
-# Add NodeJS
+# Add NodeJS Repository
 curl -sL https://rpm.nodesource.com/setup_13.x | sudo bash -
 
-# Add Yarn Package Manager
+# Add Yarn Package Manager Repository
 curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo
+
+# Install
 sudo yum -y install gcc-c++ make nodejs yarn redis
 ```
 
@@ -98,7 +121,8 @@ I've attempted to abstract away most of the Javascript-related configuration and
 
 ## Application 
 
-<Admonition type="important" title="To Do" iconType="emoji">
-    Attempt to package and distribute via PIP
-</Admonition>
+```bash
+pip3 install hyperglass
+```
+
 

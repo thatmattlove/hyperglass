@@ -58,7 +58,10 @@ function Home() {
     const context = useDocusaurusContext();
     const { siteConfig = {} } = context;
     return (
-        <Layout title="" description="Description will go into a meta tag in <head />">
+        <Layout
+            title="hyperglass"
+            description="hyperglass is the network looking glass that tries to make the internet better."
+        >
             <header className={classnames("hero hero--primary", styles.heroBanner)}>
                 <div className="container">
                     <h1 className="hero__title">{siteConfig.title}</h1>
@@ -80,6 +83,9 @@ function Home() {
                 {features && features.length && (
                     <section className={styles.features}>
                         <div className="container">
+                            <h3 style={{ textAlign: "center" }}>
+                                This site is currently under construction
+                            </h3>
                             <div className="row">
                                 {features.map((props, idx) => (
                                     <Feature key={idx} {...props} />

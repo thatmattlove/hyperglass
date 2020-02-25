@@ -2,7 +2,7 @@ const githubURL = "https://github.com/checktheroads/hyperglass";
 
 module.exports = {
     title: "hyperglass",
-    tagline: "documentation for the modern network looking glass",
+    tagline: "the network looking glass that tries to make the internet better.",
     url: "https://hyperglass.io",
     baseUrl: "/",
     favicon: "img/favicon.ico",
@@ -49,12 +49,12 @@ module.exports = {
                     title: "Community",
                     items: [
                         {
-                            label: "Stack Overflow",
-                            href: "https://stackoverflow.com/questions/tagged/docusaurus"
+                            label: "Gitter",
+                            href: "https://gitter.im/hyperglass"
                         },
                         {
-                            label: "Discord",
-                            href: "https://discordapp.com/invite/docusaurus"
+                            label: "Keybase",
+                            href: "https://keybase.io/team/hyperglass"
                         }
                     ]
                 },

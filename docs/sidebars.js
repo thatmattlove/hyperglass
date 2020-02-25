@@ -6,6 +6,7 @@ module.exports = {
             items: [
                 "introduction",
                 "getting-started",
+                "setup",
                 "configuration",
                 "devices",
                 "ui",
