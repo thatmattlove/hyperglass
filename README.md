@@ -1,22 +1,30 @@
-# WARNING
 
-This branch is *very much* under construction. There's a 99% chance that hyperglass will not function at all if you download and install from this branch. If you're looking for a working version of hyperglass, **please go to the [master branch](https://github.com/checktheroads/hyperglass/tree/master)**.
 
-<hr>
+***WARNING**: This branch is currently in beta. While everything *should* work, some things might not. If you're looking for a fully working version of hyperglass, **please go to the [master branch](https://github.com/checktheroads/hyperglass/tree/master)**.*
 
-<img src="logo.png" width=300></img>
+<div align="center">
+  <br/>
+  <img src="logo.png" width=300></img>
+  <br/>
+  <strong>The network looking glass that tries to make the internet better.</strong>
+  <br/>
+  <br/>
+  <div style="color: #808080;">
+  A looking glass is implemented by network operators as a way of providing customers, peers, or the general public with a way to easily view elements of, or run tests from the provider's network.
+  </div>
+</div>
 
-**hyperglass** is a modern network looking glass application. A looking glass is typically implemented by network service providers as a way of providing customers, peers, and partners with a way to easily view elements of, or run tests from the provider's network.
-
-<hr>
+<br/>
+<hr/>
 
 <div align="center">
 
-[**Documentation**](https://hyperglass.readthedocs.io)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Screenshots**](https://hyperglass.readthedocs.io/en/latest/screenshots/)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Live Demo**](https://hyperglass.allroads.io/)
+[**Documentation**](https://hyperglass.io)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Screenshots**](https://hyperglass.io/screenshots)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Live Demo**](https://hyperglass.allroads.io/)
 
-[![Build Status](https://travis-ci.org/checktheroads/hyperglass.svg?branch=master)](https://travis-ci.org/checktheroads/hyperglass)
-[![SCC Line Count](https://sloc.xyz/github/checktheroads/hyperglass/?category=code)](https://github.com/boyter/scc/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+[![PyPI](https://img.shields.io/pypi/v/hyperglass?style=for-the-badge)](https://pypi.org/project/hyperglass/)
+[![GitHub Contributors](https://img.shields.io/github/contributors/checktheroads/hyperglass?color=40798C&style=for-the-badge)](https://github.com/checktheroads/hyperglass)
+[![Gitter](https://img.shields.io/gitter/room/checktheroads/hyperglass?color=ff5e5b&style=for-the-badge)](https://gitter.im/hyperglass)
+[![CI](https://img.shields.io/travis/checktheroads/hyperglass/v1.0.0?style=for-the-badge)](https://travis-ci.org/checktheroads/hyperglass)
 
 </div>
 
@@ -26,48 +34,44 @@ This branch is *very much* under construction. There's a 99% chance that hypergl
 
 ## Features
 
--   BGP Route, BGP Community, BGP AS Path, Ping, Traceroute
--   Full frontend and backend IPv6 support
--   [Netmiko](https://github.com/ktbyers/netmiko)-based connection handling for traditional network devices
--   [FRRouting](https://frrouting.org/) support via [hyperglass-frr](https://github.com/checktheroads/hyperglass-frr) REST API
--   [BIRD](https://bird.network.cz/) support via [hyperglass-bird](https://github.com/checktheroads/hyperglass-bird) REST API
--   Run queries against multiple routers asynchronously
--   Customizable commands for each query type by vendor
--   Clean, modern, GUI
--   Customizable colors, logo, web fonts, error messages, UI text
--   Simple YAML config file for all customizable parameters (no databases!)
--   Optional SSH Proxy to further direct secure router access
--   Configurable IP/Prefix "blacklist" to prevent lookup of sensitive prefixes
--   Configurable rate limiting
--   Query response caching with configurable cache timeout
--   [Prometheus](https://prometheus.io/) metrics for query statistics tracking
+- BGP Route, BGP Community, BGP AS Path, Ping, & Traceroute
+- Full IPv6 support
+- Customizable everything: features, theme, UI/API text, error messages, commands
+- Built in support for:
+    - Cisco IOS/IOS-XE
+    - Cisco IOS-XR
+    - Juniper JunOS
+    - Arista EOS
+    - Huawei
+    - FRRouting
+    - BIRD
+- Configurable support for any other [supported platform](https://hyperglass.io/docs/platforms)
+- Optionally access devices via an SSH proxy/jump server
+- VRF support
+- Access List/prefix-list style query control to whitelist or blacklist query targets on a per-VRF basis
+- REST API with automatic, configurable OpenAPI documentation
+- Modern, responsive UI built on [ReactJS](https://reactjs.org/), with [NextJS](https://nextjs.org/) & [Chakra UI](https://chakra-ui.com/)
+- Query multiple devices simultaneously
+- Browser-based DNS-over-HTTPS resolution of FQDN queries
 
-## Platform Support
+*To request support for a specific platform, please [submit a Github Issue](https://github.com/checktheroads/hyperglass/issues/new) with the **enhancement** label.*
 
-hyperglass is preconfigured to support the following platforms:
-
--   **Cisco IOS-XR**: Netmiko `cisco_xr` vendor class
--   **Cisco Classic IOS/IOS-XE**: Netmiko `cisco_ios` vendor class
--   **Juniper JunOS**: Netmiko `junos` vendor class
--   **FRRouting**: [`hyperglass-frr`](https://github.com/checktheroads/hyperglass-frr) API
--   **BIRD**: [`hyperglass-bird`](https://github.com/checktheroads/hyperglass-bird) API
-
-Theoretically, any vendor supported by Netmiko can be supported by hyperglass. To request support for a specifc platform, please [submit a Github Issue](https://github.com/checktheroads/hyperglass/issues/new) with the **enhancement** label.
-
-## Coming Soon
-
--   [GoBGP](https://github.com/osrg/gobgp) Support
+## [Get Started →](https://hyperglass.io/)
 
 ## Community
 
-There is now a [hyperglass team](https://keybase.io/team/hyperglass) on [Keybase](https://keybase.io/)! Any users, potential users, or contributors of hyperglass are welcome to join to discuss usage, feature requests, bugs, and other things.
+- [Gitter](https://gitter.im/hyperglass)
+- [Keybase](https://keybase.io/team/hyperglass)
+- [Twitter](https://twitter.com/checktheroads)
+
+Any users, potential users, or contributors of hyperglass are welcome to join and discuss usage, feature requests, bugs, and other things.
 
 **hyperglass is developed with the express intention of being free to the networking community**.
 
-*However, the hyperglass demo does cost [/checktheroads](https://github.com/checktheroads) about $15/month for 3 Digital Ocean droplets. If you're feeling particularly helpful and want to help offset that cost, small donations are welcome.*
+*However, the hyperglass demo does cost [@checktheroads](https://github.com/checktheroads) about $15/month for 3 Digital Ocean droplets, and $60/year for the [hyperglass.io](https://hyperglass.io). If you're feeling particularly helpful and want to help offset that cost, small donations are welcome.*
 
-[![Donate](https://img.shields.io/badge/Donate-blue.svg?logo=paypal)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZQFH3BB2B5M3E&source=url)
+[![Donate](https://img.shields.io/badge/Donate-blue.svg?logo=paypal&style=for-the-badge)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZQFH3BB2B5M3E&source=url)
 
 ## License
 
-[Clear BSD License](https://github.com/checktheroads/hyperglass/master/LICENSE)
+[Clear BSD License](https://github.com/checktheroads/hyperglass/v1.0.0/LICENSE)
