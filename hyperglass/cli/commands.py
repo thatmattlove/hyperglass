@@ -136,6 +136,7 @@ def setup(unattended):
         make_systemd,
         write_to_file,
         migrate_static_assets,
+        install_systemd,
     )
 
     user_path = Path.home() / "hyperglass"
@@ -150,7 +151,10 @@ def setup(unattended):
     ]
     if not unattended:
         answer = inquirer.prompt(install_paths)
+        if answer is None:
+            error("A directory for hyperglass is required")
         install_path = answer["install_path"]
+
     elif unattended:
         install_path = user_path
 
@@ -160,6 +164,7 @@ def setup(unattended):
     create_dir(install_path)
     create_dir(ui_dir, parents=True)
     create_dir(custom_dir, parents=True)
+    migrate_static_assets(install_path)
 
     example_dir = WORKING_DIR.parent / "examples"
     files = example_dir.iterdir()
@@ -188,5 +193,4 @@ def setup(unattended):
         systemd_file = install_path / "hyperglass.service"
         systemd = make_systemd(user)
         write_to_file(systemd_file, systemd)
-
-    migrate_static_assets(install_path)
+        install_systemd(install_path)

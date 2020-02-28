@@ -373,3 +373,32 @@ def migrate_static_assets(app_path):
         callback = success
 
     callback(msg, a=a, b=b)
+
+
+def install_systemd(app_path):
+    """Installs generated systemd file to system's systemd directory.
+
+    Arguments:
+        app_path {Path} -- hyperglass runtime path
+
+    Raises:
+        ClickException: Raised if the /etc/systemd/system does not exist
+        ClickException: Raised if the symlinked file does not exit
+
+    Returns:
+        {bool} -- True if successful
+    """
+    service = app_path / "hyperglass.service"
+    systemd = Path("/etc/systemd/system")
+    installed = systemd / "hyperglass.service"
+
+    if not systemd.exists():
+        error("{e} does not exist. Unable to install systemd service.", e=systemd)
+
+    installed.symlink_to(service)
+
+    if not installed.exists():
+        error("Unable to symlink {s} to {d}", s=service, d=installed)
+
+    success("Symlinked {s} to {d}", s=service, d=installed)
+    return True
