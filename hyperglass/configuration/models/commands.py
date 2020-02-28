@@ -173,7 +173,7 @@ class Commands(HyperglassModel):
             """Validation model for non-default dual afi commands."""
 
             bgp_route: StrictStr = "show route protocol bgp table inet.0 {target} detail"
-            bgp_aspath: StrictStr = "show route protocol bgp table inet.0 aspath-regex {target}"
+            bgp_aspath: StrictStr = 'show route protocol bgp table inet.0 aspath-regex "{target}"'
             bgp_community: StrictStr = "show route protocol bgp table inet.0 community {target}"
             ping: StrictStr = "ping inet {target} count 5 source {source}"
             traceroute: StrictStr = "traceroute inet {target} wait 1 source {source}"
@@ -182,8 +182,8 @@ class Commands(HyperglassModel):
             """Validation model for non-default ipv4 commands."""
 
             bgp_route: StrictStr = "show route protocol bgp table inet6.0 {target} detail"
-            bgp_aspath: StrictStr = "show route protocol bgp community {target}"
-            bgp_community: StrictStr = "show route protocol bgp aspath-regex {target}"
+            bgp_aspath: StrictStr = 'show route protocol bgp aspath-regex "{target}"'
+            bgp_community: StrictStr = "show route protocol bgp community {target}"
             ping: StrictStr = "ping inet6 {target} count 5 source {source}"
             traceroute: StrictStr = "traceroute inet6 {target} wait 1 source {source}"
 
@@ -191,7 +191,7 @@ class Commands(HyperglassModel):
             """Validation model for non-default ipv6 commands."""
 
             bgp_route: StrictStr = "show route protocol bgp table {vrf} {target} detail"
-            bgp_aspath: StrictStr = "show route protocol bgp table {vrf} aspath-regex {target}"
+            bgp_aspath: StrictStr = 'show route protocol bgp table {vrf} aspath-regex "{target}"'
             bgp_community: StrictStr = "show route protocol bgp table {vrf} community {target}"
             ping: StrictStr = "ping inet routing-instance {vrf} {target} count 5 source {source}"
             traceroute: StrictStr = "traceroute inet routing-instance {vrf} {target} wait 1 source {source}"
@@ -200,7 +200,7 @@ class Commands(HyperglassModel):
             """Validation model for non-default ipv6 commands."""
 
             bgp_route: StrictStr = "show route protocol bgp table {vrf} {target} detail"
-            bgp_aspath: StrictStr = "show route protocol bgp table {vrf} aspath-regex {target}"
+            bgp_aspath: StrictStr = 'show route protocol bgp table {vrf} aspath-regex "{target}"'
             bgp_community: StrictStr = "show route protocol bgp table {vrf} community {target}"
             ping: StrictStr = "ping inet6 routing-instance {vrf} {target} count 5 source {source}"
             traceroute: StrictStr = "traceroute inet6 routing-instance {vrf} {target} wait 1 source {source}"
