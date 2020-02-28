@@ -7,7 +7,6 @@ description: hyperglass caching configuration
 ---
 
 import Link from "@docusaurus/Link";
-import Admonition from "react-admonitions";
 
 hyperglass uses [Redis](https://redis.io/) for cache storage. Every query is cached and automatically expired from the cache after a configurable timeout period.
 
@@ -21,12 +20,9 @@ Common Redis parameters are configurable, in case you already have a dedicated R
 | `timeout`   | Integer | `120`         | Time in seconds query output will be kept in the Redis cache.                |
 | `show_text` | Boolean | `true`        | Show the <Link to="/docs/ui#text">cache message</Link> in the hyperglass UI. |
 
-<Admonition type="important" title="Caching">
-    hyperglass caches every query response to a Redis database, and always responds to a request
-    with the cached value. If hyperglass receives a query for which it has no matching cached entry,
-    the query parameters are used to created a new cache entry, hyperglass executes the request
-    normally, writes the response to the cache, and then returns the response to the end user.
-</Admonition>
+:::important Caching
+hyperglass caches every query response to a Redis database, and always responds to a request with the cached value. If hyperglass receives a query for which it has no matching cached entry, the query parameters are used to created a new cache entry, hyperglass executes the request normally, writes the response to the cache, and then returns the response to the end user.
+:::
 
 ## Example
 

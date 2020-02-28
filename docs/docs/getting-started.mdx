@@ -7,11 +7,7 @@ description: Getting started with hyperglass
 ---
 
 import Tabs from '@theme/Tabs';
-import Link from "@docusaurus/Link";
 import TabItem from '@theme/TabItem';
-import Admonition from "react-admonitions";
-import Code from "../src/components/JSXCode";
-
 
 # Automatic installation
 
@@ -23,13 +19,13 @@ If your system runs on:
 
 You should be able to proceed with the automatic installation:
 
-```bash
-curl https://raw.githubusercontent.com/checktheroads/hyperglass/v1.0.0/install.sh | sudo bash
+```shell-session
+$ curl https://raw.githubusercontent.com/checktheroads/hyperglass/v1.0.0/install.sh | sudo bash
 ```
 
-<Admonition type="warning" title="Piping to bash" iconType="emoji">
-  You should be <i>very</i> worried when someone asks you to do what I just did. Downloading a bash script from the internet and piping it to <Code>bash</Code> with root privileges is a terrible idea, unless you fully trust the source. Please don't trust me - go <Link to="https://github.com/checktheroads/hyperglass/blob/v1.0.0/install.sh">look at the code</Link> and determine for your self if it's safe to execute. If you feel it's not, please proceed with the manual installation.
-</Admonition>
+:::caution Piping to bash
+You should be <i>very</i> worried when someone asks you to do what I just did. Downloading a bash script from the internet and piping it to `bash` with root privileges is a terrible idea, unless you fully trust the source. Please don't trust me - go [look at the code](https://github.com/checktheroads/hyperglass/blob/v1.0.0/install.sh) and determine for your self if it's safe to execute. If you feel it's not, please proceed with the manual installation (and [tell me why](https://github.com/checktheroads/hyperglass/issues), so I can fix it).
+:::
 
 # Manual Installation
 
@@ -48,17 +44,17 @@ If you're confident upgrading your system's version of Python won't break your s
 
 <TabItem value="debian">
 
-```bash
-sudo apt install -y python3.6-dev python3-pip
+```shell-session
+$ sudo apt install -y python3.6-dev python3-pip
 ```
 
 </TabItem>
 
 <TabItem value="rhel">
 
-```bash
-sudo yum install centos-release-scl
-sudo yum install rh-python36
+```shell-session
+$ sudo yum install centos-release-scl
+$ sudo yum install rh-python36
 ```
 
 </TabItem>
@@ -67,9 +63,9 @@ sudo yum install rh-python36
 
 You can then verify your Python 3 version:
 
-```bash
-python3 --version
-# Python 3.6.9
+```shell-session
+$ python3 --version
+Python 3.6.9
 ```
 
 ### Other Dependencies
@@ -115,14 +111,12 @@ sudo yum -y install gcc-c++ make nodejs yarn redis
 
 </Tabs>
 
-<Admonition type="tip" title="From the developer" iconType="emoji">
-I've attempted to abstract away most of the Javascript-related configuration and operational steps, because I think I might be the only network engineer on the planet who actually doesn't mind JS 😂. If you run into any issues with the NodeJS/Yarn installation processes, don't hesitate to <a href="https://github.com/checktheroads/hyperglass/issues">raise an issue</a> on Github, and I'll do my best to help out.
-</Admonition>
+:::note From the Developer
+I've attempted to abstract away most of the Javascript-related configuration and operational steps, because I think I might be the only network engineer on the planet who actually doesn't mind JS 😂. If you run into any issues with the NodeJS/Yarn installation processes, don't hesitate to [raise an issue](https://github.com/checktheroads/hyperglass/issues) on Github, and I'll do my best to help out.
+:::
 
 ## Application 
 
 ```bash
 pip3 install hyperglass
 ```
-
-

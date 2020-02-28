@@ -2,77 +2,39 @@ import React from "react";
 import classnames from "classnames";
 import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
 
-const features = [
-    {
-        title: <>Easy to Use</>,
-        imageUrl: "img/undraw_docusaurus_mountain.svg",
-        description: (
-            <>
-                Docusaurus was designed from the ground up to be easily installed and used to get
-                your website up and running quickly.
-            </>
-        )
-    },
-    {
-        title: <>Focus on What Matters</>,
-        imageUrl: "img/undraw_docusaurus_tree.svg",
-        description: (
-            <>
-                Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go ahead and
-                move your docs into the <code>docs</code> directory.
-            </>
-        )
-    },
-    {
-        title: <>Powered by React</>,
-        imageUrl: "img/undraw_docusaurus_react.svg",
-        description: (
-            <>
-                Extend or customize your website layout by reusing React. Docusaurus can be extended
-                while reusing the same header and footer.
-            </>
-        )
-    }
-];
-
-function Feature({ imageUrl, title, description }) {
-    const imgUrl = useBaseUrl(imageUrl);
-    return (
-        <div className={classnames("col col--4", styles.feature)}>
-            {imgUrl && (
-                <div className="text--center">
-                    <img className={styles.featureImage} src={imgUrl} alt={title} />
-                </div>
-            )}
-            <h3>{title}</h3>
-            <p>{description}</p>
-        </div>
-    );
-}
-
 function Home() {
-    const context = useDocusaurusContext();
-    const { siteConfig = {} } = context;
     return (
         <Layout
-            title="hyperglass"
             description="hyperglass is the network looking glass that tries to make the internet better."
+            keywords={[
+                "hyperglass",
+                "documentation",
+                "bgp",
+                "lg",
+                "looking",
+                "glass",
+                "ping",
+                "traceroute",
+                "test"
+            ]}
         >
-            <header className={classnames("hero hero--primary", styles.heroBanner)}>
+            <header className={classnames("hero", styles.heroBanner)}>
                 <div className="container">
-                    <h1 className="hero__title">{siteConfig.title}</h1>
-                    <p className="hero__subtitle">{siteConfig.tagline}</p>
+                    <h1 className={classnames("hero__title", styles.title)}>hyperglass</h1>
+                    <h3 className={classnames("hero__subtitle", styles.subTitle)}>
+                        the <span className={styles.tag}>network looking glass</span> that tries to
+                        make the internet better.
+                    </h3>
                     <div className={styles.buttons}>
                         <Link
                             className={classnames(
-                                styles.getStarted,
-                                "button button--outline button--secondary button--lg"
+                                "button button--outline button--secondary button--lg",
+                                styles.getStarted
                             )}
-                            to={useBaseUrl("docs/introduction")}
+                            to={useBaseUrl("docs/getting-started")}
                         >
                             Get Started
                         </Link>
@@ -80,20 +42,22 @@ function Home() {
                 </div>
             </header>
             <main>
-                {features && features.length && (
-                    <section className={styles.features}>
-                        <div className="container">
-                            <h3 style={{ textAlign: "center" }}>
-                                This site is currently under construction
-                            </h3>
-                            <div className="row">
-                                {features.map((props, idx) => (
-                                    <Feature key={idx} {...props} />
-                                ))}
+                <section className={styles.content}>
+                    <div className="container">
+                        <div className="row">
+                            <div className={classnames("col col--4")}>
+                                <section className={styles.content}>
+                                    <div className="container">
+                                        <div className="row">
+                                            <div className={classnames("col col--12")}></div>
+                                        </div>
+                                    </div>
+                                </section>
                             </div>
+                            <div className={classnames("col col--8")}></div>
                         </div>
-                    </section>
-                )}
+                    </div>
+                </section>
             </main>
         </Layout>
     );

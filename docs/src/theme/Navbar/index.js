@@ -16,8 +16,9 @@ import Toggle from "@theme/Toggle";
 
 import classnames from "classnames";
 
-import useTheme from "@theme/hooks/useTheme";
+import useThemeContext from "@theme/hooks/useThemeContext";
 import useHideableNavbar from "@theme/hooks/useHideableNavbar";
+import useLockBodyScroll from "@theme/hooks/useLockBodyScroll";
 
 import Logo from "../../components/Logo";
 import styles from "./styles.module.css";
@@ -50,26 +51,39 @@ function Navbar() {
     const { baseUrl, themeConfig = {} } = siteConfig;
     const { navbar = {}, disableDarkMode = false } = themeConfig;
     const { title, logo = {}, links = [], hideOnScroll = false } = navbar;
+
     const [sidebarShown, setSidebarShown] = useState(false);
     const [isSearchBarExpanded, setIsSearchBarExpanded] = useState(false);
-    const [theme, setTheme] = useTheme();
     const { pathname } = useLocation();
 
+    const { isDarkTheme, setLightTheme, setDarkTheme } = useThemeContext();
     const { navbarRef, isNavbarVisible } = useHideableNavbar(hideOnScroll);
 
+    useLockBodyScroll(sidebarShown);
+
     const showSidebar = useCallback(() => {
-        document.body.style.overflow = "hidden";
         setSidebarShown(true);
     }, [setSidebarShown]);
     const hideSidebar = useCallback(() => {
-        document.body.style.overflow = "visible";
         setSidebarShown(false);
     }, [setSidebarShown]);
 
-    const onToggleChange = useCallback(e => setTheme(e.target.checked ? "dark" : ""), [setTheme]);
+    const onToggleChange = useCallback(e => (e.target.checked ? setDarkTheme() : setLightTheme()), [
+        setLightTheme,
+        setDarkTheme
+    ]);
 
-    const logoUrl = useBaseUrl(logo.src);
-    const logoDark = useBaseUrl(logo.dark);
+    const logoLink = logo.href || baseUrl;
+    const isExternalLogoLink = /http/.test(logoLink);
+    const logoLinkProps = isExternalLogoLink
+        ? {
+              rel: "noopener noreferrer",
+              target: "_blank"
+          }
+        : null;
+    const logoSrc = logo.srcDark && isDarkTheme ? logo.srcDark : logo.src;
+    const logoImageUrl = useBaseUrl(logoSrc);
+
     return (
         <nav
             ref={navbarRef}
@@ -123,12 +137,18 @@ function Navbar() {
                             <NavLink {...linkItem} key={i} />
                         ))}
                 </div>
-                <div className="navbar__items navbar__items--right">
+                <div
+                    className={classnames(
+                        "navbar__items",
+                        "navbar__items--right",
+                        styles.navbarItemsRight
+                    )}
+                >
                     {!disableDarkMode && (
                         <Toggle
                             className={classnames(styles.displayOnlyInLargeViewport, styles.toggle)}
                             aria-label="Dark mode toggle"
-                            checked={theme === "dark"}
+                            checked={isDarkTheme}
                             onChange={onToggleChange}
                         />
                     )}
@@ -162,23 +182,17 @@ function Navbar() {
                         {logo != null && (
                             <img
                                 className="navbar__logo logo--light"
-                                src={logoUrl}
+                                src={logoSrc}
                                 alt={logo.alt}
                             />
                         )}
-                        {logoDark != null && (
-                            <img
-                                className="navbar__logo logo--dark"
-                                src={logoDark}
-                                alt={logo.alt}
-                            />
-                        )}
+                        <Logo color="#fff" size={32} className={styles.logo} />
                         {title != null && <strong>{title}</strong>}
                     </Link>
                     {!disableDarkMode && sidebarShown && (
                         <Toggle
                             aria-label="Dark mode toggle in sidebar"
-                            checked={theme === "dark"}
+                            checked={isDarkTheme}
                             onChange={onToggleChange}
                         />
                     )}

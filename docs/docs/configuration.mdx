@@ -7,17 +7,14 @@ description: Configuring hyperglass
 ---
 
 import Link from "@docusaurus/Link";
-import Admonition from "react-admonitions";
 import MiniNote from "../src/components/MiniNote";
 import PageLink from "../src/components/PageLink";
 
 hyperglass is meant to be _extremely_ customizable, but with reasonable defaults that most operators won't need to override. Even though there are a _lot_ of configuration options, all of them can be left untouched and hyperglass will work (although, it's recommended to at least set the organization name).
 
-<Admonition type="tip" iconType="emoji" title="Validation">
-    On the back end, hyperglass uses strict configuration schema validation, so it's virtually
-    impossible to configure hyperglass incorrectly without receiving a contextual warning about
-    what's missing or incorrect about a configuration.
-</Admonition>
+:::tip Validation
+On the back end, hyperglass uses strict configuration schema validation, so it's virtually impossible to configure hyperglass incorrectly without receiving a contextual warning about what's missing or incorrect about a configuration.
+:::
 
 # Configuration Files
 
@@ -113,12 +110,6 @@ routers:
 
 There are a lot more options, but this is enough to get started. For all device configuration options, <Link to="/docs/devices">see here</Link>.
 
-<Admonition type="tip" iconType="emoji" title="YAML">
-    If you have a lot of devices with shared configuration parameters, you may want to look into{" "}
-    <strong>YAML Anchors and Aliases</strong>. If you've never used them before, they can be pretty
-    weird looking at first read. Atlassian{" "}
-    <a href="https://confluence.atlassian.com/bitbucket/yaml-anchors-960154027.html">
-        has a pretty decent guide
-    </a>
-    .
-</Admonition>
+:::tip YAML
+If you have a lot of devices with shared configuration parameters, you may want to look into **YAML Anchors and Aliases**. If you've never used them before, they can be pretty weird looking at first read. Atlassian [has a pretty decent guide](https://confluence.atlassian.com/bitbucket/yaml-anchors-960154027.html).
+:::

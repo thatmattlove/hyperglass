@@ -1,46 +1,69 @@
 /**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
  * CSS files with the .module.css suffix will be treated as CSS modules
  * and scoped locally.
  */
-
-.heroBanner[class] {
-    padding: 4rem 0;
+.heroBanner {
+    /* background-color: var(--neutron-color-dark); */
+    background-color: var(--ifm-background-color);
+    color: var(--neutron-color-lighter);
+    padding: 128px;
     text-align: center;
     position: relative;
     overflow: hidden;
+}
+
+.title[class] {
+    font-weight: 200;
+    font-size: 4rem;
+}
+
+.subTitle[class] {
+    font-weight: 200;
+    font-size: 2rem;
+    padding: 24px;
+}
+
+.getStarted {
+    color: unset !important;
+    font-size: 24px;
+    padding: 16px 36px;
+}
+
+.getStarted:hover {
+    color: unset !important;
+}
+
+.buttons {
+    margin-top: 4vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content {
+    align-items: center;
+    display: flex;
+    padding: 36px 0;
+    width: 100%;
 }
 
 @media screen and (max-width: 966px) {
     .heroBanner {
         padding: 2rem;
     }
+
+    .title {
+        font-size: 2.5rem !important;
+    }
 }
 
-.buttons {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.features {
-    display: flex;
-    align-items: center;
-    padding: 2rem 0;
-    width: 100%;
-}
-
-.featureImage {
-    height: 200px;
-    width: 200px;
-}
-
-.getStarted[class][class]:not(.button--active):not(:hover) {
-    color: white;
-    border-color: white;
-}
-
-.getStarted[class]:hover {
-    background-color: var(--ifm-color-secondary);
-    color: white;
-    border-color: none;
+.tag {
+    color: var(--ifm-color-primary);
 }

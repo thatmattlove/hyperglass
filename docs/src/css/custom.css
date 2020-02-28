@@ -5,6 +5,9 @@
  */
 
 /* You can override the default Infima variables here. */
+@import url("https://fonts.googleapis.com/css?family=Nunito:200,400,700&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Fira+Code&display=swap");
+
 :root {
     --ifm-font-size-sm: 12px;
     /* --ifm-color-secondary: #314cb6;
@@ -29,6 +32,12 @@
     --ifm-color-primary-lighter: #ff918f;
     --ifm-color-primary-lightest: #ffc4c3;
     --ifm-code-font-size: 95%;
+    --ifm-navbar-background-color: var(--ifm-background-color);
+    --ifm-font-family-base: "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
+        Noto Sans, sans-serif, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --ifm-font-family-monospace: "Fira Code", SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
 }
 
 :root {
@@ -38,6 +47,23 @@
     --ifm-footer-link-color: var(--ifm-secondary-lightest);
     --ifm-footer-title-color: var(--ifm-color-emphasis-800);
     --ifm-footer-background-color: var(--ifm-color-emphasis-100);
+}
+
+:root {
+    --ra-color-caution: var(--ifm-color-warning-lightest);
+    --ra-color-tip: var(--ifm-color-success-lightest);
+    --ra-color-important: var(--ifm-color-info-lightest);
+    --ra-color-note: var(--ifm-color-gray-200);
+    --ra-color-warning: var(--ifm-color-danger-lighter);
+    --ra-admonition-color: var(--ifm-font-base-color);
+}
+
+html[data-theme="dark"]:root {
+    --ra-color-caution: var(--ifm-color-warning-darkest);
+    --ra-color-tip: var(--ifm-color-success-darkest);
+    --ra-color-important: var(--ifm-color-info-darkest);
+    --ra-color-note: var(--ifm-color-gray-600);
+    --ra-color-warning: var(--ifm-color-danger-darker);
 }
 
 html[data-theme="dark"] .footer.footer--dark {
@@ -62,6 +88,16 @@ html[data-theme="dark"] {
         #b6a7e2
         #dc7381
      */
+}
+
+.admonition {
+    --ifm-code-background: rgba(255, 255, 255, 0.5);
+    --ifm-code-color: var(--ifm-color-secondary-darker);
+    --ifm-link-color: rgba(0, 0, 0, 0.5);
+}
+
+.admonition a:hover {
+    color: rgba(0, 0, 0, 0.5);
 }
 
 .docusaurus-highlight-code-line {

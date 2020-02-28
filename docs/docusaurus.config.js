@@ -10,11 +10,11 @@ module.exports = {
     projectName: "hyperglass",
     themeConfig: {
         navbar: {
-            title: "hyperglass",
-            logo: {
-                alt: "hyperglass icon",
-                src: "img/icon.svg"
-            },
+            // title: "hyperglass",
+            // logo: {
+            //     alt: "hyperglass icon",
+            //     src: "img/icon.svg"
+            // },
             links: [
                 { to: "docs/introduction", label: "Docs", position: "left" },
                 { to: "screenshots", label: "Screenshots", position: "left" },

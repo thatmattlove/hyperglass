@@ -7,7 +7,6 @@ description: Adding devices to hyperglass
 ---
 
 import Link from "@docusaurus/Link";
-import Admonition from "react-admonitions";
 import R from "../src/components/Required";
 import MiniNote from "../src/components/MiniNote";
 import Code from "../src/components/JSXCode";
@@ -39,9 +38,9 @@ Any device that uses SSH (see <Link to="/docs/platforms">platforms</Link> for br
 | `nos`             | String  | `'linux_ssh'` | Proxy's network operating system. <MiniNote>Must be a <Link to="/docs/platforms">supported platform</Link>.</MiniNote> |
 | `port`            | Integer | `22`          | TCP port user to connect to the proxy.                                                                                 |
 
-<Admonition type="note">
-    Currently only <Code>linux_ssh</Code> has been tested and validated for use as an SSH proxy.
-</Admonition>
+:::important
+Currently, only `linux_ssh` has been tested and validated for use as an SSH proxy.
+:::
 
 ### `credential`
 

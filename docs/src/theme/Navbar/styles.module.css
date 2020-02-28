@@ -18,11 +18,17 @@
     top: calc(var(--ifm-navbar-height) * -1) !important;
 }
 .navbarItems {
-    justify-content: space-between;
+    justify-content: flex-start;
+}
+
+.navbarItemsRight[class] {
+    flex: 0 0;
 }
 
 .navLink[class] {
     position: relative;
+    margin-left: 2rem;
+    margin-right: 2rem;
 }
 
 .navLink[class]:hover {
@@ -53,7 +59,7 @@ html[data-theme="dark"] .navLink[class]:hover {
 }
 
 .navbarMain {
-    background-color: var(--ifm-color-primary);
+    background-color: var(--ifm-background-color);
     box-shadow: none;
 }
 

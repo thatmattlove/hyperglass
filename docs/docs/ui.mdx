@@ -7,7 +7,6 @@ description: hyperglass Web UI Configuration
 ---
 
 import Link from "@docusaurus/Link";
-import Admonition from "react-admonitions";
 import R from "../src/components/Required";
 import MiniNote from "../src/components/MiniNote";
 import Code from "../src/components/JSXCode";
@@ -60,7 +59,7 @@ web:
         title: Terms
     text:
         cache: Results will be cached for 2 minutes.
-        fqdn_tooltip: 'Use {protocol}'
+        fqdn_tooltip: "Use {protocol}"
         query_location: Location
         query_target: Target
         query_type: Query Type
@@ -99,13 +98,9 @@ web:
 | :-------- | :-----: | :-----: | :--------------------------------------------------------------------------------------- |
 | `enable`  | Boolean | `true`  | Enable or disable the display of developer credit & link to hyperglass GitHub repository |
 
-<Admonition title="From the developer" type="tip">
-    If your organization's policy allows, and you don't mind, I request that you keep{" "}
-    <Code>credit</Code> enabled. Remember: my goal for this project is get more networks to use
-    looking glasses to make all of our lives easier. <br />
-    <br /> Because it's primarily other network operators that will use this tool to begin with, I'd
-    love for any operators that use your looking glass to know where they can get their own.
-</Admonition>
+:::note From the developer
+If your organization's policy allows, and you don't mind, I request that you keep `credit` enabled. Remember: my goal for this project is get more networks to use looking glasses to make all of our lives easier. Because it's primarily other network operators who will use this tool to begin with, I'd love for any operators that use your looking glass to know where they can get their own.
+:::
 
 ## `dns_provider`
 
@@ -164,52 +159,17 @@ By default, no Opengraph image is set. If you define one with `image`, hyperglas
 | `title`          | String | `'hyperglass'`                                     | Title text.                                                                                                                                                                                                                                 |
 | `title_mode`     | String | `'text_only'`                                      | Set the title mode. <MiniNote>Must be <Code>text_only</Code>, <Code>logo_only</Code>, <Code>logo_title</Code>, or <Code>all</Code></MiniNote>                                                                                               |
 
-<Admonition type="important" title="Title Mode">
-    The <Code>title_mode</Code> parameter behaves in the following manner:
-    <br/>
-    <table>
-        <thead>
-            <tr>
-                <th align="left">Mode</th>
-                <th>Behavior</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    <Code>text_only</Code>
-                </td>
-                <td>
-                    Shows the <Code>title</Code> and <Code>subtitle</Code> only.
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Code>logo_only</Code>
-                </td>
-                <td>
-                    Shows the <Link to="#logo"><Code>logo</Code></Link> only.
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Code>logo_title</Code>
-                </td>
-                <td>
-                    Shows the <Link to="#logo"><Code>logo</Code></Link> and <Code>title</Code> only.
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Code>all</Code>
-                </td>
-                <td>
-                    Shows the <Link to="#logo"><Code>logo</Code></Link>, <Code>title</Code>, and <Code>subtitle</Code>.
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</Admonition>
+:::important Title Mode
+The `title_mode` parameter behaves in the following manner:
+
+| Mode         | Behavior                                                           |
+| ------------ | ------------------------------------------------------------------ |
+| `text_only`  | Shows the `title` and `subtitle` only.                             |
+| `logo_only`  | Shows the <Link to="#logo">`logo`</Link> only.                     |
+| `logo_title` | Shows the <Link to="#logo">`logo`</Link> and `title` only.         |
+| `all`        | Shows the <Link to="#logo">`logo`</Link>, `title`, and `subtitle`. |
+
+:::
 
 ## `theme`
 
@@ -249,5 +209,3 @@ Currently, only [Google Fonts](https://fonts.google.com/) are supported.
 | :-------- | :----: | :----------------------- | :-------------------------------------- |
 | `body`    | String | <Font name='Nunito'/>    | Main body font                          |
 | `mono`    | String | <Font name='Fira Code'/> | Monospace font, used for command output |
-
-

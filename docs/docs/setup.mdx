@@ -5,3 +5,69 @@ sidebar_label: Setup
 keywords: [install, setup]
 description: hyperglass Setup
 ---
+
+import Link from "@docusaurus/Link";
+
+After hyperglass is <Link to="/docs/getting-started">installed</Link>, you can run the `hyperglass --help` command to see the available options:
+
+```shell-session
+$ hyperglass --help
+Usage: hyperglass [OPTIONS] COMMAND [ARGS]...
+
+   hyperglass Command Line Interface
+
+Options:
+   -v, --version  🔢 hyperglass version
+   -h, --help     🙏 Show this help message
+
+Commands:
+   build-ui  🦋 Create a new UI build
+   secret    🔒 Generate agent secret
+   setup     🧰 Run the setup wizard
+   start     🚀 Start web server
+```
+
+## Setup Wizard
+
+To start the setup wizard, run `hyperglass setup` and you'll receive the following prompts:
+
+### Installation Directory
+
+```shell-session
+[?] Choose a directory for hyperglass: /Users/ml/hyperglass
+ > /home/user/hyperglass
+   /etc/hyperglass
+```
+
+hyperglass requires a directory on your system to store configuration files, the web UI, logos, etc. You may choose between the current user's home directory or `/etc`.
+
+### Configuration files
+
+```shell-session
+Do you want to install example configuration files? (This is non-destructive) [y/N]:
+```
+
+hyperglass can install example configuration files to your hyperglass installation directory to make it a little easier to get up and running.
+
+### Systemd Service
+
+```shell-session
+Do you want to generate a systemd service file? [y/N]:
+```
+
+hyperglass also includes a [systemd](https://systemd.io/) service file, which can be installed if you use systemd. If selected, a systemd service file will be generated and copied to the installation directory. Then, it will be symlinked to `/etc/systemd/system`. All you need to do to enable the service is run:
+
+```shell-session
+$ sudo systemctl enable hyperglass
+```
+
+## UI Build
+
+hyperglass is build with [NextJS](https://nextjs.org/), a [React](https://reactjs.org/)-based UI framework that supports server-side rendering and static exporting, which contribute to hyperglass's speed and SEO-friendliness. At startup, hyperglass creates a new "UI build", which is a static export of the site and includes some elements of the <Link to="/docs/configuration">configuration</Link>.
+
+It is recommended to run an initial UI build after running the setup wizard, so that you can verify that the installation is working prior to diving into configuration.
+
+```shell-session
+$ hyperglass build-ui
+✅ Completed UI build in production mode
+```
