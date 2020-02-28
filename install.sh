@@ -2,6 +2,8 @@
 
 set -e
 
+HYPERGLASS_VERSION="1.0.0-beta.1"
+
 MIN_PYTHON_MAJOR="3"
 MIN_PYTHON_MINOR="6"
 MIN_NODE_MAJOR="13"
@@ -433,8 +435,12 @@ install_app () {
     cd /tmp/hyperglass
     poetry build
     mkdir /tmp/build
-    tar -xvf /tmp/hyperglass/dist/hyperglass-1.0.0.tar.gz -C /tmp/build
-    cd /tmp/build/hyperglass-1.0.0
+    
+    local build_tarball="/tmp/hyperglass/dist/hyperglass-$HYPERGLASS_VERSION.tar.gz"
+    local build_dir="/tmp/build/hyperglass-$HYPERGLASS_VERSION"
+    
+    tar -xvf $build_tarball -C /tmp/build
+    cd $build_dir
     pip3 install . > /dev/null
 
     if [[ ! $? == 0 ]]; then
