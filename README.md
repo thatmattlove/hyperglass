@@ -1,20 +1,14 @@
-
-
-***WARNING**: This branch is currently in beta. While everything *should* work, some things might not. If you're looking for a fully working version of hyperglass, **please go to the [master branch](https://github.com/checktheroads/hyperglass/tree/master)**.*
-
 <div align="center">
   <br/>
   <img src="logo.png" width=300></img>
   <br/>
-  <strong>The network looking glass that tries to make the internet better.</strong>
-  <br/>
+  <h3>The network looking glass that tries to make the internet better.</h3>
   <br/>
   <div style="color: #808080;">
   A looking glass is implemented by network operators as a way of providing customers, peers, or the general public with a way to easily view elements of, or run tests from the provider's network.
   </div>
 </div>
 
-<br/>
 <hr/>
 
 <div align="center">
@@ -26,11 +20,15 @@
 [![Gitter](https://img.shields.io/gitter/room/checktheroads/hyperglass?color=ff5e5b&style=for-the-badge)](https://gitter.im/hyperglass)
 [![CI](https://img.shields.io/travis/checktheroads/hyperglass/v1.0.0?style=for-the-badge)](https://travis-ci.org/checktheroads/hyperglass)
 
+<br/>
+
+hyperglass is intended to make implementing a looking glass too easy not to do, with the lofty goal of improving the internet community at large by making looking glasses more common across autonomous systems of any size.
+
+<br/>
+
+⚠️ **v1.0.0** *is currently in beta. While everything should work, some things might not. Documentation and the live demo are not yet complete. For a fully working and documented version of hyperglass, **please go to the [master branch](https://github.com/checktheroads/hyperglass/tree/master)**.*
+
 </div>
-
-<hr>
-
-**hyperglass** is intended to make implementing a looking glass too easy not to do, with the lofty goal of improving the internet community at large by making looking glasses more common across autonomous systems of any size.
 
 ## Features
 
@@ -56,7 +54,7 @@
 
 *To request support for a specific platform, please [submit a Github Issue](https://github.com/checktheroads/hyperglass/issues/new) with the **enhancement** label.*
 
-## [Get Started →](https://hyperglass.io/)
+### [Get Started →](https://hyperglass.io/)
 
 ## Community
 
@@ -68,7 +66,7 @@ Any users, potential users, or contributors of hyperglass are welcome to join an
 
 **hyperglass is developed with the express intention of being free to the networking community**.
 
-*However, the hyperglass demo does cost [@checktheroads](https://github.com/checktheroads) about $15/month for 3 Digital Ocean droplets, and $60/year for the [hyperglass.io](https://hyperglass.io). If you're feeling particularly helpful and want to help offset that cost, small donations are welcome.*
+*However, the hyperglass demo does cost [@checktheroads](https://github.com/checktheroads) about $15/month for 3 Digital Ocean droplets, and $60/year for the [hyperglass.io](https://hyperglass.io) domain. If you're feeling particularly helpful and want to help offset that cost, small donations are welcome.*
 
 [![Donate](https://img.shields.io/badge/Donate-blue.svg?logo=paypal&style=for-the-badge)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZQFH3BB2B5M3E&source=url)
 
