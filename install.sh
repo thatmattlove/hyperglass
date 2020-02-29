@@ -420,28 +420,53 @@ install_redis () {
     fi
 }
 
+# The below script was necessary prior to hyperglass being on PyPI
+#
+# install_app () {
+#     echo "[INFO] Installing hyperglass..."
+
+#     curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -o /tmp/get-poetry.py
+#     python3 /tmp/get-poetry.py -f -y > /dev/null
+#     sleep 1
+#     source $HOME/.profile
+
+#     [ -d "/tmp/hyperglass" ] && rm -rf /tmp/hyperglass
+#     [ -d "/tmp/build" ] && rm -rf /tmp/build
+    
+#     git clone --branch v1.0.0 --depth 1 https://github.com/checktheroads/hyperglass.git /tmp/hyperglass
+#     cd /tmp/hyperglass
+#     poetry build
+#     mkdir /tmp/build
+    
+#     local build_tarball="/tmp/hyperglass/dist/hyperglass-$HYPERGLASS_VERSION.tar.gz"
+#     local build_dir="/tmp/build/hyperglass-$HYPERGLASS_VERSION"
+    
+#     tar -xvf $build_tarball -C /tmp/build
+#     cd $build_dir
+#     pip3 install . > /dev/null
+
+#     if [[ ! $? == 0 ]]; then
+#         echo "[ERROR] An error occurred while trying to install hyperglass."
+#         exit 1
+#     else
+#         source $HOME/.profile
+#         export LC_ALL=C.UTF-8
+#         export LANG=C.UTF-8
+#         local successful=$(has_cmd "hyperglass")
+#         if [[ $successful == 0 ]]; then
+#             echo "[SUCCESS] Installed hyperglass."
+#         else
+#             echo "[ERROR] hyperglass installation succeeded, but the hyperglass command was not found."
+#             exit 1
+#         fi
+#     fi
+#     rm -rf /tmp/build
+# }
+
 install_app () {
     echo "[INFO] Installing hyperglass..."
 
-    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -o /tmp/get-poetry.py
-    python3 /tmp/get-poetry.py -f -y > /dev/null
-    sleep 1
-    source $HOME/.profile
-
-    [ -d "/tmp/hyperglass" ] && rm -rf /tmp/hyperglass
-    [ -d "/tmp/build" ] && rm -rf /tmp/build
-    
-    git clone --branch v1.0.0 --depth 1 https://github.com/checktheroads/hyperglass.git /tmp/hyperglass
-    cd /tmp/hyperglass
-    poetry build
-    mkdir /tmp/build
-    
-    local build_tarball="/tmp/hyperglass/dist/hyperglass-$HYPERGLASS_VERSION.tar.gz"
-    local build_dir="/tmp/build/hyperglass-$HYPERGLASS_VERSION"
-    
-    tar -xvf $build_tarball -C /tmp/build
-    cd $build_dir
-    pip3 install . > /dev/null
+    pip3 install "hyperglass==$HYPERGLASS_VERSION" > /dev/null
 
     if [[ ! $? == 0 ]]; then
         echo "[ERROR] An error occurred while trying to install hyperglass."
@@ -458,7 +483,6 @@ install_app () {
             exit 1
         fi
     fi
-    rm -rf /tmp/build
 }
 
 trap catch_interrupt SIGINT
