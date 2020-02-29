@@ -3,19 +3,15 @@ module.exports = {
         {
             type: "category",
             label: "Installation",
-            items: [
-                "introduction",
-                "getting-started",
-                "setup",
-                "configuration",
-                "devices",
-                "ui",
-                "cache",
-                "api",
-                "messages",
-                "queries"
-            ]
+            items: ["introduction", "getting-started", "setup"]
         },
-        { type: "doc", id: "platforms" }
+        {
+            type: "category",
+            label: "Configuration",
+            items: ["configuration", "devices", "ui", "cache", "api", "messages", "queries"]
+        },
+        { type: "doc", id: "platforms" },
+        { type: "doc", id: "agent" },
+        { type: "doc", id: "license" }
     ]
 };

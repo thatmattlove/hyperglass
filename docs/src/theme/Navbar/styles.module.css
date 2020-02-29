@@ -65,7 +65,6 @@ html[data-theme="dark"] .navLink[class]:hover {
 
 .logo {
     margin: 4px;
-    fill: var(--ifm-color-content);
 }
 
 html[data-theme="dark"] .navbarOther {

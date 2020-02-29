@@ -20,6 +20,9 @@ import useThemeContext from "@theme/hooks/useThemeContext";
 import useHideableNavbar from "@theme/hooks/useHideableNavbar";
 import useLockBodyScroll from "@theme/hooks/useLockBodyScroll";
 
+import DarkModeToggle from "react-dark-mode-toggle";
+import useMedia from "use-media";
+
 import Logo from "../../components/Logo";
 import styles from "./styles.module.css";
 
@@ -59,6 +62,8 @@ function Navbar() {
     const { isDarkTheme, setLightTheme, setDarkTheme } = useThemeContext();
     const { navbarRef, isNavbarVisible } = useHideableNavbar(hideOnScroll);
 
+    const isMobile = useMedia({ maxWidth: 997 });
+
     useLockBodyScroll(sidebarShown);
 
     const showSidebar = useCallback(() => {
@@ -68,10 +73,23 @@ function Navbar() {
         setSidebarShown(false);
     }, [setSidebarShown]);
 
-    const onToggleChange = useCallback(e => (e.target.checked ? setDarkTheme() : setLightTheme()), [
-        setLightTheme,
-        setDarkTheme
-    ]);
+    // const onToggleChange = useCallback(e => (e.target.checked ? setDarkTheme() : setLightTheme()), [
+    //     setLightTheme,
+    //     setDarkTheme
+    // ]);
+
+    // const onToggleChange = e => {
+    //     console.log(e);
+    // };
+
+    // const onToggleChange = useCallback(e => (e ? setDarkTheme() : setLightTheme()), [
+    //     setLightTheme,
+    //     setDarkTheme
+    // ]);
+
+    const onToggleChange = checked => {
+        checked ? setDarkTheme() : setLightTheme();
+    };
 
     const logoLink = logo.href || baseUrl;
     const isExternalLogoLink = /http/.test(logoLink);
@@ -82,7 +100,8 @@ function Navbar() {
           }
         : null;
     const logoSrc = logo.srcDark && isDarkTheme ? logo.srcDark : logo.src;
-    const logoImageUrl = useBaseUrl(logoSrc);
+
+    const logoColor = isDarkTheme ? "#ff5e5b" : "inherit";
 
     return (
         <nav
@@ -97,14 +116,16 @@ function Navbar() {
         >
             <div className="navbar__inner">
                 <div className={classnames("navbar__items", styles.navbarItems)}>
-                    <Link className="navbar__brand" to={baseUrl}>
-                        <Logo color="#fff" size={32} className={styles.logo} />
-                        {title != null && (
-                            <strong className={isSearchBarExpanded ? styles.hideLogoText : ""}>
-                                {title}
-                            </strong>
-                        )}
-                    </Link>
+                    {!isMobile && (
+                        <Link className="navbar__brand" to={baseUrl}>
+                            <Logo color={logoColor} size={32} className={styles.logo} />
+                            {title != null && (
+                                <strong className={isSearchBarExpanded ? styles.hideLogoText : ""}>
+                                    {title}
+                                </strong>
+                            )}
+                        </Link>
+                    )}
                     <div
                         aria-label="Navigation bar toggle"
                         className="navbar__toggle"
@@ -144,12 +165,21 @@ function Navbar() {
                         styles.navbarItemsRight
                     )}
                 >
-                    {!disableDarkMode && (
-                        <Toggle
-                            className={classnames(styles.displayOnlyInLargeViewport, styles.toggle)}
-                            aria-label="Dark mode toggle"
-                            checked={isDarkTheme}
+                    {isMobile && (
+                        <Link className="navbar__brand" to={baseUrl}>
+                            <Logo color={logoColor} size={32} className={styles.logo} />
+                            {title != null && (
+                                <strong className={isSearchBarExpanded ? styles.hideLogoText : ""}>
+                                    {title}
+                                </strong>
+                            )}
+                        </Link>
+                    )}
+                    {!disableDarkMode && !isMobile && (
+                        <DarkModeToggle
+                            speed={2.5}
                             onChange={onToggleChange}
+                            checked={isDarkTheme}
                         />
                     )}
                     {links
@@ -178,22 +208,19 @@ function Navbar() {
             <div role="presentation" className="navbar-sidebar__backdrop" onClick={hideSidebar} />
             <div className="navbar-sidebar">
                 <div className="navbar-sidebar__brand">
-                    <Link className="navbar__brand" onClick={hideSidebar} to={baseUrl}>
-                        {logo != null && (
-                            <img
-                                className="navbar__logo logo--light"
-                                src={logoSrc}
-                                alt={logo.alt}
-                            />
+                    <Link className="navbar__brand" to={baseUrl}>
+                        <Logo color={logoColor} size={32} className={styles.logo} />
+                        {title != null && (
+                            <strong className={isSearchBarExpanded ? styles.hideLogoText : ""}>
+                                {title}
+                            </strong>
                         )}
-                        <Logo color="#fff" size={32} className={styles.logo} />
-                        {title != null && <strong>{title}</strong>}
                     </Link>
                     {!disableDarkMode && sidebarShown && (
-                        <Toggle
-                            aria-label="Dark mode toggle in sidebar"
-                            checked={isDarkTheme}
+                        <DarkModeToggle
+                            speed={2.5}
                             onChange={onToggleChange}
+                            checked={isDarkTheme}
                         />
                     )}
                 </div>
