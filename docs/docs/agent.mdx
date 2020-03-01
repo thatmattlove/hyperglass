@@ -6,6 +6,67 @@ keywords: [configuration, linux, frr, frrouting, bird, agent]
 description: hyperglass agent configuration
 ---
 
-:::important Coming Soon
-Documentation for [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent) coming soon!
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+:::important In Progress
+Documentation for [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent) is in progress!
+:::
+
+# Installation
+
+## Dependencies
+
+On the Linux server running [FRRouting](https://frrouting.org/) or [BIRD](https://bird.network.cz/), make sure Python 3.6+ is installed:
+
+<Tabs
+  defaultValue="debian"
+  values={[
+    { label: 'Debian/Ubuntu', value: 'debian' },
+    { label: 'RHEL/CentOS', value: 'rhel' }]}>
+
+<TabItem value="debian">
+
+```shell-session
+$ sudo apt install -y python3.6-dev python3-pip
+```
+
+</TabItem>
+
+<TabItem value="rhel">
+
+```shell-session
+$ sudo yum install centos-release-scl
+$ sudo yum install rh-python36
+```
+
+</TabItem>
+
+</Tabs>
+
+You can then verify your Python 3 version:
+
+```shell-session
+$ python3 --version
+Python 3.6.9
+```
+
+## Application
+
+Now that Python 3.6+ is installed, you can install the hyperglass agent:
+
+```shell-session
+$ pip3 install --user hyperglass-agent
+```
+
+# Setup
+
+Just like with hyperglass, the hyperglass agent is easy to set up. To automatically create an application directory, generate SSL certificates, generate and symlink a systemd file, and generate a random secret, run:
+
+```shell-session
+$ hyperglass setup
+```
+
+:::important More coming soon
+Documentation for [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent) is in progress!
 :::
