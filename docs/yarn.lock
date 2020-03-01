@@ -943,6 +943,14 @@
   resolved "https://registry.yarnpkg.com/@docusaurus/plugin-google-gtag/-/plugin-google-gtag-2.0.0-alpha.43.tgz#13aa8d5009eea46ae366216d32095d1e348e8cda"
   integrity sha512-9BDZTjn7GvIn8VoYGrN3XIiL4WJ7FryovTmHcft64oj/fCFt/buR+IFUhRzGCr1Pss+2LeBQtYB6rM+W1joNuA==
 
+"@docusaurus/plugin-sitemap@^2.0.0-alpha.37":
+  version "2.0.0-alpha.37"
+  resolved "https://registry.yarnpkg.com/@docusaurus/plugin-sitemap/-/plugin-sitemap-2.0.0-alpha.37.tgz#174fa03e7184db2971a491849b27e33f577a26b4"
+  integrity sha512-IF4uk2dcm1TFm9Lu9OOOk1QaLEeoUb6LXvvweKP+Usuw4OFfUcEd7KBJi2/mDSm+Ud3EenoQOENywNbKiLSzvg==
+  dependencies:
+    "@docusaurus/types" "^2.0.0-alpha.37"
+    sitemap "^3.2.2"
+
 "@docusaurus/plugin-sitemap@^2.0.0-alpha.43":
   version "2.0.0-alpha.43"
   resolved "https://registry.yarnpkg.com/@docusaurus/plugin-sitemap/-/plugin-sitemap-2.0.0-alpha.43.tgz#cf7cc23eacfdfe825246ff6767ead8725c4daf21"
@@ -989,6 +997,15 @@
   dependencies:
     classnames "^2.2.6"
     docsearch.js "^2.6.3"
+
+"@docusaurus/types@^2.0.0-alpha.37":
+  version "2.0.0-alpha.37"
+  resolved "https://registry.yarnpkg.com/@docusaurus/types/-/types-2.0.0-alpha.37.tgz#e14b8758cfefab5235c5ec190c489dd32cb7a8b8"
+  integrity sha512-t0bwfUQLEY6FGZX1OGhB29y7OQFAzqmNfP/UewUWOb/OiG5HBZ/r7OfwOH1dfmbjRJD99eHA3r4br8jwuvQfPg==
+  dependencies:
+    "@types/webpack" "^4.41.0"
+    commander "^4.0.1"
+    querystring "0.2.0"
 
 "@docusaurus/types@^2.0.0-alpha.43":
   version "2.0.0-alpha.43"
@@ -5275,7 +5292,7 @@ loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.2.0, loose-envify@^1.3
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
-"lottie-api@github:bodymovin/lottie-api#master":
+lottie-api@bodymovin/lottie-api#master:
   version "1.0.2"
   resolved "https://codeload.github.com/bodymovin/lottie-api/tar.gz/2015b503589c5f78265942d212e64abd1d756fcf"
 

@@ -1,5 +1,7 @@
 const githubURL = "https://github.com/checktheroads/hyperglass";
 
+const { googleTrackingId } = process.env;
+
 module.exports = {
     title: "hyperglass",
     tagline: "the network looking glass that tries to make the internet better.",
@@ -9,12 +11,12 @@ module.exports = {
     organizationName: "checktheroads",
     projectName: "hyperglass",
     themeConfig: {
+        googleAnalytics: { trackingID: googleTrackingId || " ", anonymizeIP: false },
+        gtag: {
+            trackingID: googleTrackingId || " ",
+            anonymizeIP: false
+        },
         navbar: {
-            // title: "hyperglass",
-            // logo: {
-            //     alt: "hyperglass icon",
-            //     src: "img/icon.svg"
-            // },
             links: [
                 { to: "docs/introduction", label: "Docs", position: "left" },
                 { to: "screenshots", label: "Screenshots", position: "left" },
@@ -87,5 +89,10 @@ module.exports = {
                 }
             }
         ]
+    ],
+    plugins: [
+        "@docusaurus/plugin-google-analytics",
+        "@docusaurus/plugin-google-gtag",
+        "@docusaurus/plugin-sitemap"
     ]
 };
