@@ -12,31 +12,49 @@ function Home() {
             keywords={[
                 "hyperglass",
                 "documentation",
+                "docs",
                 "bgp",
                 "lg",
                 "looking",
                 "glass",
+                "looking glass",
                 "ping",
                 "traceroute",
-                "test"
+                "matt love",
+                "python",
+                "python3",
+                "react",
+                "reactjs"
             ]}
         >
             <header className={classnames("hero", styles.heroBanner)}>
                 <div className="container">
                     <h1 className={classnames("hero__title", styles.title)}>hyperglass</h1>
                     <h3 className={classnames("hero__subtitle", styles.subTitle)}>
-                        the <span className={styles.tag}>network looking glass</span> that tries to
-                        make the internet better.
+                        the <span className={styles.tagPrimary}>network looking glass</span> that
+                        tries to
+                        <span className={styles.tagSecondary}> make the internet better</span>.
                     </h3>
                     <div className={styles.buttons}>
                         <Link
                             className={classnames(
                                 "button button--outline button--secondary button--lg",
-                                styles.getStarted
+                                styles.homeBtn,
+                                styles.btnSecondary
                             )}
                             to={useBaseUrl("docs/getting-started")}
                         >
-                            Get Started
+                            Get a looking glass
+                        </Link>
+                        <Link
+                            className={classnames(
+                                "button button--outline button--primary button--lg",
+                                styles.homeBtn,
+                                styles.btnPrimary
+                            )}
+                            to={useBaseUrl("docs/introduction")}
+                        >
+                            Why hyperglass?
                         </Link>
                     </div>
                 </div>

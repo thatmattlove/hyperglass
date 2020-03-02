@@ -30,14 +30,24 @@
     padding: 24px;
 }
 
-.getStarted {
+.homeBtn {
     color: unset !important;
     font-size: 24px;
     padding: 16px 36px;
+    margin: 0.25rem;
+    border-color: unset;
 }
 
-.getStarted:hover {
+.homeBtn:hover {
     color: unset !important;
+}
+
+.btnPrimary:hover {
+    border-color: var(--ifm-color-primary);
+}
+
+.btnSecondary:hover {
+    border-color: var(--ifm-color-secondary);
 }
 
 .buttons {
@@ -45,6 +55,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .content {
@@ -57,13 +68,22 @@
 @media screen and (max-width: 966px) {
     .heroBanner {
         padding: 2rem;
+        min-height: 80vh;
     }
 
     .title {
         font-size: 2.5rem !important;
     }
+
+    .homeBtn {
+        min-width: 100%;
+    }
 }
 
-.tag {
+.tagPrimary {
     color: var(--ifm-color-primary);
+}
+
+.tagSecondary {
+    color: var(--ifm-color-secondary);
 }

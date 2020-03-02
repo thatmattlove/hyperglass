@@ -73,20 +73,6 @@ function Navbar() {
         setSidebarShown(false);
     }, [setSidebarShown]);
 
-    // const onToggleChange = useCallback(e => (e.target.checked ? setDarkTheme() : setLightTheme()), [
-    //     setLightTheme,
-    //     setDarkTheme
-    // ]);
-
-    // const onToggleChange = e => {
-    //     console.log(e);
-    // };
-
-    // const onToggleChange = useCallback(e => (e ? setDarkTheme() : setLightTheme()), [
-    //     setLightTheme,
-    //     setDarkTheme
-    // ]);
-
     const onToggleChange = checked => {
         checked ? setDarkTheme() : setLightTheme();
     };
@@ -182,12 +168,12 @@ function Navbar() {
                             checked={isDarkTheme}
                         />
                     )}
-                    {links
-                        .filter(linkItem => linkItem.position === "right")
-                        .map((linkItem, i) => (
-                            <NavLink {...linkItem} key={i} />
-                        ))}
-
+                    {!isMobile && (
+                        <SearchBar
+                            handleSearchBarToggle={setIsSearchBarExpanded}
+                            isSearchBarExpanded={isSearchBarExpanded}
+                        />
+                    )}
                     <a
                         className={classnames(
                             styles.displayOnlyInLargeViewport,
@@ -199,10 +185,6 @@ function Navbar() {
                     >
                         GITHUB →
                     </a>
-                    <SearchBar
-                        handleSearchBarToggle={setIsSearchBarExpanded}
-                        isSearchBarExpanded={isSearchBarExpanded}
-                    />
                 </div>
             </div>
             <div role="presentation" className="navbar-sidebar__backdrop" onClick={hideSidebar} />
@@ -236,8 +218,12 @@ function Navbar() {
                                     />
                                 </li>
                             ))}
-
-                            <div style={{ margin: 5, marginTop: 15 }}></div>
+                            <div style={{ margin: 5, marginTop: 15 }} />
+                            <SearchBar
+                                handleSearchBarToggle={setIsSearchBarExpanded}
+                                isSearchBarExpanded={isSearchBarExpanded}
+                            />
+                            <div style={{ margin: 5, marginTop: 15 }} />
                             <a
                                 className={classnames(
                                     "button button--block button--primary",

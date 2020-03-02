@@ -1,6 +1,6 @@
 const githubURL = "https://github.com/checktheroads/hyperglass";
 
-const { googleTrackingId } = process.env;
+const { googleTrackingId, algoliaKey } = process.env;
 
 module.exports = {
     title: "hyperglass",
@@ -15,6 +15,10 @@ module.exports = {
         gtag: {
             trackingID: googleTrackingId || " ",
             anonymizeIP: false
+        },
+        algolia: {
+            apiKey: algoliaKey,
+            indexName: "BH4D9OD16A"
         },
         navbar: {
             links: [

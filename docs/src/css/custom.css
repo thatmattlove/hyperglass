@@ -123,3 +123,23 @@ h5 code,
 h6 code {
     color: var(--ifm-color-primary);
 }
+
+@media screen and (max-width: 997px) {
+    .col.footer__col[class][class] {
+        text-align: left;
+    }
+    .navbar .navbar__search {
+        padding-left: unset;
+    }
+    .navbar .navbar__search .navbar__search-input {
+        width: 100%;
+        display: block;
+    }
+}
+
+.navbar .navbar__search .navbar__search-input {
+    border-radius: var(--ifm-button-border-radius);
+    border-width: var(--ifm-button-border-width);
+    border-color: var(--ifm-navbar-search-input-background-color);
+    border-style: solid;
+}

@@ -16,7 +16,7 @@ hyperglass is meant to be _extremely_ customizable, but with reasonable defaults
 On the back end, hyperglass uses strict configuration schema validation, so it's virtually impossible to configure hyperglass incorrectly without receiving a contextual warning about what's missing or incorrect about a configuration.
 :::
 
-# Configuration Files
+## Configuration Files
 
 hyperglass configuration consists of three separate [YAML](https://yaml.org/) configuration files:
 
@@ -37,7 +37,7 @@ Configuration files may be located in one of the following directories:
 -   `/etc/hyperglass`
 -   `~/hyperglass`
 
-# Global Settings
+## Global Settings
 
 The following global settings can be set in `hyperglass.yaml`:
 
@@ -72,7 +72,7 @@ log_file: /tmp/hyperglass.log
 cors_origins: [localhost:3000, 192.0.2.1]
 ```
 
-## Subsections
+### Subsections
 
 From the top level, the following subsections may be defined and configured:
 
@@ -84,7 +84,7 @@ From the top level, the following subsections may be defined and configured:
 | `queries`  | Enable, disable, or configure query types.          | <PageLink to="/docs/queries">➡️</PageLink>  |
 | `web`      | Web UI & branding settings.                         |    <PageLink to="/docs/ui">➡️</PageLink>    |
 
-# Adding Devices
+## Adding Devices
 
 To add, as an example, a Cisco router, add the following to your `devices.yaml`, with the relevant details changed for your device:
 

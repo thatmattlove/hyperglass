@@ -9,7 +9,7 @@ description: Getting started with hyperglass
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Automatic installation
+## Automatic installation
 
 If your system runs on:
 
@@ -27,11 +27,11 @@ $ curl https://raw.githubusercontent.com/checktheroads/hyperglass/v1.0.0/install
 You should be <i>very</i> worried when someone asks you to do what I just did. Downloading a bash script from the internet and piping it to `bash` with root privileges is a terrible idea, unless you fully trust the source. Please don't trust me - go [look at the code](https://github.com/checktheroads/hyperglass/blob/v1.0.0/install.sh) and determine for your self if it's safe to execute. If you feel it's not, please proceed with the manual installation (and [tell me why](https://github.com/checktheroads/hyperglass/issues), so I can fix it).
 :::
 
-# Manual Installation
+## Manual Installation
 
-## System Dependencies
+### System Dependencies
 
-### Python
+#### Python
 hyperglass is written in Python 3 and requires Python version 3.6 as a minimum dependency.
 
 If you're confident upgrading your system's version of Python won't break your system (many Linux operating systems rely heavily on Python for package management and other system functions), you can install Python 3.6:
@@ -68,7 +68,7 @@ $ python3 --version
 Python 3.6.9
 ```
 
-### Other Dependencies
+#### Other Dependencies
 The hyperglass UI is written in [ReactJS](https://reactjs.org/). As such, some Javascript dependencies are required. hyperglass also relies on [Redis](https://redis.io/) for caching purposes.
 
 <Tabs
@@ -115,7 +115,7 @@ sudo yum -y install gcc-c++ make nodejs yarn redis
 I've attempted to abstract away most of the Javascript-related configuration and operational steps, because I think I might be the only network engineer on the planet who actually doesn't mind JS 😂. If you run into any issues with the NodeJS/Yarn installation processes, don't hesitate to [raise an issue](https://github.com/checktheroads/hyperglass/issues) on Github, and I'll do my best to help out.
 :::
 
-## Application 
+### Application 
 
 ```bash
 pip3 install hyperglass
