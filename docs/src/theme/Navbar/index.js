@@ -87,7 +87,7 @@ function Navbar() {
         : null;
     const logoSrc = logo.srcDark && isDarkTheme ? logo.srcDark : logo.src;
 
-    const logoColor = isDarkTheme ? "#ff5e5b" : "inherit";
+    const logoColor = isDarkTheme ? "#ff5e5b" : "#000";
 
     return (
         <nav
