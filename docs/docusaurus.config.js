@@ -18,7 +18,7 @@ module.exports = {
         },
         algolia: {
             apiKey: algoliaKey,
-            indexName: "BH4D9OD16A"
+            indexName: "hyperglass"
         },
         navbar: {
             links: [
