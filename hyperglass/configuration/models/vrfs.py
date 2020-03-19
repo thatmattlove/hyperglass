@@ -223,6 +223,9 @@ class Vrf(HyperglassModel):
             values["ipv6"].protocol = protocol6
             values["ipv6"].version = 6
 
+        if values.get("name") == "default" and values.get("display_name") is None:
+            values["display_name"] = "Global"
+
         return values
 
     def __getitem__(self, i):

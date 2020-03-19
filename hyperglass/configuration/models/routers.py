@@ -127,12 +127,9 @@ class Router(HyperglassModel):
             for afi in ("ipv4", "ipv6"):
                 vrf_afi = vrf.get(afi)
 
+                # If AFI is actually defined (enabled), and if the
+                # source_address field is not set, raise an error
                 if vrf_afi is not None and vrf_afi.get("source_address") is None:
-
-                    """
-                    If AFI is actually defined (enabled), and if the
-                    source_address field is not set, raise an error
-                    """
                     raise ConfigError(
                         (
                             "VRF '{vrf}' in router '{router}' is missing a source "
@@ -143,16 +140,13 @@ class Router(HyperglassModel):
                         afi=afi.replace("ip", "IP"),
                     )
 
+            # If no display_name is set for a non-default VRF, try
+            # to make one by replacing non-alphanumeric characters
+            # with whitespaces and using str.title() to make each
+            # word look "pretty".
             if vrf_name != "default" and not isinstance(
                 vrf.get("display_name"), StrictStr
             ):
-
-                """
-                If no display_name is set for a non-default VRF, try
-                to make one by replacing non-alphanumeric characters
-                with whitespaces and using str.title() to make each
-                word look "pretty".
-                """
                 new_name = vrf["name"]
                 new_name = re.sub(r"[^a-zA-Z0-9]", " ", new_name)
                 new_name = re.split(" ", new_name)
@@ -163,10 +157,11 @@ class Router(HyperglassModel):
                     f"Generated '{vrf['display_name']}'"
                 )
 
-                """
-                Validate the non-default VRF against the standard
-                Vrf() class.
-                """
+            elif vrf_name == "default" and vrf.get("display_name") is None:
+                vrf["display_name"] = "Global"
+
+            # Validate the non-default VRF against the standard
+            # Vrf() class.
             vrf = Vrf(**vrf)
 
             vrfs.append(vrf)
