@@ -174,9 +174,9 @@ def build_ui():
     status("Starting new UI build...")
 
     if params.developer_mode:
-        dev_mode = "production"
-    else:
         dev_mode = "development"
+    else:
+        dev_mode = "production"
 
     try:
         build_success = aiorun(
