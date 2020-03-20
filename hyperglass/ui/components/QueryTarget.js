@@ -8,7 +8,7 @@ const StyledInput = styled(Input)`
     }
 `;
 
-const fqdnPattern = /(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)/gim;
+const fqdnPattern = /^(?!:\/\/)([a-zA-Z0-9]+\.)?[a-zA-Z0-9][a-zA-Z0-9-]+\.[a-zA-Z]{2,6}?$/gim;
 
 const bg = { dark: "whiteAlpha.100", light: "white" };
 const color = { dark: "whiteAlpha.800", light: "gray.400" };
