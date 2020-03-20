@@ -76,7 +76,7 @@ class ExternalLink(HyperglassLevel3):
 
     enable: StrictBool = True
     title: StrictStr = "PeeringDB"
-    url: HttpUrl = "https://www.peeringdb.com/AS{primary_asn}"
+    url: HttpUrl = "https://www.peeringdb.com/asn/{primary_asn}"
 
 
 class HelpMenu(HyperglassLevel3):
