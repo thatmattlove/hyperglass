@@ -1,121 +1,154 @@
 ---
-#  debug: false
-#  google_analytics: ''
-#  org_name: The Company
-#  primary_asn: '65001'
-#  redis_host: localhost
-#  redis_port: 6379
-#  request_timeout: 30
-
-# branding:
-#   colors:
-#     background: '#fbfffe'
-#     danger: '#a21024'
-#     dark: '#383541'
-#     light: '#fbfffe'
-#     primary: '#40798c'
-#     secondary: '#330036'
-#     warning: '#eec643'
-#   credit:
-#     enable: true
-#   font:
-#     mono: Fira Code
-#     primary: Nunito
-#   help_menu:
-#     enable: true
-#   logo:
-#     favicons: ui/images/favicons/
-#     path: ui/images/hyperglass-dark.png
-#     width: 384
-#   peering_db:
-#     enable: true
-#   site_title: hyperglass
-#   terms:
-#     enable: true
-#   text:
-#     bgp_aspath: BGP AS Path
-#     bgp_community: BGP Community
-#     bgp_route: BGP Route
-#     error404:
-#       button: Home
-#       subtitle: '{uri} isn''t a thing'
-#       title: Error
-#     error500:
-#       button: Home
-#       subtitle: Something Went Wrong
-#       title: Error
-#     info: Help
-#     peeringdb: PeeringDB
-#     ping: Ping
-#     query_location: Location
-#     query_target: Target
-#     query_type: Query Type
-#     query_vrf: Routing Table
-#     subtitle: AS{primary_asn}
-#     terms: Terms
-#     title: hyperglass
-#     title_mode: logo_only
-#     traceroute: Traceroute
-# features:
-#   bgp_aspath:
-#     enable: true
-#     regex:
-#       asdot: ^(\^|^\_)((\d+\.\d+)\_|(\d+\.\d+)\$|(\d+\.\d+)\(\_\.\+\_\))+$
-#       asplain: ^(\^|^\_)(\d+\_|\d+\$|\d+\(\_\.\+\_\))+$
-#       mode: asplain
-#   bgp_community:
-#     enable: true
-#     regex:
-#       decimal: ^[0-9]{1,10}$
-#       extended_as: ^([0-9]{0,5})\:([0-9]{1,5})$
-#       large: ^([0-9]{1,10})\:([0-9]{1,10})\:[0-9]{1,10}$
-#   bgp_route:
-#     enable: true
-#   cache:
-#     redis_id: 0
-#     show_text: true
-#     text: Results will be cached for 2 minutes.
-#     timeout: 120
-#   max_prefix:
-#     enable: false
-#     ipv4: 24
-#     ipv6: 64
-#     message: Prefix length must be smaller than /{m}. <b>{i}</b> is too specific.
-#   ping:
-#     enable: true
-#   rate_limit:
-#     query:
-#       button: Try Again
-#       message: Query limit of 5 per minute reached. Please wait one minute and try
-#         again.
-#       period: minute
-#       rate: 5
-#       title: Query Limit Reached
-#     redis_id: 1
-#     site:
-#       button: Try Again
-#       period: minute
-#       rate: 60
-#       subtitle: You have accessed this site more than 60 times in the last minute.
-#       title: Limit Reached
-#   traceroute:
-#     enable: true
-
+# cache:
+#   database: 0
+#   host: localhost
+#   port: 6379
+#   show_text: true
+#   timeout: 120
+# cors_origins: []
+# debug: false
+# developer_mode: false
+# docs:
+#   base_url: https://lg.example.net
+#   description: ''
+#   devices:
+#     description: List of all devices/locations with associated identifiers, display
+#       names, networks, & VRFs.
+#     summary: Devices List
+#     title: Devices
+#   enable: true
+#   mode: redoc
+#   openapi_uri: /openapi.json
+#   queries:
+#     description: List of supported query types.
+#     summary: Query Types
+#     title: Supported Queries
+#   query:
+#     description: Request a query response per-location.
+#     summary: Query the Looking Glass
+#     title: Submit Query
+#   title: '{site_title} API Documentation'
+#   uri: /api/docs
+# listen_address: localhost
+# listen_port: 8001
+# log_file: /tmp/hyperglass_20202919-172921.log
 # messages:
 #   acl_denied: '{target} is a member of {denied_network}, which is not allowed.'
 #   acl_not_allowed: '{target} is not allowed.'
 #   authentication_error: Authentication error occurred.
 #   connection_error: 'Error connecting to {device_name}: {error}'
-#   directed_cidr: '{query_type} queries can not be in CIDR format.'
 #   feature_not_enabled: '{feature} is not enabled for {device_name}.'
 #   general: Something went wrong.
 #   invalid_field: '{input} is an invalid {field}.'
 #   invalid_input: '{target} is not a valid {query_type} target.'
-#   max_prefix: Prefix length must be shorter than /{max_length}. {target} is too specific.
 #   no_input: '{field} must be specified.'
-#   no_matching_vrfs: No VRFs Match
 #   no_output: No output.
-#   noresponse_error: No response.
+#   no_response: No response.
 #   request_timeout: Request timed out.
-#   requires_ipv6_cidr: '{device_name} requires IPv6 BGP lookups to be in CIDR notation.'
 #   vrf_not_associated: VRF {vrf_name} is not associated with {device_name}.
+#   vrf_not_found: VRF {vrf_name} is not defined.
+# org_name: Beloved Hyperglass User
+# primary_asn: '65001'
+# queries:
+#   bgp_aspath:
+#     display_name: BGP AS Path
+#     enable: true
+#     pattern:
+#       asdot: ^(\^|^\_)((\d+\.\d+)\_|(\d+\.\d+)\$|(\d+\.\d+)\(\_\.\+\_\))+$
+#       asplain: ^(\^|^\_)(\d+\_|\d+\$|\d+\(\_\.\+\_\))+$
+#       mode: asplain
+#   bgp_community:
+#     display_name: BGP Community
+#     enable: true
+#     pattern:
+#       decimal: ^[0-9]{1,10}$
+#       extended_as: ^([0-9]{0,5})\:([0-9]{1,5})$
+#       large: ^([0-9]{1,10})\:([0-9]{1,10})\:[0-9]{1,10}$
+#   bgp_route:
+#     display_name: BGP Route
+#     enable: true
+#   ping:
+#     display_name: Ping
+#     enable: true
+#   traceroute:
+#     display_name: Traceroute
+#     enable: true
+# request_timeout: 30
+# site_description: Beloved Hyperglass User Network Looking Glass
+# site_keywords:
+# - hyperglass
+# - looking glass
+# - lg
+# - peer
+# - peering
+# - ipv4
+# - ipv6
+# - transit
+# - community
+# - communities
+# - bgp
+# - routing
+# - network
+# - isp
+# site_title: hyperglass
+# web:
+#   credit:
+#     enable: true
+#   dns_provider:
+#     name: cloudflare
+#     url: https://cloudflare-dns.com/dns-query
+#   external_link:
+#     enable: true
+#     title: PeeringDB
+#     url: https://www.peeringdb.com/asn/{primary_asn}
+#   help_menu:
+#     enable: true
+#     file: null
+#     title: Help
+#   logo:
+#     dark: images/hyperglass-dark.png
+#     favicons: ui/images/favicons/
+#     height: null
+#     light: images/hyperglass-light.png
+#     width: 384
+#   opengraph:
+#     height: 1132
+#     image: images/hyperglass-opengraph.png
+#     width: 7355
+#   terms:
+#     enable: true
+#     file: null
+#     title: Terms
+#   text:
+#     cache: Results will be cached for 2 minutes.
+#     fqdn_tooltip: Use {protocol}
+#     query_location: Location
+#     query_target: Target
+#     query_type: Query Type
+#     query_vrf: Routing Table
+#     subtitle: AS65001
+#     title: hyperglass
+#     title_mode: logo_only
+#   theme:
+#     colors:
+#       black: '#262626'
+#       blue: '#314cb6'
+#       cyan: '#118ab2'
+#       danger: '#d84b4b'
+#       error: '#ff6b35'
+#       gray: '#c1c7cc'
+#       green: '#35b246'
+#       orange: '#ff6b35'
+#       pink: '#f2607d'
+#       primary: '#118ab2'
+#       purple: '#8d30b5'
+#       red: '#d84b4b'
+#       secondary: '#314cb6'
+#       success: '#35b246'
+#       teal: '#35b299'
+#       warning: '#edae49'
+#       white: '#f7f7f7'
+#       yellow: '#edae49'
+#     fonts:
+#       body: Nunito
+#       mono: Fira Code
