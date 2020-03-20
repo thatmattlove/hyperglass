@@ -38,11 +38,16 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
         return labelBgStatus[value === queryTarget];
     };
 
+    const findAnswer = data => {
+        return data?.Answer?.filter(answerData => answerData.type === data.Question[0].type)[0]
+            .data;
+    };
+
     useEffect(() => {
-        if (data6 && data6.Answer && data6.Answer[0].type === 28) {
-            handleOverride(data6.Answer[0].data);
-        } else if (data4 && data4.Answer && data4.Answer[0].type === 1 && !data6?.Answer) {
-            handleOverride(data4.Answer[0].data);
+        if (data6 && data6.Answer) {
+            handleOverride(findAnswer(data6));
+        } else if (data4 && data4.Answer && !data6?.Answer) {
+            handleOverride(findAnswer(data4));
         }
     }, [data4, data6]);
     return (
@@ -54,7 +59,7 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
         >
             {loading4 ||
                 error4 ||
-                (data4?.Answer?.[0] && (
+                (findAnswer(data4) && (
                     <Tag>
                         <Tooltip
                             hasArrow
@@ -68,25 +73,25 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
                                 py="0.1rem"
                                 px={2}
                                 mr={2}
-                                variantColor={labelBgStatus[data4.Answer[0].data === queryTarget]}
+                                variantColor={labelBgStatus[findAnswer(data4) === queryTarget]}
                                 borderRadius="md"
-                                onClick={() => handleOverride(data4.Answer[0].data)}
+                                onClick={() => handleOverride(findAnswer(data4))}
                             >
                                 IPv4
                             </Button>
                         </Tooltip>
                         {loading4 && <Spinner />}
                         {error4 && <Icon name="warning" />}
-                        {data4?.Answer?.[0] && (
+                        {findAnswer(data4) && (
                             <Text fontSize="xs" fontFamily="mono" as="span" fontWeight={400}>
-                                {data4.Answer[0].data}
+                                {findAnswer(data4)}
                             </Text>
                         )}
                     </Tag>
                 ))}
             {loading6 ||
                 error6 ||
-                (data6?.Answer?.[0] && (
+                (findAnswer(data6) && (
                     <Tag>
                         <Tooltip
                             hasArrow
@@ -100,18 +105,18 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
                                 py="0.1rem"
                                 px={2}
                                 mr={2}
-                                variantColor={isSelected(data6.Answer[0].data)}
+                                variantColor={isSelected(findAnswer(data6))}
                                 borderRadius="md"
-                                onClick={() => handleOverride(data6.Answer[0].data)}
+                                onClick={() => handleOverride(findAnswer(data6))}
                             >
                                 IPv6
                             </Button>
                         </Tooltip>
                         {loading6 && <Spinner />}
                         {error6 && <Icon name="warning" />}
-                        {data6?.Answer?.[0] && (
+                        {findAnswer(data6) && (
                             <Text fontSize="xs" fontFamily="mono" as="span" fontWeight={400}>
-                                {data6.Answer[0].data}
+                                {findAnswer(data6)}
                             </Text>
                         )}
                     </Tag>
