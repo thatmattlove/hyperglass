@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 # Third Party
-from pydantic import BaseModel
+from pydantic import HttpUrl, BaseModel
 
 
 def clean_name(_name):
@@ -30,8 +30,6 @@ def clean_name(_name):
 class HyperglassModel(BaseModel):
     """Base model for all hyperglass configuration models."""
 
-    pass
-
     class Config:
         """Default Pydantic configuration.
 
@@ -42,6 +40,34 @@ class HyperglassModel(BaseModel):
         extra = "forbid"
         validate_assignment = True
         alias_generator = clean_name
+        json_encoders = {HttpUrl: lambda v: str(v)}
+
+    def export_json(self, *args, **kwargs):
+        """Return instance as JSON.
+
+        Returns:
+            {str} -- Stringified JSON.
+        """
+        return self.json(by_alias=True, exclude_unset=False, *args, **kwargs)
+
+    def export_dict(self, *args, **kwargs):
+        """Return instance as dictionary.
+
+        Returns:
+            {dict} -- Python dictionary.
+        """
+        return self.dict(by_alias=True, exclude_unset=False, *args, **kwargs)
+
+    def export_yaml(self, *args, **kwargs):
+        """Return instance as YAML.
+
+        Returns:
+            {str} -- Stringified YAML.
+        """
+        import json
+        import yaml
+
+        return yaml.safe_dump(json.loads(self.export_json(*args, **kwargs)))
 
 
 class HyperglassModelExtra(HyperglassModel):
