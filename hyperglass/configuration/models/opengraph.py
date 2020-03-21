@@ -35,7 +35,7 @@ class OpenGraph(HyperglassModel):
         supported_extensions = (".jpg", ".jpeg", ".png")
         if (
             values["image"] is not None
-            and values["image"].suffix not in supported_extensions
+            and Path(values["image"]).suffix not in supported_extensions
         ):
             raise ValueError(
                 "OpenGraph image must be one of {e}".format(

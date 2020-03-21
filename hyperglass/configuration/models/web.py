@@ -204,6 +204,7 @@ class DnsOverHttps(HyperglassLevel3):
     """Validation model for DNS over HTTPS resolution."""
 
     name: constr(regex="|".join(DNS_OVER_HTTPS.keys())) = "cloudflare"
+    url: StrictStr = ""
 
     @root_validator
     def validate_dns(cls, values):
