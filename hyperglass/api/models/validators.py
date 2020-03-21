@@ -91,6 +91,25 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
         )
 
     ip_version = valid_ip.version
+
+    vrf_acl = operator.attrgetter(f"ipv{ip_version}.access_list")(query_vrf)
+
+    for ace in [a for a in vrf_acl if a.network.version == ip_version]:
+        if _member_of(valid_ip, ace.network):
+            if query_type == "bgp_route" and _prefix_range(valid_ip, ace.ge, ace.le):
+                pass
+
+            if ace.action == "permit":
+                log.debug(
+                    "{t} is allowed by access-list {a}", t=str(valid_ip), a=repr(ace)
+                )
+                break
+            elif ace.action == "deny":
+                raise InputNotAllowed(
+                    params.messages.acl_denied,
+                    target=str(valid_ip),
+                    denied_network=str(ace.network),
+                )
     if valid_ip.num_addresses == 1:
 
         if query_type in ("ping", "traceroute"):
@@ -121,25 +140,6 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
             )
 
             valid_ip = new_ip
-
-    vrf_acl = operator.attrgetter(f"ipv{ip_version}.access_list")(query_vrf)
-
-    for ace in [a for a in vrf_acl if a.network.version == ip_version]:
-        if _member_of(valid_ip, ace.network):
-            if query_type == "bgp_route" and _prefix_range(valid_ip, ace.ge, ace.le):
-                pass
-
-            if ace.action == "permit":
-                log.debug(
-                    "{t} is allowed by access-list {a}", t=str(valid_ip), a=repr(ace)
-                )
-                break
-            elif ace.action == "deny":
-                raise InputNotAllowed(
-                    params.messages.acl_denied,
-                    target=str(valid_ip),
-                    denied_network=str(ace.network),
-                )
     log.debug("Validation passed for {ip}", ip=value)
     return valid_ip
 
