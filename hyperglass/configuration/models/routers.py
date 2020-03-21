@@ -1,23 +1,21 @@
 """Validate router configuration variables."""
 
 # Standard Library
+import os
 import re
 from typing import List, Optional
+from pathlib import Path
 
 # Third Party
 from pydantic import StrictInt, StrictStr, validator
 
 # Project
-from hyperglass.util import log
+from hyperglass.util import log, clean_name
 from hyperglass.constants import Supported
 from hyperglass.exceptions import ConfigError, UnsupportedDevice
 from hyperglass.configuration.models.ssl import Ssl
 from hyperglass.configuration.models.vrfs import Vrf, Info
-from hyperglass.configuration.models._utils import (
-    HyperglassModel,
-    HyperglassModelExtra,
-    clean_name,
-)
+from hyperglass.configuration.models._utils import HyperglassModel, HyperglassModelExtra
 from hyperglass.configuration.models.proxies import Proxy
 from hyperglass.configuration.models.commands import Command
 from hyperglass.configuration.models.networks import Network
@@ -72,7 +70,7 @@ class Router(HyperglassModel):
         return value
 
     @validator("name")
-    def clean_name(cls, value):
+    def validate_name(cls, value):
         """Remove or replace unsupported characters from field values.
 
         Arguments:
@@ -82,6 +80,27 @@ class Router(HyperglassModel):
             {} -- Valid name/location
         """
         return clean_name(value)
+
+    @validator("ssl")
+    def validate_ssl(cls, value, values):
+        """Set default cert file location if undefined.
+
+        Arguments:
+            value {object} -- SSL object
+            values {dict} -- Other already-valiated fields
+
+        Returns:
+            {object} -- SSL configuration
+        """
+        if value is not None:
+            if value.enable and value.cert is None:
+                app_path = Path(os.environ["hyperglass_directory"])
+                cert_file = app_path / "certs" / f'{values["name"]}.pem'
+                if not cert_file.exists():
+                    log.warning("No certificate found for device {d}", d=values["name"])
+                    cert_file.touch()
+                value.cert = cert_file
+        return value
 
     @validator("commands", always=True)
     def validate_commands(cls, value, values):

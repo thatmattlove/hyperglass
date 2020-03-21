@@ -4,8 +4,9 @@
 from pydantic import StrictInt, StrictStr, validator
 
 # Project
+from hyperglass.util import clean_name
 from hyperglass.exceptions import UnsupportedDevice
-from hyperglass.configuration.models._utils import HyperglassModel, clean_name
+from hyperglass.configuration.models._utils import HyperglassModel
 from hyperglass.configuration.models.credentials import Credential
 
 

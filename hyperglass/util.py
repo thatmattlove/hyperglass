@@ -27,6 +27,26 @@ def cpu_count():
     return multiprocessing.cpu_count()
 
 
+def clean_name(_name):
+    """Remove unsupported characters from field names.
+
+    Converts any "desirable" seperators to underscore, then removes all
+    characters that are unsupported in Python class variable names.
+    Also removes leading numbers underscores.
+
+    Arguments:
+        _name {str} -- Initial field name
+
+    Returns:
+        {str} -- Cleaned field name
+    """
+    import re
+
+    _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", _name)
+    _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
+    return _scrubbed.lower()
+
+
 async def check_path(path, mode="r"):
     """Verify if a path exists and is accessible.
 
@@ -511,4 +531,47 @@ def set_app_path(required=False):
         )
 
     os.environ["hyperglass_directory"] = str(matched_path)
+    return True
+
+
+def import_public_key(app_path, device_name, keystring):
+    """Import a public key for hyperglass-agent.
+
+    Arguments:
+        app_path {Path|str} -- hyperglass app path
+        device_name {str} -- Device name
+        keystring {str} -- Public key
+
+    Raises:
+        RuntimeError: Raised if unable to create certs directory
+        RuntimeError: Raised if written key does not match input
+
+    Returns:
+        {bool} -- True if file was written
+    """
+    import re
+    from pathlib import Path
+
+    if not isinstance(app_path, Path):
+        app_path = Path(app_path)
+
+    cert_dir = app_path / "certs"
+
+    if not cert_dir.exists():
+        cert_dir.mkdir()
+
+    if not cert_dir.exists():
+        raise RuntimeError(f"Failed to create certs directory at {str(cert_dir)}")
+
+    filename = re.sub(r"[^A-Za-z0-9]", "_", device_name) + ".pem"
+    cert_file = cert_dir / filename
+
+    with cert_file.open("w+") as file:
+        file.write(str(keystring))
+
+    with cert_file.open("r") as file:
+        read_file = file.read().strip()
+        if not keystring == read_file:
+            raise RuntimeError("Wrote key, but written file did not match input key")
+
     return True

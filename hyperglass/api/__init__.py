@@ -15,11 +15,11 @@ from starlette.middleware.cors import CORSMiddleware
 
 # Project
 from hyperglass.util import log
-from hyperglass.constants import __version__
+from hyperglass.constants import TRANSPORT_REST, __version__
 from hyperglass.api.events import on_startup, on_shutdown
-from hyperglass.api.routes import docs, query, queries, routers
+from hyperglass.api.routes import docs, query, queries, routers, import_certificate
 from hyperglass.exceptions import HyperglassError
-from hyperglass.configuration import URL_DEV, STATIC_PATH, params
+from hyperglass.configuration import URL_DEV, STATIC_PATH, params, devices
 from hyperglass.api.error_handlers import (
     app_handler,
     http_handler,
@@ -199,6 +199,18 @@ app.add_api_route(
     tags=[params.docs.query.title],
     response_class=UJSONResponse,
 )
+
+# Enable certificate import route only if a device using
+# hyperglass-agent is defined.
+for device in devices.routers:
+    if device.nos in TRANSPORT_REST:
+        app.add_api_route(
+            path="/api/import-agent-certificate/",
+            endpoint=import_certificate,
+            methods=["POST"],
+            include_in_schema=False,
+        )
+        break
 
 if params.docs.enable:
     app.add_api_route(path=params.docs.uri, endpoint=docs, include_in_schema=False)

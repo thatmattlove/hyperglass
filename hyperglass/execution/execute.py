@@ -23,6 +23,7 @@ from netmiko import (
 
 # Project
 from hyperglass.util import log
+from hyperglass.encode import jwt_decode, jwt_encode
 from hyperglass.constants import Supported
 from hyperglass.exceptions import (
     AuthError,
@@ -32,7 +33,6 @@ from hyperglass.exceptions import (
     ResponseEmpty,
 )
 from hyperglass.configuration import params, devices
-from hyperglass.execution.encode import jwt_decode, jwt_encode
 from hyperglass.execution.construct import Construct
 
 
@@ -258,6 +258,14 @@ class Connect:
             "timeout": params.request_timeout,
         }
         if self.device.ssl is not None and self.device.ssl.enable:
+            with self.device.ssl.cert.open("r") as file:
+                cert = file.read()
+                if not cert:
+                    raise RestError(
+                        "SSL Certificate for device {d} has not been imported",
+                        level="danger",
+                        d=self.device.display_name,
+                    )
             http_protocol = "https"
             client_params.update({"verify": str(self.device.ssl.cert)})
             log.debug(

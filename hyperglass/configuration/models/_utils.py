@@ -8,23 +8,8 @@ from pathlib import Path
 # Third Party
 from pydantic import HttpUrl, BaseModel
 
-
-def clean_name(_name):
-    """Remove unsupported characters from field names.
-
-    Converts any "desirable" seperators to underscore, then removes all
-    characters that are unsupported in Python class variable names.
-    Also removes leading numbers underscores.
-
-    Arguments:
-        _name {str} -- Initial field name
-
-    Returns:
-        {str} -- Cleaned field name
-    """
-    _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", _name)
-    _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
-    return _scrubbed.lower()
+# Project
+from hyperglass.util import clean_name
 
 
 class HyperglassModel(BaseModel):
@@ -105,6 +90,49 @@ class AnyUri(str):
     def __repr__(self):
         """Stringify custom field representation."""
         return f"AnyUri({super().__repr__()})"
+
+
+class StrictBytes(bytes):
+    """Custom data type for a strict byte string.
+
+    Used for validating the encoded JWT request payload.
+    """
+
+    @classmethod
+    def __get_validators__(cls):
+        """Yield Pydantic validator function.
+
+        See: https://pydantic-docs.helpmanual.io/usage/types/#custom-data-types
+
+        Yields:
+            {function} -- Validator
+        """
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value):
+        """Validate type.
+
+        Arguments:
+            value {Any} -- Pre-validated input
+
+        Raises:
+            TypeError: Raised if value is not bytes
+
+        Returns:
+            {object} -- Instantiated class
+        """
+        if not isinstance(value, bytes):
+            raise TypeError("bytes required")
+        return cls()
+
+    def __repr__(self):
+        """Return representation of object.
+
+        Returns:
+            {str} -- Representation
+        """
+        return f"StrictBytes({super().__repr__()})"
 
 
 def validate_image(value):
