@@ -275,7 +275,7 @@ class Connect:
         log.debug(f"URL endpoint: {endpoint}")
 
         try:
-            async with httpx.Client(**client_params) as http_client:
+            async with httpx.AsyncClient(**client_params) as http_client:
                 responses = []
 
                 for query in self.query:
