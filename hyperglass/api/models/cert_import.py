@@ -10,5 +10,7 @@ from hyperglass.configuration.models._utils import StrictBytes
 
 
 class EncodedRequest(BaseModel):
+    """Certificate request model."""
+
     device: StrictStr
     encoded: Union[StrictStr, StrictBytes]
