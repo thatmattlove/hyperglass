@@ -9,6 +9,7 @@ hyperglass-frr API calls, returns the output back to the front end.
 # Standard Library
 import re
 import signal
+from ssl import CertificateError
 
 # Third Party
 import httpx
@@ -249,7 +250,7 @@ class Connect:
         signal.alarm(0)
         return response
 
-    async def rest(self):
+    async def rest(self):  # noqa: C901
         """Connect to a device running hyperglass-agent via HTTP."""
         log.debug(f"Query parameters: {self.query}")
 
@@ -319,7 +320,7 @@ class Connect:
             rest_msg = " ".join(
                 re.findall(r"[A-Z][^A-Z]*", rest_error.__class__.__name__)
             )
-            log.error(f"Error connecting to device {self.device.location}: {rest_msg}")
+            log.error(f"Error connecting to device {self.device.name}: {rest_msg}")
             raise RestError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,
@@ -331,6 +332,16 @@ class Connect:
                 params.messages.connection_error,
                 device_name=self.device.display_name,
                 error="System error",
+            )
+        except CertificateError as cert_error:
+            log.critical(str(cert_error))
+            msg_summary = " ".join(
+                re.findall(r"[A-Z][^A-Z]*", cert_error.__class__.__name__)
+            )
+            raise RestError(
+                params.messages.connection_error,
+                device_name=self.device.display_name,
+                error=f"{msg_summary}: {cert_error}",
             )
 
         if raw_response.status_code != 200:
