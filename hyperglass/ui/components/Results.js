@@ -117,6 +117,7 @@ const Results = ({ queryLocation, queryType, queryVrf, queryTarget, setSubmittin
                 overflow="hidden"
             >
                 <Accordion
+                    allowMultiple
                     initial={{ opacity: 1 }}
                     transition={{ duration: 0.3 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -138,6 +139,7 @@ const Results = ({ queryLocation, queryType, queryVrf, queryTarget, setSubmittin
                                     queryVrf={queryVrf}
                                     queryTarget={queryTarget}
                                     setSubmitting={setSubmitting}
+                                    index={i}
                                 />
                             ))}
                     </AnimatePresence>

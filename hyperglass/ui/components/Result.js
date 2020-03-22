@@ -45,7 +45,7 @@ const AccordionHeaderWrapper = styled(Flex)`
 const statusMap = { success: "success", warning: "warning", error: "warning", danger: "error" };
 
 const Result = React.forwardRef(
-    ({ device, timeout, queryLocation, queryType, queryVrf, queryTarget }, ref) => {
+    ({ device, timeout, queryLocation, queryType, queryVrf, queryTarget, index }, ref) => {
         const config = useConfig();
         const theme = useTheme();
         const { colorMode } = useColorMode();
@@ -93,6 +93,7 @@ const Result = React.forwardRef(
 
         return (
             <AccordionItem
+                defaultIsOpen={index === 0 ? true : false}
                 isDisabled={loading}
                 ref={ref}
                 css={css({
