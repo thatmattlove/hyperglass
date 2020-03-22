@@ -76,13 +76,11 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
             query_type=query_type_params.display_name,
         )
 
-    """
-    Test the valid IP address to determine if it is:
-      - Unspecified (See RFC5735, RFC2373)
-      - Loopback (See RFC5735, RFC2373)
-      - Otherwise IETF Reserved
-    ...and returns an error if so.
-    """
+    # Test the valid IP address to determine if it is:
+    #  - Unspecified (See RFC5735, RFC2373)
+    #  - Loopback (See RFC5735, RFC2373)
+    #  - Otherwise IETF Reserved
+    # ...and returns an error if so.
     if valid_ip.is_reserved or valid_ip.is_unspecified or valid_ip.is_loopback:
         raise InputInvalid(
             params.messages.invalid_input,
@@ -91,6 +89,13 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
         )
 
     ip_version = valid_ip.version
+
+    if getattr(query_vrf, f"ipv{ip_version}") is None:
+        raise InputInvalid(
+            params.messages.feature_not_enabled,
+            feature=f"IPv{ip_version}",
+            device_name=f"VRF {query_vrf.display_name}",
+        )
 
     vrf_acl = operator.attrgetter(f"ipv{ip_version}.access_list")(query_vrf)
 
