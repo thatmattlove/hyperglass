@@ -10,7 +10,7 @@ from hyperglass.util import (
     build_frontend,
     clear_redis_cache,
 )
-from hyperglass.constants import MIN_PYTHON_VERSION
+from hyperglass.constants import MIN_PYTHON_VERSION, __version__
 from hyperglass.exceptions import HyperglassError
 from hyperglass.configuration import (
     URL_DEV,
@@ -20,6 +20,12 @@ from hyperglass.configuration import (
     params,
     frontend_params,
 )
+
+
+async def log_hyperglass_version():
+    """Log the hyperglass version on startup."""
+    log.info(f"hyperglass version is {__version__}")
+    return True
 
 
 async def check_python_version():
@@ -85,5 +91,10 @@ async def clear_cache():
         pass
 
 
-on_startup = [check_python_version, check_redis_instance, build_ui]
+on_startup = [
+    log_hyperglass_version,
+    check_python_version,
+    check_redis_instance,
+    build_ui,
+]
 on_shutdown = [clear_cache]
