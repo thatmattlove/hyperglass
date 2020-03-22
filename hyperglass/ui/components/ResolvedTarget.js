@@ -3,6 +3,7 @@ import { Button, Icon, Spinner, Stack, Tag, Text, Tooltip, useColorMode } from "
 import useAxios from "axios-hooks";
 import format from "string-format";
 import useConfig from "~/components/HyperglassProvider";
+import useMedia from "~/components/MediaProvider";
 
 format.extend(String.prototype, {});
 
@@ -11,6 +12,7 @@ const labelBgSuccess = { dark: "success", light: "success" };
 
 const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget }, ref) => {
     const { colorMode } = useColorMode();
+    const { mediaSize } = useMedia();
     const config = useConfig();
     const labelBgStatus = { true: labelBgSuccess[colorMode], false: labelBg[colorMode] };
     const dnsUrl = config.web.dns_provider.url;
@@ -56,11 +58,12 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
             isInline
             w="100%"
             justifyContent={data4?.Answer && data6?.Answer ? "space-between" : "flex-end"}
+            flexWrap="wrap"
         >
             {loading4 ||
                 error4 ||
                 (findAnswer(data4) && (
-                    <Tag>
+                    <Tag my={2}>
                         <Tooltip
                             hasArrow
                             label={config.web.text.fqdn_tooltip.format({ protocol: "IPv4" })}
@@ -92,7 +95,7 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
             {loading6 ||
                 error6 ||
                 (findAnswer(data6) && (
-                    <Tag>
+                    <Tag my={2}>
                         <Tooltip
                             hasArrow
                             label={config.web.text.fqdn_tooltip.format({ protocol: "IPv6" })}

@@ -1,5 +1,6 @@
 import React from "react";
 import { Button, Heading, Image, Stack, useColorMode } from "@chakra-ui/core";
+import { Textfit } from "react-textfit";
 import { motion, AnimatePresence } from "framer-motion";
 import useConfig from "~/components/HyperglassProvider";
 import useMedia from "~/components/MediaProvider";
@@ -16,13 +17,15 @@ const titleMargin = { true: 2, false: 0 };
 
 const TitleOnly = ({ text, showSubtitle }) => (
     <Heading as="h1" mb={titleMargin[showSubtitle]} size={titleSize[showSubtitle]}>
-        {text}
+        <Textfit mode="single">{text}</Textfit>
     </Heading>
 );
 
 const SubtitleOnly = React.forwardRef(({ text, size = "md", ...props }, ref) => (
     <Heading ref={ref} as="h3" size={size} {...props}>
-        {text}
+        <Textfit mode="single" max={20}>
+            {text}
+        </Textfit>
     </Heading>
 ));
 
@@ -31,7 +34,7 @@ const AnimatedSubtitle = motion.custom(SubtitleOnly);
 const textAlignment = { false: ["right", "center"], true: ["left", "center"] };
 
 const TextOnly = ({ text, mediaSize, showSubtitle, ...props }) => (
-    <Stack spacing={2} textAlign={textAlignment[showSubtitle]} {...props}>
+    <Stack spacing={2} maxW="100%" textAlign={textAlignment[showSubtitle]} {...props}>
         <TitleOnly text={text.title} showSubtitle={showSubtitle} />
         <AnimatePresence>
             {showSubtitle && <AnimatedSubtitle text={text.subtitle} {...subtitleAnimation} />}
@@ -85,7 +88,7 @@ export default React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
             _hover={{ textDecoration: "none" }}
             justifyContent={btnJustify[isSubmitting]}
             px={0}
-            maxW={["90%", "90%", "25%", "25%"]}
+            maxW="100%"
             {...props}
         >
             <MatchedMode

@@ -29,6 +29,7 @@
         "react-markdown": "^4.3.1",
         "react-select": "^3.0.8",
         "react-string-replace": "^0.4.4",
+        "react-textfit": "^1.1.0",
         "string-format": "^2.0.0",
         "styled-system": "^5.1.5",
         "use-media": "^1.4.0",

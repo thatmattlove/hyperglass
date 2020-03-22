@@ -61,6 +61,8 @@ export default ({ height, isSubmitting, handleFormReset, ...props }) => {
             justifyContent="center"
             mb={[null, isSubmitting ? "auto" : null]}
             mt={[null, isSubmitting ? null : "auto"]}
+            maxW="100%"
+            flex="1 0 0"
         >
             <Title isSubmitting={isSubmitting} onClick={handleFormReset} />
         </AnimatedFlex>
