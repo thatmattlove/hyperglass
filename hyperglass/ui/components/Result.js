@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     AccordionItem,
     AccordionHeader,
@@ -22,6 +22,9 @@ import ResultHeader from "~/components/ResultHeader";
 import { startCase } from "lodash";
 
 const FormattedError = ({ keywords, message }) => {
+    if (keywords === null || keywords === undefined) {
+        keywords = [];
+    }
     const patternStr = `(${keywords.join("|")})`;
     const pattern = new RegExp(patternStr, "gi");
     const errorFmt = strReplace(message, pattern, match => (
@@ -45,7 +48,20 @@ const AccordionHeaderWrapper = styled(Flex)`
 const statusMap = { success: "success", warning: "warning", error: "warning", danger: "error" };
 
 const Result = React.forwardRef(
-    ({ device, timeout, queryLocation, queryType, queryVrf, queryTarget, index }, ref) => {
+    (
+        {
+            device,
+            timeout,
+            queryLocation,
+            queryType,
+            queryVrf,
+            queryTarget,
+            index,
+            resultsComplete,
+            setComplete
+        },
+        ref
+    ) => {
         const config = useConfig();
         const theme = useTheme();
         const { colorMode } = useColorMode();
@@ -64,6 +80,14 @@ const Result = React.forwardRef(
             },
             timeout: timeout
         });
+
+        const [isOpen, setOpen] = useState(false);
+        const [hasOverride, setOverride] = useState(false);
+
+        const handleToggle = () => {
+            setOpen(!isOpen);
+            setOverride(true);
+        };
         const cleanOutput =
             data &&
             data.output
@@ -91,9 +115,16 @@ const Result = React.forwardRef(
         const errorLevel =
             (error?.response?.data?.level && statusMap[error.response?.data?.level]) ?? "error";
 
+        useEffect(() => {
+            !loading && resultsComplete === null && setComplete(index);
+        }, [loading, resultsComplete]);
+
+        useEffect(() => {
+            resultsComplete === index && !hasOverride && setOpen(true);
+        }, [resultsComplete, index]);
         return (
             <AccordionItem
-                defaultIsOpen={index === 0 ? true : false}
+                isOpen={isOpen}
                 isDisabled={loading}
                 ref={ref}
                 css={css({
@@ -102,7 +133,14 @@ const Result = React.forwardRef(
                 })}
             >
                 <AccordionHeaderWrapper hoverBg={theme.colors.blackAlpha[50]}>
-                    <AccordionHeader flex="1 0 auto" py={2} _hover={{}} _focus={{}} w="unset">
+                    <AccordionHeader
+                        flex="1 0 auto"
+                        py={2}
+                        _hover={{}}
+                        _focus={{}}
+                        w="unset"
+                        onClick={handleToggle}
+                    >
                         <ResultHeader
                             title={device.display_name}
                             loading={loading}

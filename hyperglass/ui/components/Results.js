@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Accordion, Box, Stack, useTheme } from "@chakra-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
 import Label from "~/components/Label";
@@ -54,7 +54,10 @@ const Results = ({ queryLocation, queryType, queryVrf, queryTarget, setSubmittin
     const config = useConfig();
     const theme = useTheme();
     const { mediaSize } = useMedia();
-    const matchedVrf = config.vrfs.filter(v => v.id === queryVrf)[0];
+    const matchedVrf =
+        config.vrfs.filter(v => v.id === queryVrf)[0] ??
+        config.vrfs.filter(v => v.id === "default")[0];
+    const [resultsComplete, setComplete] = useState(null);
     return (
         <>
             <Box
@@ -140,6 +143,8 @@ const Results = ({ queryLocation, queryType, queryVrf, queryTarget, setSubmittin
                                     queryTarget={queryTarget}
                                     setSubmitting={setSubmitting}
                                     index={i}
+                                    resultsComplete={resultsComplete}
+                                    setComplete={setComplete}
                                 />
                             ))}
                     </AnimatePresence>

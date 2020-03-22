@@ -58,6 +58,10 @@ const HyperglassForm = React.forwardRef(
         const [fqdnTarget, setFqdnTarget] = useState("");
         const [displayTarget, setDisplayTarget] = useState("");
         const onSubmit = values => {
+            if (values.query_vrf === undefined) {
+                values.query_vrf = "default";
+            }
+            console.log(values);
             setFormData(values);
             setSubmitting(true);
         };
@@ -136,7 +140,7 @@ const HyperglassForm = React.forwardRef(
                         </FormField>
                     </FormRow>
                     <FormRow>
-                        {availVrfs.length > 0 && (
+                        {availVrfs.length > 1 && (
                             <FormField
                                 label={config.web.text.query_vrf}
                                 name="query_vrf"
