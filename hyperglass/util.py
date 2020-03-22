@@ -413,10 +413,11 @@ async def build_frontend(  # noqa: C901
     from pathlib import Path
     from aiofile import AIOFile
     import ujson as json
+    from hyperglass.constants import __version__
 
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
 
-    env_vars = {"_HYPERGLASS_CONFIG_": params}
+    env_vars = {"_HYPERGLASS_CONFIG_": params, "_HYPERGLASS_VERSION_": __version__}
 
     # Set NextJS production/development mode and base URL based on
     # developer_mode setting.
