@@ -114,8 +114,12 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
                     target=str(valid_ip),
                     denied_network=str(ace.network),
                 )
+
+    # Handling logic for host queries, e.g. 192.0.2.1 vs. 192.0.2.0/24
     if valid_ip.num_addresses == 1:
 
+        # For a host query with ping or traceroute query types, convert
+        # the query_target to an IP address instead of a network.
         if query_type in ("ping", "traceroute"):
             new_ip = valid_ip.network_address
 
@@ -128,6 +132,10 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 
             valid_ip = new_ip
 
+        # For a host query with bgp_route query type and force_cidr
+        # enabled (the default), convert the host query to a network
+        # query, using the highest allowed prefix length in the VRF's
+        # access-list for the address-family.
         elif query_type in ("bgp_route",) and vrf_afi.force_cidr:
             max_le = max(
                 ace.le
@@ -144,6 +152,12 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
             )
 
             valid_ip = new_ip
+
+        # For a host query with bgp_route query type and force_cidr
+        # disabled, convert the host query to a single IP address.
+        elif query_type in ("bgp_route",) and not vrf_afi.force_cidr:
+
+            valid_ip = valid_ip.network_address
 
     log.debug("Validation passed for {ip}", ip=value)
     return valid_ip
