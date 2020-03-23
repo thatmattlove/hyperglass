@@ -61,7 +61,6 @@ const HyperglassForm = React.forwardRef(
             if (values.query_vrf === undefined) {
                 values.query_vrf = "default";
             }
-            console.log(values);
             setFormData(values);
             setSubmitting(true);
         };
