@@ -68,6 +68,12 @@ const All = ({ text, logo, mediaSize, showSubtitle }) => (
 );
 
 const modeMap = { text_only: TextOnly, logo_only: Logo, logo_title: LogoTitle, all: All };
+const widthMap = {
+    text_only: "100%",
+    logo_only: ["90%", "90%", "25%", "25%"],
+    logo_title: ["90%", "90%", "25%", "25%"],
+    all: ["90%", "90%", "25%", "25%"]
+};
 
 const btnJustify = {
     true: ["flex-end", "center"],
@@ -88,7 +94,7 @@ export default React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
             _hover={{ textDecoration: "none" }}
             justifyContent={btnJustify[isSubmitting]}
             px={0}
-            maxW="100%"
+            maxW={widthMap[titleMode]}
             {...props}
         >
             <MatchedMode
