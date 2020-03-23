@@ -24,6 +24,7 @@ from hyperglass.constants import (
     DEFAULT_DETAILS,
     LOG_HANDLER_FILE,
     SUPPORTED_QUERY_TYPES,
+    __version__,
 )
 from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
 from hyperglass.configuration.models import params as _params
@@ -437,6 +438,7 @@ _frontend_fields = {
 _frontend_params = params.dict(include=_frontend_fields)
 _frontend_params.update(
     {
+        "hyperglass_version": __version__,
         "queries": {**params.queries.map, "list": params.queries.list},
         "devices": frontend_devices,
         "networks": networks,

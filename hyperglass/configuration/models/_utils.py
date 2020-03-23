@@ -151,8 +151,7 @@ def validate_image(value):
 
     if base_path[0] not in ("images", "custom"):
         raise ValueError(
-            "Logo files must be in the 'custom/' directory of your hyperglass directory. Got: {f}",
-            f=value,
+            f"Logo files must be in the 'custom/' directory of your hyperglass directory. Got: {value}"
         )
 
     if base_path[0] == "custom":
@@ -160,6 +159,6 @@ def validate_image(value):
         custom_file = config_path / "static" / value
 
         if not custom_file.exists():
-            raise ValueError("'{f}' does not exist", f=str(custom_file))
+            raise ValueError(f"'{str(custom_file)}' does not exist")
 
     return value
