@@ -86,6 +86,28 @@ class Query(BaseModel):
         """Create SHA256 hash digest of model representation."""
         return hashlib.sha256(repr(self).encode()).hexdigest()
 
+    @validator("query_type")
+    def validate_query_type(cls, value):
+        """Ensure query_type is enabled.
+
+        Arguments:
+            value {str} -- Query Type
+
+        Raises:
+            InputInvalid: Raised if query_type is disabled.
+
+        Returns:
+            {str} -- Valid query_type
+        """
+        query_type_obj = getattr(params.queries, value)
+        if not query_type_obj.enable:
+            raise InputInvalid(
+                params.messages.feature_not_enabled,
+                level="warning",
+                feature=query_type_obj.display_name,
+            )
+        return value
+
     @validator("query_location")
     def validate_query_location(cls, value):
         """Ensure query_location is defined.

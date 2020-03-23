@@ -28,9 +28,9 @@ class Messages(HyperglassModel):
         description="Displayed when a query target is implicitly denied by a matched VRF's ACL. `{target}` may be used to display the denied query target.",
     )
     feature_not_enabled: StrictStr = Field(
-        "{feature} is not enabled for {device_name}.",
+        "{feature} is not enabled.",
         title="Feature Not Enabled",
-        description="Displayed when a query type is submitted that is not supported or disabled. The hyperglass UI performs validation of supported query types prior to submitting any requests, so this is primarily relevant to the hyperglass API. `{feature}` and `{device_name}` may be used to display the disabled feature and the selected device/location.",
+        description="Displayed when a query type is submitted that is not supported or disabled. The hyperglass UI performs validation of supported query types prior to submitting any requests, so this is primarily relevant to the hyperglass API. `{feature}` may be used to display the disabled feature.",
     )
     invalid_input: StrictStr = Field(
         "{target} is not a valid {query_type} target.",
