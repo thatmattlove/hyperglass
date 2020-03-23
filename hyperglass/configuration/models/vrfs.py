@@ -179,7 +179,7 @@ class DeviceVrf4(HyperglassModelExtra):
 
     source_address: IPv4Address
     access_list: List[AccessList4] = [AccessList4()]
-    force_cidr: StrictBool = False
+    force_cidr: StrictBool = True
 
 
 class DeviceVrf6(HyperglassModelExtra):
@@ -187,7 +187,7 @@ class DeviceVrf6(HyperglassModelExtra):
 
     source_address: IPv6Address
     access_list: List[AccessList6] = [AccessList6()]
-    force_cidr: StrictBool = False
+    force_cidr: StrictBool = True
 
 
 class Vrf(HyperglassModel):

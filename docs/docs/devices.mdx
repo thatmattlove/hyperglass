@@ -92,7 +92,7 @@ May be set to `null` to disable IPv6 for this VRF, on the parent device.
 | Parameter             |  Type   | Default | Description                                                                                                                     |
 | :-------------------- | :-----: | :------ | :------------------------------------------------------------------------------------------------------------------------------ |
 | <R/> `source_address` | String  |         | Device's source IPv6 address for directed queries (ping, traceroute).                                                           |
-| `force_cidr`          | Boolean | `false` | Convert host queries to the highest allowed prefix-length (defined in the <Link to="#access-list"><Code>le</Code></Link> field) |
+| `force_cidr`          | Boolean | `true`  | Convert host queries to the highest allowed prefix-length (defined in the <Link to="#access-list"><Code>le</Code></Link> field) |
 | `access_list`         |         |         | <Link to="#access_list">IPv6 Access List Configuration</Link>                                                                   |
 
 #### `access_list`

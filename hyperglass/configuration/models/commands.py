@@ -69,7 +69,7 @@ class Commands(HyperglassModel):
         """
         obj = Commands()
         for (nos, cmds) in input_params.items():
-            setattr(Commands, nos, Command(**cmds))
+            setattr(obj, nos, Command(**cmds))
         return obj
 
     class CiscoIOS(Command):
@@ -182,26 +182,26 @@ class Commands(HyperglassModel):
             """Validation model for non-default ipv4 commands."""
 
             bgp_route: StrictStr = "show route protocol bgp table inet6.0 {target} detail"
-            bgp_aspath: StrictStr = 'show route protocol bgp aspath-regex "{target}"'
-            bgp_community: StrictStr = "show route protocol bgp community {target}"
+            bgp_aspath: StrictStr = 'show route protocol bgp table inet6.0 aspath-regex "{target}"'
+            bgp_community: StrictStr = "show route protocol bgp table inet6.0 community {target}"
             ping: StrictStr = "ping inet6 {target} count 5 source {source}"
             traceroute: StrictStr = "traceroute inet6 {target} wait 1 source {source}"
 
         class VPNIPv4(Command.VPNIPv4):
             """Validation model for non-default ipv6 commands."""
 
-            bgp_route: StrictStr = "show route protocol bgp table {vrf} {target} detail"
-            bgp_aspath: StrictStr = 'show route protocol bgp table {vrf} aspath-regex "{target}"'
-            bgp_community: StrictStr = "show route protocol bgp table {vrf} community {target}"
+            bgp_route: StrictStr = "show route protocol bgp table {vrf}.inet.0 {target} detail"
+            bgp_aspath: StrictStr = 'show route protocol bgp table {vrf}.inet.0 aspath-regex "{target}"'
+            bgp_community: StrictStr = "show route protocol bgp table {vrf}.inet.0 community {target}"
             ping: StrictStr = "ping inet routing-instance {vrf} {target} count 5 source {source}"
             traceroute: StrictStr = "traceroute inet routing-instance {vrf} {target} wait 1 source {source}"
 
         class VPNIPv6(Command.VPNIPv6):
             """Validation model for non-default ipv6 commands."""
 
-            bgp_route: StrictStr = "show route protocol bgp table {vrf} {target} detail"
-            bgp_aspath: StrictStr = 'show route protocol bgp table {vrf} aspath-regex "{target}"'
-            bgp_community: StrictStr = "show route protocol bgp table {vrf} community {target}"
+            bgp_route: StrictStr = "show route protocol bgp table {vrf}.inet6.0 {target} detail"
+            bgp_aspath: StrictStr = 'show route protocol bgp table {vrf}.inet6.0 aspath-regex "{target}"'
+            bgp_community: StrictStr = "show route protocol bgp table {vrf}.inet6.0 community {target}"
             ping: StrictStr = "ping inet6 routing-instance {vrf} {target} count 5 source {source}"
             traceroute: StrictStr = "traceroute inet6 routing-instance {vrf} {target} wait 1 source {source}"
 
