@@ -89,10 +89,11 @@ May be set to `null` to disable IPv4 for this VRF, on the parent device.
 
 May be set to `null` to disable IPv6 for this VRF, on the parent device.
 
-| Parameter             |  Type  | Description                                                           |
-| :-------------------- | :----: | :-------------------------------------------------------------------- |
-| <R/> `source_address` | String | Device's source IPv6 address for directed queries (ping, traceroute). |
-| `access_list`         |        | <Link to="#access_list">IPv6 Access List Configuration</Link>         |
+| Parameter             |  Type   | Default | Description                                                                                                                     |
+| :-------------------- | :-----: | :------ | :------------------------------------------------------------------------------------------------------------------------------ |
+| <R/> `source_address` | String  |         | Device's source IPv6 address for directed queries (ping, traceroute).                                                           |
+| `force_cidr`          | Boolean | `false` | Convert host queries to the highest allowed prefix-length (defined in the <Link to="#access-list"><Code>le</Code></Link> field) |
+| `access_list`         |         |         | <Link to="#access_list">IPv6 Access List Configuration</Link>                                                                   |
 
 #### `access_list`
 

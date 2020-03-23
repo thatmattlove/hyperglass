@@ -2,7 +2,6 @@
 
 # Standard Library
 import re
-import operator
 from ipaddress import ip_network
 
 # Project
@@ -97,9 +96,9 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
             device_name=f"VRF {query_vrf.display_name}",
         )
 
-    vrf_acl = operator.attrgetter(f"ipv{ip_version}.access_list")(query_vrf)
+    vrf_afi = getattr(query_vrf, f"ipv{ip_version}")
 
-    for ace in [a for a in vrf_acl if a.network.version == ip_version]:
+    for ace in [a for a in vrf_afi.access_list if a.network.version == ip_version]:
         if _member_of(valid_ip, ace.network):
             if query_type == "bgp_route" and _prefix_range(valid_ip, ace.ge, ace.le):
                 pass
@@ -129,7 +128,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 
             valid_ip = new_ip
 
-        elif query_type in ("bgp_route",):
+        elif query_type in ("bgp_route",) and vrf_afi.force_cidr:
             max_le = max(
                 ace.le
                 for ace in query_vrf[ip_version].access_list
@@ -145,6 +144,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
             )
 
             valid_ip = new_ip
+
     log.debug("Validation passed for {ip}", ip=value)
     return valid_ip
 
