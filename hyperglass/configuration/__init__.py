@@ -193,12 +193,11 @@ except ValidationError as validation_errors:
             error_msg=error["msg"],
         )
 
-"""
-Perform post-config initialization string formatting or other
-functions that require access to other config levels. E.g.,
-something in 'params.web.text' needs to be formatted with a value
-from params.
-"""
+
+# Perform post-config initialization string formatting or other
+# functions that require access to other config levels. E.g.,
+# something in 'params.web.text' needs to be formatted with a value
+# from params.
 try:
     params.web.text.subtitle = params.web.text.subtitle.format(
         **params.dict(exclude={"web", "queries", "messages"})
@@ -418,13 +417,14 @@ content_terms = aiorun(
         config_path=params.web.terms, default=DEFAULT_TERMS, params=content_terms_params
     )
 )
-content_credit = CREDIT
+content_credit = CREDIT.format(version=__version__)
 
 vrfs = _build_vrfs()
 networks = _build_networks()
 frontend_networks = _build_frontend_networks()
 frontend_devices = _build_frontend_devices()
 _frontend_fields = {
+    "cache": {"show_text"},
     "debug": ...,
     "developer_mode": ...,
     "primary_asn": ...,

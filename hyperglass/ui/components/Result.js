@@ -22,17 +22,19 @@ import ResultHeader from "~/components/ResultHeader";
 import { startCase } from "lodash";
 
 const FormattedError = ({ keywords, message }) => {
-    if (keywords === null || keywords === undefined) {
-        keywords = [];
-    }
-    const patternStr = `(${keywords.join("|")})`;
+    const patternStr = keywords.map(kw => `(${kw})`).join("|");
     const pattern = new RegExp(patternStr, "gi");
-    const errorFmt = strReplace(message, pattern, match => (
-        <Text key={match} as="strong">
-            {match}
-        </Text>
-    ));
-    return <Text>{keywords.length !== 0 ? errorFmt : message}</Text>;
+    let errorFmt;
+    try {
+        errorFmt = strReplace(message, pattern, match => (
+            <Text key={match} as="strong">
+                {match}
+            </Text>
+        ));
+    } catch (err) {
+        errorFmt = <Text as="span">{message}</Text>;
+    }
+    return <Text as="span">{keywords.length !== 0 ? errorFmt : message}</Text>;
 };
 
 const AccordionHeaderWrapper = styled(Flex)`
@@ -160,8 +162,8 @@ const Result = React.forwardRef(
                     css={css({ WebkitOverflowScrolling: "touch" })}
                 >
                     <Flex direction="row" flexWrap="wrap">
-                        <Flex direction="column" flex="1 0 auto">
-                            {data && (
+                        <Flex direction="column" flex="1 0 auto" maxW={error ? "100%" : null}>
+                            {data && !error && (
                                 <Box
                                     fontFamily="mono"
                                     mt={5}
@@ -188,10 +190,31 @@ const Result = React.forwardRef(
                             {error && (
                                 <Alert rounded="lg" my={2} py={4} status={errorLevel}>
                                     <FormattedError keywords={errorKw} message={errorMsg} />
+                                    {/* {errorMsg} */}
                                 </Alert>
                             )}
                         </Flex>
                     </Flex>
+
+                    {config.cache.show_text && (
+                        <Flex direction="row" flexWrap="wrap">
+                            <Flex
+                                px={3}
+                                mt={2}
+                                justifyContent={[
+                                    "flex-start",
+                                    "flex-start",
+                                    "flex-end",
+                                    "flex-end"
+                                ]}
+                                flex="1 0 auto"
+                            >
+                                <Text fontSize="xs" color="gray.500">
+                                    {config.web.text.cache}
+                                </Text>
+                            </Flex>
+                        </Flex>
+                    )}
                 </AccordionPanel>
             </AccordionItem>
         );
