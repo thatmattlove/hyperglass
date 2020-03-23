@@ -44,6 +44,7 @@ export default () => {
             <title>{title}</title>
             <meta charSet="UTF-8" />
             <meta httpEquiv="Content-Type" content="text/html" />
+            <meta name="hg-version" content={config.hyperglass_version} />
             <meta name="description" content={description} />
             <meta name="keywords" content={keywords.join(", ")} />
             <meta name="author" content={author} />
