@@ -93,7 +93,7 @@ const Result = React.forwardRef(
             data.output
                 .split("\\n")
                 .join("\n")
-                .replace(/\n\n/g, "");
+                .replace(/\n\n/g, "\n");
 
         const errorKw = (error && error.response?.data?.keywords) || [];
 
