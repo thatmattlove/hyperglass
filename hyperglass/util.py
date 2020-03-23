@@ -380,6 +380,33 @@ async def node_initial(dev_mode=False):
     return "\n".join(all_messages)
 
 
+async def read_package_json():
+    """Import package.json as a python dict.
+
+    Raises:
+        RuntimeError: Raised if unable to read package.json
+
+    Returns:
+        {dict} -- NPM package.json as dict
+    """
+    from pathlib import Path
+    import ujson
+
+    package_json_file = Path(__file__).parent / "ui" / "package.json"
+
+    try:
+
+        with package_json_file.open("r") as file:
+            package_json = ujson.load(file)
+
+    except Exception as e:
+        raise RuntimeError(f"Error reading package.json: {str(e)}")
+
+    log.debug("package.json:\n{p}", p=package_json)
+
+    return package_json
+
+
 async def build_frontend(  # noqa: C901
     dev_mode, dev_url, prod_url, params, app_path, force=False
 ):
@@ -417,7 +444,13 @@ async def build_frontend(  # noqa: C901
 
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
 
-    env_vars = {"_HYPERGLASS_CONFIG_": params, "_HYPERGLASS_VERSION_": __version__}
+    package_json = await read_package_json()
+
+    env_vars = {
+        "_HYPERGLASS_CONFIG_": params,
+        "_HYPERGLASS_VERSION_": __version__,
+        "_HYPERGLASS_PACKAGE_JSON_": package_json,
+    }
 
     # Set NextJS production/development mode and base URL based on
     # developer_mode setting.
@@ -434,7 +467,8 @@ async def build_frontend(  # noqa: C901
     elif not initialized:
         log.debug("node_modules has not been initialized. Starting initialization...")
         node_setup = await node_initial(dev_mode)
-        log.debug(node_setup)
+        if node_setup == "":
+            log.debug("Re-initialized node_modules")
 
     try:
         env_json = json.dumps(env_vars)
@@ -480,7 +514,13 @@ async def build_frontend(  # noqa: C901
 
                 # While temporary file is still open, initiate UI build process.
                 if not dev_mode or force:
+                    initialize_result = await node_initial(dev_mode)
                     build_result = await build_ui(app_path=app_path)
+
+                    if initialize_result:
+                        log.debug(initialize_result)
+                    elif initialize_result == "":
+                        log.debug("Re-initialized node_modules")
 
                     if build_result:
                         log.debug("Completed UI build")
