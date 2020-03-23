@@ -52,7 +52,7 @@ class HyperglassModel(BaseModel):
         import json
         import yaml
 
-        return yaml.safe_dump(json.loads(self.export_json(*args, **kwargs)))
+        return yaml.safe_dump(json.loads(self.export_json()), *args, **kwargs)
 
 
 class HyperglassModelExtra(HyperglassModel):
