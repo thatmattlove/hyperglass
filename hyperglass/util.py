@@ -616,3 +616,55 @@ def import_public_key(app_path, device_name, keystring):
             raise RuntimeError("Wrote key, but written file did not match input key")
 
     return True
+
+
+def split_on_uppercase(s):
+    """Split characters by uppercase letters.
+
+    From: https://stackoverflow.com/a/40382663
+
+    """
+    string_length = len(s)
+    is_lower_around = (
+        lambda: s[i - 1].islower() or string_length > (i + 1) and s[i + 1].islower()
+    )
+
+    start = 0
+    parts = []
+    for i in range(1, string_length):
+        if s[i].isupper() and is_lower_around():
+            parts.append(s[start:i])
+            start = i
+    parts.append(s[start:])
+
+    return parts
+
+
+def parse_exception(exc):
+    """Parse an exception and its direct cause."""
+
+    if not isinstance(exc, BaseException):
+        raise TypeError(f"'{repr(exc)}' is not an exception.")
+
+    def get_exc_name(exc):
+        return " ".join(split_on_uppercase(exc.__class__.__name__))
+
+    def get_doc_summary(doc):
+        return doc.strip().split("\n")[0].strip(".")
+
+    name = get_exc_name(exc)
+    parsed = []
+    if exc.__doc__:
+        detail = get_doc_summary(exc.__doc__)
+        parsed.append(f"{name} ({detail})")
+    else:
+        parsed.append(name)
+
+    if exc.__cause__:
+        cause = get_exc_name(exc.__cause__)
+        if exc.__cause__.__doc__:
+            cause_detail = get_doc_summary(exc.__cause__.__doc__)
+            parsed.append(f"{cause} ({cause_detail})")
+        else:
+            parsed.append(cause)
+    return ", caused by ".join(parsed)

@@ -7,7 +7,6 @@ hyperglass-frr API calls, returns the output back to the front end.
 """
 
 # Standard Library
-import re
 import signal
 from ssl import CertificateError
 
@@ -23,7 +22,7 @@ from netmiko import (
 )
 
 # Project
-from hyperglass.util import log
+from hyperglass.util import log, parse_exception
 from hyperglass.encode import jwt_decode, jwt_encode
 from hyperglass.constants import Supported
 from hyperglass.exceptions import (
@@ -317,14 +316,12 @@ class Connect:
             response = "\n\n".join(responses)
             log.debug(f"Output for query {self.query}:\n{response}")
         except httpx.exceptions.HTTPError as rest_error:
-            rest_msg = " ".join(
-                re.findall(r"[A-Z][^A-Z]*", rest_error.__class__.__name__)
-            )
-            log.error(f"Error connecting to device {self.device.name}: {rest_msg}")
+            msg = parse_exception(rest_error)
+            log.error(f"Error connecting to device {self.device.name}: {msg}")
             raise RestError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,
-                error=rest_msg,
+                error=msg,
             )
         except OSError as ose:
             log.critical(str(ose))
@@ -335,13 +332,11 @@ class Connect:
             )
         except CertificateError as cert_error:
             log.critical(str(cert_error))
-            msg_summary = " ".join(
-                re.findall(r"[A-Z][^A-Z]*", cert_error.__class__.__name__)
-            )
+            msg = parse_exception(cert_error)
             raise RestError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,
-                error=f"{msg_summary}: {cert_error}",
+                error=f"{msg}: {cert_error}",
             )
 
         if raw_response.status_code != 200:
@@ -404,11 +399,11 @@ class Execute:
             else:
                 output = await connect.scrape_direct()
 
-        if output == "":
+        if output == "" or output == "\n":
             raise ResponseEmpty(
                 params.messages.no_output, device_name=device.display_name
             )
 
-        log.debug(f"Output for query: {self.query_data}:\n{output}")
+        log.debug(f"Output for query: {self.query_data.json()}:\n{repr(output)}")
 
         return output
