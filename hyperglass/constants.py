@@ -4,7 +4,7 @@ import sys
 from datetime import datetime
 
 __name__ = "hyperglass"
-__version__ = "1.0.0-beta.7"
+__version__ = "1.0.0-beta.8"
 __author__ = "Matt Love"
 __copyright__ = f"Copyright {datetime.now().year} Matthew Love"
 __license__ = "BSD 3-Clause Clear License"
@@ -42,8 +42,8 @@ DNS_OVER_HTTPS = {
 }
 
 CREDIT = """
-Powered by [**hyperglass**](https://github.com/checktheroads/hyperglass). Source code \
-licensed \
+Powered by [**hyperglass**](https://github.com/checktheroads/hyperglass) version \
+{version}. Source code licensed \
 [_BSD 3-Clause Clear_](https://github.com/checktheroads/hyperglass/blob/master/LICENSE).
 """
 
