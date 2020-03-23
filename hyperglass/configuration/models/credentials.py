@@ -1,7 +1,7 @@
 """Validate credential configuration variables."""
 
 # Third Party
-from pydantic import SecretStr
+from pydantic import SecretStr, StrictStr
 
 # Project
 from hyperglass.util import clean_name
@@ -11,7 +11,7 @@ from hyperglass.configuration.models._utils import HyperglassModel
 class Credential(HyperglassModel):
     """Model for per-credential config in devices.yaml."""
 
-    username: str
+    username: StrictStr
     password: SecretStr
 
 

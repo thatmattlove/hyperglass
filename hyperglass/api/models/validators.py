@@ -89,14 +89,14 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 
     ip_version = valid_ip.version
 
-    if getattr(query_vrf, f"ipv{ip_version}") is None:
+    vrf_afi = getattr(query_vrf, f"ipv{ip_version}")
+
+    if vrf_afi is None:
         raise InputInvalid(
             params.messages.feature_not_enabled,
             feature=f"IPv{ip_version}",
             device_name=f"VRF {query_vrf.display_name}",
         )
-
-    vrf_afi = getattr(query_vrf, f"ipv{ip_version}")
 
     for ace in [a for a in vrf_afi.access_list if a.network.version == ip_version]:
         if _member_of(valid_ip, ace.network):

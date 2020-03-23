@@ -49,17 +49,17 @@ async def get_markdown(config_path, default, params):
     Returns:
         {str} -- Formatted content
     """
-    log.debug(f"Getting Markdown content for '{params['title']}'")
+    log.trace(f"Getting Markdown content for '{params['title']}'")
 
     if config_path.enable and config_path.file is not None:
         md = await _get_file(config_path.file)
     else:
         md = default
 
-    log.debug(f"Unformatted Content for '{params['title']}':\n{md}")
+    log.trace(f"Unformatted Content for '{params['title']}':\n{md}")
 
     md_fmt = await format_markdown(md, params)
 
-    log.debug(f"Formatted Content for '{params['title']}':\n{md_fmt}")
+    log.trace(f"Formatted Content for '{params['title']}':\n{md_fmt}")
 
     return md_fmt

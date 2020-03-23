@@ -143,9 +143,9 @@ async def _config_commands():
             async with AIOFile(CONFIG_COMMANDS, "r") as cf:
                 raw = await cf.read()
                 config = yaml.safe_load(raw) or {}
-                log.debug("Unvalidated commands: {c}", c=config)
         except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
             raise ConfigError(error_msg=str(yaml_error)) from None
+    log.debug("Unvalidated commands: {c}", c=config)
     return config
 
 
