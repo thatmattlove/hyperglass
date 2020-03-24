@@ -373,25 +373,32 @@ def _build_vrf_help():
         vrf_help = {}
         for command in SUPPORTED_QUERY_TYPES:
             cmd = getattr(vrf.info, command)
-            help_params = {**content_params, **cmd.params.dict()}
+            if cmd.enable:
+                help_params = {**content_params, **cmd.params.dict()}
 
-            if help_params["title"] is None:
-                command_params = getattr(params.queries, command)
-                help_params[
-                    "title"
-                ] = f"{vrf.display_name}: {command_params.display_name}"
+                if help_params["title"] is None:
+                    command_params = getattr(params.queries, command)
+                    help_params[
+                        "title"
+                    ] = f"{vrf.display_name}: {command_params.display_name}"
 
-            md = aiorun(
-                get_markdown(
-                    config_path=cmd,
-                    default=DEFAULT_DETAILS[command],
-                    params=help_params,
+                md = aiorun(
+                    get_markdown(
+                        config_path=cmd,
+                        default=DEFAULT_DETAILS[command],
+                        params=help_params,
+                    )
                 )
-            )
 
-            vrf_help.update(
-                {command: {"content": md, "enable": cmd.enable, "params": help_params}}
-            )
+                vrf_help.update(
+                    {
+                        command: {
+                            "content": md,
+                            "enable": cmd.enable,
+                            "params": help_params,
+                        }
+                    }
+                )
 
         all_help.update({vrf.name: vrf_help})
 
