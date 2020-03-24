@@ -19,7 +19,7 @@ export const HyperglassProvider = ({ config, children }) => {
     return (
         <HyperglassContext.Provider value={value}>
             <ThemeProvider theme={theme}>
-                <ColorModeProvider>
+                <ColorModeProvider value={config.web.theme.default_color_mode ?? null}>
                     <CSSReset />
                     <MediaProvider theme={theme}>{children}</MediaProvider>
                 </ColorModeProvider>

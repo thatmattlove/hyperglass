@@ -2,7 +2,7 @@
 id: ui
 title: Web UI
 sidebar_label: Web UI
-keywords: [web ui, gui, theme, colors, branding]
+keywords: [hyperglass, looking glass, web ui, gui, theme, colors, branding]
 description: hyperglass Web UI Configuration
 ---
 
@@ -68,6 +68,7 @@ web:
         title: hyperglass
         title_mode: text_only
     theme:
+        default_color_mode: light
         colors:
             black: "#262626"
             blue: "#314cb6"
@@ -173,12 +174,20 @@ The `title_mode` parameter behaves in the following manner:
 
 ## `theme`
 
+### Parameters
+
+| Parameter            |  Type  | Description                                                                                                                                      |
+| :------------------- | :----: | :----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `default_color_mode` | String | Sets the default color mode. Must be `light` or `dark`. If no default mode is specified, hyperglass will use the browser's preferred color mode. |
+
+### Sections
+
 | Section  | Description  |             All Options              |
 | :------- | :----------- | :----------------------------------: |
 | `colors` | Theme colors | <PageLink to="#colors">➡️</PageLink> |
 | `fonts`  | Theme fonts  | <PageLink to="#fonts">➡️</PageLink>  |
 
-### `colors`
+#### `colors`
 
 | Parameter   |  Type  | Default                | Description                            |
 | :---------- | :----: | :--------------------- | :------------------------------------- |
@@ -201,7 +210,7 @@ The `title_mode` parameter behaves in the following manner:
 | `purple`    | String | <Color hex="#8d30b5"/> |                                        |
 | `gray`      | String | <Color hex="#c1c7cc"/> |                                        |
 
-### `fonts`
+#### `fonts`
 
 Currently, only [Google Fonts](https://fonts.google.com/) are supported.
 

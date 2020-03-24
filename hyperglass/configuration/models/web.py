@@ -197,6 +197,7 @@ class Theme(HyperglassLevel3):
     """Validation model for theme variables."""
 
     colors: ThemeColors = ThemeColors()
+    default_color_mode: Optional[constr(regex=r"light|dark")]
     fonts: ThemeFonts = ThemeFonts()
 
 
