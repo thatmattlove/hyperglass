@@ -20,12 +20,14 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
         url: dnsUrl,
         params: { name: fqdnTarget, type: "A" },
         headers: { accept: "application/dns-json" },
+        crossdomain: true,
         timeout: 1000
     };
     const params6 = {
         url: dnsUrl,
         params: { name: fqdnTarget, type: "AAAA" },
         headers: { accept: "application/dns-json" },
+        crossdomain: true,
         timeout: 1000
     };
 

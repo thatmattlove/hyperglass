@@ -47,7 +47,8 @@ const HyperglassForm = React.forwardRef(
     ({ isSubmitting, setSubmitting, setFormData, ...props }, ref) => {
         const config = useConfig();
         const { handleSubmit, register, setValue, errors } = useForm({
-            validationSchema: formSchema(config)
+            validationSchema: formSchema(config),
+            defaultValues: { query_vrf: "default" }
         });
 
         const [queryLocation, setQueryLocation] = useState([]);
@@ -58,9 +59,6 @@ const HyperglassForm = React.forwardRef(
         const [fqdnTarget, setFqdnTarget] = useState("");
         const [displayTarget, setDisplayTarget] = useState("");
         const onSubmit = values => {
-            if (values.query_vrf === undefined) {
-                values.query_vrf = "default";
-            }
             setFormData(values);
             setSubmitting(true);
         };
@@ -77,7 +75,7 @@ const HyperglassForm = React.forwardRef(
             });
             const intersecting = lodash.intersectionWith(...allVrfs, lodash.isEqual);
             setAvailVrfs(intersecting);
-            !intersecting.includes(queryVrf) && setQueryVrf("");
+            !intersecting.includes(queryVrf) && queryVrf !== "default" && setQueryVrf("default");
         };
 
         const handleChange = e => {
