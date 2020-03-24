@@ -13,7 +13,7 @@ const AnimatedForm = motion.custom(HyperglassForm);
 
 const bg = { light: "white", dark: "black" };
 const color = { light: "black", dark: "white" };
-const headerHeightDefault = { true: [16, 16, 16, 16], false: [24, 64, 64, 64] };
+const headerHeightDefault = { true: [16, 16, 32, 32], false: [24, 64, 64, 64] };
 const headerHeightAll = { true: [32, 32, 32, 32], false: [48, "20rem", "20rem", "20rem"] };
 
 const Layout = () => {
