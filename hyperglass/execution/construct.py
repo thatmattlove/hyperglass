@@ -35,6 +35,7 @@ class Construct:
         )
         self.device = device
         self.query_data = query_data
+        self.target = self.query_data.query_target
 
         # Set transport method based on NOS type
         self.transport = "scrape"
@@ -43,16 +44,13 @@ class Construct:
 
         # Remove slashes from target for required platforms
         if self.device.nos in TARGET_FORMAT_SPACE:
-            self.query_data.query_target = re.sub(
-                r"\/", r" ", str(self.query_data.query_target)
-            )
+            self.target = re.sub(r"\/", r" ", str(self.query_data.query_target))
 
         # Set AFIs for based on query type
         if self.query_data.query_type in ("bgp_route", "ping", "traceroute"):
-            """
-            For IP queries, AFIs are enabled (not null/None) VRF -> AFI definitions
-            where the IP version matches the IP version of the target.
-            """
+
+            # For IP queries, AFIs are enabled (not null/None) VRF -> AFI definitions
+            # where the IP version matches the IP version of the target.
             self.afis = [
                 v
                 for v in (
@@ -62,10 +60,9 @@ class Construct:
                 if v is not None and self.query_data.query_target.version == v.version
             ]
         elif self.query_data.query_type in ("bgp_aspath", "bgp_community"):
-            """
-            For AS Path/Community queries, AFIs are just enabled VRF -> AFI definitions,
-            no IP version checking is performed (since there is no IP).
-            """
+
+            # For AS Path/Community queries, AFIs are just enabled VRF -> AFI
+            # definitions, no IP version checking is performed (since there is no IP).
             self.afis = [
                 v
                 for v in (
@@ -91,7 +88,7 @@ class Construct:
                 "vrf": self.query_data.query_vrf.name,
                 "afi": afi.protocol,
                 "source": str(afi.source_address),
-                "target": str(self.query_data.query_target),
+                "target": str(self.target),
             }
         )
 
@@ -108,7 +105,7 @@ class Construct:
             f"{self.device.nos}.{afi.protocol}.{self.query_data.query_type}"
         )(commands)
         return command.format(
-            target=self.query_data.query_target,
+            target=self.target,
             source=str(afi.source_address),
             vrf=self.query_data.query_vrf.name,
         )
