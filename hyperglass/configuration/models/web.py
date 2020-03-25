@@ -1,7 +1,7 @@
 """Validate branding configuration variables."""
 
 # Standard Library
-from typing import Optional, Union
+from typing import Union, Optional
 
 # Third Party
 from pydantic import (
