@@ -158,17 +158,17 @@ By default, no Opengraph image is set. If you define one with `image`, hyperglas
 | `query_vrf`      | String | `'Routing Table'`                                  | Query VRF form label.                                                                                                                                                                                                                       |
 | `subtitle`       | String | `'AS{primary_asn}'`                                | Subtitle text. `{primary_asn}` will be replaced with the <PageLink to="/docs/configuration#global-settings"><Code>primary_asn</Code></PageLink> value.                                                                                      |
 | `title`          | String | `'hyperglass'`                                     | Title text.                                                                                                                                                                                                                                 |
-| `title_mode`     | String | `'text_only'`                                      | Set the title mode. <MiniNote>Must be <Code>text_only</Code>, <Code>logo_only</Code>, <Code>logo_title</Code>, or <Code>all</Code></MiniNote>                                                                                               |
+| `title_mode`     | String | `'text_only'`                                      | Set the title mode. <MiniNote>Must be <Code>text_only</Code>, <Code>logo_only</Code>, <Code>logo_subtitle</Code>, or <Code>all</Code></MiniNote>                                                                                            |
 
-:::important Title Mode
+:::note Title Mode
 The `title_mode` parameter behaves in the following manner:
 
-| Mode         | Behavior                                                           |
-| ------------ | ------------------------------------------------------------------ |
-| `text_only`  | Shows the `title` and `subtitle` only.                             |
-| `logo_only`  | Shows the <Link to="#logo">`logo`</Link> only.                     |
-| `logo_title` | Shows the <Link to="#logo">`logo`</Link> and `title` only.         |
-| `all`        | Shows the <Link to="#logo">`logo`</Link>, `title`, and `subtitle`. |
+| Mode            | Behavior                                                           |
+| --------------- | ------------------------------------------------------------------ |
+| `text_only`     | Shows the `title` and `subtitle` only.                             |
+| `logo_only`     | Shows the <Link to="#logo">`logo`</Link> only.                     |
+| `logo_subtitle` | Shows the <Link to="#logo">`logo`</Link> and `subtitle` only.      |
+| `all`           | Shows the <Link to="#logo">`logo`</Link>, `title`, and `subtitle`. |
 
 :::
 

@@ -46,10 +46,10 @@ const Logo = ({ text, logo }) => {
     const { colorMode } = useColorMode();
     const logoColor = { light: logo.dark, dark: logo.light };
     const logoPath = logoColor[colorMode];
-    return <Image src={logoPath} alt={text.title} />;
+    return <Image src={logoPath} alt={text.title} width={logo.width ?? "auto"} />;
 };
 
-const LogoTitle = ({ text, logo, showSubtitle }) => (
+const LogoSubtitle = ({ text, logo, showSubtitle }) => (
     <>
         <Logo text={text} logo={logo} />
         <AnimatePresence>
@@ -67,11 +67,11 @@ const All = ({ text, logo, mediaSize, showSubtitle }) => (
     </>
 );
 
-const modeMap = { text_only: TextOnly, logo_only: Logo, logo_title: LogoTitle, all: All };
+const modeMap = { text_only: TextOnly, logo_only: Logo, logo_subtitle: LogoSubtitle, all: All };
 const widthMap = {
     text_only: "100%",
     logo_only: ["90%", "90%", "25%", "25%"],
-    logo_title: ["90%", "90%", "25%", "25%"],
+    logo_subtitle: ["90%", "90%", "25%", "25%"],
     all: ["90%", "90%", "25%", "25%"]
 };
 

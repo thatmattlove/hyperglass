@@ -1,7 +1,7 @@
 """Validate branding configuration variables."""
 
 # Standard Library
-from typing import Optional
+from typing import Optional, Union
 
 # Third Party
 from pydantic import (
@@ -92,8 +92,8 @@ class Logo(HyperglassLevel3):
 
     light: StrictStr = "images/hyperglass-light.png"
     dark: StrictStr = "images/hyperglass-dark.png"
-    width: StrictInt = 384
-    height: Optional[StrictInt]
+    width: Optional[Union[StrictInt, constr(regex=r"^([1-9][0-9]?|100)\%$")]] = "80%"
+    height: Optional[Union[StrictInt, constr(regex=r"^([1-9][0-9]?|100)\%$")]]
     favicons: StrictStr = "ui/images/favicons/"
 
     @validator("favicons")
@@ -133,7 +133,9 @@ class Terms(HyperglassLevel3):
 class Text(HyperglassLevel3):
     """Validation model for params.branding.text."""
 
-    title_mode: constr(regex=("logo_only|text_only|logo_title|all")) = "logo_only"
+    title_mode: constr(
+        regex=("logo_only|text_only|logo_title|logo_subtitle|all")
+    ) = "logo_only"
     title: StrictStr = "hyperglass"
     subtitle: StrictStr = "AS{primary_asn}"
     query_location: StrictStr = "Location"
@@ -142,6 +144,13 @@ class Text(HyperglassLevel3):
     query_vrf: StrictStr = "Routing Table"
     fqdn_tooltip: StrictStr = "Use {protocol}"  # Formatted by Javascript
     cache: StrictStr = "Results will be cached for {timeout} {period}."
+
+    @validator("title_mode")
+    def validate_title_mode(cls, value):
+        """Set legacy logo_title to logo_subtitle."""
+        if value == "logo_title":
+            value = "logo_subtitle"
+        return value
 
 
 class ThemeColors(HyperglassLevel4):
