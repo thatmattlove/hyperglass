@@ -293,7 +293,12 @@ def _build_frontend_devices():
                     "network": device.network.display_name,
                     "display_name": device.display_name,
                     "vrfs": [
-                        {"id": vrf.name, "display_name": vrf.display_name}
+                        {
+                            "id": vrf.name,
+                            "display_name": vrf.display_name,
+                            "ipv4": True if vrf.ipv4 else False,  # noqa: IF100
+                            "ipv6": True if vrf.ipv6 else False,  # noqa: IF100
+                        }
                         for vrf in device.vrfs
                     ],
                 }
@@ -303,7 +308,12 @@ def _build_frontend_devices():
                 "network": device.network.display_name,
                 "display_name": device.display_name,
                 "vrfs": [
-                    {"id": vrf.name, "display_name": vrf.display_name}
+                    {
+                        "id": vrf.name,
+                        "display_name": vrf.display_name,
+                        "ipv4": True if vrf.ipv4 else False,  # noqa: IF100
+                        "ipv6": True if vrf.ipv6 else False,  # noqa: IF100
+                    }
                     for vrf in device.vrfs
                 ],
             }
@@ -350,9 +360,15 @@ def _build_vrfs():
     vrfs = []
     for device in devices.routers:
         for vrf in device.vrfs:
-            vrf_dict = {"id": vrf.name, "display_name": vrf.display_name}
+
+            vrf_dict = {
+                "id": vrf.name,
+                "display_name": vrf.display_name,
+            }
+
             if vrf_dict not in vrfs:
                 vrfs.append(vrf_dict)
+
     return vrfs
 
 

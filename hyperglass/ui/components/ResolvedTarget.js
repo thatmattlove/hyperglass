@@ -1,38 +1,41 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Button, Icon, Spinner, Stack, Tag, Text, Tooltip, useColorMode } from "@chakra-ui/core";
 import useAxios from "axios-hooks";
 import format from "string-format";
 import useConfig from "~/components/HyperglassProvider";
-import useMedia from "~/components/MediaProvider";
 
 format.extend(String.prototype, {});
 
 const labelBg = { dark: "secondary", light: "secondary" };
 const labelBgSuccess = { dark: "success", light: "success" };
 
-const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget }, ref) => {
+const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget, families }, ref) => {
     const { colorMode } = useColorMode();
-    const { mediaSize } = useMedia();
     const config = useConfig();
     const labelBgStatus = { true: labelBgSuccess[colorMode], false: labelBg[colorMode] };
     const dnsUrl = config.web.dns_provider.url;
-    const params4 = {
-        url: dnsUrl,
-        params: { name: fqdnTarget, type: "A" },
-        headers: { accept: "application/dns-json" },
-        crossdomain: true,
-        timeout: 1000
-    };
-    const params6 = {
-        url: dnsUrl,
-        params: { name: fqdnTarget, type: "AAAA" },
-        headers: { accept: "application/dns-json" },
-        crossdomain: true,
-        timeout: 1000
+    const query4 = families.includes(4);
+    const query6 = families.includes(6);
+    const params = {
+        4: {
+            url: dnsUrl,
+            params: { name: fqdnTarget, type: "A" },
+            headers: { accept: "application/dns-json" },
+            crossdomain: true,
+            timeout: 1000
+        },
+        6: {
+            url: dnsUrl,
+            params: { name: fqdnTarget, type: "AAAA" },
+            headers: { accept: "application/dns-json" },
+            crossdomain: true,
+            timeout: 1000
+        }
     };
 
-    const [{ data: data4, loading: loading4, error: error4 }] = useAxios(params4);
-    const [{ data: data6, loading: loading6, error: error6 }] = useAxios(params6);
+    const [{ data: data4, loading: loading4, error: error4 }] = useAxios(params[4]);
+
+    const [{ data: data6, loading: loading6, error: error6 }] = useAxios(params[6]);
 
     const handleOverride = overridden => {
         setTarget({ field: "query_target", value: overridden });
@@ -48,23 +51,28 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
     };
 
     useEffect(() => {
-        if (data6 && data6.Answer) {
+        if (query6 && data6?.Answer) {
             handleOverride(findAnswer(data6));
-        } else if (data4 && data4.Answer && !data6?.Answer) {
+        } else if (query4 && data4?.Answer && !query6 && !data6?.Answer) {
+            handleOverride(findAnswer(data4));
+        } else if (query4 && data4?.Answer) {
             handleOverride(findAnswer(data4));
         }
     }, [data4, data6]);
+
     return (
         <Stack
             ref={ref}
             isInline
             w="100%"
-            justifyContent={data4?.Answer && data6?.Answer ? "space-between" : "flex-end"}
+            justifyContent={
+                query4 && data4?.Answer && query6 && data6?.Answer ? "space-between" : "flex-end"
+            }
             flexWrap="wrap"
         >
             {loading4 ||
                 error4 ||
-                (findAnswer(data4) && (
+                (query4 && findAnswer(data4) && (
                     <Tag my={2}>
                         <Tooltip
                             hasArrow
@@ -96,7 +104,7 @@ const ResolvedTarget = React.forwardRef(({ fqdnTarget, setTarget, queryTarget },
                 ))}
             {loading6 ||
                 error6 ||
-                (findAnswer(data6) && (
+                (query6 && findAnswer(data6) && (
                     <Tag my={2}>
                         <Tooltip
                             hasArrow

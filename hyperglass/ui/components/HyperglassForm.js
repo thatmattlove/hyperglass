@@ -58,6 +58,7 @@ const HyperglassForm = React.forwardRef(
         const [availVrfs, setAvailVrfs] = useState([]);
         const [fqdnTarget, setFqdnTarget] = useState("");
         const [displayTarget, setDisplayTarget] = useState("");
+        const [families, setFamilies] = useState([]);
         const onSubmit = values => {
             setFormData(values);
             setSubmitting(true);
@@ -66,16 +67,44 @@ const HyperglassForm = React.forwardRef(
         const handleLocChange = locObj => {
             setQueryLocation(locObj.value);
             const allVrfs = [];
+            const deviceVrfs = [];
             locObj.value.map(loc => {
                 const locVrfs = [];
                 config.devices[loc].vrfs.map(vrf => {
-                    locVrfs.push({ label: vrf.display_name, value: vrf.id });
+                    locVrfs.push({
+                        label: vrf.display_name,
+                        value: vrf.id
+                    });
+                    deviceVrfs.push([{ id: vrf.id, ipv4: vrf.ipv4, ipv6: vrf.ipv6 }]);
                 });
                 allVrfs.push(locVrfs);
             });
+
             const intersecting = lodash.intersectionWith(...allVrfs, lodash.isEqual);
             setAvailVrfs(intersecting);
             !intersecting.includes(queryVrf) && queryVrf !== "default" && setQueryVrf("default");
+
+            let ipv4 = 0;
+            let ipv6 = 0;
+            deviceVrfs.length !== 0 &&
+                intersecting.length !== 0 &&
+                deviceVrfs
+                    .filter(v => intersecting.every(i => i.id === v.id))
+                    .reduce((a, b) => a.concat(b))
+                    .filter(v => v.id === "default")
+                    .map(v => {
+                        v.ipv4 === true && ipv4++;
+                        v.ipv6 === true && ipv6++;
+                    });
+            if (ipv4 !== 0 && ipv4 === ipv6) {
+                setFamilies([4, 6]);
+            } else if (ipv4 > ipv6) {
+                setFamilies([4]);
+            } else if (ipv4 < ipv6) {
+                setFamilies([6]);
+            } else {
+                setFamilies([]);
+            }
         };
 
         const handleChange = e => {
@@ -92,6 +121,7 @@ const HyperglassForm = React.forwardRef(
         };
 
         const vrfContent = config.content.vrf[queryVrf]?.[queryType];
+
         const validFqdnQueryType =
             ["ping", "traceroute", "bgp_route"].includes(queryType) &&
             fqdnTarget &&
@@ -155,11 +185,13 @@ const HyperglassForm = React.forwardRef(
                             name="query_target"
                             error={errors.query_target}
                             fieldAddOn={
+                                queryLocation.length !== 0 &&
                                 validFqdnQueryType && (
                                     <ResolvedTarget
                                         queryTarget={queryTarget}
                                         fqdnTarget={validFqdnQueryType}
                                         setTarget={handleChange}
+                                        families={families}
                                     />
                                 )
                             }
