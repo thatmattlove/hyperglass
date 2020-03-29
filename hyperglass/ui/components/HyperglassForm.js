@@ -192,6 +192,7 @@ const HyperglassForm = React.forwardRef(
                                         fqdnTarget={validFqdnQueryType}
                                         setTarget={handleChange}
                                         families={families}
+                                        availVrfs={availVrfs}
                                     />
                                 )
                             }
