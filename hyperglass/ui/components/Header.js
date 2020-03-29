@@ -31,6 +31,10 @@ const icon = { light: "moon", dark: "sun" };
 const bg = { light: "white", dark: "black" };
 const colorSwitch = { dark: "Switch to light mode", light: "Switch to dark mode" };
 const headerTransition = { type: "spring", ease: "anticipate", damping: 15, stiffness: 100 };
+const titleJustify = {
+    true: ["flex-end", "flex-end", "center", "center"],
+    false: ["flex-start", "flex-start", "center", "center"]
+};
 
 export default ({ height, isSubmitting, handleFormReset, ...props }) => {
     const { colorMode, toggleColorMode } = useColorMode();
@@ -44,6 +48,7 @@ export default ({ height, isSubmitting, handleFormReset, ...props }) => {
                 exit={{ opacity: 0, x: -50 }}
                 alignItems="center"
                 mb={[null, "auto"]}
+                ml={isSubmitting ? 2 : null}
             >
                 <AnimatedResetButton isSubmitting={isSubmitting} onClick={handleFormReset} />
             </AnimatedFlex>
@@ -58,7 +63,7 @@ export default ({ height, isSubmitting, handleFormReset, ...props }) => {
             initial={{ scale: 0.5 }}
             animate={isSubmitting ? "small" : "fullSize"}
             variants={titleVariants[mediaSize]}
-            justifyContent="center"
+            justifyContent={titleJustify[isSubmitting]}
             mb={[null, isSubmitting ? "auto" : null]}
             mt={[null, isSubmitting ? null : "auto"]}
             maxW="100%"
@@ -75,12 +80,12 @@ export default ({ height, isSubmitting, handleFormReset, ...props }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             mb={[null, "auto"]}
+            mr={isSubmitting ? null : 2}
         >
             <IconButton
                 aria-label={colorSwitch[colorMode]}
                 variant="ghost"
                 color="current"
-                ml={2}
                 pl={0}
                 fontSize="20px"
                 onClick={toggleColorMode}
@@ -118,7 +123,13 @@ export default ({ height, isSubmitting, handleFormReset, ...props }) => {
             height={height}
             {...props}
         >
-            <Flex w="100%" mx="auto" py={6} justify="space-between" alignItems="center">
+            <Flex
+                w="100%"
+                mx="auto"
+                py={6}
+                justify="space-between"
+                alignItems={isSubmitting ? "center" : "flex-start"}
+            >
                 {layout[isSubmitting][mediaSize]}
             </Flex>
         </Flex>

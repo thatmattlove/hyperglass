@@ -21,9 +21,9 @@ const TitleOnly = ({ text, showSubtitle }) => (
     </Heading>
 );
 
-const SubtitleOnly = React.forwardRef(({ text, size = "md", ...props }, ref) => (
+const SubtitleOnly = React.forwardRef(({ text, mediaSize, size = "md", ...props }, ref) => (
     <Heading ref={ref} as="h3" size={size} {...props}>
-        <Textfit mode="single" max={20}>
+        <Textfit mode="single" max={mediaSize === "sm" ? 13 : 25}>
             {text}
         </Textfit>
     </Heading>
@@ -35,9 +35,17 @@ const textAlignment = { false: ["right", "center"], true: ["left", "center"] };
 
 const TextOnly = ({ text, mediaSize, showSubtitle, ...props }) => (
     <Stack spacing={2} maxW="100%" textAlign={textAlignment[showSubtitle]} {...props}>
-        <TitleOnly text={text.title} showSubtitle={showSubtitle} />
+        <Textfit mode="single" max={20}>
+            <TitleOnly text={text.title} showSubtitle={showSubtitle} />
+        </Textfit>
         <AnimatePresence>
-            {showSubtitle && <AnimatedSubtitle text={text.subtitle} {...subtitleAnimation} />}
+            {showSubtitle && (
+                <AnimatedSubtitle
+                    text={text.subtitle}
+                    mediaSize={mediaSize}
+                    {...subtitleAnimation}
+                />
+            )}
         </AnimatePresence>
     </Stack>
 );
@@ -75,10 +83,6 @@ const widthMap = {
     all: ["90%", "90%", "25%", "25%"]
 };
 
-const btnJustify = {
-    true: ["flex-end", "center"],
-    false: ["flex-start", "center"]
-};
 export default React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
     const { web } = useConfig();
     const { mediaSize } = useMedia();
@@ -92,7 +96,6 @@ export default React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
             flexWrap="wrap"
             _focus={{ boxShadow: "none" }}
             _hover={{ textDecoration: "none" }}
-            justifyContent={btnJustify[isSubmitting]}
             px={0}
             maxW={widthMap[titleMode]}
             {...props}
