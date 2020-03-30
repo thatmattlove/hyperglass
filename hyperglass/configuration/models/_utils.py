@@ -9,7 +9,7 @@ from pathlib import Path
 from pydantic import HttpUrl, BaseModel
 
 # Project
-from hyperglass.util import clean_name, log
+from hyperglass.util import log, clean_name
 
 
 class HyperglassModel(BaseModel):
