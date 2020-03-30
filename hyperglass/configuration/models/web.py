@@ -116,11 +116,6 @@ class Logo(HyperglassLevel3):
         """
         return validate_image(value)
 
-    class Config:
-        """Override pydantic config."""
-
-        fields = {"logo_path": "path"}
-
 
 class Terms(HyperglassLevel3):
     """Validation model for terms & conditions."""

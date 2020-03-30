@@ -439,7 +439,7 @@ async def build_frontend(  # noqa: C901
     import tempfile
     from pathlib import Path
     from aiofile import AIOFile
-    import ujson as json
+    import json
     from hyperglass.constants import __version__
 
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
@@ -471,7 +471,7 @@ async def build_frontend(  # noqa: C901
             log.debug("Re-initialized node_modules")
 
     try:
-        env_json = json.dumps(env_vars)
+        env_json = json.dumps(env_vars, default=str)
 
         # Create SHA256 hash from all parameters passed to UI, use as
         # build identifier.
