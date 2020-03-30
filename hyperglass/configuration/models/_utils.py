@@ -9,7 +9,7 @@ from pathlib import Path
 from pydantic import HttpUrl, BaseModel
 
 # Project
-from hyperglass.util import clean_name
+from hyperglass.util import clean_name, log
 
 
 class HyperglassModel(BaseModel):
@@ -144,10 +144,8 @@ def validate_image(value):
     Returns:
         {str} -- Formatted logo path
     """
-    base_path = value.split("/")
-
-    if base_path[0] == "/":
-        value = "/".join(base_path[1:])
+    config_path = Path(os.environ["hyperglass_directory"])
+    base_path = [v for v in value.split("/") if v != ""]
 
     if base_path[0] not in ("images", "custom"):
         raise ValueError(
@@ -155,10 +153,15 @@ def validate_image(value):
         )
 
     if base_path[0] == "custom":
-        config_path = Path(os.environ["hyperglass_directory"])
-        custom_file = config_path / "static" / value
+        file = config_path / "static" / "custom" / "/".join(base_path[1:])
 
-        if not custom_file.exists():
-            raise ValueError(f"'{str(custom_file)}' does not exist")
+    else:
+        file = config_path / "static" / "images" / "/".join(base_path[1:])
 
-    return value
+    log.error(file)
+    if not file.exists():
+        raise ValueError(f"'{str(file)}' does not exist")
+
+    base_index = file.parts.index(base_path[0])
+
+    return "/".join(file.parts[base_index:])
