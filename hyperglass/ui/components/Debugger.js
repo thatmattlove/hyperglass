@@ -35,16 +35,15 @@ const Debugger = () => {
                 borderWidth="1px"
                 borderColor={borderColor[colorMode]}
                 py={4}
-                mx={-4}
                 px={4}
                 isInline
-                // position="fixed"
                 position="relative"
-                // bottom="10%"
                 left={0}
                 right={0}
+                bottom={0}
                 justifyContent="center"
                 zIndex={1000}
+                maxW="100%"
             >
                 <Tag variantColor="gray">{colorMode.toUpperCase()}</Tag>
                 <Tag variantColor="teal">{prettyMediaSize[mediaSize]}</Tag>
@@ -57,7 +56,13 @@ const Debugger = () => {
             </Stack>
             <Modal isOpen={configOpen} onClose={configClose} size="full">
                 <ModalOverlay />
-                <ModalContent bg={bg[colorMode]} color={color[colorMode]} py={4} borderRadius="md">
+                <ModalContent
+                    bg={bg[colorMode]}
+                    color={color[colorMode]}
+                    py={4}
+                    borderRadius="md"
+                    maxW="90%"
+                >
                     <ModalHeader>Loaded Configuration</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
@@ -65,9 +70,15 @@ const Debugger = () => {
                     </ModalBody>
                 </ModalContent>
             </Modal>
-            <Modal isOpen={themeOpen} onClose={themeClose} size="xl">
+            <Modal isOpen={themeOpen} onClose={themeClose} size="full">
                 <ModalOverlay />
-                <ModalContent bg={bg[colorMode]} color={color[colorMode]} py={4} borderRadius="md">
+                <ModalContent
+                    bg={bg[colorMode]}
+                    color={color[colorMode]}
+                    py={4}
+                    borderRadius="md"
+                    maxW="90%"
+                >
                     <ModalHeader>Loaded Theme</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>

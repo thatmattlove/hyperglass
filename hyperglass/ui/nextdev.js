@@ -10,7 +10,8 @@ const { NODE_ENV: env, _HYPERGLASS_URL_: envUrl } = config;
 
 const devProxy = {
     "/api/query/": { target: envUrl + "api/query/", pathRewrite: { "^/api/query/": "" } },
-    "/images": { target: envUrl + "images", pathRewrite: { "^/images": "" } }
+    "/images": { target: envUrl + "images", pathRewrite: { "^/images": "" } },
+    "/custom": { target: envUrl + "custom", pathRewrite: { "^/custom": "" } }
 };
 
 const port = parseInt(process.env.PORT, 10) || 3000;
