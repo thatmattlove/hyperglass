@@ -13,8 +13,6 @@ const AnimatedForm = motion.custom(HyperglassForm);
 
 const bg = { light: "white", dark: "black" };
 const color = { light: "black", dark: "white" };
-const headerHeightDefault = { true: [16, 16, 32, 32], false: [24, 64, 64, 64] };
-const headerHeightAll = { true: [32, 32, 32, 32], false: [48, "20rem", "20rem", "20rem"] };
 
 const Layout = () => {
     const config = useConfig();
@@ -26,10 +24,6 @@ const Layout = () => {
         containerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
         setSubmitting(false);
     };
-    const headerHeight =
-        config.web.text.title_mode === "all"
-            ? headerHeightAll[isSubmitting]
-            : headerHeightDefault[isSubmitting];
     return (
         <>
             <Meta />
@@ -41,19 +35,14 @@ const Layout = () => {
                 flexDirection="column"
                 color={color[colorMode]}
             >
-                <Flex px={2} flex="1 1 auto" flexGrow={0} flexDirection="column">
-                    <Header
-                        isSubmitting={isSubmitting}
-                        handleFormReset={handleFormReset}
-                        height={headerHeight}
-                    />
+                <Flex px={2} flex="0 1 auto" flexDirection="column">
+                    <Header isSubmitting={isSubmitting} handleFormReset={handleFormReset} />
                 </Flex>
                 <Flex
                     px={2}
                     py={0}
                     w="100%"
                     as="main"
-                    mt={headerHeight}
                     flex="1 1 auto"
                     textAlign="center"
                     alignItems="center"

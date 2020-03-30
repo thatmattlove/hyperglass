@@ -11,9 +11,9 @@ const subtitleAnimation = {
     animate: { opacity: 1, scale: 1 },
     exit: { opacity: 0, scale: 0.3 }
 };
-
 const titleSize = { true: "2xl", false: "lg" };
 const titleMargin = { true: 2, false: 0 };
+const textAlignment = { false: ["right", "center"], true: ["left", "center"] };
 
 const TitleOnly = ({ text, showSubtitle }) => (
     <Heading as="h1" mb={titleMargin[showSubtitle]} size={titleSize[showSubtitle]}>
@@ -30,8 +30,6 @@ const SubtitleOnly = React.forwardRef(({ text, mediaSize, size = "md", ...props 
 ));
 
 const AnimatedSubtitle = motion.custom(SubtitleOnly);
-
-const textAlignment = { false: ["right", "center"], true: ["left", "center"] };
 
 const TextOnly = ({ text, mediaSize, showSubtitle, ...props }) => (
     <Stack spacing={2} maxW="100%" textAlign={textAlignment[showSubtitle]} {...props}>
@@ -50,16 +48,16 @@ const TextOnly = ({ text, mediaSize, showSubtitle, ...props }) => (
     </Stack>
 );
 
-const Logo = ({ text, logo }) => {
+const Logo = ({ text, logo, showSubtitle }) => {
     const { colorMode } = useColorMode();
     const logoColor = { light: logo.dark, dark: logo.light };
     const logoPath = logoColor[colorMode];
     return <Image src={logoPath} alt={text.title} width={logo.width ?? "auto"} />;
 };
 
-const LogoSubtitle = ({ text, logo, showSubtitle }) => (
+const LogoSubtitle = ({ text, logo, showSubtitle, mediaSize }) => (
     <>
-        <Logo text={text} logo={logo} />
+        <Logo text={text} logo={logo} showSubtitle={showSubtitle} mediaSize={mediaSize} />
         <AnimatePresence>
             {showSubtitle && (
                 <AnimatedSubtitle mt={2} text={text.subtitle} {...subtitleAnimation} />
@@ -70,17 +68,15 @@ const LogoSubtitle = ({ text, logo, showSubtitle }) => (
 
 const All = ({ text, logo, mediaSize, showSubtitle }) => (
     <>
-        <Logo text={text} logo={logo} />
+        <Logo text={text} logo={logo} showSubtitle={showSubtitle} />
         <TextOnly mediaSize={mediaSize} showSubtitle={showSubtitle} mt={2} text={text} />
     </>
 );
 
 const modeMap = { text_only: TextOnly, logo_only: Logo, logo_subtitle: LogoSubtitle, all: All };
-const widthMap = {
-    text_only: "100%",
-    logo_only: ["90%", "90%", "25%", "25%"],
-    logo_subtitle: ["90%", "90%", "25%", "25%"],
-    all: ["90%", "90%", "25%", "25%"]
+const justifyMap = {
+    true: ["flex-end", "center", "center", "center"],
+    false: ["flex-start", "center", "center", "center"]
 };
 
 export default React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
@@ -97,7 +93,7 @@ export default React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
             _focus={{ boxShadow: "none" }}
             _hover={{ textDecoration: "none" }}
             px={0}
-            maxW={widthMap[titleMode]}
+            justifyContent={justifyMap[isSubmitting]}
             {...props}
         >
             <MatchedMode
