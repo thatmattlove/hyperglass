@@ -109,38 +109,38 @@ class CiscoXR(Command):
     class IPv4(Command.IPv4):
         """Validation model for non-default dual afi commands."""
 
-        bgp_route: StrictStr = r"show bgp ipv4 unicast {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
-        bgp_aspath: StrictStr = r"show bgp ipv4 unicast regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-        bgp_community: StrictStr = r"show bgp ipv4 unicast community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-        ping: StrictStr = r"ping ipv4 {target} count 5 source {source}"
-        traceroute: StrictStr = r"traceroute ipv4 {target} timeout 1 probe 2 source {source}"
+        bgp_route: StrictStr = "show bgp ipv4 unicast {target}"
+        bgp_aspath: StrictStr = "show bgp ipv4 unicast regexp {target}"
+        bgp_community: StrictStr = "show bgp ipv4 unicast community {target}"
+        ping: StrictStr = "ping ipv4 {target} count 5 source {source}"
+        traceroute: StrictStr = "traceroute ipv4 {target} timeout 1 probe 2 source {source}"
 
     class IPv6(Command.IPv6):
         """Validation model for non-default ipv4 commands."""
 
-        bgp_route: StrictStr = r"show bgp ipv6 unicast {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
-        bgp_aspath: StrictStr = r"show bgp ipv6 unicast regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-        bgp_community: StrictStr = r"show bgp ipv6 unicast community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-        ping: StrictStr = r"ping ipv6 {target} count 5 source {source}"
-        traceroute: StrictStr = r"traceroute ipv6 {target} timeout 1 probe 2 source {source}"
+        bgp_route: StrictStr = "show bgp ipv6 unicast {target}"
+        bgp_aspath: StrictStr = "show bgp ipv6 unicast regexp {target}"
+        bgp_community: StrictStr = "show bgp ipv6 unicast community {target}"
+        ping: StrictStr = "ping ipv6 {target} count 5 source {source}"
+        traceroute: StrictStr = "traceroute ipv6 {target} timeout 1 probe 2 source {source}"
 
     class VPNIPv4(Command.VPNIPv4):
         """Validation model for non-default ipv6 commands."""
 
-        bgp_route: StrictStr = r"show bgp vpnv4 unicast vrf {vrf} {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
-        bgp_aspath: StrictStr = r"show bgp vpnv4 unicast vrf {vrf} regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-        bgp_community: StrictStr = r"show bgp vpnv4 unicast vrf {vrf} community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-        ping: StrictStr = r"ping vrf {vrf} {target} count 5 source {source}"
-        traceroute: StrictStr = r"traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
+        bgp_route: StrictStr = "show bgp vpnv4 unicast vrf {vrf} {target}"
+        bgp_aspath: StrictStr = "show bgp vpnv4 unicast vrf {vrf} regexp {target}"
+        bgp_community: StrictStr = "show bgp vpnv4 unicast vrf {vrf} community {target}"
+        ping: StrictStr = "ping vrf {vrf} {target} count 5 source {source}"
+        traceroute: StrictStr = "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
 
     class VPNIPv6(Command.VPNIPv6):
         """Validation model for non-default ipv6 commands."""
 
-        bgp_route: StrictStr = r"show bgp vpnv6 unicast vrf {vrf} {target} | util egrep \\(BGP routing table entry|Path \\#|aggregated by|Origin |Community:|validity| from \\)"
-        bgp_aspath: StrictStr = r"show bgp vpnv6 unicast vrf {vrf} regexp {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-        bgp_community: StrictStr = r"show bgp vpnv6 unicast vrf {vrf} community {target} | utility egrep -v \\(BGP |Table |Non-stop\\)"
-        ping: StrictStr = r"ping vrf {vrf} {target} count 5 source {source}"
-        traceroute: StrictStr = r"traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
+        bgp_route: StrictStr = "show bgp vpnv6 unicast vrf {vrf} {target}"
+        bgp_aspath: StrictStr = "show bgp vpnv6 unicast vrf {vrf} regexp {target}"
+        bgp_community: StrictStr = "show bgp vpnv6 unicast vrf {vrf} community {target}"
+        ping: StrictStr = "ping vrf {vrf} {target} count 5 source {source}"
+        traceroute: StrictStr = "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
 
     ipv4_default: IPv4 = IPv4()
     ipv6_default: IPv6 = IPv6()
@@ -154,7 +154,7 @@ class Juniper(Command):
     class IPv4(Command.IPv4):
         """Validation model for non-default dual afi commands."""
 
-        bgp_route: StrictStr = "show route protocol bgp table inet.0 {target} detail"
+        bgp_route: StrictStr = 'show route protocol bgp table inet.0 {target} detail | except Label | except Label | except "Next hop type" | except Task | except Address | except "Session Id" | except State | except "Next-hop reference" | except destinations | except "Announcement bits"'
         bgp_aspath: StrictStr = 'show route protocol bgp table inet.0 aspath-regex "{target}"'
         bgp_community: StrictStr = "show route protocol bgp table inet.0 community {target}"
         ping: StrictStr = "ping inet {target} count 5 source {source}"
@@ -163,16 +163,16 @@ class Juniper(Command):
     class IPv6(Command.IPv6):
         """Validation model for non-default ipv4 commands."""
 
-        bgp_route: StrictStr = "show route protocol bgp table inet6.0 {target} detail"
+        bgp_route: StrictStr = 'show route protocol bgp table inet6.0 {target} detail | except Label | except Label | except "Next hop type" | except Task | except Address | except "Session Id" | except State | except "Next-hop reference" | except destinations | except "Announcement bits"'
         bgp_aspath: StrictStr = 'show route protocol bgp table inet6.0 aspath-regex "{target}"'
         bgp_community: StrictStr = "show route protocol bgp table inet6.0 community {target}"
         ping: StrictStr = "ping inet6 {target} count 5 source {source}"
-        traceroute: StrictStr = "traceroute inet6 {target} wait 1 source {source}"
+        traceroute: StrictStr = "traceroute inet6 {target} wait 2 source {source}"
 
     class VPNIPv4(Command.VPNIPv4):
         """Validation model for non-default ipv6 commands."""
 
-        bgp_route: StrictStr = "show route protocol bgp table {vrf}.inet.0 {target} detail"
+        bgp_route: StrictStr = 'show route protocol bgp table {vrf}.inet.0 {target} detail | except Label | except Label | except "Next hop type" | except Task | except Address | except "Session Id" | except State | except "Next-hop reference" | except destinations | except "Announcement bits"'
         bgp_aspath: StrictStr = 'show route protocol bgp table {vrf}.inet.0 aspath-regex "{target}"'
         bgp_community: StrictStr = "show route protocol bgp table {vrf}.inet.0 community {target}"
         ping: StrictStr = "ping inet routing-instance {vrf} {target} count 5 source {source}"
@@ -181,11 +181,11 @@ class Juniper(Command):
     class VPNIPv6(Command.VPNIPv6):
         """Validation model for non-default ipv6 commands."""
 
-        bgp_route: StrictStr = "show route protocol bgp table {vrf}.inet6.0 {target} detail"
+        bgp_route: StrictStr = 'show route protocol bgp table {vrf}.inet6.0 {target} detail | except Label | except Label | except "Next hop type" | except Task | except Address | except "Session Id" | except State | except "Next-hop reference" | except destinations | except "Announcement bits"'
         bgp_aspath: StrictStr = 'show route protocol bgp table {vrf}.inet6.0 aspath-regex "{target}"'
         bgp_community: StrictStr = "show route protocol bgp table {vrf}.inet6.0 community {target}"
         ping: StrictStr = "ping inet6 routing-instance {vrf} {target} count 5 source {source}"
-        traceroute: StrictStr = "traceroute inet6 routing-instance {vrf} {target} wait 1 source {source}"
+        traceroute: StrictStr = "traceroute inet6 routing-instance {vrf} {target} wait 2 source {source}"
 
     ipv4_default: IPv4 = IPv4()
     ipv6_default: IPv6 = IPv6()
