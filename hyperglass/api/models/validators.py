@@ -5,7 +5,7 @@ import re
 from ipaddress import ip_network
 
 # Project
-from hyperglass.util import log
+from hyperglass.util import log, get_containing_prefix
 from hyperglass.exceptions import InputInvalid, InputNotAllowed
 from hyperglass.configuration import params
 
@@ -134,24 +134,10 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 
         # For a host query with bgp_route query type and force_cidr
         # enabled (the default), convert the host query to a network
-        # query, using the highest allowed prefix length in the VRF's
-        # access-list for the address-family.
+        # query.
         elif query_type in ("bgp_route",) and vrf_afi.force_cidr:
-            max_le = max(
-                ace.le
-                for ace in query_vrf[ip_version].access_list
-                if ace.action == "permit"
-            )
-            new_ip = valid_ip.supernet(new_prefix=max_le)
 
-            log.debug(
-                "Converted '{o}' to '{n}' for '{q}' query",
-                o=valid_ip,
-                n=new_ip,
-                q=query_type,
-            )
-
-            valid_ip = new_ip
+            valid_ip = get_containing_prefix(valid_ip.network_address)
 
         # For a host query with bgp_route query type and force_cidr
         # disabled, convert the host query to a single IP address.

@@ -668,3 +668,43 @@ def parse_exception(exc):
         else:
             parsed.append(cause)
     return ", caused by ".join(parsed)
+
+
+def get_containing_prefix(valid_ip):
+    """Get containing prefix for an IP host query from RIPEstat API.
+
+    Arguments:
+        valid_ip {IPv4Address|IPv6Address} -- Valid IP Address object
+
+    Raises:
+        InputInvalid: Raised if an http error occurs
+        InputInvalid: Raised if RIPEstat response doesn't contain a prefix.
+
+    Returns:
+        {IPv4Network|IPv6Network} -- Valid IP Network object
+    """
+    import httpx
+    from ipaddress import ip_network
+    from hyperglass.exceptions import InputInvalid
+
+    log.debug("Attempting to find containing prefix for {ip}", ip=str(valid_ip))
+
+    try:
+        response = httpx.get(
+            "https://stat.ripe.net/data/network-info/data.json",
+            params={"resource": str(valid_ip)},
+        )
+    except httpx.HTTPError as error:
+        msg = parse_exception(error)
+        raise InputInvalid(msg)
+
+    containing = response.json().get("data", {}).get("prefix")
+
+    if containing is None:
+        raise InputInvalid(f"{str(valid_ip)} has no containing prefix")
+
+    log.debug(
+        "Found containing prefix '{p}' for IP '{i}'", p=containing, i=str(valid_ip)
+    )
+
+    return ip_network(containing)
