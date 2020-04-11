@@ -67,6 +67,7 @@ class Params(HyperglassModel):
             "lg",
             "peer",
             "peering",
+            "ip",
             "ipv4",
             "ipv6",
             "transit",
@@ -76,12 +77,13 @@ class Params(HyperglassModel):
             "routing",
             "network",
             "isp",
+            "internet service provider",
         ],
         title="Site Keywords",
         description='Keywords pertaining to your hyperglass site. This field is used to generate `<meta name="keywords"/>` HTML tags, which helps tremendously with SEO.',
     )
     request_timeout: StrictInt = Field(
-        30,
+        65,
         title="Request Timeout",
         description="Global timeout in seconds for all requests. The frontend application (UI) uses this field's exact value when submitting queries. The backend application uses this field's value, minus one second, for its own timeout handling. This is to ensure a contextual timeout error is presented to the end user in the event of a backend application timeout.",
     )
