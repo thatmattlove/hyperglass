@@ -202,15 +202,28 @@ try:
     params.web.text.subtitle = params.web.text.subtitle.format(
         **params.dict(exclude={"web", "queries", "messages"})
     )
+
+    # Automatically derive the cache timeout period term
+    # (minutes, seconds) based on the cache timeout value.
     if params.cache.timeout >= 60:
         _cache_timeout = math.ceil(params.cache.timeout / 60)
         _cache_period = "minutes"
     elif params.cache.timeout < 60:
         _cache_timeout = params.cache.timeout
         _cache_period = "seconds"
+
+    # Format the cache display text to match the real values.
     params.web.text.cache = params.web.text.cache.format(
         timeout=_cache_timeout, period=_cache_period
     )
+
+    # If keywords are unmodified (default), add the org name &
+    # site_title.
+    if _params.Params().site_keywords == params.site_keywords:
+        params.site_keywords = sorted(
+            {*params.site_keywords, params.org_name, params.site_title}
+        )
+
 except KeyError:
     pass
 
@@ -455,6 +468,7 @@ _frontend_fields = {
     "org_name": ...,
     "google_analytics": ...,
     "site_description": ...,
+    "site_keywords": ...,
     "web": ...,
     "messages": ...,
 }
