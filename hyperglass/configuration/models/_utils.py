@@ -3,8 +3,8 @@
 # Standard Library
 import os
 import re
-from pathlib import Path
 from typing import TypeVar
+from pathlib import Path
 
 # Third Party
 from pydantic import HttpUrl, BaseModel, StrictInt, StrictFloat

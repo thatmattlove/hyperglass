@@ -21,9 +21,9 @@ from pydantic import (
 from hyperglass.configuration.models.web import Web
 from hyperglass.configuration.models.docs import Docs
 from hyperglass.configuration.models.cache import Cache
+from hyperglass.configuration.models._utils import IntFloat, HyperglassModel
 from hyperglass.configuration.models.queries import Queries
 from hyperglass.configuration.models.messages import Messages
-from hyperglass.configuration.models._utils import HyperglassModel, IntFloat
 
 
 class Params(HyperglassModel):
