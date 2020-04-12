@@ -4,12 +4,15 @@
 import os
 import re
 from pathlib import Path
+from typing import TypeVar
 
 # Third Party
-from pydantic import HttpUrl, BaseModel
+from pydantic import HttpUrl, BaseModel, StrictInt, StrictFloat
 
 # Project
 from hyperglass.util import log, clean_name
+
+IntFloat = TypeVar("IntFloat", StrictInt, StrictFloat)
 
 
 class HyperglassModel(BaseModel):

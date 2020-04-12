@@ -21,9 +21,9 @@ from pydantic import (
 from hyperglass.configuration.models.web import Web
 from hyperglass.configuration.models.docs import Docs
 from hyperglass.configuration.models.cache import Cache
-from hyperglass.configuration.models._utils import HyperglassModel
 from hyperglass.configuration.models.queries import Queries
 from hyperglass.configuration.models.messages import Messages
+from hyperglass.configuration.models._utils import HyperglassModel, IntFloat
 
 
 class Params(HyperglassModel):
@@ -83,7 +83,7 @@ class Params(HyperglassModel):
         description='Keywords pertaining to your hyperglass site. This field is used to generate `<meta name="keywords"/>` HTML tags, which helps tremendously with SEO.',
     )
     request_timeout: StrictInt = Field(
-        65,
+        90,
         title="Request Timeout",
         description="Global timeout in seconds for all requests. The frontend application (UI) uses this field's exact value when submitting queries. The backend application uses this field's value, minus one second, for its own timeout handling. This is to ensure a contextual timeout error is presented to the end user in the event of a backend application timeout.",
     )
@@ -106,6 +106,11 @@ class Params(HyperglassModel):
         [],
         title="Cross-Origin Resource Sharing",
         description="Allowed CORS hosts. By default, no CORS hosts are allowed.",
+    )
+    netmiko_delay_factor: IntFloat = Field(
+        0.1,
+        title="Netmiko Delay Factor",
+        description="Override the netmiko global delay factor.",
     )
 
     # Sub Level Params
