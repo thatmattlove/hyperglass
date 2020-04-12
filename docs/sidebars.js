@@ -3,15 +3,24 @@ module.exports = {
         {
             type: "category",
             label: "Installation",
-            items: ["introduction", "getting-started", "setup"]
+            items: ["introduction", "getting-started", "setup"],
         },
         {
             type: "category",
             label: "Configuration",
-            items: ["configuration", "devices", "ui", "cache", "api", "messages", "queries"]
+            items: [
+                "configuration",
+                "devices",
+                "commands",
+                "ui",
+                "cache",
+                "api",
+                "messages",
+                "queries",
+            ],
         },
         { type: "category", label: "Linux Agent", items: ["agent/installation"] },
         { type: "doc", id: "platforms" },
-        { type: "doc", id: "license" }
-    ]
+        { type: "doc", id: "license" },
+    ],
 };

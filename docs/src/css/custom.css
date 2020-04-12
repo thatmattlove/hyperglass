@@ -143,3 +143,7 @@ h6 code {
     border-color: var(--ifm-navbar-search-input-background-color);
     border-style: solid;
 }
+
+.admonition-content table tr:nth-child(2n) {
+    background-color: unset;
+}

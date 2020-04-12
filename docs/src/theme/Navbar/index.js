@@ -35,11 +35,11 @@ function NavLink({ to, href, label, position, ...props }) {
                 ? {
                       target: "_blank",
                       rel: "noopener noreferrer",
-                      href
+                      href,
                   }
                 : {
                       activeClassName: "navbar__link--active",
-                      to: toUrl
+                      to: toUrl,
                   })}
             {...props}
         >
@@ -47,6 +47,8 @@ function NavLink({ to, href, label, position, ...props }) {
         </Link>
     );
 }
+
+const logoColor = { true: "#ff5e5b", false: "#000" };
 
 function Navbar() {
     const context = useDocusaurusContext();
@@ -73,7 +75,7 @@ function Navbar() {
         setSidebarShown(false);
     }, [setSidebarShown]);
 
-    const onToggleChange = checked => {
+    const onToggleChange = (checked) => {
         checked ? setDarkTheme() : setLightTheme();
     };
 
@@ -82,12 +84,12 @@ function Navbar() {
     const logoLinkProps = isExternalLogoLink
         ? {
               rel: "noopener noreferrer",
-              target: "_blank"
+              target: "_blank",
           }
         : null;
     const logoSrc = logo.srcDark && isDarkTheme ? logo.srcDark : logo.src;
 
-    const logoColor = isDarkTheme ? "#ff5e5b" : "#000";
+    // const logoColor = isDarkTheme ? "#ff5e5b" : "#000";
 
     return (
         <nav
@@ -97,14 +99,18 @@ function Navbar() {
                 [styles.navbarOther]: pathname !== "/",
                 "navbar-sidebar--show": sidebarShown,
                 [styles.navbarHideable]: hideOnScroll,
-                [styles.navbarHidden]: !isNavbarVisible
+                [styles.navbarHidden]: !isNavbarVisible,
             })}
         >
             <div className="navbar__inner">
                 <div className={classnames("navbar__items", styles.navbarItems)}>
                     {!isMobile && (
                         <Link className="navbar__brand" to={baseUrl}>
-                            <Logo color={logoColor} size={32} className={styles.logo} />
+                            <Logo
+                                color={logoColor[isDarkTheme]}
+                                size={32}
+                                className={styles.logo}
+                            />
                             {title != null && (
                                 <strong className={isSearchBarExpanded ? styles.hideLogoText : ""}>
                                     {title}
@@ -139,7 +145,7 @@ function Navbar() {
                         </svg>
                     </div>
                     {links
-                        .filter(linkItem => linkItem.position !== "right")
+                        .filter((linkItem) => linkItem.position !== "right")
                         .map((linkItem, i) => (
                             <NavLink {...linkItem} key={i} />
                         ))}
@@ -153,7 +159,11 @@ function Navbar() {
                 >
                     {isMobile && (
                         <Link className="navbar__brand" to={baseUrl}>
-                            <Logo color={logoColor} size={32} className={styles.logo} />
+                            <Logo
+                                color={logoColor[isDarkTheme]}
+                                size={32}
+                                className={styles.logo}
+                            />
                             {title != null && (
                                 <strong className={isSearchBarExpanded ? styles.hideLogoText : ""}>
                                     {title}
@@ -191,7 +201,7 @@ function Navbar() {
             <div className="navbar-sidebar">
                 <div className="navbar-sidebar__brand">
                     <Link className="navbar__brand" to={baseUrl}>
-                        <Logo color={logoColor} size={32} className={styles.logo} />
+                        <Logo color={logoColor[isDarkTheme]} size={32} className={styles.logo} />
                         {title != null && (
                             <strong className={isSearchBarExpanded ? styles.hideLogoText : ""}>
                                 {title}

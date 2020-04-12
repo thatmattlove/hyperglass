@@ -14,11 +14,11 @@ module.exports = {
         googleAnalytics: { trackingID: googleTrackingId || " ", anonymizeIP: false },
         gtag: {
             trackingID: googleTrackingId || " ",
-            anonymizeIP: false
+            anonymizeIP: false,
         },
         algolia: {
             apiKey: algoliaKey,
-            indexName: "hyperglass"
+            indexName: "hyperglass",
         },
         navbar: {
             links: [
@@ -27,9 +27,9 @@ module.exports = {
                 {
                     href: "https://demo.hyperglass.io",
                     label: "Demo",
-                    position: "left"
-                }
-            ]
+                    position: "left",
+                },
+            ],
         },
         footer: {
             style: "dark",
@@ -39,46 +39,46 @@ module.exports = {
                     items: [
                         {
                             label: "Introduction",
-                            to: "docs/introduction"
+                            to: "docs/introduction",
                         },
                         {
                             label: "Getting Started",
-                            to: "docs/getting-started"
+                            to: "docs/getting-started",
                         },
                         {
                             label: "Configuration",
-                            to: "docs/configuration"
-                        }
-                    ]
+                            to: "docs/configuration",
+                        },
+                    ],
                 },
                 {
                     title: "Community",
                     items: [
                         {
                             label: "Gitter",
-                            href: "https://gitter.im/hyperglass"
+                            href: "https://gitter.im/hyperglass",
                         },
                         {
                             label: "Keybase",
-                            href: "https://keybase.io/team/hyperglass"
-                        }
-                    ]
+                            href: "https://keybase.io/team/hyperglass",
+                        },
+                    ],
                 },
                 {
                     title: "Social",
                     items: [
                         {
                             label: "GitHub",
-                            href: githubURL
+                            href: githubURL,
                         },
                         {
                             label: "Twitter",
-                            href: "https://twitter.com/checktheroads"
-                        }
-                    ]
-                }
-            ]
-        }
+                            href: "https://twitter.com/checktheroads",
+                        },
+                    ],
+                },
+            ],
+        },
     },
     presets: [
         [
@@ -86,17 +86,17 @@ module.exports = {
             {
                 docs: {
                     sidebarPath: require.resolve("./sidebars.js"),
-                    editUrl: githubURL + "/edit/master/docs/"
+                    editUrl: githubURL + "/edit/master/docs/",
                 },
                 theme: {
-                    customCss: require.resolve("./src/css/custom.css")
-                }
-            }
-        ]
+                    customCss: require.resolve("./src/css/custom.css"),
+                },
+            },
+        ],
     ],
     plugins: [
         "@docusaurus/plugin-google-analytics",
         "@docusaurus/plugin-google-gtag",
-        "@docusaurus/plugin-sitemap"
-    ]
+        "@docusaurus/plugin-sitemap",
+    ],
 };

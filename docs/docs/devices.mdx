@@ -80,20 +80,27 @@ The VRFs section is a list of available VRFs for a given device. Each VRF may be
 
 May be set to `null` to disable IPv4 for this VRF, on the parent device.
 
-| Parameter             |  Type  | Description                                                           |
-| :-------------------- | :----: | :-------------------------------------------------------------------- |
-| <R/> `source_address` | String | Device's source IPv4 address for directed queries (ping, traceroute). |
-| `access_list`         |        | <Link to="#access_list">IPv4 Access List Configuration</Link>         |
+| Parameter             |  Type   | Description                                                           |
+| :-------------------- | :-----: | :-------------------------------------------------------------------- |
+| <R/> `source_address` | String  | Device's source IPv4 address for directed queries (ping, traceroute). |
+| `force_cidr`          | Boolean | `true`                                                                | Convert IP host queries to actual advertised containing prefix length |
+| `access_list`         |         | <Link to="#access_list">IPv4 Access List Configuration</Link>         |
 
 #### `ipv6`
 
 May be set to `null` to disable IPv6 for this VRF, on the parent device.
 
-| Parameter             |  Type   | Default | Description                                                                                                                     |
-| :-------------------- | :-----: | :------ | :------------------------------------------------------------------------------------------------------------------------------ |
-| <R/> `source_address` | String  |         | Device's source IPv6 address for directed queries (ping, traceroute).                                                           |
-| `force_cidr`          | Boolean | `true`  | Convert host queries to the highest allowed prefix-length (defined in the <Link to="#access-list"><Code>le</Code></Link> field) |
-| `access_list`         |         |         | <Link to="#access_list">IPv6 Access List Configuration</Link>                                                                   |
+| Parameter             |  Type   | Default | Description                                                           |
+| :-------------------- | :-----: | :------ | :-------------------------------------------------------------------- |
+| <R/> `source_address` | String  |         | Device's source IPv6 address for directed queries (ping, traceroute). |
+| `force_cidr`          | Boolean | `true`  | Convert IP host queries to actual advertised containing prefix length |
+| `access_list`         |         |         | [IPv6 Access List Configuration](#access_list)                        |
+
+:::note
+The `force_cidr` option will ensure that a **BGP Route** query for an IP host (/32 IPv4, /128 IPv6) is converted to its containing prefix. For example, a query for `1.1.1.1` would be converted to a query for `1.1.1.0/24`. This is because not all platforms support a BGP lookup for a host (this is primary a problem with IPv6, but the option applies to both address families).
+
+When `force_cidr`is set to `true`, hyperglass will perform a lookup via the [RIPEStat](https://stat.ripe.net/docs/data_api#network-info) Data API to get the advertised prefix for an IP host.
+:::
 
 #### `access_list`
 
@@ -135,7 +142,21 @@ info:
             community: "65000"
 ```
 
-### Full Example
+## Telnet
+
+Telnet support is provided via the underlying device connection handling framework, [Netmiko](https://github.com/ktbyers/netmiko). To connect to a device via serial, add the suffix `_telnet` to the device's `nos` value and set the `port` value to `23`.
+
+For example:
+
+```yaml {3-4}
+routers:
+    - name: router01
+      nos: cisco_ios_telnet
+      port: 23
+      ...
+```
+
+## Full Example
 
 Below is a full example with nearly every available knob turned:
 

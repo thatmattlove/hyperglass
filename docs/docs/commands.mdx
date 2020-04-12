@@ -1,0 +1,110 @@
+---
+id: commands
+title: Commands
+sidebar_label: Commands
+keywords:
+    [
+        hyperglass,
+        commands,
+        customize,
+        cisco,
+        ios,
+        ios-xe,
+        ios-xr,
+        juniper,
+        junos,
+        arista,
+        eos,
+        huawei,
+        vrp,
+    ]
+description: Custom Commands
+---
+
+hyperglass comes with built in support for the following platforms:
+
+-   Cisco IOS & IOS-XE
+-   Cisco IOS-XR
+-   Juniper JunOS
+-   Arista EOS
+-   Huawei VRP
+
+Default commands for each of these network operating systems are built into hyperglass. However, you may override any of them or even add commands for another Network Operating System (NOS), as long as it's [supported](platforms.mdx). To define custom commands, add a `commands.yaml` file to your installation directory (`/etc/hyperglass`,
+`~/hyperglass`). As an example, you could override the default Juniper `bgp_route` command for the default routing table like this:
+
+```yaml
+juniper:
+    ipv4_default:
+        bgp_route: "show route protocol bgp {target} terse"
+```
+
+Only the command you specify will be overridden.
+
+## Command Types
+
+Each command definition carries the following structure:
+
+```yaml
+command_name:
+  ipv4_default: ...
+    bgp_route: ...
+    bgp_aspath: ...
+    bgp_community: ...
+    ping: ...
+    traceroute: ...
+  ipv6_default:
+    bgp_route: ...
+    bgp_aspath: ...
+    bgp_community: ...
+    ping: ...
+    traceroute: ...
+  ipv4_vpn:
+    bgp_route: ...
+    bgp_aspath: ...
+    bgp_community: ...
+    ping: ...
+    traceroute: ...
+  ipv6_vpn:
+    bgp_route: ...
+    bgp_aspath: ...
+    bgp_community: ...
+    ping: ...
+    traceroute: ...
+```
+
+`ipv4_default` and `ipv6_default` reference the commands used in the default routing table/VRF, while `ipv4_vpn` and `ipv6_vpn` reference the commands used in **any** configured VRF. Every command will have the following keywords replaced:
+
+| Keyword    | Description                                                   |
+| :--------- | :------------------------------------------------------------ |
+| `{target}` | Query Target (IP address, community, AS Path).                |
+| `{vrf}`    | If it's a VRF query, the [name of the VRF](devices.mdx#vrfs). |
+
+## Defining Custom Commands
+
+You can also define your own arbitrary command groups, and reference them in your `devices.yaml` file. For example, if you wanted define a set of commands for a specific device to use, you could do it like this:
+
+```yaml
+# commands.yaml
+---
+special_commands:
+    ipv4_default:
+        bgp_route: "show ip route {target}"
+    ipv4_vpn:
+        bgp_route: "show ip route {target} vrf {vrf}"
+```
+
+The above example defines the command set.
+
+:::important
+You must define _all_ commands, even if they're disabled in your [configuration](queries.mdx).
+:::
+
+Then, in the device's definition in `devices.yaml`, reference the command set:
+
+```yaml {5}
+# devices.yaml
+---
+routers:
+    - name: specialrouter01
+      commands: special_commands
+```

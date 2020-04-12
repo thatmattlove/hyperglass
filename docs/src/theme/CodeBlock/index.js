@@ -20,20 +20,19 @@ const highlightLinesRangeRegex = /{([\d,-]+)}/;
 export default ({ children, className: languageClassName, metastring }) => {
     (typeof global !== "undefined" ? global : window).Prism = Prism;
     require("prismjs/components/prism-shell-session");
-    require("prismjs/components/prism-yaml");
     const {
         siteConfig: {
-            themeConfig: { prism = {} }
-        }
+            themeConfig: { prism = {} },
+        },
     } = useDocusaurusContext();
-    const [showCopied, setShowCopied] = useState(false);
+    // const [showCopied, setShowCopied] = useState(false);
     const target = useRef(null);
     const button = useRef(null);
     let highlightLines = [];
 
     if (metastring && highlightLinesRangeRegex.test(metastring)) {
         const highlightLinesRange = metastring.match(highlightLinesRangeRegex)[1];
-        highlightLines = rangeParser.parse(highlightLinesRange).filter(n => n > 0);
+        highlightLines = rangeParser.parse(highlightLinesRange).filter((n) => n > 0);
     }
 
     useEffect(() => {
@@ -41,7 +40,7 @@ export default ({ children, className: languageClassName, metastring }) => {
 
         if (button.current) {
             clipboard = new Clipboard(button.current, {
-                target: () => target.current
+                target: () => target.current,
             });
         }
 
@@ -58,12 +57,12 @@ export default ({ children, className: languageClassName, metastring }) => {
         language = prism.defaultLanguage;
     }
 
-    const handleCopyCode = () => {
-        window.getSelection().empty();
-        setShowCopied(true);
+    // const handleCopyCode = () => {
+    //     window.getSelection().empty();
+    //     setShowCopied(true);
 
-        setTimeout(() => setShowCopied(false), 2000);
-    };
+    //     setTimeout(() => setShowCopied(false), 2000);
+    // };
 
     return (
         <Highlight
