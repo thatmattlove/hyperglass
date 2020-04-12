@@ -178,7 +178,7 @@ class Params(HyperglassModel):
             now = datetime.now()
             now.isoformat
             value = Path(
-                f'/tmp/hyperglass_{now.strftime(r"%Y%M%d-%H%M%S")}.log'  # noqa: S108
+                f'/tmp/hyperglass_{now.strftime(r"%Y%M%d_%H-%M-%S")}.log'  # noqa: S108
             )
         return value
 
