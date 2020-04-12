@@ -7,12 +7,12 @@ hyperglass-frr API calls, returns the output back to the front end.
 """
 
 # Standard Library
+import math
 import signal
 from ssl import CertificateError
 
 # Third Party
 import httpx
-import sshtunnel
 from netmiko import (
     ConnectHandler,
     NetmikoAuthError,
@@ -23,6 +23,7 @@ from netmiko import (
 
 # Project
 from hyperglass.util import log, parse_exception
+from hyperglass.compat import _sshtunnel as sshtunnel
 from hyperglass.encode import jwt_decode, jwt_encode
 from hyperglass.constants import Supported
 from hyperglass.exceptions import (
@@ -33,6 +34,7 @@ from hyperglass.exceptions import (
     ResponseEmpty,
 )
 from hyperglass.configuration import params, devices
+from hyperglass.parsing.common import parsers
 from hyperglass.execution.construct import Construct
 
 
@@ -61,6 +63,24 @@ class Connect:
         self.transport = transport
         self._query = Construct(device=self.device, query_data=self.query_data)
         self.query = self._query.queries()
+        self.netmiko_args = {
+            "global_delay_factor": params.netmiko_delay_factor,
+            "timeout": math.floor(params.request_timeout * 1.25),
+            "session_timeout": math.ceil(params.request_timeout - 1),
+        }
+
+    async def parsed_response(self, output):
+        """Send output through common parsers.
+
+        Arguments:
+            output {str} -- Raw output
+
+        Returns:
+            {str} -- Parsed output
+        """
+        for coro in parsers:
+            output = await coro(commands=self.query, output=output)
+        return output
 
     async def scrape_proxied(self):
         """Connect to a device via an SSH proxy.
@@ -78,6 +98,7 @@ class Connect:
                 remote_bind_address=(self.device.address, self.device.port),
                 local_bind_address=("localhost", 0),
                 skip_tunnel_checkup=False,
+                gateway_timeout=params.request_timeout - 2,
             )
         except sshtunnel.BaseSSHTunnelForwarderError as scrape_proxy_error:
             log.error(
@@ -115,8 +136,7 @@ class Connect:
                 "device_type": self.device.nos,
                 "username": self.device.credential.username,
                 "password": self.device.credential.password.get_secret_value(),
-                "global_delay_factor": 0.2,
-                "timeout": params.request_timeout - 1,
+                **self.netmiko_args,
             }
 
             try:
@@ -124,10 +144,10 @@ class Connect:
 
                 nm_connect_direct = ConnectHandler(**scrape_host)
 
-                responses = []
+                responses = ()
                 for query in self.query:
                     raw = nm_connect_direct.send_command(query)
-                    responses.append(raw)
+                    responses += (raw,)
                     log.debug(f'Raw response for command "{query}":\n{raw}')
                 response = "\n\n".join(responses)
 
@@ -174,7 +194,7 @@ class Connect:
                 error=params.messages.no_response,
             )
         signal.alarm(0)
-        return response
+        return await self.parsed_response(response)
 
     async def scrape_direct(self):
         """Connect directly to a device.
@@ -190,8 +210,7 @@ class Connect:
             "device_type": self.device.nos,
             "username": self.device.credential.username,
             "password": self.device.credential.password.get_secret_value(),
-            "global_delay_factor": 0.2,
-            "timeout": params.request_timeout,
+            **self.netmiko_args,
         }
 
         try:
@@ -208,12 +227,13 @@ class Connect:
             signal.signal(signal.SIGALRM, handle_timeout)
             signal.alarm(params.request_timeout - 1)
 
-            responses = []
+            responses = ()
 
             for query in self.query:
                 raw = nm_connect_direct.send_command(query)
-                responses.append(raw)
+                responses += (raw,)
                 log.debug(f'Raw response for command "{query}":\n{raw}')
+
             response = "\n\n".join(responses)
 
             nm_connect_direct.disconnect()
@@ -247,7 +267,7 @@ class Connect:
                 error=params.messages.no_response,
             )
         signal.alarm(0)
-        return response
+        return await self.parsed_response(response)
 
     async def rest(self):  # noqa: C901
         """Connect to a device running hyperglass-agent via HTTP."""
@@ -355,7 +375,7 @@ class Connect:
                 error=params.messages.no_response,
             )
 
-        return response
+        return await self.parsed_response(response)
 
 
 class Execute:
