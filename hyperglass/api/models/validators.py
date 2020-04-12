@@ -179,7 +179,7 @@ def validate_aspath(value):
     mode = params.queries.bgp_aspath.pattern.mode
     pattern = getattr(params.queries.bgp_aspath.pattern, mode)
 
-    if not re.match(pattern, value):
+    if not bool(re.match(pattern, value)):
         raise InputInvalid(
             params.messages.invalid_input,
             target=value,

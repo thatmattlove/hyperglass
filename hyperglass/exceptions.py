@@ -1,7 +1,7 @@
 """Custom exceptions for hyperglass."""
 
-# Third Party
-import ujson as _json
+# Standard Library
+import json as _json
 
 # Project
 from hyperglass.util import log

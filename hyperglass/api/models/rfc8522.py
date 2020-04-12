@@ -8,7 +8,6 @@ from typing import List, Union, Optional
 from datetime import datetime
 
 # Third Party
-import ujson
 from pydantic import BaseModel, StrictInt, StrictStr, StrictFloat, constr, validator
 
 
@@ -27,8 +26,6 @@ GET /.well-known/looking-glass/v1/cmd
 
 class _HyperglassQuery(BaseModel):
     class Config:
-        json_loads = ujson.loads
-        json_dumps = ujson.dumps
         validate_all = True
         validate_assignment = True
 

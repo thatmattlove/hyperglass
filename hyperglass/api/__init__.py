@@ -7,7 +7,7 @@ from pathlib import Path
 # Third Party
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
-from starlette.responses import UJSONResponse
+from starlette.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.openapi.utils import get_openapi
 from starlette.staticfiles import StaticFiles
@@ -71,7 +71,7 @@ app = FastAPI(
     title=params.site_title,
     description=params.site_description,
     version=__version__,
-    default_response_class=UJSONResponse,
+    default_response_class=JSONResponse,
     **DOCS_PARAMS,
 )
 
@@ -169,7 +169,7 @@ app.add_api_route(
     endpoint=routers,
     methods=["GET"],
     response_model=List[RoutersResponse],
-    response_class=UJSONResponse,
+    response_class=JSONResponse,
     summary=params.docs.devices.summary,
     description=params.docs.devices.description,
     tags=[params.docs.devices.title],
@@ -178,7 +178,7 @@ app.add_api_route(
     path="/api/queries",
     endpoint=queries,
     methods=["GET"],
-    response_class=UJSONResponse,
+    response_class=JSONResponse,
     response_model=List[SupportedQueryResponse],
     summary=params.docs.queries.summary,
     description=params.docs.queries.description,
@@ -197,7 +197,7 @@ app.add_api_route(
     },
     response_model=QueryResponse,
     tags=[params.docs.query.title],
-    response_class=UJSONResponse,
+    response_class=JSONResponse,
 )
 
 # Enable certificate import route only if a device using

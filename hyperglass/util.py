@@ -150,7 +150,7 @@ async def write_env(variables):
         RuntimeError: Raised on any errors.
     """
     from aiofile import AIOFile
-    import ujson as json
+    import json
     from pathlib import Path
 
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
@@ -390,14 +390,14 @@ async def read_package_json():
         {dict} -- NPM package.json as dict
     """
     from pathlib import Path
-    import ujson
+    import json
 
     package_json_file = Path(__file__).parent / "ui" / "package.json"
 
     try:
 
         with package_json_file.open("r") as file:
-            package_json = ujson.load(file)
+            package_json = json.load(file)
 
     except Exception as e:
         raise RuntimeError(f"Error reading package.json: {str(e)}")

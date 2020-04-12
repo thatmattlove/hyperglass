@@ -1,4 +1,4 @@
-"""Functions for maintaining compatability with older Python versions."""
+"""Functions for maintaining asyncio compatability with other versions of Python."""
 
 # Standard Library
 import sys

@@ -3,18 +3,17 @@
 # Standard Library
 import os
 import copy
+import json
 import math
 from pathlib import Path
 
 # Third Party
 import yaml
-import ujson as json
 from aiofile import AIOFile
 from pydantic import ValidationError
 
 # Project
 from hyperglass.util import log, check_path, set_app_path
-from hyperglass.compat import aiorun
 from hyperglass.constants import (
     CREDIT,
     LOG_LEVELS,
@@ -27,6 +26,7 @@ from hyperglass.constants import (
     __version__,
 )
 from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
+from hyperglass.compat._asyncio import aiorun
 from hyperglass.configuration.models import params as _params
 from hyperglass.configuration.models import routers as _routers
 from hyperglass.configuration.models import commands as _commands
@@ -100,6 +100,7 @@ def _set_log_level(debug, log_file=None):
         log_level = "DEBUG"
         stdout_handler["level"] = log_level
         file_handler["level"] = log_level
+        os.environ["HYPERGLASS_LOG_LEVEL"] = log_level
 
     if log_file is not None:
         file_handler.update({"sink": log_file})
