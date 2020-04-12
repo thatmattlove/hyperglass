@@ -7,14 +7,16 @@ hyperglass API modules.
 
 # Standard Library
 import re
+import json as _json
 import operator
-
-# Third Party
-import ujson
 
 # Project
 from hyperglass.util import log
-from hyperglass.constants import TRANSPORT_REST, TARGET_FORMAT_SPACE
+from hyperglass.constants import (
+    TRANSPORT_REST,
+    TARGET_FORMAT_SPACE,
+    TARGET_JUNIPER_ASPATH,
+)
 from hyperglass.configuration import commands
 
 
@@ -72,6 +74,20 @@ class Construct:
                 if v is not None
             ]
 
+            # For devices that follow Juniper's AS_PATH regex standards,
+            # filter out Cisco-style special characters.
+
+            if self.device.nos in TARGET_JUNIPER_ASPATH:
+                query = str(self.query_data.query_target)
+                asns = re.findall(r"\d+", query)
+                if bool(re.match(r"^\_", query)):
+                    # Replace `_65000` with `.* 65000`
+                    asns.insert(0, r".*")
+                if bool(re.match(r".*(\_)$", query)):
+                    # Replace `65000_` with `65000 .*`
+                    asns.append(r".*")
+                self.target = " ".join(asns)
+
     def json(self, afi):
         """Return JSON version of validated query for REST devices.
 
@@ -82,7 +98,7 @@ class Construct:
             {str} -- JSON query string
         """
         log.debug("Building JSON query for {q}", q=repr(self.query_data))
-        return ujson.dumps(
+        return _json.dumps(
             {
                 "query_type": self.query_data.query_type,
                 "vrf": self.query_data.query_vrf.name,

@@ -165,7 +165,7 @@ def build_ui():
         ClickException: Raised on any errors.
     """
     try:
-        from hyperglass.compat import aiorun
+        from hyperglass.compat._asyncio import aiorun
         from hyperglass.util import build_frontend
         from hyperglass.configuration import params, frontend_params, CONFIG_PATH
     except ImportError as e:

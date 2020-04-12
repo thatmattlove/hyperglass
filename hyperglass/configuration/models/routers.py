@@ -11,7 +11,7 @@ from pydantic import StrictInt, StrictStr, validator
 
 # Project
 from hyperglass.util import log, clean_name
-from hyperglass.constants import Supported
+from hyperglass.constants import SCRAPE_HELPERS, TRANSPORT_REST, TRANSPORT_SCRAPE
 from hyperglass.exceptions import ConfigError, UnsupportedDevice
 from hyperglass.configuration.models.ssl import Ssl
 from hyperglass.configuration.models.vrfs import Vrf, Info
@@ -65,8 +65,12 @@ class Router(HyperglassModel):
         Returns:
             {str} -- Valid NOS
         """
-        if not Supported.is_supported(value):
-            raise UnsupportedDevice(f'"{value}" device type is not supported.')
+        if value in SCRAPE_HELPERS.keys():
+            value = SCRAPE_HELPERS[value]
+
+        if value not in (*TRANSPORT_REST, *TRANSPORT_SCRAPE):
+            raise UnsupportedDevice('NOS "{n}" is not supported.', n=value)
+
         return value
 
     @validator("name")

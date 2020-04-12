@@ -4,7 +4,7 @@ import sys
 from datetime import datetime
 
 __name__ = "hyperglass"
-__version__ = "1.0.0-beta.17"
+__version__ = "1.0.0-beta.18"
 __author__ = "Matt Love"
 __copyright__ = f"Copyright {datetime.now().year} Matthew Love"
 __license__ = "BSD 3-Clause Clear License"
@@ -16,6 +16,8 @@ MIN_PYTHON_VERSION = (3, 6)
 protocol_map = {80: "http", 8080: "http", 443: "https", 8443: "https"}
 
 TARGET_FORMAT_SPACE = ("huawei", "huawei_vrpv8")
+
+TARGET_JUNIPER_ASPATH = ("juniper", "juniper_junos")
 
 LOG_FMT = (
     "<lvl><b>[{level}]</b> {time:YYYYMMDD} {time:HH:mm:ss} <lw>|</lw> {name}<lw>:</lw>"
@@ -259,6 +261,11 @@ TRANSPORT_SCRAPE = (
     "vyos",
     "oneaccess_oneos",
 )
+
+SCRAPE_HELPERS = {
+    "junos": "juniper",
+    "ios": "cisco_ios",
+}
 
 
 class Supported:
