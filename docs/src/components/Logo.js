@@ -1,6 +1,6 @@
 import React from "react";
 
-export default ({ color = "inherit", size = 32, className }) => (
+export default ({ color = "#ff5e5b", size = 32, className }) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
