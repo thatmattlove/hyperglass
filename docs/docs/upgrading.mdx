@@ -1,0 +1,25 @@
+---
+id: upgrading
+title: Upgrading hyperglass
+sidebar_label: Upgrading
+keywords: [hyperglass, looking glass, upgrade, upgrading, version]
+description: How to upgrade hyperglass
+---
+
+## Upgrade Process
+
+To upgrade hyperglass, stop the currently-running service and upgrade via PyPI:
+
+```bash {2}
+sudo systemctl stop hyperglass
+sudo pip3 install -U hyperglass
+```
+
+## Check Current version
+
+To check the current version of hyperglass, run the following command:
+
+```bash {1}
+sudo hyperglass --version
+# hyperglass version: 1.0.0-beta.19
+```

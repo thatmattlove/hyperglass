@@ -20,6 +20,7 @@ module.exports = {
             ],
         },
         { type: "category", label: "Linux Agent", items: ["agent/installation"] },
+        { type: "doc", id: "upgrading" },
         { type: "doc", id: "platforms" },
         { type: "doc", id: "license" },
     ],
