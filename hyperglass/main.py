@@ -94,7 +94,7 @@ def on_starting(server: Arbiter):
     log.success(
         "Started hyperglass {v} on http://{h}:{p} with {w} workers",
         v=__version__,
-        h=str(params.listen_address),
+        h=format_listen_address(params.listen_address),
         p=str(params.listen_port),
         w=server.app.cfg.settings["workers"].value,
     )
