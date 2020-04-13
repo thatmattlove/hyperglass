@@ -9,7 +9,7 @@ const subtitleAnimation = {
     transition: { duration: 0.2, type: "tween" },
     initial: { opacity: 1, scale: 1 },
     animate: { opacity: 1, scale: 1 },
-    exit: { opacity: 0, scale: 0.3 }
+    exit: { opacity: 0, scale: 0.3 },
 };
 const titleSize = { true: "2xl", false: "lg" };
 const titleMargin = { true: 2, false: 0 };
@@ -60,7 +60,7 @@ const LogoSubtitle = ({ text, logo, showSubtitle, mediaSize }) => (
         <Logo text={text} logo={logo} showSubtitle={showSubtitle} mediaSize={mediaSize} />
         <AnimatePresence>
             {showSubtitle && (
-                <AnimatedSubtitle mt={2} text={text.subtitle} {...subtitleAnimation} />
+                <AnimatedSubtitle mt={6} text={text.subtitle} {...subtitleAnimation} />
             )}
         </AnimatePresence>
     </>
@@ -76,7 +76,7 @@ const All = ({ text, logo, mediaSize, showSubtitle }) => (
 const modeMap = { text_only: TextOnly, logo_only: Logo, logo_subtitle: LogoSubtitle, all: All };
 const justifyMap = {
     true: ["flex-end", "center", "center", "center"],
-    false: ["flex-start", "center", "center", "center"]
+    false: ["flex-start", "center", "center", "center"],
 };
 
 export default React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
