@@ -32,6 +32,7 @@ from hyperglass.util import (  # isort:skip
     check_redis,
     build_frontend,
     clear_redis_cache,
+    format_listen_address,
 )
 from hyperglass.compat._asyncio import aiorun  # isort:skip
 
@@ -140,7 +141,9 @@ def start(**kwargs):
             "preload": True,
             "keepalive": 10,
             "command": shutil.which("gunicorn"),
-            "bind": ":".join((str(params.listen_address), str(params.listen_port))),
+            "bind": ":".join(
+                (format_listen_address(params.listen_address), str(params.listen_port))
+            ),
             "workers": workers,
             "loglevel": loglevel,
             "timeout": math.ceil(params.request_timeout * 1.25),

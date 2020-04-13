@@ -14,6 +14,7 @@ from pydantic import (
     StrictStr,
     StrictBool,
     IPvAnyAddress,
+    constr,
     validator,
 )
 
@@ -87,7 +88,7 @@ class Params(HyperglassModel):
         title="Request Timeout",
         description="Global timeout in seconds for all requests. The frontend application (UI) uses this field's exact value when submitting queries. The backend application uses this field's value, minus one second, for its own timeout handling. This is to ensure a contextual timeout error is presented to the end user in the event of a backend application timeout.",
     )
-    listen_address: Optional[Union[IPvAnyAddress, StrictStr]] = Field(
+    listen_address: Optional[Union[IPvAnyAddress, constr(regex=r"localhost")]] = Field(
         None,
         title="Listen Address",
         description="Local IP Address or hostname the hyperglass application listens on to serve web traffic.",
@@ -137,7 +138,7 @@ class Params(HyperglassModel):
             {str} -- Validated listen_address
         """
         if value is None and not values["debug"]:
-            listen_address = "localhost"
+            listen_address = ip_address("127.0.0.1")
         elif value is None and values["debug"]:
             listen_address = ip_address("0.0.0.0")  # noqa: S104
         elif isinstance(value, str) and value != "localhost":
@@ -146,7 +147,7 @@ class Params(HyperglassModel):
             except ValueError:
                 raise ValueError(str(value))
         elif isinstance(value, str) and value == "localhost":
-            listen_address = value
+            listen_address = ip_address("127.0.0.1")
         else:
             raise ValueError(str(value))
         return listen_address

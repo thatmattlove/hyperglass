@@ -618,6 +618,31 @@ def import_public_key(app_path, device_name, keystring):
     return True
 
 
+def format_listen_address(listen_address):
+    """Format a listen_address.
+
+    Wraps IPv6 address in brackets.
+
+    Arguments:
+        listen_address {str} -- Preformatted listen_address
+
+    Returns:
+        {str} -- Formatted listen_address
+    """
+    from ipaddress import ip_address, IPv4Address, IPv6Address
+
+    if not isinstance(listen_address, (IPv4Address, IPv6Address)):
+        try:
+            listen_address = ip_address(listen_address)
+            if listen_address.version == 6:
+                listen_address = f"[{str(listen_address)}]"
+        except ValueError:
+            pass
+    else:
+        listen_address = str(listen_address)
+    return listen_address
+
+
 def split_on_uppercase(s):
     """Split characters by uppercase letters.
 
