@@ -26,7 +26,6 @@ def _uncomment_files():
         output = []
         with file.open("r") as f:
             for line in f.readlines():
-                # if re.match(r"^(#\s+[a-z0-9]+)|(#\s+\-\s.*$)|(#\s#\s.*$)", line):
                 commented = re.compile(r"^(#\s*#?\s?).*$")
                 if re.match(commented, line):
                     output.append(re.sub(r"^#\s*#?\s?$", "", line))
