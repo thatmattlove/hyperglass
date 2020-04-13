@@ -14,7 +14,7 @@ def _logger():
 log = _logger()
 
 
-def cpu_count():
+def cpu_count(multiplier: int = 0):
     """Get server's CPU core count.
 
     Used for number of web server workers.
@@ -24,7 +24,7 @@ def cpu_count():
     """
     import multiprocessing
 
-    return multiprocessing.cpu_count()
+    return multiprocessing.cpu_count() * multiplier
 
 
 def clean_name(_name):
@@ -47,7 +47,7 @@ def clean_name(_name):
     return _scrubbed.lower()
 
 
-async def check_path(path, mode="r"):
+def check_path(path, mode="r"):
     """Verify if a path exists and is accessible.
 
     Arguments:
@@ -61,7 +61,6 @@ async def check_path(path, mode="r"):
         {Path|None} -- Path object if checks pass, None if not.
     """
     from pathlib import Path
-    from aiofile import AIOFile
 
     try:
         if not isinstance(path, Path):
@@ -70,7 +69,7 @@ async def check_path(path, mode="r"):
         if not path.exists():
             raise FileNotFoundError(f"{str(path)} does not exist.")
 
-        async with AIOFile(path, mode):
+        with path.open(mode):
             result = path
 
     except Exception:
@@ -497,6 +496,7 @@ async def build_frontend(  # noqa: C901
         temp_file = tempfile.NamedTemporaryFile(
             mode="w+", prefix="hyperglass_", suffix=".json", delete=not dev_mode
         )
+        log.info("Starting UI build...")
         log.debug(
             f"Created temporary UI config file: '{temp_file.name}' for build {build_id}"
         )
@@ -523,7 +523,7 @@ async def build_frontend(  # noqa: C901
                         log.debug("Re-initialized node_modules")
 
                     if build_result:
-                        log.debug("Completed UI build")
+                        log.success("Completed UI build")
                 elif dev_mode and not force:
                     log.debug("Running in developer mode, did not build new UI files")
 

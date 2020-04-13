@@ -26,7 +26,6 @@ from hyperglass.constants import (
     __version__,
 )
 from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
-from hyperglass.compat._asyncio import aiorun
 from hyperglass.configuration.models import params as _params
 from hyperglass.configuration.models import routers as _routers
 from hyperglass.configuration.models import commands as _commands
@@ -46,7 +45,7 @@ CONFIG_FILES = (
 )
 
 
-async def _check_config_files(directory):
+def _check_config_files(directory):
     """Verify config files exist and are readable.
 
     Arguments:
@@ -63,7 +62,7 @@ async def _check_config_files(directory):
         file_name, required = file
         file_path = directory / file_name
 
-        checked = await check_path(file_path)
+        checked = check_path(file_path)
 
         if checked is None and required:
             raise ConfigMissing(missing_item=str(file_path))
@@ -81,7 +80,7 @@ async def _check_config_files(directory):
 
 STATIC_PATH = CONFIG_PATH / "static"
 
-CONFIG_MAIN, CONFIG_DEVICES, CONFIG_COMMANDS = aiorun(_check_config_files(CONFIG_PATH))
+CONFIG_MAIN, CONFIG_DEVICES, CONFIG_COMMANDS = _check_config_files(CONFIG_PATH)
 
 
 def _set_log_level(debug, log_file=None):
@@ -113,6 +112,35 @@ def _set_log_level(debug, log_file=None):
     if debug:
         log.debug("Debugging enabled")
     return True
+
+
+def _config_required(config_path: Path) -> dict:
+    try:
+        with config_path.open("r") as cf:
+            config = yaml.safe_load(cf)
+            log.debug(
+                "Unvalidated data from file '{f}': {c}", f=str(config_path), c=config
+            )
+    except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
+        raise ConfigError(error_msg=str(yaml_error))
+    return config
+
+
+def _config_optional(config_path: Path) -> dict:
+    if config_path is None:
+        config = {}
+    else:
+        try:
+            with config_path.open("r") as cf:
+                config = yaml.safe_load(cf) or {}
+                log.debug(
+                    "Unvalidated data from file '{f}': {c}",
+                    f=str(config_path),
+                    c=config,
+                )
+        except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
+            raise ConfigError(error_msg=str(yaml_error))
+    return config
 
 
 async def _config_main():
@@ -166,19 +194,16 @@ async def _config_devices():
     return config
 
 
-user_config = aiorun(_config_main())
+user_config = _config_optional(CONFIG_MAIN)
 
 # Logging Config
-try:
-    _debug = user_config["debug"]
-except KeyError:
-    _debug = True
+_debug = user_config.get("debug", True)
 
 # Read raw debug value from config to enable debugging quickly.
 _set_log_level(_debug)
 
-_user_commands = aiorun(_config_commands())
-_user_devices = aiorun(_config_devices())
+_user_commands = _config_optional(CONFIG_COMMANDS)
+_user_devices = _config_required(CONFIG_DEVICES)
 
 # Map imported user config files to expected schema:
 try:
@@ -412,12 +437,10 @@ def _build_vrf_help():
                         "title"
                     ] = f"{vrf.display_name}: {command_params.display_name}"
 
-                md = aiorun(
-                    get_markdown(
-                        config_path=cmd,
-                        default=DEFAULT_DETAILS[command],
-                        params=help_params,
-                    )
+                md = get_markdown(
+                    config_path=cmd,
+                    default=DEFAULT_DETAILS[command],
+                    params=help_params,
                 )
 
                 vrf_help.update(
@@ -439,20 +462,14 @@ content_vrf = _build_vrf_help()
 
 content_help_params = copy.copy(content_params)
 content_help_params["title"] = params.web.help_menu.title
-content_help = aiorun(
-    get_markdown(
-        config_path=params.web.help_menu,
-        default=DEFAULT_HELP,
-        params=content_help_params,
-    )
+content_help = get_markdown(
+    config_path=params.web.help_menu, default=DEFAULT_HELP, params=content_help_params
 )
 
 content_terms_params = copy.copy(content_params)
 content_terms_params["title"] = params.web.terms.title
-content_terms = aiorun(
-    get_markdown(
-        config_path=params.web.terms, default=DEFAULT_TERMS, params=content_terms_params
-    )
+content_terms = get_markdown(
+    config_path=params.web.terms, default=DEFAULT_TERMS, params=content_terms_params
 )
 content_credit = CREDIT.format(version=__version__)
 

@@ -1,13 +1,10 @@
 """Markdown processing utility functions."""
 
-# Third Party
-from aiofile import AIOFile
-
 # Project
 from hyperglass.util import log
 
 
-async def _get_file(path_obj):
+def _get_file(path_obj):
     """Read a file.
 
     Arguments:
@@ -16,12 +13,11 @@ async def _get_file(path_obj):
     Returns:
         {str} -- File contents
     """
-    async with AIOFile(path_obj, "r") as raw_file:
-        file = await raw_file.read()
-        return file
+    with path_obj.open("r") as raw_file:
+        return raw_file.read()
 
 
-async def format_markdown(content, params):
+def format_markdown(content, params):
     """Format content with config parameters.
 
     Arguments:
@@ -37,7 +33,7 @@ async def format_markdown(content, params):
     return fmt
 
 
-async def get_markdown(config_path, default, params):
+def get_markdown(config_path, default, params):
     """Get markdown file if specified, or use default.
 
     Format the content with config parameters.
@@ -52,13 +48,13 @@ async def get_markdown(config_path, default, params):
     log.trace(f"Getting Markdown content for '{params['title']}'")
 
     if config_path.enable and config_path.file is not None:
-        md = await _get_file(config_path.file)
+        md = _get_file(config_path.file)
     else:
         md = default
 
     log.trace(f"Unformatted Content for '{params['title']}':\n{md}")
 
-    md_fmt = await format_markdown(md, params)
+    md_fmt = format_markdown(md, params)
 
     log.trace(f"Formatted Content for '{params['title']}':\n{md_fmt}")
 
