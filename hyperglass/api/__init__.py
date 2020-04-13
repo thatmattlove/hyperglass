@@ -14,7 +14,7 @@ from starlette.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 # Project
-from hyperglass.util import log
+from hyperglass.util import log, cpu_count
 from hyperglass.constants import TRANSPORT_REST, __version__
 from hyperglass.api.events import on_startup, on_shutdown
 from hyperglass.api.routes import docs, query, queries, routers, import_certificate
@@ -51,6 +51,7 @@ ASGI_PARAMS = {
     "host": str(params.listen_address),
     "port": params.listen_port,
     "debug": params.debug,
+    "workers": cpu_count(2),
 }
 DOCS_PARAMS = {}
 if params.docs.enable:
@@ -222,10 +223,9 @@ app.mount("/custom", StaticFiles(directory=CUSTOM_DIR), name="custom")
 app.mount("/", StaticFiles(directory=UI_DIR, html=True), name="ui")
 
 
-def start():
+def start(**kwargs):
     """Start the web server with Uvicorn ASGI."""
     import uvicorn
 
-    # TODO: figure out workers issue
-    # uvicorn.run("hyperglass.api:app", **ASGI_PARAMS) # noqa: E800
-    uvicorn.run(app, **ASGI_PARAMS)
+    options = {**ASGI_PARAMS, **kwargs}
+    uvicorn.run("hyperglass.api:app", **options)

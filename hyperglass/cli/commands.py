@@ -10,8 +10,9 @@ import inquirer
 from click import group, option, confirm, help_option
 
 # Project
+from hyperglass.util import cpu_count
 from hyperglass.cli.echo import error, label, cmd_help
-from hyperglass.cli.util import build_ui, start_web_server
+from hyperglass.cli.util import build_ui
 from hyperglass.cli.static import LABEL, CLI_HELP, E
 from hyperglass.cli.formatting import HelpColorsGroup, HelpColorsCommand, random_colors
 
@@ -72,25 +73,48 @@ def build_frontend():
     "start",
     help=cmd_help(E.ROCKET, "Start web server", supports_color),
     cls=HelpColorsCommand,
-    help_options_custom_colors=random_colors("-b"),
+    help_options_custom_colors=random_colors("-b", "-d", "-w"),
 )
 @option("-b", "--build", is_flag=True, help="Render theme & build frontend assets")
-def start(build):
+@option(
+    "-d",
+    "--direct",
+    is_flag=True,
+    default=False,
+    help="Start hyperglass directly instead of through process manager",
+)
+@option(
+    "-w",
+    "--workers",
+    type=int,
+    required=False,
+    default=0,
+    help=f"Number of workers. By default, calculated from CPU cores [{cpu_count(2)}]",
+)
+def start(build, direct, workers):
     """Start web server and optionally build frontend assets."""
     try:
-        from hyperglass.api import start, ASGI_PARAMS
+        from hyperglass.main import start
+        from hyperglass.api import start as uvicorn_start
     except ImportError as e:
-        raise Exception(str(e))
-        error("Error importing hyperglass: {e}", e=e)
+        error("Error importing hyperglass: {}", str(e))
+
+    kwargs = {}
+    if workers != 0:
+        kwargs["workers"] = workers
 
     if build:
         build_complete = build_ui()
 
-        if build_complete:
-            start_web_server(start, ASGI_PARAMS)
+        if build_complete and not direct:
+            start(**kwargs)
+        elif build_complete and direct:
+            uvicorn_start(**kwargs)
 
-    if not build:
-        start_web_server(start, ASGI_PARAMS)
+    if not build and not direct:
+        start(**kwargs)
+    elif not build and direct:
+        uvicorn_start(**kwargs)
 
 
 @hg.command(
