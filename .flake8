@@ -6,6 +6,7 @@ statistics=True
 exclude=.git, __pycache__, hyperglass/api/examples/*.py, hyperglass/compat/_sshtunnel.py, hyperglass/test.py
 filename=*.py
 per-file-ignores=
+    hyperglass/main.py:E402
     # Disable redefinition warning for exception handlers
     hyperglass/api.py:F811
     # Disable classmethod warning for validator decorators

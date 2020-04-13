@@ -1,5 +1,5 @@
 # cache:
-#   database: 0
+#   database: 1
 #   host: localhost
 #   port: 6379
 #   show_text: true

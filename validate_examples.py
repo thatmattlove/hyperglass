@@ -26,8 +26,10 @@ def _uncomment_files():
         output = []
         with file.open("r") as f:
             for line in f.readlines():
-                if re.match(r"^(#\s+[a-z0-9]+)|(#\s+\-\s.*$)", line):
-                    output.append(re.sub(r"^(#\s)", "", line))
+                # if re.match(r"^(#\s+[a-z0-9]+)|(#\s+\-\s.*$)|(#\s#\s.*$)", line):
+                commented = re.compile(r"^(#\s*#?\s?).*$")
+                if re.match(commented, line):
+                    output.append(re.sub(r"^#\s*#?\s?$", "", line))
                 else:
                     output.append(line)
         with file.open("w") as f:
@@ -41,7 +43,7 @@ def _comment_optional_files():
         output = []
         with file.open("r") as f:
             for line in f.readlines():
-                if not re.match(r"^(#\s+[A-Za-z0-9])|(^\-{3})", line):
+                if not re.match(r"^(#\s*#?\s?).*$|(^\-{3})", line):
                     output.append("# " + line)
                 else:
                     output.append(line)
