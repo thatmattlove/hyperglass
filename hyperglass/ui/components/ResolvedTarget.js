@@ -60,8 +60,9 @@ const ResolvedTarget = React.forwardRef(
         };
 
         const findAnswer = data => {
-            return data?.Answer?.filter(answerData => answerData.type === data.Question[0].type)[0]
-                .data;
+            return data?.Answer?.filter(
+                answerData => answerData.type === data?.Question[0]?.type
+            )[0]?.data;
         };
 
         useEffect(() => {
