@@ -86,6 +86,17 @@ class Query(BaseModel):
         """Create SHA256 hash digest of model representation."""
         return hashlib.sha256(repr(self).encode()).hexdigest()
 
+    @property
+    def summary(self):
+        """Create abbreviated representation of instance."""
+        items = (
+            f"query_location={self.query_location}",
+            f"query_type={self.query_type}",
+            f"query_vrf={self.query_vrf.name}",
+            f"query_target={str(self.query_target)}",
+        )
+        return f'Query({", ".join(items)})'
+
     @validator("query_type")
     def validate_query_type(cls, value):
         """Ensure query_type is enabled.

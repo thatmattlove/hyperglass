@@ -18,7 +18,7 @@ class Cache(HyperglassModel):
     )
     port: StrictInt = Field(6379, title="Port", description="Redis server TCP port.")
     database: StrictInt = Field(
-        0, title="Database ID", description="Redis server database ID."
+        1, title="Database ID", description="Redis server database ID."
     )
     timeout: StrictInt = Field(
         120,
@@ -36,4 +36,3 @@ class Cache(HyperglassModel):
 
         title = "Cache"
         description = "Redis server & cache timeout configuration."
-        schema_extra = {"level": 2}

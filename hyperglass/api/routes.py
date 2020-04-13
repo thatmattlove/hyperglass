@@ -5,13 +5,13 @@ import os
 import time
 
 # Third Party
-import aredis
 from fastapi import HTTPException
 from starlette.requests import Request
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 
 # Project
 from hyperglass.util import log, clean_name, import_public_key
+from hyperglass.cache import Cache
 from hyperglass.encode import jwt_decode
 from hyperglass.exceptions import HyperglassError
 from hyperglass.configuration import REDIS_CONFIG, params, devices
@@ -19,13 +19,15 @@ from hyperglass.api.models.query import Query
 from hyperglass.execution.execute import Execute
 from hyperglass.api.models.cert_import import EncodedRequest
 
-Cache = aredis.StrictRedis(db=params.cache.database, **REDIS_CONFIG)
-
 APP_PATH = os.environ["hyperglass_directory"]
 
 
 async def query(query_data: Query, request: Request):
     """Ingest request data pass it to the backend application to perform the query."""
+
+    # Initialize cache
+    cache = Cache(db=params.cache.database, **REDIS_CONFIG)
+    log.debug("Initialized cache {}", repr(cache))
 
     # Use hashed query_data string as key for for k/v cache store so
     # each command output value is unique.
@@ -35,10 +37,13 @@ async def query(query_data: Query, request: Request):
     cache_timeout = params.cache.timeout
     log.debug(f"Cache Timeout: {cache_timeout}")
 
+    log.info(f"Starting query execution for query {query_data.summary}")
     # Check if cached entry exists
-    if not await Cache.get(cache_key):
-        log.debug(f"Created new cache key {cache_key} entry for query {query_data}")
-        log.debug("Beginning query execution...")
+    if not await cache.get(cache_key):
+        log.debug(f"No existing cache entry for query {cache_key}")
+        log.debug(
+            f"Created new cache key {cache_key} entry for query {query_data.summary}"
+        )
 
         # Pass request to execution module
         starttime = time.time()
@@ -51,16 +56,16 @@ async def query(query_data: Query, request: Request):
             raise HyperglassError(message=params.messages.general, alert="danger")
 
         # Create a cache entry
-        await Cache.set(cache_key, str(cache_value))
-        await Cache.expire(cache_key, cache_timeout)
+        await cache.set(cache_key, str(cache_value))
+        await cache.expire(cache_key, seconds=cache_timeout)
 
         log.debug(f"Added cache entry for query: {cache_key}")
 
     # If it does, return the cached entry
-    cache_response = await Cache.get(cache_key)
+    cache_response = await cache.get(cache_key)
 
-    log.debug(f"Cache match for: {cache_key}, returning cached entry")
-    log.debug(f"Cache Output: {cache_response}")
+    log.debug(f"Cache match for {cache_key}:\n {cache_response}")
+    log.success(f"Completed query execution for {query_data.summary}")
 
     return {"output": cache_response, "level": "success", "keywords": []}
 
