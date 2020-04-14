@@ -7,7 +7,7 @@ import hashlib
 from pydantic import BaseModel, StrictStr, validator
 
 # Project
-from hyperglass.util import log
+from hyperglass.log import log
 from hyperglass.exceptions import InputInvalid
 from hyperglass.configuration import params, devices
 from hyperglass.api.models.types import SupportedQuery

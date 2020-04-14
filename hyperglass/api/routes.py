@@ -10,7 +10,8 @@ from starlette.requests import Request
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 
 # Project
-from hyperglass.util import log, clean_name, import_public_key
+from hyperglass.log import log
+from hyperglass.util import clean_name, import_public_key
 from hyperglass.cache import Cache
 from hyperglass.encode import jwt_decode
 from hyperglass.exceptions import HyperglassError

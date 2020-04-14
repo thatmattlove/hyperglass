@@ -4,7 +4,7 @@
 import json as _json
 
 # Project
-from hyperglass.util import log
+from hyperglass.log import log
 from hyperglass.constants import STATUS_CODE_MAP
 
 

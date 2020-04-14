@@ -47,8 +47,7 @@ from binascii import hexlify
 import paramiko
 
 # Project
-from hyperglass.util import log
-from hyperglass.constants import LOG_FMT
+from hyperglass.log import log
 from hyperglass.configuration import params
 
 if params.debug:
@@ -81,12 +80,6 @@ SSH_CONFIG_FILE = os.path.join(DEFAULT_SSH_DIRECTORY, "config")
 #       Utils          #
 #                      #
 ########################
-
-
-class DefaultHandlers:
-    sink = sys.stdout
-    format = LOG_FMT
-    level = "INFO"
 
 
 def check_host(host):

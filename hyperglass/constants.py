@@ -1,6 +1,6 @@
 """Constant definitions used throughout the application."""
+
 # Standard Library
-import sys
 from datetime import datetime
 
 __name__ = "hyperglass"
@@ -18,23 +18,6 @@ protocol_map = {80: "http", 8080: "http", 443: "https", 8443: "https"}
 TARGET_FORMAT_SPACE = ("huawei", "huawei_vrpv8")
 
 TARGET_JUNIPER_ASPATH = ("juniper", "juniper_junos")
-
-LOG_FMT = (
-    "<lvl><b>[{level}]</b> {time:YYYYMMDD} {time:HH:mm:ss} <lw>|</lw> {name}<lw>:</lw>"
-    "<b>{line}</b> <lw>|</lw> {function}</lvl> <lvl><b>→</b></lvl> {message}"
-)
-LOG_LEVELS = [
-    {"name": "DEBUG", "no": 10, "color": "<c>"},
-    {"name": "INFO", "no": 20, "color": "<le>"},
-    {"name": "SUCCESS", "no": 25, "color": "<g>"},
-    {"name": "WARNING", "no": 30, "color": "<y>"},
-    {"name": "ERROR", "no": 40, "color": "<y>"},
-    {"name": "CRITICAL", "no": 50, "color": "<r>"},
-]
-
-LOG_HANDLER = {"sink": sys.stdout, "format": LOG_FMT, "level": "INFO"}
-
-LOG_HANDLER_FILE = {"format": LOG_FMT, "level": "INFO"}
 
 STATUS_CODE_MAP = {"warning": 400, "error": 400, "danger": 500}
 

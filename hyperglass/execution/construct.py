@@ -11,7 +11,7 @@ import json as _json
 import operator
 
 # Project
-from hyperglass.util import log
+from hyperglass.log import log
 from hyperglass.constants import (
     TRANSPORT_REST,
     TARGET_FORMAT_SPACE,

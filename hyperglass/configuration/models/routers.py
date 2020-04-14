@@ -10,7 +10,8 @@ from pathlib import Path
 from pydantic import StrictInt, StrictStr, validator
 
 # Project
-from hyperglass.util import log, clean_name
+from hyperglass.log import log
+from hyperglass.util import clean_name
 from hyperglass.constants import SCRAPE_HELPERS, TRANSPORT_REST, TRANSPORT_SCRAPE
 from hyperglass.exceptions import ConfigError, UnsupportedDevice
 from hyperglass.configuration.models.ssl import Ssl

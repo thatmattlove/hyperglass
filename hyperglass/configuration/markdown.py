@@ -1,7 +1,7 @@
 """Markdown processing utility functions."""
 
 # Project
-from hyperglass.util import log
+from hyperglass.log import log
 
 
 def _get_file(path_obj):

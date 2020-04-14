@@ -19,7 +19,7 @@ def cmd_help(emoji="", help_text="", supports_color=False):
     return help_str
 
 
-def _base_formatter(state, text, callback, **kwargs):
+def _base_formatter(_text, _state, _callback, *args, **kwargs):
     """Format text block, replace template strings with keyword arguments.
 
     Arguments:
@@ -31,29 +31,36 @@ def _base_formatter(state, text, callback, **kwargs):
     Returns:
         {str|ClickException} -- Formatted output
     """
-    fmt = Message(state)
+    fmt = Message(_state)
 
-    if callback is None:
-        callback = style
+    if _callback is None:
+        _callback = style
+
+    nargs = ()
+    for i in args:
+        if not isinstance(i, str):
+            nargs += (str(i),)
+        else:
+            nargs += (i,)
 
     for k, v in kwargs.items():
         if not isinstance(v, str):
             v = str(v)
         kwargs[k] = style(v, **fmt.kw)
 
-    text_all = re.split(r"(\{\w+\})", text)
+    text_all = re.split(r"(\{\w+\})", _text)
     text_all = [style(i, **fmt.msg) for i in text_all]
-    text_all = [i.format(**kwargs) for i in text_all]
+    text_all = [i.format(*nargs, **kwargs) for i in text_all]
 
     if fmt.emoji:
         text_all.insert(0, fmt.emoji)
 
     text_fmt = "".join(text_all)
 
-    return callback(text_fmt)
+    return _callback(text_fmt)
 
 
-def info(text, callback=echo, **kwargs):
+def info(text, *args, **kwargs):
     """Generate formatted informational text.
 
     Arguments:
@@ -63,10 +70,10 @@ def info(text, callback=echo, **kwargs):
     Returns:
         {str} -- Informational output
     """
-    return _base_formatter(state="info", text=text, callback=callback, **kwargs)
+    return _base_formatter(_state="info", _text=text, _callback=echo, *args, **kwargs)
 
 
-def error(text, callback=CliError, **kwargs):
+def error(text, *args, **kwargs):
     """Generate formatted exception.
 
     Arguments:
@@ -76,10 +83,10 @@ def error(text, callback=CliError, **kwargs):
     Raises:
         ClickException: Raised after formatting
     """
-    raise _base_formatter(state="error", text=text, callback=callback, **kwargs)
+    raise _base_formatter(text, "error", CliError, *args, **kwargs)
 
 
-def success(text, callback=echo, **kwargs):
+def success(text, *args, **kwargs):
     """Generate formatted success text.
 
     Arguments:
@@ -89,10 +96,12 @@ def success(text, callback=echo, **kwargs):
     Returns:
         {str} -- Success output
     """
-    return _base_formatter(state="success", text=text, callback=callback, **kwargs)
+    return _base_formatter(
+        _state="success", _text=text, _callback=echo, *args, **kwargs
+    )
 
 
-def warning(text, callback=echo, **kwargs):
+def warning(text, *args, **kwargs):
     """Generate formatted warning text.
 
     Arguments:
@@ -102,10 +111,12 @@ def warning(text, callback=echo, **kwargs):
     Returns:
         {str} -- Warning output
     """
-    return _base_formatter(state="warning", text=text, callback=callback, **kwargs)
+    return _base_formatter(
+        _state="warning", _text=text, _callback=echo, *args, **kwargs
+    )
 
 
-def label(text, callback=echo, **kwargs):
+def label(text, *args, **kwargs):
     """Generate formatted info text with accented labels.
 
     Arguments:
@@ -115,10 +126,10 @@ def label(text, callback=echo, **kwargs):
     Returns:
         {str} -- Label output
     """
-    return _base_formatter(state="label", text=text, callback=callback, **kwargs)
+    return _base_formatter(_state="label", _text=text, _callback=echo, *args, **kwargs)
 
 
-def status(text, callback=echo, **kwargs):
+def status(text, *args, **kwargs):
     """Generate formatted status text.
 
     Arguments:
@@ -128,4 +139,4 @@ def status(text, callback=echo, **kwargs):
     Returns:
         {str} -- Status output
     """
-    return _base_formatter(state="status", text=text, callback=callback, **kwargs)
+    return _base_formatter(_state="status", _text=text, _callback=echo, *args, **kwargs)

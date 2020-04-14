@@ -6,7 +6,6 @@ import copy
 import json
 import math
 from pathlib import Path
-from datetime import datetime
 
 # Third Party
 import yaml
@@ -14,10 +13,15 @@ from aiofile import AIOFile
 from pydantic import ValidationError
 
 # Project
-from hyperglass.util import log, check_path, set_app_path
+from hyperglass.log import (
+    log,
+    set_log_level,
+    enable_file_logging,
+    enable_syslog_logging,
+)
+from hyperglass.util import check_path, set_app_path
 from hyperglass.constants import (
     CREDIT,
-    LOG_HANDLER,
     DEFAULT_HELP,
     DEFAULT_TERMS,
     DEFAULT_DETAILS,
@@ -80,66 +84,6 @@ def _check_config_files(directory):
 STATIC_PATH = CONFIG_PATH / "static"
 
 CONFIG_MAIN, CONFIG_DEVICES, CONFIG_COMMANDS = _check_config_files(CONFIG_PATH)
-
-
-def _set_log_level(debug):
-    """Set log level based on debug state.
-
-    Arguments:
-        debug {bool} -- Debug state from config file
-
-    Returns:
-        {bool} -- True
-    """
-    stdout_handler = LOG_HANDLER.copy()
-
-    if debug:
-        log_level = "DEBUG"
-        stdout_handler["level"] = log_level
-        os.environ["HYPERGLASS_LOG_LEVEL"] = log_level
-        log.configure(handlers=[stdout_handler])
-
-    if debug:
-        log.debug("Debugging enabled")
-    return True
-
-
-def _set_file_logging(log_directory, log_format, log_max_size):
-    """Set up file-based logging from configuration parameters."""
-
-    if log_format == "json":
-        log_file_name = "hyperglass_log.json"
-        structured = True
-    else:
-        log_file_name = "hyperglass_log.log"
-        structured = False
-
-    log_file = log_directory / log_file_name
-
-    if log_format == "text":
-        now_str = "hyperglass logs for " + datetime.utcnow().strftime(
-            "%B %d, %Y beginning at %H:%M:%S UTC"
-        )
-        now_str_y = len(now_str) + 6
-        now_str_x = len(now_str) + 4
-        log_break = (
-            "#" * now_str_y,
-            "\n#" + " " * now_str_x + "#\n",
-            "#  ",
-            now_str,
-            "  #",
-            "\n#" + " " * now_str_x + "#\n",
-            "#" * now_str_y,
-        )
-
-        with log_file.open("a+") as lf:
-            lf.write(f'\n\n{"".join(log_break)}\n\n')
-
-    log.add(log_file, rotation=log_max_size, serialize=structured)
-
-    log.debug("Logging to file enabled")
-
-    return True
 
 
 def _config_required(config_path: Path) -> dict:
@@ -224,11 +168,8 @@ async def _config_devices():
 
 user_config = _config_optional(CONFIG_MAIN)
 
-# Logging Config
-_debug = user_config.get("debug", True)
-
 # Read raw debug value from config to enable debugging quickly.
-_set_log_level(_debug)
+set_log_level(logger=log, debug=user_config.get("debug", True))
 
 _user_commands = _config_optional(CONFIG_COMMANDS)
 _user_devices = _config_required(CONFIG_DEVICES)
@@ -247,12 +188,24 @@ except ValidationError as validation_errors:
             error_msg=error["msg"],
         )
 
+# Re-evaluate debug state after config is validated
+set_log_level(logger=log, debug=params.debug)
+
 # Set up file logging once configuration parameters are initialized.
-_set_file_logging(
-    log_directory=params.log_directory,
-    log_format=params.log_format,
-    log_max_size=params.log_max_size,
+enable_file_logging(
+    logger=log,
+    log_directory=params.logging.directory,
+    log_format=params.logging.format,
+    log_max_size=params.logging.max_size,
 )
+
+# Set up syslog logging if enabled.
+if params.logging.syslog is not None and params.logging.syslog.enable:
+    enable_syslog_logging(
+        logger=log,
+        syslog_host=params.logging.syslog.host,
+        syslog_port=params.logging.syslog.port,
+    )
 
 # Perform post-config initialization string formatting or other
 # functions that require access to other config levels. E.g.,
@@ -286,10 +239,6 @@ try:
 
 except KeyError:
     pass
-
-
-# Re-evaluate debug state after config is validated
-_set_log_level(params.debug)
 
 
 def _build_frontend_networks():

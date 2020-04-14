@@ -5,7 +5,8 @@ import re
 from ipaddress import ip_network
 
 # Project
-from hyperglass.util import log, get_containing_prefix
+from hyperglass.log import log
+from hyperglass.util import get_containing_prefix
 from hyperglass.exceptions import InputInvalid, InputNotAllowed
 from hyperglass.configuration import params
 

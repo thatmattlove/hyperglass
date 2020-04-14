@@ -22,7 +22,8 @@ from netmiko import (
 )
 
 # Project
-from hyperglass.util import log, parse_exception
+from hyperglass.log import log
+from hyperglass.util import parse_exception
 from hyperglass.compat import _sshtunnel as sshtunnel
 from hyperglass.encode import jwt_decode, jwt_encode
 from hyperglass.constants import Supported

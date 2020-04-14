@@ -2,17 +2,14 @@
 
 # Standard Library
 from typing import List, Union, Optional
-from pathlib import Path
 from ipaddress import ip_address
 
 # Third Party
 from pydantic import (
     Field,
-    ByteSize,
     StrictInt,
     StrictStr,
     StrictBool,
-    DirectoryPath,
     IPvAnyAddress,
     constr,
     validator,
@@ -23,6 +20,7 @@ from hyperglass.configuration.models.web import Web
 from hyperglass.configuration.models.docs import Docs
 from hyperglass.configuration.models.cache import Cache
 from hyperglass.configuration.models._utils import IntFloat, HyperglassModel
+from hyperglass.configuration.models.logging import Logging
 from hyperglass.configuration.models.queries import Queries
 from hyperglass.configuration.models.messages import Messages
 
@@ -98,19 +96,6 @@ class Params(HyperglassModel):
         title="Listen Port",
         description="Local TCP port the hyperglass application listens on to serve web traffic.",
     )
-    log_directory: DirectoryPath = Field(
-        Path("/tmp"),  # noqa: S108
-        title="Log Directory",
-        description="Path to a directory, to which hyperglass can write logs. If none is set, hyperglass will write logs to a file located at `/tmp/`, with a uniquely generated name for each time hyperglass is started.",
-    )
-    log_format: constr(regex=r"(text|json)") = Field(
-        "text", title="Log Format", description="Format for logs written to a file."
-    )
-    log_max_size: ByteSize = Field(
-        "50MB",
-        title="Maximum Log File Size",
-        description="Maximum storage space log file may consume.",
-    )
     cors_origins: List[StrictStr] = Field(
         [],
         title="Cross-Origin Resource Sharing",
@@ -125,6 +110,7 @@ class Params(HyperglassModel):
     # Sub Level Params
     cache: Cache = Cache()
     docs: Docs = Docs()
+    logging: Logging = Logging()
     messages: Messages = Messages()
     queries: Queries = Queries()
     web: Web = Web()

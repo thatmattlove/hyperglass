@@ -14,7 +14,8 @@ from starlette.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 # Project
-from hyperglass.util import log, cpu_count
+from hyperglass.log import log
+from hyperglass.util import cpu_count
 from hyperglass.constants import TRANSPORT_REST, __version__
 from hyperglass.api.events import on_startup, on_shutdown
 from hyperglass.api.routes import docs, query, queries, routers, import_certificate

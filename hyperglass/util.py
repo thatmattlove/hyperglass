@@ -1,17 +1,6 @@
 """Utility functions."""
 
-
-def _logger():
-    from loguru import logger as _loguru_logger
-    from hyperglass.constants import LOG_HANDLER
-    from hyperglass.constants import LOG_LEVELS
-
-    _loguru_logger.remove()
-    _loguru_logger.configure(handlers=[LOG_HANDLER], levels=LOG_LEVELS)
-    return _loguru_logger
-
-
-log = _logger()
+from hyperglass.log import log
 
 
 def cpu_count(multiplier: int = 0):

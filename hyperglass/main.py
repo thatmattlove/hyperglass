@@ -11,6 +11,7 @@ from gunicorn.arbiter import Arbiter
 from gunicorn.app.base import BaseApplication
 
 # Project
+from hyperglass.log import log
 from hyperglass.constants import MIN_PYTHON_VERSION, __version__
 
 pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
@@ -27,7 +28,6 @@ from hyperglass.configuration import (  # isort:skip
     frontend_params,
 )
 from hyperglass.util import (  # isort:skip
-    log,
     cpu_count,
     check_redis,
     build_frontend,
