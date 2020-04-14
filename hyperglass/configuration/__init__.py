@@ -6,6 +6,7 @@ import copy
 import json
 import math
 from pathlib import Path
+from datetime import datetime
 
 # Third Party
 import yaml
@@ -16,12 +17,10 @@ from pydantic import ValidationError
 from hyperglass.util import log, check_path, set_app_path
 from hyperglass.constants import (
     CREDIT,
-    LOG_LEVELS,
     LOG_HANDLER,
     DEFAULT_HELP,
     DEFAULT_TERMS,
     DEFAULT_DETAILS,
-    LOG_HANDLER_FILE,
     SUPPORTED_QUERY_TYPES,
     __version__,
 )
@@ -83,7 +82,7 @@ STATIC_PATH = CONFIG_PATH / "static"
 CONFIG_MAIN, CONFIG_DEVICES, CONFIG_COMMANDS = _check_config_files(CONFIG_PATH)
 
 
-def _set_log_level(debug, log_file=None):
+def _set_log_level(debug):
     """Set log level based on debug state.
 
     Arguments:
@@ -93,24 +92,53 @@ def _set_log_level(debug, log_file=None):
         {bool} -- True
     """
     stdout_handler = LOG_HANDLER.copy()
-    file_handler = LOG_HANDLER_FILE.copy()
 
     if debug:
         log_level = "DEBUG"
         stdout_handler["level"] = log_level
-        file_handler["level"] = log_level
         os.environ["HYPERGLASS_LOG_LEVEL"] = log_level
+        log.configure(handlers=[stdout_handler])
 
-    if log_file is not None:
-        file_handler.update({"sink": log_file})
-        log_handlers = [stdout_handler, file_handler]
-    else:
-        log_handlers = [stdout_handler]
-
-    log.remove()
-    log.configure(handlers=log_handlers, levels=LOG_LEVELS)
     if debug:
         log.debug("Debugging enabled")
+    return True
+
+
+def _set_file_logging(log_directory, log_format, log_max_size):
+    """Set up file-based logging from configuration parameters."""
+
+    if log_format == "json":
+        log_file_name = "hyperglass_log.json"
+        structured = True
+    else:
+        log_file_name = "hyperglass_log.log"
+        structured = False
+
+    log_file = log_directory / log_file_name
+
+    if log_format == "text":
+        now_str = "hyperglass logs for " + datetime.utcnow().strftime(
+            "%B %d, %Y beginning at %H:%M:%S UTC"
+        )
+        now_str_y = len(now_str) + 6
+        now_str_x = len(now_str) + 4
+        log_break = (
+            "#" * now_str_y,
+            "\n#" + " " * now_str_x + "#\n",
+            "#  ",
+            now_str,
+            "  #",
+            "\n#" + " " * now_str_x + "#\n",
+            "#" * now_str_y,
+        )
+
+        with log_file.open("a+") as lf:
+            lf.write(f'\n\n{"".join(log_break)}\n\n')
+
+    log.add(log_file, rotation=log_max_size, serialize=structured)
+
+    log.debug("Logging to file enabled")
+
     return True
 
 
@@ -219,6 +247,12 @@ except ValidationError as validation_errors:
             error_msg=error["msg"],
         )
 
+# Set up file logging once configuration parameters are initialized.
+_set_file_logging(
+    log_directory=params.log_directory,
+    log_format=params.log_format,
+    log_max_size=params.log_max_size,
+)
 
 # Perform post-config initialization string formatting or other
 # functions that require access to other config levels. E.g.,
@@ -255,7 +289,7 @@ except KeyError:
 
 
 # Re-evaluate debug state after config is validated
-_set_log_level(params.debug, params.log_file)
+_set_log_level(params.debug)
 
 
 def _build_frontend_networks():

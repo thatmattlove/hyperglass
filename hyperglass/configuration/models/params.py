@@ -3,16 +3,16 @@
 # Standard Library
 from typing import List, Union, Optional
 from pathlib import Path
-from datetime import datetime
 from ipaddress import ip_address
 
 # Third Party
 from pydantic import (
     Field,
-    FilePath,
+    ByteSize,
     StrictInt,
     StrictStr,
     StrictBool,
+    DirectoryPath,
     IPvAnyAddress,
     constr,
     validator,
@@ -98,10 +98,18 @@ class Params(HyperglassModel):
         title="Listen Port",
         description="Local TCP port the hyperglass application listens on to serve web traffic.",
     )
-    log_file: Optional[FilePath] = Field(
-        None,
-        title="Log File",
-        description="Path to a log file to which hyperglass can write logs. If none is set, hyperglass will write logs to a file located at `/tmp/`, with a uniquely generated name for each time hyperglass is started.",
+    log_directory: DirectoryPath = Field(
+        Path("/tmp"),  # noqa: S108
+        title="Log Directory",
+        description="Path to a directory, to which hyperglass can write logs. If none is set, hyperglass will write logs to a file located at `/tmp/`, with a uniquely generated name for each time hyperglass is started.",
+    )
+    log_format: constr(regex=r"(text|json)") = Field(
+        "text", title="Log Format", description="Format for logs written to a file."
+    )
+    log_max_size: ByteSize = Field(
+        "50MB",
+        title="Maximum Log File Size",
+        description="Maximum storage space log file may consume.",
     )
     cors_origins: List[StrictStr] = Field(
         [],
@@ -164,24 +172,6 @@ class Params(HyperglassModel):
             {str} -- Formatted description
         """
         return value.format(org_name=values["org_name"])
-
-    @validator("log_file")
-    def validate_log_file(cls, value):
-        """Set default logfile location if none is configured.
-
-        Arguments:
-            value {FilePath} -- Path to log file
-
-        Returns:
-            {Path} -- Logfile path object
-        """
-        if value is None:
-            now = datetime.now()
-            now.isoformat
-            value = Path(
-                f'/tmp/hyperglass_{now.strftime(r"%Y%M%d_%H-%M-%S")}.log'  # noqa: S108
-            )
-        return value
 
     @validator("primary_asn")
     def validate_primary_asn(cls, value):
