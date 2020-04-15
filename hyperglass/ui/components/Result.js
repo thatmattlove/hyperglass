@@ -10,7 +10,7 @@ import {
     Flex,
     Text,
     useTheme,
-    useColorMode
+    useColorMode,
 } from "@chakra-ui/core";
 import styled from "@emotion/styled";
 import useAxios from "axios-hooks";
@@ -22,11 +22,11 @@ import ResultHeader from "~/components/ResultHeader";
 import { startCase } from "lodash";
 
 const FormattedError = ({ keywords, message }) => {
-    const patternStr = keywords.map(kw => `(${kw})`).join("|");
+    const patternStr = keywords.map((kw) => `(${kw})`).join("|");
     const pattern = new RegExp(patternStr, "gi");
     let errorFmt;
     try {
-        errorFmt = strReplace(message, pattern, match => (
+        errorFmt = strReplace(message, pattern, (match) => (
             <Text key={match} as="strong">
                 {match}
             </Text>
@@ -40,7 +40,7 @@ const FormattedError = ({ keywords, message }) => {
 const AccordionHeaderWrapper = styled(Flex)`
     justify-content: space-between;
     &:hover {
-        background-color: ${props => props.hoverBg};
+        background-color: ${(props) => props.hoverBg};
     }
     &:focus {
         box-shadow: "outline";
@@ -60,7 +60,7 @@ const Result = React.forwardRef(
             queryTarget,
             index,
             resultsComplete,
-            setComplete
+            setComplete,
         },
         ref
     ) => {
@@ -78,9 +78,10 @@ const Result = React.forwardRef(
                 query_location: queryLocation,
                 query_type: queryType,
                 query_vrf: queryVrf,
-                query_target: queryTarget
+                query_target: queryTarget,
             },
-            timeout: timeout
+            timeout: timeout,
+            useCache: false,
         });
 
         const [isOpen, setOpen] = useState(false);
@@ -90,12 +91,7 @@ const Result = React.forwardRef(
             setOpen(!isOpen);
             setOverride(true);
         };
-        const cleanOutput =
-            data &&
-            data.output
-                .split("\\n")
-                .join("\n")
-                .replace(/\n\n/g, "\n");
+        const cleanOutput = data && data.output.split("\\n").join("\n").replace(/\n\n/g, "\n");
 
         const errorKw = (error && error.response?.data?.keywords) || [];
 
@@ -131,7 +127,7 @@ const Result = React.forwardRef(
                 ref={ref}
                 css={css({
                     "&:last-of-type": { borderBottom: "none" },
-                    "&:first-of-type": { borderTop: "none" }
+                    "&:first-of-type": { borderTop: "none" },
                 })}
             >
                 <AccordionHeaderWrapper hoverBg={theme.colors.blackAlpha[50]}>
@@ -180,8 +176,8 @@ const Result = React.forwardRef(
                                     css={css({
                                         "&::selection": {
                                             backgroundColor: selectionBg[colorMode],
-                                            color: selectionColor[colorMode]
-                                        }
+                                            color: selectionColor[colorMode],
+                                        },
                                     })}
                                 >
                                     {cleanOutput}
@@ -205,7 +201,7 @@ const Result = React.forwardRef(
                                     "flex-start",
                                     "flex-start",
                                     "flex-end",
-                                    "flex-end"
+                                    "flex-end",
                                 ]}
                                 flex="1 0 auto"
                             >
