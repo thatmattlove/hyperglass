@@ -12,12 +12,12 @@ from gunicorn.app.base import BaseApplication
 
 # Project
 from hyperglass.log import log
+from hyperglass.cache import Cache
 from hyperglass.constants import MIN_PYTHON_VERSION, __version__
 
 pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
 if sys.version_info < MIN_PYTHON_VERSION:
     raise RuntimeError(f"Python {pretty_version}+ is required.")
-
 
 from hyperglass.configuration import (  # isort:skip
     params,
@@ -81,6 +81,18 @@ async def clear_cache():
         pass
 
 
+async def cache_config():
+    """Add configuration to Redis cache as a pickled object."""
+    import pickle
+
+    cache = Cache(
+        db=params.cache.database, host=params.cache.host, port=params.cache.port
+    )
+    await cache.set("HYPERGLASS_CONFIG", pickle.dumps(params))
+
+    return True
+
+
 def on_starting(server: Arbiter):
     """Gunicorn pre-start tasks."""
 
@@ -88,8 +100,13 @@ def on_starting(server: Arbiter):
     required = ".".join((str(v) for v in MIN_PYTHON_VERSION))
     log.info(f"Python {python_version} detected ({required} required)")
 
-    aiorun(check_redis_instance())
-    aiorun(build_ui())
+    async def runner():
+        from asyncio import gather
+
+        await gather(check_redis_instance(), build_ui(), cache_config())
+        # await log.complete()
+
+    aiorun(runner())
 
     log.success(
         "Started hyperglass {v} on http://{h}:{p} with {w} workers",
@@ -102,8 +119,14 @@ def on_starting(server: Arbiter):
 
 def on_exit(server: Arbiter):
     """Gunicorn shutdown tasks."""
-    aiorun(clear_cache())
-    log.critical("Stopped hyperglass {}", __version__)
+
+    log.critical("Stopping hyperglass {}", __version__)
+
+    async def runner():
+        await clear_cache()
+        # await log.complete()
+
+    aiorun(runner())
 
 
 class HyperglassWSGI(BaseApplication):
@@ -122,6 +145,7 @@ class HyperglassWSGI(BaseApplication):
             for key, value in self.options.items()
             if key in self.cfg.settings and value is not None
         }
+
         for key, value in config.items():
             self.cfg.set(key.lower(), value)
 
@@ -149,6 +173,7 @@ def start(**kwargs):
             "timeout": math.ceil(params.request_timeout * 1.25),
             "on_starting": on_starting,
             "on_exit": on_exit,
+            "raw_env": ["testing=test"],
             **kwargs,
         },
     ).run()

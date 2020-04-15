@@ -1,5 +1,6 @@
 """Utility functions."""
 
+# Project
 from hyperglass.log import log
 
 
@@ -694,7 +695,7 @@ def parse_exception(exc):
     return ", caused by ".join(parsed)
 
 
-def get_containing_prefix(valid_ip):
+def get_network_info(valid_ip):
     """Get containing prefix for an IP host query from RIPEstat API.
 
     Arguments:
@@ -722,13 +723,59 @@ def get_containing_prefix(valid_ip):
         msg = parse_exception(error)
         raise InputInvalid(msg)
 
-    containing = response.json().get("data", {}).get("prefix")
+    network_info = response.json().get("data", {})
 
-    if containing is None:
+    if not network_info.get("prefix", ""):
         raise InputInvalid(f"{str(valid_ip)} has no containing prefix")
+    elif not network_info.get("asns", []):
+        raise InputInvalid(f"{str(valid_ip)} is not announced")
 
     log.debug(
-        "Found containing prefix '{p}' for IP '{i}'", p=containing, i=str(valid_ip)
+        "Network info for IP '{i}': Announced as '{p}' from AS {a}",
+        p=network_info.get("prefix"),
+        a=", ".join(network_info.get("asns")),
+        i=str(valid_ip),
     )
 
-    return ip_network(containing)
+    network_info["prefix"] = ip_network(network_info["prefix"])
+
+    return network_info
+
+
+def set_cache_env(host, port, db):
+    """Set basic cache config parameters to environment variables.
+
+    Functions using Redis to access the pickled config need to be able
+    to access Redis without reading the config.
+    """
+    import os
+
+    os.environ["HYPERGLASS_CACHE_HOST"] = str(host)
+    os.environ["HYPERGLASS_CACHE_PORT"] = str(port)
+    os.environ["HYPERGLASS_CACHE_DB"] = str(db)
+    return True
+
+
+def get_cache_env():
+    """Get basic cache config from environment variables."""
+    import os
+
+    host = os.environ.get("HYPERGLASS_CACHE_HOST")
+    port = os.environ.get("HYPERGLASS_CACHE_PORT")
+    db = os.environ.get("HYPERGLASS_CACHE_DB")
+    for i in (host, port, db):
+        if i is None:
+            raise LookupError(
+                "Unable to find cache configuration in environment variables"
+            )
+    return host, port, db
+
+
+def donothing(*args, **kwargs):
+    """Do nothing."""
+    pass
+
+
+async def adonothing(*args, **kwargs):
+    """Do nothing."""
+    pass

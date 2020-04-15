@@ -26,7 +26,7 @@ _LOG_LEVELS = [
 def base_logger():
     """Initialize hyperglass logging instance."""
     _loguru_logger.remove()
-    _loguru_logger.add(sys.stdout, format=_LOG_FMT, level="INFO")
+    _loguru_logger.add(sys.stdout, format=_LOG_FMT, level="INFO", enqueue=True)
     _loguru_logger.configure(levels=_LOG_LEVELS)
     return _loguru_logger
 
@@ -39,7 +39,7 @@ def set_log_level(logger, debug):
     if debug:
         os.environ["HYPERGLASS_LOG_LEVEL"] = "DEBUG"
         logger.remove()
-        logger.add(sys.stdout, format=_LOG_FMT, level="DEBUG")
+        logger.add(sys.stdout, format=_LOG_FMT, level="DEBUG", enqueue=True)
         logger.configure(levels=_LOG_LEVELS)
 
     if debug:
@@ -78,7 +78,7 @@ def enable_file_logging(logger, log_directory, log_format, log_max_size):
         with log_file.open("a+") as lf:
             lf.write(f'\n\n{"".join(log_break)}\n\n')
 
-    logger.add(log_file, rotation=log_max_size, serialize=structured)
+    logger.add(log_file, rotation=log_max_size, serialize=structured, enqueue=True)
 
     logger.debug("Logging to file enabled")
 
@@ -90,11 +90,33 @@ def enable_syslog_logging(logger, syslog_host, syslog_port):
     from logging.handlers import SysLogHandler
 
     logger.add(
-        SysLogHandler(address=(str(syslog_host), syslog_port)), format="{message}"
+        SysLogHandler(address=(str(syslog_host), syslog_port)),
+        format="{message}",
+        enqueue=True,
     )
     logger.debug(
         "Logging to syslog target {h}:{p} enabled",
         h=str(syslog_host),
         p=str(syslog_port),
     )
+    return True
+
+
+async def query_hook(query, http_logging):
+    """Log a query to an http server."""
+    import httpx
+
+    from hyperglass.util import parse_exception
+
+    async with httpx.AsyncClient(**http_logging.decoded()) as client:
+        try:
+            response = await client.post(str(http_logging.host), json=query)
+
+            if response.status_code not in range(200, 300):
+                print(f"{response.status_code}: {response.text}", file=sys.stderr)
+
+        except httpx.HTTPError as err:
+            parsed = parse_exception(err)
+            print(parsed, file=sys.stderr)
+
     return True

@@ -110,3 +110,18 @@ class Cache:
         """Set timeout of key in seconds."""
         for key in keys:
             await self.instance.expire(key, seconds)
+
+    async def aget_config(self):
+        """Get picked config object from cache."""
+        import pickle
+
+        pickled = await self.instance.get("HYPERGLASS_CONFIG")
+        return pickle.loads(pickled)
+
+    def get_config(self):
+        """Get picked config object from cache."""
+        import pickle
+        from hyperglass.compat._asyncio import aiorun
+
+        pickled = aiorun(self.instance.get("HYPERGLASS_CONFIG"))
+        return pickle.loads(pickled)

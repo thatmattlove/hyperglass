@@ -1,6 +1,7 @@
 """Input query validation model."""
 
 # Standard Library
+import json
 import hashlib
 
 # Third Party
@@ -96,6 +97,19 @@ class Query(BaseModel):
             f"query_target={str(self.query_target)}",
         )
         return f'Query({", ".join(items)})'
+
+    def export_dict(self):
+        """Create dictionary representation of instance."""
+        return {
+            "query_location": self.query_location,
+            "query_type": self.query_type,
+            "query_vrf": self.query_vrf.name,
+            "query_target": str(self.query_target),
+        }
+
+    def export_json(self):
+        """Create JSON representation of instance."""
+        return json.dumps(self.export_dict(), default=str)
 
     @validator("query_type")
     def validate_query_type(cls, value):

@@ -9,7 +9,6 @@ from pathlib import Path
 
 # Third Party
 import yaml
-from aiofile import AIOFile
 from pydantic import ValidationError
 
 # Project
@@ -19,7 +18,7 @@ from hyperglass.log import (
     enable_file_logging,
     enable_syslog_logging,
 )
-from hyperglass.util import check_path, set_app_path
+from hyperglass.util import check_path, set_app_path, set_cache_env
 from hyperglass.constants import (
     CREDIT,
     DEFAULT_HELP,
@@ -115,57 +114,6 @@ def _config_optional(config_path: Path) -> dict:
     return config
 
 
-async def _config_main():
-    """Open main config file and load YAML to dict.
-
-    Returns:
-        {dict} -- Main config file
-    """
-    config = {}
-    try:
-        async with AIOFile(CONFIG_MAIN, "r") as cf:
-            raw = await cf.read()
-            config = yaml.safe_load(raw) or {}
-    except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
-        raise ConfigError(error_msg=str(yaml_error)) from None
-    return config
-
-
-async def _config_commands():
-    """Open commands config file and load YAML to dict.
-
-    Returns:
-        {dict} -- Commands config file
-    """
-    if CONFIG_COMMANDS is None:
-        config = {}
-    else:
-        try:
-            async with AIOFile(CONFIG_COMMANDS, "r") as cf:
-                raw = await cf.read()
-                config = yaml.safe_load(raw) or {}
-        except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
-            raise ConfigError(error_msg=str(yaml_error)) from None
-    log.debug("Unvalidated commands: {c}", c=config)
-    return config
-
-
-async def _config_devices():
-    """Open devices config file and load YAML to dict.
-
-    Returns:
-        {dict} -- Devices config file
-    """
-    try:
-        async with AIOFile(CONFIG_DEVICES, "r") as cf:
-            raw = await cf.read()
-            config = yaml.safe_load(raw)
-            log.debug("Unvalidated device config: {c}", c=config)
-    except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
-        raise ConfigError(error_msg=str(yaml_error)) from None
-    return config
-
-
 user_config = _config_optional(CONFIG_MAIN)
 
 # Read raw debug value from config to enable debugging quickly.
@@ -187,6 +135,8 @@ except ValidationError as validation_errors:
             field=": ".join([str(item) for item in error["loc"]]),
             error_msg=error["msg"],
         )
+
+set_cache_env(db=params.cache.database, host=params.cache.host, port=params.cache.port)
 
 # Re-evaluate debug state after config is validated
 set_log_level(logger=log, debug=params.debug)

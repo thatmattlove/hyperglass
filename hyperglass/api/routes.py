@@ -2,7 +2,9 @@
 
 # Standard Library
 import os
+import json
 import time
+from ipaddress import ip_address
 
 # Third Party
 from fastapi import HTTPException
@@ -10,8 +12,8 @@ from starlette.requests import Request
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 
 # Project
-from hyperglass.log import log
-from hyperglass.util import clean_name, import_public_key
+from hyperglass.log import log, query_hook
+from hyperglass.util import adonothing, clean_name, get_network_info, import_public_key
 from hyperglass.cache import Cache
 from hyperglass.encode import jwt_decode
 from hyperglass.exceptions import HyperglassError
@@ -22,9 +24,46 @@ from hyperglass.api.models.cert_import import EncodedRequest
 
 APP_PATH = os.environ["hyperglass_directory"]
 
+if params.logging.http is not None and params.logging.http.enable:
+    log_query = query_hook
+else:
+    log_query = adonothing
+
 
 async def query(query_data: Query, request: Request):
     """Ingest request data pass it to the backend application to perform the query."""
+
+    if ip_address(request.client.host).is_loopback:
+        network_info = {"prefix": None, "asn": None}
+    else:
+        network_info = get_network_info("199.34.92.64")
+
+        network_info = {
+            "prefix": str(network_info["prefix"]),
+            "asn": network_info["asns"][0],
+        }
+
+    header_keys = (
+        "content-length",
+        "accept",
+        "user-agent",
+        "content-type",
+        "referer",
+        "accept-encoding",
+        "accept-language",
+    )
+
+    await log_query(
+        {
+            **json.loads(query_data.export_json()),
+            "headers": {
+                k: v for k, v in dict(request.headers).items() if k in header_keys
+            },
+            "source": request.client.host,
+            "network": network_info,
+        },
+        params.logging.http,
+    )
 
     # Initialize cache
     cache = Cache(db=params.cache.database, **REDIS_CONFIG)

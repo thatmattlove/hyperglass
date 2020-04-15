@@ -51,6 +51,32 @@ def _patch_loop(loop):
     return tasks
 
 
+def _cancel_all_tasks(loop, tasks):
+    to_cancel = [task for task in tasks if not task.done()]
+
+    if not to_cancel:
+        return
+
+    for task in to_cancel:
+        task.cancel()
+
+    loop.run_until_complete(
+        asyncio.gather(*to_cancel, loop=loop, return_exceptions=True)
+    )
+
+    for task in to_cancel:
+        if task.cancelled():
+            continue
+        if task.exception() is not None:
+            loop.call_exception_handler(
+                {
+                    "message": "unhandled exception during asyncio.run() shutdown",
+                    "exception": task.exception(),
+                    "task": task,
+                }
+            )
+
+
 def _patched_run(main, *, debug=False):
     try:
         loop = get_running_loop()
@@ -77,32 +103,6 @@ def _patched_run(main, *, debug=False):
         finally:
             asyncio.set_event_loop(None)
             loop.close()
-
-
-def _cancel_all_tasks(loop, tasks):
-    to_cancel = [task for task in tasks if not task.done()]
-
-    if not to_cancel:
-        return
-
-    for task in to_cancel:
-        task.cancel()
-
-    loop.run_until_complete(
-        asyncio.gather(*to_cancel, loop=loop, return_exceptions=True)
-    )
-
-    for task in to_cancel:
-        if task.cancelled():
-            continue
-        if task.exception() is not None:
-            loop.call_exception_handler(
-                {
-                    "message": "unhandled exception during asyncio.run() shutdown",
-                    "exception": task.exception(),
-                    "task": task,
-                }
-            )
 
 
 # If local system's python version is at least 3.6, use the backported

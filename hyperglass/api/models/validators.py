@@ -6,7 +6,7 @@ from ipaddress import ip_network
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import get_containing_prefix
+from hyperglass.util import get_network_info
 from hyperglass.exceptions import InputInvalid, InputNotAllowed
 from hyperglass.configuration import params
 
@@ -138,7 +138,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
         # query.
         elif query_type in ("bgp_route",) and vrf_afi.force_cidr:
 
-            valid_ip = get_containing_prefix(valid_ip.network_address)
+            valid_ip = get_network_info(valid_ip.network_address).get("prefix")
 
         # For a host query with bgp_route query type and force_cidr
         # disabled, convert the host query to a single IP address.
