@@ -22,25 +22,7 @@ from hyperglass.configuration.models._utils import HyperglassModel, validate_ima
 from hyperglass.configuration.models.opengraph import OpenGraph
 
 
-class HyperglassLevel3(HyperglassModel):
-    """Automatic docs sorting subclass."""
-
-    class Config:
-        """Pydantic model configuration."""
-
-        schema_extra = {"level": 3}
-
-
-class HyperglassLevel4(HyperglassModel):
-    """Automatic docs sorting subclass."""
-
-    class Config:
-        """Pydantic model configuration."""
-
-        schema_extra = {"level": 4}
-
-
-class Analytics(HyperglassLevel3):
+class Analytics(HyperglassModel):
     """Validation model for Google Analytics."""
 
     enable: StrictBool = False
@@ -65,13 +47,13 @@ class Analytics(HyperglassLevel3):
         return value
 
 
-class Credit(HyperglassLevel3):
+class Credit(HyperglassModel):
     """Validation model for developer credit."""
 
     enable: StrictBool = True
 
 
-class ExternalLink(HyperglassLevel3):
+class ExternalLink(HyperglassModel):
     """Validation model for external link."""
 
     enable: StrictBool = True
@@ -79,7 +61,7 @@ class ExternalLink(HyperglassLevel3):
     url: HttpUrl = "https://www.peeringdb.com/asn/{primary_asn}"
 
 
-class HelpMenu(HyperglassLevel3):
+class HelpMenu(HyperglassModel):
     """Validation model for generic help menu."""
 
     enable: StrictBool = True
@@ -87,7 +69,7 @@ class HelpMenu(HyperglassLevel3):
     title: StrictStr = "Help"
 
 
-class Logo(HyperglassLevel3):
+class Logo(HyperglassModel):
     """Validation model for logo configuration."""
 
     light: StrictStr = "images/hyperglass-light.png"
@@ -117,7 +99,7 @@ class Logo(HyperglassLevel3):
         return validate_image(value)
 
 
-class Terms(HyperglassLevel3):
+class Terms(HyperglassModel):
     """Validation model for terms & conditions."""
 
     enable: StrictBool = True
@@ -125,14 +107,14 @@ class Terms(HyperglassLevel3):
     title: StrictStr = "Terms"
 
 
-class Text(HyperglassLevel3):
+class Text(HyperglassModel):
     """Validation model for params.branding.text."""
 
     title_mode: constr(
         regex=("logo_only|text_only|logo_title|logo_subtitle|all")
     ) = "logo_only"
     title: StrictStr = "hyperglass"
-    subtitle: StrictStr = "AS{primary_asn}"
+    subtitle: StrictStr = "Network Looking Glass"
     query_location: StrictStr = "Location"
     query_type: StrictStr = "Query Type"
     query_target: StrictStr = "Target"
@@ -148,7 +130,7 @@ class Text(HyperglassLevel3):
         return value
 
 
-class ThemeColors(HyperglassLevel4):
+class ThemeColors(HyperglassModel):
     """Validation model for theme colors."""
 
     black: Color = "#262626"
@@ -190,14 +172,14 @@ class ThemeColors(HyperglassLevel4):
         return {k: v.as_hex() for k, v in self.__dict__.items()}
 
 
-class ThemeFonts(HyperglassLevel4):
+class ThemeFonts(HyperglassModel):
     """Validation model for theme fonts."""
 
     body: StrictStr = "Nunito"
     mono: StrictStr = "Fira Code"
 
 
-class Theme(HyperglassLevel3):
+class Theme(HyperglassModel):
     """Validation model for theme variables."""
 
     colors: ThemeColors = ThemeColors()
@@ -205,7 +187,7 @@ class Theme(HyperglassLevel3):
     fonts: ThemeFonts = ThemeFonts()
 
 
-class DnsOverHttps(HyperglassLevel3):
+class DnsOverHttps(HyperglassModel):
     """Validation model for DNS over HTTPS resolution."""
 
     name: constr(regex="|".join(DNS_OVER_HTTPS.keys())) = "cloudflare"
@@ -238,8 +220,3 @@ class Web(HyperglassModel):
     terms: Terms = Terms()
     text: Text = Text()
     theme: Theme = Theme()
-
-    class Config:
-        """Pydantic model configuration."""
-
-        schema_extra = {"level": 2}

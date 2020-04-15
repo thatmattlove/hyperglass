@@ -51,10 +51,10 @@ def enable_file_logging(logger, log_directory, log_format, log_max_size):
     """Set up file-based logging from configuration parameters."""
 
     if log_format == "json":
-        log_file_name = "hyperglass_log.json"
+        log_file_name = "hyperglass.log.json"
         structured = True
     else:
-        log_file_name = "hyperglass_log.log"
+        log_file_name = "hyperglass.log"
         structured = False
 
     log_file = log_directory / log_file_name
