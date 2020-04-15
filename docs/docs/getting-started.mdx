@@ -6,16 +6,16 @@ keywords: [install, configuration]
 description: Getting started with hyperglass
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 ## Automatic installation
 
 If your system runs on:
 
-- Ubuntu Linux
-- ~~CentOS/Red Had Linux~~
-- macOS (requires [homebrew](https://brew.sh))
+-   Ubuntu Linux
+-   ~~CentOS/Red Had Linux~~
+-   macOS (requires [homebrew](https://brew.sh))
 
 You should be able to proceed with the automatic installation:
 
@@ -32,6 +32,7 @@ You should be <i>very</i> worried when someone asks you to do what I just did. D
 ### System Dependencies
 
 #### Python
+
 hyperglass is written in Python 3 and requires Python version 3.6 as a minimum dependency.
 
 If you're confident upgrading your system's version of Python won't break your system (many Linux operating systems rely heavily on Python for package management and other system functions), you can install Python 3.6:
@@ -45,7 +46,7 @@ If you're confident upgrading your system's version of Python won't break your s
 <TabItem value="debian">
 
 ```shell-session
-$ sudo apt install -y python3.6-dev python3-pip
+$ sudo apt install -y python3.6-dev python3-pip redis-server
 ```
 
 </TabItem>
@@ -53,8 +54,8 @@ $ sudo apt install -y python3.6-dev python3-pip
 <TabItem value="rhel">
 
 ```shell-session
-$ sudo yum install centos-release-scl
-$ sudo yum install rh-python36
+$ sudo yum install centos-release-scl python3-devel rh-python36 redis
+$ sudo scl enable rh-python36
 ```
 
 </TabItem>
@@ -69,6 +70,7 @@ Python 3.6.9
 ```
 
 #### Other Dependencies
+
 The hyperglass UI is written in [ReactJS](https://reactjs.org/). As such, some Javascript dependencies are required. hyperglass also relies on [Redis](https://redis.io/) for caching purposes.
 
 <Tabs
@@ -115,7 +117,7 @@ sudo yum -y install gcc-c++ make nodejs yarn redis
 I've attempted to abstract away most of the Javascript-related configuration and operational steps, because I think I might be the only network engineer on the planet who actually doesn't mind JS 😂. If you run into any issues with the NodeJS/Yarn installation processes, don't hesitate to [raise an issue](https://github.com/checktheroads/hyperglass/issues) on Github, and I'll do my best to help out.
 :::
 
-### Application 
+### Application
 
 ```bash
 pip3 install hyperglass

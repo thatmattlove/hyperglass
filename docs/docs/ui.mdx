@@ -38,7 +38,7 @@ web:
     external_link:
         enable: true
         title: PeeringDB
-        url: https://www.peeringdb.com/AS{primary_asn}
+        url: https://www.peeringdb.com/asn/{primary_asn}
     help_menu:
         enable: true
         file: null
@@ -111,11 +111,11 @@ If your organization's policy allows, and you don't mind, I request that you kee
 
 ## `external_link`
 
-| Parameter |  Type   | Default                                       | Description                                                                                                                                          |
-| :-------- | :-----: | :-------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enable`  | Boolean | `true`                                        | Enable or disable the display of an external link                                                                                                    |
-| `title`   | String  | `'PeeringDB'`                                 | Link title/label                                                                                                                                     |
-| `url`     | String  | `'https://www.peeringdb.com/AS{primary_asn}'` | Target URL. `{primary_asn}` will be replaced with the `primary_asn` value from <Link to="/docs/configuration#global-settings">Global Settings</Link> |
+| Parameter |  Type   | Default                                         | Description                                                                                                                                          |
+| :-------- | :-----: | :---------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enable`  | Boolean | `true`                                          | Enable or disable the display of an external link                                                                                                    |
+| `title`   | String  | `'PeeringDB'`                                   | Link title/label                                                                                                                                     |
+| `url`     | String  | `'https://www.peeringdb.com/asn/{primary_asn}'` | Target URL. `{primary_asn}` will be replaced with the `primary_asn` value from <Link to="/docs/configuration#global-settings">Global Settings</Link> |
 
 ## `logo`
 
