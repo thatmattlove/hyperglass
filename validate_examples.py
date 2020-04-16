@@ -94,7 +94,7 @@ def validate_all():
 
 
 if __name__ == "__main__":
-    set_app_path()
+    set_app_path(required=True)
     try:
         all_passed = validate_all()
         message = "All tests passed"
