@@ -66,6 +66,33 @@ Basic and API key authentication are supported.
 If `api_key` is used, the header `X-API-Key: {key}` is added to the request, where `{key}` is the password.
 :::
 
+### Webhook Data Structure
+
+The webhook will POST JSON data in the following format:
+
+```json
+{
+    "query_location": "router01",
+    "query_type": "bgp_route",
+    "query_vrf": "default",
+    "query_target": "1.1.1.0/24",
+    "headers": {
+        "content-length": "103",
+        "accept": "application/json, text/plain, */*",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36",
+        "content-type": "application/json;charset=UTF-8",
+        "referer": "http://lg.example.com/",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "en-US,en;q=0.9,fr;q=0.8,lb;q=0.7,la;q=0.6"
+    },
+    "source": "192.0.2.1",
+    "network": {
+        "prefix": "192.0.2.0/24",
+        "asns": ["64496"]
+    }
+}
+```
+
 ## Full example
 
 ```yaml

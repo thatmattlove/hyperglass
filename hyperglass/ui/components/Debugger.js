@@ -11,7 +11,7 @@ import {
     Tag,
     useDisclosure,
     useColorMode,
-    useTheme
+    useTheme,
 } from "@chakra-ui/core";
 import useConfig from "~/components/HyperglassProvider";
 import useMedia from "~/components/MediaProvider";
