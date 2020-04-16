@@ -695,7 +695,7 @@ def parse_exception(exc):
     return ", caused by ".join(parsed)
 
 
-def get_network_info(valid_ip):
+def get_network_info(ip, serialize=False):
     """Get containing prefix for an IP host query from RIPEstat API.
 
     Arguments:
@@ -709,10 +709,17 @@ def get_network_info(valid_ip):
         {IPv4Network|IPv6Network} -- Valid IP Network object
     """
     import httpx
-    from ipaddress import ip_network
+    from ipaddress import ip_network, ip_address
     from hyperglass.exceptions import InputInvalid
 
-    log.debug("Attempting to find containing prefix for {ip}", ip=str(valid_ip))
+    log.debug("Attempting to find network details for {ip}", ip=str(ip))
+
+    try:
+        valid_ip = ip_address(ip)
+        if not valid_ip.is_global:
+            return {"prefix": None, "asn": None}
+    except ValueError:
+        return {"prefix": None, "asn": None}
 
     try:
         response = httpx.get(
@@ -737,7 +744,11 @@ def get_network_info(valid_ip):
         i=str(valid_ip),
     )
 
-    network_info["prefix"] = ip_network(network_info["prefix"])
+    if not serialize:
+        network_info["prefix"] = ip_network(network_info["prefix"])
+
+    if serialize:
+        network_info["asns"] = network_info["asns"][0]
 
     return network_info
 

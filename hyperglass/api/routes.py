@@ -4,7 +4,6 @@
 import os
 import json
 import time
-from ipaddress import ip_address
 
 # Third Party
 from fastapi import HTTPException
@@ -33,15 +32,7 @@ else:
 async def query(query_data: Query, request: Request):
     """Ingest request data pass it to the backend application to perform the query."""
 
-    if ip_address(request.client.host).is_loopback:
-        network_info = {"prefix": None, "asn": None}
-    else:
-        network_info = get_network_info(request.client.host)
-
-        network_info = {
-            "prefix": str(network_info["prefix"]),
-            "asn": network_info["asns"][0],
-        }
+    network_info = get_network_info(request.client.host, serialize=True)
 
     header_keys = (
         "content-length",
@@ -79,6 +70,7 @@ async def query(query_data: Query, request: Request):
     log.debug(f"Cache Timeout: {cache_timeout}")
 
     log.info(f"Starting query execution for query {query_data.summary}")
+
     # Check if cached entry exists
     if not await cache.get(cache_key):
         log.debug(f"No existing cache entry for query {cache_key}")
