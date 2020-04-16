@@ -391,6 +391,12 @@ def _build_vrf_help():
     return all_help
 
 
+content_greeting = get_markdown(
+    config_path=params.web.greeting,
+    default="",
+    params={"title": params.web.greeting.title},
+)
+
 content_vrf = _build_vrf_help()
 
 content_help_params = copy.copy(content_params)
@@ -436,6 +442,7 @@ _frontend_params.update(
             "terms": content_terms,
             "credit": content_credit,
             "vrf": content_vrf,
+            "greeting": content_greeting,
         },
     }
 )

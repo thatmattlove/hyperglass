@@ -69,6 +69,23 @@ class HelpMenu(HyperglassModel):
     title: StrictStr = "Help"
 
 
+class Greeting(HyperglassModel):
+    """Validation model for greeting modal."""
+
+    enable: StrictBool = False
+    file: Optional[FilePath]
+    title: StrictStr = "Welcome"
+    button: StrictStr = "Continue"
+    required: StrictBool = False
+
+    @validator("file")
+    def validate_file(cls, value, values):
+        """Ensure file is specified if greeting is enabled."""
+        if values["enable"] and value is None:
+            raise ValueError("Greeting is enabled, but no file is specified.")
+        return value
+
+
 class Logo(HyperglassModel):
     """Validation model for logo configuration."""
 
@@ -214,6 +231,7 @@ class Web(HyperglassModel):
     credit: Credit = Credit()
     dns_provider: DnsOverHttps = DnsOverHttps()
     external_link: ExternalLink = ExternalLink()
+    greeting: Greeting = Greeting()
     help_menu: HelpMenu = HelpMenu()
     logo: Logo = Logo()
     opengraph: OpenGraph = OpenGraph()

@@ -16,7 +16,7 @@ import useConfig from "~/components/HyperglassProvider";
 
 format.extend(String.prototype, {});
 
-const formSchema = config =>
+const formSchema = (config) =>
     yup.object().shape({
         query_location: yup
             .array()
@@ -28,7 +28,7 @@ const formSchema = config =>
         query_vrf: yup.string(),
         query_target: yup
             .string()
-            .required(config.messages.no_input.format({ field: config.web.text.query_target }))
+            .required(config.messages.no_input.format({ field: config.web.text.query_target })),
     });
 
 const FormRow = ({ children, ...props }) => (
@@ -44,11 +44,11 @@ const FormRow = ({ children, ...props }) => (
 );
 
 const HyperglassForm = React.forwardRef(
-    ({ isSubmitting, setSubmitting, setFormData, ...props }, ref) => {
+    ({ isSubmitting, setSubmitting, setFormData, greetingAck, setGreetingAck, ...props }, ref) => {
         const config = useConfig();
         const { handleSubmit, register, setValue, errors } = useForm({
             validationSchema: formSchema(config),
-            defaultValues: { query_vrf: "default" }
+            defaultValues: { query_vrf: "default" },
         });
 
         const [queryLocation, setQueryLocation] = useState([]);
@@ -59,21 +59,26 @@ const HyperglassForm = React.forwardRef(
         const [fqdnTarget, setFqdnTarget] = useState("");
         const [displayTarget, setDisplayTarget] = useState("");
         const [families, setFamilies] = useState([]);
-        const onSubmit = values => {
-            setFormData(values);
-            setSubmitting(true);
+        const onSubmit = (values) => {
+            if (!greetingAck && config.web.greeting.required) {
+                window.location.reload(false);
+                setGreetingAck(false);
+            } else {
+                setFormData(values);
+                setSubmitting(true);
+            }
         };
 
-        const handleLocChange = locObj => {
+        const handleLocChange = (locObj) => {
             setQueryLocation(locObj.value);
             const allVrfs = [];
             const deviceVrfs = [];
-            locObj.value.map(loc => {
+            locObj.value.map((loc) => {
                 const locVrfs = [];
-                config.devices[loc].vrfs.map(vrf => {
+                config.devices[loc].vrfs.map((vrf) => {
                     locVrfs.push({
                         label: vrf.display_name,
-                        value: vrf.id
+                        value: vrf.id,
                     });
                     deviceVrfs.push([{ id: vrf.id, ipv4: vrf.ipv4, ipv6: vrf.ipv6 }]);
                 });
@@ -89,10 +94,10 @@ const HyperglassForm = React.forwardRef(
             deviceVrfs.length !== 0 &&
                 intersecting.length !== 0 &&
                 deviceVrfs
-                    .filter(v => intersecting.every(i => i.id === v.id))
+                    .filter((v) => intersecting.every((i) => i.id === v.id))
                     .reduce((a, b) => a.concat(b))
-                    .filter(v => v.id === "default")
-                    .map(v => {
+                    .filter((v) => v.id === "default")
+                    .map((v) => {
                         v.ipv4 === true && ipv4++;
                         v.ipv6 === true && ipv6++;
                     });
@@ -107,7 +112,7 @@ const HyperglassForm = React.forwardRef(
             }
         };
 
-        const handleChange = e => {
+        const handleChange = (e) => {
             setValue(e.field, e.value);
             e.field === "query_location"
                 ? handleLocChange(e)

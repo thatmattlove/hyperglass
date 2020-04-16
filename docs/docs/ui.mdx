@@ -21,77 +21,11 @@ The `web` subsection contains multiple subsections of its own, should you wish t
 | `credit`        | Developer credit & GitHub Link |    <PageLink to="#credit">➡️</PageLink>     |
 | `dns_provider`  | DNS over HTTPS Provider        | <PageLink to="#dns_provider">➡️</PageLink>  |
 | `external_link` | Link to external site          | <PageLink to="#external_link">➡️</PageLink> |
+| `greeting`      | Greeting Modal                 |   <PageLink to="#greeting">➡️</PageLink>    |
 | `logo`          | Logo & Favicons                |     <PageLink to="#logo">➡️</PageLink>      |
 | `opengraph`     | [OpenGraph](https://ogp.me/)   |   <PageLink to="#opengraph">➡️</PageLink>   |
 | `terms`         | Terms & Conditions             |     <PageLink to="#terms">➡️</PageLink>     |
 | `theme`         | Colors & Fonts                 |     <PageLink to="#theme">➡️</PageLink>     |
-
-## Example
-
-```yaml
-web:
-    credit:
-        enable: true
-    dns_provider:
-        name: google
-        url: https://dns.google/resolve
-    external_link:
-        enable: true
-        title: PeeringDB
-        url: https://www.peeringdb.com/asn/{primary_asn}
-    help_menu:
-        enable: true
-        file: null
-        title: Help
-    logo:
-        dark: /images/hyperglass-light.png
-        favicons: ui/images/favicons/
-        height: null
-        light: /images/hyperglass-dark.png
-        width: 384
-    opengraph:
-        height: 1132
-        image: /images/hyperglass-opengraph.png
-        width: 7355
-    terms:
-        enable: true
-        file: null
-        title: Terms
-    text:
-        cache: Results will be cached for 2 minutes.
-        fqdn_tooltip: "Use {protocol}"
-        query_location: Location
-        query_target: Target
-        query_type: Query Type
-        query_vrf: Routing Table
-        subtitle: AS65001
-        title: hyperglass
-        title_mode: text_only
-    theme:
-        default_color_mode: light
-        colors:
-            black: "#262626"
-            blue: "#314cb6"
-            cyan: "#118ab2"
-            danger: "#d84b4b"
-            error: "#ff6b35"
-            gray: "#c1c7cc"
-            green: "#35b246"
-            orange: "#ff6b35"
-            pink: "#f2607d"
-            primary: "#118ab2"
-            purple: "#8d30b5"
-            red: "#d84b4b"
-            secondary: "#314cb6"
-            success: "#35b246"
-            teal: "#35b299"
-            warning: "#edae49"
-            white: "#f7f7f7"
-            yellow: "#edae49"
-        fonts:
-            body: Nunito
-            mono: Fira Code
-```
 
 ## `credit`
 
@@ -117,14 +51,24 @@ If your organization's policy allows, and you don't mind, I request that you kee
 | `title`   | String  | `'PeeringDB'`                                   | Link title/label                                                                                                                                     |
 | `url`     | String  | `'https://www.peeringdb.com/asn/{primary_asn}'` | Target URL. `{primary_asn}` will be replaced with the `primary_asn` value from <Link to="/docs/configuration#global-settings">Global Settings</Link> |
 
+## `greeting`
+
+| Parameter  |  Type   | Default      | Description                                                                                  |
+| :--------- | :-----: | :----------- | :------------------------------------------------------------------------------------------- |
+| `enable`   | Boolean | `false`      | Enable or disable the greeting modal.                                                        |
+| `file`     | String  |              | Path to a [markdown](https://www.markdownguide.org/) file containing the modal body content. |
+| `title`    | String  | `'Welcome'`  | Modal title.                                                                                 |
+| `button`   | String  | `'Continue'` | Button text.                                                                                 |
+| `required` | Boolean | `false`      | If `true` the user must click the button in order to submit a query.                         |
+
 ## `logo`
 
-| Parameter |  Type   | Default                                                      | Description                                  |
-| :-------- | :-----: | :----------------------------------------------------------- | :------------------------------------------- |
-| `light`   | String  | `'hyperglass/hyperglass/static/images/hyperglass-dark.png'`  | Path to logo that will be used in light mode |
-| `dark`    | String  | `'hyperglass/hyperglass/static/images/hyperglass-light.png'` | Path to logo that will be used in dark mode  |
-| `width`   | Integer | `384`                                                        | Maximum logo width in pixels                 |
-| `height`  | Integer |                                                              | Maximum logo height in pixels                |
+| Parameter |  Type   | Default                         | Description                                  |
+| :-------- | :-----: | :------------------------------ | :------------------------------------------- |
+| `light`   | String  | `'images/hyperglass-dark.png'`  | Path to logo that will be used in light mode |
+| `dark`    | String  | `'images/hyperglass-light.png'` | Path to logo that will be used in dark mode  |
+| `width`   | Integer | `384`                           | Maximum logo width in pixels                 |
+| `height`  | Integer |                                 | Maximum logo height in pixels                |
 
 ## `opengraph`
 
@@ -218,3 +162,70 @@ Currently, only [Google Fonts](https://fonts.google.com/) are supported.
 | :-------- | :----: | :----------------------- | :-------------------------------------- |
 | `body`    | String | <Font name='Nunito'/>    | Main body font                          |
 | `mono`    | String | <Font name='Fira Code'/> | Monospace font, used for command output |
+
+## Example
+
+```yaml
+web:
+    credit:
+        enable: true
+    dns_provider:
+        name: google
+        url: https://dns.google/resolve
+    external_link:
+        enable: true
+        title: PeeringDB
+        url: https://www.peeringdb.com/asn/{primary_asn}
+    help_menu:
+        enable: true
+        file: null
+        title: Help
+    logo:
+        dark: /images/hyperglass-light.png
+        favicons: ui/images/favicons/
+        height: null
+        light: /images/hyperglass-dark.png
+        width: 384
+    opengraph:
+        height: 1132
+        image: /images/hyperglass-opengraph.png
+        width: 7355
+    terms:
+        enable: true
+        file: null
+        title: Terms
+    text:
+        cache: Results will be cached for 2 minutes.
+        fqdn_tooltip: "Use {protocol}"
+        query_location: Location
+        query_target: Target
+        query_type: Query Type
+        query_vrf: Routing Table
+        subtitle: AS65001
+        title: hyperglass
+        title_mode: text_only
+    theme:
+        default_color_mode: light
+        colors:
+            black: "#262626"
+            blue: "#314cb6"
+            cyan: "#118ab2"
+            danger: "#d84b4b"
+            error: "#ff6b35"
+            gray: "#c1c7cc"
+            green: "#35b246"
+            orange: "#ff6b35"
+            pink: "#f2607d"
+            primary: "#118ab2"
+            purple: "#8d30b5"
+            red: "#d84b4b"
+            secondary: "#314cb6"
+            success: "#35b246"
+            teal: "#35b299"
+            warning: "#edae49"
+            white: "#f7f7f7"
+            yellow: "#edae49"
+        fonts:
+            body: Nunito
+            mono: Fira Code
+```

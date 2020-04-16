@@ -1,13 +1,15 @@
 import React, { useRef, useState } from "react";
-import { Flex, useColorMode } from "@chakra-ui/core";
+import { Flex, useColorMode, useDisclosure } from "@chakra-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
 import HyperglassForm from "~/components/HyperglassForm";
 import Results from "~/components/Results";
 import Header from "~/components/Header";
 import Footer from "~/components/Footer";
+import Greeting from "~/components/Greeting";
 import Meta from "~/components/Meta";
 import useConfig from "~/components/HyperglassProvider";
 import Debugger from "~/components/Debugger";
+import useSessionStorage from "~/hooks/useSessionStorage";
 
 const AnimatedForm = motion.custom(HyperglassForm);
 
@@ -19,7 +21,9 @@ const Layout = () => {
     const { colorMode } = useColorMode();
     const [isSubmitting, setSubmitting] = useState(false);
     const [formData, setFormData] = useState({});
+    const [greetingAck, setGreetingAck] = useSessionStorage("hyperglass-greeting-ack", false);
     const containerRef = useRef(null);
+
     const handleFormReset = () => {
         containerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
         setSubmitting(false);
@@ -68,6 +72,8 @@ const Layout = () => {
                                 isSubmitting={isSubmitting}
                                 setSubmitting={setSubmitting}
                                 setFormData={setFormData}
+                                greetingAck={greetingAck}
+                                setGreetingAck={setGreetingAck}
                             />
                         )}
                     </AnimatePresence>
@@ -75,6 +81,13 @@ const Layout = () => {
                 <Footer />
                 {config.developer_mode && <Debugger />}
             </Flex>
+            {config.web.greeting.enable && !greetingAck && (
+                <Greeting
+                    greetingConfig={config.web.greeting}
+                    content={config.content.greeting}
+                    onClickThrough={setGreetingAck}
+                />
+            )}
         </>
     );
 };
