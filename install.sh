@@ -2,7 +2,7 @@
 
 set -e
 
-HYPERGLASS_VERSION="1.0.0b22"
+HYPERGLASS_VERSION="1.0.0b23"
 
 MIN_PYTHON_MAJOR="3"
 MIN_PYTHON_MINOR="6"
@@ -298,6 +298,8 @@ python_apt () {
 python_yum () {
     yum install centos-release-scl
     yum install rh-python36
+    yum install python3-devel
+    scl enable rh-python36
     sleep 1
     python_post $?
 }
