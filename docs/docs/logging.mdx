@@ -43,14 +43,22 @@ If syslogging is enabled, all of the same log messages written to the file and/o
 
 If http logging is enabled, an HTTP POST will be sent to the configured target every time a query is submitted, _after_ it is validated.
 
-| Parameter    |  Type   | Default | Description                                                                                               |
-| :----------- | :-----: | :------ | :-------------------------------------------------------------------------------------------------------- |
-| `enable`     | Boolean | `true`  | Optionally disable webhooks even if configured.                                                           |
-| `host`       | String  |         | HTTP URL to webhook target.                                                                               |
-| `headers`    | Mapping |         | Any arbitrary mappings, which will be sent as HTTP headers.                                               |
-| `params`     | Mapping |         | Any arbitrary mappings, which will be sent as URL parameters (e.g. `http://example.com/log?param=value`). |
-| `verify_ssl` | Boolean | `true`  | Verify SSL certificate of target.                                                                         |
-| `timeout`    | Integer | `5`     | Time in seconds before request times out.                                                                 |
+| Parameter    |  Type   | Default     | Description                                                                                               |
+| :----------- | :-----: | :---------- | :-------------------------------------------------------------------------------------------------------- |
+| `enable`     | Boolean | `true`      | Optionally disable webhooks even if configured.                                                           |
+| `host`       | String  |             | HTTP URL to webhook target.                                                                               |
+| `headers`    | Mapping |             | Any arbitrary mappings, which will be sent as HTTP headers.                                               |
+| `params`     | Mapping |             | Any arbitrary mappings, which will be sent as URL parameters (e.g. `http://example.com/log?param=value`). |
+| `verify_ssl` | Boolean | `true`      | Verify SSL certificate of target.                                                                         |
+| `timeout`    | Integer | `5`         | Time in seconds before request times out.                                                                 |
+| `provider`   | String  | `'generic'` | Webhook provider.                                                                                         |
+
+### Supported Providers
+
+| Provider                    | Parameter Value |
+| :-------------------------- | --------------: |
+| [Slack](https://slack.com/) |       `'slack'` |
+| Generic                     |     `'generic'` |
 
 ### Authentication
 
@@ -68,7 +76,7 @@ If `api_key` is used, the header `X-API-Key: {key}` is added to the request, whe
 
 ### Webhook Data Structure
 
-The webhook will POST JSON data in the following format:
+If the `provider` field is set to `'generic'`, the webhook will POST JSON data in the following format:
 
 ```json
 {

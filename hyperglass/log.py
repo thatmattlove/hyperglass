@@ -106,16 +106,19 @@ async def query_hook(query, http_logging, log):
     """Log a query to an http server."""
     import httpx
 
+    from hyperglass.models import Webhook
     from hyperglass.util import parse_exception
 
-    if http_logging.key is not None:
-        query = {http_logging.key: query}
+    valid_webhook = Webhook(**query)
 
-    log.debug("Sending query data to webhook:\n{}", query)
+    format_map = {"generic": valid_webhook.export_dict, "slack": valid_webhook.slack}
+    format_func = format_map[http_logging.provider]
 
     async with httpx.AsyncClient(**http_logging.decoded()) as client:
+        payload = format_func()
+        log.debug("Sending query data to webhook:\n{}", payload)
         try:
-            response = await client.post(str(http_logging.host), json=query)
+            response = await client.post(str(http_logging.host), json=payload)
 
             if response.status_code not in range(200, 300):
                 log.error(f"{response.status_code} error: {response.text}")

@@ -1,11 +1,14 @@
+"""Data models used throughout hyperglass."""
+
 # Standard Library
 import re
-from typing import TypeVar
+from typing import TypeVar, Optional
 
 # Third Party
-from pydantic import HttpUrl, BaseModel, StrictInt, StrictFloat
+from pydantic import HttpUrl, BaseModel, StrictInt, StrictStr, StrictFloat
 
 # Project
+from hyperglass.log import log
 from hyperglass.util import clean_name
 
 IntFloat = TypeVar("IntFloat", StrictInt, StrictFloat)
@@ -132,3 +135,103 @@ class StrictBytes(bytes):
             {str} -- Representation
         """
         return f"StrictBytes({super().__repr__()})"
+
+
+class WebhookHeaders(HyperglassModel):
+    """Webhook data model."""
+
+    content_length: Optional[StrictStr]
+    accept: Optional[StrictStr]
+    user_agent: Optional[StrictStr]
+    content_type: Optional[StrictStr]
+    referer: Optional[StrictStr]
+    accept_encoding: Optional[StrictStr]
+    accept_language: Optional[StrictStr]
+
+    class Config:
+        """Pydantic model config."""
+
+        fields = {
+            "content_length": "content-length",
+            "user_agent": "user-agent",
+            "content_type": "content-type",
+            "accept_encoding": "accept-encoding",
+            "accept_language": "accept-language",
+        }
+
+
+class WebhookNetwork(HyperglassModel):
+    """Webhook data model."""
+
+    prefix: Optional[StrictStr]
+    asn: Optional[StrictStr]
+
+
+class Webhook(HyperglassModel):
+    """Webhook data model."""
+
+    query_location: StrictStr
+    query_type: StrictStr
+    query_vrf: StrictStr
+    query_target: StrictStr
+    headers: WebhookHeaders
+    source: StrictStr
+    network: WebhookNetwork
+
+    def slack(self):
+        """Format the webhook data as a Slack message."""
+
+        def make_field(key, value, code=False):
+            if code:
+                value = f"`{value}`"
+            return f"*{key}*\n{value}"
+
+        try:
+            header_data = []
+            for k, v in self.headers.dict(by_alias=True).items():
+                field = make_field(k, v, code=True)
+                header_data.append(field)
+
+            query_details = (
+                ("Query Location", self.query_location),
+                ("Query Type", self.query_type),
+                ("Query VRF", self.query_vrf),
+                ("Query Target", self.query_target),
+            )
+            query_data = []
+            for k, v in query_details:
+                field = make_field(k, v)
+                query_data.append({"type": "mrkdwn", "text": field})
+
+            source_details = (
+                ("Source IP", self.source),
+                ("Source Prefix", self.network.prefix),
+                ("Source ASN", self.network.asn),
+            )
+
+            source_data = []
+            for k, v in source_details:
+                field = make_field(k, v, code=True)
+                source_data.append({"type": "mrkdwn", "text": field})
+
+            payload = {
+                "text": "hyperglass received a valid query with the following data",
+                "blocks": [
+                    {"type": "section", "fields": query_data},
+                    {"type": "divider"},
+                    {"type": "section", "fields": source_data},
+                    {"type": "divider"},
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*Headers*\n" + "\n".join(header_data),
+                        },
+                    },
+                ],
+            }
+            log.debug("Created Slack webhook: {}", str(payload))
+        except Exception as err:
+            log.error("Error while creating webhook: {}", str(err))
+            payload = {}
+        return payload

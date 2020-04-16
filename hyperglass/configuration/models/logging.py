@@ -21,8 +21,8 @@ from pydantic import (
 )
 
 # Project
-from hyperglass.constants import __version__
 from hyperglass.models import HyperglassModel, HyperglassModelExtra
+from hyperglass.constants import __version__
 
 
 class Syslog(HyperglassModel):
@@ -53,11 +53,11 @@ class Http(HyperglassModelExtra):
     """HTTP logging parameters."""
 
     enable: StrictBool = True
+    provider: constr(regex=r"(slack|generic)") = "generic"
     host: AnyHttpUrl
     authentication: Optional[HttpAuth]
     headers: Dict[StrictStr, Union[StrictStr, StrictInt, StrictBool, None]] = {}
     params: Dict[StrictStr, Union[StrictStr, StrictInt, StrictBool, None]] = {}
-    key: Optional[StrictStr]
     verify_ssl: StrictBool = True
     timeout: Union[StrictFloat, StrictInt] = 5.0
 
