@@ -5,7 +5,7 @@ from pydantic import SecretStr, StrictStr
 
 # Project
 from hyperglass.util import clean_name
-from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.models import HyperglassModel
 
 
 class Credential(HyperglassModel):

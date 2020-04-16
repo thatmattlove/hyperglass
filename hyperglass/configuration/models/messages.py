@@ -4,7 +4,7 @@
 from pydantic import Field, StrictStr
 
 # Project
-from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.models import HyperglassModel
 
 
 class Messages(HyperglassModel):

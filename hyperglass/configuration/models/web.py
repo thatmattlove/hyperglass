@@ -17,8 +17,9 @@ from pydantic import (
 from pydantic.color import Color
 
 # Project
+from hyperglass.models import HyperglassModel
 from hyperglass.constants import DNS_OVER_HTTPS, FUNC_COLOR_MAP
-from hyperglass.configuration.models._utils import HyperglassModel, validate_image
+from hyperglass.configuration.models._utils import validate_image
 from hyperglass.configuration.models.opengraph import OpenGraph
 
 

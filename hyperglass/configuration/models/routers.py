@@ -12,11 +12,11 @@ from pydantic import StrictInt, StrictStr, validator
 # Project
 from hyperglass.log import log
 from hyperglass.util import clean_name
+from hyperglass.models import HyperglassModel, HyperglassModelExtra
 from hyperglass.constants import SCRAPE_HELPERS, TRANSPORT_REST, TRANSPORT_SCRAPE
 from hyperglass.exceptions import ConfigError, UnsupportedDevice
 from hyperglass.configuration.models.ssl import Ssl
 from hyperglass.configuration.models.vrfs import Vrf, Info
-from hyperglass.configuration.models._utils import HyperglassModel, HyperglassModelExtra
 from hyperglass.configuration.models.proxies import Proxy
 from hyperglass.configuration.models.commands import Command
 from hyperglass.configuration.models.networks import Network

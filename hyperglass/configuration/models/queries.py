@@ -4,8 +4,8 @@
 from pydantic import Field, StrictStr, StrictBool, constr
 
 # Project
+from hyperglass.models import HyperglassModel
 from hyperglass.constants import SUPPORTED_QUERY_TYPES
-from hyperglass.configuration.models._utils import HyperglassModel
 
 
 class HyperglassLevel3(HyperglassModel):

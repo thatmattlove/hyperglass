@@ -3,19 +3,10 @@
 from pydantic import Field, HttpUrl, StrictStr, StrictBool, constr
 
 # Project
-from hyperglass.configuration.models._utils import AnyUri, HyperglassModel
+from hyperglass.models import AnyUri, HyperglassModel
 
 
-class HyperglassLevel3(HyperglassModel):
-    """Automatic docs sorting subclass."""
-
-    class Config:
-        """Pydantic model configuration."""
-
-        schema_extra = {"level": 3}
-
-
-class EndpointConfig(HyperglassLevel3):
+class EndpointConfig(HyperglassModel):
     """Validation model for per API endpoint documentation."""
 
     title: StrictStr = Field(
@@ -106,4 +97,3 @@ class Docs(HyperglassModel):
                 "description": "`/api/devices` API documentation options.",
             },
         }
-        schema_extra = {"level": 2}

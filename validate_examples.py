@@ -1,4 +1,5 @@
 """Validate example files."""
+
 # Standard Library
 import re
 import sys
@@ -9,9 +10,6 @@ import yaml
 
 # Project
 from hyperglass.util import set_app_path
-from hyperglass.configuration.models.params import Params
-from hyperglass.configuration.models.routers import Routers
-from hyperglass.configuration.models.commands import Commands
 
 EXAMPLES = Path(__file__).parent.parent / "hyperglass" / "examples"
 
@@ -52,6 +50,8 @@ def _comment_optional_files():
 
 
 def _validate_devices():
+    from hyperglass.configuration.models.routers import Routers
+
     with DEVICES.open() as raw:
         devices_dict = yaml.safe_load(raw.read()) or {}
     try:
@@ -62,6 +62,8 @@ def _validate_devices():
 
 
 def _validate_commands():
+    from hyperglass.configuration.models.commands import Commands
+
     with COMMANDS.open() as raw:
         commands_dict = yaml.safe_load(raw.read()) or {}
     try:
@@ -72,6 +74,8 @@ def _validate_commands():
 
 
 def _validate_main():
+    from hyperglass.configuration.models.params import Params
+
     with MAIN.open() as raw:
         main_dict = yaml.safe_load(raw.read()) or {}
     try:

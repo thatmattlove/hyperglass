@@ -10,7 +10,8 @@ import PIL.Image as PilImage
 from pydantic import StrictInt, StrictStr, root_validator
 
 # Project
-from hyperglass.configuration.models._utils import HyperglassModel, validate_image
+from hyperglass.models import HyperglassModel
+from hyperglass.configuration.models._utils import validate_image
 
 CONFIG_PATH = Path(os.environ["hyperglass_directory"])
 

@@ -17,7 +17,7 @@ from pydantic import (
 )
 
 # Project
-from hyperglass.configuration.models._utils import HyperglassModel, HyperglassModelExtra
+from hyperglass.models import HyperglassModel, HyperglassModelExtra
 
 
 class AccessList4(HyperglassModel):

@@ -7,7 +7,7 @@ from typing import Union
 from pydantic import Field, StrictInt, StrictStr, StrictBool, IPvAnyAddress
 
 # Project
-from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.models import HyperglassModel
 
 
 class Cache(HyperglassModel):

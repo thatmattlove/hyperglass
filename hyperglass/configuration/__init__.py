@@ -33,7 +33,7 @@ from hyperglass.configuration.models import routers as _routers
 from hyperglass.configuration.models import commands as _commands
 from hyperglass.configuration.markdown import get_markdown
 
-set_app_path()
+set_app_path(required=True)
 
 CONFIG_PATH = Path(os.environ["hyperglass_directory"])
 log.info("Configuration directory: {d}", d=str(CONFIG_PATH))

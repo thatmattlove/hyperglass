@@ -7,7 +7,7 @@ from typing import Optional
 from pydantic import Field, FilePath, StrictBool
 
 # Project
-from hyperglass.configuration.models._utils import HyperglassModel
+from hyperglass.models import HyperglassModel
 
 
 class Ssl(HyperglassModel):

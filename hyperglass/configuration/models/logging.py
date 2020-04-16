@@ -22,7 +22,7 @@ from pydantic import (
 
 # Project
 from hyperglass.constants import __version__
-from hyperglass.configuration.models._utils import HyperglassModel, HyperglassModelExtra
+from hyperglass.models import HyperglassModel, HyperglassModelExtra
 
 
 class Syslog(HyperglassModel):
