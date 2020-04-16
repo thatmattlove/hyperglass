@@ -157,6 +157,9 @@ if params.logging.syslog is not None and params.logging.syslog.enable:
         syslog_port=params.logging.syslog.port,
     )
 
+if params.logging.http is not None and params.logging.http.enable:
+    log.debug("HTTP logging is enabled")
+
 # Perform post-config initialization string formatting or other
 # functions that require access to other config levels. E.g.,
 # something in 'params.web.text' needs to be formatted with a value

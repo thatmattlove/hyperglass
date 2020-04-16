@@ -36,7 +36,7 @@ async def query(query_data: Query, request: Request):
     if ip_address(request.client.host).is_loopback:
         network_info = {"prefix": None, "asn": None}
     else:
-        network_info = get_network_info("199.34.92.64")
+        network_info = get_network_info(request.client.host)
 
         network_info = {
             "prefix": str(network_info["prefix"]),
@@ -63,6 +63,7 @@ async def query(query_data: Query, request: Request):
             "network": network_info,
         },
         params.logging.http,
+        log,
     )
 
     # Initialize cache

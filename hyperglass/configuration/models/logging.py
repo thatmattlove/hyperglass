@@ -57,6 +57,7 @@ class Http(HyperglassModelExtra):
     authentication: Optional[HttpAuth]
     headers: Dict[StrictStr, Union[StrictStr, StrictInt, StrictBool, None]] = {}
     params: Dict[StrictStr, Union[StrictStr, StrictInt, StrictBool, None]] = {}
+    key: Optional[StrictStr]
     verify_ssl: StrictBool = True
     timeout: Union[StrictFloat, StrictInt] = 5.0
 

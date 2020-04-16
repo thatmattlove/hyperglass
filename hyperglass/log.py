@@ -102,21 +102,26 @@ def enable_syslog_logging(logger, syslog_host, syslog_port):
     return True
 
 
-async def query_hook(query, http_logging):
+async def query_hook(query, http_logging, log):
     """Log a query to an http server."""
     import httpx
 
     from hyperglass.util import parse_exception
+
+    if http_logging.key is not None:
+        query = {http_logging.key: query}
+
+    log.debug("Sending query data to webhook:\n{}", query)
 
     async with httpx.AsyncClient(**http_logging.decoded()) as client:
         try:
             response = await client.post(str(http_logging.host), json=query)
 
             if response.status_code not in range(200, 300):
-                print(f"{response.status_code}: {response.text}", file=sys.stderr)
+                log.error(f"{response.status_code} error: {response.text}")
 
         except httpx.HTTPError as err:
             parsed = parse_exception(err)
-            print(parsed, file=sys.stderr)
+            log.error(parsed)
 
     return True
