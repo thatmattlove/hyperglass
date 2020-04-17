@@ -8,18 +8,21 @@ import {
     ButtonGroup,
     css,
     Flex,
+    Tooltip,
     Text,
-    useTheme,
     useColorMode,
 } from "@chakra-ui/core";
 import styled from "@emotion/styled";
+import LightningBolt from "~/components/icons/LightningBolt";
 import useAxios from "axios-hooks";
 import strReplace from "react-string-replace";
+import { startCase } from "lodash";
 import useConfig from "~/components/HyperglassProvider";
+import useMedia from "~/components/MediaProvider";
 import CopyButton from "~/components/CopyButton";
 import RequeryButton from "~/components/RequeryButton";
 import ResultHeader from "~/components/ResultHeader";
-import { startCase } from "lodash";
+import CacheTimeout from "~/components/CacheTimeout";
 
 const FormattedError = ({ keywords, message }) => {
     const patternStr = keywords.map((kw) => `(${kw})`).join("|");
@@ -48,6 +51,10 @@ const AccordionHeaderWrapper = styled(Flex)`
 `;
 
 const statusMap = { success: "success", warning: "warning", error: "warning", danger: "error" };
+const bg = { dark: "gray.800", light: "blackAlpha.100" };
+const color = { dark: "white", light: "black" };
+const selectionBg = { dark: "white", light: "black" };
+const selectionColor = { dark: "black", light: "white" };
 
 const Result = React.forwardRef(
     (
@@ -65,12 +72,8 @@ const Result = React.forwardRef(
         ref
     ) => {
         const config = useConfig();
-        const theme = useTheme();
+        const { isSm } = useMedia();
         const { colorMode } = useColorMode();
-        const bg = { dark: theme.colors.gray[800], light: theme.colors.blackAlpha[100] };
-        const color = { dark: theme.colors.white, light: theme.colors.black };
-        const selectionBg = { dark: theme.colors.white, light: theme.colors.black };
-        const selectionColor = { dark: theme.colors.black, light: theme.colors.white };
         const [{ data, loading, error }, refetch] = useAxios({
             url: "/api/query/",
             method: "post",
@@ -91,7 +94,12 @@ const Result = React.forwardRef(
             setOpen(!isOpen);
             setOverride(true);
         };
-        const cleanOutput = data && data.output.split("\\n").join("\n").replace(/\n\n/g, "\n");
+        const cleanOutput =
+            data &&
+            data.output
+                .split("\\n")
+                .join("\n")
+                .replace(/\n\n/g, "\n");
 
         const errorKw = (error && error.response?.data?.keywords) || [];
 
@@ -113,6 +121,33 @@ const Result = React.forwardRef(
         const errorLevel =
             (error?.response?.data?.level && statusMap[error.response?.data?.level]) ?? "error";
 
+        const cacheLg = (
+            <>
+                <CacheTimeout timeout={config.cache.timeout} text={config.web.text.cache_prefix} />
+                {data?.cached && (
+                    <Tooltip hasArrow label={config.web.text.cache_icon} placement="top">
+                        <Box ml={1}>
+                            <LightningBolt color={color[colorMode]} />
+                        </Box>
+                    </Tooltip>
+                )}
+            </>
+        );
+        const cacheSm = (
+            <>
+                {data?.cached && (
+                    <Tooltip hasArrow label={config.web.text.cache_icon} placement="top">
+                        <Box mr={1}>
+                            <LightningBolt color={color[colorMode]} />
+                        </Box>
+                    </Tooltip>
+                )}
+                <CacheTimeout timeout={config.cache.timeout} text={config.web.text.cache_prefix} />
+            </>
+        );
+
+        const cacheData = isSm ? cacheSm : cacheLg;
+
         useEffect(() => {
             !loading && resultsComplete === null && setComplete(index);
         }, [loading, resultsComplete]);
@@ -130,7 +165,7 @@ const Result = React.forwardRef(
                     "&:first-of-type": { borderTop: "none" },
                 })}
             >
-                <AccordionHeaderWrapper hoverBg={theme.colors.blackAlpha[50]}>
+                <AccordionHeaderWrapper hoverBg="blackAlpha.50">
                     <AccordionHeader
                         flex="1 0 auto"
                         py={2}
@@ -145,6 +180,7 @@ const Result = React.forwardRef(
                             error={error}
                             errorMsg={errorMsg}
                             errorLevel={errorLevel}
+                            runtime={data?.runtime}
                         />
                     </AccordionHeader>
                     <ButtonGroup px={3} py={2}>
@@ -186,31 +222,21 @@ const Result = React.forwardRef(
                             {error && (
                                 <Alert rounded="lg" my={2} py={4} status={errorLevel}>
                                     <FormattedError keywords={errorKw} message={errorMsg} />
-                                    {/* {errorMsg} */}
                                 </Alert>
                             )}
                         </Flex>
                     </Flex>
 
-                    {config.cache.show_text && (
-                        <Flex direction="row" flexWrap="wrap">
-                            <Flex
-                                px={3}
-                                mt={2}
-                                justifyContent={[
-                                    "flex-start",
-                                    "flex-start",
-                                    "flex-end",
-                                    "flex-end",
-                                ]}
-                                flex="1 0 auto"
-                            >
-                                <Text fontSize="xs" color="gray.500">
-                                    {config.web.text.cache}
-                                </Text>
-                            </Flex>
+                    <Flex direction="row" flexWrap="wrap">
+                        <Flex
+                            px={3}
+                            mt={2}
+                            justifyContent={["flex-start", "flex-start", "flex-end", "flex-end"]}
+                            flex="1 0 auto"
+                        >
+                            {data && !error && config.cache.show_text && cacheData}
                         </Flex>
-                    )}
+                    </Flex>
                 </AccordionPanel>
             </AccordionItem>
         );

@@ -28,7 +28,7 @@ class Cache(HyperglassModel):
     show_text: StrictBool = Field(
         True,
         title="Show Text",
-        description="Show the [cache](/fixme) text in the hyperglass UI.",
+        description="Show the cache text in the hyperglass UI.",
     )
 
     class Config:

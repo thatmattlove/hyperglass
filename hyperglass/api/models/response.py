@@ -1,9 +1,9 @@
 """Response model."""
 # Standard Library
-from typing import List
+from typing import List, Optional
 
 # Third Party
-from pydantic import BaseModel, StrictStr, StrictBool, constr
+from pydantic import BaseModel, StrictInt, StrictStr, StrictBool, constr
 
 # Project
 from hyperglass.configuration import params
@@ -14,6 +14,7 @@ class QueryError(BaseModel):
 
     output: StrictStr = params.messages.general
     level: constr(regex=r"(success|warning|error|danger)") = "danger"
+    id: Optional[StrictStr]
     keywords: List[StrictStr] = []
 
     class Config:
@@ -56,6 +57,9 @@ class QueryResponse(BaseModel):
 
     output: StrictStr
     level: constr(regex=r"success") = "success"
+    id: StrictStr
+    cached: StrictBool
+    runtime: StrictInt
     keywords: List[StrictStr] = []
 
     class Config:

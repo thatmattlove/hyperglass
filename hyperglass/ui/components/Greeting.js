@@ -36,6 +36,7 @@ const Greeting = ({ greetingConfig, content, onClickThrough }) => {
             size="full"
             isCentered
             closeOnOverlayClick={!greetingConfig.required}
+            closeOnEsc={!greetingConfig.required}
         >
             <AnimatedModalOverlay
                 initial={{ opacity: 0 }}

@@ -4,7 +4,6 @@
 import os
 import copy
 import json
-import math
 from pathlib import Path
 
 # Third Party
@@ -167,20 +166,6 @@ if params.logging.http is not None and params.logging.http.enable:
 try:
     params.web.text.subtitle = params.web.text.subtitle.format(
         **params.dict(exclude={"web", "queries", "messages"})
-    )
-
-    # Automatically derive the cache timeout period term
-    # (minutes, seconds) based on the cache timeout value.
-    if params.cache.timeout >= 60:
-        _cache_timeout = math.ceil(params.cache.timeout / 60)
-        _cache_period = "minutes"
-    elif params.cache.timeout < 60:
-        _cache_timeout = params.cache.timeout
-        _cache_period = "seconds"
-
-    # Format the cache display text to match the real values.
-    params.web.text.cache = params.web.text.cache.format(
-        timeout=_cache_timeout, period=_cache_period
     )
 
     # If keywords are unmodified (default), add the org name &
@@ -420,7 +405,7 @@ networks = _build_networks()
 frontend_networks = _build_frontend_networks()
 frontend_devices = _build_frontend_devices()
 _frontend_fields = {
-    "cache": {"show_text"},
+    "cache": {"show_text", "timeout"},
     "debug": ...,
     "developer_mode": ...,
     "primary_asn": ...,

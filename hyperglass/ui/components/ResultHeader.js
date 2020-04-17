@@ -1,14 +1,31 @@
 import React from "react";
 import { AccordionIcon, Icon, Spinner, Stack, Text, Tooltip, useColorMode } from "@chakra-ui/core";
+import format from "string-format";
+import useConfig from "~/components/HyperglassProvider";
 
-export default React.forwardRef(({ title, loading, error, errorMsg, errorLevel }, ref) => {
+format.extend(String.prototype, {});
+
+const runtimeText = (runtime, text) => {
+    let unit;
+    if (runtime > 1) {
+        unit = "seconds";
+    } else {
+        unit = "second";
+    }
+    const fmt = text.format({ seconds: runtime });
+    return `${fmt} ${unit}`;
+};
+
+const statusColor = { dark: "primary.300", light: "primary.500" };
+const warningColor = { dark: 300, light: 500 };
+const defaultStatusColor = {
+    dark: "success.300",
+    light: "success.500",
+};
+
+export default React.forwardRef(({ title, loading, error, errorMsg, errorLevel, runtime }, ref) => {
     const { colorMode } = useColorMode();
-    const statusColor = { dark: "primary.300", light: "primary.500" };
-    const warningColor = { dark: 300, light: 500 };
-    const defaultStatusColor = {
-        dark: "success.300",
-        light: "success.500"
-    };
+    const config = useConfig();
     return (
         <Stack ref={ref} isInline alignItems="center" w="100%">
             {loading ? (
@@ -23,7 +40,13 @@ export default React.forwardRef(({ title, loading, error, errorMsg, errorLevel }
                     />
                 </Tooltip>
             ) : (
-                <Icon name="check" color={defaultStatusColor[colorMode]} mr={4} size={6} />
+                <Tooltip
+                    hasArrow
+                    label={runtimeText(runtime, config.web.text.complete_time)}
+                    placement="top"
+                >
+                    <Icon name="check" color={defaultStatusColor[colorMode]} mr={4} size={6} />
+                </Tooltip>
             )}
             <Text fontSize="lg">{title}</Text>
             <AccordionIcon ml="auto" />

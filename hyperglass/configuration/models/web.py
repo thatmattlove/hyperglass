@@ -138,7 +138,9 @@ class Text(HyperglassModel):
     query_target: StrictStr = "Target"
     query_vrf: StrictStr = "Routing Table"
     fqdn_tooltip: StrictStr = "Use {protocol}"  # Formatted by Javascript
-    cache: StrictStr = "Results will be cached for {timeout} {period}."
+    cache_prefix: StrictStr = "Results cached for "
+    cache_icon: StrictStr = "Cached Response"
+    complete_time: StrictStr = "Completed in {seconds}"  # Formatted by Javascript
 
     @validator("title_mode")
     def validate_title_mode(cls, value):
@@ -146,6 +148,11 @@ class Text(HyperglassModel):
         if value == "logo_title":
             value = "logo_subtitle"
         return value
+
+    @validator("cache_prefix")
+    def validate_cache_prefix(cls, value):
+        """Ensure trailing whitespace."""
+        return " ".join(value.split()) + " "
 
 
 class ThemeColors(HyperglassModel):

@@ -71,8 +71,17 @@ async def query(query_data: Query, request: Request):
 
     log.info(f"Starting query execution for query {query_data.summary}")
 
-    # Check if cached entry exists
-    if not await cache.get(cache_key):
+    cache_response = await cache.get(cache_key)
+
+    cached = False
+    if cache_response:
+        # If a cached response exists, reset the expiration time.
+        await cache.expire(cache_key, seconds=cache_timeout)
+
+        cached = True
+        runtime = 0
+
+    elif not cache_response:
         log.debug(f"No existing cache entry for query {cache_key}")
         log.debug(
             f"Created new cache key {cache_key} entry for query {query_data.summary}"
@@ -94,13 +103,22 @@ async def query(query_data: Query, request: Request):
 
         log.debug(f"Added cache entry for query: {cache_key}")
 
+        runtime = int(round(elapsedtime, 0))
+
     # If it does, return the cached entry
     cache_response = await cache.get(cache_key)
 
     log.debug(f"Cache match for {cache_key}:\n {cache_response}")
     log.success(f"Completed query execution for {query_data.summary}")
 
-    return {"output": cache_response, "level": "success", "keywords": []}
+    return {
+        "output": cache_response,
+        "id": cache_key,
+        "cached": cached,
+        "runtime": runtime,
+        "level": "success",
+        "keywords": [],
+    }
 
 
 async def import_certificate(encoded_request: EncodedRequest):
