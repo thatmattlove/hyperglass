@@ -71,9 +71,21 @@ class Cache:
             raw = await self.instance.mget(args)
         return await self._parse_types(raw)
 
+    async def get_dict(self, key, field=None):
+        """Get hash map (dict) item(s)."""
+        if field is None:
+            raw = await self.instance.hgetall(key)
+        else:
+            raw = await self.instance.hget(key, field)
+        return await self._parse_types(raw)
+
     async def set(self, key, value):
         """Set cache values."""
         return await self.instance.set(key, value)
+
+    async def set_dict(self, key, field, value):
+        """Set hash map (dict) values."""
+        return await self.instance.hset(key, field, value)
 
     async def wait(self, pubsub, timeout=30, **kwargs):
         """Wait for pub/sub messages & return posted message."""

@@ -7,7 +7,7 @@ format.extend(String.prototype, {});
 
 const runtimeText = (runtime, text) => {
     let unit;
-    if (runtime > 1) {
+    if (runtime === 1) {
         unit = "seconds";
     } else {
         unit = "second";

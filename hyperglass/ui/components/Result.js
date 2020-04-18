@@ -16,6 +16,7 @@ import styled from "@emotion/styled";
 import LightningBolt from "~/components/icons/LightningBolt";
 import useAxios from "axios-hooks";
 import strReplace from "react-string-replace";
+import format from "string-format";
 import { startCase } from "lodash";
 import useConfig from "~/components/HyperglassProvider";
 import useMedia from "~/components/MediaProvider";
@@ -23,6 +24,8 @@ import CopyButton from "~/components/CopyButton";
 import RequeryButton from "~/components/RequeryButton";
 import ResultHeader from "~/components/ResultHeader";
 import CacheTimeout from "~/components/CacheTimeout";
+
+format.extend(String.prototype, {});
 
 const FormattedError = ({ keywords, message }) => {
     const patternStr = keywords.map((kw) => `(${kw})`).join("|");
@@ -125,7 +128,11 @@ const Result = React.forwardRef(
             <>
                 <CacheTimeout timeout={config.cache.timeout} text={config.web.text.cache_prefix} />
                 {data?.cached && (
-                    <Tooltip hasArrow label={config.web.text.cache_icon} placement="top">
+                    <Tooltip
+                        hasArrow
+                        label={config.web.text.cache_icon.format({ time: data?.timestamp })}
+                        placement="top"
+                    >
                         <Box ml={1}>
                             <LightningBolt color={color[colorMode]} />
                         </Box>
@@ -136,7 +143,11 @@ const Result = React.forwardRef(
         const cacheSm = (
             <>
                 {data?.cached && (
-                    <Tooltip hasArrow label={config.web.text.cache_icon} placement="top">
+                    <Tooltip
+                        hasArrow
+                        label={config.web.text.cache_icon.format({ time: data?.timestamp })}
+                        placement="top"
+                    >
                         <Box mr={1}>
                             <LightningBolt color={color[colorMode]} />
                         </Box>

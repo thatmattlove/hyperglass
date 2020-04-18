@@ -3,6 +3,8 @@
 # Standard Library
 import json
 import hashlib
+import secrets
+from datetime import datetime
 
 # Third Party
 from pydantic import BaseModel, StrictStr, validator
@@ -57,6 +59,7 @@ class Query(BaseModel):
     class Config:
         """Pydantic model configuration."""
 
+        extra = "allow"
         fields = {
             "query_location": {
                 "title": params.web.text.query_location,
@@ -83,9 +86,28 @@ class Query(BaseModel):
             "x-code-samples": [{"lang": "Python", "source": "print('stuff')"}]
         }
 
+    def __init__(self, **kwargs):
+        """Initialize the query with a UTC timestamp at initialization time."""
+        super().__init__(**kwargs)
+        self.timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
+    def __repr__(self):
+        """Represent only the query fields."""
+        return (
+            f"Query(query_location={str(self.query_location)}, "
+            f"query_type={str(self.query_type)}, query_vrf={str(self.query_vrf)}, "
+            f"query_target={str(self.query_target)})"
+        )
+
     def digest(self):
         """Create SHA256 hash digest of model representation."""
         return hashlib.sha256(repr(self).encode()).hexdigest()
+
+    def random(self):
+        """Create a random string to prevent client or proxy caching."""
+        return hashlib.sha256(
+            secrets.token_bytes(8) + repr(self).encode() + secrets.token_bytes(8)
+        ).hexdigest()
 
     @property
     def summary(self):

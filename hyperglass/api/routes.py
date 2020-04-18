@@ -71,7 +71,7 @@ async def query(query_data: Query, request: Request):
 
     log.info(f"Starting query execution for query {query_data.summary}")
 
-    cache_response = await cache.get(cache_key)
+    cache_response = await cache.get_dict(cache_key, "output")
 
     cached = False
     if cache_response:
@@ -80,6 +80,7 @@ async def query(query_data: Query, request: Request):
 
         cached = True
         runtime = 0
+        timestamp = await cache.get_dict(cache_key, "timestamp")
 
     elif not cache_response:
         log.debug(f"No existing cache entry for query {cache_key}")
@@ -87,18 +88,20 @@ async def query(query_data: Query, request: Request):
             f"Created new cache key {cache_key} entry for query {query_data.summary}"
         )
 
+        timestamp = query_data.timestamp
         # Pass request to execution module
         starttime = time.time()
-        cache_value = await Execute(query_data).response()
+        cache_output = await Execute(query_data).response()
         endtime = time.time()
         elapsedtime = round(endtime - starttime, 4)
         log.debug(f"Query {cache_key} took {elapsedtime} seconds to run.")
 
-        if cache_value is None:
+        if cache_output is None:
             raise HyperglassError(message=params.messages.general, alert="danger")
 
         # Create a cache entry
-        await cache.set(cache_key, str(cache_value))
+        await cache.set_dict(cache_key, "output", str(cache_output))
+        await cache.set_dict(cache_key, "timestamp", timestamp)
         await cache.expire(cache_key, seconds=cache_timeout)
 
         log.debug(f"Added cache entry for query: {cache_key}")
@@ -106,7 +109,7 @@ async def query(query_data: Query, request: Request):
         runtime = int(round(elapsedtime, 0))
 
     # If it does, return the cached entry
-    cache_response = await cache.get(cache_key)
+    cache_response = await cache.get_dict(cache_key, "output")
 
     log.debug(f"Cache match for {cache_key}:\n {cache_response}")
     log.success(f"Completed query execution for {query_data.summary}")
@@ -116,6 +119,8 @@ async def query(query_data: Query, request: Request):
         "id": cache_key,
         "cached": cached,
         "runtime": runtime,
+        "timestamp": timestamp,
+        "random": query_data.random(),
         "level": "success",
         "keywords": [],
     }

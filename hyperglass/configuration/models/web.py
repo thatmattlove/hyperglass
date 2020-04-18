@@ -139,7 +139,7 @@ class Text(HyperglassModel):
     query_vrf: StrictStr = "Routing Table"
     fqdn_tooltip: StrictStr = "Use {protocol}"  # Formatted by Javascript
     cache_prefix: StrictStr = "Results cached for "
-    cache_icon: StrictStr = "Cached Response"
+    cache_icon: StrictStr = "Cached Response from {time}"  # Formatted by Javascript
     complete_time: StrictStr = "Completed in {seconds}"  # Formatted by Javascript
 
     @validator("title_mode")

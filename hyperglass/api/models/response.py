@@ -57,10 +57,11 @@ class QueryResponse(BaseModel):
 
     output: StrictStr
     level: constr(regex=r"success") = "success"
-    id: StrictStr
+    random: StrictStr
     cached: StrictBool
     runtime: StrictInt
     keywords: List[StrictStr] = []
+    timestamp: StrictStr
 
     class Config:
         """Pydantic model configuration."""
@@ -69,6 +70,25 @@ class QueryResponse(BaseModel):
         description = "Looking glass response"
         fields = {
             "level": {"title": "Level", "description": "Severity"},
+            "cached": {
+                "title": "Cached",
+                "description": "`true` if the response is from a previously cached query.",
+            },
+            "random": {
+                "title": "Random",
+                "description": "Random string to prevent client or intermediate caching.",
+                "example": "504cbdb47eb8310ca237bf512c3e10b44b0a3d85868c4b64a20037dc1c3ef857",
+            },
+            "runtime": {
+                "title": "Runtime",
+                "description": "Time it took to run the query in seconds.",
+                "example": 6,
+            },
+            "timestamp": {
+                "title": "Timestamp",
+                "description": "UTC Time at which the backend application received the query.",
+                "example": "2020-04-18 14:45:37",
+            },
             "keywords": {
                 "title": "Keywords",
                 "description": "Relevant keyword values contained in the `output` field, which can be used for formatting.",
