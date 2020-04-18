@@ -17,7 +17,8 @@ from hyperglass.api.models.types import SupportedQuery
 from hyperglass.api.models.validators import (
     validate_ip,
     validate_aspath,
-    validate_community,
+    validate_community_input,
+    validate_community_select,
 )
 
 
@@ -215,7 +216,7 @@ class Query(BaseModel):
         # Use relevant function based on query_type.
         validator_map = {
             "bgp_aspath": validate_aspath,
-            "bgp_community": validate_community,
+            "bgp_community": validate_community_input,
             "bgp_route": validate_ip,
             "ping": validate_ip,
             "traceroute": validate_ip,
@@ -227,6 +228,10 @@ class Query(BaseModel):
             "ping": (value, values["query_type"], values["query_vrf"]),
             "traceroute": (value, values["query_type"], values["query_vrf"]),
         }
+
+        if params.queries.bgp_community.mode == "select":
+            validator_map["bgp_community"] = validate_community_select
+
         validate_func = validator_map[query_type]
         validate_args = validator_args_map[query_type]
 

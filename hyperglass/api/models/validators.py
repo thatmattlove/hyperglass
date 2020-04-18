@@ -150,7 +150,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
     return valid_ip
 
 
-def validate_community(value):
+def validate_community_input(value):
     """Validate input communities against configured or default regex pattern."""
 
     # RFC4360: Extended Communities (New Format)
@@ -166,6 +166,19 @@ def validate_community(value):
         pass
 
     else:
+        raise InputInvalid(
+            params.messages.invalid_input,
+            target=value,
+            query_type=params.queries.bgp_community.display_name,
+        )
+    return value
+
+
+def validate_community_select(value):
+    """Validate selected community against configured communities."""
+
+    communities = tuple(c.community for c in params.queries.bgp_community.communities)
+    if value not in communities:
         raise InputInvalid(
             params.messages.invalid_input,
             target=value,

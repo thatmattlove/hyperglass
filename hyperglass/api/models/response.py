@@ -189,6 +189,14 @@ class RoutersResponse(BaseModel):
         }
 
 
+class CommunityResponse(BaseModel):
+    """Response model for /api/communities."""
+
+    community: StrictStr
+    display_name: StrictStr
+    description: StrictStr
+
+
 class SupportedQueryResponse(BaseModel):
     """Response model for /api/queries list items."""
 

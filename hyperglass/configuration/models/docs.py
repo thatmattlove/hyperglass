@@ -77,6 +77,11 @@ class Docs(HyperglassModel):
         description="List of supported query types.",
         summary="Query Types",
     )
+    communities: EndpointConfig = EndpointConfig(
+        title="BGP Communities",
+        description="List of BGP communities.",
+        summary="BGP Communities List",
+    )
 
     class Config:
         """Pydantic model configuration."""
@@ -95,5 +100,9 @@ class Docs(HyperglassModel):
             "queries": {
                 "title": "Queries API Endpoint",
                 "description": "`/api/devices` API documentation options.",
+            },
+            "communities": {
+                "title": "BGP Communities API Endpoint",
+                "description": "`/api/communities` API documentation options.",
             },
         }

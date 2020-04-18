@@ -194,6 +194,14 @@ async def routers():
     ]
 
 
+async def communities():
+    """Serve list of configured communities if mode is select."""
+    if params.queries.bgp_community.mode != "select":
+        raise HTTPException(detail="BGP community mode is not select", status_code=404)
+
+    return [c.export_dict() for c in params.queries.bgp_community.communities]
+
+
 async def queries():
     """Serve list of enabled query types."""
     return params.queries.list

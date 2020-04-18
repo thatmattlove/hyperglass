@@ -18,7 +18,14 @@ from hyperglass.log import log
 from hyperglass.util import cpu_count
 from hyperglass.constants import TRANSPORT_REST, __version__
 from hyperglass.api.events import on_startup, on_shutdown
-from hyperglass.api.routes import docs, query, queries, routers, import_certificate
+from hyperglass.api.routes import (
+    docs,
+    query,
+    queries,
+    routers,
+    import_certificate,
+    communities,
+)
 from hyperglass.exceptions import HyperglassError
 from hyperglass.configuration import URL_DEV, STATIC_PATH, params, devices
 from hyperglass.api.error_handlers import (
@@ -31,6 +38,7 @@ from hyperglass.api.models.response import (
     QueryError,
     QueryResponse,
     RoutersResponse,
+    CommunityResponse,
     SupportedQueryResponse,
 )
 
@@ -105,7 +113,7 @@ def _custom_openapi():
         description=params.docs.description,
         routes=app.routes,
     )
-    openapi_schema["info"]["x-logo"] = {"url": str(params.web.logo.light)}
+    openapi_schema["info"]["x-logo"] = {"url": "/" + str(params.web.logo.dark)}
 
     query_samples = []
     queries_samples = []
@@ -176,6 +184,16 @@ app.add_api_route(
     description=params.docs.devices.description,
     tags=[params.docs.devices.title],
 )
+
+app.add_api_route(
+    path="/api/communities",
+    endpoint=communities,
+    methods=["GET"],
+    response_model=List[CommunityResponse],
+    summary=params.docs.communities.summary,
+    tags=[params.docs.communities.title],
+)
+
 app.add_api_route(
     path="/api/queries",
     endpoint=queries,
@@ -186,6 +204,7 @@ app.add_api_route(
     description=params.docs.queries.description,
     tags=[params.docs.queries.title],
 )
+
 app.add_api_route(
     path="/api/query/",
     endpoint=query,

@@ -1,98 +1,98 @@
 ---
 # Credentials
 credentials:
-    - credential: &credential1
-          username: user1
-          password: secret1
-    - credential: &credential2
-          username: user2
-          password: secret2
+  - credential: &credential1
+      username: user1
+      password: secret1
+  - credential: &credential2
+      username: user2
+      password: secret2
 
 # SSH Proxy/Tunnel Servers
 proxies:
-    - proxy: &proxy1
-          name: server01
-          address: 10.11.6.204
-          port: 22
-          credential: *credential1
-          nos: linux_ssh
+  - proxy: &proxy1
+      name: server01
+      address: 10.11.6.204
+      port: 22
+      credential: *credential1
+      nos: linux_ssh
 
 # Networks
 networks:
-    - network: &net_primary
-          name: primary
-          display_name: Main Network
-    - network: &net_secondary
-          name: secondary
-          display_name: That Other Network
+  - network: &net_primary
+      name: primary
+      display_name: Main Network
+  - network: &net_secondary
+      name: secondary
+      display_name: That Other Network
 
 # VRFs
 vrfs:
-    - &vrf_default
-      name: default
-      display_name: Global
-      ipv4:
-          access_list: &vrf_default_ipv4_acl
-              - network: 10.0.0.0/8
-                action: deny
-              - network: 192.168.0.0/16
-                action: deny
-              - network: 172.16.0.0/12
-                action: deny
-              - network: 0.0.0.0/0
-                action: permit
-                ge: 8
-                le: 24
-      ipv6:
-          access_list: &vrf_default_ipv6_acl
-              - network: ::/0
-                action: permit
-                ge: 32
-                le: 64
-    - &vrf_customer_a
-      name: customer_a
-      display_name: Customer A
-      ipv4:
-          access_list: &vrf_customer_a_ipv4_acl
-              - network: 192.0.2.0/24
-                action: deny
-              - network: 10.0.0.0/8
-                action: permit
-      ipv6: null
+  - &vrf_default
+    name: default
+    display_name: Global
+    ipv4:
+      access_list: &vrf_default_ipv4_acl
+        - network: 10.0.0.0/8
+          action: deny
+        - network: 192.168.0.0/16
+          action: deny
+        - network: 172.16.0.0/12
+          action: deny
+        - network: 0.0.0.0/0
+          action: permit
+          ge: 8
+          le: 24
+    ipv6:
+      access_list: &vrf_default_ipv6_acl
+        - network: ::/0
+          action: permit
+          ge: 32
+          le: 64
+  - &vrf_customer_a
+    name: customer_a
+    display_name: Customer A
+    ipv4:
+      access_list: &vrf_customer_a_ipv4_acl
+        - network: 192.0.2.0/24
+          action: deny
+        - network: 10.0.0.0/8
+          action: permit
+    ipv6: null
 
 # Routers
 routers:
-    - name: sfo_router01
-      address: 10.0.0.1
-      network: *net_primary
-      credential: *credential1
-      display_name: San Francisco, CA
-      port: 22
-      nos: cisco_ios
-      vrfs:
-          - <<: *vrf_default
-            ipv4:
-                source_address: 192.0.2.1
-                access_list: *vrf_default_ipv4_acl
-            ipv6:
-                source_address: 2001:db8::1
-                access_list: *vrf_default_ipv6_acl
-          - <<: *vrf_customer_a
-            ipv4:
-                access_list: *vrf_customer_a_ipv4_acl
-                source_address: 192.168.1.1
-      proxy: null
-    - name: atl_router01
-      address: 10.0.0.2
-      network: *net_secondary
-      credential: *credential2
-      display_name: Atlanta, GA
-      port: 22
-      nos: juniper
-      vrfs:
-          - <<: *vrf_default
-            ipv4:
-                source_address: 192.0.2.2
-            ipv6:
-                source_address: 2001:db8::2
-      proxy: *proxy1
+  - name: sfo_router01
+    address: 10.0.0.1
+    network: *net_primary
+    credential: *credential1
+    display_name: San Francisco, CA
+    port: 22
+    nos: cisco_ios
+    vrfs:
+      - <<: *vrf_default
+        ipv4:
+          source_address: 192.0.2.1
+          access_list: *vrf_default_ipv4_acl
+        ipv6:
+          source_address: 2001:db8::1
+          access_list: *vrf_default_ipv6_acl
+      - <<: *vrf_customer_a
+        ipv4:
+          access_list: *vrf_customer_a_ipv4_acl
+          source_address: 192.168.1.1
+    proxy: null
+  - name: atl_router01
+    address: 10.0.0.2
+    network: *net_secondary
+    credential: *credential2
+    display_name: Atlanta, GA
+    port: 22
+    nos: juniper
+    vrfs:
+      - <<: *vrf_default
+        ipv4:
+          source_address: 192.0.2.2
+        ipv6:
+          source_address: 2001:db8::2
+    proxy: *proxy1
