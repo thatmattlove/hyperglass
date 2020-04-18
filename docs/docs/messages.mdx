@@ -11,6 +11,8 @@ import Code from "../src/components/JSXCode";
 
 All user-facing status messages can be customized if needed.
 
+<div class="table--full-width" />
+
 | Parameter              |  Type  | Default                                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                 |
 | :--------------------- | :----: | :-------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `acl_denied`           | String | `'"{target} is a member of {denied_network}, which is not allowed."'` | Displayed when a query target is explicitly denied by a matched VRF's ACL entry. `{target}` and `{denied_network}` will be replaced with the denied query target and the ACL entry that caused it to be denied.                                                                                                                                                                                             |
@@ -32,18 +34,18 @@ All user-facing status messages can be customized if needed.
 
 ```yaml
 messages:
-    acl_denied: "{target} is a member of {denied_network}, which is not allowed."
-    acl_not_allowed: "{target} is not allowed."
-    authentication_error: Authentication error occurred.
-    connection_error: "Error connecting to {device_name}: {error}"
-    feature_not_enabled: "{feature} is not enabled for {device_name}."
-    general: Something went wrong.
-    invalid_field: "{input} is an invalid {field}."
-    invalid_input: "{target} is not a valid {query_type} target."
-    no_input: "{field} must be specified."
-    no_output: No output.
-    no_response: No response.
-    request_timeout: Request timed out.
-    vrf_not_associated: VRF {vrf_name} is not associated with {device_name}.
-    vrf_not_found: VRF {vrf_name} is not defined.
+  acl_denied: "{target} is a member of {denied_network}, which is not allowed."
+  acl_not_allowed: "{target} is not allowed."
+  authentication_error: Authentication error occurred.
+  connection_error: "Error connecting to {device_name}: {error}"
+  feature_not_enabled: "{feature} is not enabled for {device_name}."
+  general: Something went wrong.
+  invalid_field: "{input} is an invalid {field}."
+  invalid_input: "{target} is not a valid {query_type} target."
+  no_input: "{field} must be specified."
+  no_output: No output.
+  no_response: No response.
+  request_timeout: Request timed out.
+  vrf_not_associated: VRF {vrf_name} is not associated with {device_name}.
+  vrf_not_found: VRF {vrf_name} is not defined.
 ```

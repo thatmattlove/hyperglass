@@ -4,6 +4,7 @@ title: Introduction
 sidebar_label: Introduction
 description: Welcome to hyperglass
 ---
+
 import Link from "@docusaurus/Link";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import classnames from "classnames";
@@ -21,14 +22,14 @@ hyperglass was created with the lofty goal of benefiting the internet community 
 - Full IPv6 support
 - Customizable everything: features, theme, UI/API text, error messages, commands
 - Built in support for:
-    - Cisco IOS/IOS-XE
-    - Cisco IOS-XR
-    - Juniper JunOS
-    - Arista EOS
-    - Huawei
-    - FRRouting
-    - BIRD
-- Configurable support for any other [supported platform](/docs/platforms)
+  - Cisco IOS/IOS-XE
+  - Cisco IOS-XR
+  - Juniper JunOS
+  - Arista EOS
+  - Huawei
+  - FRRouting
+  - BIRD
+- Configurable support for any other [supported platform](platforms.mdx)
 - Optionally access devices via an SSH proxy/jump server
 - VRF support
 - Access List/prefix-list style query control to whitelist or blacklist query targets on a per-VRF basis
@@ -37,9 +38,12 @@ hyperglass was created with the lofty goal of benefiting the internet community 
 - Query multiple devices simultaneously
 - Browser-based DNS-over-HTTPS resolution of FQDN queries
 
-
-<Link 
-    className={classnames('button button--outline button--secondary button--lg', styles.getStarted,)}
-    to={useBaseUrl('docs/getting-started')}>
-    Get Started
+<Link
+  className={classnames(
+    "button button--outline button--secondary button--lg",
+    styles.getStarted
+  )}
+  to={useBaseUrl("docs/getting-started")}
+>
+  Get Started
 </Link>

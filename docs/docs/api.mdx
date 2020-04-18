@@ -58,26 +58,27 @@ FastAPI provides built in support for both [Swagger UI](https://swagger.io/tools
 
 ```yaml
 docs:
-    base_url: https://lg.example.net
-    description: ""
-    devices:
-        description: List of all devices/locations with associated identifiers, display
-            names, networks, & VRFs.
-        summary: Devices List
-        title: Devices
-    enable: true
-    mode: redoc
-    openapi_uri: /openapi.json
-    queries:
-        description: List of supported query types.
-        summary: Query Types
-        title: Supported Queries
-    query:
-        description: Request a query response per-location.
-        summary: Query the Looking Glass
-        title: Submit Query
-    title: "{site_title} API Documentation"
-    uri: /api/docs
+  base_url: https://lg.example.net
+  description: ""
+  devices:
+    description:
+      List of all devices/locations with associated identifiers, display
+      names, networks, & VRFs.
+    summary: Devices List
+    title: Devices
+  enable: true
+  mode: redoc
+  openapi_uri: /openapi.json
+  queries:
+    description: List of supported query types.
+    summary: Query Types
+    title: Supported Queries
+  query:
+    description: Request a query response per-location.
+    summary: Query the Looking Glass
+    title: Submit Query
+  title: "{site_title} API Documentation"
+  uri: /api/docs
 ```
 
 :::note From the developer

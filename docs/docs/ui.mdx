@@ -14,6 +14,8 @@ import Color from "../src/components/Color";
 import Font from "../src/components/Font";
 import PageLink from "../src/components/PageLink";
 
+<div class="table--full-width" />
+
 The `web` subsection contains multiple subsections of its own, should you wish to customize various aspects of the UI:
 
 | Section         | Description                    |                 All Options                 |
@@ -92,19 +94,19 @@ By default, no Opengraph image is set. If you define one with `image`, hyperglas
 
 ## `text`
 
-| Parameter        |  Type  | Default                    | Description                                                                                                                                                             |
-| :--------------- | :----: | :------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cache_prefix`   | String | `'Results cached for '`    | Text displayed with the cache timeout countdown.                                                                                                                        |
-| `cache_icon`     | String | `'Cached Response'`        | Text displayed when a user hovers over the lightning bolt icon, which is displayed when a response from the server was a cached response.                               |
-| `completed_time` | String | `'Completed in {seconds}'` | Text displayed when a user hovers over the success icon for a query result. `{seconds}` will be replaced with 'n seconds' where n is the time a query took to complete. |
-| `fqdn_tooltip`   | String | `'Use {protocol}'`         | Text displayed when a user hovers over the IPv4 or IPv6 button on an FQDN target resolved by DNS. `{protocol}` is replaced with the relevant IP protocol.               |
-| `query_location` | String | `'Location'`               | Query Location (router) form label.                                                                                                                                     |
-| `query_target`   | String | `'Target'`                 | Query Target (IP/hostname/community/AS Path) form label.                                                                                                                |
-| `query_type`     | String | `'Query Type'`             | Query Type (BGP Route, Ping, Traceroute, etc.) form label.                                                                                                              |
-| `query_vrf`      | String | `'Routing Table'`          | Query VRF form label.                                                                                                                                                   |
-| `subtitle`       | String | `'Network Looking Glass'`  | Subtitle text. value.                                                                                                                                                   |
-| `title`          | String | `'hyperglass'`             | Title text.                                                                                                                                                             |
-| `title_mode`     | String | `'text_only'`              | Set the title mode. <MiniNote>Must be <Code>text_only</Code>, <Code>logo_only</Code>, <Code>logo_subtitle</Code>, or <Code>all</Code></MiniNote>                        |
+| Parameter        |  Type  | Default                         | Description                                                                                                                                                                                           |
+| :--------------- | :----: | :------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cache_prefix`   | String | `'Results cached for '`         | Text displayed with the cache timeout countdown.                                                                                                                                                      |
+| `cache_icon`     | String | `'Cached Response from {time}'` | Text displayed when a user hovers over the lightning bolt icon, which is displayed when a response from the server was a cached response. `{time}` is replaced with the _original_ query's timestamp. |
+| `completed_time` | String | `'Completed in {seconds}'`      | Text displayed when a user hovers over the success icon for a query result. `{seconds}` will be replaced with 'n seconds' where n is the time a query took to complete.                               |
+| `fqdn_tooltip`   | String | `'Use {protocol}'`              | Text displayed when a user hovers over the IPv4 or IPv6 button on an FQDN target resolved by DNS. `{protocol}` is replaced with the relevant IP protocol.                                             |
+| `query_location` | String | `'Location'`                    | Query Location (router) form label.                                                                                                                                                                   |
+| `query_target`   | String | `'Target'`                      | Query Target (IP/hostname/community/AS Path) form label.                                                                                                                                              |
+| `query_type`     | String | `'Query Type'`                  | Query Type (BGP Route, Ping, Traceroute, etc.) form label.                                                                                                                                            |
+| `query_vrf`      | String | `'Routing Table'`               | Query VRF form label.                                                                                                                                                                                 |
+| `subtitle`       | String | `'Network Looking Glass'`       | Subtitle text. value.                                                                                                                                                                                 |
+| `title`          | String | `'hyperglass'`                  | Title text.                                                                                                                                                                                           |
+| `title_mode`     | String | `'text_only'`                   | Set the title mode. <MiniNote>Must be <Code>text_only</Code>, <Code>logo_only</Code>, <Code>logo_subtitle</Code>, or <Code>all</Code></MiniNote>                                                      |
 
 :::note Title Mode
 The `title_mode` parameter behaves in the following manner:
@@ -169,65 +171,65 @@ Currently, only [Google Fonts](https://fonts.google.com/) are supported.
 
 ```yaml
 web:
-    credit:
-        enable: true
-    dns_provider:
-        name: google
-        url: https://dns.google/resolve
-    external_link:
-        enable: true
-        title: PeeringDB
-        url: https://www.peeringdb.com/asn/{primary_asn}
-    help_menu:
-        enable: true
-        file: null
-        title: Help
-    logo:
-        dark: /images/hyperglass-light.png
-        favicons: ui/images/favicons/
-        height: null
-        light: /images/hyperglass-dark.png
-        width: 384
-    opengraph:
-        height: 1132
-        image: /images/hyperglass-opengraph.png
-        width: 7355
-    terms:
-        enable: true
-        file: null
-        title: Terms
-    text:
-        cache: Results will be cached for 2 minutes.
-        fqdn_tooltip: "Use {protocol}"
-        query_location: Location
-        query_target: Target
-        query_type: Query Type
-        query_vrf: Routing Table
-        subtitle: AS65001
-        title: hyperglass
-        title_mode: text_only
-    theme:
-        default_color_mode: light
-        colors:
-            black: "#262626"
-            blue: "#314cb6"
-            cyan: "#118ab2"
-            danger: "#d84b4b"
-            error: "#ff6b35"
-            gray: "#c1c7cc"
-            green: "#35b246"
-            orange: "#ff6b35"
-            pink: "#f2607d"
-            primary: "#118ab2"
-            purple: "#8d30b5"
-            red: "#d84b4b"
-            secondary: "#314cb6"
-            success: "#35b246"
-            teal: "#35b299"
-            warning: "#edae49"
-            white: "#f7f7f7"
-            yellow: "#edae49"
-        fonts:
-            body: Nunito
-            mono: Fira Code
+  credit:
+    enable: true
+  dns_provider:
+    name: google
+    url: https://dns.google/resolve
+  external_link:
+    enable: true
+    title: PeeringDB
+    url: https://www.peeringdb.com/asn/{primary_asn}
+  help_menu:
+    enable: true
+    file: null
+    title: Help
+  logo:
+    dark: /images/hyperglass-light.png
+    favicons: ui/images/favicons/
+    height: null
+    light: /images/hyperglass-dark.png
+    width: 384
+  opengraph:
+    height: 1132
+    image: /images/hyperglass-opengraph.png
+    width: 7355
+  terms:
+    enable: true
+    file: null
+    title: Terms
+  text:
+    cache: Results will be cached for 2 minutes.
+    fqdn_tooltip: "Use {protocol}"
+    query_location: Location
+    query_target: Target
+    query_type: Query Type
+    query_vrf: Routing Table
+    subtitle: AS65001
+    title: hyperglass
+    title_mode: text_only
+  theme:
+    default_color_mode: light
+    colors:
+      black: "#262626"
+      blue: "#314cb6"
+      cyan: "#118ab2"
+      danger: "#d84b4b"
+      error: "#ff6b35"
+      gray: "#c1c7cc"
+      green: "#35b246"
+      orange: "#ff6b35"
+      pink: "#f2607d"
+      primary: "#118ab2"
+      purple: "#8d30b5"
+      red: "#d84b4b"
+      secondary: "#314cb6"
+      success: "#35b246"
+      teal: "#35b299"
+      warning: "#edae49"
+      white: "#f7f7f7"
+      yellow: "#edae49"
+    fonts:
+      body: Nunito
+      mono: Fira Code
 ```

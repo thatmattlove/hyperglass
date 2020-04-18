@@ -9,7 +9,7 @@ import React, { useEffect, useState, useRef } from "react";
 import classnames from "classnames";
 import Highlight, { defaultProps } from "prism-react-renderer";
 import Prism from "prism-react-renderer/prism";
-import defaultTheme from "prism-react-renderer/themes/dracula";
+import defaultTheme from "./dracula";
 import Clipboard from "clipboard";
 import rangeParser from "parse-numeric-range";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
@@ -18,83 +18,86 @@ import styles from "./styles.module.css";
 const highlightLinesRangeRegex = /{([\d,-]+)}/;
 
 export default ({ children, className: languageClassName, metastring }) => {
-    (typeof global !== "undefined" ? global : window).Prism = Prism;
-    require("prismjs/components/prism-shell-session");
-    const {
-        siteConfig: {
-            themeConfig: { prism = {} },
-        },
-    } = useDocusaurusContext();
-    // const [showCopied, setShowCopied] = useState(false);
-    const target = useRef(null);
-    const button = useRef(null);
-    let highlightLines = [];
+  (typeof global !== "undefined" ? global : window).Prism = Prism;
+  require("prismjs/components/prism-shell-session");
+  const {
+    siteConfig: {
+      themeConfig: { prism = {} },
+    },
+  } = useDocusaurusContext();
+  // const [showCopied, setShowCopied] = useState(false);
+  const target = useRef(null);
+  const button = useRef(null);
+  let highlightLines = [];
 
-    if (metastring && highlightLinesRangeRegex.test(metastring)) {
-        const highlightLinesRange = metastring.match(highlightLinesRangeRegex)[1];
-        highlightLines = rangeParser.parse(highlightLinesRange).filter((n) => n > 0);
+  if (metastring && highlightLinesRangeRegex.test(metastring)) {
+    const highlightLinesRange = metastring.match(highlightLinesRangeRegex)[1];
+    highlightLines = rangeParser
+      .parse(highlightLinesRange)
+      .filter((n) => n > 0);
+  }
+
+  useEffect(() => {
+    let clipboard;
+
+    if (button.current) {
+      clipboard = new Clipboard(button.current, {
+        target: () => target.current,
+      });
     }
 
-    useEffect(() => {
-        let clipboard;
+    return () => {
+      if (clipboard) {
+        clipboard.destroy();
+      }
+    };
+  }, [button.current, target.current]);
 
-        if (button.current) {
-            clipboard = new Clipboard(button.current, {
-                target: () => target.current,
-            });
-        }
+  let language =
+    languageClassName && languageClassName.replace(/language-/, "");
 
-        return () => {
-            if (clipboard) {
-                clipboard.destroy();
-            }
-        };
-    }, [button.current, target.current]);
+  if (!language && prism.defaultLanguage) {
+    language = prism.defaultLanguage;
+  }
 
-    let language = languageClassName && languageClassName.replace(/language-/, "");
+  // const handleCopyCode = () => {
+  //     window.getSelection().empty();
+  //     setShowCopied(true);
 
-    if (!language && prism.defaultLanguage) {
-        language = prism.defaultLanguage;
-    }
+  //     setTimeout(() => setShowCopied(false), 2000);
+  // };
 
-    // const handleCopyCode = () => {
-    //     window.getSelection().empty();
-    //     setShowCopied(true);
+  return (
+    <Highlight
+      {...defaultProps}
+      theme={prism.theme || defaultTheme}
+      code={children.trim()}
+      language={language}
+    >
+      {({ className, style, tokens, getLineProps, getTokenProps }) => (
+        <div className={styles.codeBlockWrapper}>
+          <pre
+            ref={target}
+            className={classnames(className, styles.codeBlock)}
+            style={style}
+          >
+            {tokens.map((line, i) => {
+              const lineProps = getLineProps({ line, key: i });
 
-    //     setTimeout(() => setShowCopied(false), 2000);
-    // };
+              if (highlightLines.includes(i + 1)) {
+                lineProps.className = `${lineProps.className} docusaurus-highlight-code-line`;
+              }
 
-    return (
-        <Highlight
-            {...defaultProps}
-            theme={prism.theme || defaultTheme}
-            code={children.trim()}
-            language={language}
-        >
-            {({ className, style, tokens, getLineProps, getTokenProps }) => (
-                <div className={styles.codeBlockWrapper}>
-                    <pre
-                        ref={target}
-                        className={classnames(className, styles.codeBlock)}
-                        style={style}
-                    >
-                        {tokens.map((line, i) => {
-                            const lineProps = getLineProps({ line, key: i });
-
-                            if (highlightLines.includes(i + 1)) {
-                                lineProps.className = `${lineProps.className} docusaurus-highlight-code-line`;
-                            }
-
-                            return (
-                                <div key={i} {...lineProps}>
-                                    {line.map((token, key) => (
-                                        <span key={key} {...getTokenProps({ token, key })} />
-                                    ))}
-                                </div>
-                            );
-                        })}
-                    </pre>
-                    {/* <button
+              return (
+                <div key={i} {...lineProps}>
+                  {line.map((token, key) => (
+                    <span key={key} {...getTokenProps({ token, key })} />
+                  ))}
+                </div>
+              );
+            })}
+          </pre>
+          {/* <button
                         ref={button}
                         type="button"
                         aria-label="Copy code to clipboard"
@@ -103,8 +106,8 @@ export default ({ children, className: languageClassName, metastring }) => {
                     >
                         {showCopied ? "Copied" : "Copy"}
                     </button> */}
-                </div>
-            )}
-        </Highlight>
-    );
+        </div>
+      )}
+    </Highlight>
+  );
 };

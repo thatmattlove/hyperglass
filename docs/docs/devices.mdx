@@ -2,7 +2,8 @@
 id: devices
 title: Devices
 sidebar_label: Devices
-keywords: [hyperglass, authentication, ssl, proxy, access list, prefix list, acl, help]
+keywords:
+  [hyperglass, authentication, ssl, proxy, access list, prefix list, acl, help]
 description: Adding devices to hyperglass
 ---
 
@@ -10,6 +11,8 @@ import Link from "@docusaurus/Link";
 import R from "../src/components/Required";
 import MiniNote from "../src/components/MiniNote";
 import Code from "../src/components/JSXCode";
+
+<div class="table--full-width" />
 
 ## All Device Parameters
 
@@ -49,7 +52,7 @@ While all devices require a credential mapping, the credential values themselves
 For HTTP devices (i.e. devices using [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent)), the username is ignored and the password is used as a secret for [JSON Web Token](https://tools.ietf.org/html/rfc7519) encoding/decoding.
 
 | Parameter       | Type   | Description                                                  |
-| --------------- | ------ | ------------------------------------------------------------ |
+| :-------------- | :----- | :----------------------------------------------------------- |
 | <R/> `username` | String | Username                                                     |
 | <R/> `password` | String | Password <MiniNote>Passwords will never be logged</MiniNote> |
 
@@ -59,8 +62,8 @@ HTTP devices may optionally use SSL for the connection between hyperglass and th
 
 If SSL is enabled, the public key of the device must be provided in the form of an accessible absolute file path. With SSL enabled and a valid certificate specified, every connection to the device will use HTTPS in addition to payload encoding with [JSON Web Tokens](https://tools.ietf.org/html/rfc7519).
 
-| Parameter   |  Type   | Description                                                                                                                                                                                  |
-| :---------- | :-----: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Parameter   | Type    | Description                                                                                                                                                                                  |
+| :---------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enable`    | Boolean | Enable or disable the use of SSL. <MiniNote>If enabled, a certificate file must be specified (hyperglass does not support connecting to a device over an unverified SSL session).</MiniNote> |
 | <R/> `cert` | String  | Absolute path to agent's public RSA key.                                                                                                                                                     |
 
@@ -68,8 +71,8 @@ If SSL is enabled, the public key of the device must be provided in the form of 
 
 The VRFs section is a list of available VRFs for a given device. Each VRF may be configured with the following fields:
 
-| Parameter      |  Type  | Description                                                                                                                                                                                          |
-| :------------- | :----: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Parameter      | Type   | Description                                                                                                                                                                                          |
+| :------------- | :----- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | <R/> `name`    | String | The VRF's name, as known **by the device**. <MiniNote>hyperglass sends this field to the device for queries, so it needs to match the device's configuration.</MiniNote>                             |
 | `display_name` | String | The VRF's user-facing name. This field's value is visible in the UI. <MiniNote>If this is not specified, hyperglass will try to create a "pretty" display name based on the `name` field.</MiniNote> |
 | `info`         |        | <Link to="#info">Per-VRF Contextual Help Configuration</Link>                                                                                                                                        |
@@ -80,8 +83,8 @@ The VRFs section is a list of available VRFs for a given device. Each VRF may be
 
 May be set to `null` to disable IPv4 for this VRF, on the parent device.
 
-| Parameter             |  Type   | Description                                                           |
-| :-------------------- | :-----: | :-------------------------------------------------------------------- |
+| Parameter             | Type    | Description                                                           |
+| :-------------------- | :------ | :-------------------------------------------------------------------- |
 | <R/> `source_address` | String  | Device's source IPv4 address for directed queries (ping, traceroute). |
 | `force_cidr`          | Boolean | `true`                                                                | Convert IP host queries to actual advertised containing prefix length |
 | `access_list`         |         | <Link to="#access_list">IPv4 Access List Configuration</Link>         |
@@ -90,8 +93,8 @@ May be set to `null` to disable IPv4 for this VRF, on the parent device.
 
 May be set to `null` to disable IPv6 for this VRF, on the parent device.
 
-| Parameter             |  Type   | Default | Description                                                           |
-| :-------------------- | :-----: | :------ | :-------------------------------------------------------------------- |
+| Parameter             | Type    | Default | Description                                                           |
+| :-------------------- | :------ | :------ | :-------------------------------------------------------------------- |
 | <R/> `source_address` | String  |         | Device's source IPv6 address for directed queries (ping, traceroute). |
 | `force_cidr`          | Boolean | `true`  | Convert IP host queries to actual advertised containing prefix length |
 | `access_list`         |         |         | [IPv6 Access List Configuration](#access_list)                        |
@@ -106,8 +109,8 @@ When `force_cidr`is set to `true`, hyperglass will perform a lookup via the [RIP
 
 The `access_list` block can be thought of like a prefix-list from Cisco IOS. It is a list of rules, where the first matching rule is the action executed.
 
-| Parameter      |  Type   |    Default    | Description                                                                 |
-| :------------- | :-----: | :-----------: | :-------------------------------------------------------------------------- |
+| Parameter      | Type    |    Default    | Description                                                                 |
+| :------------- | :------ | :-----------: | :-------------------------------------------------------------------------- |
 | <R/> `network` | String  |               | This rule's IPv4 or IPv6 base prefix                                        |
 | `action`       | String  |  `'permit'`   | This rule's action. Must be `permit` or `deny`                              |
 | `ge`           | Integer |      `0`      | To match this rule, the target prefix must be greater than or equal to `ge` |
@@ -117,8 +120,8 @@ The `access_list` block can be thought of like a prefix-list from Cisco IOS. It 
 
 Each VRF may enable, disable, or customize the contextual help menu for each enabled query type. The following parameters may be defined under any query type:
 
-| Parameter |  Type   | Default | Description                                                                                                                 |
-| :-------- | :-----: | :-----: | :-------------------------------------------------------------------------------------------------------------------------- |
+| Parameter | Type    | Default | Description                                                                                                                 |
+| :-------- | :------ | :-----: | :-------------------------------------------------------------------------------------------------------------------------- |
 | `enable`  | Boolean | `true`  | Enable or disable the help menu for this command.                                                                           |
 | `file`    | String  |         | Path to a plain text or markdown file containing customized help information for this command.                              |
 | `params`  | Object  |         | Any arbitrary key/value pairs where the value will replace any occurrences of the key when wrapped in braces (e.g. `{key}`) |
@@ -127,19 +130,19 @@ For example:
 
 ```yaml
 info:
-    bgp_route:
-        enable: true
-        file: /etc/hyperglass/customer_bgp_route.md
-        params:
-            vrf_name: Customer A
-    ping:
-        enable: false
-    bgp_community:
-        enable: true
-        file: /etc/hyperglass/customer_bgp_community.md
-        params:
-            vrf_name: Customer A
-            community: "65000"
+  bgp_route:
+    enable: true
+    file: /etc/hyperglass/customer_bgp_route.md
+    params:
+      vrf_name: Customer A
+  ping:
+    enable: false
+  bgp_community:
+    enable: true
+    file: /etc/hyperglass/customer_bgp_community.md
+    params:
+      vrf_name: Customer A
+      community: "65000"
 ```
 
 ## Telnet
@@ -162,88 +165,88 @@ Below is a full example with nearly every available knob turned:
 
 ```yaml
 routers:
-    # HTTP/hyperglass-agent device
-    - name: router01
-      display_name: HTTP Router
-      address: 192.0.2.1
-      network:
-          - name: primary
-            display_name: AS65000
-      credential:
-          username: madeup
-          password: txeTTIqwhKSJi4V3tefXQASf5AyGZ6cPsycS9nYLpKk
-      ssl:
-          enable: true
-          cert: /etc/hyperglass/certs/router01.pem
-      port: 8080
-      nos: frr
-      vrfs:
-          - name: default
-            ipv4:
-                source_address: 192.0.2.1
-                access_list:
-                    - network: 10.0.0.0/8
-                      action: deny
-                      ge: 8
-                      le: 32
-                    - network: 0.0.0.0/0
-                      action: permit
-                      le: 24 # Only allow /24 or smaller prefixes
-            ipv6:
-                source_address: 2001:db8::1
-                access_list:
-                    - network: ::/0
-                      action: permit
-      proxy: null
+  # HTTP/hyperglass-agent device
+  - name: router01
+    display_name: HTTP Router
+    address: 192.0.2.1
+    network:
+      - name: primary
+        display_name: AS65000
+    credential:
+      username: madeup
+      password: txeTTIqwhKSJi4V3tefXQASf5AyGZ6cPsycS9nYLpKk
+    ssl:
+      enable: true
+      cert: /etc/hyperglass/certs/router01.pem
+    port: 8080
+    nos: frr
+    vrfs:
+      - name: default
+        ipv4:
+          source_address: 192.0.2.1
+          access_list:
+            - network: 10.0.0.0/8
+              action: deny
+              ge: 8
+              le: 32
+            - network: 0.0.0.0/0
+              action: permit
+              le: 24 # Only allow /24 or smaller prefixes
+        ipv6:
+          source_address: 2001:db8::1
+          access_list:
+            - network: ::/0
+              action: permit
+    proxy: null
 
-    # SSH/netmiko device
-    - name: router02
-      address: 10.0.0.1
-      network:
-          name: primary
-          display_name: AS65000
-      credential:
-          username: user
-          password: pass
-      display_name: SSH Router
+  # SSH/netmiko device
+  - name: router02
+    address: 10.0.0.1
+    network:
+      name: primary
+      display_name: AS65000
+    credential:
+      username: user
+      password: pass
+    display_name: SSH Router
+    port: 22
+    nos: cisco_ios
+    vrfs:
+      - name: default
+        ipv4:
+          source_address: 192.0.2.2
+          access_list:
+            - network: 10.0.0.0/8
+              action: deny
+              ge: 8
+              le: 32
+            - network: 0.0.0.0/0
+              action: permit
+        ipv6:
+          source_address: 2001:db8::2
+          access_list:
+            - network: ::/0
+              action: permit
+              le: 64 # Only allow /64 or smaller prefixes
+      - name: special_customer
+        display_name: Customer Name
+        ipv4:
+          source_address: 172.16.0.1
+          access_list:
+            - network: 172.16.0.0/16
+              action: allow
+        ipv6: null # disable IPv6 for this VRF
+        info:
+          bgp_route:
+            file: /etc/hyperglass/help/customer_bgp_route.md
+            params:
+              customer_name: Customer Name
+    proxy:
+      name: jump_server
+      address: 10.0.1.100
       port: 22
-      nos: cisco_ios
-      vrfs:
-          - name: default
-            ipv4:
-                source_address: 192.0.2.2
-                access_list:
-                    - network: 10.0.0.0/8
-                      action: deny
-                      ge: 8
-                      le: 32
-                    - network: 0.0.0.0/0
-                      action: permit
-            ipv6:
-                source_address: 2001:db8::2
-                access_list:
-                    - network: ::/0
-                      action: permit
-                      le: 64 # Only allow /64 or smaller prefixes
-          - name: special_customer
-            display_name: Customer Name
-            ipv4:
-                source_address: 172.16.0.1
-                access_list:
-                    - network: 172.16.0.0/16
-                      action: allow
-            ipv6: null # disable IPv6 for this VRF
-            info:
-                bgp_route:
-                    file: /etc/hyperglass/help/customer_bgp_route.md
-                    params:
-                        customer_name: Customer Name
-      proxy:
-          name: jump_server
-          address: 10.0.1.100
-          port: 22
-          credential:
-              username: user
-              password: pass
-          nos: linux_ssh
+      credential:
+        username: user
+        password: pass
+      nos: linux_ssh
 ```

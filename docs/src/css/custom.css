@@ -9,110 +9,111 @@
 @import url("https://fonts.googleapis.com/css?family=Fira+Code&display=swap");
 
 :root {
-    --ifm-font-size-sm: 12px;
-    /* --ifm-color-secondary: #314cb6;
+  --ifm-font-size-sm: 12px;
+  /* --ifm-color-secondary: #314cb6;
     --ifm-color-secondary-dark: #2c44a4;
     --ifm-color-secondary-darker: #2a419b;
     --ifm-color-secondary-darkest: #22357f;
     --ifm-color-secondary-light: #3654c8;
     --ifm-color-secondary-lighter: #3e5bcb;
     --ifm-color-secondary-lightest: #5a72d3; */
-    --ifm-color-secondary: #69a2b0;
-    --ifm-color-secondary-dark: #5796a6;
-    --ifm-color-secondary-darker: #528e9c;
-    --ifm-color-secondary-darkest: #447581;
-    --ifm-color-secondary-light: #7badba;
-    --ifm-color-secondary-lighter: #85b3bf;
-    --ifm-color-secondary-lightest: #a0c4cd;
-    --ifm-color-primary: #ff5e5b;
-    --ifm-color-primary-dark: #ff3c38;
-    --ifm-color-primary-darker: #ff2b27;
-    --ifm-color-primary-darkest: #f20400;
-    --ifm-color-primary-light: #ff807e;
-    --ifm-color-primary-lighter: #ff918f;
-    --ifm-color-primary-lightest: #ffc4c3;
-    --ifm-code-font-size: 95%;
-    --ifm-font-family-base: "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
-        Noto Sans, sans-serif, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif,
-        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    --ifm-font-family-monospace: "Fira Code", SFMono-Regular, Menlo, Monaco, Consolas,
-        "Liberation Mono", "Courier New", monospace;
+  --ifm-color-secondary: #69a2b0;
+  --ifm-color-secondary-dark: #5796a6;
+  --ifm-color-secondary-darker: #528e9c;
+  --ifm-color-secondary-darkest: #447581;
+  --ifm-color-secondary-light: #7badba;
+  --ifm-color-secondary-lighter: #85b3bf;
+  --ifm-color-secondary-lightest: #a0c4cd;
+  --ifm-color-primary: #ff5e5b;
+  --ifm-color-primary-dark: #ff3c38;
+  --ifm-color-primary-darker: #ff2b27;
+  --ifm-color-primary-darkest: #f20400;
+  --ifm-color-primary-light: #ff807e;
+  --ifm-color-primary-lighter: #ff918f;
+  --ifm-color-primary-lightest: #ffc4c3;
+  --ifm-code-font-size: 95%;
+  --ifm-font-family-base: "Nunito", system-ui, -apple-system, Segoe UI, Roboto,
+    Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, "Segoe UI",
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  --ifm-font-family-monospace: "Fira Code", SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 :root {
-    --ifm-code-background: rgba(0, 0, 0, 0.04);
-    --ifm-code-color: var(--ifm-color-secondary-darker);
-    --ifm-footer-color: var(--ifm-secondary-lightest);
-    --ifm-footer-link-color: var(--ifm-secondary-lightest);
-    --ifm-footer-title-color: var(--ifm-color-emphasis-800);
-    --ifm-footer-background-color: var(--ifm-color-emphasis-100);
+  --ifm-code-background: rgba(0, 0, 0, 0.04);
+  --ifm-code-color: var(--ifm-color-secondary-darker);
+  --ifm-footer-color: var(--ifm-secondary-lightest);
+  --ifm-footer-link-color: var(--ifm-secondary-lightest);
+  --ifm-footer-title-color: var(--ifm-color-emphasis-800);
+  --ifm-footer-background-color: var(--ifm-color-emphasis-100);
 }
 
 :root {
-    --ra-color-caution: var(--ifm-color-warning-lightest);
-    --ra-color-tip: var(--ifm-color-success-lightest);
-    --ra-color-important: var(--ifm-color-info-lightest);
-    --ra-color-note: var(--ifm-color-gray-200);
-    --ra-color-warning: var(--ifm-color-danger-lighter);
-    --ra-admonition-color: var(--ifm-font-base-color);
+  --ra-color-caution: var(--ifm-color-warning-lightest);
+  --ra-color-tip: var(--ifm-color-success-lightest);
+  --ra-color-important: var(--ifm-color-info-lightest);
+  --ra-color-note: var(--ifm-color-gray-200);
+  --ra-color-warning: var(--ifm-color-danger-lighter);
+  --ra-admonition-color: var(--ifm-font-base-color);
 }
 
 html[data-theme="dark"]:root {
-    --ra-color-caution: var(--ifm-color-warning-darkest);
-    --ra-color-tip: var(--ifm-color-success-darkest);
-    --ra-color-important: var(--ifm-color-info-darkest);
-    --ra-color-note: var(--ifm-color-gray-600);
-    --ra-color-warning: var(--ifm-color-danger-darker);
+  --ra-color-caution: var(--ifm-color-warning-darkest);
+  --ra-color-tip: var(--ifm-color-success-darkest);
+  --ra-color-important: var(--ifm-color-info-darkest);
+  --ra-color-note: var(--ifm-color-gray-600);
+  --ra-color-warning: var(--ifm-color-danger-darker);
 }
 
 html[data-theme="dark"] .footer.footer--dark {
-    --ifm-footer-color: var(--ifm-color-emphasis-300);
-    --ifm-navbar-background-color: var(--ifm-background-color);
+  --ifm-footer-color: var(--ifm-color-emphasis-300);
+  --ifm-navbar-background-color: var(--ifm-background-color);
 }
 
 .footer.footer--dark {
-    --ifm-footer-color: var(--ifm-color-emphasis-600);
-    --ifm-footer-link-color: var(--ifm-footer-color);
-    --ifm-footer-title-color: var(--ifm-color-emphasis-800);
-    --ifm-footer-background-color: var(--ifm-color-emphasis-100);
+  --ifm-footer-color: var(--ifm-color-emphasis-600);
+  --ifm-footer-link-color: var(--ifm-footer-color);
+  --ifm-footer-title-color: var(--ifm-color-emphasis-800);
+  --ifm-footer-background-color: var(--ifm-color-emphasis-100);
 }
 
 .footer.footer--dark .footer__items {
-    font-size: 0.8rem;
+  font-size: 0.8rem;
 }
 
 html[data-theme="dark"] {
-    --ifm-code-background: rgba(255, 255, 255, 0.08);
-    --ifm-code-color: var(--ifm-color-secondary-lightest);
-    /* #ace8cd
+  --ifm-code-background: rgba(255, 255, 255, 0.08);
+  --ifm-code-color: var(--ifm-color-secondary-lightest);
+  /* #ace8cd
         #b6a7e2
         #dc7381
      */
 }
 
 .admonition {
-    --ifm-code-background: rgba(255, 255, 255, 0.5);
-    --ifm-code-color: var(--ifm-color-secondary-darker);
-    --ifm-link-color: rgba(0, 0, 0, 0.5);
+  --ifm-code-background: rgba(255, 255, 255, 0.5);
+  --ifm-code-color: var(--ifm-color-secondary-darker);
+  --ifm-link-color: rgba(0, 0, 0, 0.5);
 }
 
 .admonition a:hover {
-    color: rgba(0, 0, 0, 0.5);
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .docusaurus-highlight-code-line {
-    background-color: rgb(72, 77, 91);
-    display: block;
-    margin: 0 calc(-1 * var(--ifm-pre-padding));
-    padding: 0 var(--ifm-pre-padding);
+  background-color: rgb(72, 77, 91);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
 }
 
 table {
-    margin-top: var(--ifm-spacing-vertical);
+  margin-top: var(--ifm-spacing-vertical);
 }
 
 table td:nth-child(1) {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 h1 code,
@@ -121,29 +122,36 @@ h3 code,
 h4 code,
 h5 code,
 h6 code {
-    color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
 }
 
 @media screen and (max-width: 997px) {
-    .col.footer__col[class][class] {
-        text-align: left;
-    }
-    .navbar .navbar__search {
-        padding-left: unset;
-    }
-    .navbar .navbar__search .navbar__search-input {
-        width: 100%;
-        display: block;
-    }
+  .col.footer__col[class][class] {
+    text-align: left;
+  }
+  .navbar .navbar__search {
+    padding-left: unset;
+  }
+  .navbar .navbar__search .navbar__search-input {
+    width: 100%;
+    display: block;
+  }
 }
 
 .navbar .navbar__search .navbar__search-input {
-    border-radius: var(--ifm-button-border-radius);
-    border-width: var(--ifm-button-border-width);
-    border-color: var(--ifm-navbar-search-input-background-color);
-    border-style: solid;
+  border-radius: var(--ifm-button-border-radius);
+  border-width: var(--ifm-button-border-width);
+  border-color: var(--ifm-navbar-search-input-background-color);
+  border-style: solid;
 }
 
 .admonition-content table tr:nth-child(2n) {
-    background-color: unset;
+  background-color: unset;
+}
+
+div.table--full-width ~ table {
+  display: table;
+  width: 100%;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }

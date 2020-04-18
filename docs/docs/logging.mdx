@@ -8,6 +8,8 @@ description: hyperglass Logging
 
 hyperglass supports multiple types of logging, for both application troubleshooting and general reporting.
 
+<div class="table--full-width" />
+
 ## File Logging
 
 By default, hyperglass writes all log messages to a log file located at `/tmp/hyperglass.log`. This behavior and other file logging parameters may be overridden if needed:
@@ -80,24 +82,24 @@ If the `provider` field is set to `'generic'`, the webhook will POST JSON data i
 
 ```json
 {
-    "query_location": "router01",
-    "query_type": "bgp_route",
-    "query_vrf": "default",
-    "query_target": "1.1.1.0/24",
-    "headers": {
-        "content-length": "103",
-        "accept": "application/json, text/plain, */*",
-        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36",
-        "content-type": "application/json;charset=UTF-8",
-        "referer": "http://lg.example.com/",
-        "accept-encoding": "gzip, deflate, br",
-        "accept-language": "en-US,en;q=0.9,fr;q=0.8,lb;q=0.7,la;q=0.6"
-    },
-    "source": "192.0.2.1",
-    "network": {
-        "prefix": "192.0.2.0/24",
-        "asns": ["64496"]
-    }
+  "query_location": "router01",
+  "query_type": "bgp_route",
+  "query_vrf": "default",
+  "query_target": "1.1.1.0/24",
+  "headers": {
+    "content-length": "103",
+    "accept": "application/json, text/plain, */*",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36",
+    "content-type": "application/json;charset=UTF-8",
+    "referer": "http://lg.example.com/",
+    "accept-encoding": "gzip, deflate, br",
+    "accept-language": "en-US,en;q=0.9,fr;q=0.8,lb;q=0.7,la;q=0.6"
+  },
+  "source": "192.0.2.1",
+  "network": {
+    "prefix": "192.0.2.0/24",
+    "asns": ["64496"]
+  }
 }
 ```
 
@@ -105,20 +107,20 @@ If the `provider` field is set to `'generic'`, the webhook will POST JSON data i
 
 ```yaml
 logging:
-    directory: /var/log
-    format: json
-    max_size: 10 MB
-    syslog:
-        host: syslog.example.com
-    http:
-        host: "https://example.com/logs"
-        authentication:
-            mode: basic
-            username: your username
-            password: your password
-        headers:
-            X-Special-Header: your header value
-        params:
-            app: hyperglass # URL would be https://example.com/logs?app=hyperglass
-        verify_ssl: false
+  directory: /var/log
+  format: json
+  max_size: 10 MB
+  syslog:
+    host: syslog.example.com
+  http:
+    host: "https://example.com/logs"
+    authentication:
+      mode: basic
+      username: your username
+      password: your password
+    headers:
+      X-Special-Header: your header value
+    params:
+      app: hyperglass # URL would be https://example.com/logs?app=hyperglass
+    verify_ssl: false
 ```

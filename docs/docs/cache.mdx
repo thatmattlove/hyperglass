@@ -6,8 +6,6 @@ keywords: [configuration, cache, timeout]
 description: hyperglass caching configuration
 ---
 
-import Link from "@docusaurus/Link";
-
 hyperglass uses [Redis](https://redis.io/) for cache storage. Every query is cached and automatically expired from the cache after a configurable timeout period.
 
 Common Redis parameters are configurable, in case you already have a dedicated Redis server you'd prefer to use, instead of running it on the same server as hyperglass:
@@ -28,9 +26,9 @@ hyperglass caches every query response to a Redis database, and always responds 
 
 ```yaml
 cache:
-    database: 0
-    host: localhost
-    port: 6379
-    show_text: true
-    timeout: 120
+  database: 0
+  host: localhost
+  port: 6379
+  show_text: true
+  timeout: 120
 ```

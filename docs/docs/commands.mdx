@@ -3,39 +3,39 @@ id: commands
 title: Commands
 sidebar_label: Commands
 keywords:
-    [
-        hyperglass,
-        commands,
-        customize,
-        cisco,
-        ios,
-        ios-xe,
-        ios-xr,
-        juniper,
-        junos,
-        arista,
-        eos,
-        huawei,
-        vrp,
-    ]
+  [
+    hyperglass,
+    commands,
+    customize,
+    cisco,
+    ios,
+    ios-xe,
+    ios-xr,
+    juniper,
+    junos,
+    arista,
+    eos,
+    huawei,
+    vrp,
+  ]
 description: Custom Commands
 ---
 
 hyperglass comes with built in support for the following platforms:
 
--   Cisco IOS & IOS-XE
--   Cisco IOS-XR
--   Juniper JunOS
--   Arista EOS
--   Huawei VRP
+- Cisco IOS & IOS-XE
+- Cisco IOS-XR
+- Juniper JunOS
+- Arista EOS
+- Huawei VRP
 
 Default commands for each of these network operating systems are built into hyperglass. However, you may override any of them or even add commands for another Network Operating System (NOS), as long as it's [supported](platforms.mdx). To define custom commands, add a `commands.yaml` file to your installation directory (`/etc/hyperglass`,
 `~/hyperglass`). As an example, you could override the default Juniper `bgp_route` command for the default routing table like this:
 
 ```yaml
 juniper:
-    ipv4_default:
-        bgp_route: "show route protocol bgp {target} terse"
+  ipv4_default:
+    bgp_route: "show route protocol bgp {target} terse"
 ```
 
 Only the command you specify will be overridden.
@@ -87,10 +87,10 @@ You can also define your own arbitrary command groups, and reference them in you
 # commands.yaml
 ---
 special_commands:
-    ipv4_default:
-        bgp_route: "show ip route {target}"
-    ipv4_vpn:
-        bgp_route: "show ip route {target} vrf {vrf}"
+  ipv4_default:
+    bgp_route: "show ip route {target}"
+  ipv4_vpn:
+    bgp_route: "show ip route {target} vrf {vrf}"
 ```
 
 The above example defines the command set.
@@ -105,6 +105,6 @@ Then, in the device's definition in `devices.yaml`, reference the command set:
 # devices.yaml
 ---
 routers:
-    - name: specialrouter01
-      commands: special_commands
+  - name: specialrouter01
+    commands: special_commands
 ```
