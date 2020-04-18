@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import * as React from "react";
+import { useState, useEffect } from "react";
 import { Box, Flex } from "@chakra-ui/core";
 import { useForm } from "react-hook-form";
 import lodash from "lodash";
@@ -9,6 +10,7 @@ import HelpModal from "~/components/HelpModal";
 import QueryLocation from "~/components/QueryLocation";
 import QueryType from "~/components/QueryType";
 import QueryTarget from "~/components/QueryTarget";
+import CommunitySelect from "~/components/CommunitySelect";
 import QueryVrf from "~/components/QueryVrf";
 import ResolvedTarget from "~/components/ResolvedTarget";
 import SubmitButton from "~/components/SubmitButton";
@@ -46,9 +48,9 @@ const FormRow = ({ children, ...props }) => (
 const HyperglassForm = React.forwardRef(
     ({ isSubmitting, setSubmitting, setFormData, greetingAck, setGreetingAck, ...props }, ref) => {
         const config = useConfig();
-        const { handleSubmit, register, setValue, errors } = useForm({
+        const { handleSubmit, register, unregister, setValue, errors } = useForm({
             validationSchema: formSchema(config),
-            defaultValues: { query_vrf: "default" },
+            defaultValues: { query_vrf: "default", query_target: "" },
         });
 
         const [queryLocation, setQueryLocation] = useState([]);
@@ -136,10 +138,10 @@ const HyperglassForm = React.forwardRef(
 
         useEffect(() => {
             register({ name: "query_location" });
-            register({ name: "query_target" });
             register({ name: "query_type" });
             register({ name: "query_vrf" });
-        });
+        }, [register]);
+        Object.keys(errors).length >= 1 && console.error(errors);
         return (
             <Box
                 maxW={["100%", "100%", "75%", "75%"]}
@@ -202,19 +204,31 @@ const HyperglassForm = React.forwardRef(
                                 )
                             }
                         >
-                            <QueryTarget
-                                name="query_target"
-                                placeholder={config.web.text.query_target}
-                                register={register}
-                                resolveTarget={["ping", "traceroute", "bgp_route"].includes(
-                                    queryType
-                                )}
-                                value={queryTarget}
-                                setFqdn={setFqdnTarget}
-                                setTarget={handleChange}
-                                displayValue={displayTarget}
-                                setDisplayValue={setDisplayTarget}
-                            />
+                            {queryType === "bgp_community" &&
+                            config.queries.bgp_community.mode === "select" ? (
+                                <CommunitySelect
+                                    name="query_target"
+                                    register={register}
+                                    unregister={unregister}
+                                    onChange={handleChange}
+                                    communities={config.queries.bgp_community.communities}
+                                />
+                            ) : (
+                                <QueryTarget
+                                    name="query_target"
+                                    placeholder={config.web.text.query_target}
+                                    register={register}
+                                    unregister={unregister}
+                                    resolveTarget={["ping", "traceroute", "bgp_route"].includes(
+                                        queryType
+                                    )}
+                                    value={queryTarget}
+                                    setFqdn={setFqdnTarget}
+                                    setTarget={handleChange}
+                                    displayValue={displayTarget}
+                                    setDisplayValue={setDisplayTarget}
+                                />
+                            )}
                         </FormField>
                     </FormRow>
                     <FormRow mt={0} justifyContent="flex-end">

@@ -13,7 +13,7 @@ const labelBgSuccess = { dark: "success", light: "success" };
 async function containingPrefix(ipAddress) {
     try {
         const prefixData = await axios.get("https://stat.ripe.net/data/network-info/data.json", {
-            params: { resource: ipAddress }
+            params: { resource: ipAddress },
         });
         return prefixData.data?.data?.prefix;
     } catch (err) {
@@ -36,32 +36,32 @@ const ResolvedTarget = React.forwardRef(
                 params: { name: fqdnTarget, type: "A" },
                 headers: { accept: "application/dns-json" },
                 crossdomain: true,
-                timeout: 1000
+                timeout: 1000,
             },
             6: {
                 url: dnsUrl,
                 params: { name: fqdnTarget, type: "AAAA" },
                 headers: { accept: "application/dns-json" },
                 crossdomain: true,
-                timeout: 1000
-            }
+                timeout: 1000,
+            },
         };
 
         const [{ data: data4, loading: loading4, error: error4 }] = useAxios(params[4]);
 
         const [{ data: data6, loading: loading6, error: error6 }] = useAxios(params[6]);
 
-        const handleOverride = overridden => {
+        const handleOverride = (overridden) => {
             setTarget({ field: "query_target", value: overridden });
         };
 
-        const isSelected = value => {
+        const isSelected = (value) => {
             return labelBgStatus[value === queryTarget];
         };
 
-        const findAnswer = data => {
+        const findAnswer = (data) => {
             return data?.Answer?.filter(
-                answerData => answerData.type === data?.Question[0]?.type
+                (answerData) => answerData.type === data?.Question[0]?.type
             )[0]?.data;
         };
 
@@ -74,7 +74,6 @@ const ResolvedTarget = React.forwardRef(
                 handleOverride(findAnswer(data4));
             }
         }, [data4, data6]);
-
         return (
             <Stack
                 ref={ref}

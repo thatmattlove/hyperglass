@@ -1,5 +1,8 @@
 """Validate query configuration parameters."""
 
+# Standard Library
+from typing import List
+
 # Third Party
 from pydantic import Field, StrictStr, StrictBool, constr
 
@@ -8,25 +11,7 @@ from hyperglass.models import HyperglassModel
 from hyperglass.constants import SUPPORTED_QUERY_TYPES
 
 
-class HyperglassLevel3(HyperglassModel):
-    """Automatic docs sorting subclass."""
-
-    class Config:
-        """Pydantic model configuration."""
-
-        schema_extra = {"level": 3}
-
-
-class HyperglassLevel4(HyperglassModel):
-    """Automatic docs sorting subclass."""
-
-    class Config:
-        """Pydantic model configuration."""
-
-        schema_extra = {"level": 4}
-
-
-class BgpCommunityPattern(HyperglassLevel4):
+class BgpCommunityPattern(HyperglassModel):
     """Validation model for bgp_community regex patterns."""
 
     decimal: StrictStr = Field(
@@ -54,7 +39,7 @@ class BgpCommunityPattern(HyperglassLevel4):
         )
 
 
-class BgpAsPathPattern(HyperglassLevel4):
+class BgpAsPathPattern(HyperglassModel):
     """Validation model for bgp_aspath regex patterns."""
 
     mode: constr(regex=r"asplain|asdot") = Field(
@@ -82,7 +67,15 @@ class BgpAsPathPattern(HyperglassLevel4):
         )
 
 
-class BgpCommunity(HyperglassLevel3):
+class Community(HyperglassModel):
+    """Validation model for bgp_community communities."""
+
+    display_name: StrictStr
+    description: StrictStr
+    community: StrictStr
+
+
+class BgpCommunity(HyperglassModel):
     """Validation model for bgp_community configuration."""
 
     enable: StrictBool = Field(
@@ -96,9 +89,11 @@ class BgpCommunity(HyperglassLevel3):
         description="Text displayed for the BGP Community query type in the hyperglas UI.",
     )
     pattern: BgpCommunityPattern = BgpCommunityPattern()
+    mode: constr(regex=r"(input|select)") = "input"
+    communities: List[Community] = []
 
 
-class BgpRoute(HyperglassLevel3):
+class BgpRoute(HyperglassModel):
     """Validation model for bgp_route configuration."""
 
     enable: StrictBool = Field(
@@ -111,7 +106,7 @@ class BgpRoute(HyperglassLevel3):
     )
 
 
-class BgpAsPath(HyperglassLevel3):
+class BgpAsPath(HyperglassModel):
     """Validation model for bgp_aspath configuration."""
 
     enable: StrictBool = Field(
@@ -127,7 +122,7 @@ class BgpAsPath(HyperglassLevel3):
     pattern: BgpAsPathPattern = BgpAsPathPattern()
 
 
-class Ping(HyperglassLevel3):
+class Ping(HyperglassModel):
     """Validation model for ping configuration."""
 
     enable: StrictBool = Field(
@@ -140,7 +135,7 @@ class Ping(HyperglassLevel3):
     )
 
 
-class Traceroute(HyperglassLevel3):
+class Traceroute(HyperglassModel):
     """Validation model for traceroute configuration."""
 
     enable: StrictBool = Field(
@@ -168,8 +163,9 @@ class Queries(HyperglassModel):
             query_obj = getattr(self, query)
             _map[query] = {
                 "name": query,
-                "display_name": query_obj.display_name,
-                "enable": query_obj.enable,
+                **query_obj.export_dict(
+                    include={"display_name", "enable", "mode", "communities"}
+                ),
             }
         return _map
 
@@ -225,4 +221,3 @@ class Queries(HyperglassModel):
                 "description": "Enable, disable, or configure the Traceroute query type.",
             },
         }
-        schema_extra = {"level": 2}

@@ -1,15 +1,15 @@
 import React from "react";
 import ChakraSelect from "~/components/ChakraSelect";
 
-const buildLocations = networks => {
+const buildLocations = (networks) => {
     const locations = [];
-    networks.map(net => {
+    networks.map((net) => {
         const netLocations = [];
-        net.locations.map(loc => {
+        net.locations.map((loc) => {
             netLocations.push({
                 label: loc.display_name,
                 value: loc.name,
-                group: net.display_name
+                group: net.display_name,
             });
         });
         locations.push({ label: net.display_name, options: netLocations });
@@ -19,10 +19,10 @@ const buildLocations = networks => {
 
 export default ({ locations, onChange }) => {
     const options = buildLocations(locations);
-    const handleChange = e => {
+    const handleChange = (e) => {
         const selected = [];
         e &&
-            e.map(sel => {
+            e.map((sel) => {
                 selected.push(sel.value);
             });
         onChange({ field: "query_location", value: selected });
@@ -34,6 +34,7 @@ export default ({ locations, onChange }) => {
             onChange={handleChange}
             options={options}
             isMulti
+            closeMenuOnSelect={false}
         />
     );
 };

@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import styled from "@emotion/styled";
 import { Input, useColorMode } from "@chakra-ui/core";
 
 const StyledInput = styled(Input)`
     &::placeholder {
-        color: ${props => props.placeholderColor};
+        color: ${(props) => props.placeholderColor};
     }
 `;
 
@@ -18,13 +18,14 @@ const placeholderColor = { dark: "whiteAlpha.400", light: "gray.400" };
 const QueryTarget = ({
     placeholder,
     register,
+    unregister,
     setFqdn,
     name,
     value,
     setTarget,
     resolveTarget,
     displayValue,
-    setDisplayValue
+    setDisplayValue,
 }) => {
     const { colorMode } = useColorMode();
 
@@ -35,15 +36,19 @@ const QueryTarget = ({
             setFqdn(false);
         }
     };
-    const handleChange = e => {
+    const handleChange = (e) => {
         setDisplayValue(e.target.value);
         setTarget({ field: name, value: e.target.value });
     };
-    const handleKeyDown = e => {
+    const handleKeyDown = (e) => {
         if ([9, 13].includes(e.keyCode)) {
             handleBlur();
         }
     };
+    useEffect(() => {
+        register({ name });
+        return () => unregister(name);
+    }, [register, unregister, name]);
     return (
         <>
             <input hidden readOnly name={name} ref={register} value={value} />
