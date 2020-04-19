@@ -6,9 +6,9 @@ from ipaddress import ip_network
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import get_network_info
 from hyperglass.exceptions import InputInvalid, InputNotAllowed
 from hyperglass.configuration import params
+from hyperglass.external.ripestat import RIPEStat
 
 
 def _member_of(target, network):
@@ -138,7 +138,10 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
         # query.
         elif query_type in ("bgp_route",) and vrf_afi.force_cidr:
 
-            valid_ip = get_network_info(valid_ip.network_address).get("prefix")
+            with RIPEStat() as ripe:
+                valid_ip = ripe.network_info_sync(valid_ip.network_address).get(
+                    "prefix"
+                )
 
         # For a host query with bgp_route query type and force_cidr
         # disabled, convert the host query to a single IP address.

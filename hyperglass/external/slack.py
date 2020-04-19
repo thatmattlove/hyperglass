@@ -21,4 +21,4 @@ class SlackHook(BaseExternal, name="Slack"):
 
         log.debug("Sending query data to Slack:\n{}", payload)
 
-        return await self._post(endpoint=provider.host.path, data=payload.slack())
+        return await self._apost(endpoint=provider.host.path, data=payload.slack())

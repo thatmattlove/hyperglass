@@ -18,6 +18,36 @@ class RIPEStat(BaseExternal, name="RIPEStat"):
             base_url="https://stat.ripe.net", uri_prefix="/data", uri_suffix="data.json"
         )
 
+    def network_info_sync(self, resource, serialize=False):
+        """Get network info via RIPE's Network Info API endpoint (synchronously).
+
+        See: https://stat.ripe.net/docs/data_api#network-info
+        """
+        try:
+            valid_ip = ip_address(resource)
+
+            if not valid_ip.is_global:
+                log.debug("IP {ip} is not a global address", ip=str(valid_ip))
+                return {"prefix": None, "asn": None}
+
+        except ValueError:
+            log.debug("'{resource}' is not a valid IP address", resource=resource)
+            return {"prefix": None, "asn": None}
+
+        raw = self._get(endpoint="network-info", params={"resource": valid_ip})
+
+        data = {
+            "asns": raw["data"]["asns"],
+            "prefix": ip_network(raw["data"]["prefix"]),
+        }
+
+        if serialize:
+            data["prefix"] = str(data["prefix"])
+            data["asns"] = data["asns"][0]
+
+        log.debug("Collected network info from RIPEState: {i}", i=str(data))
+        return data
+
     async def network_info(self, resource, serialize=False):
         """Get network info via RIPE's Network Info API endpoint.
 
@@ -34,7 +64,7 @@ class RIPEStat(BaseExternal, name="RIPEStat"):
             log.debug("'{resource}' is not a valid IP address", resource=resource)
             return {"prefix": None, "asn": None}
 
-        raw = await self._get(endpoint="network-info", params={"resource": valid_ip})
+        raw = await self._aget(endpoint="network-info", params={"resource": valid_ip})
 
         data = {
             "asns": raw["data"]["asns"],

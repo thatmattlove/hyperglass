@@ -5,6 +5,7 @@ import re
 import json as _json
 import asyncio
 from json import JSONDecodeError
+import socket
 from socket import gaierror
 
 # Third Party
@@ -47,9 +48,14 @@ class BaseExternal:
         self.uri_suffix = uri_suffix.strip("/")
         self.verify_ssl = verify_ssl
         self.timeout = timeout
-        self._session = httpx.AsyncClient(
-            verify=self.verify_ssl, base_url=self.base_url, timeout=self.timeout
-        )
+
+        session_args = {
+            "verify": self.verify_ssl,
+            "base_url": self.base_url,
+            "timeout": self.timeout,
+        }
+        self._session = httpx.Client(**session_args)
+        self._asession = httpx.AsyncClient(**session_args)
 
     @classmethod
     def __init_subclass__(cls, name=None, **kwargs):
@@ -59,7 +65,7 @@ class BaseExternal:
 
     async def __aenter__(self):
         """Test connection on entry."""
-        available = await self._test()
+        available = await self._atest()
 
         if available:
             log.debug("Initialized session with {}", self.base_url)
@@ -71,8 +77,22 @@ class BaseExternal:
         """Close connection on exit."""
         log.debug("Closing session with {}", self.base_url)
 
-        await self._session.aclose()
+        await self._asession.aclose()
         return True
+
+    def __enter__(self):
+        available = self._test()
+
+        if available:
+            log.debug("Initialized session with {}", self.base_url)
+            return self
+        else:
+            raise self._exception(f"Unable to create session to {self.name}")
+
+    def __exit__(self, exc_type=None, exc_value=None, traceback=None):
+        if exc_type is not None:
+            log.error(traceback)
+        self._session.close()
 
     def __repr__(self):
         """Return user friendly representation of instance."""
@@ -85,7 +105,22 @@ class BaseExternal:
 
         return HyperglassError(message, str(level), **kwargs)
 
-    async def _test(self):
+    def _test(self):
+        """Open a low-level connection to the base URL to ensure its port is open."""
+        log.debug("Testing connection to {}", self.base_url)
+
+        try:
+            test_host = re.sub(r"http(s)?\:\/\/", "", self.base_url)
+            socket.socket().connect((test_host, 443))
+
+        except gaierror as err:
+            raise self._exception(
+                f"{self.name} appears to be unreachable", err
+            ) from None
+
+        return True
+
+    async def _atest(self):
         """Open a low-level connection to the base URL to ensure its port is open."""
         log.debug("Testing connection to {}", self.base_url)
 
@@ -103,19 +138,14 @@ class BaseExternal:
         else:
             return False
 
-    async def _request(  # noqa: C901
-        self,
-        method,
-        endpoint,
-        item=None,
-        params=None,
-        data=None,
-        timeout=None,
-        response_required=False,
-    ):
-        """Run HTTP POST operation."""
+    def build_request(self, **kwargs):
+        from operator import itemgetter
 
         supported_methods = ("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH")
+
+        method, endpoint, item, params, data, timeout, response_required = itemgetter(
+            *kwargs.keys()
+        )(kwargs)
 
         if method.upper() not in supported_methods:
             raise self._exception(
@@ -159,11 +189,32 @@ class BaseExternal:
                     )
             request["timeout"] = timeout
 
-        log.debug("Constructed url {}", "".join((self.base_url, endpoint)))
         log.debug("Constructed request parameters {}", request)
+        return request
+
+    async def _arequest(  # noqa: C901
+        self,
+        method,
+        endpoint,
+        item=None,
+        params=None,
+        data=None,
+        timeout=None,
+        response_required=False,
+    ):
+        """Run HTTP POST operation."""
+        request = self.build_request(
+            method=method,
+            endpoint=endpoint,
+            item=item,
+            params=params,
+            data=data,
+            timeout=timeout,
+            response_required=response_required,
+        )
 
         try:
-            response = await self._session.request(**request)
+            response = await self._asession.request(**request)
 
             if response.status_code not in range(200, 300):
                 status = StatusCode(response.status_code)
@@ -177,20 +228,74 @@ class BaseExternal:
 
         return _parse_response(response)
 
-    async def _get(self, endpoint, **kwargs):
-        return await self._request(method="GET", endpoint=endpoint, **kwargs)
+    async def _aget(self, endpoint, **kwargs):
+        return await self._arequest(method="GET", endpoint=endpoint, **kwargs)
 
-    async def _post(self, endpoint, **kwargs):
-        return await self._request(method="POST", endpoint=endpoint, **kwargs)
+    async def _apost(self, endpoint, **kwargs):
+        return await self._arequest(method="POST", endpoint=endpoint, **kwargs)
 
-    async def _put(self, endpoint, **kwargs):
-        return await self._request(method="PUT", endpoint=endpoint, **kwargs)
+    async def _aput(self, endpoint, **kwargs):
+        return await self._arequest(method="PUT", endpoint=endpoint, **kwargs)
 
-    async def _delete(self, endpoint, **kwargs):
-        return await self._request(method="DELETE", endpoint=endpoint, **kwargs)
+    async def _adelete(self, endpoint, **kwargs):
+        return await self._arequest(method="DELETE", endpoint=endpoint, **kwargs)
 
-    async def _patch(self, endpoint, **kwargs):
-        return await self._request(method="PATCH", endpoint=endpoint, **kwargs)
+    async def _apatch(self, endpoint, **kwargs):
+        return await self._arequest(method="PATCH", endpoint=endpoint, **kwargs)
 
-    async def _head(self, endpoint, **kwargs):
-        return await self._request(method="HEAD", endpoint=endpoint, **kwargs)
+    async def _ahead(self, endpoint, **kwargs):
+        return await self._arequest(method="HEAD", endpoint=endpoint, **kwargs)
+
+    def _request(  # noqa: C901
+        self,
+        method,
+        endpoint,
+        item=None,
+        params=None,
+        data=None,
+        timeout=None,
+        response_required=False,
+    ):
+        """Run HTTP POST operation."""
+        request = self.build_request(
+            method=method,
+            endpoint=endpoint,
+            item=item,
+            params=params,
+            data=data,
+            timeout=timeout,
+            response_required=response_required,
+        )
+
+        try:
+            response = self._session.request(**request)
+
+            if response.status_code not in range(200, 300):
+                status = StatusCode(response.status_code)
+                error = _parse_response(response)
+                raise self._exception(
+                    f'{status.name.replace("_", " ")}: {error}', level="danger"
+                ) from None
+
+        except httpx.HTTPError as http_err:
+            raise self._exception(parse_exception(http_err), level="danger") from None
+
+        return _parse_response(response)
+
+    def _get(self, endpoint, **kwargs):
+        return self._request(method="GET", endpoint=endpoint, **kwargs)
+
+    def _post(self, endpoint, **kwargs):
+        return self._request(method="POST", endpoint=endpoint, **kwargs)
+
+    def _put(self, endpoint, **kwargs):
+        return self._request(method="PUT", endpoint=endpoint, **kwargs)
+
+    def _delete(self, endpoint, **kwargs):
+        return self._request(method="DELETE", endpoint=endpoint, **kwargs)
+
+    def _patch(self, endpoint, **kwargs):
+        return self._request(method="PATCH", endpoint=endpoint, **kwargs)
+
+    def _head(self, endpoint, **kwargs):
+        return self._request(method="HEAD", endpoint=endpoint, **kwargs)
