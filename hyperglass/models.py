@@ -147,6 +147,8 @@ class WebhookHeaders(HyperglassModel):
     referer: Optional[StrictStr]
     accept_encoding: Optional[StrictStr]
     accept_language: Optional[StrictStr]
+    x_real_ip: Optional[StrictStr]
+    x_forwarded_for: Optional[StrictStr]
 
     class Config:
         """Pydantic model config."""
@@ -157,6 +159,8 @@ class WebhookHeaders(HyperglassModel):
             "content_type": "content-type",
             "accept_encoding": "accept-encoding",
             "accept_language": "accept-language",
+            "x_real_ip": "x-real-ip",
+            "x_forwarded_for": "x-forwarded-for",
         }
 
 

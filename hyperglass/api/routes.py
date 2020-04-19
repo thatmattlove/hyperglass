@@ -2,7 +2,6 @@
 
 # Standard Library
 import os
-import json
 import time
 
 # Third Party
@@ -11,10 +10,11 @@ from starlette.requests import Request
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 
 # Project
-from hyperglass.log import log, query_hook
-from hyperglass.util import adonothing, clean_name, get_network_info, import_public_key
+from hyperglass.log import log
+from hyperglass.util import clean_name, process_headers, import_public_key
 from hyperglass.cache import Cache
 from hyperglass.encode import jwt_decode
+from hyperglass.external import Webhook, RIPEStat
 from hyperglass.exceptions import HyperglassError
 from hyperglass.configuration import REDIS_CONFIG, params, devices
 from hyperglass.api.models.query import Query
@@ -23,39 +23,25 @@ from hyperglass.api.models.cert_import import EncodedRequest
 
 APP_PATH = os.environ["hyperglass_directory"]
 
-if params.logging.http is not None and params.logging.http.enable:
-    log_query = query_hook
-else:
-    log_query = adonothing
-
 
 async def query(query_data: Query, request: Request):
     """Ingest request data pass it to the backend application to perform the query."""
 
-    network_info = get_network_info(request.client.host, serialize=True)
+    headers = await process_headers(headers=request.headers)
 
-    header_keys = (
-        "content-length",
-        "accept",
-        "user-agent",
-        "content-type",
-        "referer",
-        "accept-encoding",
-        "accept-language",
-    )
+    async with RIPEStat() as ripe:
+        network_info = await ripe.network_info(request.client.host, serialize=True)
 
-    await log_query(
-        {
-            **json.loads(query_data.export_json()),
-            "headers": {
-                k: v for k, v in dict(request.headers).items() if k in header_keys
+    async with Webhook(params.logging.http.provider) as hook:
+        await hook.send(
+            query={
+                **query_data.export_dict(),
+                "headers": headers,
+                "source": request.client.host,
+                "network": network_info,
             },
-            "source": request.client.host,
-            "network": network_info,
-        },
-        params.logging.http,
-        log,
-    )
+            provider=params.logging.http,
+        )
 
     # Initialize cache
     cache = Cache(db=params.cache.database, **REDIS_CONFIG)

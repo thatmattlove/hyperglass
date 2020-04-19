@@ -695,64 +695,6 @@ def parse_exception(exc):
     return ", caused by ".join(parsed)
 
 
-def get_network_info(ip, serialize=False):
-    """Get containing prefix for an IP host query from RIPEstat API.
-
-    Arguments:
-        valid_ip {IPv4Address|IPv6Address} -- Valid IP Address object
-
-    Raises:
-        InputInvalid: Raised if an http error occurs
-        InputInvalid: Raised if RIPEstat response doesn't contain a prefix.
-
-    Returns:
-        {IPv4Network|IPv6Network} -- Valid IP Network object
-    """
-    import httpx
-    from ipaddress import ip_network, ip_address
-    from hyperglass.exceptions import InputInvalid
-
-    log.debug("Attempting to find network details for {ip}", ip=str(ip))
-
-    try:
-        valid_ip = ip_address(ip)
-        if not valid_ip.is_global:
-            return {"prefix": None, "asn": None}
-    except ValueError:
-        return {"prefix": None, "asn": None}
-
-    try:
-        response = httpx.get(
-            "https://stat.ripe.net/data/network-info/data.json",
-            params={"resource": str(valid_ip)},
-        )
-    except httpx.HTTPError as error:
-        msg = parse_exception(error)
-        raise InputInvalid(msg)
-
-    network_info = response.json().get("data", {})
-
-    if not network_info.get("prefix", ""):
-        raise InputInvalid(f"{str(valid_ip)} has no containing prefix")
-    elif not network_info.get("asns", []):
-        raise InputInvalid(f"{str(valid_ip)} is not announced")
-
-    log.debug(
-        "Network info for IP '{i}': Announced as '{p}' from AS {a}",
-        p=network_info.get("prefix"),
-        a=", ".join(network_info.get("asns")),
-        i=str(valid_ip),
-    )
-
-    if not serialize:
-        network_info["prefix"] = ip_network(network_info["prefix"])
-
-    if serialize:
-        network_info["asns"] = network_info["asns"][0]
-
-    return network_info
-
-
 def set_cache_env(host, port, db):
     """Set basic cache config parameters to environment variables.
 
@@ -782,11 +724,42 @@ def get_cache_env():
     return host, port, db
 
 
-def donothing(*args, **kwargs):
-    """Do nothing."""
-    pass
+async def process_headers(headers):
+    """Filter out unwanted headers and return as a dictionary."""
+    headers = dict(headers)
+    header_keys = (
+        "content-length",
+        "accept",
+        "user-agent",
+        "content-type",
+        "referer",
+        "accept-encoding",
+        "accept-language",
+        "x-real-ip",
+        "x-forwarded-for",
+    )
+    return {k: headers.get(k) for k in header_keys}
 
 
-async def adonothing(*args, **kwargs):
-    """Do nothing."""
-    pass
+def make_repr(_class):
+    """Create a user-friendly represention of an object."""
+    from asyncio import iscoroutine
+
+    def _process_attrs(_dir):
+        for attr in _dir:
+            if not attr.startswith("_"):
+                attr_val = getattr(_class, attr)
+
+                if callable(attr_val):
+                    yield f'{attr}=<function name="{attr_val.__name__}">'
+
+                elif iscoroutine(attr_val):
+                    yield f'{attr}=<coroutine name="{attr_val.__name__}">'
+
+                elif isinstance(attr_val, str):
+                    yield f'{attr}="{attr_val}"'
+
+                else:
+                    yield f"{attr}={str(attr_val)}"
+
+    return f'{_class.__name__}({", ".join(_process_attrs(dir(_class)))})'
