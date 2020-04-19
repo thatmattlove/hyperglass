@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import * as React from "react";
+import { useEffect, useState } from "react";
 import {
   AccordionItem,
   AccordionHeader,
@@ -82,7 +83,7 @@ const Result = React.forwardRef(
     const config = useConfig();
     const { isSm } = useMedia();
     const { colorMode } = useColorMode();
-    const [{ data, loading, error }, refetch] = useAxios({
+    let [{ data, loading, error }, refetch] = useAxios({
       url: "/api/query/",
       method: "post",
       data: {
@@ -102,7 +103,7 @@ const Result = React.forwardRef(
       setOpen(!isOpen);
       setOverride(true);
     };
-    const cleanOutput =
+    let cleanOutput =
       data &&
       data.output
         .split("\\n")
@@ -124,53 +125,12 @@ const Result = React.forwardRef(
       errorMsg = config.messages.general;
     }
 
-    error && console.dir(error);
+    error && console.error(error);
 
     const errorLevel =
       (error?.response?.data?.level &&
         statusMap[error.response?.data?.level]) ??
       "error";
-
-    const cacheLg = (
-      <>
-        <CacheTimeout
-          timeout={config.cache.timeout}
-          text={config.web.text.cache_prefix}
-        />
-        {data?.cached && (
-          <Tooltip
-            hasArrow
-            label={config.web.text.cache_icon.format({ time: data?.timestamp })}
-            placement="top"
-          >
-            <Box ml={1}>
-              <LightningBolt color={color[colorMode]} />
-            </Box>
-          </Tooltip>
-        )}
-      </>
-    );
-    const cacheSm = (
-      <>
-        {data?.cached && (
-          <Tooltip
-            hasArrow
-            label={config.web.text.cache_icon.format({ time: data?.timestamp })}
-            placement="top"
-          >
-            <Box mr={1}>
-              <LightningBolt color={color[colorMode]} />
-            </Box>
-          </Tooltip>
-        )}
-        <CacheTimeout
-          timeout={config.cache.timeout}
-          text={config.web.text.cache_prefix}
-        />
-      </>
-    );
-
-    const cacheData = isSm ? cacheSm : cacheLg;
 
     useEffect(() => {
       !loading && resultsComplete === null && setComplete(index);
@@ -179,9 +139,7 @@ const Result = React.forwardRef(
     useEffect(() => {
       resultsComplete === index && !hasOverride && setOpen(true);
     }, [resultsComplete, index]);
-    useEffect(() => {
-      data && console.log(data);
-    });
+
     return (
       <AccordionItem
         isOpen={isOpen}
@@ -278,7 +236,35 @@ const Result = React.forwardRef(
               ]}
               flex="1 0 auto"
             >
-              {data && !error && config.cache.show_text && isSm ? (
+              {config.cache.show_text && data && !error && (
+                <>
+                  {!isSm && (
+                    <CacheTimeout
+                      timeout={config.cache.timeout}
+                      text={config.web.text.cache_prefix}
+                    />
+                  )}
+                  <Tooltip
+                    display={data?.cached ? null : "none"}
+                    hasArrow
+                    label={config.web.text.cache_icon.format({
+                      time: data?.timestamp
+                    })}
+                    placement="top"
+                  >
+                    <Box ml={1} display={data?.cached ? "block" : "none"}>
+                      <LightningBolt color={color[colorMode]} />
+                    </Box>
+                  </Tooltip>
+                  {isSm && (
+                    <CacheTimeout
+                      timeout={config.cache.timeout}
+                      text={config.web.text.cache_prefix}
+                    />
+                  )}
+                </>
+              )}
+              {/* {config.cache.show_text && data && !error && isSm ? (
                 <>
                   <Tooltip
                     display={data?.cached ? null : "none"}
@@ -288,7 +274,7 @@ const Result = React.forwardRef(
                     })}
                     placement="top"
                   >
-                    <Box mr={1} display={data?.cached ? null : "none"}>
+                    <Box mr={1} display={data?.cached ? "block" : "none"}>
                       <LightningBolt color={color[colorMode]} />
                     </Box>
                   </Tooltip>
@@ -297,7 +283,7 @@ const Result = React.forwardRef(
                     text={config.web.text.cache_prefix}
                   />
                 </>
-              ) : data && !error && config.cache.show_text ? (
+              ) : config.cache.show_text && data && !error ? (
                 <>
                   <CacheTimeout
                     timeout={config.cache.timeout}
@@ -311,12 +297,12 @@ const Result = React.forwardRef(
                     })}
                     placement="top"
                   >
-                    <Box ml={1} display={data?.cached ? null : "none"}>
+                    <Box ml={1} display={data?.cached ? "block" : "none"}>
                       <LightningBolt color={color[colorMode]} />
                     </Box>
                   </Tooltip>
                 </>
-              ) : null}
+              ) : null} */}
             </Flex>
           </Flex>
         </AccordionPanel>

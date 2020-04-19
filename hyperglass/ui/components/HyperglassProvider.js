@@ -6,26 +6,26 @@ import { makeTheme, defaultTheme } from "~/theme";
 
 // Disable SSR for ColorModeProvider
 const ColorModeProvider = dynamic(
-    () => import("@chakra-ui/core").then(mod => mod.ColorModeProvider),
-    { ssr: false }
+  () => import("@chakra-ui/core").then(mod => mod.ColorModeProvider),
+  { ssr: false }
 );
 
 const HyperglassContext = createContext(null);
 
 export const HyperglassProvider = ({ config, children }) => {
-    const value = useMemo(() => config, [config]);
-    const userTheme = value && makeTheme(value.web.theme);
-    const theme = value ? userTheme : defaultTheme;
-    return (
-        <HyperglassContext.Provider value={value}>
-            <ThemeProvider theme={theme}>
-                <ColorModeProvider value={config.web.theme.default_color_mode ?? null}>
-                    <CSSReset />
-                    <MediaProvider theme={theme}>{children}</MediaProvider>
-                </ColorModeProvider>
-            </ThemeProvider>
-        </HyperglassContext.Provider>
-    );
+  const value = useMemo(() => config, [config]);
+  const userTheme = value && makeTheme(value.web.theme);
+  const theme = value ? userTheme : defaultTheme;
+  return (
+    <HyperglassContext.Provider value={value}>
+      <ThemeProvider theme={theme}>
+        <ColorModeProvider value={config.web.theme.default_color_mode ?? null}>
+          <CSSReset />
+          <MediaProvider theme={theme}>{children}</MediaProvider>
+        </ColorModeProvider>
+      </ThemeProvider>
+    </HyperglassContext.Provider>
+  );
 };
 
 export default () => useContext(HyperglassContext);
