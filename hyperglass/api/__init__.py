@@ -6,7 +6,7 @@ from pathlib import Path
 
 # Third Party
 from fastapi import FastAPI
-from fastapi.exceptions import RequestValidationError
+from fastapi.exceptions import ValidationError, RequestValidationError
 from starlette.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.openapi.utils import get_openapi
@@ -23,8 +23,8 @@ from hyperglass.api.routes import (
     query,
     queries,
     routers,
-    import_certificate,
     communities,
+    import_certificate,
 )
 from hyperglass.exceptions import HyperglassError
 from hyperglass.configuration import URL_DEV, STATIC_PATH, params, devices
@@ -98,8 +98,11 @@ app.add_exception_handler(StarletteHTTPException, http_handler)
 # Backend Application Error Handler
 app.add_exception_handler(HyperglassError, app_handler)
 
-# Validation Error Handler
+# Request Validation Error Handler
 app.add_exception_handler(RequestValidationError, validation_handler)
+
+# App Validation Error Handler
+app.add_exception_handler(ValidationError, validation_handler)
 
 # Uncaught Error Handler
 app.add_exception_handler(Exception, default_handler)
@@ -247,5 +250,4 @@ def start(**kwargs):
     """Start the web server with Uvicorn ASGI."""
     import uvicorn
 
-    options = {**ASGI_PARAMS, **kwargs}
-    uvicorn.run("hyperglass.api:app", **options)
+    uvicorn.run("hyperglass.api:app", **ASGI_PARAMS, **kwargs)
