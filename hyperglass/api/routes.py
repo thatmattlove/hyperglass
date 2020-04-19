@@ -61,6 +61,8 @@ async def query(query_data: Query, request: Request):
 
     cached = False
     if cache_response:
+        log.debug("Query {q} exists in cache", q=cache_key)
+
         # If a cached response exists, reset the expiration time.
         await cache.expire(cache_key, seconds=cache_timeout)
 
