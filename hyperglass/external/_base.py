@@ -3,9 +3,9 @@
 # Standard Library
 import re
 import json as _json
+import socket
 import asyncio
 from json import JSONDecodeError
-import socket
 from socket import gaierror
 
 # Third Party
@@ -81,6 +81,7 @@ class BaseExternal:
         return True
 
     def __enter__(self):
+        """Test connection on entry."""
         available = self._test()
 
         if available:
@@ -90,6 +91,7 @@ class BaseExternal:
             raise self._exception(f"Unable to create session to {self.name}")
 
     def __exit__(self, exc_type=None, exc_value=None, traceback=None):
+        """Close connection on exit."""
         if exc_type is not None:
             log.error(traceback)
         self._session.close()
@@ -139,6 +141,7 @@ class BaseExternal:
             return False
 
     def build_request(self, **kwargs):
+        """Process requests parameters into structure usable by http library."""
         from operator import itemgetter
 
         supported_methods = ("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH")
