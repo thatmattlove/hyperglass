@@ -20,6 +20,7 @@ const highlightLinesRangeRegex = /{([\d,-]+)}/;
 export default ({ children, className: languageClassName, metastring }) => {
   (typeof global !== "undefined" ? global : window).Prism = Prism;
   require("prismjs/components/prism-shell-session");
+  require("prismjs/components/prism-nginx");
   const {
     siteConfig: {
       themeConfig: { prism = {} },

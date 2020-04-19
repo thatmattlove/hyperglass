@@ -149,9 +149,11 @@ h6 code {
   background-color: unset;
 }
 
-div.table--full-width ~ table {
-  display: table;
-  width: 100%;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+@media screen and (min-width: 998px) {
+  div.table--full-width ~ table {
+    display: table;
+    width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
 }

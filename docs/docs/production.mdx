@@ -1,0 +1,91 @@
+---
+id: production
+title: Production
+sidebar_label: Production
+description: Running hyperglass in production
+---
+
+## Reverse Proxy
+
+You'll want to run hyperglass behind a reverse proxy in production to serve the static files more efficiently and offload SSL. Any reverse proxy should work, but hyperglass has been specifically tested with [Caddy](https://caddyserver.com/) and [NGINX](https://www.nginx.com/). Sample configs for both can be found below.
+
+### Caddy
+
+The following file can be placed anywhere, and referenced at runtime with `sudo caddy run -config <file name>`. The highlighted lines should be replaced with your installation's specific variables.
+
+```text {1,2,4,5,8,11}
+lg.example.com:443 {
+	tls person@example.com
+	file_server {
+            root /etc/hyperglass/static/ui
+            index /etc/hyperglass/static/ui/index.html
+        }
+        file_server /custom {
+            root /etc/hyperglass/static/custom
+        }
+        file_server /images {
+            root /etc/hyperglass/static/images
+        }
+	reverse_proxy localhost:8001
+}
+```
+
+:::tip
+The `tls` directive will tell Caddy to automatically use Let's Encrypt to generate SSL certificates for hyperglass.
+:::
+
+### NGINX
+
+The following file can be placed at `/etc/nginx/sites-enabled/hyperglass`. It supports IPv6, and will automatically redirect to HTTPS. The highlighted lines should be replaced with your installation's specific variables.
+
+```nginx {4,9,10,17,19}
+server {
+  listen 80;
+  listen [::]:80;
+  server_name lg.example.com;
+  return 301 https://$host$request_uri;
+}
+server {
+  listen [::]:443 ssl ipv6only=on;
+  listen 443 ssl;
+  ssl_certificate <path to cert chain>
+  ssl_certificate_key <path to key>
+
+  client_max_body_size 2M;
+
+  server_name lg.example.com;
+
+  root /etc/hyperglass/static;
+
+  location / {
+    try_files $uri $uri/ /ui /ui/$uri =404;
+    index /ui/index.html;
+  }
+
+  location /openapi.json {
+      try_files $uri @proxy_to_app;
+  }
+
+  location /custom/ {
+      try_files $uri $uri/ /custom;
+  }
+
+  location /images/ {
+      try_files $uri $uri/ /images;
+  }
+
+  location /api {
+      try_files $uri @proxy_to_app;
+  }
+
+  location @proxy_to_app {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    proxy_pass http://[::1]:8001;
+  }
+
+}
+```
