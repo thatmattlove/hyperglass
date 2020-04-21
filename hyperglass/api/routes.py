@@ -32,16 +32,16 @@ async def query(query_data: Query, request: Request):
     async with RIPEStat() as ripe:
         network_info = await ripe.network_info(request.client.host, serialize=True)
 
-    async with Webhook(params.logging.http.provider) as hook:
-        await hook.send(
-            query={
-                **query_data.export_dict(),
-                "headers": headers,
-                "source": request.client.host,
-                "network": network_info,
-            },
-            provider=params.logging.http,
-        )
+    if params.logging.http is not None:
+        async with Webhook(params.logging.http) as hook:
+            await hook.send(
+                query={
+                    **query_data.export_dict(),
+                    "headers": headers,
+                    "source": request.client.host,
+                    "network": network_info,
+                }
+            )
 
     # Initialize cache
     cache = Cache(db=params.cache.database, **REDIS_CONFIG)

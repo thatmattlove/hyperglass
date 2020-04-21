@@ -15,6 +15,7 @@ from httpx.status_codes import StatusCode
 # Project
 from hyperglass.log import log
 from hyperglass.util import make_repr, parse_exception
+from hyperglass.constants import __version__
 from hyperglass.exceptions import HyperglassError
 
 
@@ -29,7 +30,7 @@ def _parse_response(response):
     except JSONDecodeError:
         try:
             parsed = _json.loads(response)
-        except JSONDecodeError:
+        except (JSONDecodeError, TypeError):
             log.error("Error parsing JSON for response {}", repr(response))
             parsed = {"data": response.text}
     return parsed
@@ -39,10 +40,17 @@ class BaseExternal:
     """Base session handler."""
 
     def __init__(
-        self, base_url, uri_prefix="", uri_suffix="", verify_ssl=True, timeout=10,
+        self,
+        base_url,
+        config=None,
+        uri_prefix="",
+        uri_suffix="",
+        verify_ssl=True,
+        timeout=10,
     ):
         """Initialize connection instance."""
         self.__name__ = self.name
+        self.config = config
         self.base_url = base_url.strip("/")
         self.uri_prefix = uri_prefix.strip("/")
         self.uri_suffix = uri_suffix.strip("/")
@@ -140,15 +148,22 @@ class BaseExternal:
         else:
             return False
 
-    def build_request(self, **kwargs):
+    def _build_request(self, **kwargs):
         """Process requests parameters into structure usable by http library."""
         from operator import itemgetter
 
         supported_methods = ("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH")
 
-        method, endpoint, item, params, data, timeout, response_required = itemgetter(
-            *kwargs.keys()
-        )(kwargs)
+        (
+            method,
+            endpoint,
+            item,
+            headers,
+            params,
+            data,
+            timeout,
+            response_required,
+        ) = itemgetter(*kwargs.keys())(kwargs)
 
         if method.upper() not in supported_methods:
             raise self._exception(
@@ -171,7 +186,11 @@ class BaseExternal:
         request = {
             "method": method,
             "url": endpoint,
+            "headers": {"user-agent": f"hyperglass/{__version__}"},
         }
+
+        if headers is not None:
+            request.update({"headers": headers})
 
         if params is not None:
             params = {str(k): str(v) for k, v in params.items() if v is not None}
@@ -200,16 +219,18 @@ class BaseExternal:
         method,
         endpoint,
         item=None,
+        headers=None,
         params=None,
         data=None,
         timeout=None,
         response_required=False,
     ):
         """Run HTTP POST operation."""
-        request = self.build_request(
+        request = self._build_request(
             method=method,
             endpoint=endpoint,
             item=item,
+            headers=None,
             params=params,
             data=data,
             timeout=timeout,
@@ -254,16 +275,18 @@ class BaseExternal:
         method,
         endpoint,
         item=None,
+        headers=None,
         params=None,
         data=None,
         timeout=None,
         response_required=False,
     ):
         """Run HTTP POST operation."""
-        request = self.build_request(
+        request = self._build_request(
             method=method,
             endpoint=endpoint,
             item=item,
+            headers=None,
             params=params,
             data=data,
             timeout=timeout,
