@@ -16,22 +16,22 @@ import Code from "../src/components/JSXCode";
 
 ## All Device Parameters
 
-| Parameter           |  Type   | Description                                                                                                                       |
-| :------------------ | :-----: | :-------------------------------------------------------------------------------------------------------------------------------- |
-| <R/> `name`         | String  | Device hostname. This is not user-facing.                                                                                         |
-| <R/> `address`      | String  | Device management hostname or IP address.                                                                                         |
-| <R/> `network`      | String  | Primary network this device is a member of. Used for device grouping. Usually something like 'AS65000'.                           |
-| <R/> `display_name` | String  | Device's user-facing name.                                                                                                        |
-| <R/> `port`         | Integer | TCP port used to connect to the device.                                                                                           |
-| <R/> `nos`          | String  | Network Operating System. <MiniNote>Must be a <Link to="/docs/platforms">supported platform</Link>.</MiniNote>                    |
-| <R/>`credential`    |         | <Link to="#credential">Device Credential Configuration</Link>                                                                     |
-| <R/>`vrfs`          |         | <Link to="#vrf">Device VRF Configuration</Link>                                                                                   |
-| `proxy`             |         | <Link to="#proxy">SSH Proxy Configuration</Link>                                                                                  |
-| `ssl`               |         | <Link to="#ssl">SSL Configuration</Link> for devices using [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent). |
+| Parameter           |  Type   | Description                                                                                                        |
+| :------------------ | :-----: | :----------------------------------------------------------------------------------------------------------------- |
+| <R/> `name`         | String  | Device hostname. This is not user-facing.                                                                          |
+| <R/> `address`      | String  | Device management hostname or IP address.                                                                          |
+| <R/> `network`      | String  | Primary network this device is a member of. Used for device grouping. Usually something like 'AS65000'.            |
+| <R/> `display_name` | String  | Device's user-facing name.                                                                                         |
+| <R/> `port`         | Integer | TCP port used to connect to the device.                                                                            |
+| <R/> `nos`          | String  | Network Operating System. <MiniNote>Must be a <Link to="/docs/platforms">supported platform</Link>.</MiniNote>     |
+| <R/>`credential`    |         | [Device Credential Configuration](#credential)                                                                     |
+| <R/>`vrfs`          |         | [Device VRF Configuration](#vrf)                                                                                   |
+| `proxy`             |         | [SSH Proxy Configuration](#proxy)                                                                                  |
+| `ssl`               |         | [SSL Configuration](#ss;) for devices using [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent). |
 
 ### `proxy`
 
-Any device that uses SSH (see <Link to="/docs/platforms">platforms</Link> for breakdown) can be accessed through an intermediary SSH "proxy". The process is nearly identical to using local SSH tunneling, e.g. `ssh -L local_port:remote_device:remote_port username@proxy_server -p proxy_port`.
+Any device that uses SSH (see [platforms](platforms.mdx) for breakdown) can be accessed through an intermediary SSH "proxy". The process is nearly identical to using local SSH tunneling, e.g. `ssh -L local_port:remote_device:remote_port username@proxy_server -p proxy_port`.
 
 | Parameter         |  Type   | Default       | Description                                                                                                            |
 | :---------------- | :-----: | :------------ | :--------------------------------------------------------------------------------------------------------------------- |
@@ -128,7 +128,7 @@ Each VRF may enable, disable, or customize the contextual help menu for each ena
 
 For example:
 
-```yaml
+```yaml title="devices.yaml"
 info:
   bgp_route:
     enable: true
@@ -151,7 +151,7 @@ Telnet support is provided via the underlying device connection handling framewo
 
 For example:
 
-```yaml {3-4}
+```yaml {3-4} title="devices.yaml"
 routers:
     - name: router01
       nos: cisco_ios_telnet
@@ -163,7 +163,7 @@ routers:
 
 Below is a full example with nearly every available knob turned:
 
-```yaml
+```yaml title="devices.yaml"
 routers:
   # HTTP/hyperglass-agent device
   - name: router01

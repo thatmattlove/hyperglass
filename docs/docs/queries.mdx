@@ -24,7 +24,7 @@ Each query type may be disabled, enabled, or customized. The `display_name` para
 #### Example
 
 <!-- prettier-ignore -->
-```yaml
+```yaml title="hyperglass.yaml"
 queries:
   bgp_route:
     display_name: BGP Route
@@ -53,7 +53,7 @@ If using `select` mode, you may define a list of communities the users can choos
 
 #### Example
 
-```yaml
+```yaml title="hyperglass.yaml"
 queries:
   bgp_community:
     enable: true
@@ -80,7 +80,7 @@ If using `input` mode, hyperglass allows you to override the default regular exp
 #### Example
 
 <!-- prettier-ignore -->
-```yaml
+```yaml title="hyperglass.yaml"
 queries:
   bgp_community:
     enable: true
@@ -106,7 +106,7 @@ Regular expression patterns must be enclosed in single quotes, e.g. `'^.*$'`
 #### Example
 
 <!-- prettier-ignore -->
-```yaml
+```yaml title="hyperglass.yaml"
 queries:
   bgp_aspath:
     display_name: BGP AS Path
@@ -137,7 +137,7 @@ AS Path regular expression patterns may also be customized, should you wish to m
 #### Example
 
 <!-- prettier-ignore -->
-```yaml
+```yaml title="hyperglass.yaml"
 queries:
   ping:
     display_name: Ping
@@ -154,7 +154,7 @@ queries:
 #### Example
 
 <!-- prettier-ignore -->
-```yaml
+```yaml title="hyperglass.yaml"
 queries:
   traceroute:
     display_name: Traceroute

@@ -13,7 +13,7 @@ You'll want to run hyperglass behind a reverse proxy in production to serve the 
 
 The following file can be placed anywhere, and referenced at runtime with `sudo caddy run -config <file name>`. The highlighted lines should be replaced with your installation's specific variables.
 
-```text {1,2,4,5,8,11}
+```text {1,2,4,5,8,11} title="Caddy"
 lg.example.com:443 {
 	tls person@example.com
 	file_server {
@@ -38,7 +38,7 @@ The `tls` directive will tell Caddy to automatically use Let's Encrypt to genera
 
 The following file can be placed at `/etc/nginx/sites-enabled/hyperglass`. It supports IPv6, and will automatically redirect to HTTPS. The highlighted lines should be replaced with your installation's specific variables.
 
-```nginx {4,9,10,17,19}
+```nginx {4,9,10,17,19} title="NGINX"
 server {
   listen 80;
   listen [::]:80;
