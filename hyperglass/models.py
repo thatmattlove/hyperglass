@@ -35,7 +35,14 @@ class HyperglassModel(BaseModel):
         Returns:
             {str} -- Stringified JSON.
         """
-        return self.json(by_alias=True, exclude_unset=False, *args, **kwargs)
+
+        export_kwargs = {
+            "by_alias": True,
+            "exclude_unset": False,
+            **kwargs,
+        }
+
+        return self.json(*args, **export_kwargs)
 
     def export_dict(self, *args, **kwargs):
         """Return instance as dictionary.
@@ -43,7 +50,13 @@ class HyperglassModel(BaseModel):
         Returns:
             {dict} -- Python dictionary.
         """
-        return self.dict(by_alias=True, exclude_unset=False, *args, **kwargs)
+        export_kwargs = {
+            "by_alias": True,
+            "exclude_unset": False,
+            **kwargs,
+        }
+
+        return self.dict(*args, **export_kwargs)
 
     def export_yaml(self, *args, **kwargs):
         """Return instance as YAML.
@@ -54,7 +67,14 @@ class HyperglassModel(BaseModel):
         import json
         import yaml
 
-        return yaml.safe_dump(json.loads(self.export_json()), *args, **kwargs)
+        export_kwargs = {
+            "by_alias": kwargs.pop("by_alias", True),
+            "exclude_unset": kwargs.pop("by_alias", False),
+        }
+
+        return yaml.safe_dump(
+            json.loads(self.export_json(**export_kwargs)), *args, **kwargs
+        )
 
 
 class HyperglassModelExtra(HyperglassModel):

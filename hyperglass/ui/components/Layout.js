@@ -1,37 +1,21 @@
-import React, { useRef, useState } from "react";
-import { Flex, useColorMode, useDisclosure } from "@chakra-ui/core";
-import { motion, AnimatePresence } from "framer-motion";
-import HyperglassForm from "~/components/HyperglassForm";
-import Results from "~/components/Results";
+import * as React from "react";
+import { useRef } from "react";
+import { Flex, useColorMode } from "@chakra-ui/core";
 import Header from "~/components/Header";
 import Footer from "~/components/Footer";
 import Greeting from "~/components/Greeting";
 import Meta from "~/components/Meta";
-import useConfig from "~/components/HyperglassProvider";
+import useConfig, { useHyperglassState } from "~/components/HyperglassProvider";
 import Debugger from "~/components/Debugger";
-import useSessionStorage from "~/hooks/useSessionStorage";
-
-const AnimatedForm = motion.custom(HyperglassForm);
 
 const bg = { light: "white", dark: "black" };
 const color = { light: "black", dark: "white" };
 
-const Layout = () => {
+const Layout = ({ children }) => {
   const config = useConfig();
   const { colorMode } = useColorMode();
-  const [isSubmitting, setSubmitting] = useState(false);
-  const [formData, setFormData] = useState({});
-  const [greetingAck, setGreetingAck] = useSessionStorage(
-    "hyperglass-greeting-ack",
-    false
-  );
+  const { greetingAck, setGreetingAck } = useHyperglassState();
   const containerRef = useRef(null);
-
-  const handleFormReset = () => {
-    containerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    setSubmitting(false);
-    setFormData({});
-  };
 
   return (
     <>
@@ -45,10 +29,7 @@ const Layout = () => {
         color={color[colorMode]}
       >
         <Flex px={2} flex="0 1 auto" flexDirection="column">
-          <Header
-            isSubmitting={isSubmitting}
-            handleFormReset={handleFormReset}
-          />
+          <Header layoutRef={containerRef} />
         </Flex>
         <Flex
           px={2}
@@ -61,30 +42,7 @@ const Layout = () => {
           justifyContent="start"
           flexDirection="column"
         >
-          {isSubmitting && formData && (
-            <Results
-              queryLocation={formData.query_location}
-              queryType={formData.query_type}
-              queryVrf={formData.query_vrf}
-              queryTarget={formData.query_target}
-              setSubmitting={setSubmitting}
-            />
-          )}
-          <AnimatePresence>
-            {!isSubmitting && (
-              <AnimatedForm
-                initial={{ opacity: 0, y: 300 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                exit={{ opacity: 0, x: -300 }}
-                isSubmitting={isSubmitting}
-                setSubmitting={setSubmitting}
-                setFormData={setFormData}
-                greetingAck={greetingAck}
-                setGreetingAck={setGreetingAck}
-              />
-            )}
-          </AnimatePresence>
+          {children}
         </Flex>
         <Footer />
         {config.developer_mode && <Debugger />}

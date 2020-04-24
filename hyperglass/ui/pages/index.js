@@ -1,8 +1,10 @@
-import React from "react";
+import * as React from "react";
 import dynamic from "next/dynamic";
 import Loading from "~/components/Loading";
-const Layout = dynamic(() => import("~/components/Layout"), { loading: Loading });
+const LookingGlass = dynamic(() => import("~/components/LookingGlass"), {
+  loading: Loading
+});
 
-const Index = () => <Layout />;
+const Index = () => <LookingGlass />;
 
 export default Index;

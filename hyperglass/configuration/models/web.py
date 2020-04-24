@@ -141,6 +141,10 @@ class Text(HyperglassModel):
     cache_prefix: StrictStr = "Results cached for "
     cache_icon: StrictStr = "Cached from {time} UTC"  # Formatted by Javascript
     complete_time: StrictStr = "Completed in {seconds}"  # Formatted by Javascript
+    rpki_invalid: StrictStr = "Invalid"
+    rpki_valid: StrictStr = "Valid"
+    rpki_unknown: StrictStr = "No ROAs Exist"
+    rpki_unverified: StrictStr = "Not Verified"
 
     @validator("title_mode")
     def validate_title_mode(cls, value):

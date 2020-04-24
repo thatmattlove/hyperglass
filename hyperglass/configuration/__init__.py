@@ -24,6 +24,7 @@ from hyperglass.constants import (
     DEFAULT_TERMS,
     DEFAULT_DETAILS,
     SUPPORTED_QUERY_TYPES,
+    PARSED_RESPONSE_FIELDS,
     __version__,
 )
 from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
@@ -425,6 +426,7 @@ _frontend_params.update(
         "devices": frontend_devices,
         "networks": networks,
         "vrfs": vrfs,
+        "parsed_data_fields": PARSED_RESPONSE_FIELDS,
         "content": {
             "help_menu": content_help,
             "terms": content_terms,

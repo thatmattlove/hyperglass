@@ -34,6 +34,7 @@ uvloop = "^0.14.0"
 inquirer = "^2.6.3"
 paramiko = "^2.7.1"
 gunicorn = "^20.0.4"
+xmltodict = "^0.12.0"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.6.2"

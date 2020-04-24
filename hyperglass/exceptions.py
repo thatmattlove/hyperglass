@@ -193,3 +193,9 @@ class ResponseEmpty(_UnformattedHyperglassError):
 
 class UnsupportedDevice(_UnformattedHyperglassError):
     """Raised when an input NOS is not in the supported NOS list."""
+
+
+class ParsingError(_UnformattedHyperglassError):
+    """Raised when there is a problem parsing a structured response."""
+
+    _level = "danger"

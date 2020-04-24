@@ -26,6 +26,21 @@ DNS_OVER_HTTPS = {
     "cloudflare": "https://cloudflare-dns.com/dns-query",
 }
 
+PARSED_RESPONSE_FIELDS = (
+    ("Active", "active", None),
+    ("RPKI State", "rpki_state", "center"),
+    ("AS Path", "as_path", "left"),
+    ("Next Hop", "next_hop", "left"),
+    ("Origin", "source_as", "right"),
+    ("Weight", "weight", "center"),
+    ("Local Preference", "local_preference", "center"),
+    ("MED", "med", "center"),
+    ("Communities", "communities", "center"),
+    ("Originator", "source_rid", "right"),
+    ("Peer", "peer_rid", "right"),
+    ("Age", "age", "right"),
+)
+
 CREDIT = """
 Powered by [**hyperglass**](https://github.com/checktheroads/hyperglass) version \
 {version}. Source code licensed \
