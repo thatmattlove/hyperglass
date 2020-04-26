@@ -10,7 +10,7 @@ const isDark = color => {
 const isLight = color => isDark(color);
 
 const opposingColor = (theme, color) => {
-  if (color.includes(".")) {
+  if (color.match(/^\w+\.\d+$/m)) {
     const colorParts = color.split(".");
     if (colorParts.length !== 2) {
       throw Error(`Color is improperly formatted. Got '${color}'`);

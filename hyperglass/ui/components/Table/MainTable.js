@@ -11,6 +11,7 @@ const MainTable = ({ children, ...props }) => {
   const { colorMode } = useColorMode();
   return (
     <Box
+      as="table"
       css={css({
         "&::-webkit-scrollbar": { height: "5px" },
         "&::-webkit-scrollbar-track": {
