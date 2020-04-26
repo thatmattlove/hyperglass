@@ -4,7 +4,7 @@
 from datetime import datetime
 
 __name__ = "hyperglass"
-__version__ = "1.0.0-beta.29"
+__version__ = "1.0.0-beta.30"
 __author__ = "Matt Love"
 __copyright__ = f"Copyright {datetime.now().year} Matthew Love"
 __license__ = "BSD 3-Clause Clear License"
