@@ -77,7 +77,10 @@ class Construct:
             # For devices that follow Juniper's AS_PATH regex standards,
             # filter out Cisco-style special characters.
 
-            if self.device.nos in TARGET_JUNIPER_ASPATH:
+            if (
+                self.device.nos in TARGET_JUNIPER_ASPATH
+                and self.query_data.query_type in ("bgp_aspath",)
+            ):
                 query = str(self.query_data.query_target)
                 asns = re.findall(r"\d+", query)
                 if bool(re.match(r"^\_", query)):
