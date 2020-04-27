@@ -213,8 +213,12 @@ def params():
     general["primary_asn"] = config["general"].get("primary_asn", "65000")
     general["org_name"] = config["general"].get("org_name", "The Company")
     general["google_analytics"] = config["general"].get("google_analytics", "")
-    general["redis_host"] = config["general"].get("redis_host", os.environ.get('REDIS_HOST',"localhost"))
-    general["redis_port"] = config["general"].get("redis_port", os.environ.get('REDIS_PORT',6379))
+    general["redis_host"] = config["general"].get(
+        "redis_host", os.environ.get("REDIS_HOST", "localhost")
+    )
+    general["redis_port"] = config["general"].get(
+        "redis_port", os.environ.get("REDIS_PORT", 6379)
+    )
     features["rate_limit"] = config["features"]["rate_limit"]
     features["rate_limit"]["redis_id"] = config["features"]["rate_limit"].get(
         "redis_id", 1
