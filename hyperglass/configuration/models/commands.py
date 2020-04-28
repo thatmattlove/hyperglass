@@ -4,7 +4,7 @@
 from pydantic import StrictStr
 
 # Project
-from hyperglass.models import HyperglassModel
+from hyperglass.models import HyperglassModel, HyperglassModelExtra
 
 
 class Command(HyperglassModel):
@@ -283,23 +283,70 @@ class Arista(Command):
     ipv6_vpn: VPNIPv6 = VPNIPv6()
 
 
+class CiscoNXOS(Command):
+    """Validation model for non-default commands."""
+
+    class IPv4(Command.IPv4):
+        """Validation model for non-default dual afi commands."""
+
+        bgp_route: StrictStr = "show bgp ipv4 unicast {target}"
+        bgp_aspath: StrictStr = 'show bgp ipv4 unicast regexp "{target}"'
+        bgp_community: StrictStr = "show bgp ipv4 unicast community {target}"
+        ping: StrictStr = "ping {target} source {source}"
+        traceroute: StrictStr = "traceroute {target} source {source}"
+
+    class IPv6(Command.IPv6):
+        """Validation model for non-default ipv4 commands."""
+
+        bgp_route: StrictStr = "show bgp ipv6 unicast {target}"
+        bgp_aspath: StrictStr = 'show bgp ipv6 unicast regexp "{target}"'
+        bgp_community: StrictStr = "show bgp ipv6 unicast community {target}"
+        ping: StrictStr = "ping6 {target} source {source}"
+        traceroute: StrictStr = "traceroute6 {target} source {source}"
+
+    class VPNIPv4(Command.VPNIPv4):
+        """Validation model for non-default ipv6 commands."""
+
+        bgp_route: StrictStr = "show bgp ipv4 unicast {target} vrf {vrf}"
+        bgp_aspath: StrictStr = 'show bgp ipv4 unicast regexp "{target}" vrf {vrf}'
+        bgp_community: StrictStr = "show bgp ipv4 unicast community {target} vrf {vrf}"
+        ping: StrictStr = "ping {target} source {source} vrf {vrf}"
+        traceroute: StrictStr = "traceroute {target} source {source} vrf {vrf}"
+
+    class VPNIPv6(Command.VPNIPv6):
+        """Validation model for non-default ipv6 commands."""
+
+        bgp_route: StrictStr = "show bgp ipv6 unicast {target} vrf {vrf}"
+        bgp_aspath: StrictStr = 'show bgp ipv6 unicast regexp "{target}" vrf {vrf}'
+        bgp_community: StrictStr = "show bgp ipv6 unicast community {target} vrf {vrf}"
+        ping: StrictStr = "ping6 {target} source {source} vrf {vrf}"
+        traceroute: StrictStr = "traceroute6 {target} source {source} vrf {vrf}"
+
+    ipv4_default: IPv4 = IPv4()
+    ipv6_default: IPv6 = IPv6()
+    ipv4_vpn: VPNIPv4 = VPNIPv4()
+    ipv6_vpn: VPNIPv6 = VPNIPv6()
+
+
 _NOS_MAP = {
+    "arista": Arista,
+    "huawei": Huawei,
     "juniper": Juniper,
     "cisco_ios": CiscoIOS,
+    "cisco_nxos": CiscoNXOS,
     "cisco_xr": CiscoXR,
-    "huawei": Huawei,
-    "arista": Arista,
 }
 
 
-class Commands(HyperglassModel):
+class Commands(HyperglassModelExtra):
     """Base class for command definitions."""
 
-    cisco_ios: Command = CiscoIOS()
-    cisco_xr: Command = CiscoXR()
-    juniper: Command = Juniper()
-    huawei: Command = Huawei()
     arista: Command = Arista()
+    cisco_ios: Command = CiscoIOS()
+    cisco_nxos: Command = CiscoNXOS()
+    cisco_xr: Command = CiscoXR()
+    huawei: Command = Huawei()
+    juniper: Command = Juniper()
 
     @classmethod
     def import_params(cls, input_params):
@@ -315,7 +362,7 @@ class Commands(HyperglassModel):
         """
         obj = Commands()
         for nos, cmds in input_params.items():
-            nos_cmd_set = _NOS_MAP.get(nos)
+            nos_cmd_set = _NOS_MAP.get(nos, Command)
             nos_cmds = nos_cmd_set(**cmds)
             setattr(obj, nos, nos_cmds)
         return obj
