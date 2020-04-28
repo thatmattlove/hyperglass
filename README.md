@@ -40,6 +40,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 - Customizable everything: features, theme, UI/API text, error messages, commands
 - Built in support for:
     - Cisco IOS/IOS-XE
+    - Cisco NX-OS
     - Cisco IOS-XR
     - Juniper JunOS
     - Arista EOS
