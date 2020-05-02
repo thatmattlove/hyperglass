@@ -61,7 +61,7 @@ const widthMap = {
   all: ["90%", "90%", "25%", "25%"]
 };
 
-export default ({ layoutRef, ...props }) => {
+const Header = ({ layoutRef, ...props }) => {
   const { colorMode, toggleColorMode } = useColorMode();
   const { web } = useConfig();
   const { mediaSize } = useMedia();
@@ -175,3 +175,7 @@ export default ({ layoutRef, ...props }) => {
     </Flex>
   );
 };
+
+Header.displayName = "Header";
+
+export default Header;
