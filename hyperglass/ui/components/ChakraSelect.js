@@ -58,8 +58,8 @@ const ChakraSelect = React.forwardRef(
     );
     const selectedDisabled = theme.colors.whiteAlpha[400];
     const placeholderColor = {
-      dark: theme.colors.whiteAlpha[400],
-      light: theme.colors.gray[400]
+      dark: theme.colors.whiteAlpha[700],
+      light: theme.colors.gray[600]
     };
     const menuBg = { dark: theme.colors.black, light: theme.colors.white };
     const menuColor = {
