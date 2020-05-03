@@ -1,12 +1,10 @@
 import * as React from "react";
 import { useMemo } from "react";
 import { Flex, Icon, Text } from "@chakra-ui/core";
-import useMedia from "~/components/MediaProvider";
 import { usePagination, useSortBy, useTable } from "react-table";
-import Card from "~/components/Card";
-import BottomSection from "~/components/Card/CardFooter";
-import TopSection from "~/components/Card/CardHeader";
-import MainTable from "./MainTable";
+import useMedia from "~/components/MediaProvider";
+import { CardBody, CardFooter, CardHeader } from "~/components/Card";
+import TableMain from "./TableMain";
 import TableCell from "./TableCell";
 import TableHead from "./TableHead";
 import TableRow from "./TableRow";
@@ -32,8 +30,6 @@ const Table = ({
 
   const { isSm, isMd } = useMedia();
 
-  const isTabletOrMobile = isSm ? true : isMd ? true : false;
-
   const defaultColumn = useMemo(
     () => ({
       minWidth: 100,
@@ -42,6 +38,14 @@ const Table = ({
     }),
     []
   );
+
+  let hiddenColumns = [];
+
+  tableColumns.map(col => {
+    if (col.hidden === true) {
+      hiddenColumns.push(col.accessor);
+    }
+  });
 
   const {
     getTableProps,
@@ -56,22 +60,33 @@ const Table = ({
     nextPage,
     previousPage,
     setPageSize,
+    setHiddenColumns,
     state: { pageIndex, pageSize }
   } = useTable(
     {
       columns: tableColumns,
       defaultColumn,
       data,
-      initialState: { pageIndex: 0, pageSize: initialPageSize }
+      initialState: {
+        pageIndex: 0,
+        pageSize: initialPageSize,
+        hiddenColumns: hiddenColumns
+      }
     },
     useSortBy,
     usePagination
   );
 
+  // tableColumns.map(col => {
+  //   if (col.hidden === true) {
+  //     setHiddenColumns(old => [...old, col.id]);
+  //   }
+  // });
+
   return (
-    <Card>
-      {!!tableHeading && <TopSection>{tableHeading}</TopSection>}
-      <MainTable {...getTableProps()}>
+    <CardBody>
+      {!!tableHeading && <CardHeader>{tableHeading}</CardHeader>}
+      <TableMain {...getTableProps()}>
         <TableHead>
           {headerGroups.map(headerGroup => (
             <TableRow
@@ -135,8 +150,8 @@ const Table = ({
               )
           )}
         </TableBody>
-      </MainTable>
-      <BottomSection>
+      </TableMain>
+      <CardFooter>
         <Flex direction="row">
           <TableIconButton
             mr={2}
@@ -152,13 +167,13 @@ const Table = ({
           />
         </Flex>
         <Flex justifyContent="center" alignItems="center">
-          <Text mr={4} whiteSpace="nowrap">
+          <Text fontSize="sm" mr={4} whiteSpace="nowrap">
             Page{" "}
             <strong>
               {pageIndex + 1} of {pageOptions.length}
             </strong>{" "}
           </Text>
-          {!isTabletOrMobile && (
+          {!(isSm || isMd) && (
             <TableSelectShow
               value={pageSize}
               onChange={e => {
@@ -181,8 +196,8 @@ const Table = ({
             icon={() => <Icon name="arrow-right" size={3} />}
           />
         </Flex>
-      </BottomSection>
-    </Card>
+      </CardFooter>
+    </CardBody>
   );
 };
 

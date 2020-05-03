@@ -39,6 +39,7 @@ const TableCell = ({
       m={0}
       w="1%"
       whiteSpace="nowrap"
+      textAlign={align}
       {...borderProps}
       {...props}
     >

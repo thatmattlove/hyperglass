@@ -9,7 +9,7 @@ import { opposingColor } from "~/util";
 //     }
 // `;
 
-const hoverBg = { dark: "whiteAlpha.100", light: "blackAlpha.100" };
+const hoverBg = { dark: "whiteAlpha.50", light: "blackAlpha.50" };
 const bgStripe = { dark: "whiteAlpha.50", light: "blackAlpha.50" };
 const rowBorder = {
   dark: { borderTop: "1px", borderTopColor: "whiteAlpha.100" },

@@ -31,7 +31,7 @@ PARSED_RESPONSE_FIELDS = (
     ("RPKI State", "rpki_state", "center"),
     ("AS Path", "as_path", "left"),
     ("Next Hop", "next_hop", "left"),
-    ("Origin", "source_as", "right"),
+    ("Origin", "source_as", None),
     ("Weight", "weight", "center"),
     ("Local Preference", "local_preference", "center"),
     ("MED", "med", "center"),

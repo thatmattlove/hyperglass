@@ -1,4 +1,4 @@
-/*@jsx jsx*/
+/** @jsx jsx */
 import { jsx } from "@emotion/core";
 import { Box, css, useTheme, useColorMode } from "@chakra-ui/core";
 
@@ -12,6 +12,7 @@ const MainTable = ({ children, ...props }) => {
   return (
     <Box
       as="table"
+      display="block"
       css={css({
         "&::-webkit-scrollbar": { height: "5px" },
         "&::-webkit-scrollbar-track": {
@@ -26,7 +27,7 @@ const MainTable = ({ children, ...props }) => {
 
         "-ms-overflow-style": { display: "none" }
       })(theme)}
-      overflow="auto"
+      overflowX="auto"
       borderRadius="md"
       boxSizing="border-box"
       {...props}

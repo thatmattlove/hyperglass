@@ -143,7 +143,16 @@ const rpkiColor = {
 const makeColumns = fields => {
   return fields.map(pair => {
     const [header, accessor, align] = pair;
-    return { Header: header, accessor: accessor, align: align };
+    let columnConfig = {
+      Header: header,
+      accessor: accessor,
+      align: align,
+      hidden: false
+    };
+    if (align === null) {
+      columnConfig.hidden = true;
+    }
+    return columnConfig;
   });
 };
 
@@ -282,8 +291,6 @@ const RPKIState = ({ state, active }) => {
 };
 
 const Cell = ({ data, rawData, longestASN }) => {
-  hiddenCols.includes(data.column.id) &&
-    data.setHiddenColumns(old => [...old, data.column.id]);
   const component = {
     active: <Active isActive={data.value} />,
     age: <Age inSeconds={data.value} />,
