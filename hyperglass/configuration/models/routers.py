@@ -7,20 +7,25 @@ from typing import List, Optional
 from pathlib import Path
 
 # Third Party
-from pydantic import StrictInt, StrictStr, validator
+from pydantic import StrictInt, StrictStr, StrictBool, validator
 
 # Project
 from hyperglass.log import log
 from hyperglass.util import clean_name
 from hyperglass.models import HyperglassModel, HyperglassModelExtra
-from hyperglass.constants import SCRAPE_HELPERS, TRANSPORT_REST, TRANSPORT_SCRAPE
+from hyperglass.constants import (
+    SCRAPE_HELPERS,
+    TRANSPORT_REST,
+    TRANSPORT_SCRAPE,
+    SUPPORTED_STRUCTURED_OUTPUT,
+)
 from hyperglass.exceptions import ConfigError, UnsupportedDevice
 from hyperglass.configuration.models.ssl import Ssl
 from hyperglass.configuration.models.vrfs import Vrf, Info
 from hyperglass.configuration.models.proxies import Proxy
-from hyperglass.configuration.models.commands import Command
 from hyperglass.configuration.models.networks import Network
 from hyperglass.configuration.models.credentials import Credential
+from hyperglass.configuration.models.commands.common import CommandGroup
 
 _default_vrf = {
     "name": "default",
@@ -51,10 +56,36 @@ class Router(HyperglassModel):
     port: StrictInt
     ssl: Optional[Ssl]
     nos: StrictStr
-    commands: Optional[Command]
+    commands: Optional[CommandGroup]
     vrfs: List[Vrf] = [_default_vrf]
     display_vrfs: List[StrictStr] = []
     vrf_names: List[StrictStr] = []
+    structured_output: Optional[StrictBool]
+
+    @validator("structured_output", pre=True, always=True)
+    def validate_structured_output(cls, value, values):
+        """Validate structured output is supported on the device & set a default.
+
+        Raises:
+            ConfigError: Raised if true on a device that doesn't support structured output.
+
+        Returns:
+            {bool} -- True if hyperglass should return structured output for this device.
+        """
+        if value is True and values["nos"] not in SUPPORTED_STRUCTURED_OUTPUT:
+            raise ConfigError(
+                "The 'structured_output' field is set to 'true' on device '{d}' with "
+                + "NOS '{n}', which does not support structured output",
+                d=values["name"],
+                n=values["nos"],
+            )
+
+        elif value is None and values["nos"] in SUPPORTED_STRUCTURED_OUTPUT:
+            value = True
+        else:
+            value = False
+
+        return value
 
     @validator("nos")
     def supported_nos(cls, value):

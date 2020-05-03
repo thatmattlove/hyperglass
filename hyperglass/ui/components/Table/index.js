@@ -77,12 +77,6 @@ const Table = ({
     usePagination
   );
 
-  // tableColumns.map(col => {
-  //   if (col.hidden === true) {
-  //     setHiddenColumns(old => [...old, col.id]);
-  //   }
-  // });
-
   return (
     <CardBody>
       {!!tableHeading && <CardHeader>{tableHeading}</CardHeader>}

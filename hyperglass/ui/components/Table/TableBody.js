@@ -1,6 +1,6 @@
-import * as React from "react";
-import { Box } from "@chakra-ui/core";
-import css from "@styled-system/css";
+/** @jsx jsx */
+import { jsx } from "@emotion/core";
+import { Box, css } from "@chakra-ui/core";
 
 const TableBody = ({ children, ...props }) => {
   return (
@@ -9,7 +9,7 @@ const TableBody = ({ children, ...props }) => {
       overflowY="scroll"
       css={css({
         "&::-webkit-scrollbar": { display: "none" },
-        "&": { "-ms-overflow-style": "none" }
+        "&": { msOverflowStyle: "none" }
       })}
       overflowX="hidden"
       {...props}

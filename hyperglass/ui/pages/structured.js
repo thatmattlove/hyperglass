@@ -324,7 +324,7 @@ const Structured = () => {
 
   return (
     <Layout>
-      <Flex my={8} w="80%">
+      <Flex my={8} maxW={["100%", "100%", "75%", "50%"]} w="100%">
         <Table
           columns={columns}
           data={data.routes}

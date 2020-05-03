@@ -13,11 +13,11 @@ METADATA = (__name__, __version__, __author__, __copyright__, __license__)
 
 MIN_PYTHON_VERSION = (3, 6)
 
-protocol_map = {80: "http", 8080: "http", 443: "https", 8443: "https"}
-
 TARGET_FORMAT_SPACE = ("huawei", "huawei_vrpv8")
 
 TARGET_JUNIPER_ASPATH = ("juniper", "juniper_junos")
+
+SUPPORTED_STRUCTURED_OUTPUT = ("juniper",)
 
 STATUS_CODE_MAP = {"warning": 400, "error": 400, "danger": 500}
 
