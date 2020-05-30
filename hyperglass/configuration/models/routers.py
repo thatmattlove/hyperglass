@@ -8,6 +8,7 @@ from pathlib import Path
 
 # Third Party
 from pydantic import StrictInt, StrictStr, StrictBool, validator
+from netmiko.ssh_dispatcher import CLASS_MAPPER_BASE as NETMIKO_SUPPORTED
 
 # Project
 from hyperglass.log import log
@@ -16,7 +17,6 @@ from hyperglass.models import HyperglassModel, HyperglassModelExtra
 from hyperglass.constants import (
     SCRAPE_HELPERS,
     TRANSPORT_REST,
-    TRANSPORT_SCRAPE,
     SUPPORTED_STRUCTURED_OUTPUT,
 )
 from hyperglass.exceptions import ConfigError, UnsupportedDevice
@@ -100,7 +100,7 @@ class Router(HyperglassModel):
         if value in SCRAPE_HELPERS.keys():
             value = SCRAPE_HELPERS[value]
 
-        if value not in (*TRANSPORT_REST, *TRANSPORT_SCRAPE):
+        if value not in (*TRANSPORT_REST, *NETMIKO_SUPPORTED.keys()):
             raise UnsupportedDevice('NOS "{n}" is not supported.', n=value)
 
         return value
