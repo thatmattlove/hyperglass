@@ -23,13 +23,13 @@ from netmiko import (
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import parse_exception
+from hyperglass.util import validate_nos, parse_exception
 from hyperglass.compat import _sshtunnel as sshtunnel
 from hyperglass.encode import jwt_decode, jwt_encode
-from hyperglass.constants import Supported
 from hyperglass.exceptions import (
     AuthError,
     RestError,
+    ConfigError,
     ScrapeError,
     DeviceTimeout,
     ResponseEmpty,
@@ -413,20 +413,22 @@ class Execute:
         log.debug(f"Received query for {self.query_data}")
         log.debug(f"Matched device config: {device}")
 
+        supported, transport = validate_nos(device.nos)
+
         connect = None
         output = params.messages.general
-
-        transport = Supported.map_transport(device.nos)
         connect = Connect(device, self.query_data, transport)
 
-        if Supported.is_rest(device.nos):
+        if supported and transport == "rest":
             output = await connect.rest()
 
-        elif Supported.is_scrape(device.nos):
+        elif supported and transport == "scrape":
             if device.proxy:
                 output = await connect.scrape_proxied()
             else:
                 output = await connect.scrape_direct()
+        else:
+            raise ConfigError('"{nos}" is not supported.', nos=device.nos)
 
         if output == "" or output == "\n":
             raise ResponseEmpty(

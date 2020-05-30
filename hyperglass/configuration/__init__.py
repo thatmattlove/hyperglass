@@ -22,9 +22,11 @@ from hyperglass.constants import (
     CREDIT,
     DEFAULT_HELP,
     DEFAULT_TERMS,
+    TRANSPORT_REST,
     DEFAULT_DETAILS,
     SUPPORTED_QUERY_TYPES,
     PARSED_RESPONSE_FIELDS,
+    SUPPORTED_STRUCTURED_OUTPUT,
     __version__,
 )
 from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
@@ -93,7 +95,7 @@ def _config_required(config_path: Path) -> dict:
                 "Unvalidated data from file '{f}': {c}", f=str(config_path), c=config
             )
     except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
-        raise ConfigError(error_msg=str(yaml_error))
+        raise ConfigError(str(yaml_error))
     return config
 
 
@@ -112,6 +114,28 @@ def _config_optional(config_path: Path) -> dict:
         except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
             raise ConfigError(error_msg=str(yaml_error))
     return config
+
+
+def _validate_nos_commands(all_nos, commands):
+    nos_with_commands = commands.dict().keys()
+
+    for nos in all_nos:
+        valid = False
+        if nos in SUPPORTED_STRUCTURED_OUTPUT:
+            valid = True
+        elif nos in TRANSPORT_REST:
+            valid = True
+        elif nos in nos_with_commands:
+            valid = True
+
+        if not valid:
+            raise ConfigError(
+                '"{nos}" is used on a device, '
+                + 'but no command profile for "{nos}" is defined.',
+                nos=nos,
+            )
+
+    return True
 
 
 user_config = _config_optional(CONFIG_MAIN)
@@ -135,6 +159,8 @@ except ValidationError as validation_errors:
             field=": ".join([str(item) for item in error["loc"]]),
             error_msg=error["msg"],
         )
+
+_validate_nos_commands(devices.all_nos, commands)
 
 set_cache_env(db=params.cache.database, host=params.cache.host, port=params.cache.port)
 

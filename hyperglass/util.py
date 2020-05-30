@@ -763,3 +763,18 @@ def make_repr(_class):
                     yield f"{attr}={str(attr_val)}"
 
     return f'{_class.__name__}({", ".join(_process_attrs(dir(_class)))})'
+
+
+def validate_nos(nos):
+    """Validate device NOS is supported."""
+    from hyperglass.constants import TRANSPORT_REST
+    from netmiko.ssh_dispatcher import CLASS_MAPPER_BASE
+
+    result = (False, None)
+
+    if nos in TRANSPORT_REST:
+        result = (True, "rest")
+    elif nos in CLASS_MAPPER_BASE.keys():
+        result = (True, "scrape")
+
+    return result
