@@ -123,6 +123,7 @@ class Query(BaseModel):
 
     @property
     def device(self):
+        """Get this query's device object by query_location."""
         return getattr(devices, self.query_location)
 
     def export_dict(self):

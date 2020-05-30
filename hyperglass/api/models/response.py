@@ -93,7 +93,6 @@ class QueryResponse(BaseModel):
                 "example": "2020-04-18 14:45:37",
             },
             "format": {
-                # "alias": "format",
                 "title": "Format",
                 "description": "Response [MIME Type](http://www.iana.org/assignments/media-types/media-types.xhtml). Supported values: `text/plain` and `application/json`.",
                 "example": "text/plain",
