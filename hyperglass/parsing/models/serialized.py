@@ -13,6 +13,7 @@ from hyperglass.models import HyperglassModel
 class ParsedRouteEntry(HyperglassModel):
     """Per-Route Response Model."""
 
+    prefix: StrictStr
     active: StrictBool
     age: StrictInt
     weight: StrictInt
@@ -31,7 +32,6 @@ class ParsedRoutes(HyperglassModel):
     """Parsed Response Model."""
 
     vrf: StrictStr
-    prefix: StrictStr
     count: StrictInt = 0
     routes: List[ParsedRouteEntry]
     winning_weight: constr(regex=r"(low|high)")

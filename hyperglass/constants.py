@@ -27,6 +27,7 @@ DNS_OVER_HTTPS = {
 }
 
 PARSED_RESPONSE_FIELDS = (
+    ("Prefix", "prefix", "left"),
     ("Active", "active", None),
     ("RPKI State", "rpki_state", "center"),
     ("AS Path", "as_path", "left"),

@@ -75,7 +75,7 @@ class Messages(HyperglassModel):
         description="Displayed when a query VRF is not configured on any devices. The hyperglass UI only shows configured VRFs, so this error is most likely to appear when using the hyperglass API. `{vrf_name}` may be used to display the VRF in question.",
     )
     no_output: StrictStr = Field(
-        "No output.",
+        "The query completed, but no matching results were found.",
         title="No Output",
         description="Displayed when hyperglass can connect to a device and execute a query, but the response is empty.",
     )

@@ -1,4 +1,5 @@
-import * as React from "react";
+/** @jsx jsx */
+import { jsx } from "@emotion/core";
 import { useEffect, useState } from "react";
 import {
   AccordionItem,
@@ -11,7 +12,8 @@ import {
   Flex,
   Tooltip,
   Text,
-  useColorMode
+  useColorMode,
+  useTheme
 } from "@chakra-ui/core";
 import styled from "@emotion/styled";
 import LightningBolt from "~/components/icons/LightningBolt";
@@ -25,6 +27,8 @@ import CopyButton from "~/components/CopyButton";
 import RequeryButton from "~/components/RequeryButton";
 import ResultHeader from "~/components/ResultHeader";
 import CacheTimeout from "~/components/CacheTimeout";
+import BGPTable from "~/components/BGPTable";
+import TextOutput from "~/components/TextOutput";
 
 format.extend(String.prototype, {});
 
@@ -54,16 +58,25 @@ const AccordionHeaderWrapper = styled(Flex)`
   }
 `;
 
+const structuredDataComponent = {
+  bgp_route: BGPTable,
+  bgp_aspath: BGPTable,
+  bgp_community: BGPTable,
+  ping: TextOutput,
+  traceroute: TextOutput
+};
+
 const statusMap = {
   success: "success",
   warning: "warning",
   error: "warning",
   danger: "error"
 };
-const bg = { dark: "gray.800", light: "blackAlpha.100" };
+
 const color = { dark: "white", light: "black" };
-const selectionBg = { dark: "white", light: "black" };
-const selectionColor = { dark: "black", light: "white" };
+const scrollbar = { dark: "whiteAlpha.300", light: "blackAlpha.300" };
+const scrollbarHover = { dark: "whiteAlpha.400", light: "blackAlpha.400" };
+const scrollbarBg = { dark: "whiteAlpha.50", light: "blackAlpha.50" };
 
 const Result = React.forwardRef(
   (
@@ -81,6 +94,7 @@ const Result = React.forwardRef(
     ref
   ) => {
     const config = useConfig();
+    const theme = useTheme();
     const { isSm } = useMedia();
     const { colorMode } = useColorMode();
     let [{ data, loading, error }, refetch] = useAxios({
@@ -103,12 +117,6 @@ const Result = React.forwardRef(
       setOpen(!isOpen);
       setOverride(true);
     };
-    let cleanOutput =
-      data &&
-      data.output
-        .split("\\n")
-        .join("\n")
-        .replace(/\n\n/g, "\n");
 
     const errorKw = (error && error.response?.data?.keywords) || [];
 
@@ -132,6 +140,11 @@ const Result = React.forwardRef(
         statusMap[error.response?.data?.level]) ??
       "error";
 
+    let Output = TextOutput;
+    if (data?.format === "application/json") {
+      Output = structuredDataComponent[queryType];
+    }
+
     useEffect(() => {
       !loading && resultsComplete === null && setComplete(index);
     }, [loading, resultsComplete]);
@@ -148,7 +161,7 @@ const Result = React.forwardRef(
         css={css({
           "&:last-of-type": { borderBottom: "none" },
           "&:first-of-type": { borderTop: "none" }
-        })}
+        })(theme)}
       >
         <AccordionHeaderWrapper hoverBg="blackAlpha.50">
           <AccordionHeader
@@ -168,9 +181,9 @@ const Result = React.forwardRef(
               runtime={data?.runtime}
             />
           </AccordionHeader>
-          <ButtonGroup px={3} py={2}>
+          <ButtonGroup px={[1, 1, 3, 3]} py={2}>
             <CopyButton
-              copyValue={cleanOutput}
+              copyValue={data?.output}
               variant="ghost"
               isDisabled={loading}
             />
@@ -184,7 +197,21 @@ const Result = React.forwardRef(
         <AccordionPanel
           pb={4}
           overflowX="auto"
-          css={css({ WebkitOverflowScrolling: "touch" })}
+          css={css({
+            WebkitOverflowScrolling: "touch",
+            "&::-webkit-scrollbar": { height: "5px" },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: scrollbarBg[colorMode]
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: scrollbar[colorMode]
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: scrollbarHover[colorMode]
+            },
+
+            "-ms-overflow-style": { display: "none" }
+          })(theme)}
         >
           <Flex direction="row" flexWrap="wrap">
             <Flex
@@ -192,30 +219,7 @@ const Result = React.forwardRef(
               flex="1 0 auto"
               maxW={error ? "100%" : null}
             >
-              {data && !error && (
-                <Box
-                  fontFamily="mono"
-                  mt={5}
-                  mx={2}
-                  p={3}
-                  border="1px"
-                  borderColor="inherit"
-                  rounded="md"
-                  bg={bg[colorMode]}
-                  color={color[colorMode]}
-                  fontSize="sm"
-                  whiteSpace="pre-wrap"
-                  as="pre"
-                  css={css({
-                    "&::selection": {
-                      backgroundColor: selectionBg[colorMode],
-                      color: selectionColor[colorMode]
-                    }
-                  })}
-                >
-                  {cleanOutput}
-                </Box>
-              )}
+              {!error && data && <Output>{data?.output}</Output>}
               {error && (
                 <Alert rounded="lg" my={2} py={4} status={errorLevel}>
                   <FormattedError keywords={errorKw} message={errorMsg} />
@@ -264,45 +268,6 @@ const Result = React.forwardRef(
                   )}
                 </>
               )}
-              {/* {config.cache.show_text && data && !error && isSm ? (
-                <>
-                  <Tooltip
-                    display={data?.cached ? null : "none"}
-                    hasArrow
-                    label={config.web.text.cache_icon.format({
-                      time: data?.timestamp
-                    })}
-                    placement="top"
-                  >
-                    <Box mr={1} display={data?.cached ? "block" : "none"}>
-                      <LightningBolt color={color[colorMode]} />
-                    </Box>
-                  </Tooltip>
-                  <CacheTimeout
-                    timeout={config.cache.timeout}
-                    text={config.web.text.cache_prefix}
-                  />
-                </>
-              ) : config.cache.show_text && data && !error ? (
-                <>
-                  <CacheTimeout
-                    timeout={config.cache.timeout}
-                    text={config.web.text.cache_prefix}
-                  />
-                  <Tooltip
-                    display={data?.cached ? null : "none"}
-                    hasArrow
-                    label={config.web.text.cache_icon.format({
-                      time: data?.timestamp
-                    })}
-                    placement="top"
-                  >
-                    <Box ml={1} display={data?.cached ? "block" : "none"}>
-                      <LightningBolt color={color[colorMode]} />
-                    </Box>
-                  </Tooltip>
-                </>
-              ) : null} */}
             </Flex>
           </Flex>
         </AccordionPanel>

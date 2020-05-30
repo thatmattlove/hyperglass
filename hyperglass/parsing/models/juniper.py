@@ -121,7 +121,7 @@ class JuniperRoute(_JuniperBase):
     total_route_count: int
     active_route_count: int
     hidden_route_count: int
-    rt: JuniperRouteTable
+    rt: List[JuniperRouteTable]
 
     def serialize(self):
         """Convert the Juniper-specific fields to standard parsed data model."""
@@ -131,37 +131,35 @@ class JuniperRoute(_JuniperBase):
         else:
             vrf = vrf_parts[0]
 
-        prefix = "/".join(
-            str(i) for i in (self.rt.rt_destination, self.rt.rt_prefix_length)
-        )
-
-        structure = {
-            "vrf": vrf,
-            "prefix": prefix,
-            "count": self.rt.rt_entry_count,
-            "winning_weight": "low",
-        }
-
         routes = []
-        for route in self.rt.rt_entry:
-            routes.append(
-                {
-                    "active": route.active_tag,
-                    "age": route.age,
-                    "weight": route.preference,
-                    "med": route.metric,
-                    "local_preference": route.local_preference,
-                    "as_path": route.as_path,
-                    "communities": route.communities,
-                    "next_hop": route.next_hop,
-                    "source_as": route.source_as,
-                    "source_rid": route.source_rid,
-                    "peer_rid": route.peer_rid,
-                    "rpki_state": route.validation_state,
-                }
+        count = 0
+        for table in self.rt:
+            count += table.rt_entry_count
+            prefix = "/".join(
+                str(i) for i in (table.rt_destination, table.rt_prefix_length)
             )
+            for route in table.rt_entry:
+                routes.append(
+                    {
+                        "prefix": prefix,
+                        "active": route.active_tag,
+                        "age": route.age,
+                        "weight": route.preference,
+                        "med": route.metric,
+                        "local_preference": route.local_preference,
+                        "as_path": route.as_path,
+                        "communities": route.communities,
+                        "next_hop": route.next_hop,
+                        "source_as": route.source_as,
+                        "source_rid": route.source_rid,
+                        "peer_rid": route.peer_rid,
+                        "rpki_state": route.validation_state,
+                    }
+                )
 
-        serialized = ParsedRoutes(routes=routes, **structure)
+        serialized = ParsedRoutes(
+            vrf=vrf, count=count, routes=routes, winning_weight="low",
+        )
 
         log.info("Serialized Juniper response: {}", serialized)
         return serialized

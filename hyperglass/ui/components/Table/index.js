@@ -60,7 +60,6 @@ const Table = ({
     nextPage,
     previousPage,
     setPageSize,
-    setHiddenColumns,
     state: { pageIndex, pageSize }
   } = useTable(
     {

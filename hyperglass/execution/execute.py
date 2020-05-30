@@ -34,6 +34,7 @@ from hyperglass.exceptions import (
     DeviceTimeout,
     ResponseEmpty,
 )
+from hyperglass.parsing.nos import nos_parsers
 from hyperglass.configuration import params, devices
 from hyperglass.parsing.common import parsers
 from hyperglass.execution.construct import Construct
@@ -79,9 +80,23 @@ class Connect:
         Returns:
             {str} -- Parsed output
         """
-        for coro in parsers:
-            output = await coro(commands=self.query, output=output)
-        return output
+        log.debug(f"Pre-parsed responses:\n{output}")
+        parsed = ()
+        if not self.device.structured_output:
+            for coro in parsers:
+                for response in output:
+                    _output = await coro(commands=self.query, output=response)
+                    parsed += (_output,)
+            response = "\n\n".join(parsed)
+        elif (
+            self.device.structured_output
+            and self.device.nos in nos_parsers.keys()
+            and self.query_type in nos_parsers[self.device.nos].keys()
+        ):
+            func = nos_parsers[self.device.nos][self.query_type]
+            response = func(output)
+        log.debug(f"Post-parsed responses:\n{response}")
+        return response
 
     async def scrape_proxied(self):
         """Connect to a device via an SSH proxy.
@@ -150,11 +165,8 @@ class Connect:
                     raw = nm_connect_direct.send_command(query)
                     responses += (raw,)
                     log.debug(f'Raw response for command "{query}":\n{raw}')
-                response = "\n\n".join(responses)
 
                 nm_connect_direct.disconnect()
-
-                log.debug(f"Response type:\n{type(response)}")
 
             except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
                 log.error(
@@ -187,7 +199,7 @@ class Connect:
                     proxy=self.device.proxy.name,
                     error=params.messages.general,
                 )
-        if response is None:
+        if not responses:
             raise ScrapeError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,
@@ -195,7 +207,7 @@ class Connect:
                 error=params.messages.no_response,
             )
         signal.alarm(0)
-        return await self.parsed_response(response)
+        return await self.parsed_response(responses)
 
     async def scrape_direct(self):
         """Connect directly to a device.
@@ -235,8 +247,6 @@ class Connect:
                 responses += (raw,)
                 log.debug(f'Raw response for command "{query}":\n{raw}')
 
-            response = "\n\n".join(responses)
-
             nm_connect_direct.disconnect()
 
         except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
@@ -260,7 +270,7 @@ class Connect:
                 proxy=None,
                 error=params.messages.authentication_error,
             )
-        if response is None:
+        if not responses:
             raise ScrapeError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,
@@ -268,7 +278,7 @@ class Connect:
                 error=params.messages.no_response,
             )
         signal.alarm(0)
-        return await self.parsed_response(response)
+        return await self.parsed_response(responses)
 
     async def rest(self):  # noqa: C901
         """Connect to a device running hyperglass-agent via HTTP."""
@@ -305,7 +315,7 @@ class Connect:
 
         try:
             async with httpx.AsyncClient(**client_params) as http_client:
-                responses = []
+                responses = ()
 
                 for query in self.query:
                     encoded_query = await jwt_encode(
@@ -329,13 +339,11 @@ class Connect:
                             secret=self.device.credential.password.get_secret_value(),
                         )
                         log.debug(f"Decoded Response: {decoded}")
+                        responses += (decoded,)
 
-                        responses.append(decoded)
                     else:
                         log.error(raw_response.text)
 
-            response = "\n\n".join(responses)
-            log.debug(f"Output for query {self.query}:\n{response}")
         except httpx.exceptions.HTTPError as rest_error:
             msg = parse_exception(rest_error)
             log.error(f"Error connecting to device {self.device.name}: {msg}")
@@ -368,7 +376,7 @@ class Connect:
                 error=params.messages.general,
             )
 
-        if not response:
+        if not responses:
             log.error(f"No response from device {self.device.name}")
             raise RestError(
                 params.messages.connection_error,
@@ -376,7 +384,7 @@ class Connect:
                 error=params.messages.no_response,
             )
 
-        return await self.parsed_response(response)
+        return await self.parsed_response(responses)
 
 
 class Execute:

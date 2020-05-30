@@ -2,6 +2,7 @@
 
 # Standard Library
 import os
+import json
 import time
 
 # Third Party
@@ -53,8 +54,8 @@ async def query(query_data: Query, request: Request):
 
     # Define cache entry expiry time
     cache_timeout = params.cache.timeout
-    log.debug(f"Cache Timeout: {cache_timeout}")
 
+    log.debug(f"Cache Timeout: {cache_timeout}")
     log.info(f"Starting query execution for query {query_data.summary}")
 
     cache_response = await cache.get_dict(cache_key, "output")
@@ -88,7 +89,11 @@ async def query(query_data: Query, request: Request):
             raise HyperglassError(message=params.messages.general, alert="danger")
 
         # Create a cache entry
-        await cache.set_dict(cache_key, "output", str(cache_output))
+        if query_data.device.structured_output:
+            raw_output = json.dumps(cache_output)
+        else:
+            raw_output = str(cache_output)
+        await cache.set_dict(cache_key, "output", raw_output)
         await cache.set_dict(cache_key, "timestamp", timestamp)
         await cache.expire(cache_key, seconds=cache_timeout)
 
@@ -99,6 +104,12 @@ async def query(query_data: Query, request: Request):
     # If it does, return the cached entry
     cache_response = await cache.get_dict(cache_key, "output")
 
+    if query_data.device.structured_output:
+        response_format = "application/json"
+        cache_response = json.loads(cache_response)
+    else:
+        response_format = "text/plain"
+
     log.debug(f"Cache match for {cache_key}:\n {cache_response}")
     log.success(f"Completed query execution for {query_data.summary}")
 
@@ -108,6 +119,7 @@ async def query(query_data: Query, request: Request):
         "cached": cached,
         "runtime": runtime,
         "timestamp": timestamp,
+        "format": response_format,
         "random": query_data.random(),
         "level": "success",
         "keywords": [],

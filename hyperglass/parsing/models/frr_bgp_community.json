@@ -1,0 +1,84 @@
+{
+  "vrfId": 0,
+  "vrfName": "default",
+  "tableVersion": 32856694,
+  "routerId": "199.34.92.3",
+  "defaultLocPrf": 100,
+  "localAS": 14525,
+  "routes": {
+    "38.29.214.0/24": [
+      {
+        "valid": true,
+        "bestpath": true,
+        "pathFrom": "internal",
+        "prefix": "38.29.214.0",
+        "prefixLen": 24,
+        "network": "38.29.214.0/24",
+        "med": 0,
+        "metric": 0,
+        "localpref": 450,
+        "locPrf": 450,
+        "weight": 200,
+        "peerId": "199.34.92.1",
+        "aspath": "",
+        "path": "",
+        "origin": "IGP",
+        "nexthops": [{ "ip": "199.34.92.1", "afi": "ipv4", "used": true }]
+      }
+    ],
+    "199.34.92.0/23": [
+      {
+        "valid": true,
+        "pathFrom": "internal",
+        "prefix": "199.34.92.0",
+        "prefixLen": 23,
+        "network": "199.34.92.0/23",
+        "med": 0,
+        "metric": 0,
+        "localpref": 450,
+        "locPrf": 450,
+        "weight": 200,
+        "peerId": "199.34.92.10",
+        "aspath": "",
+        "path": "",
+        "origin": "IGP",
+        "nexthops": [{ "ip": "199.34.92.10", "afi": "ipv4", "used": true }]
+      },
+      {
+        "valid": true,
+        "pathFrom": "internal",
+        "prefix": "199.34.92.0",
+        "prefixLen": 23,
+        "network": "199.34.92.0/23",
+        "med": 0,
+        "metric": 0,
+        "localpref": 450,
+        "locPrf": 450,
+        "weight": 200,
+        "peerId": "199.34.92.9",
+        "aspath": "",
+        "path": "",
+        "origin": "IGP",
+        "nexthops": [{ "ip": "199.34.92.9", "afi": "ipv4", "used": true }]
+      },
+      {
+        "valid": true,
+        "bestpath": true,
+        "pathFrom": "internal",
+        "prefix": "199.34.92.0",
+        "prefixLen": 23,
+        "network": "199.34.92.0/23",
+        "med": 0,
+        "metric": 0,
+        "localpref": 450,
+        "locPrf": 450,
+        "weight": 200,
+        "peerId": "199.34.92.1",
+        "aspath": "",
+        "path": "",
+        "origin": "IGP",
+        "nexthops": [{ "ip": "199.34.92.1", "afi": "ipv4", "used": true }]
+      }
+    ]
+  }
+}

@@ -1,12 +1,10 @@
 """Models common to entire commands module."""
 
-from typing import Optional
-
 # Third Party
 from pydantic import StrictStr
 
 # Project
-from hyperglass.models import HyperglassModel
+from hyperglass.models import HyperglassModel, HyperglassModelExtra
 
 
 class CommandSet(HyperglassModel):
@@ -19,14 +17,10 @@ class CommandSet(HyperglassModel):
     traceroute: StrictStr
 
 
-class CommandGroup(HyperglassModel):
+class CommandGroup(HyperglassModelExtra):
     """Validation model for all commands."""
 
     ipv4_default: CommandSet
     ipv6_default: CommandSet
     ipv4_vpn: CommandSet
     ipv6_vpn: CommandSet
-    structured: Optional["CommandGroup"]
-
-
-CommandGroup.update_forward_refs()

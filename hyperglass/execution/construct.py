@@ -8,7 +8,7 @@ hyperglass API modules.
 # Standard Library
 import re
 import json as _json
-import operator
+from operator import attrgetter
 
 # Project
 from hyperglass.log import log
@@ -120,9 +120,17 @@ class Construct:
         Returns:
             {str} -- Command string
         """
-        command = operator.attrgetter(
-            f"{self.device.nos}.{afi.protocol}.{self.query_data.query_type}"
-        )(commands)
+        if self.device.structured_output:
+            cmd_paths = (
+                self.device.nos,
+                "structured",
+                afi.protocol,
+                self.query_data.query_type,
+            )
+        else:
+            cmd_paths = (self.device.nos, afi.protocol, self.query_data.query_type)
+
+        command = attrgetter(".".join(cmd_paths))(commands)
         return command.format(
             target=self.target,
             source=str(afi.source_address),

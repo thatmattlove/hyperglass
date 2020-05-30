@@ -1,12 +1,14 @@
 """Response model."""
+
 # Standard Library
-from typing import List, Optional
+from typing import List, Union, Optional
 
 # Third Party
 from pydantic import BaseModel, StrictInt, StrictStr, StrictBool, constr
 
 # Project
 from hyperglass.configuration import params
+from hyperglass.parsing.models.serialized import ParsedRoutes
 
 
 class QueryError(BaseModel):
@@ -55,14 +57,14 @@ class QueryError(BaseModel):
 class QueryResponse(BaseModel):
     """Query response model."""
 
-    output: StrictStr
+    output: Union[ParsedRoutes, StrictStr]
     level: constr(regex=r"success") = "success"
     random: StrictStr
     cached: StrictBool
     runtime: StrictInt
     keywords: List[StrictStr] = []
     timestamp: StrictStr
-    _format: constr(regex=r"(application\/json|text\/plain)") = "text/plain"
+    format: constr(regex=r"(application\/json|text\/plain)") = "text/plain"
 
     class Config:
         """Pydantic model configuration."""
@@ -91,7 +93,7 @@ class QueryResponse(BaseModel):
                 "example": "2020-04-18 14:45:37",
             },
             "format": {
-                "alias": "format",
+                # "alias": "format",
                 "title": "Format",
                 "description": "Response [MIME Type](http://www.iana.org/assignments/media-types/media-types.xhtml). Supported values: `text/plain` and `application/json`.",
                 "example": "text/plain",

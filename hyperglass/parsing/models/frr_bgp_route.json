@@ -1,0 +1,224 @@
+{
+  "prefix": "1.1.1.0/24",
+  "paths": [
+    {
+      "aspath": {
+        "string": "174 13335",
+        "segments": [
+          {
+            "type": "as-sequence",
+            "list": [174, 13335]
+          }
+        ],
+        "length": 2
+      },
+      "aggregatorAs": 13335,
+      "aggregatorId": "108.162.239.1",
+      "origin": "IGP",
+      "med": 25090,
+      "metric": 25090,
+      "localpref": 100,
+      "weight": 100,
+      "valid": true,
+      "community": {
+        "string": "174:21001 174:22003 14525:0 14525:40 14525:1021 14525:2840 14525:3003 14525:4004 14525:9001",
+        "list": [
+          "174:21001",
+          "174:22003",
+          "14525:0",
+          "14525:40",
+          "14525:1021",
+          "14525:2840",
+          "14525:3003",
+          "14525:4004",
+          "14525:9001"
+        ]
+      },
+      "lastUpdate": {
+        "epoch": 1588417118,
+        "string": "Sat May  2 10:58:38 2020\n"
+      },
+      "nexthops": [
+        {
+          "ip": "199.34.92.7",
+          "afi": "ipv4",
+          "metric": 1100,
+          "accessible": true,
+          "used": true
+        }
+      ],
+      "peer": {
+        "peerId": "199.34.92.7",
+        "routerId": "199.34.92.7",
+        "hostname": "er01.dtn01",
+        "type": "internal"
+      }
+    },
+    {
+      "aspath": {
+        "string": "1299 13335",
+        "segments": [
+          {
+            "type": "as-sequence",
+            "list": [1299, 13335]
+          }
+        ],
+        "length": 2
+      },
+      "aggregatorAs": 13335,
+      "aggregatorId": "162.158.140.1",
+      "origin": "IGP",
+      "med": 0,
+      "metric": 0,
+      "localpref": 150,
+      "weight": 200,
+      "valid": true,
+      "bestpath": {
+        "bestpathFromAs": 1299
+      },
+      "community": {
+        "string": "1299:35000 14525:0 14525:40 14525:1021 14525:2840 14525:3001 14525:4001 14525:9003",
+        "list": [
+          "1299:35000",
+          "14525:0",
+          "14525:40",
+          "14525:1021",
+          "14525:2840",
+          "14525:3001",
+          "14525:4001",
+          "14525:9003"
+        ]
+      },
+      "lastUpdate": {
+        "epoch": 1588584980,
+        "string": "Mon May  4 09:36:20 2020\n"
+      },
+      "nexthops": [
+        {
+          "ip": "199.34.92.9",
+          "afi": "ipv4",
+          "metric": 200,
+          "accessible": true,
+          "used": true
+        }
+      ],
+      "peer": {
+        "peerId": "199.34.92.9",
+        "routerId": "199.34.92.9",
+        "type": "internal"
+      }
+    },
+    {
+      "aspath": {
+        "string": "6939 13335",
+        "segments": [
+          {
+            "type": "as-sequence",
+            "list": [6939, 13335]
+          }
+        ],
+        "length": 2
+      },
+      "aggregatorAs": 13335,
+      "aggregatorId": "172.68.129.1",
+      "origin": "IGP",
+      "med": 0,
+      "metric": 0,
+      "localpref": 100,
+      "weight": 100,
+      "valid": true,
+      "bestpath": {
+        "bestpathFromAs": 6939
+      },
+      "community": {
+        "string": "6939:7107 6939:8840 6939:9001 14525:0 14525:40 14525:1021 14525:2840 14525:3002 14525:4003 14525:9002",
+        "list": [
+          "6939:7107",
+          "6939:8840",
+          "6939:9001",
+          "14525:0",
+          "14525:40",
+          "14525:1021",
+          "14525:2840",
+          "14525:3002",
+          "14525:4003",
+          "14525:9002"
+        ]
+      },
+      "lastUpdate": {
+        "epoch": 1586990260,
+        "string": "Wed Apr 15 22:37:40 2020\n"
+      },
+      "nexthops": [
+        {
+          "ip": "199.34.92.6",
+          "afi": "ipv4",
+          "metric": 151,
+          "accessible": true,
+          "used": true
+        }
+      ],
+      "peer": {
+        "peerId": "199.34.92.6",
+        "routerId": "199.34.92.6",
+        "type": "internal"
+      }
+    },
+    {
+      "aspath": {
+        "string": "174 13335",
+        "segments": [
+          {
+            "type": "as-sequence",
+            "list": [174, 13335]
+          }
+        ],
+        "length": 2
+      },
+      "aggregatorAs": 13335,
+      "aggregatorId": "162.158.140.1",
+      "origin": "IGP",
+      "med": 2020,
+      "metric": 2020,
+      "localpref": 150,
+      "weight": 200,
+      "valid": true,
+      "bestpath": {
+        "bestpathFromAs": 174,
+        "overall": true
+      },
+      "community": {
+        "string": "174:21001 174:22013 14525:0 14525:20 14525:1021 14525:2840 14525:3001 14525:4001 14525:9001",
+        "list": [
+          "174:21001",
+          "174:22013",
+          "14525:0",
+          "14525:20",
+          "14525:1021",
+          "14525:2840",
+          "14525:3001",
+          "14525:4001",
+          "14525:9001"
+        ]
+      },
+      "lastUpdate": {
+        "epoch": 1588584997,
+        "string": "Mon May  4 09:36:37 2020\n"
+      },
+      "nexthops": [
+        {
+          "ip": "199.34.92.1",
+          "afi": "ipv4",
+          "metric": 101,
+          "accessible": true,
+          "used": true
+        }
+      ],
+      "peer": {
+        "peerId": "199.34.92.1",
+        "routerId": "199.34.92.1",
+        "type": "internal"
+      }
+    }
+  ]
+}

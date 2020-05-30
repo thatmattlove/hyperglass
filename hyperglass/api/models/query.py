@@ -121,6 +121,10 @@ class Query(BaseModel):
         )
         return f'Query({", ".join(items)})'
 
+    @property
+    def device(self):
+        return getattr(devices, self.query_location)
+
     def export_dict(self):
         """Create dictionary representation of instance."""
         return {
