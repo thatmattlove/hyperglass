@@ -1,45 +1,27 @@
-import React from "react";
+import * as React from "react";
 import classnames from "classnames";
 import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
 
-function Home() {
+function Demo() {
   return (
-    <Layout
-      description="hyperglass is the network looking glass that tries to make the internet better."
-      keywords={[
-        "hyperglass",
-        "documentation",
-        "docs",
-        "bgp",
-        "lg",
-        "looking",
-        "glass",
-        "looking glass",
-        "ping",
-        "traceroute",
-        "matt love",
-        "python",
-        "python3",
-        "react",
-        "reactjs",
-      ]}
-    >
+    <Layout description="hyperglass demo" keywords={["hyperglass", "demo"]}>
       <header className={classnames("hero", styles.heroBanner)}>
-        <div className="container">
+        <div className={classnames("container", styles.smallerTitleContainer)}>
           <h1 className={classnames("hero__title", styles.title)}>
-            hyperglass
+            Coming Soon!
           </h1>
-          <h2 className={classnames("hero__subtitle", styles.subTitle)}>
-            the <span className={styles.tagPrimary}>network looking glass</span>{" "}
-            that tries to
-            <span className={styles.tagSecondary}>
-              {" "}
-              make the internet better
-            </span>
-            .
+          <h2
+            className={classnames(
+              "hero__subtitle",
+              styles.subTitle,
+              styles.smallerTitle
+            )}
+          >
+            <span className={styles.tagPrimary}>hyperglass 1.0</span> is still
+            in progress, but the demo will be made available soon.
           </h2>
           <div className={styles.buttons}>
             <Link
@@ -50,17 +32,7 @@ function Home() {
               )}
               to={useBaseUrl("docs/getting-started")}
             >
-              Get your looking glass
-            </Link>
-            <Link
-              className={classnames(
-                "button button--outline button--primary button--lg",
-                styles.homeBtn,
-                styles.btnPrimary
-              )}
-              to={useBaseUrl("docs/introduction")}
-            >
-              Why hyperglass?
+              Back to the Docs
             </Link>
           </div>
         </div>
@@ -87,4 +59,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Demo;

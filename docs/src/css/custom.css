@@ -10,13 +10,6 @@
 
 :root {
   --ifm-font-size-sm: 12px;
-  /* --ifm-color-secondary: #314cb6;
-    --ifm-color-secondary-dark: #2c44a4;
-    --ifm-color-secondary-darker: #2a419b;
-    --ifm-color-secondary-darkest: #22357f;
-    --ifm-color-secondary-light: #3654c8;
-    --ifm-color-secondary-lighter: #3e5bcb;
-    --ifm-color-secondary-lightest: #5a72d3; */
   --ifm-color-secondary: #69a2b0;
   --ifm-color-secondary-dark: #5796a6;
   --ifm-color-secondary-darker: #528e9c;
@@ -123,6 +116,31 @@ h4 code,
 h5 code,
 h6 code {
   color: var(--ifm-color-primary);
+}
+
+a {
+  color: var(--ifm-color-secondary);
+}
+.contents a.contents__link--active[class] {
+  color: var(--ifm-color-secondary);
+  font-weight: bold;
+}
+
+a:hover {
+  color: var(--ifm-color-secondary-darker);
+}
+
+html[data-theme="dark"] a {
+  color: var(--ifm-color-primary);
+}
+
+html[data-theme="dark"] .contents a.contents__link--active[class] {
+  color: var(--ifm-color-primary);
+  font-weight: bold;
+}
+
+html[data-theme="dark"] a:hover {
+  color: var(--ifm-color-primary-light);
 }
 
 @media screen and (max-width: 997px) {

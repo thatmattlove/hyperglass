@@ -1,0 +1,40 @@
+.colorModeToggle {
+  color: var(--ifm-color-black);
+  box-sizing: border-box;
+  background-color: transparent;
+  border-radius: var(--ifm-button-border-radius);
+  border: 1px solid transparent;
+  transition: color var(--ifm-button-transition-duration)
+      cubic-bezier(0.08, 0.52, 0.52, 1),
+    background var(--ifm-button-transition-duration)
+      cubic-bezier(0.08, 0.52, 0.52, 1),
+    border-color var(--ifm-button-transition-duration)
+      cubic-bezier(0.08, 0.52, 0.52, 1);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: calc(0.875rem * var(--ifm-button-size-multiplier));
+  line-height: 1.5;
+  outline: 0;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+  padding: 6px 12px;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.colorModeToggle:hover {
+  border: 1px solid var(--ifm-color-black);
+  color: var(--ifm-color-gray-700);
+}
+
+html[data-theme="dark"] .colorModeToggle {
+  color: var(--ifm-color-white);
+}
+
+html[data-theme="dark"] .colorModeToggle:hover {
+  border: 1px solid var(--ifm-color-gray-500);
+  color: var(--ifm-color-gray-500);
+}
