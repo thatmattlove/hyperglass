@@ -5,6 +5,32 @@ sidebar_label: Production
 description: Running hyperglass in production
 ---
 
+## System Requirements
+
+### CPU
+
+In order to function properly in a production environment, hyperglass leverages [Gunicorn](https://gunicorn.org/) as an application-layer HTTP server. You don't really need to know anything about Gunicorn to use hyperglass, but there is one important factor: each Gunicorn "worker" (a process, or thread, in essence) directly maps to the number of CPU cores on your hyperglass system. Per the [Gunicorn docs](https://docs.gunicorn.org/en/latest/settings.html#workers), hyperglass uses the conservative value of 2x workers per CPU core.
+
+To determine the number of CPU cores on the system, Python's [multiprocessing](https://docs.python.org/3/library/multiprocessing.html) library, and the number of cores returned _does_ factor in hyperthreading. For example, if your system has 4 cores provisioned, and the processors support hyperthreading, hyperglass will see this as 8 cores, and will provision 2 workers per core, for a final result of 16 workers.
+
+#### Why does this matter?
+
+While hyperglass is, to the extent possible, fully [asynchronous](https://docs.python.org/3/library/asyncio.html) (which means tasks may be run while waiting on other tasks to complete), this asynchronism is currently only applicable to **each request**. This means that with a single worker process, while one request is being processed, a second request must wait until the first request completes. If the first request is long-running for whatever reason, the second request may time out (this also applies to running multiple queries at the same time, in the same session).
+
+To combat this, hyperglass uses the above worker strategy. **Ultimately, it's important to provision the appropriate number of CPU cores, corresponding to the number of concurrent sessions you might expect to have in your environment**.
+
+:::note
+When [debug](configuration.mdx#global-settings) is set to `true`, the number of workers is set to 1.
+:::
+
+### Memory
+
+Testing shows that hyperglass is extremely memory efficient at runtime. For example, running 4 simulations BGP Route queries, with two devices utilizing [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent), and two devices utilizing SSH, the server increased RAM utilization by about 20MB during execution, and went back down afterwards. It should be more than safe to stick with the minimum system requirements for your Linux distribution.
+
+### Storage
+
+At **build**, hyperglass consumes approximately **196 MB** of storage. 194 MB of this is front-end dependencies, which are downloaded and installed when running a UI build. The other 2 MB is the hyperglass code itself. Once again, the minimum system requirements for most Linux distributions should be sufficient.
+
 ## Reverse Proxy
 
 You'll want to run hyperglass behind a reverse proxy in production to serve the static files more efficiently and offload SSL. Any reverse proxy should work, but hyperglass has been specifically tested with [Caddy](https://caddyserver.com/) and [NGINX](https://www.nginx.com/). Sample configs for both can be found below.
