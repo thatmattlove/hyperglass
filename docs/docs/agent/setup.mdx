@@ -1,0 +1,42 @@
+---
+id: setup
+title: Linux Agent Setup
+sidebar_label: Setup
+keywords: [configuration, linux, frr, frrouting, bird, agent]
+description: Configure hyperglass-agent
+---
+
+:::caution Time & NTP
+Before you get to far, check to make sure your hyperglass server and hyperglass-agent system are both properly synchronized with an NTP server. During the setup process and on every interaction, hyperglass and hyperglass agent exchange [JWT](https://jwt.io/) tokens with a relatively short window (60 seconds, by default) in which to validate the payload. If the system clock on either system is askew by too much, this exchange can fail.
+:::
+
+## Setup
+
+Just like with hyperglass, the hyperglass agent is easy to set up. To automatically create an application directory, generate SSL certificates, generate and symlink a systemd file, and generate a random secret, run:
+
+```shell-session
+$ hyperglass setup
+```
+
+:::note
+You can also run the setup wizard with certain options disabled, if needed:
+
+```shell-session
+$ hyperglass-agent setup --help
+Usage: hyperglass-agent setup [OPTIONS]
+
+  Run the setup wizard
+
+Options:
+  --config / --no-config    Don't regenerate config file
+  --certs / --no-certs      Don't regenerate certificates
+  --systemd / --no-systemd  Don't generate a systemd file
+  --force                   Force regeneration of config file
+  -h, --help                Show this message and exit.
+```
+
+:::
+
+:::important More coming soon
+Documentation for [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent) is in progress!
+:::
