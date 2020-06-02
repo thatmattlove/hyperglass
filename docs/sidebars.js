@@ -20,7 +20,11 @@ module.exports = {
         "messages",
       ],
     },
-    { type: "category", label: "Linux Agent", items: ["agent/installation"] },
+    {
+      type: "category",
+      label: "Linux Agent",
+      items: ["agent/installation", "agent/setup"],
+    },
     { type: "doc", id: "production" },
     { type: "doc", id: "upgrading" },
     { type: "doc", id: "platforms" },

@@ -3,7 +3,7 @@ id: installation
 title: Linux Agent Installation
 sidebar_label: Installation
 keywords: [configuration, linux, frr, frrouting, bird, agent]
-description: hyperglass agent configuration
+description: Install hyperglass-agent on your system
 ---
 
 import Tabs from "@theme/Tabs";
@@ -58,33 +58,6 @@ Now that Python 3.6+ is installed, you can install the hyperglass agent:
 ```shell-session
 $ pip3 install --user hyperglass-agent
 ```
-
-## Setup
-
-Just like with hyperglass, the hyperglass agent is easy to set up. To automatically create an application directory, generate SSL certificates, generate and symlink a systemd file, and generate a random secret, run:
-
-```shell-session
-$ hyperglass setup
-```
-
-:::note
-You can also run the setup wizard with certain options disabled, if needed:
-
-```shell-session
-$ hyperglass-agent setup --help
-Usage: hyperglass-agent setup [OPTIONS]
-
-  Run the setup wizard
-
-Options:
-  --config / --no-config    Don't regenerate config file
-  --certs / --no-certs      Don't regenerate certificates
-  --systemd / --no-systemd  Don't generate a systemd file
-  --force                   Force regeneration of config file
-  -h, --help                Show this message and exit.
-```
-
-:::
 
 :::important More coming soon
 Documentation for [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent) is in progress!
