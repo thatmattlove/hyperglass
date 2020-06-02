@@ -103,9 +103,9 @@ def on_starting(server: Arbiter):
     async def runner():
         from asyncio import gather
 
-        await gather(check_redis_instance(), build_ui(), cache_config())
-        # await log.complete()
+        await gather(build_ui(), cache_config())
 
+    aiorun(check_redis_instance())
     aiorun(runner())
 
     log.success(
@@ -124,7 +124,6 @@ def on_exit(server: Arbiter):
 
     async def runner():
         await clear_cache()
-        # await log.complete()
 
     aiorun(runner())
 

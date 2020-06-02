@@ -520,7 +520,7 @@ async def build_frontend(  # noqa: C901
         migrate_static_assets(app_path)
 
     except Exception as e:
-        raise RuntimeError(str(e))
+        raise RuntimeError(str(e)) from None
 
     return True
 

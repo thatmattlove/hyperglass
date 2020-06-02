@@ -69,7 +69,7 @@ def build_frontend():
     return build_ui()
 
 
-@hg.command(
+@hg.command(  # noqa: C901
     "start",
     help=cmd_help(E.ROCKET, "Start web server", supports_color),
     cls=HelpColorsCommand,
@@ -103,18 +103,23 @@ def start(build, direct, workers):
     if workers != 0:
         kwargs["workers"] = workers
 
-    if build:
-        build_complete = build_ui()
+    try:
 
-        if build_complete and not direct:
+        if build:
+            build_complete = build_ui()
+
+            if build_complete and not direct:
+                start(**kwargs)
+            elif build_complete and direct:
+                uvicorn_start(**kwargs)
+
+        if not build and not direct:
             start(**kwargs)
-        elif build_complete and direct:
+        elif not build and direct:
             uvicorn_start(**kwargs)
 
-    if not build and not direct:
-        start(**kwargs)
-    elif not build and direct:
-        uvicorn_start(**kwargs)
+    except Exception as err:
+        error(str(err))
 
 
 @hg.command(
