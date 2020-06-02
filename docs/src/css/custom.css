@@ -143,6 +143,14 @@ html[data-theme="dark"] a:hover {
   color: var(--ifm-color-primary-light);
 }
 
+html[data-theme="dark"] .navbar .navbar__items a.navbar__brand {
+  color: var(--ifm-color-primary);
+}
+
+.navbar .navbar__items a.navbar__brand {
+  color: var(--ifm-color-black);
+}
+
 @media screen and (max-width: 997px) {
   .col.footer__col[class][class] {
     text-align: left;

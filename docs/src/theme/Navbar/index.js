@@ -45,8 +45,6 @@ function NavLink({ to, href, label, position, ...props }) {
   );
 }
 
-const logoColor = { true: "#ff5e5b", false: "#000" };
-
 function Navbar() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
@@ -101,11 +99,7 @@ function Navbar() {
         <div className={classnames("navbar__items", styles.navbarItems)}>
           {!isMobile && (
             <Link className="navbar__brand" to={baseUrl}>
-              <Logo
-                color={logoColor[isDarkTheme]}
-                size={32}
-                className={styles.logo}
-              />
+              <Logo size={32} className={styles.logo} />
               {title != null && (
                 <strong
                   className={isSearchBarExpanded ? styles.hideLogoText : ""}
@@ -156,11 +150,7 @@ function Navbar() {
         >
           {isMobile && (
             <Link className="navbar__brand" to={baseUrl}>
-              <Logo
-                color={logoColor[isDarkTheme]}
-                size={32}
-                className={styles.logo}
-              />
+              <Logo size={32} className={styles.logo} />
               {title != null && (
                 <strong
                   className={isSearchBarExpanded ? styles.hideLogoText : ""}
@@ -201,11 +191,7 @@ function Navbar() {
       <div className="navbar-sidebar">
         <div className="navbar-sidebar__brand">
           <Link className="navbar__brand" to={baseUrl}>
-            <Logo
-              color={logoColor[isDarkTheme]}
-              size={32}
-              className={styles.logo}
-            />
+            <Logo size={32} className={styles.logo} />
             {title != null && (
               <strong
                 className={isSearchBarExpanded ? styles.hideLogoText : ""}
