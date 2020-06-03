@@ -98,7 +98,12 @@ function Navbar() {
       <div className="navbar__inner">
         <div className={classnames("navbar__items", styles.navbarItems)}>
           {!isMobile && (
-            <Link className="navbar__brand" to={baseUrl}>
+            <Link
+              className="navbar__brand"
+              to={baseUrl}
+              aria-label="Home"
+              title="Home"
+            >
               <Logo size={32} className={styles.logo} />
               {title != null && (
                 <strong
@@ -149,7 +154,12 @@ function Navbar() {
           )}
         >
           {isMobile && (
-            <Link className="navbar__brand" to={baseUrl}>
+            <Link
+              className="navbar__brand"
+              to={baseUrl}
+              aria-label="Home"
+              title="Home"
+            >
               <Logo size={32} className={styles.logo} />
               {title != null && (
                 <strong
@@ -190,7 +200,12 @@ function Navbar() {
       />
       <div className="navbar-sidebar">
         <div className="navbar-sidebar__brand">
-          <Link className="navbar__brand" to={baseUrl}>
+          <Link
+            className="navbar__brand"
+            to={baseUrl}
+            aria-label="Home"
+            title="Home"
+          >
             <Logo size={32} className={styles.logo} />
             {title != null && (
               <strong

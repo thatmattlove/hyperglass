@@ -37,6 +37,8 @@ export const GithubButton = ({ href, ...props }) => {
         isDarkTheme ? "button--secondary" : "button--primary",
         "button button--outline"
       )}
+      aria-label="Github"
+      title="Github"
       {...props}
     >
       <Icon />

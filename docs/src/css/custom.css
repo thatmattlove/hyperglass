@@ -35,7 +35,7 @@
 
 :root {
   --ifm-code-background: rgba(0, 0, 0, 0.04);
-  --ifm-code-color: var(--ifm-color-secondary-darker);
+  --ifm-code-color: var(--ifm-color-secondary-darkest);
   --ifm-footer-color: var(--ifm-secondary-lightest);
   --ifm-footer-link-color: var(--ifm-secondary-lightest);
   --ifm-footer-title-color: var(--ifm-color-emphasis-800);
@@ -57,10 +57,11 @@ html[data-theme="dark"]:root {
   --ra-color-important: var(--ifm-color-info-darkest);
   --ra-color-note: var(--ifm-color-gray-600);
   --ra-color-warning: var(--ifm-color-danger-darker);
+  --ifm-blockquote-color: var(--ifm-color-emphasis-400);
 }
 
 html[data-theme="dark"] .footer.footer--dark {
-  --ifm-footer-color: var(--ifm-color-emphasis-300);
+  --ifm-footer-color: var(--ifm-color-emphasis-400);
   --ifm-navbar-background-color: var(--ifm-background-color);
 }
 
@@ -78,6 +79,7 @@ html[data-theme="dark"] .footer.footer--dark {
 html[data-theme="dark"] {
   --ifm-code-background: rgba(255, 255, 255, 0.08);
   --ifm-code-color: var(--ifm-color-secondary-lightest);
+  --ifm-footer-link-color: ;
   /* #ace8cd
         #b6a7e2
         #dc7381
@@ -86,8 +88,18 @@ html[data-theme="dark"] {
 
 .admonition {
   --ifm-code-background: rgba(255, 255, 255, 0.5);
-  --ifm-code-color: var(--ifm-color-secondary-darker);
+  --ifm-code-color: var(--ifm-color-secondary-darkest);
   --ifm-link-color: rgba(0, 0, 0, 0.5);
+}
+
+.admonition.alert--success .admonition-content a,
+.admonition.alert--warning .admonition-content a,
+.admonition.alert--critical .admonition-content a {
+  color: var(--ifm-color-black);
+}
+
+.admonition.admonition-note .admonition-content code {
+  --ifm-code-color: var(--ifm-color-gray-900);
 }
 
 .admonition a:hover {
