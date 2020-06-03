@@ -82,6 +82,7 @@ class Connect:
         """
         log.debug(f"Pre-parsed responses:\n{output}")
         parsed = ()
+        response = None
         if not self.device.structured_output:
             for coro in parsers:
                 for response in output:
@@ -96,6 +97,8 @@ class Connect:
             func = nos_parsers[self.device.nos][self.query_type]
             response = func(output)
         log.debug(f"Post-parsed responses:\n{response}")
+        if response is None:
+            raise ResponseEmpty(params.messages.parsing_error)
         return response
 
     async def scrape_proxied(self):

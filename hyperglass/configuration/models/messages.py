@@ -79,6 +79,11 @@ class Messages(HyperglassModel):
         title="No Output",
         description="Displayed when hyperglass can connect to a device and execute a query, but the response is empty.",
     )
+    parsing_error: StrictStr = Field(
+        "An error occurred while parsing the query output.",
+        title="Parsing Error",
+        description="Displayed when hyperglass can connect to a device and execute a query, but the response cannot be parsed.",
+    )
 
     class Config:
         """Pydantic model configuration."""
