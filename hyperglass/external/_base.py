@@ -23,19 +23,6 @@ def _prepare_dict(_dict):
     return _json.loads(_json.dumps(_dict, default=str))
 
 
-def _parse_response(response):
-    parsed = {}
-    try:
-        parsed = response.json()
-    except JSONDecodeError:
-        try:
-            parsed = _json.loads(response)
-        except (JSONDecodeError, TypeError):
-            log.error("Error parsing JSON for response {}", repr(response))
-            parsed = {"data": response.text}
-    return parsed
-
-
 class BaseExternal:
     """Base session handler."""
 
@@ -47,15 +34,17 @@ class BaseExternal:
         uri_suffix="",
         verify_ssl=True,
         timeout=10,
+        parse=True,
     ):
         """Initialize connection instance."""
-        self.__name__ = self.name
+        self.__name__ = getattr(self, "name", "BaseExternal")
         self.config = config
         self.base_url = base_url.strip("/")
         self.uri_prefix = uri_prefix.strip("/")
         self.uri_suffix = uri_suffix.strip("/")
         self.verify_ssl = verify_ssl
         self.timeout = timeout
+        self.parse = parse
 
         session_args = {
             "verify": self.verify_ssl,
@@ -114,6 +103,21 @@ class BaseExternal:
             message = f"{str(message)}: {str(exc)}"
 
         return HyperglassError(message, str(level), **kwargs)
+
+    def _parse_response(self, response):
+        if self.parse:
+            parsed = {}
+            try:
+                parsed = response.json()
+            except JSONDecodeError:
+                try:
+                    parsed = _json.loads(response)
+                except (JSONDecodeError, TypeError):
+                    log.error("Error parsing JSON for response {}", repr(response))
+                    parsed = {"data": response.text}
+        else:
+            parsed = response
+        return parsed
 
     def _test(self):
         """Open a low-level connection to the base URL to ensure its port is open."""
@@ -242,7 +246,7 @@ class BaseExternal:
 
             if response.status_code not in range(200, 300):
                 status = StatusCode(response.status_code)
-                error = _parse_response(response)
+                error = self._parse_response(response)
                 raise self._exception(
                     f'{status.name.replace("_", " ")}: {error}', level="danger"
                 ) from None
@@ -250,7 +254,7 @@ class BaseExternal:
         except httpx.HTTPError as http_err:
             raise self._exception(parse_exception(http_err), level="danger") from None
 
-        return _parse_response(response)
+        return self._parse_response(response)
 
     async def _aget(self, endpoint, **kwargs):
         return await self._arequest(method="GET", endpoint=endpoint, **kwargs)
@@ -298,7 +302,7 @@ class BaseExternal:
 
             if response.status_code not in range(200, 300):
                 status = StatusCode(response.status_code)
-                error = _parse_response(response)
+                error = self._parse_response(response)
                 raise self._exception(
                     f'{status.name.replace("_", " ")}: {error}', level="danger"
                 ) from None
@@ -306,7 +310,7 @@ class BaseExternal:
         except httpx.HTTPError as http_err:
             raise self._exception(parse_exception(http_err), level="danger") from None
 
-        return _parse_response(response)
+        return self._parse_response(response)
 
     def _get(self, endpoint, **kwargs):
         return self._request(method="GET", endpoint=endpoint, **kwargs)
