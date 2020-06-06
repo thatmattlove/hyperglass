@@ -59,18 +59,6 @@ const makeColumns = fields => {
   });
 };
 
-// const longestASNLength = asPath => {
-//   if (asPath.length === 0) {
-//     return 0
-//   }
-//   const longest = asPath.reduce((l, c) => {
-//     const strLongest = String(l);
-//     const strCurrent = String(c);
-//     return strCurrent.length > strLongest.length ? strCurrent : strLongest;
-//   });
-//   return longest.length;
-// };
-
 const MonoField = ({ v, ...props }) => (
   <Text fontSize="sm" fontFamily="mono" {...props}>
     {v}
@@ -163,13 +151,14 @@ const Communities = ({ communities }) => {
           <PopoverContent
             textAlign="left"
             p={4}
-            maxW="fit-content"
+            width="unset"
             color={colorMode === "dark" ? "white" : "black"}
+            fontFamily="mono"
+            fontWeight="normal"
+            whiteSpace="pre-wrap"
           >
             <PopoverArrow />
-            {communities.map(c => (
-              <MonoField fontWeight="normal" v={c} key={c.replace(":", "-")} />
-            ))}
+            {communities.join("\n")}
           </PopoverContent>
         </Popover>
       ));

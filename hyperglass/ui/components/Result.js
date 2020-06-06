@@ -213,7 +213,7 @@ const Result = React.forwardRef(
             "-ms-overflow-style": { display: "none" }
           })(theme)}
         >
-          <Flex direction="row" flexWrap="wrap">
+          <Flex direction="column" flexWrap="wrap">
             <Flex
               direction="column"
               flex="1 0 auto"
