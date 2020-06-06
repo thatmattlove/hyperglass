@@ -38,31 +38,29 @@ class ParsedRouteEntry(HyperglassModel):
             permit: only permit matches
             deny: only deny matches
         """
-        valid = []
-        for community in value:
+
+        def _permit(comm):
+            """Only allow matching patterns."""
+            valid = False
             for pattern in params.structured.communities.items:
-                # For each community in the response, compare it to the
-                # configured list of 'items' under
-                # params.structured.communities.items.
-                if re.match(pattern, community):
-                    # If there is a match and the action is 'permit',
-                    # allow the community to be shown.
-                    if params.structured.communities.mode == "permit":
-                        valid.append(community)
-                        break
-                    # If the action is permit and there is no match,
-                    # this means the user doesn't want to show the
-                    # community.
-                else:
-                    # If there is not a match and the action is 'deny',
-                    # allow the community to be shown.
-                    if params.structured.communities.mode == "deny":
-                        valid.append(community)
-                        break
-                    # If the action is 'deny' and there is a match,
-                    # this means the user doesn't want to show the
-                    # community.
-        return valid
+                if re.match(pattern, comm):
+                    valid = True
+                    break
+            return valid
+
+        def _deny(comm):
+            """Allow any except matching patterns."""
+            valid = True
+            for pattern in params.structured.communities.items:
+                if re.match(pattern, comm):
+                    valid = False
+                    break
+            return valid
+
+        func_map = {"permit": _permit, "deny": _deny}
+        func = func_map[params.structured.communities.mode]
+
+        return [c for c in value if func(c)]
 
     @validator("rpki_state")
     def validate_rpki_state(cls, value, values):
