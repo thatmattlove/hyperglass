@@ -1,0 +1,59 @@
+---
+id: structured-data
+title: Structured Data
+sidebar_label: Structured Data
+description: Configure structured data parameters
+---
+
+<div class="table--full-width" />
+
+The `structured` subsection contains multiple subsections of its own:
+
+| Section       | Description                        |                All Options                |
+| :------------ | :--------------------------------- | :---------------------------------------: |
+| `communities` | Include or exclude BGP communities | <PageLink to="#communities">➡️</PageLink> |
+| `rpki`        | Configure RPKI validation          |    <PageLink to="#rpki">➡️</PageLink>     |
+
+## `communities`
+
+| Parameter |  Type  | Default  | Description                                                                                                                           |
+| :-------- | :----: | :------: | :------------------------------------------------------------------------------------------------------------------------------------ |
+| `mode`    | String | `'deny'` | `'deny'` denies any matching patterns and permits anything else. `'permit'` only permits matching patterns and denies everything else |
+| `items`   |  List  |   `[]`   | List of regular expression patterns to match                                                                                          |
+
+:::note Regular Expressions with YAML
+If you're using any regex patterns with special characters, you'll probably need to wrap the patterns in single quotes, to denote a raw string. For example:
+
+```yaml
+normal_string: Normal String
+raw_string: '^Raw\sString$'
+```
+
+:::
+
+## `rpki`
+
+| Parameter |  Type  |  Default   |
+| :-------- | :----: | :--------: |
+| `mode`    | String | `'router'` |
+
+### `router` mode
+
+`router` mode uses the RPKI state from the perspective of the router. This means if your network is not using Origin Validation, the RPKI state will be shown as "Not Verified". Otherwise, the corresponding RPKI state will be shown.
+
+### `external` mode
+
+`external` mode takes each prefix, the last ASN in the `AS_PATH` and requests the RPKI validation state via the [Cloudflare RPKI Portal](https://rpki.cloudflare.com/).
+
+## Example
+
+```yaml title="hyperglass.yaml"
+structured:
+  communities:
+    mode: permit
+    items:
+      - '65000:\d+'
+      - '65[1-4]00:\d+'
+  rpki:
+    mode: external
+```

@@ -23,6 +23,7 @@ from hyperglass.configuration.models.cache import Cache
 from hyperglass.configuration.models.logging import Logging
 from hyperglass.configuration.models.queries import Queries
 from hyperglass.configuration.models.messages import Messages
+from hyperglass.configuration.models.structured import Structured
 
 
 class Params(HyperglassModel):
@@ -113,6 +114,7 @@ class Params(HyperglassModel):
     logging: Logging = Logging()
     messages: Messages = Messages()
     queries: Queries = Queries()
+    structured: Structured = Structured()
     web: Web = Web()
 
     class Config:

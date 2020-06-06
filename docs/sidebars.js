@@ -18,6 +18,7 @@ module.exports = {
         "ui",
         "api",
         "messages",
+        "structured-data",
       ],
     },
     {
