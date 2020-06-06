@@ -83,13 +83,19 @@ class Construct:
             ):
                 query = str(self.query_data.query_target)
                 asns = re.findall(r"\d+", query)
+                was_modified = False
                 if bool(re.match(r"^\_", query)):
                     # Replace `_65000` with `.* 65000`
                     asns.insert(0, r".*")
+                    was_modified = True
                 if bool(re.match(r".*(\_)$", query)):
                     # Replace `65000_` with `65000 .*`
                     asns.append(r".*")
-                self.target = " ".join(asns)
+                    was_modified = True
+                if was_modified:
+                    self.target = " ".join(asns)
+                else:
+                    self.target = query
 
     def json(self, afi):
         """Return JSON version of validated query for REST devices.
