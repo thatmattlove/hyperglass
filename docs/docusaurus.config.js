@@ -2,6 +2,8 @@ const githubURL = "https://github.com/checktheroads/hyperglass";
 
 const { googleTrackingId, algoliaKey } = process.env;
 
+require("./generateSitemap");
+
 module.exports = {
   title: "hyperglass",
   tagline: "the network looking glass that tries to make the internet better.",

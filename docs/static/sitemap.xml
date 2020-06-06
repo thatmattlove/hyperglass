@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://hyperglass.io/docs/api</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/cache</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/commands</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/configuration</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/devices</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/getting-started</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/introduction</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/license</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/logging</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/messages</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/platforms</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/production</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/queries</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/setup</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/structured-data</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/ui</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/upgrading</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/agent/installation</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/agent/setup</loc>
+  </url>
+</urlset>

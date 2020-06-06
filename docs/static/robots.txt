@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /*__*
+Sitemap: https://hyperglass.io/sitemap.xml

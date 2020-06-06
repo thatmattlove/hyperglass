@@ -43,6 +43,7 @@
 }
 
 :root {
+  --ifm-menu-color-active: black;
   --ra-color-caution: var(--ifm-color-warning-lightest);
   --ra-color-tip: var(--ifm-color-success-lightest);
   --ra-color-important: var(--ifm-color-info-lightest);
@@ -52,6 +53,7 @@
 }
 
 html[data-theme="dark"]:root {
+  --ifm-menu-color-active: var(--ifm-color-primary);
   --ra-color-caution: var(--ifm-color-warning-darkest);
   --ra-color-tip: var(--ifm-color-success-darkest);
   --ra-color-important: var(--ifm-color-info-darkest);
@@ -194,4 +196,8 @@ html[data-theme="dark"] .navbar .navbar__items a.navbar__brand {
     margin-top: 2rem;
     margin-bottom: 2rem;
   }
+}
+
+.menu .menu__link.menu__link--active {
+  font-weight: var(--ifm-font-weight-bold);
 }
