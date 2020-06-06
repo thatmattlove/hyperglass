@@ -13,7 +13,6 @@ class MyDocument extends Document {
         <Head></Head>
         <body>
           <script src="noflash.js" />
-
           <Main />
           <NextScript />
         </body>
