@@ -74,7 +74,7 @@ class Rest:
             logger.debug(f"FRR endpoint: {frr_endpoint}")
             # End Debug
             frr_response = requests.post(
-                frr_endpoint, headers=headers, data=json_query, timeout=7
+                frr_endpoint, headers=headers, data=json_query, timeout=15
             )
             response = frr_response.text
             status = frr_response.status_code
@@ -111,7 +111,7 @@ class Rest:
             logger.debug(f"BIRD endpoint: {bird_endpoint}")
             # End Debug
             bird_response = requests.post(
-                bird_endpoint, headers=headers, data=json_query, timeout=7
+                bird_endpoint, headers=headers, data=json_query, timeout=15
             )
             response = bird_response.text
             status = bird_response.status_code
