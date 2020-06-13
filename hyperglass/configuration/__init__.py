@@ -439,6 +439,7 @@ _frontend_fields = {
     "request_timeout": ...,
     "org_name": ...,
     "google_analytics": ...,
+    "site_title": ...,
     "site_description": ...,
     "site_keywords": ...,
     "web": ...,

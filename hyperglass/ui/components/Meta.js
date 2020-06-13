@@ -8,7 +8,7 @@ const Meta = () => {
   const config = useConfig();
   const theme = useTheme();
   const [location, setLocation] = useState({});
-  const title = config?.org_name || "hyperglass";
+  const title = config?.site_title || "hyperglass";
   const description = config?.site_description || "The modern looking glass.";
   const siteName = `${title} - ${description}`;
   const keywords = config?.site_keywords || [
@@ -27,15 +27,10 @@ const Meta = () => {
     "network",
     "isp"
   ];
-  const author = config?.org_name || "Matt Love, matt@hyperglass.io";
-  const language = config?.language || "en";
-  const currentYear = new Date().getFullYear();
-  const copyright = config
-    ? `${currentYear} ${config.org_name}`
-    : `${currentYear} hyperglass`;
-  const ogImage = config?.web.opengraph.image || null;
-  const ogImageHeight = config?.web.opengraph.height || null;
-  const ogImageWidth = config?.web.opengraph.width || null;
+  const language = config?.language ?? "en";
+  const ogImage = config?.web.opengraph.image ?? null;
+  const ogImageHeight = config?.web.opengraph.height ?? null;
+  const ogImageWidth = config?.web.opengraph.width ?? null;
   const primaryFont = googleFontUrl(theme.fonts.body);
   const monoFont = googleFontUrl(theme.fonts.mono);
   useEffect(() => {
@@ -46,18 +41,12 @@ const Meta = () => {
   return (
     <Head>
       <title>{title}</title>
-      <meta charSet="UTF-8" />
-      <meta httpEquiv="Content-Type" content="text/html" />
       <meta name="hg-version" content={config.hyperglass_version} />
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords.join(", ")} />
-      <meta name="author" content={author} />
       <meta name="language" content={language} />
-      <meta name="copyright" content={copyright} />
       <meta name="url" content={location.href} />
       <meta name="og:title" content={title} />
-      <meta name="og:type" content="website" />
-      <meta name="og:site_name" content={siteName} />
       <meta name="og:url" content={location.href} />
       <meta name="og:image" content={ogImage} />
       <meta name="og:description" content={description} />
@@ -69,7 +58,5 @@ const Meta = () => {
     </Head>
   );
 };
-
-Meta.displayName = "Meta";
 
 export default Meta;
