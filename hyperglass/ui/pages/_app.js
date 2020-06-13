@@ -1,7 +1,7 @@
 import React from "react";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
 import { HyperglassProvider } from "~/components/HyperglassProvider";
-import Error from "./_error";
+// import Error from "./_error";
 
 const config = process.env._HYPERGLASS_CONFIG_;
 
@@ -16,7 +16,5 @@ const Hyperglass = ({ Component, pageProps }) => {
     </HyperglassProvider>
   );
 };
-
-Hyperglass.displayName = "Hyperglass";
 
 export default Hyperglass;

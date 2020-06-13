@@ -4,7 +4,6 @@ import { Flex, useColorMode } from "@chakra-ui/core";
 import Header from "~/components/Header";
 import Footer from "~/components/Footer";
 import Greeting from "~/components/Greeting";
-import Meta from "~/components/Meta";
 import useConfig, { useHyperglassState } from "~/components/HyperglassProvider";
 import Debugger from "~/components/Debugger";
 
@@ -19,7 +18,6 @@ const Layout = ({ children }) => {
 
   return (
     <>
-      <Meta />
       <Flex
         w="100%"
         ref={containerRef}
@@ -58,5 +56,4 @@ const Layout = ({ children }) => {
   );
 };
 
-Layout.displayName = "HyperglassLayout";
 export default Layout;

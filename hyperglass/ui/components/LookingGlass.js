@@ -47,5 +47,4 @@ const LookingGlass = () => {
   );
 };
 
-LookingGlass.displayName = "LookingGlass";
 export default LookingGlass;
