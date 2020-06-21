@@ -108,7 +108,7 @@ async def build_ui(app_path):
     """
     import asyncio
 
-    timeout = 60
+    timeout = 120
 
     ui_dir = Path(__file__).parent / "ui"
     build_dir = app_path / "static" / "ui"
