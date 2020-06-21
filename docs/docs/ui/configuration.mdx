@@ -1,0 +1,83 @@
+---
+id: configuration
+title: UI Configuration
+sidebar_label: Configuration
+keywords: [hyperglass, looking glass, web ui, gui, theme, colors, branding]
+description: Customize the Web UI
+---
+
+import Link from "@docusaurus/Link";
+import R from "../../src/components/Required";
+import MiniNote from "../../src/components/MiniNote";
+import Code from "../../src/components/JSXCode";
+import PageLink from "../../src/components/PageLink";
+
+<div class="table--full-width" />
+
+The `web` subsection contains multiple subsections of its own, should you wish to customize various aspects of the UI:
+
+| Section         | Description                    |                 All Options                 |
+| :-------------- | :----------------------------- | :-----------------------------------------: |
+| `credit`        | Developer credit & GitHub Link |    <PageLink to="#credit">➡️</PageLink>     |
+| `dns_provider`  | DNS over HTTPS Provider        | <PageLink to="#dns_provider">➡️</PageLink>  |
+| `external_link` | Link to external site          | <PageLink to="#external_link">➡️</PageLink> |
+| `greeting`      | Greeting Modal                 |   <PageLink to="#greeting">➡️</PageLink>    |
+| `logo`          | Logo & Favicons                |      <PageLink to="logo">➡️</PageLink>      |
+| `opengraph`     | [OpenGraph](https://ogp.me/)   |   <PageLink to="#opengraph">➡️</PageLink>   |
+| `terms`         | Terms & Conditions             |     <PageLink to="#terms">➡️</PageLink>     |
+| `text`          | Text, title, & names           |      <PageLink to="text">➡️</PageLink>      |
+| `theme`         | Colors & Fonts                 |     <PageLink to="theme">➡️</PageLink>      |
+
+## `credit`
+
+| Parameter |  Type   | Default | Description                                                                              |
+| :-------- | :-----: | :-----: | :--------------------------------------------------------------------------------------- |
+| `enable`  | Boolean | `true`  | Enable or disable the display of developer credit & link to hyperglass GitHub repository |
+
+:::note From the developer
+If your organization's policy allows, and you don't mind, I request that you keep `credit` enabled. Remember: my goal for this project is get more networks to use looking glasses to make all of our lives easier. Because it's primarily other network operators who will use this tool to begin with, I'd love for any operators that use your looking glass to know where they can get their own.
+:::
+
+## `dns_provider`
+
+| Parameter |  Type  |    Default     | Description                                                                                                                                                       |
+| :-------- | :----: | :------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`    | String | `'cloudflare'` | DNS over HTTPS provider for in-browser DNS resolution. Cloudflare & Google supported. <MiniNote>Must be <Code>cloudflare</Code> or <Code>google</Code></MiniNote> |
+
+## `external_link`
+
+| Parameter |  Type   | Default                                         | Description                                                                                                                                          |
+| :-------- | :-----: | :---------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enable`  | Boolean | `true`                                          | Enable or disable the display of an external link                                                                                                    |
+| `title`   | String  | `'PeeringDB'`                                   | Link title/label                                                                                                                                     |
+| `url`     | String  | `'https://www.peeringdb.com/asn/{primary_asn}'` | Target URL. `{primary_asn}` will be replaced with the `primary_asn` value from <Link to="/docs/configuration#global-settings">Global Settings</Link> |
+
+## `greeting`
+
+| Parameter  |  Type   | Default      | Description                                                                                  |
+| :--------- | :-----: | :----------- | :------------------------------------------------------------------------------------------- |
+| `enable`   | Boolean | `false`      | Enable or disable the greeting modal.                                                        |
+| `file`     | String  |              | Path to a [markdown](https://www.markdownguide.org/) file containing the modal body content. |
+| `title`    | String  | `'Welcome'`  | Modal title.                                                                                 |
+| `button`   | String  | `'Continue'` | Button text.                                                                                 |
+| `required` | Boolean | `false`      | If `true` the user must click the button in order to submit a query.                         |
+
+## `opengraph`
+
+If you're not familiar with [OpenGraph](https://ogp.me/), it's the thing that generates the pretty pictures, titles, and descriptions for links when you post them to sites/tools such as Facebook, Twitter, Slack, etc.
+
+By default, no Opengraph image is set. If you define one with `image`, hyperglass will try to determine the image's dimensions automatically. Or, you can override those dimensions with the `width` and `height` parameters.
+
+| Parameter |  Type   | Description             |
+| :-------- | :-----: | :---------------------- |
+| `image`   | String  | Path to opengraph image |
+| `width`   | Integer | Opengraph image width   |
+| `height`  | Integer | Opengraph image height  |
+
+## `terms`
+
+| Parameter |  Type   | Default   | Description                                                                                   |
+| :-------- | :-----: | :-------- | :-------------------------------------------------------------------------------------------- |
+| `enable`  | Boolean | `true`    | Enable or display the display of terms & conditions                                           |
+| `file`    | String  |           | Path to a plain text or markdown file with content to override the default terms & conditions |
+| `title`   | String  | `'Terms'` | Terms & conditions title                                                                      |

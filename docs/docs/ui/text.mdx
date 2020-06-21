@@ -1,0 +1,36 @@
+---
+id: text
+title: Text
+sidebar_label: Text
+keywords: [hyperglass, looking glass, web ui, gui, branding, text, messages]
+description: Customize the text used in the web UI
+---
+
+## `text`
+
+| Parameter        |  Type  | Default                         | Description                                                                                                                                                                                           |
+| :--------------- | :----: | :------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cache_prefix`   | String | `'Results cached for '`         | Text displayed with the cache timeout countdown.                                                                                                                                                      |
+| `cache_icon`     | String | `'Cached Response from {time}'` | Text displayed when a user hovers over the lightning bolt icon, which is displayed when a response from the server was a cached response. `{time}` is replaced with the _original_ query's timestamp. |
+| `completed_time` | String | `'Completed in {seconds}'`      | Text displayed when a user hovers over the success icon for a query result. `{seconds}` will be replaced with 'n seconds' where n is the time a query took to complete.                               |
+| `fqdn_tooltip`   | String | `'Use {protocol}'`              | Text displayed when a user hovers over the IPv4 or IPv6 button on an FQDN target resolved by DNS. `{protocol}` is replaced with the relevant IP protocol.                                             |
+| `query_location` | String | `'Location'`                    | Query Location (router) form label.                                                                                                                                                                   |
+| `query_target`   | String | `'Target'`                      | Query Target (IP/hostname/community/AS Path) form label.                                                                                                                                              |
+| `query_type`     | String | `'Query Type'`                  | Query Type (BGP Route, Ping, Traceroute, etc.) form label.                                                                                                                                            |
+| `query_vrf`      | String | `'Routing Table'`               | Query VRF form label.                                                                                                                                                                                 |
+| `subtitle`       | String | `'Network Looking Glass'`       | Subtitle text. value.                                                                                                                                                                                 |
+| `title`          | String | `'hyperglass'`                  | Title text.                                                                                                                                                                                           |
+| `title_mode`     | String | `'text_only'`                   | Set the title mode. <MiniNote>Must be <Code>text_only</Code>, <Code>logo_only</Code>, <Code>logo_subtitle</Code>, or <Code>all</Code></MiniNote>                                                      |
+
+### Title Mode
+
+The `title_mode` parameter behaves in the following manner:
+
+<div className="table--full-width" />
+
+| Mode            | Behavior                                                            |
+| --------------- | ------------------------------------------------------------------- |
+| `text_only`     | Shows the [`title`](#text) and [`subtitle`](#text) only.            |
+| `logo_only`     | Shows the [`logo`](ui/logo) only.                                   |
+| `logo_subtitle` | Shows the [`logo`](ui/logo) and [`subtitle`](#text) only.           |
+| `all`           | Shows the [`logo`](ui/logo), [`title`](#text), [`subtitle`](#text). |

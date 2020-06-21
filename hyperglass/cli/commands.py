@@ -188,11 +188,15 @@ def setup(unattended):
         install_path = user_path
 
     ui_dir = install_path / "static" / "ui"
+    images_dir = install_path / "static" / "images"
+    favicon_dir = images_dir / "favicons"
     custom_dir = install_path / "static" / "custom"
 
     create_dir(install_path)
-    create_dir(ui_dir, parents=True)
-    create_dir(custom_dir, parents=True)
+
+    for path in (ui_dir, images_dir, custom_dir, favicon_dir):
+        create_dir(path, parents=True)
+
     migrate_static_assets(install_path)
 
     example_dir = WORKING_DIR.parent / "examples"

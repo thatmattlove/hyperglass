@@ -21,8 +21,6 @@ export const HyperglassProvider = ({ config, children }) => {
   const value = useMemo(() => config, [config]);
   const userTheme = value && makeTheme(value.web.theme);
   const theme = value ? userTheme : defaultTheme;
-  // console.log(value);
-  // console.log(theme);
   return (
     <HyperglassContext.Provider value={value}>
       <ThemeProvider theme={theme}>

@@ -2,6 +2,7 @@
 
 # Standard Library
 from typing import Union, Optional
+from pathlib import Path
 
 # Third Party
 from pydantic import (
@@ -19,8 +20,9 @@ from pydantic.color import Color
 # Project
 from hyperglass.models import HyperglassModel
 from hyperglass.constants import DNS_OVER_HTTPS, FUNC_COLOR_MAP
-from hyperglass.configuration.models._utils import validate_image
 from hyperglass.configuration.models.opengraph import OpenGraph
+
+DEFAULT_IMAGES = Path(__file__).parent.parent.parent / "images"
 
 
 class Analytics(HyperglassModel):
@@ -90,31 +92,11 @@ class Greeting(HyperglassModel):
 class Logo(HyperglassModel):
     """Validation model for logo configuration."""
 
-    light: StrictStr = "images/hyperglass-light.png"
-    dark: StrictStr = "images/hyperglass-dark.png"
+    light: FilePath = DEFAULT_IMAGES / "hyperglass-light.png"
+    dark: FilePath = DEFAULT_IMAGES / "hyperglass-dark.png"
+    favicon: FilePath = DEFAULT_IMAGES / "icon.svg"
     width: Optional[Union[StrictInt, constr(regex=r"^([1-9][0-9]?|100)\%$")]] = "80%"
     height: Optional[Union[StrictInt, constr(regex=r"^([1-9][0-9]?|100)\%$")]]
-    favicons: StrictStr = "ui/images/favicons/"
-
-    @validator("favicons")
-    def favicons_trailing_slash(cls, value):
-        """If the favicons path does not end in a '/', append it."""
-        chars = list(value)
-        if chars[len(chars) - 1] != "/":
-            chars.append("/")
-        return "".join(chars)
-
-    @validator("light", "dark")
-    def validate_logos(cls, value):
-        """Convert file path to URL path.
-
-        Arguments:
-            value {FilePath} -- Path to logo file.
-
-        Returns:
-            {str} -- Formatted logo path
-        """
-        return validate_image(value)
 
 
 class Terms(HyperglassModel):

@@ -7,13 +7,13 @@ from pathlib import Path
 
 # Third Party
 import PIL.Image as PilImage
-from pydantic import StrictInt, StrictStr, root_validator
+from pydantic import FilePath, StrictInt, root_validator
 
 # Project
 from hyperglass.models import HyperglassModel
-from hyperglass.configuration.models._utils import validate_image
 
 CONFIG_PATH = Path(os.environ["hyperglass_directory"])
+DEFAULT_IMAGES = Path(__file__).parent.parent.parent / "images"
 
 
 class OpenGraph(HyperglassModel):
@@ -21,7 +21,7 @@ class OpenGraph(HyperglassModel):
 
     width: Optional[StrictInt]
     height: Optional[StrictInt]
-    image: Optional[StrictStr]
+    image: FilePath = DEFAULT_IMAGES / "hyperglass-opengraph.png"
 
     @root_validator
     def validate_opengraph(cls, values):
@@ -36,21 +36,15 @@ class OpenGraph(HyperglassModel):
         supported_extensions = (".jpg", ".jpeg", ".png")
         if (
             values["image"] is not None
-            and Path(values["image"]).suffix not in supported_extensions
+            and values["image"].suffix not in supported_extensions
         ):
             raise ValueError(
                 "OpenGraph image must be one of {e}".format(
                     e=", ".join(supported_extensions)
                 )
             )
-        if values["image"] is None:
-            values["image"] = "images/hyperglass-opengraph.png"
 
-        values["image"] = validate_image(values["image"])
-
-        image_file = CONFIG_PATH / "static" / values["image"]
-
-        with PilImage.open(image_file) as img:
+        with PilImage.open(values["image"]) as img:
             width, height = img.size
             if values["width"] is None:
                 values["width"] = width
@@ -78,4 +72,3 @@ class OpenGraph(HyperglassModel):
                 "description": "Valid path to a JPG or PNG file to use as the OpenGraph image.",
             },
         }
-        schema_extra = {"level": 3}

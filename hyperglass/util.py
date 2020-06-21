@@ -1,5 +1,12 @@
 """Utility functions."""
 
+# Standard Library
+import shutil
+from queue import Queue
+from typing import Iterable
+from pathlib import Path
+from threading import Thread
+
 # Project
 from hyperglass.log import log
 
@@ -37,7 +44,7 @@ def clean_name(_name):
     return _scrubbed.lower()
 
 
-def check_path(path, mode="r"):
+def check_path(path, mode="r", create=False):
     """Verify if a path exists and is accessible.
 
     Arguments:
@@ -50,14 +57,19 @@ def check_path(path, mode="r"):
     Returns:
         {Path|None} -- Path object if checks pass, None if not.
     """
-    from pathlib import Path
 
     try:
         if not isinstance(path, Path):
             path = Path(path)
 
         if not path.exists():
-            raise FileNotFoundError(f"{str(path)} does not exist.")
+            if create:
+                if path.is_file():
+                    path.parent.mkdir(parents=True)
+                else:
+                    path.mkdir(parents=True)
+            else:
+                raise FileNotFoundError(f"{str(path)} does not exist.")
 
         with path.open(mode):
             result = path
@@ -95,7 +107,8 @@ async def build_ui(app_path):
         RuntimeError: Raised when any other error occurs.
     """
     import asyncio
-    from pathlib import Path
+
+    timeout = 60
 
     ui_dir = Path(__file__).parent / "ui"
     build_dir = app_path / "static" / "ui"
@@ -113,7 +126,7 @@ async def build_ui(app_path):
                 cwd=ui_dir,
             )
 
-            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
             messages = stdout.decode("utf-8").strip()
             errors = stderr.decode("utf-8").strip()
 
@@ -122,6 +135,9 @@ async def build_ui(app_path):
 
             await proc.wait()
             all_messages.append(messages)
+
+        except asyncio.TimeoutError:
+            raise RuntimeError(f"{timeout} second timeout exceeded while building UI")
 
         except Exception as e:
             raise RuntimeError(str(e))
@@ -140,7 +156,6 @@ async def write_env(variables):
     """
     from aiofile import AIOFile
     import json
-    from pathlib import Path
 
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
     env_vars = json.dumps(variables)
@@ -213,8 +228,7 @@ async def move_files(src, dst, files):  # noqa: C901
         dst {Path} -- Target destination directory
         files {Iterable} -- Iterable of files
     """
-    import shutil
-    from pathlib import Path
+
     from typing import Iterable
 
     def error(*args, **kwargs):
@@ -267,8 +281,7 @@ async def move_files(src, dst, files):  # noqa: C901
 
 def migrate_static_assets(app_path):
     """Synchronize the project assets with the installation assets."""
-    import shutil
-    from pathlib import Path
+
     from filecmp import dircmp
 
     asset_dir = Path(__file__).parent / "images"
@@ -309,7 +322,6 @@ async def check_node_modules():
     Returns:
         {bool} -- True if exists and has contents.
     """
-    from pathlib import Path
 
     ui_path = Path(__file__).parent / "ui"
     node_modules = ui_path / "node_modules"
@@ -334,7 +346,6 @@ async def node_initial(dev_mode=False):
         {str} -- Command output
     """
     import asyncio
-    from pathlib import Path
 
     ui_path = Path(__file__).parent / "ui"
 
@@ -378,7 +389,7 @@ async def read_package_json():
     Returns:
         {dict} -- NPM package.json as dict
     """
-    from pathlib import Path
+
     import json
 
     package_json_file = Path(__file__).parent / "ui" / "package.json"
@@ -394,6 +405,85 @@ async def read_package_json():
     log.debug("package.json:\n{p}", p=package_json)
 
     return package_json
+
+
+class FileCopy(Thread):
+    """Custom thread for copyfiles() function."""
+
+    def __init__(self, src: Path, dst: Path, queue: Queue):
+        """Initialize custom thread."""
+        super().__init__()
+
+        if not src.exists():
+            raise ValueError("{} does not exist", str(src))
+
+        self.src = src
+        self.dst = dst
+        self.queue = queue
+
+    def run(self):
+        """Put one object into the queue for each file."""
+        try:
+            try:
+                shutil.copy(self.src, self.dst)
+            except IOError as err:
+                self.queue.put(err)
+            else:
+                self.queue.put(self.src)
+        finally:
+            pass
+
+
+def copyfiles(src_files: Iterable[Path], dst_files: Iterable[Path]):
+    """Copy iterable of files from source to destination with threading."""
+    queue = Queue()
+    threads = ()
+    src_files_len = len(src_files)
+    dst_files_len = len(dst_files)
+
+    if src_files_len != dst_files_len:
+        raise ValueError(
+            "The number of source files "
+            + "({}) must match the number of destination files ({}).".format(
+                src_files_len, dst_files_len
+            )
+        )
+
+    for i, file in enumerate(src_files):
+        file_thread = FileCopy(src=file, dst=dst_files[i], queue=queue)
+        threads += (file_thread,)
+
+    for thread in threads:
+        thread.start()
+
+    for _file in src_files:
+        copied = queue.get()
+        log.success("Copied {}", str(copied))
+
+    for thread in threads:
+        thread.join()
+
+    for i, file in enumerate(dst_files):
+        if not file.exists():
+            raise RuntimeError("{} was not copied to {}", str(src_files[i]), str(file))
+
+    return True
+
+
+async def migrate_images(app_path, params):
+    """Migrate images from source code to install directory."""
+    images_dir = app_path / "static" / "images"
+    favicon_dir = images_dir / "favicons"
+    check_path(favicon_dir, create=True)
+    src_files = ()
+    dst_files = ()
+
+    for image in ("light", "dark", "favicon"):
+        src = Path(params["web"]["logo"][image])
+        dst = images_dir / f"{image + src.suffix}"
+        src_files += (src,)
+        dst_files += (dst,)
+    return copyfiles(src_files, dst_files)
 
 
 async def build_frontend(  # noqa: C901
@@ -426,7 +516,7 @@ async def build_frontend(  # noqa: C901
     """
     import hashlib
     import tempfile
-    from pathlib import Path
+
     from aiofile import AIOFile
     import json
     from hyperglass.constants import __version__
@@ -439,6 +529,7 @@ async def build_frontend(  # noqa: C901
         "_HYPERGLASS_CONFIG_": params,
         "_HYPERGLASS_VERSION_": __version__,
         "_HYPERGLASS_PACKAGE_JSON_": package_json,
+        "_HYPERGLASS_APP_PATH_": str(app_path),
     }
 
     # Set NextJS production/development mode and base URL based on
@@ -517,7 +608,7 @@ async def build_frontend(  # noqa: C901
                 elif dev_mode and not force:
                     log.debug("Running in developer mode, did not build new UI files")
 
-        migrate_static_assets(app_path)
+        await migrate_images(app_path, params)
 
     except Exception as e:
         raise RuntimeError(str(e)) from None
@@ -528,7 +619,7 @@ async def build_frontend(  # noqa: C901
 def set_app_path(required=False):
     """Find app directory and set value to environment variable."""
     import os
-    from pathlib import Path
+
     from getpass import getuser
 
     matched_path = None
@@ -581,7 +672,6 @@ def import_public_key(app_path, device_name, keystring):
         {bool} -- True if file was written
     """
     import re
-    from pathlib import Path
 
     if not isinstance(app_path, Path):
         app_path = Path(app_path)

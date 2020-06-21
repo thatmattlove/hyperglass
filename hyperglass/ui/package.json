@@ -24,7 +24,9 @@
     "chroma-js": "^2.1.0",
     "dayjs": "^1.8.25",
     "emotion-theming": "^10.0.27",
+    "favicons": "^6.1.0",
     "framer-motion": "^1.10.0",
+    "html-to-react": "^1.4.3",
     "lodash": "^4.17.15",
     "next": "^9.3.1",
     "react": "^16.13.1",
@@ -39,6 +41,7 @@
     "react-textfit": "^1.1.0",
     "string-format": "^2.0.0",
     "styled-system": "^5.1.5",
+    "tempy": "^0.5.0",
     "use-media": "^1.4.0",
     "yup": "^0.28.3"
   },
