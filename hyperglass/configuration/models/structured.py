@@ -4,7 +4,7 @@
 from typing import List
 
 # Third Party
-from pydantic import StrictInt, StrictStr, constr
+from pydantic import StrictStr, constr
 
 # Project
 from hyperglass.models import HyperglassModel
@@ -21,7 +21,6 @@ class StructuredRpki(HyperglassModel):
     """Control structured data response for RPKI state."""
 
     mode: constr(regex=r"(router|external)") = "router"
-    max_age: StrictInt = 24
 
 
 class Structured(HyperglassModel):

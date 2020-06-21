@@ -1,7 +1,7 @@
 ---
-id: cache
-title: Caching
-sidebar_label: Caching
+id: response-caching
+title: Response Caching
+sidebar_label: Response Caching
 keywords: [configuration, cache, timeout]
 description: hyperglass caching configuration
 ---
@@ -16,7 +16,7 @@ Common Redis parameters are configurable, in case you already have a dedicated R
 | `port`      | Integer | `6379`        | Redis server TCP port.                                        |
 | `database`  | Integer | `1`           | Database ID for hyperglass.                                   |
 | `timeout`   | Integer | `120`         | Time in seconds query output will be kept in the Redis cache. |
-| `show_text` | Boolean | `true`        | Show the [cache message](ui.mdx#text) in the hyperglass UI.   |
+| `show_text` | Boolean | `true`        | Show the [cache message](ui/text) in the hyperglass UI.       |
 
 :::important Caching
 hyperglass caches every query response to a Redis database, and always responds to a request with the cached value. If hyperglass receives a query for which it has no matching cached entry, the query parameters are used to created a new cache entry, hyperglass executes the request normally, writes the response to the cache, and then returns the response to the end user.

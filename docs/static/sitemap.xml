@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://hyperglass.io/docs/api</loc>
-  </url>
-
-  <url>
     <loc>https://hyperglass.io/docs/cache</loc>
   </url>
 
@@ -41,6 +37,10 @@
   </url>
 
   <url>
+    <loc>https://hyperglass.io/docs/oldui</loc>
+  </url>
+
+  <url>
     <loc>https://hyperglass.io/docs/platforms</loc>
   </url>
 
@@ -53,15 +53,15 @@
   </url>
 
   <url>
+    <loc>https://hyperglass.io/docs/rest-api</loc>
+  </url>
+
+  <url>
     <loc>https://hyperglass.io/docs/setup</loc>
   </url>
 
   <url>
     <loc>https://hyperglass.io/docs/structured-data</loc>
-  </url>
-
-  <url>
-    <loc>https://hyperglass.io/docs/ui</loc>
   </url>
 
   <url>
@@ -74,5 +74,25 @@
 
   <url>
     <loc>https://hyperglass.io/docs/agent/setup</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/ui/configuration</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/ui/example</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/ui/logo</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/ui/text</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/ui/theme</loc>
   </url>
 </urlset>

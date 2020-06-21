@@ -1,9 +1,17 @@
 ---
-id: structured-data
-title: Structured Data
-sidebar_label: Structured Data
+id: table-output
+title: Table Output
+sidebar_label: Table Output
 description: Configure structured data parameters
 ---
+
+Devices that support responding to a query with structured or easily parsable data can have their response data placed into an easier to read table (or JSON, when using the [REST API](rest-api)). Currently, the following platforms have structured data supported in hyperglass:
+
+- Juniper Junos
+
+:::note
+Unlike with standard text output, devices with structured data enabled do not support customization of their commands. This is because the response must be something hyperglass is preconfigured to understand and parse, so hyperglass must maintain control over the specific command to run for a given platform.
+:::
 
 <div class="table--full-width" />
 

@@ -1,7 +1,7 @@
 ---
-id: devices
-title: Devices
-sidebar_label: Devices
+id: adding-devices
+title: Adding Devices
+sidebar_label: Adding Devices
 keywords:
   [hyperglass, authentication, ssl, proxy, access list, prefix list, acl, help]
 description: Adding devices to hyperglass
@@ -23,7 +23,7 @@ import Code from "../src/components/JSXCode";
 | <R/> `network`      | String  | Primary network this device is a member of. Used for device grouping. Usually something like 'AS65000'.            |
 | <R/> `display_name` | String  | Device's user-facing name.                                                                                         |
 | <R/> `port`         | Integer | TCP port used to connect to the device.                                                                            |
-| <R/> `nos`          | String  | Network Operating System. <MiniNote>Must be a <Link to="/docs/platforms">supported platform</Link>.</MiniNote>     |
+| <R/> `nos`          | String  | Network Operating System. <MiniNote>Must be a <Link to="platforms">supported platform</Link>.</MiniNote>           |
 | `structured_output` | Boolean | Disabled output parsing to structured data.                                                                        |
 | <R/>`credential`    |         | [Device Credential Configuration](#credential)                                                                     |
 | <R/>`vrfs`          |         | [Device VRF Configuration](#vrf)                                                                                   |
@@ -32,15 +32,15 @@ import Code from "../src/components/JSXCode";
 
 ### `proxy`
 
-Any device that uses SSH (see [platforms](platforms.mdx) for breakdown) can be accessed through an intermediary SSH "proxy". The process is nearly identical to using local SSH tunneling, e.g. `ssh -L local_port:remote_device:remote_port username@proxy_server -p proxy_port`.
+Any device that uses SSH (see [platforms](platforms) for breakdown) can be accessed through an intermediary SSH "proxy". The process is nearly identical to using local SSH tunneling, e.g. `ssh -L local_port:remote_device:remote_port username@proxy_server -p proxy_port`.
 
-| Parameter         |  Type   | Default       | Description                                                                                                            |
-| :---------------- | :-----: | :------------ | :--------------------------------------------------------------------------------------------------------------------- |
-| <R/> `name`       | String  |               | Proxy hostname.                                                                                                        |
-| <R/> `address`    | String  |               | Proxy management hostname or IP address.                                                                               |
-| <R/> `credential` |         |               | <Link to="#credential">Proxy Credential Configuration</Link>                                                           |
-| `nos`             | String  | `'linux_ssh'` | Proxy's network operating system. <MiniNote>Must be a <Link to="/docs/platforms">supported platform</Link>.</MiniNote> |
-| `port`            | Integer | `22`          | TCP port user to connect to the proxy.                                                                                 |
+| Parameter         |  Type   | Default       | Description                                                                                                      |
+| :---------------- | :-----: | :------------ | :--------------------------------------------------------------------------------------------------------------- |
+| <R/> `name`       | String  |               | Proxy hostname.                                                                                                  |
+| <R/> `address`    | String  |               | Proxy management hostname or IP address.                                                                         |
+| <R/> `credential` |         |               | [Proxy Credential Configuration](#credential)                                                                    |
+| `nos`             | String  | `'linux_ssh'` | Proxy's network operating system. <MiniNote>Must be a <Link to="platforms">supported platform</Link>.</MiniNote> |
+| `port`            | Integer | `22`          | TCP port user to connect to the proxy.                                                                           |
 
 :::important
 Currently, only `linux_ssh` has been tested and validated for use as an SSH proxy.
@@ -76,9 +76,9 @@ The VRFs section is a list of available VRFs for a given device. Each VRF may be
 | :------------- | :----- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | <R/> `name`    | String | The VRF's name, as known **by the device**. <MiniNote>hyperglass sends this field to the device for queries, so it needs to match the device's configuration.</MiniNote>                             |
 | `display_name` | String | The VRF's user-facing name. This field's value is visible in the UI. <MiniNote>If this is not specified, hyperglass will try to create a "pretty" display name based on the `name` field.</MiniNote> |
-| `info`         |        | <Link to="#info">Per-VRF Contextual Help Configuration</Link>                                                                                                                                        |
-| `ipv4`         |        | <Link to="#ipv4">VRF's IPv4 Configuration</Link>                                                                                                                                                     |
-| `ipv6`         |        | <Link to="#ipv6">VRF's IPv6 Configuration</Link>                                                                                                                                                     |
+| `info`         |        | [Per-VRF Contextual Help Configuration](#info)                                                                                                                                                       |
+| `ipv4`         |        | [VRF's IPv4 Configuration](#ipv4)                                                                                                                                                                    |
+| `ipv6`         |        | [VRF's IPv6 Configuration](#ipv6)                                                                                                                                                                    |
 
 #### `ipv4`
 
