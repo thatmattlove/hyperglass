@@ -22,5 +22,5 @@ jobs:
       before_install:
         - docker build -t hyperglass/ubuntu -f .tests/app/ubuntu/Dockerfile .
       env:
-        - HYPERGLASS_UI_BUILD_TIMEOUT=180
+        - HYPERGLASS_UI_BUILD_TIMEOUT=600
       script: docker run hyperglass/ubuntu /tmp/setup.sh
