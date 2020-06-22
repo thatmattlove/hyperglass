@@ -6,7 +6,7 @@ HYPERGLASS_VERSION="1.0.0b42"
 
 MIN_PYTHON_MAJOR="3"
 MIN_PYTHON_MINOR="6"
-MIN_NODE_MAJOR="13"
+MIN_NODE_MAJOR="14"
 MIN_YARN_MAJOR="1"
 MIN_REDIS_MAJOR="4"
 
@@ -26,6 +26,8 @@ NEEDS_PYTHON="1"
 NEEDS_NODE="1"
 NEEDS_YARN="1"
 NEEDS_REDIS="1"
+
+export HYPERGLASS_UI_BUILD_TIMEOUT="180"
 
 has_cmd () {
     which $1 > /dev/null
@@ -49,14 +51,14 @@ catch_interrupt () {
 }
 
 semver () {
-    local ver_raw=$(echo "$1" | egrep -o '\d+\.\d+\.\d+')
+    local ver_raw=$(echo "$1" | egrep -o '[0-9]+\.[0-9]+\.[0-9]+')
     local ver_digits=( ${ver_raw//./ } )
     echo ${ver_digits[@]}
 }
 
 parse_redis_version () {
-    local one=$(echo "$@" | egrep -o 'v=\d+\.\d+\.\d+')
-    local two=$(echo $one | egrep -o '\d+\.\d+\.\d+')
+    local one=$(echo "$@" | egrep -o 'v=[0-9]+\.[0-9]+\.[0-9]+')
+    local two=$(echo $one | egrep -o '[0-9]+\.[0-9]+\.[0-9]+')
     echo $two
 }
 
@@ -82,7 +84,7 @@ python3_version () {
 
 node_version () {
     local ver_digits=($(semver "$(node --version)"))
-    local major=${ver_digits[0]}
+    local major="${ver_digits[0]}"
     
     if [[ $major < $MIN_NODE_MAJOR ]]; then
         echo "1"
@@ -221,7 +223,7 @@ redis_post () {
 }
 
 node_apt_prepare () {
-    curl -sL https://deb.nodesource.com/setup_13.x -o /tmp/nodesetup.sh
+    curl -sL https://deb.nodesource.com/setup_$MIN_NODE_MAJOR.x -o /tmp/nodesetup.sh
     sleep 1
     bash /tmp/nodesetup.sh
     NEEDS_UPDATE="1"
@@ -236,7 +238,7 @@ yarn_apt_prepare () {
 }
 
 node_yum_prepare () {
-    curl -sL https://rpm.nodesource.com/setup_13.x -o /tmp/nodesetup.sh
+    curl -sL https://rpm.nodesource.com/setup_$MIN_NODE_MAJOR.x -o /tmp/nodesetup.sh
     bash /tmp/nodesetup.sh
     sleep 1
     NEEDS_UPDATE="1"
@@ -287,11 +289,6 @@ yarn_brew () {
 python_apt () {
     apt-get install -y python3.6-dev python3-pip > /dev/null
     sleep 1
-    # curl -sSL http://mirrors.kernel.org/ubuntu/pool/main/p/python3.6/python3.6_3.6.9-1~18.04_amd64.deb -o /tmp/python3.deb
-    # curl -sSL http://mirrors.kernel.org/ubuntu/pool/universe/p/python-pip/python3-pip_9.0.1-2_all.deb -o /tmp/pip3.deb
-    # apt-get install -y /tmp/python3.deb
-    # apt-get install -y /tmp/pip3.deb
-    # source $HOME/.profile
     python_post $?
 }
 
@@ -422,53 +419,32 @@ install_redis () {
     fi
 }
 
-# The below script was necessary prior to hyperglass being on PyPI
+# The below script installs locally instead of from PyPI
 #
-# install_app () {
-#     echo "[INFO] Installing hyperglass..."
-
-#     curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -o /tmp/get-poetry.py
-#     python3 /tmp/get-poetry.py -f -y > /dev/null
-#     sleep 1
-#     source $HOME/.profile
-
-#     [ -d "/tmp/hyperglass" ] && rm -rf /tmp/hyperglass
-#     [ -d "/tmp/build" ] && rm -rf /tmp/build
-    
-#     git clone --branch v1.0.0 --depth 1 https://github.com/checktheroads/hyperglass.git /tmp/hyperglass
-#     cd /tmp/hyperglass
-#     poetry build
-#     mkdir /tmp/build
-    
-#     local build_tarball="/tmp/hyperglass/dist/hyperglass-$HYPERGLASS_VERSION.tar.gz"
-#     local build_dir="/tmp/build/hyperglass-$HYPERGLASS_VERSION"
-    
-#     tar -xvf $build_tarball -C /tmp/build
-#     cd $build_dir
-#     pip3 install . > /dev/null
-
-#     if [[ ! $? == 0 ]]; then
-#         echo "[ERROR] An error occurred while trying to install hyperglass."
-#         exit 1
-#     else
-#         source $HOME/.profile
-#         export LC_ALL=C.UTF-8
-#         export LANG=C.UTF-8
-#         local successful=$(has_cmd "hyperglass")
-#         if [[ $successful == 0 ]]; then
-#             echo "[SUCCESS] Installed hyperglass."
-#         else
-#             echo "[ERROR] hyperglass installation succeeded, but the hyperglass command was not found."
-#             exit 1
-#         fi
-#     fi
-#     rm -rf /tmp/build
-# }
-
 install_app () {
     echo "[INFO] Installing hyperglass..."
 
-    pip3 install "hyperglass==$HYPERGLASS_VERSION" > /dev/null
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -o /tmp/get-poetry.py
+    python3 /tmp/get-poetry.py -f -y > /dev/null
+    sleep 1
+    source $HOME/.profile
+
+    [ -d "/tmp/hyperglass" ] && rm -rf /tmp/hyperglass
+    [ -d "/tmp/build" ] && rm -rf /tmp/build
+    
+    git clone --branch v1.0.0 --depth 1 https://github.com/checktheroads/hyperglass.git /tmp/hyperglass
+    cd /tmp/hyperglass
+    poetry build
+    mkdir /tmp/build
+    
+    # local build_tarball="/tmp/hyperglass/dist/hyperglass-build.tar.gz"
+    local build_tarballs=(/tmp/hyperglass/dist/*.tar.gz)
+    local build_tarball=${build_tarballs[-1]}
+    local build_dir=$(basename $build_tarball .tar.gz)
+    
+    tar -xvf /tmp/hyperglass/dist/$build_dir.tar.gz -C /tmp/build
+    cd /tmp/build/$build_dir
+    pip3 install . > /dev/null
 
     if [[ ! $? == 0 ]]; then
         echo "[ERROR] An error occurred while trying to install hyperglass."
@@ -485,7 +461,33 @@ install_app () {
             exit 1
         fi
     fi
+    rm -rf /tmp/build
 }
+
+# The below script installs from PyPI, which requires a package matching $HYPERGLASS_VERSION to exist on
+# PyPI, which is not ideal for CI testing, since you don't really want to push code that potentially doesn't work.
+#
+# install_app () {
+#     echo "[INFO] Installing hyperglass..."
+
+#     pip3 install "hyperglass==$HYPERGLASS_VERSION" > /dev/null
+
+#     if [[ ! $? == 0 ]]; then
+#         echo "[ERROR] An error occurred while trying to install hyperglass."
+#         exit 1
+#     else
+#         source $HOME/.profile
+#         export LC_ALL=C.UTF-8
+#         export LANG=C.UTF-8
+#         local successful=$(has_cmd "hyperglass")
+#         if [[ $successful == 0 ]]; then
+#             echo "[SUCCESS] Installed hyperglass."
+#         else
+#             echo "[ERROR] hyperglass installation succeeded, but the hyperglass command was not found."
+#             exit 1
+#         fi
+#     fi
+# }
 
 trap catch_interrupt SIGINT
 
