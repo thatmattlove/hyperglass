@@ -27,8 +27,6 @@ NEEDS_NODE="1"
 NEEDS_YARN="1"
 NEEDS_REDIS="1"
 
-export HYPERGLASS_UI_BUILD_TIMEOUT="180"
-
 has_cmd () {
     which $1 > /dev/null
 
