@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-## 1.0.0-beta42 - 2019-02-15
+## 1.0.0-beta43 - 2020-06-22
+
+### Fixed
+- Logo path handling in UI
+
+## 1.0.0-beta42 - 2020-06-21
 
 ### Added
 - Automatic favicon generation
