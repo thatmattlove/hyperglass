@@ -431,7 +431,7 @@ vrfs = _build_vrfs()
 networks = _build_networks()
 frontend_networks = _build_frontend_networks()
 frontend_devices = _build_frontend_devices()
-_frontend_fields = {
+_include_fields = {
     "cache": {"show_text", "timeout"},
     "debug": ...,
     "developer_mode": ...,
@@ -445,7 +445,12 @@ _frontend_fields = {
     "web": ...,
     "messages": ...,
 }
-_frontend_params = params.dict(include=_frontend_fields)
+_frontend_params = params.dict(include=_include_fields)
+
+
+_frontend_params["web"]["logo"]["light_format"] = params.web.logo.light.suffix
+_frontend_params["web"]["logo"]["dark_format"] = params.web.logo.dark.suffix
+
 _frontend_params.update(
     {
         "hyperglass_version": __version__,

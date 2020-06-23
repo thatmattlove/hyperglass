@@ -59,21 +59,22 @@ const TextOnly = ({ text, mediaSize, showSubtitle, ...props }) => (
   </Stack>
 );
 
-const Logo = ({ text, logo, showSubtitle }) => {
+const Logo = ({ text, logo }) => {
   const { colorMode } = useColorMode();
-  const logoColor = { light: logo.dark, dark: logo.light };
-  const logoPath = logoColor[colorMode];
-  return <Image src={logoPath} alt={text.title} width={logo.width ?? "auto"} />;
+  const logoExt = { light: logo.dark_format, dark: logo.light_format };
+  const logoName = { light: "dark", dark: "light" };
+  return (
+    <Image
+      alt={text.title}
+      width={logo.width ?? "auto"}
+      src={`/images/${logoName[colorMode]}${logoExt[colorMode]}`}
+    />
+  );
 };
 
 const LogoSubtitle = ({ text, logo, showSubtitle, mediaSize }) => (
   <>
-    <Logo
-      text={text}
-      logo={logo}
-      showSubtitle={showSubtitle}
-      mediaSize={mediaSize}
-    />
+    <Logo text={text} logo={logo} mediaSize={mediaSize} />
     <AnimatePresence>
       {showSubtitle && (
         <AnimatedSubtitle mt={6} text={text.subtitle} {...subtitleAnimation} />
@@ -84,7 +85,7 @@ const LogoSubtitle = ({ text, logo, showSubtitle, mediaSize }) => (
 
 const All = ({ text, logo, mediaSize, showSubtitle }) => (
   <>
-    <Logo text={text} logo={logo} showSubtitle={showSubtitle} />
+    <Logo text={text} logo={logo} />
     <TextOnly
       mediaSize={mediaSize}
       showSubtitle={showSubtitle}
