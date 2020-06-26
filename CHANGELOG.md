@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 1.0.0-beta44 - 2020-06-26
+
+### Added
+- Support for Microsoft Teams webhook
+
+### Fixed
+- If webhooks were enabled, a hung test connection to RIPEStat would cause the query to time out
+
 ## 1.0.0-beta43 - 2020-06-22
 
 ### Fixed
