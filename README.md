@@ -29,9 +29,11 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 
 <br/>
 
-⚠️ **v1.0.0** *is currently in beta. While everything should work, some things might not. Documentation and the live demo are not yet complete. For a fully working and documented version of hyperglass, **please go to the [master branch](https://github.com/checktheroads/hyperglass/tree/master)**.*
+⚠️ **v1.0.0** *is currently in beta. While everything should work, some things might not. Documentation and the live demo are not yet complete. For a fully working and documented version of hyperglass, **please go to the [v0 branch](https://github.com/checktheroads/hyperglass/tree/v0)**.*
 
 </div>
+
+### [Changelog](https://github.com/checktheroads/hyperglass/blob/v1.0.0/CHANGELOG.md)
 
 ## Features
 

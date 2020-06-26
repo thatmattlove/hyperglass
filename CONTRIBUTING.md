@@ -1,47 +1,18 @@
-## Getting Help
+hyperglass is primarily maintained by me, [Matt Love](https://github.com/checktheroads). This is my first ever open source application, and as such, it's kind of my "baby". When I first started writing hyperglass, I knew _nothing_ about development, Python, Javascript, or Github. I was a network engineer trying to solve a problem and learn a few things while I was at it.
 
-If you encounter any issues installing or using hyperglass, open a GitHub issue.
+Because I've been solo-maintaining and building hyperglass since around April 2019, I've become pretty particular about things that might seem trivial to someone just trying to help out. While I **absolutely welcome development contributions**, please don't be offended if pull requests are denied, or if I request things to be done a certain way. To help understand why, here are some of the development design goals for hyperglass:
 
-## Reporting Bugs
-
--   Check the [GitHub issues list](https://github.com/checktheroads/hyperglass/issues)
-    to see if the bug you've found has already been reported. Feel free to add a comment describing how it's affecting your installation.
-
--   When submitting an issue, please be as descriptive as possible. Be sure to include:
-
-        - The environment in which hyperglass is running
-        - (Scrubbed) `configuration.toml` and `devices.toml` files
-        - The exact steps that can be taken to reproduce the issue (if applicable)
-        - Any error messages or exceptions generated
-        - Screenshots (if applicable)
-
--   Please avoid prepending any sort of tag (e.g. "Bug") to the issue title. The issue will be appropriately tagged after it is reviewed.
-
-## Feature Requests
-
--   First, check the [GitHub issues list](https://github.com/checktheroads/hyperglass/issues) to see if the feature you're requesting is already listed. Feel free to add a comment supporting the addition of the feature.
-
--   When submitting a feature request on GitHub, be sure to include the
-    following:
-
-        - A detailed description of the proposed functionality
-        - A use case for the feature; who would use it and what value it would add
-          to hyperglass
-        - Any third-party libraries or other resources which would be involved
-
--   Please avoid prepending any sort of tag (e.g. "Feature") to the issue title. The issue will be appropriately tagged after it is reviewed.
-
-## Submitting Pull Requests
-
--   Be sure to open an issue **before** starting work on a pull request, and discuss your idea with the hyperglass maintainers before beginning work. This will help prevent wasting time on something that may be out of hyperglass's intended scope.
-
--   Any pull request which does _not_ relate to an accepted issue will be closed.
-
--   When submitting a pull request, please be sure to work off of the `develop` branch, rather than `master`. The `develop` branch is used for ongoing development, while `master` is used for stable, tested, release-worthy versions of hyperglass.
-
--   All code submissions should meet the following criteria (CI will enforce
-    these checks):
-
-        - Python syntax is valid
-        - Python code is [black](https://github.com/python/black) formatted
-        - Python code is rated **10/10** by Pylint (using provided `.pylintrc` files)
+- **Pristine code quality**
+  - [Black](https://github.com/python/black) formatting for Python
+  - Strict adherence to ESLint/Prettier configs for Javascript/React
+  - *ZERO* linting errors
+  - Linting exceptions only used when there is *no other way*, and should be accompanied with comments about why there is no other way.
+- **No hard-coding**
+  - Anything visible to the end-user *must* be customizable by the administrator. If it's not, or can't be, leave code or PR comments as to why.
+  - This includes things like timeouts, error messages, etc.
+- **Mobile & Accessible**
+  - All UI element must be available on both desktop and mobile devices
+  - UI must achieve a 100 Lighthouse/PageInsights score for accessibility
+- **IPv6 Support**
+  - Any new device support must include IPv6 commands
+  - All frontend and backend code must support IPv6, both for running the application and processing queries
