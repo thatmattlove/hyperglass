@@ -12,7 +12,7 @@ class SlackHook(BaseExternal, name="Slack"):
     def __init__(self, config):
         """Initialize external base class with Slack connection details."""
 
-        super().__init__(base_url="https://hooks.slack.com", config=config)
+        super().__init__(base_url="https://hooks.slack.com", config=config, parse=False)
 
     async def send(self, query):
         """Send an incoming webhook to Slack."""

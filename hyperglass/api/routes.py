@@ -6,7 +6,7 @@ import json
 import time
 
 # Third Party
-from fastapi import HTTPException
+from fastapi import HTTPException, BackgroundTasks
 from starlette.requests import Request
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 
@@ -25,15 +25,25 @@ from hyperglass.api.models.cert_import import EncodedRequest
 APP_PATH = os.environ["hyperglass_directory"]
 
 
-async def query(query_data: Query, request: Request):
-    """Ingest request data pass it to the backend application to perform the query."""
+async def send_webhook(query_data: Query, request: Request) -> int:
+    """If webhooks are enabled, get request info and send a webhook.
 
-    headers = await process_headers(headers=request.headers)
+    Args:
+        query_data (Query): Valid query
+        request (Request): Starlette/FastAPI request
 
-    async with RIPEStat() as ripe:
-        network_info = await ripe.network_info(request.client.host, serialize=True)
-
+    Returns:
+        int: Returns 1 regardless of result
+    """
     if params.logging.http is not None:
+        headers = await process_headers(headers=request.headers)
+
+        async with RIPEStat() as ripe:
+            host = headers.get(
+                "x-real-ip", headers.get("x-forwarded-for", request.client.host)
+            )
+            network_info = await ripe.network_info(host, serialize=True)
+
         async with Webhook(params.logging.http) as hook:
             await hook.send(
                 query={
@@ -43,6 +53,12 @@ async def query(query_data: Query, request: Request):
                     "network": network_info,
                 }
             )
+
+
+async def query(query_data: Query, request: Request, background_tasks: BackgroundTasks):
+    """Ingest request data pass it to the backend application to perform the query."""
+
+    background_tasks.add_task(send_webhook, query_data, request)
 
     # Initialize cache
     cache = Cache(db=params.cache.database, **REDIS_CONFIG)

@@ -4,7 +4,6 @@
 import re
 import json as _json
 import socket
-import asyncio
 from json import JSONDecodeError
 from socket import gaierror
 
@@ -124,10 +123,23 @@ class BaseExternal:
         log.debug("Testing connection to {}", self.base_url)
 
         try:
+            # Parse out just the hostname from a URL string.
+            # E.g. `https://www.example.com` becomes `www.example.com`
             test_host = re.sub(r"http(s)?\:\/\/", "", self.base_url)
-            socket.socket().connect((test_host, 443))
+
+            # Create a generic socket object
+            test_socket = socket.socket()
+
+            # Try opening a low-level socket to make sure it's even
+            # listening on the port prior to trying to use it.
+            test_socket.connect((test_host, 443))
+
+            # Properly shutdown & close the socket.
+            test_socket.shutdown(1)
+            test_socket.close()
 
         except gaierror as err:
+            # Raised if the target isn't listening on the port
             raise self._exception(
                 f"{self.name} appears to be unreachable", err
             ) from None
@@ -136,21 +148,7 @@ class BaseExternal:
 
     async def _atest(self):
         """Open a low-level connection to the base URL to ensure its port is open."""
-        log.debug("Testing connection to {}", self.base_url)
-
-        try:
-            test_host = re.sub(r"http(s)?\:\/\/", "", self.base_url)
-            _reader, _writer = await asyncio.open_connection(test_host, 443)
-
-        except gaierror as err:
-            raise self._exception(
-                f"{self.name} appears to be unreachable", err
-            ) from None
-
-        if _reader or _writer:
-            return True
-        else:
-            return False
+        return self._test()
 
     def _build_request(self, **kwargs):
         """Process requests parameters into structure usable by http library."""
