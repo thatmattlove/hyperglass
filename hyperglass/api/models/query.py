@@ -126,14 +126,25 @@ class Query(BaseModel):
         """Get this query's device object by query_location."""
         return getattr(devices, self.query_location)
 
-    def export_dict(self):
+    def export_dict(self, pretty=False):
         """Create dictionary representation of instance."""
-        return {
-            "query_location": self.query_location,
-            "query_type": self.query_type,
-            "query_vrf": self.query_vrf.name,
-            "query_target": str(self.query_target),
-        }
+        if pretty:
+            loc = getattr(devices, self.query_location)
+            query_type = getattr(params.queries, self.query_type)
+            items = {
+                "query_location": loc.display_name,
+                "query_type": query_type.display_name,
+                "query_vrf": self.query_vrf.display_name,
+                "query_target": str(self.query_target),
+            }
+        else:
+            items = {
+                "query_location": self.query_location,
+                "query_type": self.query_type,
+                "query_vrf": self.query_vrf.name,
+                "query_target": str(self.query_target),
+            }
+        return items
 
     def export_json(self):
         """Create JSON representation of instance."""

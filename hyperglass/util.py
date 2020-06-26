@@ -824,10 +824,7 @@ async def process_headers(headers):
     """Filter out unwanted headers and return as a dictionary."""
     headers = dict(headers)
     header_keys = (
-        "content-length",
-        "accept",
         "user-agent",
-        "content-type",
         "referer",
         "accept-encoding",
         "accept-language",

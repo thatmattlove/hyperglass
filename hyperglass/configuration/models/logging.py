@@ -53,7 +53,7 @@ class Http(HyperglassModelExtra):
     """HTTP logging parameters."""
 
     enable: StrictBool = True
-    provider: constr(regex=r"(slack|generic)") = "generic"
+    provider: constr(regex=r"(msteams|slack|generic)") = "generic"
     host: AnyHttpUrl
     authentication: Optional[HttpAuth]
     headers: Dict[StrictStr, Union[StrictStr, StrictInt, StrictBool, None]] = {}

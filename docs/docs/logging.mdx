@@ -57,10 +57,11 @@ If http logging is enabled, an HTTP POST will be sent to the configured target e
 
 ### Supported Providers
 
-| Provider                    | Parameter Value |
-| :-------------------------- | --------------: |
-| [Slack](https://slack.com/) |       `'slack'` |
-| Generic                     |     `'generic'` |
+| Provider                                                                                             | Parameter Value |
+| :--------------------------------------------------------------------------------------------------- | --------------: |
+| Generic                                                                                              |     `'generic'` |
+| [Microsoft Teams](https://www.microsoft.com/en-us/microsoft-365/microsoft-teams/group-chat-software) |     `'msteams'` |
+| [Slack](https://slack.com/)                                                                          |       `'slack'` |
 
 ### Authentication
 
@@ -87,10 +88,7 @@ If the `provider` field is set to `'generic'`, the webhook will POST JSON data i
   "query_vrf": "default",
   "query_target": "1.1.1.0/24",
   "headers": {
-    "content-length": "103",
-    "accept": "application/json, text/plain, */*",
     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36",
-    "content-type": "application/json;charset=UTF-8",
     "referer": "http://lg.example.com/",
     "accept-encoding": "gzip, deflate, br",
     "accept-language": "en-US,en;q=0.9,fr;q=0.8,lb;q=0.7,la;q=0.6"

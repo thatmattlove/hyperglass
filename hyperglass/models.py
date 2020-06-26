@@ -3,6 +3,7 @@
 # Standard Library
 import re
 from typing import TypeVar, Optional
+from datetime import datetime
 
 # Third Party
 from pydantic import HttpUrl, BaseModel, StrictInt, StrictStr, StrictFloat
@@ -12,6 +13,9 @@ from hyperglass.log import log
 from hyperglass.util import clean_name
 
 IntFloat = TypeVar("IntFloat", StrictInt, StrictFloat)
+
+_WEBHOOK_TITLE = "hyperglass received a valid query with the following data"
+_ICON_URL = "https://res.cloudinary.com/hyperglass/image/upload/v1593192484/icon.png"
 
 
 class HyperglassModel(BaseModel):
@@ -160,10 +164,7 @@ class StrictBytes(bytes):
 class WebhookHeaders(HyperglassModel):
     """Webhook data model."""
 
-    content_length: Optional[StrictStr]
-    accept: Optional[StrictStr]
     user_agent: Optional[StrictStr]
-    content_type: Optional[StrictStr]
     referer: Optional[StrictStr]
     accept_encoding: Optional[StrictStr]
     accept_language: Optional[StrictStr]
@@ -174,9 +175,7 @@ class WebhookHeaders(HyperglassModel):
         """Pydantic model config."""
 
         fields = {
-            "content_length": "content-length",
             "user_agent": "user-agent",
-            "content_type": "content-type",
             "accept_encoding": "accept-encoding",
             "accept_language": "accept-language",
             "x_real_ip": "x-real-ip",
@@ -201,6 +200,66 @@ class Webhook(HyperglassModel):
     headers: WebhookHeaders
     source: StrictStr
     network: WebhookNetwork
+    timestamp: datetime
+
+    def msteams(self):
+        """Format the webhook data as a Microsoft Teams card."""
+
+        def code(value):
+            """Wrap argument in backticks for markdown inline code formatting."""
+            return f"`{str(value)}`"
+
+        try:
+
+            header_data = [
+                {"name": k, "value": code(v)}
+                for k, v in self.headers.dict(by_alias=True).items()
+            ]
+
+            time_fmt = self.timestamp.strftime("%Y %m %d %H:%M:%S")
+            payload = {
+                "@type": "MessageCard",
+                "@context": "http://schema.org/extensions",
+                "themeColor": "118ab2",
+                "summary": _WEBHOOK_TITLE,
+                "sections": [
+                    {
+                        "activityTitle": _WEBHOOK_TITLE,
+                        "activitySubtitle": f"{time_fmt} UTC",
+                        "activityImage": _ICON_URL,
+                        "facts": [
+                            {"name": "Query Location", "value": self.query_location},
+                            {"name": "Query Target", "value": code(self.query_target)},
+                            {"name": "Query Type", "value": self.query_type},
+                            {"name": "Query VRF", "value": self.query_vrf},
+                        ],
+                    },
+                    {"markdown": True, "text": "**Source Information**"},
+                    {"markdown": True, "text": "---"},
+                    {
+                        "markdown": True,
+                        "facts": [
+                            {"name": "Source IP", "value": code(self.source)},
+                            {
+                                "name": "Source Prefix",
+                                "value": code(self.network.prefix),
+                            },
+                            {"name": "Source ASN", "value": code(self.network.asn)},
+                        ],
+                    },
+                    {"markdown": True, "text": "**Request Headers**"},
+                    {"markdown": True, "text": "---"},
+                    {"markdown": True, "facts": header_data},
+                ],
+            }
+
+            log.debug("Created MS Teams webhook: {}", str(payload))
+
+        except Exception as err:
+            log.error("Error while creating webhook: {}", str(err))
+            payload = {}
+
+        return payload
 
     def slack(self):
         """Format the webhook data as a Slack message."""
@@ -216,16 +275,18 @@ class Webhook(HyperglassModel):
                 field = make_field(k, v, code=True)
                 header_data.append(field)
 
-            query_details = (
-                ("Query Location", self.query_location),
-                ("Query Type", self.query_type),
-                ("Query VRF", self.query_vrf),
-                ("Query Target", self.query_target),
-            )
-            query_data = []
-            for k, v in query_details:
-                field = make_field(k, v)
-                query_data.append({"type": "mrkdwn", "text": field})
+            query_data = [
+                {
+                    "type": "mrkdwn",
+                    "text": make_field("Query Location", self.query_location),
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": make_field("Query Target", self.query_target, code=True),
+                },
+                {"type": "mrkdwn", "text": make_field("Query Type", self.query_type)},
+                {"type": "mrkdwn", "text": make_field("Query VRF", self.query_vrf)},
+            ]
 
             source_details = (
                 ("Source IP", self.source),
@@ -239,7 +300,7 @@ class Webhook(HyperglassModel):
                 source_data.append({"type": "mrkdwn", "text": field})
 
             payload = {
-                "text": "hyperglass received a valid query with the following data",
+                "text": _WEBHOOK_TITLE,
                 "blocks": [
                     {"type": "section", "fields": query_data},
                     {"type": "divider"},

@@ -5,10 +5,12 @@ from hyperglass.exceptions import HyperglassError
 from hyperglass.external._base import BaseExternal
 from hyperglass.external.slack import SlackHook
 from hyperglass.external.generic import GenericHook
+from hyperglass.external.msteams import MSTeams
 
 PROVIDER_MAP = {
-    "slack": SlackHook,
     "generic": GenericHook,
+    "msteams": MSTeams,
+    "slack": SlackHook,
 }
 
 

@@ -4,6 +4,7 @@
 import os
 import json
 import time
+from datetime import datetime
 
 # Third Party
 from fastapi import HTTPException, BackgroundTasks
@@ -25,7 +26,7 @@ from hyperglass.api.models.cert_import import EncodedRequest
 APP_PATH = os.environ["hyperglass_directory"]
 
 
-async def send_webhook(query_data: Query, request: Request) -> int:
+async def send_webhook(query_data: Query, request: Request, timestamp: datetime) -> int:
     """If webhooks are enabled, get request info and send a webhook.
 
     Args:
@@ -47,10 +48,11 @@ async def send_webhook(query_data: Query, request: Request) -> int:
         async with Webhook(params.logging.http) as hook:
             await hook.send(
                 query={
-                    **query_data.export_dict(),
+                    **query_data.export_dict(pretty=True),
                     "headers": headers,
                     "source": request.client.host,
                     "network": network_info,
+                    "timestamp": timestamp,
                 }
             )
 
@@ -58,7 +60,8 @@ async def send_webhook(query_data: Query, request: Request) -> int:
 async def query(query_data: Query, request: Request, background_tasks: BackgroundTasks):
     """Ingest request data pass it to the backend application to perform the query."""
 
-    background_tasks.add_task(send_webhook, query_data, request)
+    timestamp = datetime.utcnow()
+    background_tasks.add_task(send_webhook, query_data, request, timestamp)
 
     # Initialize cache
     cache = Cache(db=params.cache.database, **REDIS_CONFIG)
