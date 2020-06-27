@@ -20,12 +20,17 @@ def parse_juniper(output):
             )
 
             if "rpc-reply" in parsed.keys():
-                parsed = parsed["rpc-reply"]["route-information"]["route-table"]
+                parsed_base = parsed["rpc-reply"]["route-information"]
             elif "route-information" in parsed.keys():
-                parsed = parsed["route-information"]["route-table"]
+                parsed_base = parsed["route-information"]
 
-            if "rt" not in parsed:
+            if "route-table" not in parsed_base:
                 raise ResponseEmpty(params.messages.no_output)
+
+            if "rt" not in parsed_base["route-table"]:
+                raise ResponseEmpty(params.messages.no_output)
+
+            parsed = parsed_base["route-table"]
 
             validated = JuniperRoute(**parsed)
             serialized = validated.serialize().export_dict()

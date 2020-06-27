@@ -83,23 +83,20 @@ class Connect:
         log.debug(f"Pre-parsed responses:\n{output}")
         parsed = ()
         response = None
-        try:
-            if not self.device.structured_output:
-                for coro in parsers:
-                    for response in output:
-                        _output = await coro(commands=self.query, output=response)
-                        parsed += (_output,)
-                response = "\n\n".join(parsed)
-            elif (
-                self.device.structured_output
-                and self.device.nos in nos_parsers.keys()
-                and self.query_type in nos_parsers[self.device.nos].keys()
-            ):
-                func = nos_parsers[self.device.nos][self.query_type]
-                response = func(output)
-        except Exception as err:
-            log.critical(str(err))
-            raise ResponseEmpty(params.messages.parsing_error)
+
+        if not self.device.structured_output:
+            for coro in parsers:
+                for response in output:
+                    _output = await coro(commands=self.query, output=response)
+                    parsed += (_output,)
+            response = "\n\n".join(parsed)
+        elif (
+            self.device.structured_output
+            and self.device.nos in nos_parsers.keys()
+            and self.query_type in nos_parsers[self.device.nos].keys()
+        ):
+            func = nos_parsers[self.device.nos][self.query_type]
+            response = func(output)
 
         if response is None:
             response = "\n\n".join(output)
