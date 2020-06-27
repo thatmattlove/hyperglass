@@ -5,7 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 1.0.0-beta45 - 2020-06-27
+
+### Fixed
+- Webhook construction bugs that caused webhooks not to send
+- Empty response handling for table output
+
+### Changed
+- Removed RIPEStat for external data gathering, switched to [bgp.tools](https://bgp.tools)
 
 ## 1.0.0-beta44 - 2020-06-26
 
