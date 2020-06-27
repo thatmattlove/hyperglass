@@ -16,7 +16,7 @@ from hyperglass.log import log
 from hyperglass.util import clean_name, process_headers, import_public_key
 from hyperglass.cache import Cache
 from hyperglass.encode import jwt_decode
-from hyperglass.external import Webhook, RIPEStat
+from hyperglass.external import Webhook, bgptools
 from hyperglass.exceptions import HyperglassError
 from hyperglass.configuration import REDIS_CONFIG, params, devices
 from hyperglass.api.models.query import Query
@@ -26,7 +26,7 @@ from hyperglass.api.models.cert_import import EncodedRequest
 APP_PATH = os.environ["hyperglass_directory"]
 
 
-async def send_webhook(query_data: Query, request: Request, timestamp: datetime) -> int:
+async def send_webhook(query_data: Query, request: Request, timestamp: datetime):
     """If webhooks are enabled, get request info and send a webhook.
 
     Args:
@@ -36,25 +36,34 @@ async def send_webhook(query_data: Query, request: Request, timestamp: datetime)
     Returns:
         int: Returns 1 regardless of result
     """
-    if params.logging.http is not None:
-        headers = await process_headers(headers=request.headers)
+    try:
+        if params.logging.http is not None:
+            headers = await process_headers(headers=request.headers)
 
-        async with RIPEStat() as ripe:
-            host = headers.get(
-                "x-real-ip", headers.get("x-forwarded-for", request.client.host)
-            )
-            network_info = await ripe.network_info(host, serialize=True)
+            if headers.get("x-real-ip") is not None:
+                host = headers["x-real-ip"]
+            elif headers.get("x-forwarded-for") is not None:
+                host = headers["x-forwarded-for"]
+            else:
+                host = request.client.host
 
-        async with Webhook(params.logging.http) as hook:
-            await hook.send(
-                query={
-                    **query_data.export_dict(pretty=True),
-                    "headers": headers,
-                    "source": request.client.host,
-                    "network": network_info,
-                    "timestamp": timestamp,
-                }
-            )
+            network_info = await bgptools.network_info(host)
+
+            async with Webhook(params.logging.http) as hook:
+
+                await hook.send(
+                    query={
+                        **query_data.export_dict(pretty=True),
+                        "headers": headers,
+                        "source": host,
+                        "network": network_info,
+                        "timestamp": timestamp,
+                    }
+                )
+    except Exception as err:
+        log.error(
+            "Error sending webhook to {}: {}", params.logging.http.provider, str(err)
+        )
 
 
 async def query(query_data: Query, request: Request, background_tasks: BackgroundTasks):
