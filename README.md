@@ -64,9 +64,10 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 
 ## Community
 
+- [Telegram](https://t.me/hyperglasslg)
 - [Gitter](https://gitter.im/hyperglass)
-- [Keybase](https://keybase.io/team/hyperglass)
 - [Twitter](https://twitter.com/checktheroads)
+- [Keybase](https://keybase.io/team/hyperglass)
 
 Any users, potential users, or contributors of hyperglass are welcome to join and discuss usage, feature requests, bugs, and other things.
 
