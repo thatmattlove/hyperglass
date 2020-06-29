@@ -346,6 +346,11 @@ class Connect:
                         )
                         log.debug(f"Decoded Response: {decoded}")
                         responses += (decoded,)
+                    elif raw_response.status_code == 204:
+                        raise ResponseEmpty(
+                            params.messages.no_output,
+                            device_name=self.device.display_name,
+                        )
 
                     else:
                         log.error(raw_response.text)

@@ -12,11 +12,13 @@ Before you get to far, check to make sure your hyperglass server and hyperglass-
 
 ## Setup
 
-Just like with hyperglass, the hyperglass agent is easy to set up. To automatically create an application directory, generate SSL certificates, generate and symlink a systemd file, and generate a random secret, run:
+To automatically create an application directory, generate SSL certificates, generate and symlink a systemd file, and generate a random secret, run:
 
 ```shell-session
-$ hyperglass setup
+$ hyperglass-agent setup
 ```
+
+If SSL is enabled (which is the default), take note of the secret key — you'll use this in the `password` for this device in hyperglass.
 
 :::note
 You can also run the setup wizard with certain options disabled, if needed:
