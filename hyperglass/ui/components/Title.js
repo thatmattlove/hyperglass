@@ -27,8 +27,15 @@ const TitleOnly = ({ text, showSubtitle }) => (
 
 const SubtitleOnly = React.forwardRef(
   ({ text, mediaSize, size = "md", ...props }, ref) => (
-    <Heading ref={ref} as="h3" size={size} {...props}>
-      <Textfit mode="single" max={mediaSize === "sm" ? 13 : 25}>
+    <Heading
+      ref={ref}
+      as="h3"
+      size={size}
+      whiteSpace="break-spaces"
+      textAlign={["left", "left", "center", "center"]}
+      {...props}
+    >
+      <Textfit mode="multi" max={mediaSize === "sm" ? 13 : 25}>
         {text}
       </Textfit>
     </Heading>
@@ -113,6 +120,7 @@ const Title = React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
   const MatchedMode = modeMap[titleMode];
   return (
     <Button
+      w="100%"
       ref={ref}
       variant="link"
       onClick={onClick}
