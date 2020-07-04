@@ -296,7 +296,7 @@ def make_systemd(user):
         {str} -- Generated systemd template
     """
 
-    import platform
+    import distro
 
     template = """
 [Unit]
@@ -313,7 +313,7 @@ ExecStart={hyperglass_path} start
 WantedBy=multi-user.target
     """
     known_rhel = ("rhel", "centos")
-    distro = platform.linux_distribution()
+    distro = distro.linux_distribution(full_distribution_name=False)
     if distro[0] in known_rhel:
         redis_name = "redis"
     else:
