@@ -49,7 +49,7 @@ const generateFavicons = (config, appPath) => {
   const callback = (err, response) => {
     handleError(err);
     writeFiles(`${appPath}/static/images/favicons`, response.images);
-    writeFiles(`${appPath}/static/ui`, response.files);
+    writeFiles(`${appPath}/static/images/favicons`, response.files);
     writeHtml(htmlFile, JSON.stringify(response.html));
     return;
   };
