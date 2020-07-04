@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Text, useColorMode, useTheme } from "@chakra-ui/core";
 import Select from "react-select";
 import { opposingColor } from "~/util";
@@ -61,10 +61,25 @@ const ChakraSelect = React.forwardRef(
       dark: theme.colors.whiteAlpha[700],
       light: theme.colors.gray[600]
     };
-    const menuBg = { dark: theme.colors.black, light: theme.colors.white };
+    const menuBg = {
+      dark: theme.colors.blackFaded[800],
+      light: theme.colors.whiteFaded[50]
+    };
     const menuColor = {
       dark: theme.colors.white,
       light: theme.colors.blackAlpha[800]
+    };
+    const scrollbar = {
+      dark: theme.colors.whiteAlpha[300],
+      light: theme.colors.blackAlpha[300]
+    };
+    const scrollbarHover = {
+      dark: theme.colors.whiteAlpha[400],
+      light: theme.colors.blackAlpha[400]
+    };
+    const scrollbarBg = {
+      dark: theme.colors.whiteAlpha[50],
+      light: theme.colors.blackAlpha[50]
     };
     return (
       <Select
@@ -95,6 +110,21 @@ const ChakraSelect = React.forwardRef(
             ...base,
             backgroundColor: menuBg[colorMode],
             borderRadius: borderRadius
+          }),
+          menuList: base => ({
+            ...base,
+            "&::-webkit-scrollbar": { width: "5px" },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: scrollbarBg[colorMode]
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: scrollbar[colorMode]
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: scrollbarHover[colorMode]
+            },
+
+            "-ms-overflow-style": { display: "none" }
           }),
           option: (base, state) => ({
             ...base,

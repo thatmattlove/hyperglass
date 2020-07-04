@@ -113,6 +113,7 @@ const generatePalette = palette => {
     } else {
       generatedPalette[color] = palette[color];
       generatedPalette[`${color}Alpha`] = alphaColors(palette[color]);
+      generatedPalette[`${color}Faded`] = generateColors(palette[color]);
     }
   });
   return generatedPalette;
