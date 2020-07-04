@@ -1,10 +1,11 @@
 import React from "react";
-import { Flex, IconButton, useColorMode } from "@chakra-ui/core";
+import { Flex, useColorMode } from "@chakra-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
 import ResetButton from "~/components/ResetButton";
 import useMedia from "~/components/MediaProvider";
 import useConfig, { useHyperglassState } from "~/components/HyperglassProvider";
 import Title from "~/components/Title";
+import { ColorModeToggle } from "~/components/ColorModeToggle";
 
 const AnimatedFlex = motion.custom(Flex);
 const AnimatedResetButton = motion.custom(ResetButton);
@@ -56,13 +57,13 @@ const resetButtonMl = { true: [null, 2, 2, 2], false: null };
 
 const widthMap = {
   text_only: "100%",
-  logo_only: ["90%", "90%", "25%", "25%"],
-  logo_subtitle: ["90%", "90%", "25%", "25%"],
-  all: ["90%", "90%", "25%", "25%"]
+  logo_only: ["90%", "90%", "50%", "50%"],
+  logo_subtitle: ["90%", "90%", "50%", "50%"],
+  all: ["90%", "90%", "50%", "50%"]
 };
 
 const Header = ({ layoutRef, ...props }) => {
-  const { colorMode, toggleColorMode } = useColorMode();
+  const { colorMode } = useColorMode();
   const { web } = useConfig();
   const { mediaSize } = useMedia();
   const { isSubmitting, resetForm } = useHyperglassState();
@@ -125,16 +126,7 @@ const Header = ({ layoutRef, ...props }) => {
       mb={[null, "auto"]}
       mr={isSubmitting ? null : 2}
     >
-      <IconButton
-        aria-label={colorSwitch[colorMode]}
-        variant="ghost"
-        color="current"
-        px={4}
-        p={null}
-        fontSize="20px"
-        onClick={toggleColorMode}
-        icon={icon[colorMode]}
-      />
+      <ColorModeToggle />
     </AnimatedFlex>
   );
   const layout = {
