@@ -92,10 +92,10 @@ class Greeting(HyperglassModel):
 class Logo(HyperglassModel):
     """Validation model for logo configuration."""
 
-    light: FilePath = DEFAULT_IMAGES / "hyperglass-light.png"
-    dark: FilePath = DEFAULT_IMAGES / "hyperglass-dark.png"
-    favicon: FilePath = DEFAULT_IMAGES / "icon.svg"
-    width: Optional[Union[StrictInt, constr(regex=r"^([1-9][0-9]?|100)\%$")]] = "80%"
+    light: FilePath = DEFAULT_IMAGES / "hyperglass-light.svg"
+    dark: FilePath = DEFAULT_IMAGES / "hyperglass-dark.svg"
+    favicon: FilePath = DEFAULT_IMAGES / "hyperglass-icon.svg"
+    width: Optional[Union[StrictInt, constr(regex=r"^([1-9][0-9]?|100)\%$")]] = "75%"
     height: Optional[Union[StrictInt, constr(regex=r"^([1-9][0-9]?|100)\%$")]]
 
 
@@ -144,8 +144,8 @@ class Text(HyperglassModel):
 class ThemeColors(HyperglassModel):
     """Validation model for theme colors."""
 
-    black: Color = "#262626"
-    white: Color = "#f7f7f7"
+    black: Color = "#121212"
+    white: Color = "#f5f6f7"
     gray: Color = "#c1c7cc"
     red: Color = "#d84b4b"
     orange: Color = "#ff6b35"

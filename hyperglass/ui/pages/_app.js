@@ -1,4 +1,5 @@
-import React from "react";
+import * as React from "react";
+import Head from "next/head";
 // import { useRouter } from "next/router";
 import { HyperglassProvider } from "~/components/HyperglassProvider";
 // import Error from "./_error";
@@ -11,9 +12,20 @@ const Hyperglass = ({ Component, pageProps }) => {
   //   return <Error msg="/structured" statusCode={404} />;
   // }
   return (
-    <HyperglassProvider config={config}>
-      <Component {...pageProps} />
-    </HyperglassProvider>
+    <>
+      <Head>
+        <title>hyperglass</title>
+        <meta httpEquiv="Content-Type" content="text/html" />
+        <meta charSet="UTF-8" />
+        <meta name="og:type" content="website" />
+        <meta name="og:image" content="/images/opengraph.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+      </Head>
+      <HyperglassProvider config={config}>
+        <Component {...pageProps} />
+      </HyperglassProvider>
+    </>
   );
 };
 

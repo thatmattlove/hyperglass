@@ -1,6 +1,7 @@
 """Utility functions."""
 
 # Standard Library
+import math
 import shutil
 from queue import Queue
 from typing import Iterable
@@ -413,6 +414,58 @@ async def read_package_json():
     return package_json
 
 
+def generate_opengraph(
+    image_path: Path,
+    max_width: int,
+    max_height: int,
+    target_path: Path,
+    background_color: str,
+):
+    """Generate an OpenGraph compliant image."""
+    from PIL import Image
+
+    def center_point(background: Image, foreground: Image):
+        """Generate a tuple of center points for PIL."""
+        bg_x, bg_y = background.size[0:2]
+        fg_x, fg_y = foreground.size[0:2]
+        x1 = math.floor((bg_x / 2) - (fg_x / 2))
+        y1 = math.floor((bg_y / 2) - (fg_y / 2))
+        x2 = math.floor((bg_x / 2) + (fg_x / 2))
+        y2 = math.floor((bg_y / 2) + (fg_y / 2))
+        return (x1, y1, x2, y2)
+
+    # Convert image to JPEG format with static name "opengraph.jpg"
+    dst_path = target_path / "opengraph.jpg"
+
+    # Copy the original image to the target path
+    copied = shutil.copy2(image_path, target_path)
+
+    with Image.open(copied) as src:
+
+        # Only resize the image if it needs to be resized
+        if src.size[0] != max_width or src.size[1] != max_height:
+
+            # Resize image while maintaining aspect ratio
+            src.thumbnail((max_width, max_height))
+
+        # Only impose a background image if the original image has
+        # alpha/transparency channels
+        if src.mode in ("RGBA", "LA"):
+            background = Image.new("RGB", (max_width, max_height), background_color)
+            background.paste(src, box=center_point(background, src))
+            dst = background
+        else:
+            dst = src
+
+        # Save new image to derived target path
+        dst.save(dst_path)
+
+        if not dst_path.exists():
+            raise RuntimeError(f"Unable to save resized image to {str(dst_path)}")
+
+    return True
+
+
 class FileCopy(Thread):
     """Custom thread for copyfiles() function."""
 
@@ -476,7 +529,7 @@ def copyfiles(src_files: Iterable[Path], dst_files: Iterable[Path]):
     return True
 
 
-async def migrate_images(app_path, params):
+async def migrate_images(app_path: Path, params: dict):
     """Migrate images from source code to install directory."""
     images_dir = app_path / "static" / "images"
     favicon_dir = images_dir / "favicons"
@@ -493,7 +546,12 @@ async def migrate_images(app_path, params):
 
 
 async def build_frontend(  # noqa: C901
-    dev_mode, dev_url, prod_url, params, app_path, force=False
+    dev_mode: bool,
+    dev_url: str,
+    prod_url: str,
+    params: dict,
+    app_path: Path,
+    force: bool = False,
 ):
     """Perform full frontend UI build process.
 
@@ -615,6 +673,14 @@ async def build_frontend(  # noqa: C901
                     log.debug("Running in developer mode, did not build new UI files")
 
         await migrate_images(app_path, params)
+
+        generate_opengraph(
+            Path(params["web"]["opengraph"]["image"]),
+            1200,
+            630,
+            app_path / "static" / "images",
+            params["web"]["theme"]["colors"]["black"],
+        )
 
     except Exception as e:
         raise RuntimeError(str(e)) from None

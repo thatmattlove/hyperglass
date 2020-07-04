@@ -13,11 +13,12 @@ class MyDocument extends Document {
         <Head>
           <link rel="dns-prefetch" href="//fonts.googleapis.com" />
           <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
+          <link
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossOrigin="true"
+          />
           <link rel="preconnect" href="https://www.google-analytics.com" />
-          <meta charSet="UTF-8" />
-          <meta httpEquiv="Content-Type" content="text/html" />
-          <meta name="og:type" content="website" />
         </Head>
         <body>
           <script src="noflash.js" />
