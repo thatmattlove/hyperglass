@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "hyperglass"
-version = "1.0.0-beta.46"
+version = "1.0.0-beta.47"
 description = "hyperglass is the modern network looking glass that tries to make the internet better."
 authors = ["Matt Love <matt@hyperglass.io>"]
 readme = "README.md"
@@ -36,6 +36,7 @@ inquirer = "^2.6.3"
 paramiko = "^2.7.1"
 gunicorn = "^20.0.4"
 xmltodict = "^0.12.0"
+distro = "^1.5.0"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.6.2"

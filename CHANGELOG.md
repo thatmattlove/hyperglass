@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta47 - 2020-07-04
+### Added
+- Opengraph images are now automatically generated in the correct format from any valid image file.
+- Better color mode toggle icons (they now match [hyperglass.io](https://hyperglass.io)).
+
+### Changed
+- Improved SEO & Accessibility for UI.
+- Default traceroute help link now points to new docs site.
+- Slightly different default black & white colors (they now match [hyperglass.io](https://hyperglass.io)).
+- Various docs site improvements
+
+### Fixed
+- Remove `platform.linux_distribution()` which was removed in Python 3.8
+- Width of page is no longer askew when `logo_subtitle` is set as the `title_mode`
+- Generated favicon manifest files now go to the correct directory.
+- Various docs site fixes
+
 ## 1.0.0-beta46 - 2020-06-28
 
 ### Added
