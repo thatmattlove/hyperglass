@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "name": "dev hyperglass",
+  "description": "Beloved Hyperglass User Network Looking Glass",
+  "icons": {
+    "60": "/images/favicons/firefox_app_60x60.png",
+    "128": "/images/favicons/firefox_app_128x128.png",
+    "512": "/images/favicons/firefox_app_512x512.png"
+  },
+  "developer": {
+    "name": null,
+    "url": null
+  }
+}

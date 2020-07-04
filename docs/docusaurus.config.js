@@ -13,6 +13,7 @@ module.exports = {
   organizationName: "checktheroads",
   projectName: "hyperglass",
   themeConfig: {
+    image: "opengraph.jpg",
     googleAnalytics: {
       trackingID: googleTrackingId || " ",
       anonymizeIP: false,
