@@ -2,11 +2,10 @@
 
 # Standard Library
 import os
-from typing import Optional
 from pathlib import Path
 
 # Third Party
-from pydantic import FilePath, StrictInt, validator
+from pydantic import FilePath, validator
 
 # Project
 from hyperglass.models import HyperglassModel
@@ -18,8 +17,6 @@ DEFAULT_IMAGES = Path(__file__).parent.parent.parent / "images"
 class OpenGraph(HyperglassModel):
     """Validation model for params.opengraph."""
 
-    width: Optional[StrictInt]
-    height: Optional[StrictInt]
     image: FilePath = DEFAULT_IMAGES / "hyperglass-opengraph.jpg"
 
     @validator("image")

@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://hyperglass.io/docs/cache</loc>
+    <loc>https://hyperglass.io/docs/adding-devices</loc>
   </url>
 
   <url>
     <loc>https://hyperglass.io/docs/commands</loc>
-  </url>
-
-  <url>
-    <loc>https://hyperglass.io/docs/configuration</loc>
-  </url>
-
-  <url>
-    <loc>https://hyperglass.io/docs/devices</loc>
   </url>
 
   <url>
@@ -37,6 +29,10 @@
   </url>
 
   <url>
+    <loc>https://hyperglass.io/docs/parameters</loc>
+  </url>
+
+  <url>
     <loc>https://hyperglass.io/docs/platforms</loc>
   </url>
 
@@ -45,7 +41,11 @@
   </url>
 
   <url>
-    <loc>https://hyperglass.io/docs/queries</loc>
+    <loc>https://hyperglass.io/docs/query-settings</loc>
+  </url>
+
+  <url>
+    <loc>https://hyperglass.io/docs/response-caching</loc>
   </url>
 
   <url>
@@ -57,7 +57,7 @@
   </url>
 
   <url>
-    <loc>https://hyperglass.io/docs/structured-data</loc>
+    <loc>https://hyperglass.io/docs/table-output</loc>
   </url>
 
   <url>
