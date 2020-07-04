@@ -87,7 +87,7 @@ Sends 5 ICMP echo requests to the target.
     "traceroute": """
 Performs UDP Based traceroute to the target. \
 For information about how to interpret traceroute results, [click here]\
-(https://hyperglass.readthedocs.io/en/latest/assets/traceroute_nanog.pdf).
+(https://hyperglass.io/traceroute_nanog.pdf).
 """,
 }
 
