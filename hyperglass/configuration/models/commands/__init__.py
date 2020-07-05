@@ -2,6 +2,7 @@
 
 # Project
 from hyperglass.models import HyperglassModelExtra
+from hyperglass.configuration.models.commands.vyos import VyosCommands
 from hyperglass.configuration.models.commands.arista import AristaCommands
 from hyperglass.configuration.models.commands.common import CommandGroup
 from hyperglass.configuration.models.commands.huawei import HuaweiCommands
@@ -17,6 +18,7 @@ _NOS_MAP = {
     "cisco_nxos": CiscoNXOSCommands,
     "arista": AristaCommands,
     "huawei": HuaweiCommands,
+    "vyos": VyosCommands,
 }
 
 
@@ -29,6 +31,7 @@ class Commands(HyperglassModelExtra):
     cisco_xr: CommandGroup = CiscoXRCommands()
     cisco_nxos: CommandGroup = CiscoNXOSCommands()
     huawei: CommandGroup = HuaweiCommands()
+    vyos: CommandGroup = VyosCommands()
 
     @classmethod
     def import_params(cls, input_params):

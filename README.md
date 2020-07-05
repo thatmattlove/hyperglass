@@ -1,6 +1,6 @@
 <div align="center">
   <br/>
-  <img src="logo.png" width=300></img>
+  <img src="https://res.cloudinary.com/hyperglass/image/upload/v1593916013/logo.svg" width=300></img>
   <br/>
   <h3>The network looking glass that tries to make the internet better.</h3>
   <br/>
@@ -47,6 +47,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
     - Juniper JunOS
     - Arista EOS
     - Huawei
+    - VyOS
     - FRRouting
     - BIRD
 - Configurable support for any other [supported platform](https://hyperglass.io/docs/platforms)

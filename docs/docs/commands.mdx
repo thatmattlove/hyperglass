@@ -28,6 +28,11 @@ hyperglass comes with built in support for the following platforms:
 - Juniper JunOS
 - Arista EOS
 - Huawei VRP
+- VyOS
+
+::: warning VyOS & VRFs
+As of `vyos-1.3-rolling-202007050117` which is the latest release VyOS has been tested with hyperglass, VyOS does not support BGP or other dynamic routing protocols in a VRF. As such, the default BGP commands for VyOS **omit the VRF from the command**.
+:::
 
 Default commands for each of these network operating systems are built into hyperglass. However, you may override any of them or even add commands for another Network Operating System (NOS), as long as it's [supported](platforms). To define custom commands, add a `commands.yaml` file to your installation directory (`/etc/hyperglass`,
 `~/hyperglass`). As an example, you could override the default Juniper `bgp_route` command for the default routing table like this:
@@ -83,8 +88,7 @@ command_name:
 
 You can also define your own arbitrary command groups, and reference them in your `devices.yaml` file. For example, if you wanted define a set of commands for a specific device to use, you could do it like this:
 
-```yaml
-# commands.yaml
+```yaml title=commands.yaml
 ---
 special_commands:
   ipv4_default:
@@ -101,8 +105,7 @@ You must define _all_ commands, even if they're disabled in your [configuration]
 
 Then, in the device's definition in `devices.yaml`, reference the command set:
 
-```yaml {5}
-# devices.yaml
+```yaml {5} title=devices.yaml
 ---
 routers:
   - name: specialrouter01
