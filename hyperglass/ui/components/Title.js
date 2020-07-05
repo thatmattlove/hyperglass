@@ -120,15 +120,17 @@ const Title = React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
   const MatchedMode = modeMap[titleMode];
   return (
     <Button
+      px={0}
       w="100%"
       ref={ref}
       variant="link"
-      onClick={onClick}
       flexWrap="wrap"
+      flexDir="column"
+      onClick={onClick}
       _focus={{ boxShadow: "none" }}
       _hover={{ textDecoration: "none" }}
-      px={0}
       justifyContent={justifyMap[isSubmitting]}
+      alignItems={["flex-start", "flex-start", "center"]}
       {...props}
     >
       <MatchedMode
