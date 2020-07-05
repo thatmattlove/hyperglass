@@ -439,6 +439,7 @@ def generate_opengraph(
 
     # Copy the original image to the target path
     copied = shutil.copy2(image_path, target_path)
+    log.debug("Copied {} to {}", str(image_path), str(target_path))
 
     with Image.open(copied) as src:
 
@@ -446,11 +447,13 @@ def generate_opengraph(
         if src.size[0] != max_width or src.size[1] != max_height:
 
             # Resize image while maintaining aspect ratio
+            log.debug("Opengraph image is not 1200x630, resizing...")
             src.thumbnail((max_width, max_height))
 
         # Only impose a background image if the original image has
         # alpha/transparency channels
         if src.mode in ("RGBA", "LA"):
+            log.debug("Opengraph image has transparency, converting...")
             background = Image.new("RGB", (max_width, max_height), background_color)
             background.paste(src, box=center_point(background, src))
             dst = background
@@ -460,8 +463,13 @@ def generate_opengraph(
         # Save new image to derived target path
         dst.save(dst_path)
 
+        # Delete the copied image
+        Path(copied).unlink()
+
         if not dst_path.exists():
             raise RuntimeError(f"Unable to save resized image to {str(dst_path)}")
+
+        log.debug("Opengraph image ready at {}", str(dst_path))
 
     return True
 
