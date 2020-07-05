@@ -91,46 +91,6 @@ For information about how to interpret traceroute results, [click here]\
 """,
 }
 
-DEFAULT_INFO = {
-    "bgp_route": """
----
-template: bgp_route
----
-Performs BGP table lookup based on IPv4/IPv6 prefix.
-""",
-    "bgp_community": """
----
-template: bgp_community
----
-Performs BGP table lookup based on <a href="https://tools.ietf.org/html/rfc4360" target\
-="_blank">Extended</a> or <a href="https://tools.ietf.org/html/rfc8195" target=\
-"_blank">Large</a> community value.
-
-""",
-    "bgp_aspath": """
----
-template: bgp_aspath
----
-Performs BGP table lookup based on `AS_PATH` regular expression.
-
-""",
-    "ping": """
----
-template: ping
----
-Sends 5 ICMP echo requests to the target.
-""",
-    "traceroute": """
----
-template: traceroute
----
-Performs UDP Based traceroute to the target.<br>For information about how to \
-interpret traceroute results, <a href="https://hyperglass.readthedocs.io/en/latest/ass\
-ets/traceroute_nanog.pdf" target="_blank">click here</a>.
-""",
-}
-
-
 DEFAULT_HELP = """
 ##### BGP Route
 
@@ -162,7 +122,7 @@ Sends 5 ICMP echo requests to the target.
 Performs UDP Based traceroute to the target.
 
 For information about how to interpret traceroute results, [click here]\
-(https://hyperglass.readthedocs.io/en/latest/assets/traceroute_nanog.pdf).
+(https://hyperglass.io/traceroute_nanog.pdf).
 """
 
 SUPPORTED_QUERY_FIELDS = ("query_location", "query_type", "query_target", "query_vrf")
