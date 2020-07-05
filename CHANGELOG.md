@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## 1.0.0-beta47 - 2020-07-04
+
+### Added
+- New NOS: **VyOS**. [See docs for important caveats](https://hyperglass.io/docs/commands).
+
+### Fixed
+- UI: If the logo `width` parameter was set to ~ 50% and the `title_mode` was set to `logo_subtitle`, the subtitle would appear next to the logo instead of underneath.
+- When copying the opengraph image, the copied image was not deleted.
+- Default traceroute help link now *actually* points to the new docs site.
+
+## 1.0.0-beta47 - 2020-07-04
 ### Added
 - Opengraph images are now automatically generated in the correct format from any valid image file.
 - Better color mode toggle icons (they now match [hyperglass.io](https://hyperglass.io)).
