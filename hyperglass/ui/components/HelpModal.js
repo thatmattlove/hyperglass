@@ -12,7 +12,7 @@ import {
   useTheme
 } from "@chakra-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
-import MarkDown from "~/components/MarkDown";
+import Markdown from "~/components/Markdown";
 
 const AnimatedIcon = motion.custom(IconButton);
 
@@ -62,7 +62,7 @@ const HelpModal = ({ item, name }) => {
           <ModalHeader>{item.params.title}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <MarkDown content={item.content} />
+            <Markdown content={item.content} />
           </ModalBody>
         </ModalContent>
       </Modal>
