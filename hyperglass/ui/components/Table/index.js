@@ -194,6 +194,4 @@ const Table = ({
   );
 };
 
-Table.displayName = "Table";
-
 export default Table;

@@ -1,48 +1,47 @@
-import React from "react";
+/** @jsx jsx */
+import { jsx } from "@emotion/core";
+import { forwardRef } from "react";
 import { Button, Heading, Image, Stack, useColorMode } from "@chakra-ui/core";
-import { Textfit } from "react-textfit";
-import { motion, AnimatePresence } from "framer-motion";
 import useConfig from "~/components/HyperglassProvider";
 import useMedia from "~/components/MediaProvider";
 
-const subtitleAnimation = {
-  transition: { duration: 0.2, type: "tween" },
-  initial: { opacity: 1, scale: 1 },
-  animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.3 }
-};
-const titleSize = { true: "2xl", false: "lg" };
+const titleSize = { true: ["2xl", "2xl", "5xl", "5xl"], false: "2xl" };
 const titleMargin = { true: 2, false: 0 };
 const textAlignment = { false: ["right", "center"], true: ["left", "center"] };
+const logoName = { light: "dark", dark: "light" };
+const justifyMap = {
+  true: ["flex-end", "center", "center", "center"],
+  false: ["flex-start", "center", "center", "center"]
+};
+
+const logoFallback = {
+  light:
+    "https://res.cloudinary.com/hyperglass/image/upload/v1593916013/logo-dark.svg",
+  dark:
+    "https://res.cloudinary.com/hyperglass/image/upload/v1593916013/logo-light.svg"
+};
 
 const TitleOnly = ({ text, showSubtitle }) => (
   <Heading
     as="h1"
     mb={titleMargin[showSubtitle]}
-    size={titleSize[showSubtitle]}
+    fontSize={titleSize[showSubtitle]}
   >
-    <Textfit mode="single">{text}</Textfit>
+    {text}
   </Heading>
 );
 
-const SubtitleOnly = React.forwardRef(
-  ({ text, mediaSize, size = "md", ...props }, ref) => (
-    <Heading
-      ref={ref}
-      as="h3"
-      size={size}
-      whiteSpace="break-spaces"
-      textAlign={["left", "left", "center", "center"]}
-      {...props}
-    >
-      <Textfit mode="multi" max={mediaSize === "sm" ? 13 : 25}>
-        {text}
-      </Textfit>
-    </Heading>
-  )
+const SubtitleOnly = ({ text, mediaSize, ...props }) => (
+  <Heading
+    as="h3"
+    fontSize={["md", "md", "xl", "xl"]}
+    whiteSpace="break-spaces"
+    textAlign={["left", "left", "center", "center"]}
+    {...props}
+  >
+    {text}
+  </Heading>
 );
-
-const AnimatedSubtitle = motion.custom(SubtitleOnly);
 
 const TextOnly = ({ text, mediaSize, showSubtitle, ...props }) => (
   <Stack
@@ -51,42 +50,39 @@ const TextOnly = ({ text, mediaSize, showSubtitle, ...props }) => (
     textAlign={textAlignment[showSubtitle]}
     {...props}
   >
-    <Textfit mode="single" max={20}>
-      <TitleOnly text={text.title} showSubtitle={showSubtitle} />
-    </Textfit>
-    <AnimatePresence>
-      {showSubtitle && (
-        <AnimatedSubtitle
-          text={text.subtitle}
-          mediaSize={mediaSize}
-          {...subtitleAnimation}
-        />
-      )}
-    </AnimatePresence>
+    <TitleOnly text={text.title} showSubtitle={showSubtitle} />
+    {showSubtitle && (
+      <SubtitleOnly text={text.subtitle} mediaSize={mediaSize} />
+    )}
   </Stack>
 );
 
 const Logo = ({ text, logo }) => {
   const { colorMode } = useColorMode();
-  const logoExt = { light: logo.dark_format, dark: logo.light_format };
-  const logoName = { light: "dark", dark: "light" };
+  const { width, dark_format, light_format } = logo;
+  const logoExt = { light: dark_format, dark: light_format };
   return (
     <Image
+      css={{
+        userDrag: "none",
+        userSelect: "none",
+        msUserSelect: "none",
+        MozUserSelect: "none",
+        WebkitUserDrag: "none",
+        WebkitUserSelect: "none"
+      }}
       alt={text.title}
-      width={logo.width ?? "auto"}
+      width={width ?? "auto"}
+      fallbackSrc={logoFallback[colorMode]}
       src={`/images/${logoName[colorMode]}${logoExt[colorMode]}`}
     />
   );
 };
 
-const LogoSubtitle = ({ text, logo, showSubtitle, mediaSize }) => (
+const LogoSubtitle = ({ text, logo, mediaSize }) => (
   <>
     <Logo text={text} logo={logo} mediaSize={mediaSize} />
-    <AnimatePresence>
-      {showSubtitle && (
-        <AnimatedSubtitle mt={6} text={text.subtitle} {...subtitleAnimation} />
-      )}
-    </AnimatePresence>
+    <SubtitleOnly mt={6} text={text.subtitle} />
   </>
 );
 
@@ -108,12 +104,8 @@ const modeMap = {
   logo_subtitle: LogoSubtitle,
   all: All
 };
-const justifyMap = {
-  true: ["flex-end", "center", "center", "center"],
-  false: ["flex-start", "center", "center", "center"]
-};
 
-const Title = React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
+const Title = forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
   const { web } = useConfig();
   const { mediaSize } = useMedia();
   const titleMode = web.text.title_mode;
@@ -143,5 +135,4 @@ const Title = React.forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
   );
 });
 
-Title.displayName = "Title";
 export default Title;

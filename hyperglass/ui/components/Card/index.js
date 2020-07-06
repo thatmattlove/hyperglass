@@ -1,5 +1,3 @@
-import CardBody from "./CardBody";
-import CardFooter from "./CardFooter";
-import CardHeader from "./CardHeader";
-
-export { CardBody, CardFooter, CardHeader };
+export { CardBody } from "./CardBody";
+export { CardFooter } from "./CardFooter";
+export { CardHeader } from "./CardHeader";

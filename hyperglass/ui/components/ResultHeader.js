@@ -1,4 +1,5 @@
-import React from "react";
+import * as React from "react";
+import { forwardRef } from "react";
 import {
   AccordionIcon,
   Icon,
@@ -31,7 +32,7 @@ const defaultStatusColor = {
   light: "success.500"
 };
 
-export default React.forwardRef(
+const ResultHeader = forwardRef(
   ({ title, loading, error, errorMsg, errorLevel, runtime }, ref) => {
     const { colorMode } = useColorMode();
     const config = useConfig();
@@ -68,3 +69,5 @@ export default React.forwardRef(
     );
   }
 );
+
+export default ResultHeader;

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import * as React from "react";
+import { useEffect, useState } from "react";
 import Head from "next/head";
 import { useTheme } from "@chakra-ui/core";
 import useConfig from "~/components/HyperglassProvider";
@@ -9,7 +10,7 @@ const Meta = () => {
   const theme = useTheme();
   const [location, setLocation] = useState({});
   const title = config?.site_title || "hyperglass";
-  const description = config?.site_description || "The modern looking glass.";
+  const description = config?.site_description || "Network Looking Glass";
   const siteName = `${title} - ${description}`;
   const keywords = config?.site_keywords || [
     "hyperglass",

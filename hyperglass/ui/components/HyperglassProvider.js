@@ -22,16 +22,16 @@ export const HyperglassProvider = ({ config, children }) => {
   const userTheme = value && makeTheme(value.web.theme);
   const theme = value ? userTheme : defaultTheme;
   return (
-    <HyperglassContext.Provider value={value}>
-      <ThemeProvider theme={theme}>
-        <ColorModeProvider value={config.web.theme.default_color_mode ?? null}>
-          <CSSReset />
-          <MediaProvider theme={theme}>
+    <ThemeProvider theme={theme}>
+      <ColorModeProvider value={config.web.theme.default_color_mode ?? null}>
+        <CSSReset />
+        <MediaProvider theme={theme}>
+          <HyperglassContext.Provider value={value}>
             <StateProvider>{children}</StateProvider>
-          </MediaProvider>
-        </ColorModeProvider>
-      </ThemeProvider>
-    </HyperglassContext.Provider>
+          </HyperglassContext.Provider>
+        </MediaProvider>
+      </ColorModeProvider>
+    </ThemeProvider>
   );
 };
 

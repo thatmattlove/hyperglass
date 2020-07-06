@@ -1,4 +1,5 @@
-import React from "react";
+import * as React from "react";
+import { forwardRef } from "react";
 import {
   Box,
   PseudoBox,
@@ -54,7 +55,11 @@ const btnSizeMap = {
   }
 };
 
-const SubmitButton = React.forwardRef(
+const btnBg = { dark: "primary.300", light: "primary.500" };
+const btnBgActive = { dark: "primary.400", light: "primary.600" };
+const btnBgHover = { dark: "primary.200", light: "primary.400" };
+
+const SubmitButton = forwardRef(
   (
     {
       isLoading = false,
@@ -71,18 +76,6 @@ const SubmitButton = React.forwardRef(
     const _isDisabled = isDisabled || isLoading;
     const { colorMode } = useColorMode();
     const theme = useTheme();
-    const btnBg = {
-      dark: theme.colors.primary[300],
-      light: theme.colors.primary[500]
-    };
-    const btnBgActive = {
-      dark: theme.colors.primary[400],
-      light: theme.colors.primary[600]
-    };
-    const btnBgHover = {
-      dark: theme.colors.primary[200],
-      light: theme.colors.primary[400]
-    };
     const btnColor = opposingColor(theme, btnBg[colorMode]);
     const btnColorActive = opposingColor(theme, btnBgActive[colorMode]);
     const btnColorHover = opposingColor(theme, btnBgHover[colorMode]);
@@ -126,5 +119,4 @@ const SubmitButton = React.forwardRef(
   }
 );
 
-SubmitButton.displayName = "SubmitButton";
 export default SubmitButton;

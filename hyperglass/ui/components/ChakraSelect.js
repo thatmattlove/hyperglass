@@ -203,5 +203,4 @@ const ChakraSelect = React.forwardRef(
   }
 );
 
-ChakraSelect.displayName = "ChakraSelect";
 export default ChakraSelect;

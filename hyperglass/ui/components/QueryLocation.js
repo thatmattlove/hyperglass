@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import ChakraSelect from "~/components/ChakraSelect";
 
 const buildLocations = networks => {
@@ -29,16 +29,15 @@ const QueryLocation = ({ locations, onChange, label }) => {
   };
   return (
     <ChakraSelect
+      isMulti
       size="lg"
+      options={options}
+      aria-label={label}
       name="query_location"
       onChange={handleChange}
-      options={options}
-      isMulti
       closeMenuOnSelect={false}
-      aria-label={label}
     />
   );
 };
 
-QueryLocation.displayName = "QueryLocation";
 export default QueryLocation;

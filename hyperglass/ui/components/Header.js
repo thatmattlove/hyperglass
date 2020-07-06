@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Flex, useColorMode } from "@chakra-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
 import ResetButton from "~/components/ResetButton";
@@ -33,12 +33,7 @@ const titleVariants = {
   }
 };
 
-const icon = { light: "moon", dark: "sun" };
 const bg = { light: "white", dark: "black" };
-const colorSwitch = {
-  dark: "Switch to light mode",
-  light: "Switch to dark mode"
-};
 const headerTransition = {
   type: "spring",
   ease: "anticipate",
@@ -107,7 +102,6 @@ const Header = ({ layoutRef, ...props }) => {
       }
       variants={titleVariants[mediaSize]}
       justifyContent={titleJustify[isSubmitting]}
-      mb={[null, isSubmitting ? "auto" : null]}
       mt={[null, isSubmitting ? null : "auto"]}
       maxW={widthMap[web.text.title_mode]}
       flex="1 0 0"
@@ -167,7 +161,5 @@ const Header = ({ layoutRef, ...props }) => {
     </Flex>
   );
 };
-
-Header.displayName = "Header";
 
 export default Header;

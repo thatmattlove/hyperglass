@@ -37,5 +37,4 @@ const MainTable = ({ children, ...props }) => {
   );
 };
 
-MainTable.displayName = "MainTable";
 export default MainTable;

@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import {
   Flex,
   FormControl,
@@ -7,7 +7,9 @@ import {
   useColorMode
 } from "@chakra-ui/core";
 
-export default ({
+const labelColor = { dark: "whiteAlpha.700", light: "blackAlpha.700" };
+
+const FormField = ({
   label,
   name,
   error,
@@ -21,7 +23,7 @@ export default ({
   ...props
 }) => {
   const { colorMode } = useColorMode();
-  const labelColor = { dark: "whiteAlpha.700", light: "blackAlpha.700" };
+
   return (
     <FormControl
       as={Flex}
@@ -59,3 +61,5 @@ export default ({
     </FormControl>
   );
 };
+
+export default FormField;

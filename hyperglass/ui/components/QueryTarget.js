@@ -68,5 +68,4 @@ const QueryTarget = ({
   );
 };
 
-QueryTarget.displayName = "QueryTarget";
 export default QueryTarget;

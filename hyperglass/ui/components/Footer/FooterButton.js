@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Button, Flex } from "@chakra-ui/core";
 import { motion } from "framer-motion";
 
@@ -28,5 +28,4 @@ const FooterButton = React.forwardRef(
   }
 );
 
-FooterButton.displayName = "FooterButton";
 export default FooterButton;

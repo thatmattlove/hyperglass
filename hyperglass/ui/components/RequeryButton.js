@@ -1,20 +1,20 @@
-import React from "react";
+import * as React from "react";
 import { Button, Icon, Tooltip } from "@chakra-ui/core";
 
-export default ({ requery, bg = "secondary", ...props }) => {
-    return (
-        <Tooltip hasArrow label="Reload Query" placement="top">
-            <Button
-                as="a"
-                size="sm"
-                variantColor={bg}
-                zIndex="1"
-                onClick={requery}
-                mx={1}
-                {...props}
-            >
-                <Icon size="16px" name="repeat" />
-            </Button>
-        </Tooltip>
-    );
-};
+const RequeryButton = ({ requery, bg = "secondary", ...props }) => (
+  <Tooltip hasArrow label="Reload Query" placement="top">
+    <Button
+      mx={1}
+      as="a"
+      size="sm"
+      zIndex="1"
+      variantColor={bg}
+      onClick={requery}
+      {...props}
+    >
+      <Icon size="16px" name="repeat" />
+    </Button>
+  </Tooltip>
+);
+
+export default RequeryButton;

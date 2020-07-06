@@ -1,33 +1,25 @@
-import React, { useState } from "react";
-import { Flex, useColorMode, useTheme } from "@chakra-ui/core";
+import * as React from "react";
+import { useState } from "react";
+import { Flex, useColorMode } from "@chakra-ui/core";
 import { FiCode } from "react-icons/fi";
 import { GoLinkExternal } from "react-icons/go";
 import format from "string-format";
 import useConfig from "~/components/HyperglassProvider";
-import FooterButton from "~/components/FooterButton";
-import FooterContent from "~/components/FooterContent";
+import FooterButton from "./FooterButton";
+import FooterContent from "./FooterContent";
 
 format.extend(String.prototype, {});
 
+const footerBg = { light: "blackAlpha.50", dark: "whiteAlpha.100" };
+const footerColor = { light: "black", dark: "white" };
+const contentBorder = { light: "blackAlpha.100", dark: "whiteAlpha.200" };
+
 const Footer = () => {
-  const theme = useTheme();
   const config = useConfig();
   const { colorMode } = useColorMode();
-  const footerBg = {
-    light: theme.colors.blackAlpha[50],
-    dark: theme.colors.whiteAlpha[100]
-  };
-  const footerColor = { light: theme.colors.black, dark: theme.colors.white };
-  const contentBorder = {
-    light: theme.colors.blackAlpha[100],
-    dark: theme.colors.whiteAlpha[200]
-  };
   const [helpVisible, showHelp] = useState(false);
   const [termsVisible, showTerms] = useState(false);
   const [creditVisible, showCredit] = useState(false);
-  const extUrl = config.web.external_link.url.includes("{primary_asn}")
-    ? config.web.external_link.url.format({ primary_asn: config.primary_asn })
-    : config.web.external_link.url || "/";
   const handleCollapse = i => {
     if (i === "help") {
       showTerms(false);
@@ -43,6 +35,9 @@ const Footer = () => {
       showTerms(!termsVisible);
     }
   };
+  const extUrl = config.web.external_link.url.includes("{primary_asn}")
+    ? config.web.external_link.url.format({ primary_asn: config.primary_asn })
+    : config.web.external_link.url || "/";
   return (
     <>
       {config.web.help_menu.enable && (
@@ -141,5 +136,4 @@ const Footer = () => {
   );
 };
 
-Footer.displayName = "Footer";
 export default Footer;

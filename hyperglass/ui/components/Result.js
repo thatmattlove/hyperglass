@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import {
   AccordionItem,
   AccordionHeader,
@@ -78,7 +78,7 @@ const scrollbar = { dark: "whiteAlpha.300", light: "blackAlpha.300" };
 const scrollbarHover = { dark: "whiteAlpha.400", light: "blackAlpha.400" };
 const scrollbarBg = { dark: "whiteAlpha.50", light: "blackAlpha.50" };
 
-const Result = React.forwardRef(
+const Result = forwardRef(
   (
     {
       device,
@@ -276,5 +276,4 @@ const Result = React.forwardRef(
   }
 );
 
-Result.displayName = "HyperglassQueryResult";
 export default Result;

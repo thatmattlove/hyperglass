@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { forwardRef, useState, useEffect } from "react";
 import { Box, Flex } from "@chakra-ui/core";
 import { useForm } from "react-hook-form";
 import lodash from "lodash";
@@ -53,7 +53,7 @@ const FormRow = ({ children, ...props }) => (
   </Flex>
 );
 
-const HyperglassForm = React.forwardRef(
+const HyperglassForm = forwardRef(
   (
     {
       isSubmitting,
@@ -164,6 +164,8 @@ const HyperglassForm = React.forwardRef(
     Object.keys(errors).length >= 1 && console.error(errors);
     return (
       <Box
+        as="form"
+        onSubmit={handleSubmit(onSubmit)}
         maxW={["100%", "100%", "75%", "75%"]}
         w="100%"
         p={0}
@@ -173,111 +175,108 @@ const HyperglassForm = React.forwardRef(
         ref={ref}
         {...props}
       >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <FormRow>
-            <FormField
+        <FormRow>
+          <FormField
+            label={config.web.text.query_location}
+            name="query_location"
+            error={errors.query_location}
+          >
+            <QueryLocation
+              onChange={handleChange}
+              locations={config.networks}
               label={config.web.text.query_location}
-              name="query_location"
-              error={errors.query_location}
-            >
-              <QueryLocation
-                onChange={handleChange}
-                locations={config.networks}
-                label={config.web.text.query_location}
-              />
-            </FormField>
-            <FormField
+            />
+          </FormField>
+          <FormField
+            label={config.web.text.query_type}
+            name="query_type"
+            error={errors.query_type}
+            labelAddOn={
+              vrfContent && <HelpModal item={vrfContent} name="query_type" />
+            }
+          >
+            <QueryType
+              onChange={handleChange}
+              queryTypes={config.queries.list}
               label={config.web.text.query_type}
-              name="query_type"
-              error={errors.query_type}
-              labelAddOn={
-                vrfContent && <HelpModal item={vrfContent} name="query_type" />
-              }
+            />
+          </FormField>
+        </FormRow>
+        <FormRow>
+          {availVrfs.length > 1 && (
+            <FormField
+              label={config.web.text.query_vrf}
+              name="query_vrf"
+              error={errors.query_vrf}
             >
-              <QueryType
+              <QueryVrf
+                label={config.web.text.query_vrf}
+                vrfs={availVrfs}
                 onChange={handleChange}
-                queryTypes={config.queries.list}
-                label={config.web.text.query_type}
               />
             </FormField>
-          </FormRow>
-          <FormRow>
-            {availVrfs.length > 1 && (
-              <FormField
-                label={config.web.text.query_vrf}
-                name="query_vrf"
-                error={errors.query_vrf}
-              >
-                <QueryVrf
-                  label={config.web.text.query_vrf}
-                  vrfs={availVrfs}
-                  onChange={handleChange}
-                />
-              </FormField>
-            )}
-            <FormField
-              label={config.web.text.query_target}
-              name="query_target"
-              error={errors.query_target}
-              fieldAddOn={
-                queryLocation.length !== 0 &&
-                validFqdnQueryType && (
-                  <ResolvedTarget
-                    queryTarget={queryTarget}
-                    fqdnTarget={validFqdnQueryType}
-                    setTarget={handleChange}
-                    families={families}
-                    availVrfs={availVrfs}
-                  />
-                )
-              }
-            >
-              {queryType === "bgp_community" &&
-              config.queries.bgp_community.mode === "select" ? (
-                <CommunitySelect
-                  label={config.queries.bgp_community.display_name}
-                  name="query_target"
-                  register={register}
-                  unregister={unregister}
-                  onChange={handleChange}
-                  communities={config.queries.bgp_community.communities}
-                />
-              ) : (
-                <QueryTarget
-                  name="query_target"
-                  placeholder={config.web.text.query_target}
-                  register={register}
-                  unregister={unregister}
-                  resolveTarget={["ping", "traceroute", "bgp_route"].includes(
-                    queryType
-                  )}
-                  value={queryTarget}
-                  setFqdn={setFqdnTarget}
+          )}
+          <FormField
+            label={config.web.text.query_target}
+            name="query_target"
+            error={errors.query_target}
+            fieldAddOn={
+              queryLocation.length !== 0 &&
+              validFqdnQueryType && (
+                <ResolvedTarget
+                  queryTarget={queryTarget}
+                  fqdnTarget={validFqdnQueryType}
                   setTarget={handleChange}
-                  displayValue={displayTarget}
-                  setDisplayValue={setDisplayTarget}
+                  families={families}
+                  availVrfs={availVrfs}
                 />
-              )}
-            </FormField>
-          </FormRow>
-          <FormRow mt={0} justifyContent="flex-end">
-            <Flex
-              w="100%"
-              maxW="100%"
-              ml="auto"
-              my={2}
-              mr={[0, 0, 2, 2]}
-              flexDirection="column"
-              flex="0 0 0"
-            >
-              <SubmitButton isLoading={isSubmitting} />
-            </Flex>
-          </FormRow>
-        </form>
+              )
+            }
+          >
+            {queryType === "bgp_community" &&
+            config.queries.bgp_community.mode === "select" ? (
+              <CommunitySelect
+                label={config.queries.bgp_community.display_name}
+                name="query_target"
+                register={register}
+                unregister={unregister}
+                onChange={handleChange}
+                communities={config.queries.bgp_community.communities}
+              />
+            ) : (
+              <QueryTarget
+                name="query_target"
+                placeholder={config.web.text.query_target}
+                register={register}
+                unregister={unregister}
+                resolveTarget={["ping", "traceroute", "bgp_route"].includes(
+                  queryType
+                )}
+                value={queryTarget}
+                setFqdn={setFqdnTarget}
+                setTarget={handleChange}
+                displayValue={displayTarget}
+                setDisplayValue={setDisplayTarget}
+              />
+            )}
+          </FormField>
+        </FormRow>
+        <FormRow mt={0} justifyContent="flex-end">
+          <Flex
+            w="100%"
+            maxW="100%"
+            ml="auto"
+            my={2}
+            mr={[0, 0, 2, 2]}
+            flexDirection="column"
+            flex="0 0 0"
+          >
+            <SubmitButton isLoading={isSubmitting} />
+          </Flex>
+        </FormRow>
       </Box>
     );
   }
 );
 
-HyperglassForm.displayName = "HyperglassForm";
 export default HyperglassForm;

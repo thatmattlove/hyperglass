@@ -3,7 +3,7 @@ import { Flex, Text, useColorMode } from "@chakra-ui/core";
 
 const bg = { light: "blackAlpha.50", dark: "whiteAlpha.100" };
 
-const CardHeader = ({ children, ...props }) => {
+export const CardHeader = ({ children, ...props }) => {
   const { colorMode } = useColorMode();
   return (
     <Flex
@@ -19,7 +19,3 @@ const CardHeader = ({ children, ...props }) => {
     </Flex>
   );
 };
-
-CardHeader.displayName = "CardHeader";
-
-export default CardHeader;

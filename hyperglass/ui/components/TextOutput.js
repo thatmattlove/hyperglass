@@ -40,5 +40,4 @@ const TextOutput = ({ children, ...props }) => {
   );
 };
 
-TextOutput.displayName = "TextOutput";
 export default TextOutput;

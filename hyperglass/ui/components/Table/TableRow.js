@@ -2,13 +2,6 @@ import * as React from "react";
 import { PseudoBox, useColorMode, useTheme } from "@chakra-ui/core";
 import { opposingColor } from "~/util";
 
-// export const TableRow = styled(Flex)`
-//     &:hover {
-//         cursor: pointer;
-//         background-color: rgba(0, 0, 0, 0.01);
-//     }
-// `;
-
 const hoverBg = { dark: "whiteAlpha.50", light: "blackAlpha.50" };
 const bgStripe = { dark: "whiteAlpha.50", light: "blackAlpha.50" };
 const rowBorder = {
@@ -59,7 +52,5 @@ const TableRow = ({
     </PseudoBox>
   );
 };
-
-TableRow.displayName = "TableRow";
 
 export default TableRow;

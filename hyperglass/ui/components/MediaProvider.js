@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useMemo } from "react";
+import * as React from "react";
+import { createContext, useContext, useMemo } from "react";
 import { useMediaLayout } from "use-media";
 
 const MediaContext = createContext(null);

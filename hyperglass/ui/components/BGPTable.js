@@ -218,8 +218,6 @@ const Cell = ({ data, rawData, longestASN }) => {
 const BGPTable = ({ children: data, ...props }) => {
   const config = useConfig();
   const columns = makeColumns(config.parsed_data_fields);
-  // const allASN = data.routes.map(r => r.as_path).flat();
-  // const asLength = longestASNLength(allASN);
 
   return (
     <Flex my={8} maxW={["100%", "100%", "100%", "100%"]} w="100%" {...props}>
@@ -234,7 +232,5 @@ const BGPTable = ({ children: data, ...props }) => {
     </Flex>
   );
 };
-
-BGPTable.displayName = "BGPTable";
 
 export default BGPTable;

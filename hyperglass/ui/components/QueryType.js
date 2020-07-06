@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import ChakraSelect from "~/components/ChakraSelect";
 
 const QueryType = ({ queryTypes, onChange, label }) => {
@@ -18,5 +18,4 @@ const QueryType = ({ queryTypes, onChange, label }) => {
   );
 };
 
-QueryType.displayName = "QueryType";
 export default QueryType;
