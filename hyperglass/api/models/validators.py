@@ -133,13 +133,35 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 
             valid_ip = new_ip
 
-        # For a host query with bgp_route query type and force_cidr
-        # enabled (the default), convert the host query to a network
-        # query.
-        elif query_type in ("bgp_route",) and vrf_afi.force_cidr:
-            valid_ip = ip_network(
-                bgptools.network_info_sync(valid_ip.network_address).get("prefix")
-            )
+        # Get the containing prefix for a host query if:
+        #   - Query type is bgp_route
+        #   - force_cidr option is enabled
+        #   - Query target is not a private address/network
+        elif (
+            query_type in ("bgp_route",)
+            and vrf_afi.force_cidr
+            and not valid_ip.is_private
+        ):
+            log.debug("Getting containing prefix for {q}", q=str(valid_ip))
+
+            containing_prefix = bgptools.network_info_sync(
+                valid_ip.network_address
+            ).get("prefix")
+
+            try:
+
+                valid_ip = ip_network(containing_prefix)
+                log.debug("Containing prefix: {p}", p=str(valid_ip))
+
+            except ValueError as err:
+                log.error(
+                    "Unable to find containing prefix for {q}. Error: {e}",
+                    q=str(valid_ip),
+                    e=err,
+                )
+                raise InputInvalid(
+                    "{q} does does not have a containing prefix", q=valid_ip
+                )
 
         # For a host query with bgp_route query type and force_cidr
         # disabled, convert the host query to a single IP address.
