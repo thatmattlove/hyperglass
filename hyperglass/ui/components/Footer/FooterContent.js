@@ -1,7 +1,7 @@
 import * as React from "react";
 import { forwardRef } from "react";
 import { Box, Collapse } from "@chakra-ui/core";
-import MarkDown from "~/components/MarkDown";
+import Markdown from "~/components/Markdown";
 
 const FooterContent = forwardRef(
   ({ isOpen = false, content, side = "left", title, ...props }, ref) => {
@@ -20,7 +20,7 @@ const FooterContent = forwardRef(
         {...props}
       >
         <Box textAlign={side}>
-          <MarkDown content={content} />
+          <Markdown content={content} />
         </Box>
       </Collapse>
     );

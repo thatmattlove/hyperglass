@@ -11,7 +11,7 @@ import {
   useColorMode,
   useDisclosure
 } from "@chakra-ui/core";
-import MarkDown from "~/components/MarkDown";
+import Markdown from "~/components/Markdown";
 import { motion } from "framer-motion";
 
 const bg = { light: "white", dark: "black" };
@@ -56,7 +56,7 @@ const Greeting = ({ greetingConfig, content, onClickThrough }) => {
         <ModalHeader>{greetingConfig.title}</ModalHeader>
         {!greetingConfig.required && <ModalCloseButton />}
         <ModalBody>
-          <MarkDown content={content} />
+          <Markdown content={content} />
         </ModalBody>
         <ModalFooter>
           <Button variantColor="primary" onClick={handleClick}>
