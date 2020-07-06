@@ -1,5 +1,6 @@
 ---
 language: minimal
+dist: bionic
 
 jobs:
   include:
@@ -24,3 +25,19 @@ jobs:
       env:
         - HYPERGLASS_UI_BUILD_TIMEOUT=600
       script: docker run hyperglass/ubuntu /tmp/setup.sh
+
+# Poetry & PyPI Deployment stolen from: https://github.com/python-poetry/poetry/issues/366
+before_deploy:
+  - pip install poetry
+  - poetry config pypi-token.pypi $PYPI_TOKEN
+  - poetry build
+
+deploy:
+  provider: script
+  script: poetry publish
+  skip_cleanup: true
+  on:
+    all_branches: true
+    condition: $TRAVIS_BUILD_STAGE_NAME = Deploy
+    repo: checktheroads/hyperglass
+    tags: true
