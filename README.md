@@ -17,7 +17,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/hyperglass?style=for-the-badge)](https://pypi.org/project/hyperglass/)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/hyperglass?color=%2340798C&style=for-the-badge)
-[![CI](https://img.shields.io/travis/checktheroads/hyperglass/v1.0.0?style=for-the-badge)](https://travis-ci.com/github/checktheroads/hyperglass)
+[![CI](https://img.shields.io/travis/com/checktheroads/hyperglass/v1.0.0?style=for-the-badge)](https://travis-ci.com/github/checktheroads/hyperglass)
 
 [![GitHub Contributors](https://img.shields.io/github/contributors/checktheroads/hyperglass?color=40798C&style=for-the-badge)](https://github.com/checktheroads/hyperglass)
 [![Gitter](https://img.shields.io/gitter/room/checktheroads/hyperglass?color=ff5e5b&style=for-the-badge)](https://gitter.im/hyperglass)
