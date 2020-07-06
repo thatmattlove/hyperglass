@@ -43,9 +43,8 @@ PARSED_RESPONSE_FIELDS = (
 )
 
 CREDIT = """
-Powered by [**hyperglass**](https://github.com/checktheroads/hyperglass) version \
-{version}. Source code licensed \
-[_BSD 3-Clause Clear_](https://github.com/checktheroads/hyperglass/blob/master/LICENSE).
+Powered by [**hyperglass**](https://hyperglass.io) version {version}. \
+Source code licensed [_BSD 3-Clause Clear_](https://hyperglass.io/docs/license/).
 """
 
 DEFAULT_TERMS = """
