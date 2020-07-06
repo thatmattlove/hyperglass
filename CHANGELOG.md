@@ -5,7 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.0.0-beta47 - 2020-07-04
+## 1.0.0-beta49 - 2020-07-05
+### Fixed
+- Route lookups for private (RFC 1918) addresses failed due to an unnecessary lookup to [bgp.tools](https://bgp.tools)
+
+### Changed
+- Update UI dependencies
+- Removed react-textfit in favor of responsive font sizes and line breaking
+- Refactor & clean up React components
+
+## 1.0.0-beta48 - 2020-07-04
 
 ### Added
 - New NOS: **VyOS**. [See docs for important caveats](https://hyperglass.io/docs/commands).
