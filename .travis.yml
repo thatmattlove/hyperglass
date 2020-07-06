@@ -36,3 +36,5 @@ jobs:
         provider: script
         script: poetry publish
         skip_cleanup: true
+        on:
+          branch: v1.0.0
