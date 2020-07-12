@@ -16,7 +16,7 @@ def parse_juniper(output):
     for i, response in enumerate(output):
         try:
             parsed = xmltodict.parse(
-                response, force_list=("rt", "rt-entry", "community")
+                response, force_list=("rt", "rt-entry", "community", "nh")
             )
 
             if "rpc-reply" in parsed.keys():

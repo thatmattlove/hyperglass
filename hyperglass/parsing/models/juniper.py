@@ -49,7 +49,16 @@ class JuniperRouteTableEntry(_JuniperBase):
     @root_validator(pre=True)
     def validate_optional_flags(cls, values):
         """Flatten & rename keys prior to validation."""
-        values["next-hop"] = values.pop("nh").get("to", "")
+        next_hop = values.pop("nh")
+        selected_next_hop = ""
+
+        for hop in next_hop:
+            if "selected-next-hop" in hop:
+                selected_next_hop = hop.get("to", "")
+                break
+
+        values["next-hop"] = selected_next_hop
+
         _path_attr = values.get("bgp-path-attributes", {})
         _path_attr_agg = _path_attr.get("attr-aggregator", {}).get("attr-value", {})
         values["as-path"] = _path_attr.get("attr-as-path-effective", {}).get(
@@ -58,6 +67,7 @@ class JuniperRouteTableEntry(_JuniperBase):
         values["source-as"] = _path_attr_agg.get("aggr-as-number", 0)
         values["source-rid"] = _path_attr_agg.get("aggr-router-id", "")
         values["peer-rid"] = values["peer-id"]
+
         return values
 
     @validator("validation_state", pre=True, always=True)
