@@ -1,21 +1,24 @@
 """Response model."""
 
 # Standard Library
-from typing import List, Union, Optional
+from typing import Dict, List, Union, Optional
 
 # Third Party
 from pydantic import BaseModel, StrictInt, StrictStr, StrictBool, constr
 
 # Project
 from hyperglass.configuration import params
-from hyperglass.parsing.models.serialized import ParsedRoutes
+
+ErrorName = constr(regex=r"(success|warning|error|danger)")
+ResponseLevel = constr(regex=r"success")
+ResponseFormat = constr(regex=r"(application\/json|text\/plain)")
 
 
 class QueryError(BaseModel):
     """Query response model."""
 
     output: StrictStr = params.messages.general
-    level: constr(regex=r"(success|warning|error|danger)") = "danger"
+    level: ErrorName = "danger"
     id: Optional[StrictStr]
     keywords: List[StrictStr] = []
 
@@ -57,14 +60,14 @@ class QueryError(BaseModel):
 class QueryResponse(BaseModel):
     """Query response model."""
 
-    output: Union[ParsedRoutes, StrictStr]
-    level: constr(regex=r"success") = "success"
+    output: Union[Dict, StrictStr]
+    level: ResponseLevel = "success"
     random: StrictStr
     cached: StrictBool
     runtime: StrictInt
     keywords: List[StrictStr] = []
     timestamp: StrictStr
-    format: constr(regex=r"(application\/json|text\/plain)") = "text/plain"
+    format: ResponseFormat = "text/plain"
 
     class Config:
         """Pydantic model configuration."""
