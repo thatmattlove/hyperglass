@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta50 - 2020-07-12
+### Fixed
+- [#54](https://github.com/checktheroads/hyperglass/issues/54): A Junos structured/table output parsing error caused routes with multiple next-hops to raise an error.
+- RPKI validation no longer occurs twice (once on serialization of the output, once on validation of the API response).
+
+### Changed
+- Improved cache type conversion when reading cached data.
+- External data via [bgp.tools](https://bgp.tools) is now gathered via their bulk mode API.
+- External data via [bgp.tools](https://bgp.tools) is now cached via Redis to reduce external traffic and improve performance.
+- RPKI validation via [Cloudflare](https://rpki.cloudflare.com/) is now cached via Redis to reduce external traffic and improve performance.
+- Update Python dependencies.
+  
+### Added
+- Synchronous API for Redis caching.
+- New `redis-py` dependency for synchronous Redis communication.
+
 ## 1.0.0-beta49 - 2020-07-05
 ### Fixed
 - Route lookups for private (RFC 1918) addresses failed due to an unnecessary lookup to [bgp.tools](https://bgp.tools)
