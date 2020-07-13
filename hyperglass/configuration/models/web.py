@@ -24,6 +24,11 @@ from hyperglass.configuration.models.opengraph import OpenGraph
 
 DEFAULT_IMAGES = Path(__file__).parent.parent.parent / "images"
 
+Percentage = constr(regex=r"^([1-9][0-9]?|100)\%$")
+TitleMode = constr(regex=("logo_only|text_only|logo_title|logo_subtitle|all"))
+ColorMode = constr(regex=r"light|dark")
+DOHProvider = constr(regex="|".join(DNS_OVER_HTTPS.keys()))
+
 
 class Analytics(HyperglassModel):
     """Validation model for Google Analytics."""
@@ -95,8 +100,8 @@ class Logo(HyperglassModel):
     light: FilePath = DEFAULT_IMAGES / "hyperglass-light.svg"
     dark: FilePath = DEFAULT_IMAGES / "hyperglass-dark.svg"
     favicon: FilePath = DEFAULT_IMAGES / "hyperglass-icon.svg"
-    width: Optional[Union[StrictInt, constr(regex=r"^([1-9][0-9]?|100)\%$")]] = "75%"
-    height: Optional[Union[StrictInt, constr(regex=r"^([1-9][0-9]?|100)\%$")]]
+    width: Optional[Union[StrictInt, Percentage]] = "75%"
+    height: Optional[Union[StrictInt, Percentage]]
 
 
 class Terms(HyperglassModel):
@@ -110,9 +115,7 @@ class Terms(HyperglassModel):
 class Text(HyperglassModel):
     """Validation model for params.branding.text."""
 
-    title_mode: constr(
-        regex=("logo_only|text_only|logo_title|logo_subtitle|all")
-    ) = "logo_only"
+    title_mode: TitleMode = "logo_only"
     title: StrictStr = "hyperglass"
     subtitle: StrictStr = "Network Looking Glass"
     query_location: StrictStr = "Location"
@@ -194,14 +197,14 @@ class Theme(HyperglassModel):
     """Validation model for theme variables."""
 
     colors: ThemeColors = ThemeColors()
-    default_color_mode: Optional[constr(regex=r"light|dark")]
+    default_color_mode: Optional[ColorMode]
     fonts: ThemeFonts = ThemeFonts()
 
 
 class DnsOverHttps(HyperglassModel):
     """Validation model for DNS over HTTPS resolution."""
 
-    name: constr(regex="|".join(DNS_OVER_HTTPS.keys())) = "cloudflare"
+    name: DOHProvider = "cloudflare"
     url: StrictStr = ""
 
     @root_validator

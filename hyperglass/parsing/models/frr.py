@@ -12,6 +12,8 @@ from hyperglass.log import log
 from hyperglass.models import HyperglassModel
 from hyperglass.parsing.models.serialized import ParsedRoutes
 
+FRRPeerType = constr(regex=r"(internal|external)")
+
 
 def _alias_generator(field):
     components = field.split("_")
@@ -39,7 +41,7 @@ class FRRPeer(_FRRBase):
 
     peer_id: StrictStr
     router_id: StrictStr
-    type: constr(regex=r"(internal|external)")
+    type: FRRPeerType
 
 
 class FRRPath(_FRRBase):

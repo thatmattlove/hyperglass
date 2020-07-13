@@ -12,6 +12,8 @@ from hyperglass.models import HyperglassModel
 from hyperglass.configuration import params
 from hyperglass.external.rpki import rpki_state
 
+WinningWeight = constr(regex=r"(low|high)")
+
 
 class ParsedRouteEntry(HyperglassModel):
     """Per-Route Response Model."""
@@ -94,4 +96,4 @@ class ParsedRoutes(HyperglassModel):
     vrf: StrictStr
     count: StrictInt = 0
     routes: List[ParsedRouteEntry]
-    winning_weight: constr(regex=r"(low|high)")
+    winning_weight: WinningWeight

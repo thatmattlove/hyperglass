@@ -19,6 +19,8 @@ from pydantic import (
 # Project
 from hyperglass.models import HyperglassModel, HyperglassModelExtra
 
+ACLAction = constr(regex=r"permit|deny")
+
 
 class AccessList4(HyperglassModel):
     """Validation model for IPv4 access-lists."""
@@ -28,7 +30,7 @@ class AccessList4(HyperglassModel):
         title="Network",
         description="IPv4 Network/Prefix that should be permitted or denied. ",
     )
-    action: constr(regex=r"permit|deny") = Field(
+    action: ACLAction = Field(
         "permit",
         title="Action",
         description="Permit or deny any networks contained within the prefix.",
@@ -69,7 +71,7 @@ class AccessList6(HyperglassModel):
         title="Network",
         description="IPv6 Network/Prefix that should be permitted or denied. ",
     )
-    action: constr(regex=r"permit|deny") = Field(
+    action: ACLAction = Field(
         "permit",
         title="Action",
         description="Permit or deny any networks contained within the prefix.",

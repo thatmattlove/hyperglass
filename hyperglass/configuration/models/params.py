@@ -25,6 +25,8 @@ from hyperglass.configuration.models.queries import Queries
 from hyperglass.configuration.models.messages import Messages
 from hyperglass.configuration.models.structured import Structured
 
+Localhost = constr(regex=r"localhost")
+
 
 class Params(HyperglassModel):
     """Validation model for all configuration variables."""
@@ -87,7 +89,7 @@ class Params(HyperglassModel):
         title="Request Timeout",
         description="Global timeout in seconds for all requests. The frontend application (UI) uses this field's exact value when submitting queries. The backend application uses this field's value, minus one second, for its own timeout handling. This is to ensure a contextual timeout error is presented to the end user in the event of a backend application timeout.",
     )
-    listen_address: Optional[Union[IPvAnyAddress, constr(regex=r"localhost")]] = Field(
+    listen_address: Optional[Union[IPvAnyAddress, Localhost]] = Field(
         None,
         title="Listen Address",
         description="Local IP Address or hostname the hyperglass application listens on to serve web traffic.",

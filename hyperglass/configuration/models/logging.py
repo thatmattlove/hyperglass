@@ -24,6 +24,10 @@ from pydantic import (
 from hyperglass.models import HyperglassModel, HyperglassModelExtra
 from hyperglass.constants import __version__
 
+HttpAuthMode = constr(regex=r"(basic|api_key)")
+HttpProvider = constr(regex=r"(msteams|slack|generic)")
+LogFormat = constr(regex=r"(text|json)")
+
 
 class Syslog(HyperglassModel):
     """Validation model for syslog configuration."""
@@ -36,7 +40,7 @@ class Syslog(HyperglassModel):
 class HttpAuth(HyperglassModel):
     """HTTP hook authentication parameters."""
 
-    mode: constr(regex=r"(basic|api_key)") = "basic"
+    mode: HttpAuthMode = "basic"
     username: Optional[StrictStr]
     password: SecretStr
 
@@ -53,7 +57,7 @@ class Http(HyperglassModelExtra):
     """HTTP logging parameters."""
 
     enable: StrictBool = True
-    provider: constr(regex=r"(msteams|slack|generic)") = "generic"
+    provider: HttpProvider = "generic"
     host: AnyHttpUrl
     authentication: Optional[HttpAuth]
     headers: Dict[StrictStr, Union[StrictStr, StrictInt, StrictBool, None]] = {}
@@ -97,7 +101,7 @@ class Logging(HyperglassModel):
     """Validation model for logging configuration."""
 
     directory: DirectoryPath = Path("/tmp")  # noqa: S108
-    format: constr(regex=r"(text|json)") = "text"
+    format: LogFormat = "text"
     max_size: ByteSize = "50MB"
     syslog: Optional[Syslog]
     http: Optional[Http]

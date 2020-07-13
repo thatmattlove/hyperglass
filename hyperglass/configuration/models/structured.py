@@ -9,18 +9,21 @@ from pydantic import StrictStr, constr
 # Project
 from hyperglass.models import HyperglassModel
 
+StructuredCommunityMode = constr(regex=r"(permit|deny)")
+StructuredRPKIMode = constr(regex=r"(router|external)")
+
 
 class StructuredCommunities(HyperglassModel):
     """Control structured data response for BGP communties."""
 
-    mode: constr(regex=r"(permit|deny)") = "deny"
+    mode: StructuredCommunityMode = "deny"
     items: List[StrictStr] = []
 
 
 class StructuredRpki(HyperglassModel):
     """Control structured data response for RPKI state."""
 
-    mode: constr(regex=r"(router|external)") = "router"
+    mode: StructuredRPKIMode = "router"
 
 
 class Structured(HyperglassModel):

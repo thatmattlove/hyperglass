@@ -5,6 +5,8 @@ from pydantic import Field, HttpUrl, StrictStr, StrictBool, constr
 # Project
 from hyperglass.models import AnyUri, HyperglassModel
 
+DocsMode = constr(regex=r"(swagger|redoc)")
+
 
 class EndpointConfig(HyperglassModel):
     """Validation model for per API endpoint documentation."""
@@ -32,7 +34,7 @@ class Docs(HyperglassModel):
     enable: StrictBool = Field(
         True, title="Enable", description="Enable or disable API documentation."
     )
-    mode: constr(regex=r"(swagger|redoc)") = Field(
+    mode: DocsMode = Field(
         "redoc",
         title="Docs Mode",
         description="OpenAPI UI library to use for the hyperglass API docs. Currently, the options are [Swagger UI](/fixme) and [Redoc](/fixme).",

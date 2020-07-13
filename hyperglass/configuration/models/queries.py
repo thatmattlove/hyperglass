@@ -10,6 +10,9 @@ from pydantic import Field, StrictStr, StrictBool, constr
 from hyperglass.models import HyperglassModel
 from hyperglass.constants import SUPPORTED_QUERY_TYPES
 
+ASPathMode = constr(regex=r"asplain|asdot")
+CommunityInput = constr(regex=r"(input|select)")
+
 
 class BgpCommunityPattern(HyperglassModel):
     """Validation model for bgp_community regex patterns."""
@@ -42,7 +45,7 @@ class BgpCommunityPattern(HyperglassModel):
 class BgpAsPathPattern(HyperglassModel):
     """Validation model for bgp_aspath regex patterns."""
 
-    mode: constr(regex=r"asplain|asdot") = Field(
+    mode: ASPathMode = Field(
         "asplain",
         title="AS Path Mode",
         description="Set ASN display mode. This field is dependent on how your network devices are configured.",
@@ -89,7 +92,7 @@ class BgpCommunity(HyperglassModel):
         description="Text displayed for the BGP Community query type in the hyperglas UI.",
     )
     pattern: BgpCommunityPattern = BgpCommunityPattern()
-    mode: constr(regex=r"(input|select)") = "input"
+    mode: CommunityInput = "input"
     communities: List[Community] = []
 
 
