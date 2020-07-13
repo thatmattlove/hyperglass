@@ -12,7 +12,7 @@ from gunicorn.app.base import BaseApplication
 
 # Project
 from hyperglass.log import log
-from hyperglass.cache import Cache
+from hyperglass.cache import AsyncCache
 from hyperglass.constants import MIN_PYTHON_VERSION, __version__
 
 pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
@@ -85,7 +85,7 @@ async def cache_config():
     """Add configuration to Redis cache as a pickled object."""
     import pickle
 
-    cache = Cache(
+    cache = AsyncCache(
         db=params.cache.database, host=params.cache.host, port=params.cache.port
     )
     await cache.set("HYPERGLASS_CONFIG", pickle.dumps(params))
@@ -123,7 +123,8 @@ def on_exit(server: Arbiter):
     log.critical("Stopping hyperglass {}", __version__)
 
     async def runner():
-        await clear_cache()
+        if not params.developer_mode:
+            await clear_cache()
 
     aiorun(runner())
 

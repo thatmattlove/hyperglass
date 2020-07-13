@@ -6,9 +6,9 @@ from ipaddress import ip_network
 
 # Project
 from hyperglass.log import log
-from hyperglass.external import bgptools
 from hyperglass.exceptions import InputInvalid, InputNotAllowed
 from hyperglass.configuration import params
+from hyperglass.external.bgptools import network_info_sync
 
 
 def _member_of(target, network):
@@ -144,9 +144,17 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
         ):
             log.debug("Getting containing prefix for {q}", q=str(valid_ip))
 
-            containing_prefix = bgptools.network_info_sync(
-                valid_ip.network_address
-            ).get("prefix")
+            ip_str = str(valid_ip.network_address)
+            network_info = network_info_sync(ip_str)
+            containing_prefix = network_info.get(ip_str, {}).get("prefix")
+
+            if containing_prefix is None:
+                log.error(
+                    "Unable to find containing prefix for {}. Got: {}",
+                    str(valid_ip),
+                    network_info,
+                )
+                raise InputInvalid("{q} does not have a containing prefix", q=ip_str)
 
             try:
 

@@ -14,7 +14,7 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 # Project
 from hyperglass.log import log
 from hyperglass.util import clean_name, process_headers, import_public_key
-from hyperglass.cache import Cache
+from hyperglass.cache import AsyncCache
 from hyperglass.encode import jwt_decode
 from hyperglass.external import Webhook, bgptools
 from hyperglass.exceptions import HyperglassError
@@ -56,7 +56,7 @@ async def send_webhook(query_data: Query, request: Request, timestamp: datetime)
                         **query_data.export_dict(pretty=True),
                         "headers": headers,
                         "source": host,
-                        "network": network_info,
+                        "network": network_info.get(host, {}),
                         "timestamp": timestamp,
                     }
                 )
@@ -73,7 +73,7 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
     background_tasks.add_task(send_webhook, query_data, request, timestamp)
 
     # Initialize cache
-    cache = Cache(db=params.cache.database, **REDIS_CONFIG)
+    cache = AsyncCache(db=params.cache.database, **REDIS_CONFIG)
     log.debug("Initialized cache {}", repr(cache))
 
     # Use hashed query_data string as key for for k/v cache store so
@@ -131,12 +131,10 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
 
     # If it does, return the cached entry
     cache_response = await cache.get_dict(cache_key, "output")
+    response_format = "text/plain"
 
     if query_data.device.structured_output:
         response_format = "application/json"
-        cache_response = json.loads(cache_response)
-    else:
-        response_format = "text/plain"
 
     log.debug(f"Cache match for {cache_key}:\n {cache_response}")
     log.success(f"Completed query execution for {query_data.summary}")
