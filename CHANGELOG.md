@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta51 - 2020-07-13
+### Fixed
+- [#54](https://github.com/checktheroads/hyperglass/issues/54) A Junos parsing error caused routes with no communities to raise an error.
+- Pre-validated config files are no longer logged on startup unless debugging is enabled.
+
+### Changed
+- Improved config import process & error handling.
+- Improved logging initialization so that noisy logs aren't generated on startup unless debugging is enabled.
+
 ## 1.0.0-beta50 - 2020-07-12
 ### Fixed
 - [#54](https://github.com/checktheroads/hyperglass/issues/54): A Junos structured/table output parsing error caused routes with multiple next-hops to raise an error.
