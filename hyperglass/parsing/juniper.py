@@ -1,18 +1,24 @@
 """Parse Juniper XML Response to Structured Data."""
 
+# Standard Library
+from typing import Dict, Iterable
+
 # Third Party
 import xmltodict
+from pydantic import ValidationError
 
 # Project
 from hyperglass.log import log
+from hyperglass.util import validation_error_message
 from hyperglass.exceptions import ParsingError, ResponseEmpty
 from hyperglass.configuration import params
 from hyperglass.parsing.models.juniper import JuniperRoute
 
 
-def parse_juniper(output):
+def parse_juniper(output: Iterable) -> Dict:  # noqa: C901
     """Parse a Juniper BGP XML response."""
     data = {}
+
     for i, response in enumerate(output):
         try:
             parsed = xmltodict.parse(
@@ -47,5 +53,9 @@ def parse_juniper(output):
         except KeyError as err:
             log.critical(f"'{str(err)}' was not found in the response")
             raise ParsingError("Error parsing response data")
+
+        except ValidationError as err:
+            log.critical(str(err))
+            raise ParsingError(validation_error_message(*err.errors()))
 
     return data

@@ -44,7 +44,7 @@ class JuniperRouteTableEntry(_JuniperBase):
     peer_as: int
     source_as: int
     source_rid: StrictStr
-    communities: List[StrictStr]
+    communities: List[StrictStr] = None
 
     @root_validator(pre=True)
     def validate_optional_flags(cls, values):
@@ -105,7 +105,11 @@ class JuniperRouteTableEntry(_JuniperBase):
     @validator("communities", pre=True, always=True)
     def validate_communities(cls, value):
         """Flatten community list."""
-        return value.get("community", [])
+        if value is not None:
+            flat = value.get("community", [])
+        else:
+            flat = []
+        return flat
 
 
 class JuniperRouteTable(_JuniperBase):
