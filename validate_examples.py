@@ -67,7 +67,7 @@ def _validate_commands():
     with COMMANDS.open() as raw:
         commands_dict = yaml.safe_load(raw.read()) or {}
     try:
-        Commands.import_params(commands_dict)
+        Commands.import_params(**commands_dict)
     except Exception as e:
         raise ValueError(str(e))
     return True

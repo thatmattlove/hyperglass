@@ -2,9 +2,11 @@
 
 # Standard Library
 import json as _json
+from typing import List
 
 # Project
 from hyperglass.log import log
+from hyperglass.util import validation_error_message
 from hyperglass.constants import STATUS_CODE_MAP
 
 
@@ -136,14 +138,17 @@ class _PredefinedHyperglassError(HyperglassError):
         )
 
 
-class ConfigError(_UnformattedHyperglassError):
-    """Raised for generic user-config issues."""
-
-
-class ConfigInvalid(_PredefinedHyperglassError):
+class ConfigInvalid(HyperglassError):
     """Raised when a config item fails type or option validation."""
 
-    _message = 'The value field "{field}" is invalid: {error_msg}'
+    def __init__(self, errors: List) -> None:
+        """Parse Pydantic ValidationError."""
+
+        super().__init__(message=validation_error_message(*errors))
+
+
+class ConfigError(_UnformattedHyperglassError):
+    """Raised for generic user-config issues."""
 
 
 class ConfigMissing(_PredefinedHyperglassError):

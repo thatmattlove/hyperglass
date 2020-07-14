@@ -4,6 +4,7 @@
 import os
 import copy
 import json
+from typing import Dict, List, Union, Callable
 from pathlib import Path
 
 # Third Party
@@ -17,7 +18,8 @@ from hyperglass.log import (
     enable_file_logging,
     enable_syslog_logging,
 )
-from hyperglass.util import check_path, set_app_path, set_cache_env
+from hyperglass.util import check_path, set_app_path, set_cache_env, current_log_level
+from hyperglass.models import HyperglassModel
 from hyperglass.constants import (
     CREDIT,
     DEFAULT_HELP,
@@ -87,32 +89,34 @@ STATIC_PATH = CONFIG_PATH / "static"
 CONFIG_MAIN, CONFIG_DEVICES, CONFIG_COMMANDS = _check_config_files(CONFIG_PATH)
 
 
-def _config_required(config_path: Path) -> dict:
+def _config_required(config_path: Path) -> Dict:
     try:
         with config_path.open("r") as cf:
             config = yaml.safe_load(cf)
-            log.debug(
-                "Unvalidated data from file '{f}': {c}", f=str(config_path), c=config
-            )
+
     except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
         raise ConfigError(str(yaml_error))
+
+    if config is None:
+        log.critical("{} appears to be empty", str(config_path))
+        raise ConfigMissing(missing_item=config_path.name)
+
     return config
 
 
-def _config_optional(config_path: Path) -> dict:
+def _config_optional(config_path: Path) -> Dict:
+
     if config_path is None:
         config = {}
+
     else:
         try:
             with config_path.open("r") as cf:
                 config = yaml.safe_load(cf) or {}
-                log.debug(
-                    "Unvalidated data from file '{f}': {c}",
-                    f=str(config_path),
-                    c=config,
-                )
+
         except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
             raise ConfigError(error_msg=str(yaml_error))
+
     return config
 
 
@@ -138,34 +142,53 @@ def _validate_nos_commands(all_nos, commands):
     return True
 
 
+def _validate_config(config: Union[Dict, List], importer: Callable) -> HyperglassModel:
+    validated = None
+    try:
+        if isinstance(config, Dict):
+            validated = importer(**config)
+        elif isinstance(config, List):
+            validated = importer(config)
+    except ValidationError as err:
+        log.error(str(err))
+        raise ConfigInvalid(err.errors()) from None
+
+    return validated
+
+
 user_config = _config_optional(CONFIG_MAIN)
 
 # Read raw debug value from config to enable debugging quickly.
 set_log_level(logger=log, debug=user_config.get("debug", True))
 
-_user_commands = _config_optional(CONFIG_COMMANDS)
-_user_devices = _config_required(CONFIG_DEVICES)
-
-# Map imported user config files to expected schema:
-try:
-    params = _params.Params(**user_config)
-    commands = _commands.Commands.import_params(_user_commands)
-    devices = _routers.Routers._import(_user_devices.get("routers", {}))
-except ValidationError as validation_errors:
-    errors = validation_errors.errors()
-    log.error(errors)
-    for error in errors:
-        raise ConfigInvalid(
-            field=": ".join([str(item) for item in error["loc"]]),
-            error_msg=error["msg"],
-        )
-
-_validate_nos_commands(devices.all_nos, commands)
-
-set_cache_env(db=params.cache.database, host=params.cache.host, port=params.cache.port)
+# Map imported user configuration to expected schema.
+log.debug("Unvalidated configuration from {}: {}", CONFIG_MAIN, user_config)
+params = _validate_config(config=user_config, importer=_params.Params)
 
 # Re-evaluate debug state after config is validated
-set_log_level(logger=log, debug=params.debug)
+if params.debug and current_log_level(log) != "debug":
+    set_log_level(logger=log, debug=True)
+
+# Map imported user commands to expected schema.
+_user_commands = _config_optional(CONFIG_COMMANDS)
+log.debug("Unvalidated commands from {}: {}", CONFIG_COMMANDS, _user_commands)
+commands = _validate_config(
+    config=_user_commands, importer=_commands.Commands.import_params
+)
+
+# Map imported user devices to expected schema.
+_user_devices = _config_required(CONFIG_DEVICES)
+log.debug("Unvalidated devices from {}: {}", CONFIG_DEVICES, _user_devices)
+devices = _validate_config(
+    config=_user_devices.get("routers", []), importer=_routers.Routers._import,
+)
+
+# Validate commands are both supported and properly mapped.
+_validate_nos_commands(devices.all_nos, commands)
+
+# Set cache configurations to environment variables, so they can be
+# used without importing this module (Gunicorn, etc).
+set_cache_env(db=params.cache.database, host=params.cache.host, port=params.cache.port)
 
 # Set up file logging once configuration parameters are initialized.
 enable_file_logging(

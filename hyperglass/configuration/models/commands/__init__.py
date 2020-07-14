@@ -34,7 +34,7 @@ class Commands(HyperglassModelExtra):
     vyos: CommandGroup = VyosCommands()
 
     @classmethod
-    def import_params(cls, input_params):
+    def import_params(cls, **input_params):
         """Import loaded YAML, initialize per-command definitions.
 
         Dynamically set attributes for the command class.

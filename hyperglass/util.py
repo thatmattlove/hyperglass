@@ -1,12 +1,16 @@
 """Utility functions."""
 
 # Standard Library
+import re
 import math
 import shutil
 from queue import Queue
-from typing import Iterable
+from typing import Dict, Iterable
 from pathlib import Path
 from threading import Thread
+
+# Third Party
+from loguru._logger import Logger as LoguruLogger
 
 # Project
 from hyperglass.log import log
@@ -38,8 +42,6 @@ def clean_name(_name):
     Returns:
         {str} -- Cleaned field name
     """
-    import re
-
     _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", _name)
     _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
     return _scrubbed.lower()
@@ -751,8 +753,6 @@ def import_public_key(app_path, device_name, keystring):
     Returns:
         {bool} -- True if file was written
     """
-    import re
-
     if not isinstance(app_path, Path):
         app_path = Path(app_path)
 
@@ -945,3 +945,30 @@ def validate_nos(nos):
         result = (True, "scrape")
 
     return result
+
+
+def current_log_level(logger: LoguruLogger) -> str:
+    """Get the current log level of a logger instance."""
+
+    try:
+        handler = list(logger._core.handlers.values())[0]
+        levels = {v.no: k for k, v in logger._core.levels.items()}
+        current_level = levels[handler.levelno].lower()
+
+    except Exception as err:
+        logger.error(err)
+        current_level = "info"
+
+    return current_level
+
+
+def validation_error_message(*errors: Dict) -> str:
+    """Parse errors return from pydantic.ValidationError.errors()."""
+
+    errs = ("\n",)
+
+    for err in errors:
+        loc = " → ".join(str(loc) for loc in err["loc"])
+        errs += (f'Field: {loc}\n  Error: {err["msg"]}\n',)
+
+    return "\n".join(errs)
