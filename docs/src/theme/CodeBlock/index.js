@@ -11,7 +11,8 @@ import React, { useEffect, useState, useRef } from "react";
 import classnames from "classnames";
 import Highlight, { defaultProps } from "prism-react-renderer";
 import Prism from "prism-react-renderer/prism";
-import defaultTheme from "./dracula";
+import darkTheme from "./dracula";
+import lightTheme from "./github";
 import Clipboard from "clipboard";
 import rangeParser from "parse-numeric-range";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
@@ -118,8 +119,8 @@ export default ({ children, className: languageClassName, metastring }) => {
   let codeBlockTitle = "";
 
   const { isDarkTheme } = useThemeContext();
-  const lightModeTheme = prism.theme || defaultTheme;
-  const darkModeTheme = prism.darkTheme || lightModeTheme;
+  const lightModeTheme = prism.theme || lightTheme || darkTheme;
+  const darkModeTheme = prism.darkTheme || darkTheme || lightTheme;
   const prismTheme = isDarkTheme ? darkModeTheme : lightModeTheme;
 
   if (metastring && highlightLinesRangeRegex.test(metastring)) {

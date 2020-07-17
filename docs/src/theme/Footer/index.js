@@ -17,7 +17,7 @@ function FooterLink({ to, href, label, ...props }) {
   const toUrl = useBaseUrl(to);
   return (
     <Link
-      className="footer__link-item"
+      className={classnames(styles.footerLink, "footer__link-item")}
       {...(href
         ? {
             target: "_blank",

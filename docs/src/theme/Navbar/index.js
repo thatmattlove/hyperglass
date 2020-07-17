@@ -1,42 +1,65 @@
 /**
- * Copyright (c) 2017-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useCallback, useState } from "react";
-import classnames from "classnames";
+import React, { useCallback, useState, useEffect } from "react";
+import clsx from "clsx";
 import Link from "@docusaurus/Link";
-import { useLocation } from "react-router-dom";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import SearchBar from "@theme/SearchBar";
+
+import SearchBar from "../SearchBar";
 import useThemeContext from "@theme/hooks/useThemeContext";
 import useHideableNavbar from "@theme/hooks/useHideableNavbar";
 import useLockBodyScroll from "@theme/hooks/useLockBodyScroll";
-
+import useWindowSize, { windowSizes } from "@theme/hooks/useWindowSize";
+import useLogo from "@theme/hooks/useLogo";
 import useMedia from "use-media";
-
 import { ColorModeToggle } from "../../components/ColorModeToggle";
 import { GithubButton } from "../../components/GithubButton";
 import Logo from "../../components/Logo";
 import styles from "./styles.module.css";
 
-function NavLink({ to, href, label, position, ...props }) {
+// retrocompatible with v1
+const DefaultNavItemPosition = "right";
+
+function NavLink({
+  activeBasePath,
+  activeBaseRegex,
+  to,
+  href,
+  label,
+  activeClassName = "navbar__link--active",
+  prependBaseUrlToHref,
+  ...props
+}) {
   const toUrl = useBaseUrl(to);
+  const activeBaseUrl = useBaseUrl(activeBasePath);
+  const normalizedHref = useBaseUrl(href, { forcePrependBaseUrl: true });
+
   return (
     <Link
-      className={classnames(styles.navLink, "navbar__item navbar__link")}
       {...(href
         ? {
             target: "_blank",
             rel: "noopener noreferrer",
-            href,
+            href: prependBaseUrlToHref ? normalizedHref : href,
           }
         : {
-            activeClassName: "navbar__link--active",
+            isNavLink: true,
+            activeClassName,
             to: toUrl,
+            ...(activeBasePath || activeBaseRegex
+              ? {
+                  isActive: (_match, location) =>
+                    activeBaseRegex
+                      ? new RegExp(activeBaseRegex).test(location.pathname)
+                      : location.pathname.startsWith(activeBaseUrl),
+                }
+              : null),
           })}
       {...props}
     >
@@ -45,21 +68,137 @@ function NavLink({ to, href, label, position, ...props }) {
   );
 }
 
-function Navbar() {
-  const context = useDocusaurusContext();
-  const { siteConfig = {} } = context;
-  const { baseUrl, themeConfig = {} } = siteConfig;
-  const { navbar = {}, disableDarkMode = false } = themeConfig;
-  const { title, logo = {}, links = [], hideOnScroll = false } = navbar;
+function NavItem({
+  items,
+  position = DefaultNavItemPosition,
+  className,
+  ...props
+}) {
+  const navLinkClassNames = (extraClassName, isDropdownItem = false) =>
+    clsx(
+      styles.navLink,
+      {
+        "navbar__item navbar__link": !isDropdownItem,
+        dropdown__link: isDropdownItem,
+      },
+      extraClassName
+    );
 
+  if (!items) {
+    return <NavLink className={navLinkClassNames(className)} {...props} />;
+  }
+
+  return (
+    <div
+      className={clsx("navbar__item", "dropdown", "dropdown--hoverable", {
+        "dropdown--left": position === "left",
+        "dropdown--right": position === "right",
+      })}
+    >
+      <NavLink
+        className={navLinkClassNames(className)}
+        {...props}
+        onClick={(e) => e.preventDefault()}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.target.parentNode.classList.toggle("dropdown--show");
+          }
+        }}
+      >
+        {props.label}
+      </NavLink>
+      <ul className="dropdown__menu">
+        {items.map(
+          ({ className: childItemClassName, ...childItemProps }, i) => (
+            <li key={i}>
+              <NavLink
+                activeClassName="dropdown__link--active"
+                className={navLinkClassNames(childItemClassName, true)}
+                {...childItemProps}
+              />
+            </li>
+          )
+        )}
+      </ul>
+    </div>
+  );
+}
+
+function MobileNavItem({ items, position: _position, className, ...props }) {
+  // Need to destructure position from props so that it doesn't get passed on.
+  const navLinkClassNames = (extraClassName, isSubList = false) =>
+    clsx(
+      "menu__link",
+      {
+        "menu__link--sublist": isSubList,
+      },
+      extraClassName
+    );
+
+  if (!items) {
+    return (
+      <li className="menu__list-item">
+        <NavLink className={navLinkClassNames(className)} {...props} />
+      </li>
+    );
+  }
+
+  return (
+    <li className="menu__list-item">
+      <NavLink className={navLinkClassNames(className, true)} {...props}>
+        {props.label}
+      </NavLink>
+      <ul className="menu__list">
+        {items.map(
+          ({ className: childItemClassName, ...childItemProps }, i) => (
+            <li className="menu__list-item" key={i}>
+              <NavLink
+                activeClassName="menu__link--active"
+                className={navLinkClassNames(childItemClassName)}
+                {...childItemProps}
+                onClick={props.onClick}
+              />
+            </li>
+          )
+        )}
+      </ul>
+    </li>
+  );
+}
+
+// If split links by left/right
+// if position is unspecified, fallback to right (as v1)
+function splitLinks(links) {
+  const leftLinks = links.filter(
+    (linkItem) => (linkItem.position ?? DefaultNavItemPosition) === "left"
+  );
+  const rightLinks = links.filter(
+    (linkItem) => (linkItem.position ?? DefaultNavItemPosition) === "right"
+  );
+  return {
+    leftLinks,
+    rightLinks,
+  };
+}
+
+function Navbar() {
+  const {
+    siteConfig: {
+      themeConfig: {
+        navbar: { title, links = [], hideOnScroll = false } = {},
+        disableDarkMode = false,
+      },
+      organizationName,
+      projectName,
+      baseUrl,
+    },
+  } = useDocusaurusContext();
   const [sidebarShown, setSidebarShown] = useState(false);
   const [isSearchBarExpanded, setIsSearchBarExpanded] = useState(false);
-  const { pathname } = useLocation();
 
   const { isDarkTheme, setLightTheme, setDarkTheme } = useThemeContext();
   const { navbarRef, isNavbarVisible } = useHideableNavbar(hideOnScroll);
-
-  const isMobile = useMedia({ maxWidth: 997 });
+  const { logoLink, logoLinkProps, logoImageUrl, logoAlt } = useLogo();
 
   useLockBodyScroll(sidebarShown);
 
@@ -70,33 +209,37 @@ function Navbar() {
     setSidebarShown(false);
   }, [setSidebarShown]);
 
-  const onToggleChange = (checked) => {
-    checked ? setDarkTheme() : setLightTheme();
-  };
+  const onToggleChange = useCallback(
+    (checked) => {
+      checked ? setDarkTheme() : setLightTheme();
+    },
+    [setLightTheme, setDarkTheme]
+  );
 
-  const logoLink = logo.href || baseUrl;
-  const isExternalLogoLink = /http/.test(logoLink);
-  const logoLinkProps = isExternalLogoLink
-    ? {
-        rel: "noopener noreferrer",
-        target: "_blank",
-      }
-    : null;
-  const logoSrc = logo.srcDark && isDarkTheme ? logo.srcDark : logo.src;
+  const windowSize = useWindowSize();
+
+  const isMobile = useMedia({ maxWidth: 997 });
+
+  useEffect(() => {
+    if (windowSize === windowSizes.desktop) {
+      setSidebarShown(false);
+    }
+  }, [windowSize]);
+
+  const { leftLinks, rightLinks } = splitLinks(links);
 
   return (
     <nav
       ref={navbarRef}
-      className={classnames("navbar", "navbar--light", "navbar--fixed-top", {
-        [styles.navbarMain]: pathname === "/",
-        [styles.navbarOther]: pathname !== "/",
+      className={clsx("navbar", "navbar--light", "navbar--fixed-top", {
         "navbar-sidebar--show": sidebarShown,
         [styles.navbarHideable]: hideOnScroll,
         [styles.navbarHidden]: !isNavbarVisible,
+        [styles.navBarBorder]: !isMobile,
       })}
     >
       <div className="navbar__inner">
-        <div className={classnames("navbar__items", styles.navbarItems)}>
+        <div className="navbar__items">
           {!isMobile && (
             <Link
               className="navbar__brand"
@@ -114,45 +257,40 @@ function Navbar() {
               )}
             </Link>
           )}
-          <div
-            aria-label="Navigation bar toggle"
-            className="navbar__toggle"
-            role="button"
-            tabIndex={0}
-            onClick={showSidebar}
-            onKeyDown={showSidebar}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="30"
-              height="30"
-              viewBox="0 0 30 30"
-              role="img"
-              focusable="false"
+          {links != null && links.length !== 0 && (
+            <div
+              aria-label="Navigation bar toggle"
+              className="navbar__toggle"
+              role="button"
+              tabIndex={0}
+              onClick={showSidebar}
+              onKeyDown={showSidebar}
             >
-              <title>Menu</title>
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeMiterlimit="10"
-                strokeWidth="2"
-                d="M4 7h22M4 15h22M4 23h22"
-              />
-            </svg>
-          </div>
-          {links
-            .filter((linkItem) => linkItem.position !== "right")
-            .map((linkItem, i) => (
-              <NavLink {...linkItem} key={i} />
-            ))}
-        </div>
-        <div
-          className={classnames(
-            "navbar__items",
-            "navbar__items--right",
-            styles.navbarItemsRight
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="30"
+                height="30"
+                viewBox="0 0 30 30"
+                role="img"
+                focusable="false"
+              >
+                <title>Menu</title>
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeMiterlimit="10"
+                  strokeWidth="2"
+                  d="M4 7h22M4 15h22M4 23h22"
+                />
+              </svg>
+            </div>
           )}
-        >
+
+          {leftLinks.map((linkItem, i) => (
+            <NavItem {...linkItem} key={i} />
+          ))}
+        </div>
+        <div className="navbar__items navbar__items--right">
           {isMobile && (
             <Link
               className="navbar__brand"
@@ -188,7 +326,7 @@ function Navbar() {
           )}
           {!isMobile && (
             <GithubButton
-              href={`https://github.com/${siteConfig.organizationName}/${siteConfig.projectName}`}
+              href={`https://github.com/${organizationName}/${projectName}`}
             />
           )}
         </div>
@@ -202,14 +340,16 @@ function Navbar() {
         <div className="navbar-sidebar__brand">
           <Link
             className="navbar__brand"
-            to={baseUrl}
-            aria-label="Home"
-            title="Home"
+            onClick={hideSidebar}
+            to={logoLink}
+            {...logoLinkProps}
           >
             <Logo size={32} className={styles.logo} />
             {title != null && (
               <strong
-                className={isSearchBarExpanded ? styles.hideLogoText : ""}
+                className={
+                  isSearchBarExpanded ? styles.hideLogoText : "navbar__title"
+                }
               >
                 {title}
               </strong>
@@ -217,7 +357,7 @@ function Navbar() {
           </Link>
           {sidebarShown && (
             <GithubButton
-              href={`https://github.com/${siteConfig.organizationName}/${siteConfig.projectName}`}
+              href={`https://github.com/${organizationName}/${projectName}`}
             />
           )}
           {!disableDarkMode && sidebarShown && (
@@ -228,13 +368,7 @@ function Navbar() {
           <div className="menu">
             <ul className="menu__list">
               {links.map((linkItem, i) => (
-                <li className="menu__list-item" key={i}>
-                  <NavLink
-                    className="menu__link"
-                    {...linkItem}
-                    onClick={hideSidebar}
-                  />
-                </li>
+                <MobileNavItem {...linkItem} onClick={hideSidebar} key={i} />
               ))}
               <div style={{ margin: 5, marginTop: 15 }} />
               <SearchBar

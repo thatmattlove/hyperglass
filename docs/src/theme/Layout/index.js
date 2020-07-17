@@ -7,15 +7,14 @@
 
 import React from "react";
 import Head from "@docusaurus/Head";
-import isInternalUrl from "@docusaurus/isInternalUrl";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 
 import ThemeProvider from "@theme/ThemeProvider";
-import TabGroupChoiceProvider from "@theme/TabGroupChoiceProvider";
+import UserPreferencesProvider from "@theme/UserPreferencesProvider";
 import AnnouncementBar from "@theme/AnnouncementBar";
-import Navbar from "@theme/Navbar";
-import Footer from "@theme/Footer";
+import Navbar from "../Navbar";
+import Footer from "../Footer";
 
 import "./styles.css";
 
@@ -38,22 +37,14 @@ function Layout(props) {
     version,
   } = props;
   const metaTitle = title ? `${title} | ${siteTitle}` : siteTitle;
-
   const metaImage = image || defaultImage;
-  let metaImageUrl = siteUrl + useBaseUrl(metaImage);
-  if (!isInternalUrl(metaImage)) {
-    metaImageUrl = metaImage;
-  }
-
+  const metaImageUrl = useBaseUrl(metaImage, { absolute: true });
   const faviconUrl = useBaseUrl(favicon);
-
   return (
     <ThemeProvider>
-      <TabGroupChoiceProvider>
+      <UserPreferencesProvider>
         <Head>
-          {/* TODO: Do not assume that it is in english language */}
           <html lang="en" />
-
           {metaTitle && <title>{metaTitle}</title>}
           {metaTitle && <meta property="og:title" content={metaTitle} />}
           {favicon && <link rel="shortcut icon" href={faviconUrl} />}
@@ -66,24 +57,25 @@ function Layout(props) {
             <meta name="keywords" content={keywords.join(",")} />
           )}
           {metaImage && <meta property="og:image" content={metaImageUrl} />}
+          {metaImage && <meta property="og:image:width" content="1200" />}
+          {metaImage && <meta property="og:image:height" content="630" />}
           {metaImage && (
             <meta property="twitter:image" content={metaImageUrl} />
           )}
           {metaImage && (
             <meta name="twitter:image:alt" content={`Image for ${metaTitle}`} />
           )}
-          {metaImage && <meta property="og:image:width" content="1200" />}
-          {metaImage && <meta property="og:image:height" content="630" />}
           {permalink && (
             <meta property="og:url" content={siteUrl + permalink} />
           )}
+          {permalink && <link rel="canonical" href={siteUrl + permalink} />}
           <meta name="twitter:card" content="summary_large_image" />
         </Head>
         <AnnouncementBar />
         <Navbar />
         <div className="main-wrapper">{children}</div>
         {!noFooter && <Footer />}
-      </TabGroupChoiceProvider>
+      </UserPreferencesProvider>
     </ThemeProvider>
   );
 }

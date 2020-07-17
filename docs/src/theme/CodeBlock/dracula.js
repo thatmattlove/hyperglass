@@ -7,7 +7,7 @@ export default {
   },
   styles: [
     {
-      types: ["boolean", "number"],
+      types: ["boolean", "number", "null"],
       style: {
         color: "rgb(189, 147, 249)",
       },
@@ -86,6 +86,14 @@ export default {
       types: ["attr-value", "class-name", "string"],
       style: {
         color: "rgb(241, 250, 140)",
+      },
+    },
+    {
+      types: ["important"],
+      style: {
+        color: "rgb(80, 250, 123)",
+        fontStyle: "italic",
+        textDecoration: "underline",
       },
     },
   ],

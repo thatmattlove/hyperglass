@@ -2,7 +2,7 @@ const githubURL = "https://github.com/checktheroads/hyperglass";
 
 const { googleTrackingId, algoliaKey } = process.env;
 
-module.exports = {
+const docusaurusConfig = {
   title: "hyperglass",
   tagline: "the network looking glass that tries to make the internet better.",
   url: "https://hyperglass.io",
@@ -17,7 +17,7 @@ module.exports = {
       anonymizeIP: false,
     },
     algolia: {
-      apiKey: algoliaKey,
+      apiKey: algoliaKey || "dev",
       indexName: "hyperglass",
     },
     navbar: {
@@ -48,7 +48,7 @@ module.exports = {
             },
             {
               label: "Configuration",
-              to: "docs/configuration",
+              to: "docs/parameters",
             },
           ],
         },
@@ -91,7 +91,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
-          editUrl: githubURL + "/edit/master/docs/",
+          editUrl: githubURL + "/edit/v1.0.0/docs/",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
@@ -99,8 +99,7 @@ module.exports = {
       },
     ],
   ],
-  plugins: [
-    "@docusaurus/plugin-google-analytics",
-    require("./generateSitemap"),
-  ],
+  plugins: ["@docusaurus/plugin-google-analytics"],
 };
+
+module.exports = docusaurusConfig;

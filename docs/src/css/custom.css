@@ -44,29 +44,37 @@
 
 :root {
   --ifm-menu-color-active: black;
-  --ra-color-link: var(--ifm-color-black);
-  --ra-color-caution: var(--ifm-color-warning-lightest);
-  --ra-color-tip: var(--ifm-color-success-lightest);
-  --ra-color-important: var(--ifm-color-info-lightest);
-  --ra-color-note: var(--ifm-color-gray-200);
-  --ra-color-warning: var(--ifm-color-danger-lighter);
-  --ra-admonition-color: var(--ifm-font-base-color);
   --ifm-alert-background-color: var(--ifm-color-gray-400);
 }
 
 html[data-theme="dark"]:root {
+  --ifm-background-color: #121212;
+  --ifm-background-surface-color: #1e2125;
+  --ifm-navbar-background-color: var(--ifm-background-color);
   --ifm-menu-color-active: var(--ifm-color-primary);
-  --ra-color-link: var(--ifm-color-black);
-  --ra-color-caution: var(--ifm-color-warning-darkest);
-  --ra-color-tip: var(--ifm-color-success-darkest);
-  --ra-color-important: var(--ifm-color-info-darkest);
-  --ra-color-note: var(--ifm-color-gray-600);
-  --ra-color-warning: var(--ifm-color-danger-darker);
   --ifm-blockquote-color: var(--ifm-color-emphasis-400);
 }
 
 .admonition.alert {
   --ra-admonition-icon-color: currentColor;
+  --ifm-alert-color: var(--ifm-font-color-base);
+  border-color: unset;
+  border-style: unset;
+  border-width: unset;
+  box-shadow: var(--ifm-global-shadow-md);
+}
+
+html[data-theme="dark"] .admonition.alert--warning {
+  --ifm-alert-color: var(--ifm-color-black);
+}
+html[data-theme="dark"] .admonition.alert--critical {
+  --ifm-alert-color: var(--ifm-color-black);
+}
+html[data-theme="dark"] .admonition.alert--info {
+  --ifm-alert-color: var(--ifm-color-black);
+}
+html[data-theme=""] .admonition.alert--success {
+  --ifm-alert-color: white;
 }
 
 html[data-theme="dark"]:root .admonition.alert.admonition-note {
@@ -76,6 +84,11 @@ html[data-theme="dark"]:root .admonition.alert.admonition-note {
 .admonition.alert.admonition-note {
   --ifm-alert-background-color: var(--ifm-color-gray-300);
   --ifm-alert-color: var(--ifm-color-black);
+}
+
+.admonition.alert.admonition-note[class] .admonition-content[class] a {
+  color: var(--ifm-font-color-base);
+  opacity: 0.9;
 }
 
 html[data-theme="dark"] .footer.footer--dark {
@@ -126,10 +139,14 @@ html[data-theme="dark"] {
 }
 
 .docusaurus-highlight-code-line {
-  background-color: rgb(72, 77, 91);
+  background-color: rgba(0, 0, 0, 0.1);
   display: block;
   margin: 0 calc(-1 * var(--ifm-pre-padding));
   padding: 0 var(--ifm-pre-padding);
+}
+
+html[data-theme="dark"] .docusaurus-highlight-code-line {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 table {
@@ -215,6 +232,20 @@ html[data-theme="dark"] .navbar .navbar__items a.navbar__brand {
   }
 }
 
-.menu .menu__link.menu__link--active {
+.menu .menu__list .menu__list-item .menu__link.menu__link--active {
   font-weight: var(--ifm-font-weight-bold);
+  color: var(--ifm-color-secondary);
+}
+
+html[data-theme="dark"]
+  .menu
+  .menu__list
+  .menu__list-item
+  .menu__link.menu__link--active {
+  color: var(--ifm-color-primary);
+}
+
+.menu .menu__list .menu__list-item .menu__link,
+.table-of-contents .table-of-contents__link {
+  color: var(--ifm-font-color-base);
 }
