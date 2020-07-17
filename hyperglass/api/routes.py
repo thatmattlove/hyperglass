@@ -89,6 +89,15 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
 
     cache_response = await cache.get_dict(cache_key, "output")
 
+    json_output = False
+
+    if query_data.device.structured_output and query_data.query_type in (
+        "bgp_route",
+        "bgp_community",
+        "bgp_aspath",
+    ):
+        json_output = True
+
     cached = False
     if cache_response:
         log.debug("Query {q} exists in cache", q=cache_key)
@@ -118,7 +127,7 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
             raise HyperglassError(message=params.messages.general, alert="danger")
 
         # Create a cache entry
-        if query_data.device.structured_output:
+        if json_output:
             raw_output = json.dumps(cache_output)
         else:
             raw_output = str(cache_output)
@@ -134,7 +143,7 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
     cache_response = await cache.get_dict(cache_key, "output")
     response_format = "text/plain"
 
-    if query_data.device.structured_output:
+    if json_output:
         response_format = "application/json"
 
     log.debug(f"Cache match for {cache_key}:\n {cache_response}")

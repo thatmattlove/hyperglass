@@ -84,6 +84,9 @@ class Connect:
         parsed = ()
         response = None
 
+        nos_to_parse = nos_parsers.keys()
+        query_type_to_parse = nos_parsers[self.device.nos].keys()
+
         if not self.device.structured_output:
             for coro in parsers:
                 for response in output:
@@ -92,8 +95,18 @@ class Connect:
             response = "\n\n".join(parsed)
         elif (
             self.device.structured_output
-            and self.device.nos in nos_parsers.keys()
-            and self.query_type in nos_parsers[self.device.nos].keys()
+            and self.device.nos in nos_to_parse
+            and self.query_type not in query_type_to_parse
+        ):
+            for coro in parsers:
+                for response in output:
+                    _output = await coro(commands=self.query, output=response)
+                    parsed += (_output,)
+            response = "\n\n".join(parsed)
+        elif (
+            self.device.structured_output
+            and self.device.nos in nos_to_parse
+            and self.query_type in query_type_to_parse
         ):
             func = nos_parsers[self.device.nos][self.query_type]
             response = func(output)
