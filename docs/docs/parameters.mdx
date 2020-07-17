@@ -59,22 +59,6 @@ The following global settings can be set in `hyperglass.yaml`:
 The `netmiko_delay_factor` parameter should only be used if you're experiencing strange SSH connection issues. By default, Netmiko uses a `global_delay_factor` of `1`, which tends to be a bit slow for running a simple show command. hyperglass overrides this to `0.1` by default, but you can override this to whatever value suits your environment if needed.
 :::
 
-#### Example
-
-```yaml title="hyperglass.yaml"
-debug: false
-developer_mode: false
-org_name: Beloved Hyperglass User
-site_title: hyperglass
-site_description: "{org_name} Network Looking Glass"
-site_keywords: [hyperglass, looking glass, routing, bgp]
-request_timeout: 30
-listen_address: "127.0.0.1"
-listen_port: 8001
-log_file: /tmp/hyperglass.log
-cors_origins: [localhost:3000, 192.0.2.1]
-```
-
 ### Subsections
 
 From the top level, the following subsections may be defined and configured:
@@ -89,32 +73,18 @@ From the top level, the following subsections may be defined and configured:
 | `structured` | Configure structured data features.                 |   <PageLink to="table-output">➡️</PageLink>   |
 | `web`        | Web UI & branding settings.                         | <PageLink to="ui/configuration">➡️</PageLink> |
 
-## Adding Devices
+### Example
 
-To add, as an example, a Cisco router, add the following to your `devices.yaml`, with the relevant details changed for your device:
-
-```yaml title="devices.yaml"
-routers:
-  - name: router01.pop01
-    address: 10.0.0.1
-    network: AS65000
-    credential:
-      username: username
-      password: password
-    location: pop01
-    display_name: Phoenix, AZ
-    port: 22
-    nos: cisco_ios
-    vrfs:
-      - name: default
-        ipv4:
-          source_address: 192.0.2.1
-        ipv6:
-          source_address: 2001:db8::1
+```yaml title="hyperglass.yaml"
+debug: false
+developer_mode: false
+org_name: Beloved Hyperglass User
+site_title: hyperglass
+site_description: "{org_name} Network Looking Glass"
+site_keywords: [hyperglass, looking glass, routing, bgp]
+request_timeout: 30
+listen_address: "127.0.0.1"
+listen_port: 8001
+log_file: /tmp/hyperglass.log
+cors_origins: [localhost:3000, 192.0.2.1]
 ```
-
-There are a lot more options, but this is enough to get started. For all device configuration options, [see here](adding-devices).
-
-:::tip YAML
-If you have a lot of devices with shared configuration parameters, you may want to look into **YAML Anchors and Aliases**. If you've never used them before, they can be pretty weird looking at first read. Atlassian [has a pretty decent guide](https://confluence.atlassian.com/bitbucket/yaml-anchors-960154027.html).
-:::
