@@ -17,6 +17,7 @@ from hyperglass.util import clean_name, process_headers, import_public_key
 from hyperglass.cache import AsyncCache
 from hyperglass.encode import jwt_decode
 from hyperglass.external import Webhook, bgptools
+from hyperglass.constants import __version__
 from hyperglass.exceptions import HyperglassError
 from hyperglass.configuration import REDIS_CONFIG, params, devices
 from hyperglass.api.models.query import Query
@@ -211,7 +212,6 @@ async def routers():
             include={
                 "name": ...,
                 "network": ...,
-                "location": ...,
                 "display_name": ...,
                 "vrfs": {-1: {"name", "display_name"}},
             }
@@ -233,4 +233,14 @@ async def queries():
     return params.queries.list
 
 
-endpoints = [query, docs, routers]
+async def info():
+    """Serve general information about this instance of hyperglass."""
+    return {
+        "name": params.site_title,
+        "organization": params.org_name,
+        "primary_asn": int(params.primary_asn),
+        "version": f"hyperglass {__version__}",
+    }
+
+
+endpoints = [query, docs, routers, info]

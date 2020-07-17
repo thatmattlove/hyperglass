@@ -20,6 +20,7 @@ from hyperglass.constants import TRANSPORT_REST, __version__
 from hyperglass.api.events import on_startup, on_shutdown
 from hyperglass.api.routes import (
     docs,
+    info,
     query,
     queries,
     routers,
@@ -36,6 +37,7 @@ from hyperglass.api.error_handlers import (
 )
 from hyperglass.api.models.response import (
     QueryError,
+    InfoResponse,
     QueryResponse,
     RoutersResponse,
     CommunityResponse,
@@ -116,7 +118,9 @@ def _custom_openapi():
         description=params.docs.description,
         routes=app.routes,
     )
-    openapi_schema["info"]["x-logo"] = {"url": "/" + str(params.web.logo.dark)}
+    openapi_schema["info"]["x-logo"] = {
+        "url": "/images/light" + params.web.logo.light.suffix
+    }
 
     query_samples = []
     queries_samples = []
@@ -175,6 +179,17 @@ app.add_middleware(
     allow_origins=CORS_ORIGINS,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
+)
+
+app.add_api_route(
+    path="/api/info",
+    endpoint=info,
+    methods=["GET"],
+    response_model=InfoResponse,
+    response_class=JSONResponse,
+    summary=params.docs.info.summary,
+    description=params.docs.info.description,
+    tags=[params.docs.info.title],
 )
 
 app.add_api_route(

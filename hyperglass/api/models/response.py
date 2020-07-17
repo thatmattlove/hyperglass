@@ -180,7 +180,6 @@ class RoutersResponse(BaseModel):
 
     name: StrictStr
     network: Network
-    location: StrictStr
     display_name: StrictStr
     vrfs: List[Vrf]
 
@@ -223,5 +222,30 @@ class SupportedQueryResponse(BaseModel):
         schema_extra = {
             "examples": [
                 {"name": "bgp_route", "display_name": "BGP Route", "enable": True}
+            ]
+        }
+
+
+class InfoResponse(BaseModel):
+    """Response model for /api/info endpoint."""
+
+    name: StrictStr
+    organization: StrictStr
+    primary_asn: StrictInt
+    version: StrictStr
+
+    class Config:
+        """Pydantic model configuration."""
+
+        title = "System Information"
+        description = "General information about this looking glass."
+        schema_extra = {
+            "examples": [
+                {
+                    "name": "hyperglass",
+                    "organization": "Company Name",
+                    "primary_asn": 65000,
+                    "version": "hyperglass 1.0.0-beta.52",
+                }
             ]
         }

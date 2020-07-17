@@ -84,6 +84,11 @@ class Docs(HyperglassModel):
         description="List of BGP communities.",
         summary="BGP Communities List",
     )
+    info: EndpointConfig = EndpointConfig(
+        title="System Information",
+        description="General information about this looking glass.",
+        summary="System Information",
+    )
 
     class Config:
         """Pydantic model configuration."""
