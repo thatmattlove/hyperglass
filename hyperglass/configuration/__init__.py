@@ -166,8 +166,12 @@ log.debug("Unvalidated configuration from {}: {}", CONFIG_MAIN, user_config)
 params = _validate_config(config=user_config, importer=_params.Params)
 
 # Re-evaluate debug state after config is validated
-if params.debug and current_log_level(log) != "debug":
+log_level = current_log_level(log)
+
+if params.debug and log_level != "debug":
     set_log_level(logger=log, debug=True)
+elif not params.debug and log_level == "debug":
+    set_log_level(logger=log, debug=False)
 
 # Map imported user commands to expected schema.
 _user_commands = _config_optional(CONFIG_COMMANDS)
