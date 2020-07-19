@@ -36,7 +36,9 @@ def _print_version(ctx, param, value):
     help=CLI_HELP,
     context_settings={"help_option_names": ["-h", "--help"], "color": supports_color},
     help_headers_color=LABEL,
-    help_options_custom_colors=random_colors("build-ui", "start", "secret", "setup"),
+    help_options_custom_colors=random_colors(
+        "build-ui", "start", "secret", "setup", "system-info"
+    ),
 )
 @option(
     "-v",
@@ -227,3 +229,17 @@ def setup(unattended):
         systemd = make_systemd(user)
         write_to_file(systemd_file, systemd)
         install_systemd(install_path)
+
+
+@hg.command(
+    "system-info",
+    help=cmd_help(
+        E.THERMOMETER, "  Get System Information for a Bug report", supports_color
+    ),
+    cls=HelpColorsCommand,
+)
+def get_system_info():
+    """Get CPU, Memory, Disk, Python, & hyperglass version."""
+    from hyperglass.cli.util import system_info
+
+    system_info()

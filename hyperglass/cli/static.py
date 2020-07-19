@@ -45,6 +45,7 @@ class Emoji:
     LOCK = "\U0001F512 "
     CLAMP = "\U0001F5DC "
     BOOKS = "\U0001F4DA "
+    THERMOMETER = "\U0001F321 "
 
 
 WS = Char(" ")

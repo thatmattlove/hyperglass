@@ -402,3 +402,57 @@ def install_systemd(app_path):
 
     success("Symlinked {s} to {d}", s=service, d=installed)
     return True
+
+
+def system_info():
+    """Create a markdown table of various system information.
+
+    Returns:
+        {str}: Markdown table
+    """
+    from hyperglass.util.system_info import get_system_info
+
+    values = get_system_info()
+
+    def _code(val):
+        return f"`{str(val)}`"
+
+    def _bold(val):
+        return f"**{str(val)}**"
+
+    def _suffix(val, suffix):
+        return f"{str(val)}{str(suffix)}"
+
+    columns = (
+        ("hyperglass Version", _bold),
+        ("hyperglass Path", _code),
+        ("Python Version", _code),
+        ("Platform Info", _code),
+        ("CPU Info", None),
+        ("Logical Cores", _code),
+        ("Physical Cores", _code),
+        ("Processor Speed", "GHz"),
+        ("Total Memory", " GB"),
+        ("Memory Utilization", "%"),
+        ("Total Disk Space", " GB"),
+        ("Disk Utilization", "%"),
+    )
+    md_table_lines = ("| Metric | Value |", "| ------ | ----- |")
+
+    for i, metric in enumerate(values):
+        title, mod = columns[i]
+        value = metric
+
+        if isinstance(mod, str):
+            value = _suffix(value, mod)
+        elif callable(mod):
+            value = mod(value)
+
+        md_table_lines += (f"| **{title}** | {value} |",)
+
+    md_table = "\n".join(md_table_lines)
+
+    info("Please copy & paste this table in your bug report:\n")
+    echo(md_table + "\n")
+
+    return True
