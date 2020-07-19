@@ -36,9 +36,13 @@ assignees: checktheroads
 # Environment
 
 ## Server
- - OS: <!-- (e.g. Ubuntu 18.04, CentOS 7) -->
- - Python Version: <!-- (e.g. 3.6) -->
- - hyperglass Version: <!-- (e.g 1.0.0) -->
+<!-- Please paste the output from `hyperglass system-info` below: (available in 1.0.0-beta.52+) -->
+
+<!-- If, for some reason, that doesn't work, please include the following:
+ - OS:
+ - Python Version:
+ - hyperglass Version:
+-->
 
 ## Client
  - OS & Version: <!-- (e.g. Windows 10, macOS 10.15, Ubuntu Linux 18.04) -->
