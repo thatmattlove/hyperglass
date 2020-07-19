@@ -15,9 +15,7 @@ import SearchBar from "@theme/SearchBar";
 import useThemeContext from "@theme/hooks/useThemeContext";
 import useHideableNavbar from "@theme/hooks/useHideableNavbar";
 import useLockBodyScroll from "@theme/hooks/useLockBodyScroll";
-
 import useMedia from "use-media";
-
 import { ColorModeToggle } from "../../components/ColorModeToggle";
 import { GithubButton } from "../../components/GithubButton";
 import Logo from "../../components/Logo";
