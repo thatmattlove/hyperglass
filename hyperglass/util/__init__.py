@@ -119,7 +119,7 @@ async def build_ui(app_path):
     except KeyError:
         timeout = 90
 
-    ui_dir = Path(__file__).parent / "ui"
+    ui_dir = Path(__file__).parent.parent / "ui"
     build_dir = app_path / "static" / "ui"
 
     build_command = "node_modules/.bin/next build"
@@ -293,7 +293,7 @@ def migrate_static_assets(app_path):
 
     from filecmp import dircmp
 
-    asset_dir = Path(__file__).parent / "images"
+    asset_dir = Path(__file__).parent.parent / "images"
     target_dir = app_path / "static" / "images"
 
     target_exists = target_dir.exists()
@@ -332,7 +332,7 @@ async def check_node_modules():
         {bool} -- True if exists and has contents.
     """
 
-    ui_path = Path(__file__).parent / "ui"
+    ui_path = Path(__file__).parent.parent / "ui"
     node_modules = ui_path / "node_modules"
 
     exists = node_modules.exists()
@@ -356,7 +356,7 @@ async def node_initial(dev_mode=False):
     """
     import asyncio
 
-    ui_path = Path(__file__).parent / "ui"
+    ui_path = Path(__file__).parent.parent / "ui"
 
     mode = ""
     if not dev_mode:
@@ -401,7 +401,7 @@ async def read_package_json():
 
     import json
 
-    package_json_file = Path(__file__).parent / "ui" / "package.json"
+    package_json_file = Path(__file__).parent.parent / "ui" / "package.json"
 
     try:
 
