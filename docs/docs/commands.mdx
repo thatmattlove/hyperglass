@@ -34,24 +34,16 @@ hyperglass comes with built in support for the following platforms:
 As of `vyos-1.3-rolling-202007050117` which is the latest release VyOS has been tested with hyperglass, VyOS does not support BGP or other dynamic routing protocols in a VRF. As such, the default BGP commands for VyOS **omit the VRF from the command**.
 :::
 
-Default commands for each of these network operating systems are built into hyperglass. However, you may override any of them or even add commands for another Network Operating System (NOS), as long as it's [supported](platforms). To define custom commands, add a `commands.yaml` file to your installation directory (`/etc/hyperglass`,
-`~/hyperglass`). As an example, you could override the default Juniper `bgp_route` command for the default routing table like this:
+Default commands for each of these network operating systems are built into hyperglass. However, you may override any of them or even add commands for another Network Operating System (NOS), as long as it's [supported](platforms).
 
-```yaml
-juniper:
-  ipv4_default:
-    bgp_route: "show route protocol bgp {target} terse"
-```
-
-Only the command you specify will be overridden.
-
-## Command Types
+To define custom commands, add a `commands.yaml` file to your installation directory (`/etc/hyperglass`,
+`~/hyperglass`).
 
 Each command definition carries the following structure:
 
 ```yaml title="commands.yaml"
 command_name:
-  ipv4_default: ...
+  ipv4_default:
     bgp_route: ...
     bgp_aspath: ...
     bgp_community: ...
@@ -84,28 +76,55 @@ command_name:
 | `{target}` | Query Target (IP address, community, AS Path).                   |
 | `{vrf}`    | If it's a VRF query, the [name of the VRF](adding-devices#vrfs). |
 
-## Defining Custom Commands
+## Overriding Built-In Commands
 
-You can also define your own arbitrary command groups, and reference them in your `devices.yaml` file. For example, if you wanted define a set of commands for a specific device to use, you could do it like this:
+As an example, you could override the default Juniper `bgp_route` command for the default routing table like this:
 
-```yaml title=commands.yaml
+```yaml {4} title="commands.yaml"
+---
+juniper:
+  ipv4_default:
+    bgp_route: "show route protocol bgp {target} terse"
+```
+
+If the NOS key (`juniper`, in this case) matches the [supported platform key](platforms), only the command you specify will be overridden.
+
+## Adding a Custom Command Set
+
+You can define any arbitrary set of commands to use for any supported device. When defining a custom command, **you must define _all_ commands**, even if they're disabled in your [configuration](query-settings) or otherwise unused.
+
+```yaml title="commands.yaml"
 ---
 special_commands:
   ipv4_default:
     bgp_route: "show ip route {target}"
+    bgp_aspath: "show ip bgp as-path {target}"
+    bgp_community: "show ip bgp community {target}"
+    ping: "ping {target}"
+    traceroute: "traceroute {target}"
+  ipv6_default:
+    bgp_route: "show ipv6 route {target}"
+    bgp_aspath: "show ipv6 bgp as-path {target}"
+    bgp_community: "show ipv6 bgp community {target}"
+    ping: "ping6 {target}"
+    traceroute: "traceroute6 {target}"
   ipv4_vpn:
     bgp_route: "show ip route {target} vrf {vrf}"
+    bgp_aspath: "show ip bgp as-path {target} vrf {vrf}"
+    bgp_community: "show ip bgp community {target} vrf {vrf}"
+    ping: "ping {target} vrf {vrf}"
+    traceroute: "traceroute {target} vrf {vrf}"
+  ipv6_vpn:
+    bgp_route: "show ipv6 route {target} vrf {vrf}"
+    bgp_aspath: "show ipv6 bgp as-path {target} vrf {vrf}"
+    bgp_community: "show ipv6 bgp community {target} vrf {vrf}"
+    ping: "ping6 {target} vrf {vrf}"
+    traceroute: "traceroute6 {target} vrf {vrf}"
 ```
 
-The above example defines the command set.
+After adding the custom command to `commands.yaml`, reference its name under the device's `commands:` key in `devices.yaml`:
 
-:::important
-You must define _all_ commands, even if they're disabled in your [configuration](query-settings).
-:::
-
-Then, in the device's definition in `devices.yaml`, reference the command set:
-
-```yaml {5} title=devices.yaml
+```yaml {4} title="devices.yaml"
 ---
 routers:
   - name: specialrouter01
