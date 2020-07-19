@@ -29,6 +29,7 @@ import ResultHeader from "~/components/ResultHeader";
 import CacheTimeout from "~/components/CacheTimeout";
 import BGPTable from "~/components/BGPTable";
 import TextOutput from "~/components/TextOutput";
+import { tableToString } from "~/util";
 
 format.extend(String.prototype, {});
 
@@ -141,8 +142,10 @@ const Result = forwardRef(
       "error";
 
     let Output = TextOutput;
+    let copyValue = data?.output;
     if (data?.format === "application/json") {
       Output = structuredDataComponent[queryType];
+      copyValue = tableToString(queryTarget, data, config);
     }
 
     useEffect(() => {
@@ -183,7 +186,7 @@ const Result = forwardRef(
           </AccordionHeader>
           <ButtonGroup px={[1, 1, 3, 3]} py={2}>
             <CopyButton
-              copyValue={data?.output}
+              copyValue={copyValue}
               variant="ghost"
               isDisabled={loading}
             />
