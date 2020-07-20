@@ -20,7 +20,6 @@ from hyperglass.configuration.models.vrfs import Vrf, Info
 from hyperglass.configuration.models.proxies import Proxy
 from hyperglass.configuration.models.networks import Network
 from hyperglass.configuration.models.credentials import Credential
-from hyperglass.configuration.models.commands.common import CommandGroup
 
 _default_vrf = {
     "name": "default",
@@ -51,7 +50,7 @@ class Router(HyperglassModel):
     port: StrictInt
     ssl: Optional[Ssl]
     nos: StrictStr
-    commands: Optional[CommandGroup]
+    commands: Optional[StrictStr]
     vrfs: List[Vrf] = [_default_vrf]
     display_vrfs: List[StrictStr] = []
     vrf_names: List[StrictStr] = []

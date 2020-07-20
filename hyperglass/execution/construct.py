@@ -134,7 +134,7 @@ class Construct:
                 self.query_data.query_type,
             )
         else:
-            cmd_paths = (self.device.nos, afi.protocol, self.query_data.query_type)
+            cmd_paths = (self.device.commands, afi.protocol, self.query_data.query_type)
 
         command = attrgetter(".".join(cmd_paths))(commands)
         return command.format(
