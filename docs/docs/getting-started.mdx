@@ -54,7 +54,7 @@ $ sudo apt install -y python3.6-dev python3-pip redis-server
 <TabItem value="rhel">
 
 ```shell-session
-$ sudo yum install centos-release-scl scl-utils python3-devel rh-python36
+$ sudo yum install epel-release centos-release-scl scl-utils python3-devel rh-python36
 $ sudo scl enable rh-python36
 ```
 
@@ -82,7 +82,7 @@ The hyperglass UI is written in [ReactJS](https://reactjs.org/). As such, some J
 <TabItem value="debian">
 
 ```shell-session
-$ curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+$ curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 
 $ curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 $ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
@@ -96,11 +96,11 @@ $ sudo apt install -y nodejs yarn redis-server
 <TabItem value="rhel">
 
 ```shell-session
-$ curl -sL https://rpm.nodesource.com/setup_13.x | sudo bash -
+$ curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -
 
 $ curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo
 
-$ sudo yum -y install epel-release gcc-c++ make nodejs yarn redis
+$ sudo yum -y install gcc-c++ make nodejs yarn redis
 ```
 
 </TabItem>
