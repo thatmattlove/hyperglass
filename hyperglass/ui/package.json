@@ -27,7 +27,7 @@
     "favicons": "^6.1.0",
     "framer-motion": "^1.10.0",
     "html-to-react": "^1.4.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "next": "^9.4",
     "react": "^16.13.1",
     "react-countdown": "^2.2.1",
