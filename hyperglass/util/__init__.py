@@ -1,11 +1,14 @@
 """Utility functions."""
 
 # Standard Library
+import os
 import re
+import json
 import math
 import shutil
+import asyncio
 from queue import Queue
-from typing import Dict, Iterable
+from typing import Dict, Union, Iterable, Optional
 from pathlib import Path
 from threading import Thread
 
@@ -29,25 +32,21 @@ def cpu_count(multiplier: int = 0):
     return multiprocessing.cpu_count() * multiplier
 
 
-def clean_name(_name):
+def clean_name(_name: str) -> str:
     """Remove unsupported characters from field names.
 
     Converts any "desirable" seperators to underscore, then removes all
     characters that are unsupported in Python class variable names.
     Also removes leading numbers underscores.
-
-    Arguments:
-        _name {str} -- Initial field name
-
-    Returns:
-        {str} -- Cleaned field name
     """
     _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", _name)
     _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
     return _scrubbed.lower()
 
 
-def check_path(path, mode="r", create=False):
+def check_path(
+    path: Union[Path, str], mode: str = "r", create: bool = False
+) -> Optional[Path]:
     """Verify if a path exists and is accessible.
 
     Arguments:
@@ -83,7 +82,7 @@ def check_path(path, mode="r", create=False):
     return result
 
 
-def check_python():
+def check_python() -> str:
     """Verify Python Version.
 
     Raises:
@@ -109,8 +108,6 @@ async def build_ui(app_path):
         RuntimeError: Raised if exit code is not 0.
         RuntimeError: Raised when any other error occurs.
     """
-    import os
-    import asyncio
 
     try:
         timeout = os.environ["HYPERGLASS_UI_BUILD_TIMEOUT"]
@@ -148,13 +145,14 @@ async def build_ui(app_path):
         except asyncio.TimeoutError:
             raise RuntimeError(f"{timeout} second timeout exceeded while building UI")
 
-        except Exception as e:
-            raise RuntimeError(str(e))
+        except Exception as err:
+            log.error(err)
+            raise RuntimeError(str(err))
 
     return "\n".join(all_messages)
 
 
-async def write_env(variables):
+async def write_env(variables: Dict) -> str:
     """Write environment variables to temporary JSON file.
 
     Arguments:
@@ -163,23 +161,19 @@ async def write_env(variables):
     Raises:
         RuntimeError: Raised on any errors.
     """
-    from aiofile import AIOFile
-    import json
-
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
     env_vars = json.dumps(variables)
 
     try:
-        async with AIOFile(env_file, "w+") as ef:
-            await ef.write(env_vars)
-            await ef.fsync()
+        with env_file.open("w+") as ef:
+            ef.write(env_vars)
     except Exception as e:
         raise RuntimeError(str(e))
 
     return f"Wrote {env_vars} to {str(env_file)}"
 
 
-async def check_redis(db, config):
+async def check_redis(db: int, config: Dict) -> bool:
     """Ensure Redis is running before starting server.
 
     Arguments:
@@ -206,7 +200,7 @@ async def check_redis(db, config):
     return True
 
 
-async def clear_redis_cache(db, config):
+async def clear_redis_cache(db: int, config: Dict) -> bool:
     """Clear the Redis cache.
 
     Arguments:
@@ -354,7 +348,6 @@ async def node_initial(dev_mode=False):
     Returns:
         {str} -- Command output
     """
-    import asyncio
 
     ui_path = Path(__file__).parent.parent / "ui"
 
@@ -539,7 +532,7 @@ def copyfiles(src_files: Iterable[Path], dst_files: Iterable[Path]):
     return True
 
 
-async def migrate_images(app_path: Path, params: dict):
+def migrate_images(app_path: Path, params: dict):
     """Migrate images from source code to install directory."""
     images_dir = app_path / "static" / "images"
     favicon_dir = images_dir / "favicons"
@@ -591,8 +584,6 @@ async def build_frontend(  # noqa: C901
     import hashlib
     import tempfile
 
-    from aiofile import AIOFile
-    import json
     from hyperglass.constants import __version__
 
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
@@ -634,17 +625,19 @@ async def build_frontend(  # noqa: C901
         # Read hard-coded environment file from last build. If build ID
         # matches this build's ID, don't run a new build.
         if env_file.exists() and not force:
-            async with AIOFile(env_file, "r") as ef:
-                ef_json = await ef.read()
-                ef_id = json.loads(ef_json).get("buildId", "empty")
+
+            with env_file.open("r") as ef:
+                ef_id = json.load(ef).get("buildId", "empty")
 
                 log.debug("Previous Build ID: {id}", id=ef_id)
 
-                if ef_id == build_id:
-                    log.debug(
-                        "UI parameters unchanged since last build, skipping UI build..."
-                    )
-                    return True
+            if ef_id == build_id:
+
+                log.debug(
+                    "UI parameters unchanged since last build, skipping UI build..."
+                )
+
+                return True
 
         # Create temporary file. json file extension is added for easy
         # webpack JSON parsing.
@@ -656,33 +649,30 @@ async def build_frontend(  # noqa: C901
             f"Created temporary UI config file: '{temp_file.name}' for build {build_id}"
         )
 
-        async with AIOFile(temp_file.name, "w+") as temp:
-            await temp.write(env_json)
-            await temp.fsync()
+        with Path(temp_file.name).open("w+") as temp:
+            temp.write(env_json)
 
             # Write "permanent" file (hard-coded named) for Node to read.
-            async with AIOFile(env_file, "w+") as ef:
-                await ef.write(
-                    json.dumps({"configFile": temp_file.name, "buildId": build_id})
-                )
-                await ef.fsync()
+            env_file.write_text(
+                json.dumps({"configFile": temp_file.name, "buildId": build_id})
+            )
 
-                # While temporary file is still open, initiate UI build process.
-                if not dev_mode or force:
-                    initialize_result = await node_initial(dev_mode)
-                    build_result = await build_ui(app_path=app_path)
+            # While temporary file is still open, initiate UI build process.
+            if not dev_mode or force:
+                initialize_result = await node_initial(dev_mode)
+                build_result = await build_ui(app_path=app_path)
 
-                    if initialize_result:
-                        log.debug(initialize_result)
-                    elif initialize_result == "":
-                        log.debug("Re-initialized node_modules")
+                if initialize_result:
+                    log.debug(initialize_result)
+                elif initialize_result == "":
+                    log.debug("Re-initialized node_modules")
 
-                    if build_result:
-                        log.success("Completed UI build")
-                elif dev_mode and not force:
-                    log.debug("Running in developer mode, did not build new UI files")
+                if build_result:
+                    log.success("Completed UI build")
+            elif dev_mode and not force:
+                log.debug("Running in developer mode, did not build new UI files")
 
-        await migrate_images(app_path, params)
+        migrate_images(app_path, params)
 
         generate_opengraph(
             Path(params["web"]["opengraph"]["image"]),
@@ -692,15 +682,15 @@ async def build_frontend(  # noqa: C901
             params["web"]["theme"]["colors"]["black"],
         )
 
-    except Exception as e:
-        raise RuntimeError(str(e)) from None
+    except Exception as err:
+        log.error(err)
+        raise RuntimeError(str(err)) from None
 
     return True
 
 
 def set_app_path(required=False):
     """Find app directory and set value to environment variable."""
-    import os
 
     from getpass import getuser
 
@@ -735,46 +725,6 @@ def set_app_path(required=False):
         )
 
     os.environ["hyperglass_directory"] = str(matched_path)
-    return True
-
-
-def import_public_key(app_path, device_name, keystring):
-    """Import a public key for hyperglass-agent.
-
-    Arguments:
-        app_path {Path|str} -- hyperglass app path
-        device_name {str} -- Device name
-        keystring {str} -- Public key
-
-    Raises:
-        RuntimeError: Raised if unable to create certs directory
-        RuntimeError: Raised if written key does not match input
-
-    Returns:
-        {bool} -- True if file was written
-    """
-    if not isinstance(app_path, Path):
-        app_path = Path(app_path)
-
-    cert_dir = app_path / "certs"
-
-    if not cert_dir.exists():
-        cert_dir.mkdir()
-
-    if not cert_dir.exists():
-        raise RuntimeError(f"Failed to create certs directory at {str(cert_dir)}")
-
-    filename = re.sub(r"[^A-Za-z0-9]", "_", device_name) + ".pem"
-    cert_file = cert_dir / filename
-
-    with cert_file.open("w+") as file:
-        file.write(str(keystring))
-
-    with cert_file.open("r") as file:
-        read_file = file.read().strip()
-        if not keystring == read_file:
-            raise RuntimeError("Wrote key, but written file did not match input key")
-
     return True
 
 
@@ -871,7 +821,6 @@ def set_cache_env(host, port, db):
     Functions using Redis to access the pickled config need to be able
     to access Redis without reading the config.
     """
-    import os
 
     os.environ["HYPERGLASS_CACHE_HOST"] = str(host)
     os.environ["HYPERGLASS_CACHE_PORT"] = str(port)
@@ -881,7 +830,6 @@ def set_cache_env(host, port, db):
 
 def get_cache_env():
     """Get basic cache config from environment variables."""
-    import os
 
     host = os.environ.get("HYPERGLASS_CACHE_HOST")
     port = os.environ.get("HYPERGLASS_CACHE_PORT")
@@ -892,20 +840,6 @@ def get_cache_env():
                 "Unable to find cache configuration in environment variables"
             )
     return host, port, db
-
-
-async def process_headers(headers):
-    """Filter out unwanted headers and return as a dictionary."""
-    headers = dict(headers)
-    header_keys = (
-        "user-agent",
-        "referer",
-        "accept-encoding",
-        "accept-language",
-        "x-real-ip",
-        "x-forwarded-for",
-    )
-    return {k: headers.get(k) for k in header_keys}
 
 
 def make_repr(_class):
@@ -934,15 +868,15 @@ def make_repr(_class):
 
 def validate_nos(nos):
     """Validate device NOS is supported."""
-    from hyperglass.constants import TRANSPORT_REST
+    from hyperglass.constants import DRIVER_MAP
     from netmiko.ssh_dispatcher import CLASS_MAPPER_BASE
 
     result = (False, None)
 
-    if nos in TRANSPORT_REST:
-        result = (True, "rest")
-    elif nos in CLASS_MAPPER_BASE.keys():
-        result = (True, "scrape")
+    all_nos = {*DRIVER_MAP.keys(), *CLASS_MAPPER_BASE.keys()}
+
+    if nos in all_nos:
+        result = (True, DRIVER_MAP.get(nos, "netmiko"))
 
     return result
 
