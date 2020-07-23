@@ -13,15 +13,16 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import clean_name, process_headers, import_public_key
+from hyperglass.util import clean_name
 from hyperglass.cache import AsyncCache
 from hyperglass.encode import jwt_decode
 from hyperglass.external import Webhook, bgptools
+from hyperglass.api.tasks import process_headers, import_public_key
 from hyperglass.constants import __version__
 from hyperglass.exceptions import HyperglassError
 from hyperglass.configuration import REDIS_CONFIG, params, devices
+from hyperglass.execution.main import execute
 from hyperglass.api.models.query import Query
-from hyperglass.execution.execute import Execute
 from hyperglass.api.models.cert_import import EncodedRequest
 
 APP_PATH = os.environ["hyperglass_directory"]
@@ -118,7 +119,7 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
         timestamp = query_data.timestamp
         # Pass request to execution module
         starttime = time.time()
-        cache_output = await Execute(query_data).response()
+        cache_output = await execute(query_data)
         endtime = time.time()
         elapsedtime = round(endtime - starttime, 4)
         log.debug(f"Query {cache_key} took {elapsedtime} seconds to run.")
