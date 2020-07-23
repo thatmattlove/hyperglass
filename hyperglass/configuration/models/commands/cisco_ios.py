@@ -23,7 +23,7 @@ class _IPv6(CommandSet):
     bgp_community: StrictStr = "show bgp ipv6 unicast community {target}"
     bgp_aspath: StrictStr = 'show bgp ipv6 unicast quote-regexp "{target}"'
     bgp_route: StrictStr = "show bgp ipv6 unicast {target} | exclude pathid:|Epoch"
-    ping: StrictStr = ("ping ipv6 {target} repeat 5 source {source}")
+    ping: StrictStr = "ping ipv6 {target} repeat 5 source {source}"
     traceroute: StrictStr = (
         "traceroute ipv6 {target} timeout 1 probe 2 source {source}"
     )

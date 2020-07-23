@@ -2,6 +2,7 @@ test.py
 .DS_Store
 .idea
 .vscode
+old_*.py
 #
 # Github Default from https://github.com/martinohanlon/flightlight/issues/1
 # Byte-compiled / optimized / DLL files

@@ -1,6 +1,7 @@
 """hyperglass REST API & Web UI."""
 
 # Standard Library
+import sys
 from typing import List
 from pathlib import Path
 
@@ -265,4 +266,7 @@ def start(**kwargs):
     """Start the web server with Uvicorn ASGI."""
     import uvicorn
 
-    uvicorn.run("hyperglass.api:app", **ASGI_PARAMS, **kwargs)
+    try:
+        uvicorn.run("hyperglass.api:app", **ASGI_PARAMS, **kwargs)
+    except KeyboardInterrupt:
+        sys.exit(1)
