@@ -21,11 +21,7 @@ from hyperglass.log import (
 from hyperglass.util import check_path, set_app_path, set_cache_env, current_log_level
 from hyperglass.models import HyperglassModel
 from hyperglass.constants import (
-    CREDIT,
-    DEFAULT_HELP,
-    DEFAULT_TERMS,
     TRANSPORT_REST,
-    DEFAULT_DETAILS,
     SUPPORTED_QUERY_TYPES,
     PARSED_RESPONSE_FIELDS,
     SUPPORTED_STRUCTURED_OUTPUT,
@@ -35,6 +31,12 @@ from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
 from hyperglass.configuration.models import params as _params
 from hyperglass.configuration.models import routers as _routers
 from hyperglass.configuration.models import commands as _commands
+from hyperglass.configuration.defaults import (
+    CREDIT,
+    DEFAULT_HELP,
+    DEFAULT_TERMS,
+    DEFAULT_DETAILS,
+)
 from hyperglass.configuration.markdown import get_markdown
 
 set_app_path(required=True)
