@@ -148,6 +148,10 @@ const Result = forwardRef(
       copyValue = tableToString(queryTarget, data, config);
     }
 
+    if (error) {
+      copyValue = errorMsg;
+    }
+
     useEffect(() => {
       !loading && resultsComplete === null && setComplete(index);
     }, [loading, resultsComplete]);
