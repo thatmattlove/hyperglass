@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta53- 2020-07-23
+
+### Added
+- **BREAKING CHANGE**: [Scrapli](https://github.com/carlmontanari/scrapli) is now used for SSH connectivity to Cisco IOS, Cisco IOS-XE, Cisco IOS-XR, Cisco NX-OS Juniper Junos, and Arista EOS, which should improve the speed at which output is gathered from devices. _As of this release, Cisco IOS/IOS-XE and Juniper Junos have been directly tested and worked without issue. However, if you discover any anomalies with any of these operating systems, please [open an issue](https://github.com/checktheroads/hyperglass/issues)._
+
+### Changed
+- Refactor of SSH & HTTPS command execution to enable pluggable underlying driver capabilities.
+- Remove `aiofile` dependency by removing unnecessary asyncio file operations in the UI build process.
+- Added `scrapli[asyncssh]` dependency for Scrapli driver support.
+
+### Fixed
+- UI: Error messages couldn't be copied with the copy button
+
 ## 1.0.0-beta52 - 2020-07-19
 
 ### Added
