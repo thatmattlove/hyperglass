@@ -68,8 +68,12 @@ SCRAPE_HELPERS = {
 }
 
 DRIVER_MAP = {
-    "cisco_ios": "netmiko",
-    "juniper": "netmiko",
+    "arista_eos": "scrapli",
+    "cisco_ios": "scrapli",
+    "cisco_xe": "scrapli",
+    "cisco_xr": "scrapli",
+    "cisco_nxos": "scrapli",
+    "juniper": "scrapli",
     "frr": "hyperglass_agent",
     "bird": "hyperglass_agent",
 }
