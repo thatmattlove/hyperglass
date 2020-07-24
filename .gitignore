@@ -3,6 +3,7 @@ test.py
 .idea
 .vscode
 old_*.py
+*.rdb
 #
 # Github Default from https://github.com/martinohanlon/flightlight/issues/1
 # Byte-compiled / optimized / DLL files
