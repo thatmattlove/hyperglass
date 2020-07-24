@@ -16,8 +16,17 @@ from hyperglass.util import validate_nos
 from hyperglass.exceptions import DeviceTimeout, ResponseEmpty
 from hyperglass.configuration import params, devices
 from hyperglass.api.models.query import Query
-from hyperglass.execution.drivers.ssh import SSHConnection
-from hyperglass.execution.drivers.agent import AgentConnection
+from hyperglass.execution.drivers import (
+    AgentConnection,
+    NetmikoConnection,
+    ScrapliConnection,
+)
+
+DRIVER_MAP = {
+    "scrapli": ScrapliConnection,
+    "netmiko": NetmikoConnection,
+    "hyperglass_agent": AgentConnection,
+}
 
 
 def handle_timeout(**exc_args: Any) -> Callable:
@@ -40,15 +49,8 @@ async def execute(query: Query) -> Union[str, Dict]:
 
     supported, driver_name = validate_nos(device.nos)
 
-    driver_map = {
-        "scrapli": SSHConnection,
-        "netmiko": SSHConnection,
-        "hyperglass_agent": AgentConnection,
-    }
-
-    mapped_driver = driver_map.get(driver_name, SSHConnection)
+    mapped_driver = DRIVER_MAP.get(driver_name, NetmikoConnection)
     driver = mapped_driver(device, query)
-    connector = getattr(driver, driver_name)
 
     timeout_args = {
         "unformatted_msg": params.messages.connection_error,
@@ -65,9 +67,11 @@ async def execute(query: Query) -> Union[str, Dict]:
     if device.proxy:
         proxy = driver.setup_proxy()
         with proxy() as tunnel:
-            response = await connector(tunnel.local_bind_host, tunnel.local_bind_port)
+            response = await driver.collect(
+                tunnel.local_bind_host, tunnel.local_bind_port
+            )
     else:
-        response = await connector()
+        response = await driver.collect()
 
     output = await driver.parsed_response(response)
 
