@@ -11,6 +11,8 @@ per-file-ignores=
     hyperglass/api.py:F811
     # Disable classmethod warning for validator decorators
     hyperglass/models.py:N805,E0213,R0903
+    # Disable unused import warning for modules
+    hyperglass/*/__init__.py:F401
     hyperglass/api/models/*.py:N805,E0213,R0903
     hyperglass/api/models/response.py:E501,C0301
     hyperglass/parsing/models/*.py:N805,E0213,R0903
