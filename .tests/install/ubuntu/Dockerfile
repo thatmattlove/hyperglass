@@ -3,6 +3,3 @@ WORKDIR /tmp
 COPY .tests/install/ubuntu/setup.sh /tmp/init.sh
 COPY ./install.sh /tmp/install.sh
 RUN bash /tmp/init.sh
-
-# FROM base as install
-# RUN bash /tmp/install.sh
