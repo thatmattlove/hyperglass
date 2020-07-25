@@ -32,7 +32,7 @@ class AgentConnection(Connection):
     rest() connects to devices via HTTP for RESTful API communication
     """
 
-    async def hyperglass_agent(self) -> Iterable:  # noqa: C901
+    async def collect(self) -> Iterable:  # noqa: C901
         """Connect to a device running hyperglass-agent via HTTP."""
         log.debug(f"Query parameters: {self.query}")
 
