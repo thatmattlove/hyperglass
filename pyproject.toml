@@ -4,13 +4,26 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "hyperglass"
-version = "1.0.0-beta.54"
+version = "1.0.0-beta.55"
 description = "hyperglass is the modern network looking glass that tries to make the internet better."
 authors = ["Matt Love <matt@hyperglass.io>"]
 readme = "README.md"
 homepage = "https://hyperglass.io"
+documentation = "https://hyperglass.io"
 repository = "https://github.com/checktheroads/hyperglass"
 license = "BSD-3-Clause-Clear"
+keywords = ["looking glass", "network automation", "isp", "bgp", "routing"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Information Technology",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: JavaScript",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Internet",
+    "Topic :: System :: Networking",
+]
 
 [tool.poetry.scripts]
 hyperglass = "hyperglass.console:CLI"
@@ -19,8 +32,10 @@ hyperglass = "hyperglass.console:CLI"
 aiofiles = "^0.5.0"
 aredis = "^1.1.7"
 click = "^7.0"
+dataclasses = { version="^0.7", python="^3.6, <3.7" }
 distro = "^1.5.0"
 fastapi = "^0.59"
+favicons = "^0.0.4"
 gunicorn = "^20.0.4"
 httpx = "^0.11"
 inquirer = "^2.6.3"
