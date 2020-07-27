@@ -552,7 +552,7 @@ async def build_frontend(  # noqa: C901
     dev_mode: bool,
     dev_url: str,
     prod_url: str,
-    params: dict,
+    params: Dict,
     app_path: Path,
     force: bool = False,
 ):
@@ -583,6 +583,8 @@ async def build_frontend(  # noqa: C901
     """
     import hashlib
     import tempfile
+
+    from favicons import Favicons
 
     from hyperglass.constants import __version__
 
@@ -616,6 +618,15 @@ async def build_frontend(  # noqa: C901
             log.debug("Re-initialized node_modules")
 
     try:
+        async with Favicons(
+            source=params["web"]["logo"]["favicon"],
+            output_directory=app_path / "static" / "images" / "favicons",
+            base_url="/images/favicons/",
+        ) as favicons:
+            await favicons.generate()
+            log.debug("Generated {} favicons", favicons.completed)
+            env_vars.update({"_HYPERGLASS_FAVICONS_": favicons.formats()})
+
         env_json = json.dumps(env_vars, default=str)
 
         # Create SHA256 hash from all parameters passed to UI, use as

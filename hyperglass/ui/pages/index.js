@@ -1,9 +1,6 @@
 import * as React from "react";
-import { createElement } from "react";
 import Head from "next/head";
 import dynamic from "next/dynamic";
-import fs from "fs";
-import { Parser } from "html-to-react";
 import Meta from "~/components/Meta";
 import Loading from "~/components/Loading";
 const LookingGlass = dynamic(() => import("~/components/LookingGlass"), {
@@ -14,9 +11,9 @@ const Index = ({ faviconComponents }) => {
   return (
     <>
       <Head>
-        {faviconComponents.map((comp, i) =>
-          createElement(comp.type, { key: i, ...comp.props })
-        )}
+        {faviconComponents.map(({ rel, href, type }, i) => (
+          <link rel={rel} href={href} type={type} key={i} />
+        ))}
       </Head>
       <Meta />
       <LookingGlass />
@@ -25,11 +22,10 @@ const Index = ({ faviconComponents }) => {
 };
 
 export async function getStaticProps(context) {
-  const htmlToReact = new Parser();
-  const lines = fs.readFileSync(process.env._FAVICON_HTML_FILE_, "utf-8");
-  const components = JSON.parse(lines).map(elem => {
-    const comp = htmlToReact.parse(elem);
-    return { type: comp.type, props: comp.props };
+  const components = process.env._HYPERGLASS_FAVICONS_.map(icon => {
+    const { image_format, dimensions, prefix, rel } = icon;
+    const src = `/images/favicons/${prefix}-${dimensions[0]}x${dimensions[1]}.${image_format}`;
+    return { rel, href: src, type: `image/${image_format}` };
   });
   return {
     props: {
