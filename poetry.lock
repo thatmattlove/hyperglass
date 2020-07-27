@@ -325,7 +325,7 @@ description = "Favicon generator for Python 3 with strongly typed sync & async A
 name = "favicons"
 optional = false
 python-versions = ">=3.6.1,<4.0.0"
-version = "0.0.4"
+version = "0.0.5"
 
 [package.dependencies]
 pillow = ">=7.2,<8.0"
@@ -1469,7 +1469,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "38048dcf92e69b020539f868a5d444699cc8ad229b833d0eea1dfcf8b369a2d9"
+content-hash = "54a264d3aee302f47762ccd6894957f50e38356552b20397d94bb3dc713c137a"
 lock-version = "1.0"
 python-versions = "^3.6.1"
 
@@ -1639,8 +1639,8 @@ fastapi = [
     {file = "fastapi-0.59.0.tar.gz", hash = "sha256:c04dacd3deed0fd0ffdcdb116b5a04ffa257656885be7fae7234f4f62ec4a0a9"},
 ]
 favicons = [
-    {file = "favicons-0.0.4-py3-none-any.whl", hash = "sha256:0dd4db2fdb8e30794e1a68a439ff807626acc83009a6f0a8bec70060d7995233"},
-    {file = "favicons-0.0.4.tar.gz", hash = "sha256:8d4e5c48a757ffd6a857fa3eed2b91f1686a5e15ddb2b6322147b2ef3c72d173"},
+    {file = "favicons-0.0.5-py3-none-any.whl", hash = "sha256:5091de6c93b50a7fea5a546578b62f581f5cf620d857789776a50937356c3fdf"},
+    {file = "favicons-0.0.5.tar.gz", hash = "sha256:32edabd34cca1666ae1a29068733118014312d31a7519346133ed356b909186d"},
 ]
 filelock = [
     {file = "filelock-3.0.12-py3-none-any.whl", hash = "sha256:929b7d63ec5b7d6b71b0fa5ac14e030b3f70b75747cef1b10da9b879fef15836"},
