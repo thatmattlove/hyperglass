@@ -603,24 +603,34 @@ async def build_frontend(  # noqa: C901
     # developer_mode setting.
     if dev_mode:
         env_vars.update({"NODE_ENV": "development", "_HYPERGLASS_URL_": dev_url})
+
     else:
         env_vars.update({"NODE_ENV": "production", "_HYPERGLASS_URL_": prod_url})
 
     # Check if hyperglass/ui/node_modules has been initialized. If not,
     # initialize it.
     initialized = await check_node_modules()
+
     if initialized:
         log.debug("node_modules is already initialized")
+
     elif not initialized:
         log.debug("node_modules has not been initialized. Starting initialization...")
+
         node_setup = await node_initial(dev_mode)
+
         if node_setup == "":
             log.debug("Re-initialized node_modules")
 
+    images_dir = app_path / "static" / "images"
+    favicon_dir = images_dir / "favicons"
+
     try:
+        if not favicon_dir.exists():
+            favicon_dir.mkdir()
         async with Favicons(
             source=params["web"]["logo"]["favicon"],
-            output_directory=app_path / "static" / "images" / "favicons",
+            output_directory=favicon_dir,
             base_url="/images/favicons/",
         ) as favicons:
             await favicons.generate()
@@ -655,6 +665,7 @@ async def build_frontend(  # noqa: C901
         temp_file = tempfile.NamedTemporaryFile(
             mode="w+", prefix="hyperglass_", suffix=".json", delete=not dev_mode
         )
+
         log.info("Starting UI build...")
         log.debug(
             f"Created temporary UI config file: '{temp_file.name}' for build {build_id}"
@@ -689,7 +700,7 @@ async def build_frontend(  # noqa: C901
             Path(params["web"]["opengraph"]["image"]),
             1200,
             630,
-            app_path / "static" / "images",
+            images_dir,
             params["web"]["theme"]["colors"]["black"],
         )
 
