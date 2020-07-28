@@ -10,6 +10,7 @@ import asyncio
 from queue import Queue
 from typing import Dict, Union, Iterable, Optional
 from pathlib import Path
+from ipaddress import IPv4Address, IPv6Address
 from threading import Thread
 
 # Third Party
@@ -750,7 +751,7 @@ def set_app_path(required=False):
     return True
 
 
-def format_listen_address(listen_address):
+def format_listen_address(listen_address: Union[IPv4Address, IPv6Address, str]) -> str:
     """Format a listen_address.
 
     Wraps IPv6 address in brackets.
@@ -761,28 +762,24 @@ def format_listen_address(listen_address):
     Returns:
         {str} -- Formatted listen_address
     """
-    from ipaddress import ip_address, IPv4Address, IPv6Address
+    fmt = str(listen_address)
 
     if isinstance(listen_address, str):
+        from ipaddress import ip_address
+
         try:
             listen_address = ip_address(listen_address)
-            if listen_address.version == 6:
-                listen_address = f"[{str(listen_address)}]"
-            else:
-                listen_address = str(listen_address)
-        except ValueError:
+        except ValueError as err:
+            log.error(err)
             pass
 
-    elif isinstance(listen_address, (IPv4Address, IPv6Address)):
-        if listen_address.version == 6:
-            listen_address = f"[{str(listen_address)}]"
-        else:
-            listen_address = str(listen_address)
+    if (
+        isinstance(listen_address, (IPv4Address, IPv6Address))
+        and listen_address.version == 6
+    ):
+        fmt = f"[{str(listen_address)}]"
 
-    else:
-        listen_address = str(listen_address)
-
-    return listen_address
+    return fmt
 
 
 def split_on_uppercase(s):
