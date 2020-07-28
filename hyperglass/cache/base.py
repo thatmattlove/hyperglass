@@ -19,7 +19,7 @@ class BaseCache:
     ) -> None:
         """Initialize Redis connection."""
         self.db: int = db
-        self.host: str = host
+        self.host: str = str(host)
         self.port: int = port
         self.decode_responses: bool = decode_responses
         self.redis_args: dict = kwargs

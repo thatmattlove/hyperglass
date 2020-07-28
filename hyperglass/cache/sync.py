@@ -9,9 +9,11 @@ from typing import Any, Dict
 # Third Party
 from redis import Redis as SyncRedis
 from redis.client import PubSub as SyncPubsSub
+from redis.exceptions import RedisError
 
 # Project
 from hyperglass.cache.base import BaseCache
+from hyperglass.exceptions import HyperglassError
 
 
 class SyncCache(BaseCache):
@@ -20,13 +22,16 @@ class SyncCache(BaseCache):
     def __init__(self, *args, **kwargs):
         """Initialize Redis connection."""
         super().__init__(*args, **kwargs)
-        self.instance: SyncRedis = SyncRedis(
-            db=self.db,
-            host=self.host,
-            port=self.port,
-            decode_responses=self.decode_responses,
-            **self.redis_args,
-        )
+        try:
+            self.instance: SyncRedis = SyncRedis(
+                db=self.db,
+                host=self.host,
+                port=self.port,
+                decode_responses=self.decode_responses,
+                **self.redis_args,
+            )
+        except RedisError as err:
+            raise HyperglassError(str(err), level="danger")
 
     def get(self, *args: str) -> Any:
         """Get item(s) from cache."""

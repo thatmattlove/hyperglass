@@ -10,9 +10,11 @@ from typing import Any, Dict
 # Third Party
 from aredis import StrictRedis as AsyncRedis
 from aredis.pubsub import PubSub as AsyncPubSub
+from aredis.exceptions import RedisError
 
 # Project
 from hyperglass.cache.base import BaseCache
+from hyperglass.exceptions import HyperglassError
 
 
 class AsyncCache(BaseCache):
@@ -21,13 +23,16 @@ class AsyncCache(BaseCache):
     def __init__(self, *args, **kwargs):
         """Initialize Redis connection."""
         super().__init__(*args, **kwargs)
-        self.instance: AsyncRedis = AsyncRedis(
-            db=self.db,
-            host=self.host,
-            port=self.port,
-            decode_responses=self.decode_responses,
-            **self.redis_args,
-        )
+        try:
+            self.instance: AsyncRedis = AsyncRedis(
+                db=self.db,
+                host=self.host,
+                port=self.port,
+                decode_responses=self.decode_responses,
+                **self.redis_args,
+            )
+        except RedisError as err:
+            raise HyperglassError(str(err), level="danger")
 
     async def get(self, *args: str) -> Any:
         """Get item(s) from cache."""
