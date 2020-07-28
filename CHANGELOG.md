@@ -5,17 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.0.0-beta55- 2020-07-27
+## 1.0.0-beta56 - 2020-07-28
+
+### Changed
+- Improved Gunicorn address formatting.
+- Improved Redis connection error handling.
+
+### Fixed
+- [#56](https://github.com/checktheroads/hyperglass/issues/56): Fix a silent Redis connection error if the Redis server was anything other than `localhost`, preventing hyperglass from starting.
+
+## 1.0.0-beta55 - 2020-07-27
 
 ### Changed
 - Removed JS favicon build process in favor of native Python implementation ([favicons](https://github/checktheroads/favicons))
 
-## 1.0.0-beta54- 2020-07-25
+## 1.0.0-beta54 - 2020-07-25
 
 ### Fixed
 - Queries to hyperglass-agent devices failed due to the error `AttributeError: 'AgentConnection' object has no attribute 'collect'`
 
-## 1.0.0-beta53- 2020-07-23
+## 1.0.0-beta53 - 2020-07-23
 
 ### Added
 - **BREAKING CHANGE**: [Scrapli](https://github.com/carlmontanari/scrapli) is now used for SSH connectivity to Cisco IOS, Cisco IOS-XE, Cisco IOS-XR, Cisco NX-OS Juniper Junos, and Arista EOS, which should improve the speed at which output is gathered from devices. _As of this release, Cisco IOS/IOS-XE and Juniper Junos have been directly tested and worked without issue. However, if you discover any anomalies with any of these operating systems, please [open an issue](https://github.com/checktheroads/hyperglass/issues)._
