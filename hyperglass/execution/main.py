@@ -14,7 +14,7 @@ from typing import Any, Dict, Union, Callable
 from hyperglass.log import log
 from hyperglass.util import validate_nos
 from hyperglass.exceptions import DeviceTimeout, ResponseEmpty
-from hyperglass.configuration import params, devices
+from hyperglass.configuration import params
 from hyperglass.api.models.query import Query
 from hyperglass.execution.drivers import (
     AgentConnection,
@@ -42,29 +42,28 @@ async def execute(query: Query) -> Union[str, Dict]:
     """Initiate query validation and execution."""
 
     output = params.messages.general
-    device = getattr(devices, query.query_location)
 
     log.debug(f"Received query for {query}")
-    log.debug(f"Matched device config: {device}")
+    log.debug(f"Matched device config: {query.device}")
 
-    supported, driver_name = validate_nos(device.nos)
+    supported, driver_name = validate_nos(query.device.nos)
 
     mapped_driver = DRIVER_MAP.get(driver_name, NetmikoConnection)
-    driver = mapped_driver(device, query)
+    driver = mapped_driver(query.device, query)
 
     timeout_args = {
         "unformatted_msg": params.messages.connection_error,
-        "device_name": device.display_name,
+        "device_name": query.device.display_name,
         "error": params.messages.request_timeout,
     }
 
-    if device.proxy:
-        timeout_args["proxy"] = device.proxy.name
+    if query.device.proxy:
+        timeout_args["proxy"] = query.device.proxy.name
 
     signal.signal(signal.SIGALRM, handle_timeout(**timeout_args))
     signal.alarm(params.request_timeout - 1)
 
-    if device.proxy:
+    if query.device.proxy:
         proxy = driver.setup_proxy()
         with proxy() as tunnel:
             response = await driver.collect(
@@ -76,7 +75,9 @@ async def execute(query: Query) -> Union[str, Dict]:
     output = await driver.parsed_response(response)
 
     if output == "" or output == "\n":
-        raise ResponseEmpty(params.messages.no_output, device_name=device.display_name)
+        raise ResponseEmpty(
+            params.messages.no_output, device_name=query.device.display_name
+        )
 
     log.debug(f"Output for query: {query.json()}:\n{repr(output)}")
     signal.alarm(0)

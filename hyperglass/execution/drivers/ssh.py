@@ -23,11 +23,11 @@ class SSHConnection(Connection):
             """Set up an SSH tunnel according to a device's configuration."""
             try:
                 return open_tunnel(
-                    proxy.address,
+                    proxy._target,
                     proxy.port,
                     ssh_username=proxy.credential.username,
                     ssh_password=proxy.credential.password.get_secret_value(),
-                    remote_bind_address=(self.device.address, self.device.port),
+                    remote_bind_address=(self.device._target, self.device.port),
                     local_bind_address=("localhost", 0),
                     skip_tunnel_checkup=False,
                     gateway_timeout=params.request_timeout - 2,

@@ -197,6 +197,13 @@ class Queries(HyperglassModel):
     ping: Ping = Ping()
     traceroute: Traceroute = Traceroute()
 
+    def __getitem__(self, query_type: str):
+        """Get a query's object by name."""
+        if hasattr(self, query_type):
+            return getattr(self, query_type)
+
+        raise AttributeError(f"Query '{query_type}' is invalid")
+
     class Config:
         """Pydantic model configuration."""
 

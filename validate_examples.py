@@ -50,12 +50,12 @@ def _comment_optional_files():
 
 
 def _validate_devices():
-    from hyperglass.configuration.models.routers import Routers
+    from hyperglass.configuration.models.devices import Devices
 
     with DEVICES.open() as raw:
         devices_dict = yaml.safe_load(raw.read()) or {}
     try:
-        Routers._import(devices_dict.get("routers", []))
+        Devices(devices_dict.get("routers", []))
     except Exception as e:
         raise ValueError(str(e))
     return True

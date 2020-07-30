@@ -9,13 +9,13 @@ from hyperglass.parsing.nos import nos_parsers
 from hyperglass.parsing.common import parsers
 from hyperglass.api.models.query import Query
 from hyperglass.execution.construct import Construct
-from hyperglass.configuration.models.routers import Router
+from hyperglass.configuration.models.devices import Device
 
 
 class Connection:
     """Base transport driver class."""
 
-    def __init__(self, device: Router, query_data: Query) -> None:
+    def __init__(self, device: Device, query_data: Query) -> None:
         """Initialize connection to device."""
         self.device = device
         self.query_data = query_data

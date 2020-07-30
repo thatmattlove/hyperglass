@@ -13,7 +13,6 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import clean_name
 from hyperglass.cache import AsyncCache
 from hyperglass.encode import jwt_decode
 from hyperglass.external import Webhook, bgptools
@@ -167,14 +166,9 @@ async def import_certificate(encoded_request: EncodedRequest):
     """Import a certificate from hyperglass-agent."""
 
     # Try to match the requested device name with configured devices
-    matched_device = None
-    requested_device_name = clean_name(encoded_request.device)
-    for device in devices.routers:
-        if device.name == requested_device_name:
-            matched_device = device
-            break
-
-    if matched_device is None:
+    try:
+        matched_device = devices[encoded_request.device]
+    except AttributeError:
         raise HTTPException(
             detail=f"Device {str(encoded_request.device)} not found", status_code=404
         )
@@ -191,10 +185,12 @@ async def import_certificate(encoded_request: EncodedRequest):
     try:
         # Write certificate to file
         import_public_key(
-            app_path=APP_PATH, device_name=device.name, keystring=decoded_request
+            app_path=APP_PATH,
+            device_name=matched_device.name,
+            keystring=decoded_request,
         )
-    except RuntimeError as import_error:
-        raise HyperglassError(str(import_error), level="danger")
+    except RuntimeError as err:
+        raise HyperglassError(str(err), level="danger")
 
     return {
         "output": f"Added public key for {encoded_request.device}",
@@ -226,7 +222,7 @@ async def routers():
                 "vrfs": {-1: {"name", "display_name"}},
             }
         )
-        for d in devices.routers
+        for d in devices.objects
     ]
 
 

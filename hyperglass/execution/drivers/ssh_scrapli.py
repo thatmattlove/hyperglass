@@ -72,7 +72,7 @@ class ScrapliConnection(SSHConnection):
             log.debug("Connecting directly to {}", self.device.name)
 
         driver_kwargs = {
-            "host": host or self.device.address,
+            "host": host or self.device._target,
             "port": port or self.device.port,
             "auth_username": self.device.credential.username,
             "auth_password": self.device.credential.password.get_secret_value(),

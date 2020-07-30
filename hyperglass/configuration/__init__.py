@@ -28,9 +28,6 @@ from hyperglass.constants import (
     __version__,
 )
 from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
-from hyperglass.configuration.models import params as _params
-from hyperglass.configuration.models import routers as _routers
-from hyperglass.configuration.models import commands as _commands
 from hyperglass.configuration.defaults import (
     CREDIT,
     DEFAULT_HELP,
@@ -38,6 +35,9 @@ from hyperglass.configuration.defaults import (
     DEFAULT_DETAILS,
 )
 from hyperglass.configuration.markdown import get_markdown
+from hyperglass.configuration.models.params import Params
+from hyperglass.configuration.models.devices import Devices
+from hyperglass.configuration.models.commands import Commands
 
 set_app_path(required=True)
 
@@ -165,7 +165,7 @@ set_log_level(logger=log, debug=user_config.get("debug", True))
 
 # Map imported user configuration to expected schema.
 log.debug("Unvalidated configuration from {}: {}", CONFIG_MAIN, user_config)
-params = _validate_config(config=user_config, importer=_params.Params)
+params = _validate_config(config=user_config, importer=Params)
 
 # Re-evaluate debug state after config is validated
 log_level = current_log_level(log)
@@ -178,16 +178,12 @@ elif not params.debug and log_level == "debug":
 # Map imported user commands to expected schema.
 _user_commands = _config_optional(CONFIG_COMMANDS)
 log.debug("Unvalidated commands from {}: {}", CONFIG_COMMANDS, _user_commands)
-commands = _validate_config(
-    config=_user_commands, importer=_commands.Commands.import_params
-)
+commands = _validate_config(config=_user_commands, importer=Commands.import_params)
 
 # Map imported user devices to expected schema.
 _user_devices = _config_required(CONFIG_DEVICES)
 log.debug("Unvalidated devices from {}: {}", CONFIG_DEVICES, _user_devices)
-devices = _validate_config(
-    config=_user_devices.get("routers", []), importer=_routers.Routers._import,
-)
+devices = _validate_config(config=_user_devices.get("routers", []), importer=Devices)
 
 # Validate commands are both supported and properly mapped.
 _validate_nos_commands(devices.all_nos, commands)
@@ -226,7 +222,7 @@ try:
 
     # If keywords are unmodified (default), add the org name &
     # site_title.
-    if _params.Params().site_keywords == params.site_keywords:
+    if Params().site_keywords == params.site_keywords:
         params.site_keywords = sorted(
             {*params.site_keywords, params.org_name, params.site_title}
         )
@@ -258,7 +254,7 @@ def _build_frontend_networks():
         {dict} -- Frontend networks
     """
     frontend_dict = {}
-    for device in devices.routers:
+    for device in devices.objects:
         if device.network.display_name in frontend_dict:
             frontend_dict[device.network.display_name].update(
                 {
@@ -302,7 +298,7 @@ def _build_frontend_devices():
         {dict} -- Frontend devices
     """
     frontend_dict = {}
-    for device in devices.routers:
+    for device in devices.objects:
         if device.name in frontend_dict:
             frontend_dict[device.name].update(
                 {
@@ -348,11 +344,11 @@ def _build_networks():
         {dict} -- Networks & devices
     """
     networks = []
-    _networks = list(set({device.network.display_name for device in devices.routers}))
+    _networks = list(set({device.network.display_name for device in devices.objects}))
 
     for _network in _networks:
         network_def = {"display_name": _network, "locations": []}
-        for device in devices.routers:
+        for device in devices.objects:
             if device.network.display_name == _network:
                 network_def["locations"].append(
                     {
@@ -374,7 +370,7 @@ def _build_networks():
 
 def _build_vrfs():
     vrfs = []
-    for device in devices.routers:
+    for device in devices.objects:
         for vrf in device.vrfs:
 
             vrf_dict = {

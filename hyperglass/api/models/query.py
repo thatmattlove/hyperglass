@@ -124,16 +124,19 @@ class Query(BaseModel):
     @property
     def device(self):
         """Get this query's device object by query_location."""
-        return getattr(devices, self.query_location)
+        return devices[self.query_location]
+
+    @property
+    def query(self):
+        """Get this query's configuration object."""
+        return params.queries[self.query_type]
 
     def export_dict(self, pretty=False):
         """Create dictionary representation of instance."""
         if pretty:
-            loc = getattr(devices, self.query_location)
-            query_type = getattr(params.queries, self.query_type)
             items = {
-                "query_location": loc.display_name,
-                "query_type": query_type.display_name,
+                "query_location": self.device.display_name,
+                "query_type": self.query.display_name,
                 "query_vrf": self.query_vrf.display_name,
                 "query_target": str(self.query_target),
             }
@@ -163,12 +166,12 @@ class Query(BaseModel):
         Returns:
             {str} -- Valid query_type
         """
-        query_type_obj = getattr(params.queries, value)
-        if not query_type_obj.enable:
+        query = params.queries[value]
+        if not query.enable:
             raise InputInvalid(
                 params.messages.feature_not_enabled,
                 level="warning",
-                feature=query_type_obj.display_name,
+                feature=query.display_name,
             )
         return value
 
@@ -208,7 +211,7 @@ class Query(BaseModel):
             {str} -- Valid query_vrf
         """
         vrf_object = get_vrf_object(value)
-        device = getattr(devices, values["query_location"])
+        device = devices[values["query_location"]]
         device_vrf = None
         for vrf in device.vrfs:
             if vrf == vrf_object:

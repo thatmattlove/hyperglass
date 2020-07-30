@@ -23,14 +23,7 @@ from hyperglass.execution.drivers._common import Connection
 
 
 class AgentConnection(Connection):
-    """Connect to target device via specified transport.
-
-    scrape_direct() directly connects to devices via SSH
-
-    scrape_proxied() connects to devices via an SSH proxy
-
-    rest() connects to devices via HTTP for RESTful API communication
-    """
+    """Connect to target device via hyperglass-agent."""
 
     async def collect(self) -> Iterable:  # noqa: C901
         """Connect to a device running hyperglass-agent via HTTP."""
@@ -60,7 +53,7 @@ class AgentConnection(Connection):
         else:
             http_protocol = "http"
         endpoint = "{protocol}://{address}:{port}/query/".format(
-            protocol=http_protocol, address=self.device.address, port=self.device.port
+            protocol=http_protocol, address=self.device._target, port=self.device.port
         )
 
         log.debug(f"URL endpoint: {endpoint}")

@@ -8,9 +8,9 @@ import math
 import shutil
 import asyncio
 from queue import Queue
-from typing import Dict, Union, Iterable, Optional
+from typing import Dict, Union, Iterable, Optional, Generator
 from pathlib import Path
-from ipaddress import IPv4Address, IPv6Address
+from ipaddress import IPv4Address, IPv6Address, ip_address
 from threading import Thread
 
 # Third Party
@@ -18,6 +18,7 @@ from loguru._logger import Logger as LoguruLogger
 
 # Project
 from hyperglass.log import log
+from hyperglass.models import HyperglassModel
 
 
 def cpu_count(multiplier: int = 0):
@@ -31,18 +32,6 @@ def cpu_count(multiplier: int = 0):
     import multiprocessing
 
     return multiprocessing.cpu_count() * multiplier
-
-
-def clean_name(_name: str) -> str:
-    """Remove unsupported characters from field names.
-
-    Converts any "desirable" seperators to underscore, then removes all
-    characters that are unsupported in Python class variable names.
-    Also removes leading numbers underscores.
-    """
-    _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", _name)
-    _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
-    return _scrubbed.lower()
 
 
 def check_path(
@@ -925,3 +914,34 @@ def validation_error_message(*errors: Dict) -> str:
         errs += (f'Field: {loc}\n  Error: {err["msg"]}\n',)
 
     return "\n".join(errs)
+
+
+def resolve_hostname(hostname: str) -> Generator:
+    """Resolve a hostname via DNS/hostfile."""
+    from socket import getaddrinfo, gaierror
+
+    log.debug("Ensuring '{}' is resolvable...", hostname)
+
+    ip4 = None
+    ip6 = None
+    try:
+        res = getaddrinfo(hostname, None)
+        if len(res) == 2:
+            addr = ip_address(res[0][4][0])
+            if addr.version == 6:
+                ip6 = addr
+            else:
+                ip4 = addr
+        elif len(res) == 4:
+            addr1 = ip_address(res[0][4][0])
+            addr2 = ip_address(res[2][4][0])
+            for a in (addr1, addr2):
+                if a.version == 4:
+                    ip4 = a
+                elif a.version == 6:
+                    ip6 = a
+    except gaierror:
+        pass
+
+    yield ip4
+    yield ip6

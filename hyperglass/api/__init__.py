@@ -242,15 +242,13 @@ app.add_api_route(
 
 # Enable certificate import route only if a device using
 # hyperglass-agent is defined.
-for device in devices.routers:
-    if device.nos in TRANSPORT_REST:
-        app.add_api_route(
-            path="/api/import-agent-certificate/",
-            endpoint=import_certificate,
-            methods=["POST"],
-            include_in_schema=False,
-        )
-        break
+if [n for n in devices.all_nos if n in TRANSPORT_REST]:
+    app.add_api_route(
+        path="/api/import-agent-certificate/",
+        endpoint=import_certificate,
+        methods=["POST"],
+        include_in_schema=False,
+    )
 
 if params.docs.enable:
     app.add_api_route(path=params.docs.uri, endpoint=docs, include_in_schema=False)

@@ -17,12 +17,23 @@ from pydantic import (
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import clean_name
 
 IntFloat = TypeVar("IntFloat", StrictInt, StrictFloat)
 
 _WEBHOOK_TITLE = "hyperglass received a valid query with the following data"
 _ICON_URL = "https://res.cloudinary.com/hyperglass/image/upload/v1593192484/icon.png"
+
+
+def clean_name(_name: str) -> str:
+    """Remove unsupported characters from field names.
+
+    Converts any "desirable" seperators to underscore, then removes all
+    characters that are unsupported in Python class variable names.
+    Also removes leading numbers underscores.
+    """
+    _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", _name)
+    _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
+    return _scrubbed.lower()
 
 
 class HyperglassModel(BaseModel):
