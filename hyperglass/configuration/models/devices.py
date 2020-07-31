@@ -137,7 +137,7 @@ class Device(HyperglassModel):
 
         Arguments:
             value {object} -- SSL object
-            values {dict} -- Other already-valiated fields
+            values {dict} -- Other already-validated fields
 
         Returns:
             {object} -- SSL configuration
