@@ -180,7 +180,7 @@ async def import_certificate(encoded_request: EncodedRequest):
             secret=matched_device.credential.password.get_secret_value(),
         )
     except HyperglassError as decode_error:
-        raise HTTPException(detail=str(decode_error), status_code=401)
+        raise HTTPException(detail=str(decode_error), status_code=400)
 
     try:
         # Write certificate to file
@@ -192,6 +192,7 @@ async def import_certificate(encoded_request: EncodedRequest):
     except RuntimeError as err:
         raise HyperglassError(str(err), level="danger")
 
+    log.info("Added public key for {}", encoded_request.device)
     return {
         "output": f"Added public key for {encoded_request.device}",
         "level": "success",
