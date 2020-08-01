@@ -6,8 +6,10 @@ keywords: [configuration, linux, frr, frrouting, bird, agent]
 description: Configure hyperglass-agent
 ---
 
+import M from "../../src/components/MiniNote";
+
 :::caution Time & NTP
-Before you get too far, check to make sure your hyperglass server and hyperglass-agent system are both properly synchronized with an NTP server. During the setup process and on every interaction, hyperglass and hyperglass agent exchange [JWT](https://jwt.io/) tokens with a relatively short window (60 seconds, by default) in which to validate the payload. If the system clock on either system is askew by too much, this exchange can fail.
+Before you get too far, check to make sure your hyperglass server and hyperglass-agent system are both properly synchronized with an NTP server. During the setup process and on every interaction, hyperglass and hyperglass-agent exchange [JWT](https://jwt.io/) tokens with a relatively short window (**60 seconds, by default**) in which to validate the payload. If the system clock on either system is askew by too much, this exchange can fail.
 :::
 
 ## Setup
@@ -18,7 +20,15 @@ To automatically create an application directory, generate SSL certificates, gen
 $ hyperglass-agent setup
 ```
 
-If SSL is enabled (which is the default), take note of the secret key — you'll use this in the `password` for this device in hyperglass.
+During the setup process, you'll be prompted to:
+
+- Select an installation directory.<M>Must be <code>/etc/hyperglass-agent</code> or <code>~/hyperglass-agent</code></M>
+- Update hyperglass's `devices.yaml` file with a generated secret
+- Verify the hostname of the device. <M>The hostname you verify is used to generate the agent's SSL certificate, and needs to be DNS-resolvable by hyperglass.</M>
+- Select IP addresses from the device's interfaces that hyperglass would use to communicate with the agent. <M>The IP addresses are added as Subject Alternative Names to the generated SSL certificate, so that you can point hyperglass to the agent by IP address if needed, but still leverage SSL validation.</M>
+- Enter the URL of your hyperglass. <M>hyperglass-agent will send the public key of your SSL certificate to hyperglass, so that future communication between hyperglass and hyperglass-agent is authenticated and encrypted.</M>
+
+After these prompts, the agent's SSL public & private keys and a configuration file will be generated and saved to your installation directory. A systemd service file will also be generated, saved to your installation directory, and symlinked to `/etc/systemd/system/hyperglass-agent.service`.
 
 :::note
 You can also run the setup wizard with certain options disabled, if needed:
@@ -30,11 +40,12 @@ Usage: hyperglass-agent setup [OPTIONS]
   Run the setup wizard
 
 Options:
-  --config / --no-config    Don't regenerate config file
-  --certs / --no-certs      Don't regenerate certificates
-  --systemd / --no-systemd  Don't generate a systemd file
-  --force                   Force regeneration of config file
-  -h, --help                Show this message and exit.
+  --no-config   Don't regenerate config file
+  --no-certs    Don't regenerate certificates
+  --no-systemd  Don't generate a systemd file
+  --no-send     Don't send the SSL certificate to hyperglass
+  --force       Force regeneration of config file
+  -h, --help    Show this message and exit.
 ```
 
 :::
