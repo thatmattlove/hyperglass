@@ -926,21 +926,12 @@ def resolve_hostname(hostname: str) -> Generator:
     ip6 = None
     try:
         res = getaddrinfo(hostname, None)
-        if len(res) == 2:
-            addr = ip_address(res[0][4][0])
-            if addr.version == 6:
-                ip6 = addr
-            else:
-                ip4 = addr
-        elif len(res) == 4:
-            addr1 = ip_address(res[0][4][0])
-            addr2 = ip_address(res[2][4][0])
-            for a in (addr1, addr2):
-                if a.version == 4:
-                    ip4 = a
-                elif a.version == 6:
-                    ip6 = a
-    except gaierror:
+        for sock in res:
+            if sock[0].value == 2 and ip4 is None:
+                ip4 = ip_address(sock[4][0])
+            elif sock[0].value == 30 and ip6 is None:
+                ip6 = ip_address(sock[4][0])
+    except (gaierror, ValueError, IndexError):
         pass
 
     yield ip4
