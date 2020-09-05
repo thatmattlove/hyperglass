@@ -34,7 +34,7 @@ module.exports = {
     {
       type: "category",
       label: "Linux Agent",
-      items: ["agent/installation", "agent/setup"],
+      items: ["agent/installation", "agent/setup", "agent/parameters"],
     },
     { type: "doc", id: "production" },
     { type: "doc", id: "upgrading" },

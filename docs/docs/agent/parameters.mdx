@@ -1,0 +1,64 @@
+---
+id: parameters
+title: Agent Configuration Parameters
+sidebar_label: Parameters
+keywords: [hyperglass, agent, hyperglass-agent, configuration, parameters]
+description: hyperglass-agent configuration parameters.
+---
+
+import M from "../../src/components/MiniNote";
+import PL from "../../src/components/PageLink";
+
+<div class="table--full-width" />
+
+## Configuration File
+
+hyperglass-agent configuration consists of one [YAML](https://yaml.org/) configuration files:
+
+- `config.yaml`
+
+The configuration file may be located in one of the following directories:
+
+- `/etc/hyperglass-agent`
+- `~/hyperglass-agent`
+
+## Global Settings
+
+| Parameter           |  Type   | Default                         | Description                                                                                                                                          |
+| :------------------ | :-----: | :------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `debug`             | Boolean | `false`                         | Enable application-wide debug mode. **This will generate a log of logs!**                                                                            |
+| `listen_address`    | String  | `'0.0.0.0'`                     | Local IPv4/IPv6 Address the hyperglass-agent application listens on to respond to hyperglass queries.                                                |
+| `listen_port`       | Integer | `8080` or `8443`                | Local TCP port the hyperglass-agent application listens on to respond to hyperglass queries.                                                         |
+| `mode`              | String  | `'frr'`                         | FRRouting or BIRD agent mode.                                                                                                                        |
+| `secret`            | String  | Randomly generated              | Password used to sign [JWT](https://jwt.io) tokens. <M>The <code>secret</code> must match the <code>password</code> in hyperglass.</M>               |
+| `valid_duration`    | Integer | `60`                            | Duration in seconds for which any query is valid. Used as the `exp` claim in the JWT.                                                                |
+| `not_found_message` | String  | `'{target} not found. ({afi})'` | Message returned if the response is empty. `{target}` will be replaced with the `query_target` and `{afi}` will be replaced with the address-family. |
+
+### Subsections
+
+From the top level, the following subsections may be defined and configured:
+
+| Section   | Description                            |        All Options        |
+| :-------- | :------------------------------------- | :-----------------------: |
+| `ssl`     | Redis server & cache timeout settings. |   <PL to="#ssl">➡️</PL>   |
+| `logging` | API documentation settings.            | <PL to="#logging">➡️</PL> |
+
+## SSL
+
+| Parameter |   Type   | Default                         | Description                                |
+| :-------- | :------: | :------------------------------ | :----------------------------------------- |
+| `enable`  | Boolean  | `true`                          | Enable or disable the SSL/HTTPS.           |
+| `cert`    | FilePath | `<install path>/agent_cert.pem` | Valid path to SSL certificate public key.  |
+| `key`     | FilePath | `<install path>/agent_key.pem`  | Valid path to SSL certificate private key. |
+
+While you can use your own SSL certificates, hyperglass-agent will generate self-signed certificates for you by default. They will be generated during the [setup process](setup.mdx), or you can run the `hyperglass-agent certificate` command.
+
+## Logging
+
+By default, hyperglass-agent writes all log messages to a log file located at `/tmp/hyperglass-agent.log`. This behavior and other file logging parameters may be overridden if needed:
+
+| Parameter   |   Type   | Default  | Description                                                                                                                                                     |
+| :---------- | :------: | :------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `directory` | FilePath | `/tmp/`  | Directory at which to write the log file `hyperglass-agent.log`. Use `false` to disable file logging.                                                           |
+| `format`    |  String  | `'text'` | `'text'` for plain text non-structured logging, `'json'` for JSON structured logging. If JSON is enabled, the log file name will be `hyperglass-agent.log.json` |
+| `max_size`  |  String  | `'50MB'` | Maximum log file size before old logs are overwritten.                                                                                                          |
