@@ -50,7 +50,7 @@ function Home() {
               )}
               to={useBaseUrl("docs/getting-started")}
             >
-              Set up your looking glass
+              Set up your Looking Glass
             </Link>
             <Link
               className={classnames(

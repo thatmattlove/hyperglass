@@ -93,6 +93,7 @@ h2.smallerTitle[class] {
     min-width: 100%;
     padding-left: 1rem;
     padding-right: 1rem;
+    font-size: var(--ifm-h3-font-size);
   }
 }
 
