@@ -76,6 +76,15 @@ While all devices require a credential mapping, the credential values themselves
 
 For HTTP devices (i.e. devices using [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent)), the username is ignored and the password is used as a secret for [JSON Web Token](https://tools.ietf.org/html/rfc7519) encoding/decoding.
 
+There is currently no official support for ssh key authentication. However, it can be workarounded:
+
+* Configure the correct user/key/ip for the device in the ~/.ssh/config file from the user that runs hyperglass
+* ensure a simple `ssh $routerip` works and picks up the correct data from the ssh config file
+* configure the username as credential in the devices.yaml
+* configure any string as password
+
+The `password` attribute is currently mandatory. But netmiko will read the ssh config file. If it lists an ssh key for the router, it will be used.
+
 | Parameter       | Type   | Description                                                  |
 | :-------------- | :----- | :----------------------------------------------------------- |
 | <R/> `username` | String | Username                                                     |
