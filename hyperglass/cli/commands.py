@@ -230,6 +230,8 @@ def setup(unattended):
         write_to_file(systemd_file, systemd)
         install_systemd(install_path)
 
+    build_ui()
+
 
 @hg.command(
     "system-info",
