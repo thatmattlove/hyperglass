@@ -52,7 +52,7 @@ async def check_redis_instance():
     """
     await check_redis(db=params.cache.database, config=REDIS_CONFIG)
 
-    log.debug(f"Redis is running at: {REDIS_CONFIG['host']}:{REDIS_CONFIG['port']}")
+    log.debug("Redis is running at: {}:{}", REDIS_CONFIG["host"], REDIS_CONFIG["port"])
     return True
 
 
@@ -98,7 +98,7 @@ def on_starting(server: Arbiter):
 
     python_version = platform.python_version()
     required = ".".join((str(v) for v in MIN_PYTHON_VERSION))
-    log.info(f"Python {python_version} detected ({required} required)")
+    log.info("Python {} detected ({} required)", python_version, required)
 
     async def runner():
         from asyncio import gather

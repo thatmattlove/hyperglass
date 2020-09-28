@@ -1,7 +1,6 @@
 """API Events."""
 
 # Project
-from hyperglass.log import log
 from hyperglass.util import check_redis
 from hyperglass.exceptions import HyperglassError
 from hyperglass.configuration import REDIS_CONFIG, params
@@ -21,7 +20,6 @@ async def _check_redis():
     except RuntimeError as e:
         raise HyperglassError(str(e), level="danger") from None
 
-    log.debug(f"Redis is running at: {REDIS_CONFIG['host']}:{REDIS_CONFIG['port']}")
     return True
 
 

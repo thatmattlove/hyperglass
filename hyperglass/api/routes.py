@@ -84,8 +84,8 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
     # Define cache entry expiry time
     cache_timeout = params.cache.timeout
 
-    log.debug(f"Cache Timeout: {cache_timeout}")
-    log.info(f"Starting query execution for query {query_data.summary}")
+    log.debug("Cache Timeout: {}", cache_timeout)
+    log.info("Starting query execution for query {}", query_data.summary)
 
     cache_response = await cache.get_dict(cache_key, "output")
 
@@ -100,7 +100,7 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
 
     cached = False
     if cache_response:
-        log.debug("Query {q} exists in cache", q=cache_key)
+        log.debug("Query {} exists in cache", cache_key)
 
         # If a cached response exists, reset the expiration time.
         await cache.expire(cache_key, seconds=cache_timeout)
@@ -110,9 +110,9 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
         timestamp = await cache.get_dict(cache_key, "timestamp")
 
     elif not cache_response:
-        log.debug(f"No existing cache entry for query {cache_key}")
+        log.debug("No existing cache entry for query {}", cache_key)
         log.debug(
-            f"Created new cache key {cache_key} entry for query {query_data.summary}"
+            "Created new cache key {} entry for query {}", cache_key, query_data.summary
         )
 
         timestamp = query_data.timestamp
@@ -121,7 +121,7 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
         cache_output = await execute(query_data)
         endtime = time.time()
         elapsedtime = round(endtime - starttime, 4)
-        log.debug(f"Query {cache_key} took {elapsedtime} seconds to run.")
+        log.debug("Query {} took {} seconds to run.", cache_key, elapsedtime)
 
         if cache_output is None:
             raise HyperglassError(message=params.messages.general, alert="danger")
@@ -135,7 +135,7 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
         await cache.set_dict(cache_key, "timestamp", timestamp)
         await cache.expire(cache_key, seconds=cache_timeout)
 
-        log.debug(f"Added cache entry for query: {cache_key}")
+        log.debug("Added cache entry for query: {}", cache_key)
 
         runtime = int(round(elapsedtime, 0))
 
@@ -146,8 +146,8 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
     if json_output:
         response_format = "application/json"
 
-    log.debug(f"Cache match for {cache_key}:\n {cache_response}")
-    log.success(f"Completed query execution for {query_data.summary}")
+    log.debug("Cache match for {}:\n{}", cache_key, cache_response)
+    log.success("Completed query execution for query {}", query_data.summary)
 
     return {
         "output": cache_response,

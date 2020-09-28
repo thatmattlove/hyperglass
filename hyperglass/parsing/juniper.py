@@ -53,7 +53,7 @@ def parse_juniper(output: Iterable) -> Dict:  # noqa: C901
             raise ParsingError("Error parsing response data")
 
         except KeyError as err:
-            log.critical(f"'{str(err)}' was not found in the response")
+            log.critical("{} was not found in the response", str(err))
             raise ParsingError("Error parsing response data")
 
         except ValidationError as err:

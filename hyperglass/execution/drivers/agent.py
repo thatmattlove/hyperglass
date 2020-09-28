@@ -27,7 +27,7 @@ class AgentConnection(Connection):
 
     async def collect(self) -> Iterable:  # noqa: C901
         """Connect to a device running hyperglass-agent via HTTP."""
-        log.debug(f"Query parameters: {self.query}")
+        log.debug("Query parameters: {}", self.query)
 
         client_params = {
             "headers": {"Content-Type": "application/json"},
@@ -56,7 +56,7 @@ class AgentConnection(Connection):
             protocol=http_protocol, address=self.device._target, port=self.device.port
         )
 
-        log.debug(f"URL endpoint: {endpoint}")
+        log.debug("URL endpoint: {}", endpoint)
 
         try:
             async with httpx.AsyncClient(**client_params) as http_client:
@@ -68,22 +68,22 @@ class AgentConnection(Connection):
                         secret=self.device.credential.password.get_secret_value(),
                         duration=params.request_timeout,
                     )
-                    log.debug(f"Encoded JWT: {encoded_query}")
+                    log.debug("Encoded JWT: {}", encoded_query)
 
                     raw_response = await http_client.post(
                         endpoint, json={"encoded": encoded_query}
                     )
-                    log.debug(f"HTTP status code: {raw_response.status_code}")
+                    log.debug("HTTP status code: {}", raw_response.status_code)
 
                     raw = raw_response.text
-                    log.debug(f"Raw Response: {raw}")
+                    log.debug("Raw Response:\n{}", raw)
 
                     if raw_response.status_code == 200:
                         decoded = await jwt_decode(
                             payload=raw_response.json()["encoded"],
                             secret=self.device.credential.password.get_secret_value(),
                         )
-                        log.debug(f"Decoded Response: {decoded}")
+                        log.debug("Decoded Response:\n{}", decoded)
                         responses += (decoded,)
 
                     elif raw_response.status_code == 204:
@@ -97,7 +97,7 @@ class AgentConnection(Connection):
 
         except httpx.exceptions.HTTPError as rest_error:
             msg = parse_exception(rest_error)
-            log.error(f"Error connecting to device {self.device.name}: {msg}")
+            log.error("Error connecting to device {}: {}", self.device.name, msg)
             raise RestError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,
@@ -120,7 +120,7 @@ class AgentConnection(Connection):
             )
 
         if raw_response.status_code != 200:
-            log.error(f"Response code is {raw_response.status_code}")
+            log.error("Response code is {}", raw_response.status_code)
             raise RestError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,
@@ -128,7 +128,7 @@ class AgentConnection(Connection):
             )
 
         if not responses:
-            log.error(f"No response from device {self.device.name}")
+            log.error("No response from device {}", self.device.name)
             raise RestError(
                 params.messages.connection_error,
                 device_name=self.device.display_name,

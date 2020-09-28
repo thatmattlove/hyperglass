@@ -21,14 +21,14 @@ def _member_of(target, network):
     Returns:
         {bool} -- True if target is a member of network, False if not
     """
-    log.debug(f"Checking membership of {target} for {network}")
+    log.debug("Checking membership of {} for {}", target, network)
 
     membership = False
     if (
         network.network_address <= target.network_address
         and network.broadcast_address >= target.broadcast_address  # NOQA: W503
     ):
-        log.debug(f"{target} is a member of {network}")
+        log.debug("{} is a member of {}", target, network)
         membership = True
     return membership
 

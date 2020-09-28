@@ -31,9 +31,9 @@ class Construct:
             query_data {object} -- Validated query object
         """
         log.debug(
-            "Constructing {q} query for '{t}'",
-            q=query_data.query_type,
-            t=str(query_data.query_target),
+            "Constructing {} query for '{}'",
+            query_data.query_type,
+            str(query_data.query_target),
         )
         self.device = device
         self.query_data = query_data
@@ -157,5 +157,5 @@ class Construct:
             else:
                 query.append(self.scrape(afi=afi))
 
-        log.debug(f"Constructed query: {query}")
+        log.debug("Constructed query: {}", query)
         return query

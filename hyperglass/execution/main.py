@@ -43,8 +43,8 @@ async def execute(query: Query) -> Union[str, Dict]:
 
     output = params.messages.general
 
-    log.debug(f"Received query for {query}")
-    log.debug(f"Matched device config: {query.device}")
+    log.debug("Received query for {}", query.json())
+    log.debug("Matched device config: {}", query.device)
 
     supported, driver_name = validate_nos(query.device.nos)
 
@@ -79,7 +79,7 @@ async def execute(query: Query) -> Union[str, Dict]:
             params.messages.no_output, device_name=query.device.display_name
         )
 
-    log.debug(f"Output for query: {query.json()}:\n{repr(output)}")
+    log.debug("Output for query: {}:\n{}", query.json(), repr(output))
     signal.alarm(0)
 
     return output

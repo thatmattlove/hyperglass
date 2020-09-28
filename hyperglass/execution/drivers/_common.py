@@ -27,7 +27,7 @@ class Connection:
     async def parsed_response(self, output: Iterable) -> str:
         """Send output through common parsers."""
 
-        log.debug(f"Pre-parsed responses:\n{output}")
+        log.debug("Pre-parsed responses:\n{}", output)
         parsed = ()
         response = None
 
@@ -61,5 +61,5 @@ class Connection:
         if response is None:
             response = "\n\n".join(output)
 
-        log.debug(f"Post-parsed responses:\n{response}")
+        log.debug("Post-parsed responses:\n{}", response)
         return response
