@@ -10,20 +10,8 @@ import jwt
 from hyperglass.exceptions import RestError
 
 
-async def jwt_decode(payload, secret):
-    """Decode & validate an encoded JSON Web Token (JWT).
-
-    Arguments:
-        payload {str} -- Raw JWT payload
-        secret {str} -- JWT secret
-
-    Raises:
-        RestError: Raised if decoded payload is improperly formatted
-        or if the JWT is not able to be decoded.
-
-    Returns:
-        {str} -- Decoded response payload
-    """
+async def jwt_decode(payload: str, secret: str) -> str:
+    """Decode & validate an encoded JSON Web Token (JWT)."""
     try:
         decoded = jwt.decode(payload, secret, algorithm="HS256")
         decoded = decoded["payload"]
@@ -32,17 +20,8 @@ async def jwt_decode(payload, secret):
         raise RestError(str(exp)) from None
 
 
-async def jwt_encode(payload, secret, duration):
-    """Encode a query to a JSON Web Token (JWT).
-
-    Arguments:
-        payload {str} -- Stringified JSON request
-        secret {str} -- JWT secret
-        duration {int} -- Number of seconds claim is valid
-
-    Returns:
-        str -- Encoded request payload
-    """
+async def jwt_encode(payload: str, secret: str, duration: int) -> str:
+    """Encode a query to a JSON Web Token (JWT)."""
     token = {
         "payload": payload,
         "nbf": datetime.datetime.utcnow(),
