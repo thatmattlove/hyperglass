@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta58 - 2020-09-28
+
+### Changed
+- [#79](https://github.com/checktheroads/hyperglass/issues/79): Run the UI build on startup & clarify docs.
+- Removed all f-strings from log messages.
+- Migrate icon library to [@meronex/icons](https://github.com/meronex/meronex-icons) for better tree-shaking.
+- Improve console (stdout) logging
+- Fix file logging format
+
+### Fixed
+- [#74](https://github.com/checktheroads/hyperglass/issues/74): Fix UI build failures caused by `.alias.js`.
+- [#75](https://github.com/checktheroads/hyperglass/issues/75): Fix whitespace stripping of query target.
+- [#77](https://github.com/checktheroads/hyperglass/issues/77): Allow dashes in FQDN validation pattern.
+- [#83](https://github.com/checktheroads/hyperglass/issues/83): Fix lack of support for `protocol-nh` field in Juniper XML BGP table.
+
+
 ## 1.0.0-beta57 - 2020-07-30
 
 ### BREAKING CHANGE
