@@ -192,5 +192,5 @@ class JuniperRoute(_JuniperBase):
             vrf=vrf, count=count, routes=routes, winning_weight="low",
         )
 
-        log.info("Serialized Juniper response: {}", serialized)
+        log.debug("Serialized Juniper response: {}", serialized)
         return serialized

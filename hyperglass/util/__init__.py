@@ -510,7 +510,7 @@ def copyfiles(src_files: Iterable[Path], dst_files: Iterable[Path]):
 
     for _file in src_files:
         copied = queue.get()
-        log.success("Copied {}", str(copied))
+        log.debug("Copied {}", str(copied))
 
     for thread in threads:
         thread.join()
