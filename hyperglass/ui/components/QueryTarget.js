@@ -2,7 +2,7 @@ import * as React from "react";
 import { useEffect } from "react";
 import { Input, useColorMode } from "@chakra-ui/core";
 
-const fqdnPattern = /^(?!:\/\/)([a-zA-Z0-9]+\.)?[a-zA-Z0-9][a-zA-Z0-9-]+\.[a-zA-Z]{2,6}?$/gim;
+const fqdnPattern = /^(?!:\/\/)([a-zA-Z0-9-]+\.)?[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z-]{2,6}?$/gim;
 
 const bg = { dark: "whiteAlpha.100", light: "white" };
 const color = { dark: "whiteAlpha.800", light: "gray.400" };
