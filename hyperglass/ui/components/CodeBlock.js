@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Box, useColorMode } from "@chakra-ui/core";
 
-export default ({ children }) => {
+export const CodeBlock = ({ children }) => {
   const { colorMode } = useColorMode();
   const bg = { dark: "gray.800", light: "blackAlpha.100" };
   const color = { dark: "white", light: "black" };

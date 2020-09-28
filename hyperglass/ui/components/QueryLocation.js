@@ -1,5 +1,5 @@
 import * as React from "react";
-import ChakraSelect from "~/components/ChakraSelect";
+import { ChakraSelect } from "app/components";
 
 const buildLocations = networks => {
   const locations = [];
@@ -17,7 +17,7 @@ const buildLocations = networks => {
   return locations;
 };
 
-const QueryLocation = ({ locations, onChange, label }) => {
+export const QueryLocation = ({ locations, onChange, label }) => {
   const options = buildLocations(locations);
   const handleChange = e => {
     const selected = [];
@@ -39,5 +39,3 @@ const QueryLocation = ({ locations, onChange, label }) => {
     />
   );
 };
-
-export default QueryLocation;

@@ -2,7 +2,7 @@
 import { jsx } from "@emotion/core";
 import { Box, css } from "@chakra-ui/core";
 
-const TableBody = ({ children, ...props }) => (
+export const TableBody = ({ children, ...props }) => (
   <Box
     as="tbody"
     overflowY="scroll"
@@ -16,5 +16,3 @@ const TableBody = ({ children, ...props }) => (
     {children}
   </Box>
 );
-
-export default TableBody;

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { PseudoBox, useColorMode, useTheme } from "@chakra-ui/core";
-import { opposingColor } from "~/util";
+import { opposingColor } from "app/util";
 
 const hoverBg = { dark: "whiteAlpha.50", light: "blackAlpha.50" };
 const bgStripe = { dark: "whiteAlpha.50", light: "blackAlpha.50" };
@@ -11,7 +11,7 @@ const rowBorder = {
 const alphaMap = { dark: "200", light: "100" };
 const alphaMapHover = { dark: "100", light: "200" };
 
-const TableRow = ({
+export const TableRow = ({
   highlight = false,
   highlightBg = "primary",
   doStripe = false,
@@ -52,5 +52,3 @@ const TableRow = ({
     </PseudoBox>
   );
 };
-
-export default TableRow;

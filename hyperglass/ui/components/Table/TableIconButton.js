@@ -1,7 +1,7 @@
 import * as React from "react";
 import { IconButton } from "@chakra-ui/core";
 
-const TableIconButton = ({
+export const TableIconButton = ({
   icon,
   onClick,
   isDisabled,
@@ -22,5 +22,3 @@ const TableIconButton = ({
     {children}
   </IconButton>
 );
-
-export default TableIconButton;

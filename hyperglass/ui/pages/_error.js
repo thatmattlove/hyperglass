@@ -8,10 +8,10 @@ import {
   Heading,
   Text,
   ThemeProvider,
-  useColorMode
+  useColorMode,
+  theme as defaultTheme
 } from "@chakra-ui/core";
 import { inRange } from "lodash";
-import { defaultTheme } from "~/theme";
 
 const ColorModeProvider = dynamic(
   () => import("@chakra-ui/core").then(mod => mod.ColorModeProvider),

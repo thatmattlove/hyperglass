@@ -1,14 +1,8 @@
 import * as React from "react";
 import { Flex, useColorMode } from "@chakra-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
-import ResetButton from "~/components/ResetButton";
-import useMedia from "~/components/MediaProvider";
-import useConfig, { useHyperglassState } from "~/components/HyperglassProvider";
-import Title from "~/components/Title";
-import { ColorModeToggle } from "~/components/ColorModeToggle";
-
-const AnimatedFlex = motion.custom(Flex);
-const AnimatedResetButton = motion.custom(ResetButton);
+import { useConfig, useHyperglassState, useMedia } from "app/context";
+import { Title, ResetButton, ColorModeToggle } from "app/components";
 
 const titleVariants = {
   sm: {
@@ -57,7 +51,9 @@ const widthMap = {
   all: ["90%", "90%", "50%", "50%"]
 };
 
-const Header = ({ layoutRef, ...props }) => {
+export const Header = ({ layoutRef, ...props }) => {
+  const AnimatedFlex = motion.custom(Flex);
+  const AnimatedResetButton = motion.custom(ResetButton);
   const { colorMode } = useColorMode();
   const { web } = useConfig();
   const { mediaSize } = useMedia();
@@ -161,5 +157,3 @@ const Header = ({ layoutRef, ...props }) => {
     </Flex>
   );
 };
-
-export default Header;

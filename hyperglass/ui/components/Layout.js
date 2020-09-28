@@ -1,16 +1,13 @@
 import * as React from "react";
 import { useRef } from "react";
 import { Flex, useColorMode } from "@chakra-ui/core";
-import Header from "~/components/Header";
-import Footer from "~/components/Footer";
-import Greeting from "~/components/Greeting";
-import useConfig, { useHyperglassState } from "~/components/HyperglassProvider";
-import Debugger from "~/components/Debugger";
+import { useConfig, useHyperglassState } from "app/context";
+import { Debugger, Greeting, Footer, Header } from "app/components";
 
 const bg = { light: "white", dark: "black" };
 const color = { light: "black", dark: "white" };
 
-const Layout = ({ children }) => {
+export const Layout = ({ children }) => {
   const config = useConfig();
   const { colorMode } = useColorMode();
   const { greetingAck, setGreetingAck } = useHyperglassState();
@@ -55,5 +52,3 @@ const Layout = ({ children }) => {
     </>
   );
 };
-
-export default Layout;

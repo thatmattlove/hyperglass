@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTheme } from "@chakra-ui/core";
 
-const LightningBolt = ({ size = 4, color = "currentColor" }) => {
+export const LightningBolt = ({ size = 4, color = "currentColor" }) => {
   const theme = useTheme();
   return (
     <svg
@@ -19,5 +19,3 @@ const LightningBolt = ({ size = 4, color = "currentColor" }) => {
     </svg>
   );
 };
-
-export default LightningBolt;

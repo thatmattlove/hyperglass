@@ -1,9 +1,9 @@
 import * as React from "react";
 import { Text, useColorMode, useTheme } from "@chakra-ui/core";
 import Select from "react-select";
-import { opposingColor } from "~/util";
+import { opposingColor } from "app/util";
 
-const ChakraSelect = React.forwardRef(
+export const ChakraSelect = React.forwardRef(
   (
     { placeholder = "Select...", isFullWidth, size, children, ...props },
     ref
@@ -202,5 +202,3 @@ const ChakraSelect = React.forwardRef(
     );
   }
 );
-
-export default ChakraSelect;

@@ -7,7 +7,7 @@ const color = { dark: "white", light: "black" };
 const selectionBg = { dark: "white", light: "black" };
 const selectionColor = { dark: "black", light: "white" };
 
-const TextOutput = ({ children, ...props }) => {
+export const TextOutput = ({ children, ...props }) => {
   const { colorMode } = useColorMode();
 
   return (
@@ -39,5 +39,3 @@ const TextOutput = ({ children, ...props }) => {
     </Box>
   );
 };
-
-export default TextOutput;

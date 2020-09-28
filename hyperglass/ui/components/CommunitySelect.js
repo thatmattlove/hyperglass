@@ -2,9 +2,9 @@ import * as React from "react";
 import { useEffect } from "react";
 import { Text } from "@chakra-ui/core";
 import { components } from "react-select";
-import ChakraSelect from "~/components/ChakraSelect";
+import { ChakraSelect } from "app/components";
 
-const CommunitySelect = ({
+export const CommunitySelect = ({
   name,
   communities,
   onChange,
@@ -45,5 +45,3 @@ const CommunitySelect = ({
     />
   );
 };
-
-export default CommunitySelect;

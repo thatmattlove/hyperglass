@@ -27,8 +27,6 @@ const mdComponents = {
   tableCell: TableData
 };
 
-const Markdown = forwardRef(({ content }, ref) => (
+export const Markdown = forwardRef(({ content }, ref) => (
   <ReactMarkdown ref={ref} renderers={mdComponents} source={content} />
 ));
-
-export default Markdown;

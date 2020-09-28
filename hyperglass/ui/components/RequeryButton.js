@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button, Icon, Tooltip } from "@chakra-ui/core";
 
-const RequeryButton = ({ requery, bg = "secondary", ...props }) => (
+export const RequeryButton = ({ requery, bg = "secondary", ...props }) => (
   <Tooltip hasArrow label="Reload Query" placement="top">
     <Button
       mx={1}
@@ -16,5 +16,3 @@ const RequeryButton = ({ requery, bg = "secondary", ...props }) => (
     </Button>
   </Tooltip>
 );
-
-export default RequeryButton;

@@ -1,7 +1,7 @@
 import * as React from "react";
-import ChakraSelect from "~/components/ChakraSelect";
+import { ChakraSelect } from "app/components";
 
-const QueryType = ({ queryTypes, onChange, label }) => {
+export const QueryType = ({ queryTypes, onChange, label }) => {
   const queries = queryTypes
     .filter(q => q.enable === true)
     .map(q => {
@@ -17,5 +17,3 @@ const QueryType = ({ queryTypes, onChange, label }) => {
     />
   );
 };
-
-export default QueryType;

@@ -1,9 +1,9 @@
 import * as React from "react";
 import { forwardRef } from "react";
 import { Box, Collapse } from "@chakra-ui/core";
-import Markdown from "~/components/Markdown";
+import { Markdown } from "app/components/Markdown";
 
-const FooterContent = forwardRef(
+export const FooterContent = forwardRef(
   ({ isOpen = false, content, side = "left", title, ...props }, ref) => {
     return (
       <Collapse
@@ -26,5 +26,3 @@ const FooterContent = forwardRef(
     );
   }
 );
-
-export default FooterContent;

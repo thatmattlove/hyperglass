@@ -6,7 +6,7 @@ const cellBorder = {
   light: { borderLeft: "1px", borderLeftColor: "blackAlpha.100" }
 };
 
-const TableCell = ({
+export const TableCell = ({
   bordersVertical = [false, 0, 0],
   align,
   cell,
@@ -34,5 +34,3 @@ const TableCell = ({
     </Box>
   );
 };
-
-export default TableCell;

@@ -12,11 +12,11 @@ import {
   useTheme
 } from "@chakra-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
-import Markdown from "~/components/Markdown";
+import { Markdown } from "app/components";
 
 const AnimatedIcon = motion.custom(IconButton);
 
-const HelpModal = ({ item, name }) => {
+export const HelpModal = ({ item, name }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colors } = useTheme();
   const { colorMode } = useColorMode();
@@ -69,5 +69,3 @@ const HelpModal = ({ item, name }) => {
     </>
   );
 };
-
-export default HelpModal;

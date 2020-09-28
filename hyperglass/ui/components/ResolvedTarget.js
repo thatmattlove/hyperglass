@@ -12,14 +12,14 @@ import {
 } from "@chakra-ui/core";
 import useAxios from "axios-hooks";
 import format from "string-format";
-import useConfig from "~/components/HyperglassProvider";
+import { useConfig } from "app/context";
 
 format.extend(String.prototype, {});
 
 const labelBg = { dark: "secondary", light: "secondary" };
 const labelBgSuccess = { dark: "success", light: "success" };
 
-const ResolvedTarget = forwardRef(
+export const ResolvedTarget = forwardRef(
   ({ fqdnTarget, setTarget, queryTarget, families, availVrfs }, ref) => {
     const { colorMode } = useColorMode();
     const config = useConfig();
@@ -178,5 +178,3 @@ const ResolvedTarget = forwardRef(
     );
   }
 );
-
-export default ResolvedTarget;

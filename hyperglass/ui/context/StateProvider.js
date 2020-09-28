@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createContext, useContext, useMemo, useState } from "react";
-import useSessionStorage from "~/hooks/useSessionStorage";
+import { useSessionStorage } from "app/hooks";
 
 const StateContext = createContext(null);
 

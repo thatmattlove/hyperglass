@@ -2,8 +2,7 @@
 import { jsx } from "@emotion/core";
 import { forwardRef } from "react";
 import { Button, Heading, Image, Stack, useColorMode } from "@chakra-ui/core";
-import useConfig from "~/components/HyperglassProvider";
-import useMedia from "~/components/MediaProvider";
+import { useConfig, useMedia } from "app/context";
 
 const titleSize = { true: ["2xl", "2xl", "5xl", "5xl"], false: "2xl" };
 const titleMargin = { true: 2, false: 0 };
@@ -105,7 +104,7 @@ const modeMap = {
   all: All
 };
 
-const Title = forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
+export const Title = forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
   const { web } = useConfig();
   const { mediaSize } = useMedia();
   const titleMode = web.text.title_mode;
@@ -134,5 +133,3 @@ const Title = forwardRef(({ onClick, isSubmitting, ...props }, ref) => {
     </Button>
   );
 });
-
-export default Title;

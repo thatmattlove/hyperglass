@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Select } from "@chakra-ui/core";
 
-const TableSelectShow = ({ value, onChange, children, ...props }) => (
+export const TableSelectShow = ({ value, onChange, children, ...props }) => (
   <Select size="sm" onChange={onChange} {...props}>
     {[5, 10, 20, 30, 40, 50].map(value => (
       <option key={value} value={value}>
@@ -11,5 +11,3 @@ const TableSelectShow = ({ value, onChange, children, ...props }) => (
     {children}
   </Select>
 );
-
-export default TableSelectShow;

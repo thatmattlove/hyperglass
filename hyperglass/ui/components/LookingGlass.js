@@ -1,13 +1,11 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Layout from "~/components/Layout";
-import HyperglassForm from "~/components/HyperglassForm";
-import Results from "~/components/Results";
-import { useHyperglassState } from "~/components/HyperglassProvider";
+import { Layout, HyperglassForm, Results } from "app/components";
+import { useHyperglassState } from "app/context";
 
 const AnimatedForm = motion.custom(HyperglassForm);
 
-const LookingGlass = () => {
+export const LookingGlass = () => {
   const {
     isSubmitting,
     setSubmitting,
@@ -46,5 +44,3 @@ const LookingGlass = () => {
     </Layout>
   );
 };
-
-export default LookingGlass;

@@ -9,7 +9,7 @@ const color = { dark: "whiteAlpha.800", light: "gray.400" };
 const border = { dark: "whiteAlpha.50", light: "gray.100" };
 const placeholderColor = { dark: "whiteAlpha.700", light: "gray.600" };
 
-const QueryTarget = ({
+export const QueryTarget = ({
   placeholder,
   register,
   unregister,
@@ -67,5 +67,3 @@ const QueryTarget = ({
     </>
   );
 };
-
-export default QueryTarget;

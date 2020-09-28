@@ -2,7 +2,7 @@ import * as React from "react";
 import { forwardRef } from "react";
 import { Flex, useColorMode } from "@chakra-ui/core";
 
-const Label = forwardRef(
+export const Label = forwardRef(
   ({ value, label, labelColor, valueBg, valueColor, ...props }, ref) => {
     const { colorMode } = useColorMode();
     const _labelColor = { dark: "whiteAlpha.700", light: "blackAlpha.700" };
@@ -58,5 +58,3 @@ const Label = forwardRef(
     );
   }
 );
-
-export default Label;

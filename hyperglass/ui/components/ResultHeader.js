@@ -10,7 +10,7 @@ import {
   useColorMode
 } from "@chakra-ui/core";
 import format from "string-format";
-import useConfig from "~/components/HyperglassProvider";
+import { useConfig } from "app/context";
 
 format.extend(String.prototype, {});
 
@@ -32,7 +32,7 @@ const defaultStatusColor = {
   light: "success.500"
 };
 
-const ResultHeader = forwardRef(
+export const ResultHeader = forwardRef(
   ({ title, loading, error, errorMsg, errorLevel, runtime }, ref) => {
     const { colorMode } = useColorMode();
     const config = useConfig();
@@ -69,5 +69,3 @@ const ResultHeader = forwardRef(
     );
   }
 );
-
-export default ResultHeader;

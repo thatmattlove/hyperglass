@@ -13,9 +13,8 @@ import {
   useColorMode,
   useTheme
 } from "@chakra-ui/core";
-import useConfig from "~/components/HyperglassProvider";
-import useMedia from "~/components/MediaProvider";
-import CodeBlock from "~/components/CodeBlock";
+import { useConfig, useMedia } from "app/context";
+import { CodeBlock } from "app/components";
 
 const prettyMediaSize = {
   sm: "SMALL",
@@ -24,7 +23,7 @@ const prettyMediaSize = {
   xl: "X-LARGE"
 };
 
-const Debugger = () => {
+export const Debugger = () => {
   const {
     isOpen: configOpen,
     onOpen: onConfigOpen,
@@ -102,5 +101,3 @@ const Debugger = () => {
     </>
   );
 };
-
-export default Debugger;

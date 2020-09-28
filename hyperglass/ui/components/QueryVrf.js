@@ -1,7 +1,7 @@
 import * as React from "react";
-import ChakraSelect from "~/components/ChakraSelect";
+import { ChakraSelect } from "app/components";
 
-const QueryVrf = ({ vrfs, onChange, label }) => (
+export const QueryVrf = ({ vrfs, onChange, label }) => (
   <ChakraSelect
     size="lg"
     options={vrfs}
@@ -10,5 +10,3 @@ const QueryVrf = ({ vrfs, onChange, label }) => (
     onChange={e => onChange({ field: "query_vrf", value: e.value })}
   />
 );
-
-export default QueryVrf;

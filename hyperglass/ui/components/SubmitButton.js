@@ -8,7 +8,7 @@ import {
   useTheme
 } from "@chakra-ui/core";
 import { FiSearch } from "react-icons/fi";
-import { opposingColor } from "~/util";
+import { opposingColor } from "app/util";
 
 const btnProps = {
   display: "inline-flex",
@@ -59,7 +59,7 @@ const btnBg = { dark: "primary.300", light: "primary.500" };
 const btnBgActive = { dark: "primary.400", light: "primary.600" };
 const btnBgHover = { dark: "primary.200", light: "primary.400" };
 
-const SubmitButton = forwardRef(
+export const SubmitButton = forwardRef(
   (
     {
       isLoading = false,
@@ -118,5 +118,3 @@ const SubmitButton = forwardRef(
     );
   }
 );
-
-export default SubmitButton;

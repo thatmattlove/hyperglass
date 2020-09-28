@@ -2,10 +2,10 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import { useTheme } from "@chakra-ui/core";
-import useConfig from "~/components/HyperglassProvider";
-import { googleFontUrl } from "~/util";
+import { useConfig } from "app/context";
+import { googleFontUrl } from "app/util";
 
-const Meta = () => {
+export const Meta = () => {
   const config = useConfig();
   const theme = useTheme();
   const [location, setLocation] = useState({});
@@ -53,5 +53,3 @@ const Meta = () => {
     </Head>
   );
 };
-
-export default Meta;

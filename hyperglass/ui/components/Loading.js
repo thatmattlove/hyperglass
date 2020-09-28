@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Flex, Spinner, useColorMode } from "@chakra-ui/core";
 
-const Loading = () => {
+export const Loading = () => {
   const { colorMode } = useColorMode();
   const bg = { light: "white", dark: "black" };
   const color = { light: "black", dark: "white" };
@@ -32,5 +32,3 @@ const Loading = () => {
     </Flex>
   );
 };
-
-export default Loading;

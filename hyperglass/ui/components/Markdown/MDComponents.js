@@ -10,13 +10,9 @@ import {
   Text as ChakraText
 } from "@chakra-ui/core";
 
-import {
-  TableCell,
-  TableHeader,
-  Table as ChakraTable
-} from "~/components/Table";
+import { TableCell, TableHeader, Table as ChakraTable } from "./MDTable";
 
-import CustomCodeBlock from "~/components/CodeBlock";
+import { CodeBlock as CustomCodeBlock } from "app/components";
 
 export const Checkbox = ({ checked, children }) => (
   <ChakraCheckbox isChecked={checked}>{children}</ChakraCheckbox>

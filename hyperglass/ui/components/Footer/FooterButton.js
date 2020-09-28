@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const AnimatedFlex = motion.custom(Flex);
 
-const FooterButton = React.forwardRef(
+export const FooterButton = React.forwardRef(
   ({ onClick, side, children, ...props }, ref) => {
     return (
       <AnimatedFlex
@@ -27,5 +27,3 @@ const FooterButton = React.forwardRef(
     );
   }
 );
-
-export default FooterButton;

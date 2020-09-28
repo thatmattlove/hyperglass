@@ -2,19 +2,21 @@ import * as React from "react";
 import { forwardRef, useState, useEffect } from "react";
 import { Box, Flex } from "@chakra-ui/core";
 import { useForm } from "react-hook-form";
-import lodash from "lodash";
+import { intersectionWith, isEqual } from "lodash";
 import * as yup from "yup";
 import format from "string-format";
-import FormField from "~/components/FormField";
-import HelpModal from "~/components/HelpModal";
-import QueryLocation from "~/components/QueryLocation";
-import QueryType from "~/components/QueryType";
-import QueryTarget from "~/components/QueryTarget";
-import CommunitySelect from "~/components/CommunitySelect";
-import QueryVrf from "~/components/QueryVrf";
-import ResolvedTarget from "~/components/ResolvedTarget";
-import SubmitButton from "~/components/SubmitButton";
-import useConfig from "~/components/HyperglassProvider";
+import {
+  FormField,
+  HelpModal,
+  QueryLocation,
+  QueryType,
+  QueryTarget,
+  CommunitySelect,
+  QueryVrf,
+  ResolvedTarget,
+  SubmitButton
+} from "app/components";
+import { useConfig } from "app/context";
 
 format.extend(String.prototype, {});
 
@@ -53,7 +55,7 @@ const FormRow = ({ children, ...props }) => (
   </Flex>
 );
 
-const HyperglassForm = forwardRef(
+export const HyperglassForm = forwardRef(
   (
     {
       isSubmitting,
@@ -105,7 +107,7 @@ const HyperglassForm = forwardRef(
         allVrfs.push(locVrfs);
       });
 
-      const intersecting = lodash.intersectionWith(...allVrfs, lodash.isEqual);
+      const intersecting = intersectionWith(...allVrfs, isEqual);
       setAvailVrfs(intersecting);
       !intersecting.includes(queryVrf) &&
         queryVrf !== "default" &&
@@ -278,5 +280,3 @@ const HyperglassForm = forwardRef(
     );
   }
 );
-
-export default HyperglassForm;

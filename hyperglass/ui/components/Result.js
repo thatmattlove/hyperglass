@@ -16,20 +16,21 @@ import {
   useTheme
 } from "@chakra-ui/core";
 import styled from "@emotion/styled";
-import LightningBolt from "~/components/icons/LightningBolt";
 import useAxios from "axios-hooks";
 import strReplace from "react-string-replace";
 import format from "string-format";
 import { startCase } from "lodash";
-import useConfig from "~/components/HyperglassProvider";
-import useMedia from "~/components/MediaProvider";
-import CopyButton from "~/components/CopyButton";
-import RequeryButton from "~/components/RequeryButton";
-import ResultHeader from "~/components/ResultHeader";
-import CacheTimeout from "~/components/CacheTimeout";
-import BGPTable from "~/components/BGPTable";
-import TextOutput from "~/components/TextOutput";
-import { tableToString } from "~/util";
+import { useConfig, useMedia } from "app/context";
+import {
+  BGPTable,
+  CacheTimeout,
+  CopyButton,
+  LightningBolt,
+  RequeryButton,
+  ResultHeader,
+  TextOutput
+} from "app/components";
+import { tableToString } from "app/util";
 
 format.extend(String.prototype, {});
 
@@ -59,14 +60,6 @@ const AccordionHeaderWrapper = styled(Flex)`
   }
 `;
 
-const structuredDataComponent = {
-  bgp_route: BGPTable,
-  bgp_aspath: BGPTable,
-  bgp_community: BGPTable,
-  ping: TextOutput,
-  traceroute: TextOutput
-};
-
 const statusMap = {
   success: "success",
   warning: "warning",
@@ -79,7 +72,7 @@ const scrollbar = { dark: "whiteAlpha.300", light: "blackAlpha.300" };
 const scrollbarHover = { dark: "whiteAlpha.400", light: "blackAlpha.400" };
 const scrollbarBg = { dark: "whiteAlpha.50", light: "blackAlpha.50" };
 
-const Result = forwardRef(
+export const Result = forwardRef(
   (
     {
       device,
@@ -141,8 +134,17 @@ const Result = forwardRef(
         statusMap[error.response?.data?.level]) ??
       "error";
 
+    const structuredDataComponent = {
+      bgp_route: BGPTable,
+      bgp_aspath: BGPTable,
+      bgp_community: BGPTable,
+      ping: TextOutput,
+      traceroute: TextOutput
+    };
+
     let Output = TextOutput;
     let copyValue = data?.output;
+
     if (data?.format === "application/json") {
       Output = structuredDataComponent[queryType];
       copyValue = tableToString(queryTarget, data, config);
@@ -282,5 +284,3 @@ const Result = forwardRef(
     );
   }
 );
-
-export default Result;

@@ -40,4 +40,4 @@ export const MediaProvider = ({ theme, children }) => {
   );
 };
 
-export default () => useContext(MediaContext);
+export const useMedia = () => useContext(MediaContext);

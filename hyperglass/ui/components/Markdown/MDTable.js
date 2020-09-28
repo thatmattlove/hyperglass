@@ -1,13 +1,13 @@
 import * as React from "react";
 import { Box, useColorMode } from "@chakra-ui/core";
 
-const Table = props => (
+export const Table = props => (
   <Box as="table" textAlign="left" mt={4} width="full" {...props} />
 );
 
 const bg = { light: "blackAlpha.50", dark: "whiteAlpha.50" };
 
-const TableHeader = props => {
+export const TableHeader = props => {
   const { colorMode } = useColorMode();
 
   return (
@@ -22,7 +22,7 @@ const TableHeader = props => {
   );
 };
 
-const TableCell = ({ isHeader = false, ...props }) => (
+export const TableCell = ({ isHeader = false, ...props }) => (
   <Box
     as={isHeader ? "th" : "td"}
     p={2}
@@ -33,5 +33,3 @@ const TableCell = ({ isHeader = false, ...props }) => (
     {...props}
   />
 );
-
-export { TableCell, TableHeader, Table };

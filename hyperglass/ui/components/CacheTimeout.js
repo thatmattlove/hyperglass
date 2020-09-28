@@ -22,7 +22,7 @@ const Renderer = ({ hours, minutes, seconds, completed, props }) => {
   }
 };
 
-const CacheTimeout = ({ timeout, text }) => {
+export const CacheTimeout = ({ timeout, text }) => {
   const then = timeout * 1000;
   const { colorMode } = useColorMode();
   return (
@@ -35,5 +35,3 @@ const CacheTimeout = ({ timeout, text }) => {
     />
   );
 };
-
-export default CacheTimeout;

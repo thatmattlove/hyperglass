@@ -9,7 +9,7 @@ import {
 
 const labelColor = { dark: "whiteAlpha.700", light: "blackAlpha.700" };
 
-const FormField = ({
+export const FormField = ({
   label,
   name,
   error,
@@ -61,5 +61,3 @@ const FormField = ({
     </FormControl>
   );
 };
-
-export default FormField;

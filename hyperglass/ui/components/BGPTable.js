@@ -14,8 +14,8 @@ import { MdLastPage } from "react-icons/md";
 import dayjs from "dayjs";
 import relativeTimePlugin from "dayjs/plugin/relativeTime";
 import utcPlugin from "dayjs/plugin/utc";
-import useConfig from "~/components/HyperglassProvider";
-import Table from "~/components/Table/index";
+import { useConfig } from "app/context";
+import { Table } from "app/components";
 
 dayjs.extend(relativeTimePlugin);
 dayjs.extend(utcPlugin);
@@ -215,7 +215,7 @@ const Cell = ({ data, rawData, longestASN }) => {
   return component[data.column.id] ?? <> </>;
 };
 
-const BGPTable = ({ children: data, ...props }) => {
+export const BGPTable = ({ children: data, ...props }) => {
   const config = useConfig();
   const columns = makeColumns(config.parsed_data_fields);
 
@@ -232,5 +232,3 @@ const BGPTable = ({ children: data, ...props }) => {
     </Flex>
   );
 };
-
-export default BGPTable;

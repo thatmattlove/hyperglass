@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "esnext",
+    "baseUrl": ".",
+    "paths": {
+      "app/components": ["components/index"],
+      "app/components/*": ["components/*"],
+      "app/context": ["context/index"],
+      "app/context/*": ["context/*"],
+      "app/hooks": ["hooks/index"],
+      "app/hooks/*": ["hooks/*"],
+      "app/util": ["util/index"]
+    }
+  }
+}

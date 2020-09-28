@@ -11,7 +11,7 @@ import {
   useColorMode,
   useDisclosure
 } from "@chakra-ui/core";
-import Markdown from "~/components/Markdown";
+import { Markdown } from "app/components";
 import { motion } from "framer-motion";
 
 const bg = { light: "white", dark: "black" };
@@ -20,7 +20,7 @@ const color = { light: "black", dark: "white" };
 const AnimatedModalContent = motion.custom(ModalContent);
 const AnimatedModalOverlay = motion.custom(ModalOverlay);
 
-const Greeting = ({ greetingConfig, content, onClickThrough }) => {
+export const Greeting = ({ greetingConfig, content, onClickThrough }) => {
   const { isOpen, onOpen, onClose } = useDisclosure(true);
   const { colorMode } = useColorMode();
 
@@ -67,5 +67,3 @@ const Greeting = ({ greetingConfig, content, onClickThrough }) => {
     </Modal>
   );
 };
-
-export default Greeting;

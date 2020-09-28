@@ -4,9 +4,9 @@ import { Flex, useColorMode } from "@chakra-ui/core";
 import { FiCode } from "react-icons/fi";
 import { GoLinkExternal } from "react-icons/go";
 import format from "string-format";
-import useConfig from "~/components/HyperglassProvider";
-import FooterButton from "./FooterButton";
-import FooterContent from "./FooterContent";
+import { useConfig } from "app/context";
+import { FooterButton } from "./FooterButton";
+import { FooterContent } from "./FooterContent";
 
 format.extend(String.prototype, {});
 
@@ -14,7 +14,7 @@ const footerBg = { light: "blackAlpha.50", dark: "whiteAlpha.100" };
 const footerColor = { light: "black", dark: "white" };
 const contentBorder = { light: "blackAlpha.100", dark: "whiteAlpha.200" };
 
-const Footer = () => {
+export const Footer = () => {
   const config = useConfig();
   const { colorMode } = useColorMode();
   const [helpVisible, showHelp] = useState(false);
@@ -135,5 +135,3 @@ const Footer = () => {
     </>
   );
 };
-
-export default Footer;

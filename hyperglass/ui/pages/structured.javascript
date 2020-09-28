@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Flex } from "@chakra-ui/core";
-import Layout from "~/components/Layout";
-import BGPTable from "~/components/BGPTable";
+import {BGPTable,Layout} from "app/components";
 
 const response = {
   cached: false,

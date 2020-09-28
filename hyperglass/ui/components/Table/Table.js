@@ -2,17 +2,17 @@ import * as React from "react";
 import { useMemo } from "react";
 import { Flex, Icon, Text } from "@chakra-ui/core";
 import { usePagination, useSortBy, useTable } from "react-table";
-import useMedia from "~/components/MediaProvider";
-import { CardBody, CardFooter, CardHeader } from "~/components/Card";
-import TableMain from "./TableMain";
-import TableCell from "./TableCell";
-import TableHead from "./TableHead";
-import TableRow from "./TableRow";
-import TableBody from "./TableBody";
-import TableIconButton from "./TableIconButton";
-import TableSelectShow from "./TableSelectShow";
+import { useMedia } from "app/context";
+import { CardBody, CardFooter, CardHeader } from "app/components";
+import { TableMain } from "./TableMain";
+import { TableCell } from "./TableCell";
+import { TableHead } from "./TableHead";
+import { TableRow } from "./TableRow";
+import { TableBody } from "./TableBody";
+import { TableIconButton } from "./TableIconButton";
+import { TableSelectShow } from "./TableSelectShow";
 
-const Table = ({
+export const Table = ({
   columns,
   data,
   tableHeading,
@@ -193,5 +193,3 @@ const Table = ({
     </CardBody>
   );
 };
-
-export default Table;

@@ -2,10 +2,8 @@ import * as React from "react";
 import { useState } from "react";
 import { Accordion, Box, Stack, useTheme } from "@chakra-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
-import Label from "~/components/Label";
-import Result from "~/components/Result";
-import useConfig from "~/components/HyperglassProvider";
-import useMedia from "~/components/MediaProvider";
+import { Label, Result } from "app/components";
+import { useConfig, useMedia } from "app/context";
 
 const AnimatedResult = motion.custom(Result);
 const AnimatedLabel = motion.custom(Label);
@@ -51,7 +49,7 @@ const labelAnimate = {
   }
 };
 
-const Results = ({
+export const Results = ({
   queryLocation,
   queryType,
   queryVrf,
@@ -161,6 +159,3 @@ const Results = ({
     </>
   );
 };
-
-Results.displayName = "HyperglassResults";
-export default Results;
