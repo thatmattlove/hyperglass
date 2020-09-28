@@ -7,7 +7,7 @@ import {
   useColorMode,
   useTheme
 } from "@chakra-ui/core";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch } from "@meronex/icons/fi";
 import { opposingColor } from "app/util";
 
 const btnProps = {

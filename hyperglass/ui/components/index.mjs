@@ -15,7 +15,6 @@ export * from "./HelpModal";
 export * from "./HyperglassForm";
 export * from "./Label";
 export * from "./Layout";
-export * from "./LightningBolt";
 export * from "./Loading";
 export * from "./LookingGlass";
 export * from "./Markdown";

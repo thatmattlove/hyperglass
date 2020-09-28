@@ -15,6 +15,7 @@ import {
   useColorMode,
   useTheme
 } from "@chakra-ui/core";
+import { BsLightningFill } from "@meronex/icons/bs";
 import styled from "@emotion/styled";
 import useAxios from "axios-hooks";
 import strReplace from "react-string-replace";
@@ -25,7 +26,6 @@ import {
   BGPTable,
   CacheTimeout,
   CopyButton,
-  LightningBolt,
   RequeryButton,
   ResultHeader,
   TextOutput
@@ -266,7 +266,7 @@ export const Result = forwardRef(
                     placement="top"
                   >
                     <Box ml={1} display={data?.cached ? "block" : "none"}>
-                      <LightningBolt color={color[colorMode]} />
+                      <BsLightningFill color={color[colorMode]} />
                     </Box>
                   </Tooltip>
                   {isSm && (

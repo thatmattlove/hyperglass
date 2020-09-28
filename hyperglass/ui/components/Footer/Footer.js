@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useState } from "react";
 import { Flex, useColorMode } from "@chakra-ui/core";
-import { FiCode } from "react-icons/fi";
-import { GoLinkExternal } from "react-icons/go";
+import { FiCode } from "@meronex/icons/fi";
+import { GoLinkExternal } from "@meronex/icons/go";
 import format from "string-format";
 import { useConfig } from "app/context";
 import { FooterButton } from "./FooterButton";

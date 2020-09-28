@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button } from "@chakra-ui/core";
-import { FiChevronLeft } from "react-icons/fi";
+import { FiChevronLeft } from "@meronex/icons/fi";
 
 export const ResetButton = React.forwardRef(
   ({ isSubmitting, onClick }, ref) => (

@@ -10,7 +10,7 @@ import {
   Tooltip,
   useColorMode
 } from "@chakra-ui/core";
-import { MdLastPage } from "react-icons/md";
+import { MdLastPage } from "@meronex/icons/md";
 import dayjs from "dayjs";
 import relativeTimePlugin from "dayjs/plugin/relativeTime";
 import utcPlugin from "dayjs/plugin/utc";
