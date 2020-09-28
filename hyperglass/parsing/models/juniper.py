@@ -1,7 +1,7 @@
 """Data Models for Parsing Juniper XML Response."""
 
 # Standard Library
-from typing import List
+from typing import Dict, List
 
 # Third Party
 from pydantic import StrictInt, StrictStr, StrictBool, validator, root_validator
@@ -49,10 +49,27 @@ class JuniperRouteTableEntry(_JuniperBase):
     @root_validator(pre=True)
     def validate_optional_flags(cls, values):
         """Flatten & rename keys prior to validation."""
-        next_hop = values.pop("nh")
-        selected_next_hop = ""
+        next_hops = []
+        nh = None
 
-        for hop in next_hop:
+        # Handle Juniper's 'Router' Next Hop Type
+        if "nh" in values:
+            nh = values.pop("nh")
+
+        # Handle Juniper's 'Indirect' Next Hop Type
+        if "protocol-nh" in values:
+            nh = values.pop("protocol-nh")
+
+        # Force the next hops to be a list
+        if isinstance(nh, Dict):
+            nh = [nh]
+
+        if nh is not None:
+            next_hops.extend(nh)
+
+        # Extract the 'to:' value from the next-hop
+        selected_next_hop = ""
+        for hop in next_hops:
             if "selected-next-hop" in hop:
                 selected_next_hop = hop.get("to", "")
                 break

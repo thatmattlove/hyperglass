@@ -22,8 +22,10 @@ def parse_juniper(output: Iterable) -> Dict:  # noqa: C901
     for i, response in enumerate(output):
         try:
             parsed = xmltodict.parse(
-                response, force_list=("rt", "rt-entry", "community", "nh")
+                response, force_list=("rt", "rt-entry", "community")
             )
+
+            log.debug("Initially Parsed Response: \n{}", parsed)
 
             if "rpc-reply" in parsed.keys():
                 parsed_base = parsed["rpc-reply"]["route-information"]
