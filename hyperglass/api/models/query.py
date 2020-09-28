@@ -7,10 +7,9 @@ import secrets
 from datetime import datetime
 
 # Third Party
-from pydantic import BaseModel, StrictStr, validator
+from pydantic import BaseModel, StrictStr, validator, constr
 
 # Project
-from hyperglass.log import log
 from hyperglass.exceptions import InputInvalid
 from hyperglass.configuration import params, devices
 from hyperglass.api.models.types import SupportedQuery
@@ -55,7 +54,7 @@ class Query(BaseModel):
     query_location: StrictStr
     query_type: SupportedQuery
     query_vrf: StrictStr
-    query_target: StrictStr
+    query_target: constr(strip_whitespace=True, min_length=1)
 
     class Config:
         """Pydantic model configuration."""
@@ -229,8 +228,8 @@ class Query(BaseModel):
     def validate_query_target(cls, value, values):
         """Validate query target value based on query_type."""
 
-        log.debug(values)
         query_type = values["query_type"]
+        value = value.strip()
 
         # Use relevant function based on query_type.
         validator_map = {
