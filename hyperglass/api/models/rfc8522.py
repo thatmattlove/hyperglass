@@ -10,7 +10,6 @@ from datetime import datetime
 # Third Party
 from pydantic import BaseModel, StrictInt, StrictStr, StrictFloat, constr, validator
 
-
 """Patterns:
 GET /.well-known/looking-glass/v1/ping/2001:DB8::35?protocol=2,1
 GET /.well-known/looking-glass/v1/traceroute/192.0.2.8?routerindex=5

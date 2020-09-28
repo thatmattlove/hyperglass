@@ -17,6 +17,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 
 def async_command(func):
     """Decororator for to make async functions runable from synchronous code."""
+    # Standard Library
     import asyncio
     from functools import update_wrapper
 
@@ -31,9 +32,10 @@ def async_command(func):
 
 def fix_ownership(user, group, directory):
     """Make user & group the owner of the directory."""
+    # Standard Library
+    import os
     import grp
     import pwd
-    import os
 
     uid = pwd.getpwnam(user).pw_uid
     gid = grp.getgrnam(group).gr_gid
@@ -54,6 +56,7 @@ def fix_ownership(user, group, directory):
 
 def fix_permissions(directory):
     """Make directory readable by public."""
+    # Standard Library
     import os
 
     try:
@@ -107,6 +110,7 @@ def migrate_config(config_dir):
     """Copy example config files and remove .example extensions."""
     status("Migrating example config files...")
 
+    # Standard Library
     import shutil
 
     examples = Path(PROJECT_ROOT / "examples").glob("*.yaml.example")
@@ -138,6 +142,7 @@ def migrate_config(config_dir):
 
 def migrate_systemd(source, destination):
     """Copy example systemd service file to /etc/systemd/system/."""
+    # Standard Library
     import os
     import shutil
 
@@ -165,9 +170,10 @@ def build_ui():
         ClickException: Raised on any errors.
     """
     try:
-        from hyperglass.compat._asyncio import aiorun
+        # Project
         from hyperglass.util import build_frontend
-        from hyperglass.configuration import params, frontend_params, CONFIG_PATH
+        from hyperglass.configuration import CONFIG_PATH, params, frontend_params
+        from hyperglass.compat._asyncio import aiorun
     except ImportError as e:
         error("Error importing UI builder: {e}", e=e)
 
@@ -296,6 +302,7 @@ def make_systemd(user):
         {str} -- Generated systemd template
     """
 
+    # Third Party
     import distro
 
     template = """
@@ -364,6 +371,7 @@ def migrate_static_assets(app_path):
     Arguments:
         app_path {Path} -- hyperglass runtime path
     """
+    # Project
     from hyperglass.util import migrate_static_assets as _migrate
 
     migrated, msg, a, b = _migrate(app_path)
@@ -410,6 +418,7 @@ def system_info():
     Returns:
         {str}: Markdown table
     """
+    # Project
     from hyperglass.util.system_info import get_system_info
 
     values = get_system_info()

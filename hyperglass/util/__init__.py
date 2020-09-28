@@ -29,6 +29,7 @@ def cpu_count(multiplier: int = 0):
     Returns:
         {int} -- CPU Cores
     """
+    # Standard Library
     import multiprocessing
 
     return multiprocessing.cpu_count() * multiplier
@@ -81,8 +82,11 @@ def check_python() -> str:
     Returns:
         {str} -- Python version
     """
+    # Standard Library
     import sys
     import platform
+
+    # Project
     from hyperglass.constants import MIN_PYTHON_VERSION
 
     pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
@@ -176,6 +180,7 @@ async def check_redis(db: int, config: Dict) -> bool:
     Returns:
         {bool} -- True if redis is running.
     """
+    # Third Party
     import aredis
 
     redis_instance = aredis.StrictRedis(db=db, **config)
@@ -203,6 +208,7 @@ async def clear_redis_cache(db: int, config: Dict) -> bool:
     Returns:
         {bool} -- True if cache was cleared.
     """
+    # Third Party
     import aredis
 
     try:
@@ -222,6 +228,7 @@ async def move_files(src, dst, files):  # noqa: C901
         files {Iterable} -- Iterable of files
     """
 
+    # Standard Library
     from typing import Iterable
 
     def error(*args, **kwargs):
@@ -275,6 +282,7 @@ async def move_files(src, dst, files):  # noqa: C901
 def migrate_static_assets(app_path):
     """Synchronize the project assets with the installation assets."""
 
+    # Standard Library
     from filecmp import dircmp
 
     asset_dir = Path(__file__).parent.parent / "images"
@@ -382,6 +390,7 @@ async def read_package_json():
         {dict} -- NPM package.json as dict
     """
 
+    # Standard Library
     import json
 
     package_json_file = Path(__file__).parent.parent / "ui" / "package.json"
@@ -407,6 +416,7 @@ def generate_opengraph(
     background_color: str,
 ):
     """Generate an OpenGraph compliant image."""
+    # Third Party
     from PIL import Image
 
     def center_point(background: Image, foreground: Image):
@@ -571,11 +581,14 @@ async def build_frontend(  # noqa: C901
     Returns:
         {bool} -- True if successful
     """
+    # Standard Library
     import hashlib
     import tempfile
 
+    # Third Party
     from favicons import Favicons
 
+    # Project
     from hyperglass.constants import __version__
 
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
@@ -704,6 +717,7 @@ async def build_frontend(  # noqa: C901
 def set_app_path(required=False):
     """Find app directory and set value to environment variable."""
 
+    # Standard Library
     from getpass import getuser
 
     matched_path = None

@@ -6,8 +6,10 @@ import asyncio
 import weakref
 
 try:
+    # Standard Library
     from asyncio import get_running_loop
 except ImportError:
+    # Standard Library
     from asyncio.events import _get_running_loop as get_running_loop
 
 RUNNING_PYTHON_VERSION = sys.version_info

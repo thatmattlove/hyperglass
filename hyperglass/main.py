@@ -83,6 +83,7 @@ async def clear_cache():
 
 async def cache_config():
     """Add configuration to Redis cache as a pickled object."""
+    # Standard Library
     import pickle
 
     cache = AsyncCache(
@@ -101,6 +102,7 @@ def on_starting(server: Arbiter):
     log.info("Python {} detected ({} required)", python_version, required)
 
     async def runner():
+        # Standard Library
         from asyncio import gather
 
         await gather(build_ui(), cache_config())
@@ -156,6 +158,7 @@ class HyperglassWSGI(BaseApplication):
 
 def start(**kwargs):
     """Start hyperglass via gunicorn."""
+    # Project
     from hyperglass.api import app
 
     HyperglassWSGI(

@@ -23,6 +23,7 @@ supports_color = "utf" in sys.getfilesystemencoding().lower()
 
 
 def _print_version(ctx, param, value):
+    # Project
     from hyperglass import __version__
 
     if not value or ctx.resilient_parsing:
@@ -96,8 +97,9 @@ def build_frontend():
 def start(build, direct, workers):
     """Start web server and optionally build frontend assets."""
     try:
-        from hyperglass.main import start
+        # Project
         from hyperglass.api import start as uvicorn_start
+        from hyperglass.main import start
     except ImportError as e:
         error("Error importing hyperglass: {}", str(e))
 
@@ -139,6 +141,7 @@ def generate_secret(length):
     Arguments:
         length {int} -- Length of secret
     """
+    # Standard Library
     import secrets
 
     gen_secret = secrets.token_urlsafe(length)
@@ -161,13 +164,14 @@ def generate_secret(length):
 )
 def setup(unattended):
     """Define application directory, move example files, generate systemd service."""
+    # Project
     from hyperglass.cli.util import (
         create_dir,
         move_files,
         make_systemd,
         write_to_file,
-        migrate_static_assets,
         install_systemd,
+        migrate_static_assets,
     )
 
     user_path = Path.home() / "hyperglass"
@@ -242,6 +246,7 @@ def setup(unattended):
 )
 def get_system_info():
     """Get CPU, Memory, Disk, Python, & hyperglass version."""
+    # Project
     from hyperglass.cli.util import system_info
 
     system_info()

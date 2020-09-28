@@ -7,7 +7,7 @@ import secrets
 from datetime import datetime
 
 # Third Party
-from pydantic import BaseModel, StrictStr, validator, constr
+from pydantic import BaseModel, StrictStr, constr, validator
 
 # Project
 from hyperglass.exceptions import InputInvalid

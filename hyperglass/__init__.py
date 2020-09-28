@@ -47,6 +47,7 @@ from hyperglass.util import set_app_path
 from hyperglass.constants import METADATA
 
 try:
+    # Third Party
     import stackprinter
 except ImportError:
     pass

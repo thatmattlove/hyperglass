@@ -152,6 +152,7 @@ class BaseExternal:
 
     def _build_request(self, **kwargs):
         """Process requests parameters into structure usable by http library."""
+        # Standard Library
         from operator import itemgetter
 
         supported_methods = ("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH")

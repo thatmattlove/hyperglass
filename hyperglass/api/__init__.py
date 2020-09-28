@@ -262,6 +262,7 @@ app.mount("/", StaticFiles(directory=UI_DIR, html=True), name="ui")
 
 def start(**kwargs):
     """Start the web server with Uvicorn ASGI."""
+    # Third Party
     import uvicorn
 
     try:

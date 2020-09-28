@@ -50,6 +50,7 @@ def _comment_optional_files():
 
 
 def _validate_devices():
+    # Project
     from hyperglass.configuration.models.devices import Devices
 
     with DEVICES.open() as raw:
@@ -62,6 +63,7 @@ def _validate_devices():
 
 
 def _validate_commands():
+    # Project
     from hyperglass.configuration.models.commands import Commands
 
     with COMMANDS.open() as raw:
@@ -74,6 +76,7 @@ def _validate_commands():
 
 
 def _validate_main():
+    # Project
     from hyperglass.configuration.models.params import Params
 
     with MAIN.open() as raw:

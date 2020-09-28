@@ -7,9 +7,9 @@ from datetime import datetime
 
 # Third Party
 from loguru import logger as _loguru_logger
-from rich.logging import RichHandler
-from rich.console import Console
 from rich.theme import Theme
+from rich.console import Console
+from rich.logging import RichHandler
 
 _FMT_FILE = (
     "<lvl><b>[{level}]</b> {time:YYYYMMDD} {time:HH:mm:ss} <lw>|</lw> {name}<lw>:</lw>"
