@@ -32,7 +32,8 @@ from hyperglass.exceptions import (
     UnsupportedDevice,
 )
 from hyperglass.configuration import params
-from hyperglass.execution.drivers.ssh import SSHConnection
+
+from .ssh import SSHConnection
 
 SCRAPLI_DRIVER_MAP = {
     "cisco_ios": AsyncIOSXEDriver,
@@ -90,7 +91,7 @@ class ScrapliConnection(SSHConnection):
             responses = ()
 
             async with driver as connection:
-
+                await connection.get_prompt()
                 for query in self.query:
                     raw = await connection.send_command(query)
                     responses += (raw.result,)

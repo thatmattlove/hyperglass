@@ -8,7 +8,8 @@ from hyperglass.log import log
 from hyperglass.exceptions import ScrapeError
 from hyperglass.configuration import params
 from hyperglass.compat._sshtunnel import BaseSSHTunnelForwarderError, open_tunnel
-from hyperglass.execution.drivers._common import Connection
+
+from ._common import Connection
 
 
 class SSHConnection(Connection):

@@ -12,7 +12,7 @@ from operator import attrgetter
 
 # Project
 from hyperglass.log import log
-from hyperglass.constants import (
+from hyperglass.constants import (  # APPEND_NEWLINE,
     TRANSPORT_REST,
     TARGET_FORMAT_SPACE,
     TARGET_JUNIPER_ASPATH,

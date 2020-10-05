@@ -14,13 +14,10 @@ from typing import Any, Dict, Union, Callable
 from hyperglass.log import log
 from hyperglass.util import validate_nos
 from hyperglass.exceptions import DeviceTimeout, ResponseEmpty
+from hyperglass.models.api import Query
 from hyperglass.configuration import params
-from hyperglass.api.models.query import Query
-from hyperglass.execution.drivers import (
-    AgentConnection,
-    NetmikoConnection,
-    ScrapliConnection,
-)
+
+from .drivers import AgentConnection, NetmikoConnection, ScrapliConnection
 
 DRIVER_MAP = {
     "scrapli": ScrapliConnection,
