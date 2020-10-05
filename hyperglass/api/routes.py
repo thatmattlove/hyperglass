@@ -19,10 +19,9 @@ from hyperglass.external import Webhook, bgptools
 from hyperglass.api.tasks import process_headers, import_public_key
 from hyperglass.constants import __version__
 from hyperglass.exceptions import HyperglassError
+from hyperglass.models.api import Query, EncodedRequest
 from hyperglass.configuration import REDIS_CONFIG, params, devices
 from hyperglass.execution.main import execute
-from hyperglass.api.models.query import Query
-from hyperglass.api.models.cert_import import EncodedRequest
 
 APP_PATH = os.environ["hyperglass_directory"]
 

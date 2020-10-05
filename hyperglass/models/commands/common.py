@@ -3,8 +3,7 @@
 # Third Party
 from pydantic import StrictStr
 
-# Project
-from hyperglass.models import HyperglassModel, HyperglassModelExtra
+from ..main import HyperglassModel, HyperglassModelExtra
 
 
 class CommandSet(HyperglassModel):

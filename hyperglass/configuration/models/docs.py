@@ -3,7 +3,8 @@
 from pydantic import Field, HttpUrl, StrictStr, StrictBool, constr
 
 # Project
-from hyperglass.models import AnyUri, HyperglassModel
+from hyperglass.models import HyperglassModel
+from hyperglass.models.fields import AnyUri
 
 DocsMode = constr(regex=r"(swagger|redoc)")
 

@@ -2,8 +2,8 @@
 
 # Project
 from hyperglass.log import log
-from hyperglass.models import Webhook
 from hyperglass.external._base import BaseExternal
+from hyperglass.models.webhook import Webhook
 
 
 class GenericHook(BaseExternal, name="Generic"):

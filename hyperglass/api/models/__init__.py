@@ -1,1 +1,0 @@
-"""Query & Response Validation Models."""

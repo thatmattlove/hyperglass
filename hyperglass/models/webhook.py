@@ -1,185 +1,19 @@
 """Data models used throughout hyperglass."""
 
 # Standard Library
-import re
-from typing import TypeVar, Optional
+from typing import Optional
 from datetime import datetime
 
 # Third Party
-from pydantic import (
-    HttpUrl,
-    BaseModel,
-    StrictInt,
-    StrictStr,
-    StrictFloat,
-    root_validator,
-)
+from pydantic import StrictStr, root_validator
 
 # Project
 from hyperglass.log import log
 
-IntFloat = TypeVar("IntFloat", StrictInt, StrictFloat)
+from .main import HyperglassModel, HyperglassModelExtra
 
 _WEBHOOK_TITLE = "hyperglass received a valid query with the following data"
 _ICON_URL = "https://res.cloudinary.com/hyperglass/image/upload/v1593192484/icon.png"
-
-
-def clean_name(_name: str) -> str:
-    """Remove unsupported characters from field names.
-
-    Converts any "desirable" seperators to underscore, then removes all
-    characters that are unsupported in Python class variable names.
-    Also removes leading numbers underscores.
-    """
-    _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", _name)
-    _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
-    return _scrubbed.lower()
-
-
-class HyperglassModel(BaseModel):
-    """Base model for all hyperglass configuration models."""
-
-    class Config:
-        """Default Pydantic configuration.
-
-        See https://pydantic-docs.helpmanual.io/usage/model_config
-        """
-
-        validate_all = True
-        extra = "forbid"
-        validate_assignment = True
-        alias_generator = clean_name
-        json_encoders = {HttpUrl: lambda v: str(v)}
-
-    def export_json(self, *args, **kwargs):
-        """Return instance as JSON.
-
-        Returns:
-            {str} -- Stringified JSON.
-        """
-
-        export_kwargs = {
-            "by_alias": True,
-            "exclude_unset": False,
-            **kwargs,
-        }
-
-        return self.json(*args, **export_kwargs)
-
-    def export_dict(self, *args, **kwargs):
-        """Return instance as dictionary.
-
-        Returns:
-            {dict} -- Python dictionary.
-        """
-        export_kwargs = {
-            "by_alias": True,
-            "exclude_unset": False,
-            **kwargs,
-        }
-
-        return self.dict(*args, **export_kwargs)
-
-    def export_yaml(self, *args, **kwargs):
-        """Return instance as YAML.
-
-        Returns:
-            {str} -- Stringified YAML.
-        """
-        # Standard Library
-        import json
-
-        # Third Party
-        import yaml
-
-        export_kwargs = {
-            "by_alias": kwargs.pop("by_alias", True),
-            "exclude_unset": kwargs.pop("by_alias", False),
-        }
-
-        return yaml.safe_dump(
-            json.loads(self.export_json(**export_kwargs)), *args, **kwargs
-        )
-
-
-class HyperglassModelExtra(HyperglassModel):
-    """Model for hyperglass configuration models with dynamic fields."""
-
-    pass
-
-    class Config:
-        """Default pydantic configuration."""
-
-        extra = "allow"
-
-
-class AnyUri(str):
-    """Custom field type for HTTP URI, e.g. /example."""
-
-    @classmethod
-    def __get_validators__(cls):
-        """Pydantic custim field method."""
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, value):
-        """Ensure URI string contains a leading forward-slash."""
-        uri_regex = re.compile(r"^(\/.*)$")
-        if not isinstance(value, str):
-            raise TypeError("AnyUri type must be a string")
-        match = uri_regex.fullmatch(value)
-        if not match:
-            raise ValueError(
-                "Invalid format. A URI must begin with a forward slash, e.g. '/example'"
-            )
-        return cls(match.group())
-
-    def __repr__(self):
-        """Stringify custom field representation."""
-        return f"AnyUri({super().__repr__()})"
-
-
-class StrictBytes(bytes):
-    """Custom data type for a strict byte string.
-
-    Used for validating the encoded JWT request payload.
-    """
-
-    @classmethod
-    def __get_validators__(cls):
-        """Yield Pydantic validator function.
-
-        See: https://pydantic-docs.helpmanual.io/usage/types/#custom-data-types
-
-        Yields:
-            {function} -- Validator
-        """
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, value):
-        """Validate type.
-
-        Arguments:
-            value {Any} -- Pre-validated input
-
-        Raises:
-            TypeError: Raised if value is not bytes
-
-        Returns:
-            {object} -- Instantiated class
-        """
-        if not isinstance(value, bytes):
-            raise TypeError("bytes required")
-        return cls()
-
-    def __repr__(self):
-        """Return representation of object.
-
-        Returns:
-            {str} -- Representation
-        """
-        return f"StrictBytes({super().__repr__()})"
 
 
 class WebhookHeaders(HyperglassModel):

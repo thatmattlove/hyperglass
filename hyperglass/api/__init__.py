@@ -36,7 +36,7 @@ from hyperglass.api.error_handlers import (
     default_handler,
     validation_handler,
 )
-from hyperglass.api.models.response import (
+from hyperglass.models.api.response import (
     QueryError,
     InfoResponse,
     QueryResponse,

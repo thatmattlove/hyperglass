@@ -6,7 +6,7 @@ from typing import Union
 from pydantic import BaseModel, StrictStr
 
 # Project
-from hyperglass.models import StrictBytes
+from hyperglass.models.fields import StrictBytes
 
 
 class EncodedRequest(BaseModel):

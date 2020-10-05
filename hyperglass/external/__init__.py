@@ -1,5 +1,4 @@
 """Functions & handlers for external data."""
 
-# Project
-from hyperglass.external.ripestat import RIPEStat  # noqa: F401
-from hyperglass.external.webhooks import Webhook  # noqa: F401
+from .ripestat import RIPEStat  # noqa: F401
+from .webhooks import Webhook  # noqa: F401

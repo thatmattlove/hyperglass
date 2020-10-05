@@ -7,19 +7,17 @@ exclude=.git, __pycache__, hyperglass/api/examples/*.py, hyperglass/compat/_ssht
 filename=*.py
 per-file-ignores=
     hyperglass/main.py:E402
-    # Disable redefinition warning for exception handlers
-    hyperglass/api.py:F811
     # Disable classmethod warning for validator decorators
-    hyperglass/models.py:N805,E0213,R0903
-    # Disable unused import warning for modules
-    hyperglass/*/__init__.py:F401
-    hyperglass/api/models/*.py:N805,E0213,R0903
-    hyperglass/api/models/response.py:E501,C0301
+    hyperglass/models/*.py:N805,E0213,R0903,E501,C0301
+    hyperglass/models/api/*.py:N805,E0213,R0903,E501,C0301
+    hyperglass/models/commands/*.py:N805,E0213,R0903,E501,C0301
     hyperglass/parsing/models/*.py:N805,E0213,R0903
     hyperglass/configuration/models/*.py:N805,E0213,R0903,E501,C0301
+    # Disable unused import warning for modules
+    hyperglass/*/__init__.py:F401
+    hyperglass/models/*/__init__.py:F401
 ignore=W503,C0330,R504,D202,S403,S301
 select=B, BLK, C, D, E, F, I, II, N, P, PIE, S, R, W
 disable-noqa=False
 hang-closing=False
 max-complexity=10
-# format=${cyan}%(path)s${reset}:${yellow_bold}%(row)d${reset}:${green_bold}%(col)d${reset}: ${red_bold}%(code)s${reset} %(text)s

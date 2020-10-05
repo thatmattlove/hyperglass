@@ -28,6 +28,7 @@ from hyperglass.constants import (
     __version__,
 )
 from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
+from hyperglass.models.commands import Commands
 from hyperglass.configuration.defaults import (
     CREDIT,
     DEFAULT_HELP,
@@ -37,7 +38,6 @@ from hyperglass.configuration.defaults import (
 from hyperglass.configuration.markdown import get_markdown
 from hyperglass.configuration.models.params import Params
 from hyperglass.configuration.models.devices import Devices
-from hyperglass.configuration.models.commands import Commands
 
 set_app_path(required=True)
 

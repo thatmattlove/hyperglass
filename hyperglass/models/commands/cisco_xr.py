@@ -3,8 +3,7 @@
 # Third Party
 from pydantic import StrictStr
 
-# Project
-from hyperglass.configuration.models.commands.common import CommandSet, CommandGroup
+from .common import CommandSet, CommandGroup
 
 
 class _IPv4(CommandSet):

@@ -16,7 +16,8 @@ from pydantic import (
 )
 
 # Project
-from hyperglass.models import IntFloat, HyperglassModel
+from hyperglass.models import HyperglassModel
+from hyperglass.models.fields import IntFloat
 from hyperglass.configuration.models.web import Web
 from hyperglass.configuration.models.docs import Docs
 from hyperglass.configuration.models.cache import Cache

@@ -12,8 +12,9 @@ from pydantic import BaseModel, StrictStr, constr, validator
 # Project
 from hyperglass.exceptions import InputInvalid
 from hyperglass.configuration import params, devices
-from hyperglass.api.models.types import SupportedQuery
-from hyperglass.api.models.validators import (
+
+from .types import SupportedQuery
+from .validators import (
     validate_ip,
     validate_aspath,
     validate_community_input,
