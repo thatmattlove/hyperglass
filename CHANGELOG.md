@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta59 - 2020-10-05
+
+### Added
+- Native Mikrotik support.
+- `hyperglass clear-cache` command for easy manual clearing of the Redis cache.
+
+### Changed
+- Improve output parsing scalability - parsers can now be defined on a per-NOS basis regardless of whether or not structured-data is used.
+- Restructure model locations & importing to remove some complexities.
+
 ## 1.0.0-beta58 - 2020-09-28
 
 ### Changed
