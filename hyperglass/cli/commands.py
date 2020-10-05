@@ -11,10 +11,11 @@ from click import group, option, confirm, help_option
 
 # Project
 from hyperglass.util import cpu_count
-from hyperglass.cli.echo import error, label, cmd_help
-from hyperglass.cli.util import build_ui
-from hyperglass.cli.static import LABEL, CLI_HELP, E
-from hyperglass.cli.formatting import HelpColorsGroup, HelpColorsCommand, random_colors
+
+from .echo import error, label, success, cmd_help
+from .util import build_ui
+from .static import LABEL, CLI_HELP, E
+from .formatting import HelpColorsGroup, HelpColorsCommand, random_colors
 
 # Define working directory
 WORKING_DIR = Path(__file__).parent
@@ -38,7 +39,7 @@ def _print_version(ctx, param, value):
     context_settings={"help_option_names": ["-h", "--help"], "color": supports_color},
     help_headers_color=LABEL,
     help_options_custom_colors=random_colors(
-        "build-ui", "start", "secret", "setup", "system-info"
+        "build-ui", "start", "secret", "setup", "system-info", "clear-cache"
     ),
 )
 @option(
@@ -240,7 +241,7 @@ def setup(unattended):
 @hg.command(
     "system-info",
     help=cmd_help(
-        E.THERMOMETER, "  Get System Information for a Bug report", supports_color
+        E.THERMOMETER, "  Get system information for a bug report", supports_color
     ),
     cls=HelpColorsCommand,
 )
@@ -250,3 +251,20 @@ def get_system_info():
     from hyperglass.cli.util import system_info
 
     system_info()
+
+
+@hg.command(
+    "clear-cache",
+    help=cmd_help(E.SOAP, "Clear the Redis cache", supports_color),
+    cls=HelpColorsCommand,
+)
+def clear_cache():
+    """Clear the Redis Cache."""
+    # Project
+    from hyperglass.util import sync_clear_redis_cache
+
+    try:
+        sync_clear_redis_cache()
+        success("Cleared Redis Cache")
+    except RuntimeError as err:
+        error(str(err))

@@ -219,6 +219,19 @@ async def clear_redis_cache(db: int, config: Dict) -> bool:
     return True
 
 
+def sync_clear_redis_cache() -> None:
+    """Clear the Redis cache."""
+    # Project
+    from hyperglass.cache import SyncCache
+    from hyperglass.configuration import REDIS_CONFIG, params
+
+    try:
+        cache = SyncCache(db=params.cache.database, **REDIS_CONFIG)
+        cache.clear()
+    except BaseException as err:
+        raise RuntimeError from err
+
+
 async def move_files(src, dst, files):  # noqa: C901
     """Move iterable of files from source to destination.
 
@@ -768,6 +781,7 @@ def format_listen_address(listen_address: Union[IPv4Address, IPv6Address, str]) 
     fmt = str(listen_address)
 
     if isinstance(listen_address, str):
+        # Standard Library
         from ipaddress import ip_address
 
         try:
@@ -866,6 +880,7 @@ def get_cache_env():
 
 def make_repr(_class):
     """Create a user-friendly represention of an object."""
+    # Standard Library
     from asyncio import iscoroutine
 
     def _process_attrs(_dir):
@@ -890,8 +905,11 @@ def make_repr(_class):
 
 def validate_nos(nos):
     """Validate device NOS is supported."""
-    from hyperglass.constants import DRIVER_MAP
+    # Third Party
     from netmiko.ssh_dispatcher import CLASS_MAPPER_BASE
+
+    # Project
+    from hyperglass.constants import DRIVER_MAP
 
     result = (False, None)
 
@@ -932,7 +950,8 @@ def validation_error_message(*errors: Dict) -> str:
 
 def resolve_hostname(hostname: str) -> Generator:
     """Resolve a hostname via DNS/hostfile."""
-    from socket import getaddrinfo, gaierror
+    # Standard Library
+    from socket import gaierror, getaddrinfo
 
     log.debug("Ensuring '{}' is resolvable...", hostname)
 

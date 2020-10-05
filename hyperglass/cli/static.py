@@ -46,6 +46,7 @@ class Emoji:
     CLAMP = "\U0001F5DC "
     BOOKS = "\U0001F4DA "
     THERMOMETER = "\U0001F321 "
+    SOAP = "\U0001F9FC "
 
 
 WS = Char(" ")
