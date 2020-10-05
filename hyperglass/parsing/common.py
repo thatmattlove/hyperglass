@@ -1,7 +1,7 @@
 """Command parsers applied to all unstructured output."""
 
 
-async def remove_command(commands, output):
+def remove_command(commands, output):
     """Remove anything before the command if found in output.
 
     Arguments:
