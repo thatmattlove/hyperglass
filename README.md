@@ -45,6 +45,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
     - Juniper JunOS
     - Arista EOS
     - Huawei
+    - Mikrotik
     - VyOS
     - FRRouting
     - BIRD
