@@ -64,7 +64,7 @@ def _validate_devices():
 
 def _validate_commands():
     # Project
-    from hyperglass.configuration.models.commands import Commands
+    from hyperglass.models.commands import Commands
 
     with COMMANDS.open() as raw:
         commands_dict = yaml.safe_load(raw.read()) or {}
