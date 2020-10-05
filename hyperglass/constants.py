@@ -65,6 +65,7 @@ TRANSPORT_REST = ("frr", "bird")
 SCRAPE_HELPERS = {
     "junos": "juniper",
     "ios": "cisco_ios",
+    "mikrotik": "mikrotik_routeros",
 }
 
 DRIVER_MAP = {

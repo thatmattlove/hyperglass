@@ -10,8 +10,6 @@ from typing import Iterable
 # Third Party
 from netmiko import (
     ConnectHandler,
-    NetmikoAuthError,
-    NetmikoTimeoutError,
     NetMikoTimeoutException,
     NetMikoAuthenticationException,
 )
@@ -20,7 +18,22 @@ from netmiko import (
 from hyperglass.log import log
 from hyperglass.exceptions import AuthError, ScrapeError, DeviceTimeout
 from hyperglass.configuration import params
-from hyperglass.execution.drivers.ssh import SSHConnection
+
+from .ssh import SSHConnection
+
+netmiko_nos_globals = {
+    # Netmiko doesn't currently handle Mikrotik echo verification well,
+    # see ktbyers/netmiko#1600
+    "mikrotik_routeros": {"global_cmd_verify": False},
+    "mikrotik_switchos": {"global_cmd_verify": False},
+}
+
+netmiko_nos_send_args = {
+    # Netmiko doesn't currently handle the Mikrotik prompt properly, see
+    # ktbyers/netmiko#1956
+    "mikrotik_routeros": {"expect_string": r"\S+\s\>\s$"},
+    "mikrotik_switchos": {"expect_string": r"\S+\s\>\s$"},
+}
 
 
 class NetmikoConnection(SSHConnection):
@@ -42,6 +55,10 @@ class NetmikoConnection(SSHConnection):
         else:
             log.debug("Connecting directly to {}", self.device.name)
 
+        global_args = netmiko_nos_globals.get(self.device.nos, {})
+
+        send_args = netmiko_nos_send_args.get(self.device.nos, {})
+
         netmiko_args = {
             "host": host or self.device._target,
             "port": port or self.device.port,
@@ -51,6 +68,7 @@ class NetmikoConnection(SSHConnection):
             "global_delay_factor": params.netmiko_delay_factor,
             "timeout": math.floor(params.request_timeout * 1.25),
             "session_timeout": math.ceil(params.request_timeout - 1),
+            **global_args,
         }
 
         try:
@@ -59,13 +77,13 @@ class NetmikoConnection(SSHConnection):
             responses = ()
 
             for query in self.query:
-                raw = nm_connect_direct.send_command(query)
+                raw = nm_connect_direct.send_command(query, **send_args)
                 responses += (raw,)
                 log.debug(f'Raw response for command "{query}":\n{raw}')
 
             nm_connect_direct.disconnect()
 
-        except (NetMikoTimeoutException, NetmikoTimeoutError) as scrape_error:
+        except NetMikoTimeoutException as scrape_error:
             log.error(str(scrape_error))
             raise DeviceTimeout(
                 params.messages.connection_error,
@@ -73,7 +91,7 @@ class NetmikoConnection(SSHConnection):
                 proxy=None,
                 error=params.messages.request_timeout,
             )
-        except (NetMikoAuthenticationException, NetmikoAuthError) as auth_error:
+        except NetMikoAuthenticationException as auth_error:
             log.error(
                 "Error authenticating to device {loc}: {e}",
                 loc=self.device.name,
