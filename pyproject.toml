@@ -1,56 +1,56 @@
 [build-system]
-requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+requires = ["poetry>=0.12"]
 
 [tool.poetry]
-name = "hyperglass"
-version = "1.0.0-beta.58"
-description = "hyperglass is the modern network looking glass that tries to make the internet better."
 authors = ["Matt Love <matt@hyperglass.io>"]
-readme = "README.md"
-homepage = "https://hyperglass.io"
-documentation = "https://hyperglass.io"
-repository = "https://github.com/checktheroads/hyperglass"
-license = "BSD-3-Clause-Clear"
-keywords = ["looking glass", "network automation", "isp", "bgp", "routing"]
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Information Technology",
-    "Operating System :: POSIX :: Linux",
-    "Programming Language :: JavaScript",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Topic :: Internet",
-    "Topic :: System :: Networking",
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Information Technology",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: JavaScript",
+  "Programming Language :: Python :: 3.6",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Topic :: Internet",
+  "Topic :: System :: Networking",
 ]
+description = "hyperglass is the modern network looking glass that tries to make the internet better."
+documentation = "https://hyperglass.io"
+homepage = "https://hyperglass.io"
+keywords = ["looking glass", "network automation", "isp", "bgp", "routing"]
+license = "BSD-3-Clause-Clear"
+name = "hyperglass"
+readme = "README.md"
+repository = "https://github.com/checktheroads/hyperglass"
+version = "1.0.0-beta.59"
 
 [tool.poetry.scripts]
 hyperglass = "hyperglass.console:CLI"
 
 [tool.poetry.dependencies]
+Pillow = "^7.0.0"
+PyJWT = "^1.7.1"
+PyYAML = "^5.3"
 aiofiles = "^0.5.0"
 aredis = "^1.1.7"
 click = "^7.0"
 distro = "^1.5.0"
 fastapi = "^0.59"
-favicons = "^0.0.8"
+favicons = "^0.0.9"
 gunicorn = "^20.0.4"
 httpx = "^0.11"
 inquirer = "^2.6.3"
 loguru = "^0.4.0"
-netmiko = "^2.4.2"
+netmiko = "^3.3.2"
 paramiko = "^2.7.1"
-Pillow = "^7.0.0"
 psutil = "^5.7.2"
 py-cpuinfo = "^7.0.0"
 pydantic = "^1.4"
-PyJWT = "^1.7.1"
 python = ">=3.6.1,<4.0"
-PyYAML = "^5.3"
 redis = "^3.5.3"
-rich = "^7.1"
-scrapli = {extras = ["asyncssh"], version = "^2020.7.12"}
+rich = "^8.0"
+scrapli = {extras = ["asyncssh"], version = "^2020.9.26"}
 uvicorn = "^0.11"
 uvloop = "^0.14.0"
 xmltodict = "^0.12.0"
