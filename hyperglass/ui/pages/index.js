@@ -1,12 +1,12 @@
-import * as React from "react";
-import Head from "next/head";
-import dynamic from "next/dynamic";
-import { Meta, Loading } from "app/components";
+import * as React from 'react';
+import Head from 'next/head';
+import dynamic from 'next/dynamic';
+import { Meta, Loading } from 'app/components';
 const LookingGlass = dynamic(
-  () => import("app/components/LookingGlass").then(i => i.LookingGlass),
+  () => import('app/components/LookingGlass').then(i => i.LookingGlass),
   {
-    loading: Loading
-  }
+    loading: Loading,
+  },
 );
 
 const Index = ({ faviconComponents }) => {
@@ -31,8 +31,8 @@ export async function getStaticProps(context) {
   });
   return {
     props: {
-      faviconComponents: components
-    }
+      faviconComponents: components,
+    },
   };
 }
 

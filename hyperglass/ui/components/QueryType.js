@@ -1,5 +1,5 @@
-import * as React from "react";
-import { ChakraSelect } from "app/components";
+import * as React from 'react';
+import { ChakraSelect } from 'app/components';
 
 export const QueryType = ({ queryTypes, onChange, label }) => {
   const queries = queryTypes
@@ -11,7 +11,7 @@ export const QueryType = ({ queryTypes, onChange, label }) => {
     <ChakraSelect
       size="lg"
       name="query_type"
-      onChange={e => onChange({ field: "query_type", value: e.value })}
+      onChange={e => onChange({ field: 'query_type', value: e.value })}
       options={queries}
       aria-label={label}
     />

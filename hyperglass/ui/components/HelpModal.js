@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   IconButton,
   Modal,
@@ -9,10 +9,10 @@ import {
   ModalCloseButton,
   useDisclosure,
   useColorMode,
-  useTheme
-} from "@chakra-ui/core";
-import { motion, AnimatePresence } from "framer-motion";
-import { Markdown } from "app/components";
+  useTheme,
+} from '@chakra-ui/core';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Markdown } from 'app/components';
 
 const AnimatedIcon = motion.custom(IconButton);
 
@@ -20,11 +20,11 @@ export const HelpModal = ({ item, name }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colors } = useTheme();
   const { colorMode } = useColorMode();
-  const bg = { light: "whiteFaded.50", dark: "blackFaded.800" };
-  const color = { light: "black", dark: "white" };
+  const bg = { light: 'whiteFaded.50', dark: 'blackFaded.800' };
+  const color = { light: 'black', dark: 'white' };
   const iconColor = {
     light: colors.primary[500],
-    dark: colors.primary[300]
+    dark: colors.primary[300],
   };
   return (
     <>
@@ -53,12 +53,7 @@ export const HelpModal = ({ item, name }) => {
       </AnimatePresence>
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
-        <ModalContent
-          bg={bg[colorMode]}
-          color={color[colorMode]}
-          py={4}
-          borderRadius="md"
-        >
+        <ModalContent bg={bg[colorMode]} color={color[colorMode]} py={4} borderRadius="md">
           <ModalHeader>{item.params.title}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>

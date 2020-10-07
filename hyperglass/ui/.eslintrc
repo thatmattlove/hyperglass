@@ -1,0 +1,9 @@
+{
+  "extends": "@upstatement/eslint-config/react",
+  "plugins": ["react-hooks"],
+  "settings": { "import/resolver": { "typescript": {} } },
+  "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": ["warn"]
+  }
+}

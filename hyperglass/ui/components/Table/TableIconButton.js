@@ -1,14 +1,7 @@
-import * as React from "react";
-import { IconButton } from "@chakra-ui/core";
+import * as React from 'react';
+import { IconButton } from '@chakra-ui/core';
 
-export const TableIconButton = ({
-  icon,
-  onClick,
-  isDisabled,
-  color,
-  children,
-  ...props
-}) => (
+export const TableIconButton = ({ icon, onClick, isDisabled, color, children, ...props }) => (
   <IconButton
     size="sm"
     icon={icon}
@@ -17,8 +10,7 @@ export const TableIconButton = ({
     variantColor={color}
     isDisabled={isDisabled}
     aria-label="Table Icon Button"
-    {...props}
-  >
+    {...props}>
     {children}
   </IconButton>
 );

@@ -1,8 +1,8 @@
-import * as React from "react";
-import Countdown, { zeroPad } from "react-countdown";
-import { Text, useColorMode } from "@chakra-ui/core";
+import * as React from 'react';
+import Countdown, { zeroPad } from 'react-countdown';
+import { Text, useColorMode } from '@chakra-ui/core';
 
-const bg = { dark: "white", light: "black" };
+const bg = { dark: 'white', light: 'black' };
 
 const Renderer = ({ hours, minutes, seconds, completed, props }) => {
   if (completed) {
@@ -15,7 +15,7 @@ const Renderer = ({ hours, minutes, seconds, completed, props }) => {
       <Text fontSize="xs" color="gray.500">
         {props.text}
         <Text as="span" fontSize="xs" color={bg[props.colorMode]}>
-          {time.join(":")}
+          {time.join(':')}
         </Text>
       </Text>
     );

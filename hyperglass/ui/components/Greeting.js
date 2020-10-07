@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   Button,
   Modal,
@@ -9,13 +9,13 @@ import {
   ModalBody,
   ModalCloseButton,
   useColorMode,
-  useDisclosure
-} from "@chakra-ui/core";
-import { Markdown } from "app/components";
-import { motion } from "framer-motion";
+  useDisclosure,
+} from '@chakra-ui/core';
+import { Markdown } from 'app/components';
+import { motion } from 'framer-motion';
 
-const bg = { light: "white", dark: "black" };
-const color = { light: "black", dark: "white" };
+const bg = { light: 'white', dark: 'black' };
+const color = { light: 'black', dark: 'white' };
 
 const AnimatedModalContent = motion.custom(ModalContent);
 const AnimatedModalOverlay = motion.custom(ModalOverlay);
@@ -36,8 +36,7 @@ export const Greeting = ({ greetingConfig, content, onClickThrough }) => {
       size="full"
       isCentered
       closeOnOverlayClick={!greetingConfig.required}
-      closeOnEsc={!greetingConfig.required}
-    >
+      closeOnEsc={!greetingConfig.required}>
       <AnimatedModalOverlay
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -51,8 +50,7 @@ export const Greeting = ({ greetingConfig, content, onClickThrough }) => {
         color={color[colorMode]}
         py={4}
         borderRadius="md"
-        maxW={["95%", "75%", "75%", "75%"]}
-      >
+        maxW={['95%', '75%', '75%', '75%']}>
         <ModalHeader>{greetingConfig.title}</ModalHeader>
         {!greetingConfig.required && <ModalCloseButton />}
         <ModalBody>

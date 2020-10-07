@@ -1,11 +1,11 @@
-import * as React from "react";
-import { useRef } from "react";
-import { Flex, useColorMode } from "@chakra-ui/core";
-import { useConfig, useHyperglassState } from "app/context";
-import { Debugger, Greeting, Footer, Header } from "app/components";
+import * as React from 'react';
+import { useRef } from 'react';
+import { Flex, useColorMode } from '@chakra-ui/core';
+import { useConfig, useHyperglassState } from 'app/context';
+import { Debugger, Greeting, Footer, Header } from 'app/components';
 
-const bg = { light: "white", dark: "black" };
-const color = { light: "black", dark: "white" };
+const bg = { light: 'white', dark: 'black' };
+const color = { light: 'black', dark: 'white' };
 
 export const Layout = ({ children }) => {
   const config = useConfig();
@@ -21,8 +21,7 @@ export const Layout = ({ children }) => {
         minHeight="100vh"
         bg={bg[colorMode]}
         flexDirection="column"
-        color={color[colorMode]}
-      >
+        color={color[colorMode]}>
         <Flex px={2} flex="0 1 auto" flexDirection="column">
           <Header layoutRef={containerRef} />
         </Flex>
@@ -35,8 +34,7 @@ export const Layout = ({ children }) => {
           textAlign="center"
           alignItems="center"
           justifyContent="start"
-          flexDirection="column"
-        >
+          flexDirection="column">
           {children}
         </Flex>
         <Footer />

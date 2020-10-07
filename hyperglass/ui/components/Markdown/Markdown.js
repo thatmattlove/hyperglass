@@ -1,6 +1,6 @@
-import * as React from "react";
-import { forwardRef } from "react";
-import ReactMarkdown from "react-markdown";
+import * as React from 'react';
+import { forwardRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import {
   List,
   ListItem,
@@ -11,8 +11,8 @@ import {
   Paragraph,
   InlineCode,
   Divider,
-  Table
-} from "./MDComponents";
+  Table,
+} from './MDComponents';
 
 const mdComponents = {
   paragraph: Paragraph,
@@ -24,7 +24,7 @@ const mdComponents = {
   thematicBreak: Divider,
   code: CodeBlock,
   table: Table,
-  tableCell: TableData
+  tableCell: TableData,
 };
 
 export const Markdown = forwardRef(({ content }, ref) => (

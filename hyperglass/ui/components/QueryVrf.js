@@ -1,5 +1,5 @@
-import * as React from "react";
-import { ChakraSelect } from "app/components";
+import * as React from 'react';
+import { ChakraSelect } from 'app/components';
 
 export const QueryVrf = ({ vrfs, onChange, label }) => (
   <ChakraSelect
@@ -7,6 +7,6 @@ export const QueryVrf = ({ vrfs, onChange, label }) => (
     options={vrfs}
     name="query_vrf"
     aria-label={label}
-    onChange={e => onChange({ field: "query_vrf", value: e.value })}
+    onChange={e => onChange({ field: 'query_vrf', value: e.value })}
   />
 );

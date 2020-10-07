@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   Button,
   Modal,
@@ -11,36 +11,28 @@ import {
   Tag,
   useDisclosure,
   useColorMode,
-  useTheme
-} from "@chakra-ui/core";
-import { useConfig, useMedia } from "app/context";
-import { CodeBlock } from "app/components";
+  useTheme,
+} from '@chakra-ui/core';
+import { useConfig, useMedia } from 'app/context';
+import { CodeBlock } from 'app/components';
 
 const prettyMediaSize = {
-  sm: "SMALL",
-  md: "MEDIUM",
-  lg: "LARGE",
-  xl: "X-LARGE"
+  sm: 'SMALL',
+  md: 'MEDIUM',
+  lg: 'LARGE',
+  xl: 'X-LARGE',
 };
 
 export const Debugger = () => {
-  const {
-    isOpen: configOpen,
-    onOpen: onConfigOpen,
-    onClose: configClose
-  } = useDisclosure();
-  const {
-    isOpen: themeOpen,
-    onOpen: onThemeOpen,
-    onClose: themeClose
-  } = useDisclosure();
+  const { isOpen: configOpen, onOpen: onConfigOpen, onClose: configClose } = useDisclosure();
+  const { isOpen: themeOpen, onOpen: onThemeOpen, onClose: themeClose } = useDisclosure();
   const config = useConfig();
   const theme = useTheme();
-  const bg = { light: "white", dark: "black" };
-  const color = { light: "black", dark: "white" };
+  const bg = { light: 'white', dark: 'black' };
+  const color = { light: 'black', dark: 'white' };
   const { colorMode } = useColorMode();
   const { mediaSize } = useMedia();
-  const borderColor = { light: "gray.100", dark: "gray.600" };
+  const borderColor = { light: 'gray.100', dark: 'gray.600' };
   return (
     <>
       <Stack
@@ -55,8 +47,7 @@ export const Debugger = () => {
         bottom={0}
         justifyContent="center"
         zIndex={1000}
-        maxW="100%"
-      >
+        maxW="100%">
         <Tag variantColor="gray">{colorMode.toUpperCase()}</Tag>
         <Tag variantColor="teal">{prettyMediaSize[mediaSize]}</Tag>
         <Button size="sm" variantColor="cyan" onClick={onConfigOpen}>
@@ -73,8 +64,7 @@ export const Debugger = () => {
           color={color[colorMode]}
           py={4}
           borderRadius="md"
-          maxW="90%"
-        >
+          maxW="90%">
           <ModalHeader>Loaded Configuration</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -89,8 +79,7 @@ export const Debugger = () => {
           color={color[colorMode]}
           py={4}
           borderRadius="md"
-          maxW="90%"
-        >
+          maxW="90%">
           <ModalHeader>Loaded Theme</ModalHeader>
           <ModalCloseButton />
           <ModalBody>

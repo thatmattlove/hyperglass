@@ -1,10 +1,10 @@
-import * as React from "react";
-import { forwardRef } from "react";
-import { Box, Collapse } from "@chakra-ui/core";
-import { Markdown } from "app/components/Markdown";
+import * as React from 'react';
+import { forwardRef } from 'react';
+import { Box, Collapse } from '@chakra-ui/core';
+import { Markdown } from 'app/components/Markdown';
 
 export const FooterContent = forwardRef(
-  ({ isOpen = false, content, side = "left", title, ...props }, ref) => {
+  ({ isOpen = false, content, side = 'left', title, ...props }, ref) => {
     return (
       <Collapse
         px={6}
@@ -16,13 +16,12 @@ export const FooterContent = forwardRef(
         maxWidth="100%"
         isOpen={isOpen}
         flexBasis="auto"
-        justifyContent={side === "left" ? "flex-start" : "flex-end"}
-        {...props}
-      >
+        justifyContent={side === 'left' ? 'flex-start' : 'flex-end'}
+        {...props}>
         <Box textAlign={side}>
           <Markdown content={content} />
         </Box>
       </Collapse>
     );
-  }
+  },
 );

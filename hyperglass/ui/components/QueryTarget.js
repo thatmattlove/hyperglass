@@ -1,13 +1,13 @@
-import * as React from "react";
-import { useEffect } from "react";
-import { Input, useColorMode } from "@chakra-ui/core";
+import * as React from 'react';
+import { useEffect } from 'react';
+import { Input, useColorMode } from '@chakra-ui/core';
 
 const fqdnPattern = /^(?!:\/\/)([a-zA-Z0-9-]+\.)?[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z-]{2,6}?$/gim;
 
-const bg = { dark: "whiteAlpha.100", light: "white" };
-const color = { dark: "whiteAlpha.800", light: "gray.400" };
-const border = { dark: "whiteAlpha.50", light: "gray.100" };
-const placeholderColor = { dark: "whiteAlpha.700", light: "gray.600" };
+const bg = { dark: 'whiteAlpha.100', light: 'white' };
+const color = { dark: 'whiteAlpha.800', light: 'gray.400' };
+const border = { dark: 'whiteAlpha.50', light: 'gray.100' };
+const placeholderColor = { dark: 'whiteAlpha.700', light: 'gray.600' };
 
 export const QueryTarget = ({
   placeholder,
@@ -19,7 +19,7 @@ export const QueryTarget = ({
   setTarget,
   resolveTarget,
   displayValue,
-  setDisplayValue
+  setDisplayValue,
 }) => {
   const { colorMode } = useColorMode();
 
@@ -61,7 +61,7 @@ export const QueryTarget = ({
         placeholder={placeholder}
         borderColor={border[colorMode]}
         _placeholder={{
-          color: placeholderColor[colorMode]
+          color: placeholderColor[colorMode],
         }}
       />
     </>

@@ -1,15 +1,15 @@
-import * as React from "react";
-import { createContext, useContext, useMemo } from "react";
-import dynamic from "next/dynamic";
-import { CSSReset, ThemeProvider } from "@chakra-ui/core";
-import { MediaProvider } from "./MediaProvider";
-import { StateProvider } from "./StateProvider";
-import { makeTheme, defaultTheme } from "app/util";
+import * as React from 'react';
+import { createContext, useContext, useMemo } from 'react';
+import dynamic from 'next/dynamic';
+import { CSSReset, ThemeProvider } from '@chakra-ui/core';
+import { MediaProvider } from './MediaProvider';
+import { StateProvider } from './StateProvider';
+import { makeTheme, defaultTheme } from 'app/util';
 
 // Disable SSR for ColorModeProvider
 const ColorModeProvider = dynamic(
-  () => import("@chakra-ui/core").then(mod => mod.ColorModeProvider),
-  { ssr: false }
+  () => import('@chakra-ui/core').then(mod => mod.ColorModeProvider),
+  { ssr: false },
 );
 
 const HyperglassContext = createContext(null);

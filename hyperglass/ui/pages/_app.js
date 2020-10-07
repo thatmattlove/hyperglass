@@ -1,7 +1,7 @@
-import * as React from "react";
-import Head from "next/head";
+import * as React from 'react';
+import Head from 'next/head';
 // import { useRouter } from "next/router";
-import { HyperglassProvider } from "app/context";
+import { HyperglassProvider } from 'app/context';
 // import Error from "./_error";
 
 const config = process.env._HYPERGLASS_CONFIG_;

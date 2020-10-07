@@ -1,7 +1,7 @@
-import * as React from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Layout, HyperglassForm, Results } from "app/components";
-import { useHyperglassState } from "app/context";
+import * as React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Layout, HyperglassForm, Results } from 'app/components';
+import { useHyperglassState } from 'app/context';
 
 const AnimatedForm = motion.custom(HyperglassForm);
 
@@ -12,7 +12,7 @@ export const LookingGlass = () => {
     formData,
     setFormData,
     greetingAck,
-    setGreetingAck
+    setGreetingAck,
   } = useHyperglassState();
 
   return (

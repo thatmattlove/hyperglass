@@ -1,18 +1,12 @@
-import * as React from "react";
-import { Box, useColorMode } from "@chakra-ui/core";
+import * as React from 'react';
+import { Box, useColorMode } from '@chakra-ui/core';
 
 const cellBorder = {
-  dark: { borderLeft: "1px", borderLeftColor: "whiteAlpha.100" },
-  light: { borderLeft: "1px", borderLeftColor: "blackAlpha.100" }
+  dark: { borderLeft: '1px', borderLeftColor: 'whiteAlpha.100' },
+  light: { borderLeft: '1px', borderLeftColor: 'blackAlpha.100' },
 };
 
-export const TableCell = ({
-  bordersVertical = [false, 0, 0],
-  align,
-  cell,
-  children,
-  ...props
-}) => {
+export const TableCell = ({ bordersVertical = [false, 0, 0], align, cell, children, ...props }) => {
   const { colorMode } = useColorMode();
   const [doVerticalBorders, index] = bordersVertical;
   let borderProps = {};
@@ -28,8 +22,7 @@ export const TableCell = ({
       whiteSpace="nowrap"
       textAlign={align}
       {...borderProps}
-      {...props}
-    >
+      {...props}>
       {children}
     </Box>
   );

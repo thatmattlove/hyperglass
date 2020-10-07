@@ -1,18 +1,15 @@
-import * as React from "react";
-import { createContext, useContext, useMemo, useState } from "react";
-import { useSessionStorage } from "app/hooks";
+import * as React from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
+import { useSessionStorage } from 'app/hooks';
 
 const StateContext = createContext(null);
 
 export const StateProvider = ({ children }) => {
   const [isSubmitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({});
-  const [greetingAck, setGreetingAck] = useSessionStorage(
-    "hyperglass-greeting-ack",
-    false
-  );
+  const [greetingAck, setGreetingAck] = useSessionStorage('hyperglass-greeting-ack', false);
   const resetForm = layoutRef => {
-    layoutRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    layoutRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setSubmitting(false);
     setFormData({});
   };
@@ -23,11 +20,9 @@ export const StateProvider = ({ children }) => {
     setFormData,
     greetingAck,
     setGreetingAck,
-    resetForm
+    resetForm,
   }));
-  return (
-    <StateContext.Provider value={value}>{children}</StateContext.Provider>
-  );
+  return <StateContext.Provider value={value}>{children}</StateContext.Provider>;
 };
 
 export const useHyperglassState = () => useContext(StateContext);

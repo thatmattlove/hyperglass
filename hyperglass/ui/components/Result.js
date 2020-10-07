@@ -1,6 +1,6 @@
 /** @jsx jsx */
-import { jsx } from "@emotion/core";
-import { forwardRef, useEffect, useState } from "react";
+import { jsx } from '@emotion/core';
+import { forwardRef, useEffect, useState } from 'react';
 import {
   AccordionItem,
   AccordionHeader,
@@ -13,30 +13,30 @@ import {
   Tooltip,
   Text,
   useColorMode,
-  useTheme
-} from "@chakra-ui/core";
-import { BsLightningFill } from "@meronex/icons/bs";
-import styled from "@emotion/styled";
-import useAxios from "axios-hooks";
-import strReplace from "react-string-replace";
-import format from "string-format";
-import { startCase } from "lodash";
-import { useConfig, useMedia } from "app/context";
+  useTheme,
+} from '@chakra-ui/core';
+import { BsLightningFill } from '@meronex/icons/bs';
+import styled from '@emotion/styled';
+import useAxios from 'axios-hooks';
+import strReplace from 'react-string-replace';
+import format from 'string-format';
+import { startCase } from 'lodash';
+import { useConfig, useMedia } from 'app/context';
 import {
   BGPTable,
   CacheTimeout,
   CopyButton,
   RequeryButton,
   ResultHeader,
-  TextOutput
-} from "app/components";
-import { tableToString } from "app/util";
+  TextOutput,
+} from 'app/components';
+import { tableToString } from 'app/util';
 
 format.extend(String.prototype, {});
 
 const FormattedError = ({ keywords, message }) => {
-  const patternStr = keywords.map(kw => `(${kw})`).join("|");
-  const pattern = new RegExp(patternStr, "gi");
+  const patternStr = keywords.map(kw => `(${kw})`).join('|');
+  const pattern = new RegExp(patternStr, 'gi');
   let errorFmt;
   try {
     errorFmt = strReplace(message, pattern, match => (
@@ -56,21 +56,21 @@ const AccordionHeaderWrapper = styled(Flex)`
     background-color: ${props => props.hoverBg};
   }
   &:focus {
-    box-shadow: "outline";
+    box-shadow: 'outline';
   }
 `;
 
 const statusMap = {
-  success: "success",
-  warning: "warning",
-  error: "warning",
-  danger: "error"
+  success: 'success',
+  warning: 'warning',
+  error: 'warning',
+  danger: 'error',
 };
 
-const color = { dark: "white", light: "black" };
-const scrollbar = { dark: "whiteAlpha.300", light: "blackAlpha.300" };
-const scrollbarHover = { dark: "whiteAlpha.400", light: "blackAlpha.400" };
-const scrollbarBg = { dark: "whiteAlpha.50", light: "blackAlpha.50" };
+const color = { dark: 'white', light: 'black' };
+const scrollbar = { dark: 'whiteAlpha.300', light: 'blackAlpha.300' };
+const scrollbarHover = { dark: 'whiteAlpha.400', light: 'blackAlpha.400' };
+const scrollbarBg = { dark: 'whiteAlpha.50', light: 'blackAlpha.50' };
 
 export const Result = forwardRef(
   (
@@ -83,25 +83,25 @@ export const Result = forwardRef(
       queryTarget,
       index,
       resultsComplete,
-      setComplete
+      setComplete,
     },
-    ref
+    ref,
   ) => {
     const config = useConfig();
     const theme = useTheme();
     const { isSm } = useMedia();
     const { colorMode } = useColorMode();
     let [{ data, loading, error }, refetch] = useAxios({
-      url: "/api/query/",
-      method: "post",
+      url: '/api/query/',
+      method: 'post',
       data: {
         query_location: queryLocation,
         query_type: queryType,
         query_vrf: queryVrf,
-        query_target: queryTarget
+        query_target: queryTarget,
       },
       timeout: timeout,
-      useCache: false
+      useCache: false,
     });
 
     const [isOpen, setOpen] = useState(false);
@@ -117,7 +117,7 @@ export const Result = forwardRef(
     let errorMsg;
     if (error && error.response?.data?.output) {
       errorMsg = error.response.data.output;
-    } else if (error && error.message.startsWith("timeout")) {
+    } else if (error && error.message.startsWith('timeout')) {
       errorMsg = config.messages.request_timeout;
     } else if (error?.response?.statusText) {
       errorMsg = startCase(error.response.statusText);
@@ -130,22 +130,20 @@ export const Result = forwardRef(
     error && console.error(error);
 
     const errorLevel =
-      (error?.response?.data?.level &&
-        statusMap[error.response?.data?.level]) ??
-      "error";
+      (error?.response?.data?.level && statusMap[error.response?.data?.level]) ?? 'error';
 
     const structuredDataComponent = {
       bgp_route: BGPTable,
       bgp_aspath: BGPTable,
       bgp_community: BGPTable,
       ping: TextOutput,
-      traceroute: TextOutput
+      traceroute: TextOutput,
     };
 
     let Output = TextOutput;
     let copyValue = data?.output;
 
-    if (data?.format === "application/json") {
+    if (data?.format === 'application/json') {
       Output = structuredDataComponent[queryType];
       copyValue = tableToString(queryTarget, data, config);
     }
@@ -168,10 +166,9 @@ export const Result = forwardRef(
         isDisabled={loading}
         ref={ref}
         css={css({
-          "&:last-of-type": { borderBottom: "none" },
-          "&:first-of-type": { borderTop: "none" }
-        })(theme)}
-      >
+          '&:last-of-type': { borderBottom: 'none' },
+          '&:first-of-type': { borderTop: 'none' },
+        })(theme)}>
         <AccordionHeaderWrapper hoverBg="blackAlpha.50">
           <AccordionHeader
             flex="1 0 auto"
@@ -179,8 +176,7 @@ export const Result = forwardRef(
             _hover={{}}
             _focus={{}}
             w="unset"
-            onClick={handleToggle}
-          >
+            onClick={handleToggle}>
             <ResultHeader
               title={device.display_name}
               loading={loading}
@@ -191,43 +187,30 @@ export const Result = forwardRef(
             />
           </AccordionHeader>
           <ButtonGroup px={[1, 1, 3, 3]} py={2}>
-            <CopyButton
-              copyValue={copyValue}
-              variant="ghost"
-              isDisabled={loading}
-            />
-            <RequeryButton
-              requery={refetch}
-              variant="ghost"
-              isDisabled={loading}
-            />
+            <CopyButton copyValue={copyValue} variant="ghost" isDisabled={loading} />
+            <RequeryButton requery={refetch} variant="ghost" isDisabled={loading} />
           </ButtonGroup>
         </AccordionHeaderWrapper>
         <AccordionPanel
           pb={4}
           overflowX="auto"
           css={css({
-            WebkitOverflowScrolling: "touch",
-            "&::-webkit-scrollbar": { height: "5px" },
-            "&::-webkit-scrollbar-track": {
-              backgroundColor: scrollbarBg[colorMode]
+            WebkitOverflowScrolling: 'touch',
+            '&::-webkit-scrollbar': { height: '5px' },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: scrollbarBg[colorMode],
             },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: scrollbar[colorMode]
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: scrollbar[colorMode],
             },
-            "&::-webkit-scrollbar-thumb:hover": {
-              backgroundColor: scrollbarHover[colorMode]
+            '&::-webkit-scrollbar-thumb:hover': {
+              backgroundColor: scrollbarHover[colorMode],
             },
 
-            "-ms-overflow-style": { display: "none" }
-          })(theme)}
-        >
+            '-ms-overflow-style': { display: 'none' },
+          })(theme)}>
           <Flex direction="column" flexWrap="wrap">
-            <Flex
-              direction="column"
-              flex="1 0 auto"
-              maxW={error ? "100%" : null}
-            >
+            <Flex direction="column" flex="1 0 auto" maxW={error ? '100%' : null}>
               {!error && data && <Output>{data?.output}</Output>}
               {error && (
                 <Alert rounded="lg" my={2} py={4} status={errorLevel}>
@@ -241,14 +224,8 @@ export const Result = forwardRef(
             <Flex
               px={3}
               mt={2}
-              justifyContent={[
-                "flex-start",
-                "flex-start",
-                "flex-end",
-                "flex-end"
-              ]}
-              flex="1 0 auto"
-            >
+              justifyContent={['flex-start', 'flex-start', 'flex-end', 'flex-end']}
+              flex="1 0 auto">
               {config.cache.show_text && data && !error && (
                 <>
                   {!isSm && (
@@ -258,14 +235,13 @@ export const Result = forwardRef(
                     />
                   )}
                   <Tooltip
-                    display={data?.cached ? null : "none"}
+                    display={data?.cached ? null : 'none'}
                     hasArrow
                     label={config.web.text.cache_icon.format({
-                      time: data?.timestamp
+                      time: data?.timestamp,
                     })}
-                    placement="top"
-                  >
-                    <Box ml={1} display={data?.cached ? "block" : "none"}>
+                    placement="top">
+                    <Box ml={1} display={data?.cached ? 'block' : 'none'}>
                       <BsLightningFill color={color[colorMode]} />
                     </Box>
                   </Tooltip>
@@ -282,5 +258,5 @@ export const Result = forwardRef(
         </AccordionPanel>
       </AccordionItem>
     );
-  }
+  },
 );

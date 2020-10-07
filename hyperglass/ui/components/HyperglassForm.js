@@ -1,10 +1,10 @@
-import * as React from "react";
-import { forwardRef, useState, useEffect } from "react";
-import { Box, Flex } from "@chakra-ui/core";
-import { useForm } from "react-hook-form";
-import { intersectionWith, isEqual } from "lodash";
-import * as yup from "yup";
-import format from "string-format";
+import * as React from 'react';
+import { forwardRef, useState, useEffect } from 'react';
+import { Box, Flex } from '@chakra-ui/core';
+import { useForm } from 'react-hook-form';
+import { intersectionWith, isEqual } from 'lodash';
+import * as yup from 'yup';
+import format from 'string-format';
 import {
   FormField,
   HelpModal,
@@ -14,9 +14,9 @@ import {
   CommunitySelect,
   QueryVrf,
   ResolvedTarget,
-  SubmitButton
-} from "app/components";
-import { useConfig } from "app/context";
+  SubmitButton,
+} from 'app/components';
+import { useConfig } from 'app/context';
 
 format.extend(String.prototype, {});
 
@@ -27,20 +27,16 @@ const formSchema = config =>
       .of(yup.string())
       .required(
         config.messages.no_input.format({
-          field: config.web.text.query_location
-        })
+          field: config.web.text.query_location,
+        }),
       ),
     query_type: yup
       .string()
-      .required(
-        config.messages.no_input.format({ field: config.web.text.query_type })
-      ),
+      .required(config.messages.no_input.format({ field: config.web.text.query_type })),
     query_vrf: yup.string(),
     query_target: yup
       .string()
-      .required(
-        config.messages.no_input.format({ field: config.web.text.query_target })
-      )
+      .required(config.messages.no_input.format({ field: config.web.text.query_target })),
   });
 
 const FormRow = ({ children, ...props }) => (
@@ -48,38 +44,27 @@ const FormRow = ({ children, ...props }) => (
     flexDirection="row"
     flexWrap="wrap"
     w="100%"
-    justifyContent={["center", "center", "space-between", "space-between"]}
-    {...props}
-  >
+    justifyContent={['center', 'center', 'space-between', 'space-between']}
+    {...props}>
     {children}
   </Flex>
 );
 
 export const HyperglassForm = forwardRef(
-  (
-    {
-      isSubmitting,
-      setSubmitting,
-      setFormData,
-      greetingAck,
-      setGreetingAck,
-      ...props
-    },
-    ref
-  ) => {
+  ({ isSubmitting, setSubmitting, setFormData, greetingAck, setGreetingAck, ...props }, ref) => {
     const config = useConfig();
     const { handleSubmit, register, unregister, setValue, errors } = useForm({
       validationSchema: formSchema(config),
-      defaultValues: { query_vrf: "default", query_target: "" }
+      defaultValues: { query_vrf: 'default', query_target: '' },
     });
 
     const [queryLocation, setQueryLocation] = useState([]);
-    const [queryType, setQueryType] = useState("");
-    const [queryVrf, setQueryVrf] = useState("");
-    const [queryTarget, setQueryTarget] = useState("");
+    const [queryType, setQueryType] = useState('');
+    const [queryVrf, setQueryVrf] = useState('');
+    const [queryTarget, setQueryTarget] = useState('');
     const [availVrfs, setAvailVrfs] = useState([]);
-    const [fqdnTarget, setFqdnTarget] = useState("");
-    const [displayTarget, setDisplayTarget] = useState("");
+    const [fqdnTarget, setFqdnTarget] = useState('');
+    const [displayTarget, setDisplayTarget] = useState('');
     const [families, setFamilies] = useState([]);
     const onSubmit = values => {
       if (!greetingAck && config.web.greeting.required) {
@@ -100,7 +85,7 @@ export const HyperglassForm = forwardRef(
         config.devices[loc].vrfs.map(vrf => {
           locVrfs.push({
             label: vrf.display_name,
-            value: vrf.id
+            value: vrf.id,
           });
           deviceVrfs.push([{ id: vrf.id, ipv4: vrf.ipv4, ipv6: vrf.ipv6 }]);
         });
@@ -109,9 +94,7 @@ export const HyperglassForm = forwardRef(
 
       const intersecting = intersectionWith(...allVrfs, isEqual);
       setAvailVrfs(intersecting);
-      !intersecting.includes(queryVrf) &&
-        queryVrf !== "default" &&
-        setQueryVrf("default");
+      !intersecting.includes(queryVrf) && queryVrf !== 'default' && setQueryVrf('default');
 
       let ipv4 = 0;
       let ipv6 = 0;
@@ -120,7 +103,7 @@ export const HyperglassForm = forwardRef(
         deviceVrfs
           .filter(v => intersecting.every(i => i.id === v.id))
           .reduce((a, b) => a.concat(b))
-          .filter(v => v.id === "default")
+          .filter(v => v.id === 'default')
           .map(v => {
             v.ipv4 === true && ipv4++;
             v.ipv6 === true && ipv6++;
@@ -138,13 +121,13 @@ export const HyperglassForm = forwardRef(
 
     const handleChange = e => {
       setValue(e.field, e.value);
-      e.field === "query_location"
+      e.field === 'query_location'
         ? handleLocChange(e)
-        : e.field === "query_type"
+        : e.field === 'query_type'
         ? setQueryType(e.value)
-        : e.field === "query_vrf"
+        : e.field === 'query_vrf'
         ? setQueryVrf(e.value)
-        : e.field === "query_target"
+        : e.field === 'query_target'
         ? setQueryTarget(e.value)
         : null;
     };
@@ -152,37 +135,35 @@ export const HyperglassForm = forwardRef(
     const vrfContent = config.content.vrf[queryVrf]?.[queryType];
 
     const validFqdnQueryType =
-      ["ping", "traceroute", "bgp_route"].includes(queryType) &&
+      ['ping', 'traceroute', 'bgp_route'].includes(queryType) &&
       fqdnTarget &&
-      queryVrf === "default"
+      queryVrf === 'default'
         ? fqdnTarget
         : null;
 
     useEffect(() => {
-      register({ name: "query_location" });
-      register({ name: "query_type" });
-      register({ name: "query_vrf" });
+      register({ name: 'query_location' });
+      register({ name: 'query_type' });
+      register({ name: 'query_vrf' });
     }, [register]);
     Object.keys(errors).length >= 1 && console.error(errors);
     return (
       <Box
         as="form"
         onSubmit={handleSubmit(onSubmit)}
-        maxW={["100%", "100%", "75%", "75%"]}
+        maxW={['100%', '100%', '75%', '75%']}
         w="100%"
         p={0}
         mx="auto"
         my={4}
         textAlign="left"
         ref={ref}
-        {...props}
-      >
+        {...props}>
         <FormRow>
           <FormField
             label={config.web.text.query_location}
             name="query_location"
-            error={errors.query_location}
-          >
+            error={errors.query_location}>
             <QueryLocation
               onChange={handleChange}
               locations={config.networks}
@@ -193,10 +174,7 @@ export const HyperglassForm = forwardRef(
             label={config.web.text.query_type}
             name="query_type"
             error={errors.query_type}
-            labelAddOn={
-              vrfContent && <HelpModal item={vrfContent} name="query_type" />
-            }
-          >
+            labelAddOn={vrfContent && <HelpModal item={vrfContent} name="query_type" />}>
             <QueryType
               onChange={handleChange}
               queryTypes={config.queries.list}
@@ -206,11 +184,7 @@ export const HyperglassForm = forwardRef(
         </FormRow>
         <FormRow>
           {availVrfs.length > 1 && (
-            <FormField
-              label={config.web.text.query_vrf}
-              name="query_vrf"
-              error={errors.query_vrf}
-            >
+            <FormField label={config.web.text.query_vrf} name="query_vrf" error={errors.query_vrf}>
               <QueryVrf
                 label={config.web.text.query_vrf}
                 vrfs={availVrfs}
@@ -233,10 +207,8 @@ export const HyperglassForm = forwardRef(
                   availVrfs={availVrfs}
                 />
               )
-            }
-          >
-            {queryType === "bgp_community" &&
-            config.queries.bgp_community.mode === "select" ? (
+            }>
+            {queryType === 'bgp_community' && config.queries.bgp_community.mode === 'select' ? (
               <CommunitySelect
                 label={config.queries.bgp_community.display_name}
                 name="query_target"
@@ -251,9 +223,7 @@ export const HyperglassForm = forwardRef(
                 placeholder={config.web.text.query_target}
                 register={register}
                 unregister={unregister}
-                resolveTarget={["ping", "traceroute", "bgp_route"].includes(
-                  queryType
-                )}
+                resolveTarget={['ping', 'traceroute', 'bgp_route'].includes(queryType)}
                 value={queryTarget}
                 setFqdn={setFqdnTarget}
                 setTarget={handleChange}
@@ -271,12 +241,11 @@ export const HyperglassForm = forwardRef(
             my={2}
             mr={[0, 0, 2, 2]}
             flexDirection="column"
-            flex="0 0 0"
-          >
+            flex="0 0 0">
             <SubmitButton isLoading={isSubmitting} />
           </Flex>
         </FormRow>
       </Box>
     );
-  }
+  },
 );

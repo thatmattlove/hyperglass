@@ -1,16 +1,16 @@
-import * as React from "react";
-import { useMemo } from "react";
-import { Flex, Icon, Text } from "@chakra-ui/core";
-import { usePagination, useSortBy, useTable } from "react-table";
-import { useMedia } from "app/context";
-import { CardBody, CardFooter, CardHeader } from "app/components";
-import { TableMain } from "./TableMain";
-import { TableCell } from "./TableCell";
-import { TableHead } from "./TableHead";
-import { TableRow } from "./TableRow";
-import { TableBody } from "./TableBody";
-import { TableIconButton } from "./TableIconButton";
-import { TableSelectShow } from "./TableSelectShow";
+import * as React from 'react';
+import { useMemo } from 'react';
+import { Flex, Icon, Text } from '@chakra-ui/core';
+import { usePagination, useSortBy, useTable } from 'react-table';
+import { useMedia } from 'app/context';
+import { CardBody, CardFooter, CardHeader } from 'app/components';
+import { TableMain } from './TableMain';
+import { TableCell } from './TableCell';
+import { TableHead } from './TableHead';
+import { TableRow } from './TableRow';
+import { TableBody } from './TableBody';
+import { TableIconButton } from './TableIconButton';
+import { TableSelectShow } from './TableSelectShow';
 
 export const Table = ({
   columns,
@@ -24,7 +24,7 @@ export const Table = ({
   cellRender = null,
   rowHighlightProp,
   rowHighlightBg,
-  rowHighlightColor
+  rowHighlightColor,
 }) => {
   const tableColumns = useMemo(() => columns, [columns]);
 
@@ -34,9 +34,9 @@ export const Table = ({
     () => ({
       minWidth: 100,
       width: 150,
-      maxWidth: 300
+      maxWidth: 300,
     }),
-    []
+    [],
   );
 
   let hiddenColumns = [];
@@ -60,7 +60,7 @@ export const Table = ({
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, pageSize }
+    state: { pageIndex, pageSize },
   } = useTable(
     {
       columns: tableColumns,
@@ -69,11 +69,11 @@ export const Table = ({
       initialState: {
         pageIndex: 0,
         pageSize: initialPageSize,
-        hiddenColumns: hiddenColumns
-      }
+        hiddenColumns: hiddenColumns,
+      },
     },
     useSortBy,
-    usePagination
+    usePagination,
   );
 
   return (
@@ -82,20 +82,16 @@ export const Table = ({
       <TableMain {...getTableProps()}>
         <TableHead>
           {headerGroups.map(headerGroup => (
-            <TableRow
-              key={headerGroup.id}
-              {...headerGroup.getHeaderGroupProps()}
-            >
+            <TableRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
                 <TableCell
                   as="th"
                   align={column.align}
                   key={column.id}
                   {...column.getHeaderProps()}
-                  {...column.getSortByToggleProps()}
-                >
+                  {...column.getSortByToggleProps()}>
                   <Text fontSize="sm" fontWeight="bold" display="inline-block">
-                    {column.render("Header")}
+                    {column.render('Header')}
                   </Text>
                   {column.isSorted ? (
                     column.isSortedDesc ? (
@@ -104,7 +100,7 @@ export const Table = ({
                       <Icon name="chevron-up" size={4} ml={1} />
                     )
                   ) : (
-                    ""
+                    ''
                   )}
                 </TableCell>
               ))}
@@ -124,8 +120,7 @@ export const Table = ({
                   highlight={row.values[rowHighlightProp] ?? false}
                   highlightBg={rowHighlightBg}
                   highlightColor={rowHighlightColor}
-                  {...row.getRowProps()}
-                >
+                  {...row.getRowProps()}>
                   {row.cells.map((cell, i) => {
                     return (
                       <TableCell
@@ -133,14 +128,13 @@ export const Table = ({
                         cell={cell}
                         bordersVertical={[bordersVertical, i]}
                         key={cell.row.index}
-                        {...cell.getCellProps()}
-                      >
-                        {cell.render(cellRender ?? "Cell")}
+                        {...cell.getCellProps()}>
+                        {cell.render(cellRender ?? 'Cell')}
                       </TableCell>
                     );
                   })}
                 </TableRow>
-              )
+              ),
           )}
         </TableBody>
       </TableMain>
@@ -161,10 +155,10 @@ export const Table = ({
         </Flex>
         <Flex justifyContent="center" alignItems="center">
           <Text fontSize="sm" mr={4} whiteSpace="nowrap">
-            Page{" "}
+            Page{' '}
             <strong>
               {pageIndex + 1} of {pageOptions.length}
-            </strong>{" "}
+            </strong>{' '}
           </Text>
           {!(isSm || isMd) && (
             <TableSelectShow

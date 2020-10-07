@@ -1,5 +1,5 @@
-import * as React from "react";
-import { Flex } from "@chakra-ui/core";
+import * as React from 'react';
+import { Flex } from '@chakra-ui/core';
 
 export const CardFooter = ({ children, ...props }) => (
   <Flex
@@ -12,8 +12,7 @@ export const CardFooter = ({ children, ...props }) => (
     overflowY="hidden"
     flexDirection="row"
     justifyContent="space-between"
-    {...props}
-  >
+    {...props}>
     {children}
   </Flex>
 );

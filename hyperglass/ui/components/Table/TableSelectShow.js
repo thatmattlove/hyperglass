@@ -1,5 +1,5 @@
-import * as React from "react";
-import { Select } from "@chakra-ui/core";
+import * as React from 'react';
+import { Select } from '@chakra-ui/core';
 
 export const TableSelectShow = ({ value, onChange, children, ...props }) => (
   <Select size="sm" onChange={onChange} {...props}>

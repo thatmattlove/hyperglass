@@ -1,63 +1,57 @@
-import * as React from "react";
-import { forwardRef } from "react";
-import {
-  Box,
-  PseudoBox,
-  Spinner,
-  useColorMode,
-  useTheme
-} from "@chakra-ui/core";
-import { FiSearch } from "@meronex/icons/fi";
-import { opposingColor } from "app/util";
+import * as React from 'react';
+import { forwardRef } from 'react';
+import { Box, PseudoBox, Spinner, useColorMode, useTheme } from '@chakra-ui/core';
+import { FiSearch } from '@meronex/icons/fi';
+import { opposingColor } from 'app/util';
 
 const btnProps = {
-  display: "inline-flex",
-  appearance: "none",
-  alignItems: "center",
-  justifyContent: "center",
-  transition: "all 250ms",
-  userSelect: "none",
-  position: "relative",
-  whiteSpace: "nowrap",
-  verticalAlign: "middle",
-  lineHeight: "1.2",
-  outline: "none",
-  as: "button",
-  type: "submit",
-  borderRadius: "md",
-  fontWeight: "semibold"
+  display: 'inline-flex',
+  appearance: 'none',
+  alignItems: 'center',
+  justifyContent: 'center',
+  transition: 'all 250ms',
+  userSelect: 'none',
+  position: 'relative',
+  whiteSpace: 'nowrap',
+  verticalAlign: 'middle',
+  lineHeight: '1.2',
+  outline: 'none',
+  as: 'button',
+  type: 'submit',
+  borderRadius: 'md',
+  fontWeight: 'semibold',
 };
 
 const btnSizeMap = {
   lg: {
     height: 12,
     minWidth: 12,
-    fontSize: "lg",
-    px: 6
+    fontSize: 'lg',
+    px: 6,
   },
   md: {
     height: 10,
     minWidth: 10,
-    fontSize: "md",
-    px: 4
+    fontSize: 'md',
+    px: 4,
   },
   sm: {
     height: 8,
     minWidth: 8,
-    fontSize: "sm",
-    px: 3
+    fontSize: 'sm',
+    px: 3,
   },
   xs: {
     height: 6,
     minWidth: 6,
-    fontSize: "xs",
-    px: 2
-  }
+    fontSize: 'xs',
+    px: 2,
+  },
 };
 
-const btnBg = { dark: "primary.300", light: "primary.500" };
-const btnBgActive = { dark: "primary.400", light: "primary.600" };
-const btnBgHover = { dark: "primary.200", light: "primary.400" };
+const btnBg = { dark: 'primary.300', light: 'primary.500' };
+const btnBgActive = { dark: 'primary.400', light: 'primary.600' };
+const btnBgHover = { dark: 'primary.200', light: 'primary.400' };
 
 export const SubmitButton = forwardRef(
   (
@@ -66,12 +60,12 @@ export const SubmitButton = forwardRef(
       isDisabled = false,
       isActive = false,
       isFullWidth = false,
-      size = "lg",
+      size = 'lg',
       loadingText,
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const _isDisabled = isDisabled || isLoading;
     const { colorMode } = useColorMode();
@@ -86,8 +80,8 @@ export const SubmitButton = forwardRef(
         disabled={_isDisabled}
         aria-disabled={_isDisabled}
         aria-label="Submit Query"
-        width={isFullWidth ? "full" : undefined}
-        data-active={isActive ? "true" : undefined}
+        width={isFullWidth ? 'full' : undefined}
+        data-active={isActive ? 'true' : undefined}
         bg={btnBg[colorMode]}
         color={btnColor}
         _active={{ bg: btnBgActive[colorMode], color: btnColorActive }}
@@ -95,11 +89,10 @@ export const SubmitButton = forwardRef(
         _focus={{ boxShadow: theme.shadows.outline }}
         {...btnProps}
         {...btnSize}
-        {...props}
-      >
+        {...props}>
         {isLoading ? (
           <Spinner
-            position={loadingText ? "relative" : "absolute"}
+            position={loadingText ? 'relative' : 'absolute'}
             mr={loadingText ? 2 : 0}
             color="currentColor"
             size="1em"
@@ -116,5 +109,5 @@ export const SubmitButton = forwardRef(
           : children}
       </PseudoBox>
     );
-  }
+  },
 );

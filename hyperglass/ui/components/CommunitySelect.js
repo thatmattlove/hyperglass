@@ -1,21 +1,15 @@
-import * as React from "react";
-import { useEffect } from "react";
-import { Text } from "@chakra-ui/core";
-import { components } from "react-select";
-import { ChakraSelect } from "app/components";
+import * as React from 'react';
+import { useEffect } from 'react';
+import { Text } from '@chakra-ui/core';
+import { components } from 'react-select';
+import { ChakraSelect } from 'app/components';
 
-export const CommunitySelect = ({
-  name,
-  communities,
-  onChange,
-  register,
-  unregister
-}) => {
+export const CommunitySelect = ({ name, communities, onChange, register, unregister }) => {
   const communitySelections = communities.map(c => {
     return {
       value: c.community,
       label: c.display_name,
-      description: c.description
+      description: c.description,
     };
   });
   const Option = ({ label, data, ...props }) => {
@@ -38,7 +32,7 @@ export const CommunitySelect = ({
       size="lg"
       name={name}
       onChange={e => {
-        onChange({ field: name, value: e.value || "" });
+        onChange({ field: name, value: e.value || '' });
       }}
       options={communitySelections}
       components={{ Option }}

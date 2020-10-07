@@ -1,10 +1,10 @@
-import * as React from "react";
-import { Box, useColorMode } from "@chakra-ui/core";
+import * as React from 'react';
+import { Box, useColorMode } from '@chakra-ui/core';
 
 export const CodeBlock = ({ children }) => {
   const { colorMode } = useColorMode();
-  const bg = { dark: "gray.800", light: "blackAlpha.100" };
-  const color = { dark: "white", light: "black" };
+  const bg = { dark: 'gray.800', light: 'blackAlpha.100' };
+  const color = { dark: 'white', light: 'black' };
   return (
     <Box
       fontFamily="mono"
@@ -17,8 +17,7 @@ export const CodeBlock = ({ children }) => {
       color={color[colorMode]}
       fontSize="sm"
       whiteSpace="pre-wrap"
-      as="pre"
-    >
+      as="pre">
       {children}
     </Box>
   );

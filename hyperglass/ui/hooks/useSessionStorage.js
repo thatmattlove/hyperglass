@@ -3,10 +3,10 @@ react-use: useSessionStorage
 https://github.com/streamich/react-use/blob/master/src/useSessionStorage.ts
 */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 export const useSessionStorage = (key, initialValue, raw) => {
-  const isClient = typeof window === "object";
+  const isClient = typeof window === 'object';
   if (!isClient) {
     return [initialValue, () => {}];
   }
@@ -14,16 +14,11 @@ export const useSessionStorage = (key, initialValue, raw) => {
   const [state, setState] = useState(() => {
     try {
       const sessionStorageValue = sessionStorage.getItem(key);
-      if (typeof sessionStorageValue !== "string") {
-        sessionStorage.setItem(
-          key,
-          raw ? String(initialValue) : JSON.stringify(initialValue)
-        );
+      if (typeof sessionStorageValue !== 'string') {
+        sessionStorage.setItem(key, raw ? String(initialValue) : JSON.stringify(initialValue));
         return initialValue;
       } else {
-        return raw
-          ? sessionStorageValue
-          : JSON.parse(sessionStorageValue || "null");
+        return raw ? sessionStorageValue : JSON.parse(sessionStorageValue || 'null');
       }
     } catch {
       // If user is in private mode or has storage restriction

@@ -1,8 +1,8 @@
-import * as React from "react";
-import { Flex, useColorMode } from "@chakra-ui/core";
+import * as React from 'react';
+import { Flex, useColorMode } from '@chakra-ui/core';
 
-const bg = { light: "white", dark: "original.dark" };
-const color = { light: "original.dark", dark: "white" };
+const bg = { light: 'white', dark: 'original.dark' };
+const color = { light: 'original.dark', dark: 'white' };
 
 export const CardBody = ({ onClick = () => false, children, ...props }) => {
   const { colorMode } = useColorMode();
@@ -17,8 +17,7 @@ export const CardBody = ({ onClick = () => false, children, ...props }) => {
       bg={bg[colorMode]}
       color={color[colorMode]}
       overflow="hidden"
-      {...props}
-    >
+      {...props}>
       {children}
     </Flex>
   );
