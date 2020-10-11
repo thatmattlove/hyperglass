@@ -912,9 +912,10 @@ def resolve_hostname(hostname: str) -> Generator:
         for sock in res:
             if sock[0].value == 2 and ip4 is None:
                 ip4 = ip_address(sock[4][0])
-            elif sock[0].value == 30 and ip6 is None:
+            elif sock[0].value in (10, 30) and ip6 is None:
                 ip6 = ip_address(sock[4][0])
-    except (gaierror, ValueError, IndexError):
+    except (gaierror, ValueError, IndexError) as err:
+        log.debug(str(err))
         pass
 
     yield ip4
