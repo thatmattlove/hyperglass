@@ -2,12 +2,23 @@
 
 # Standard Library
 import json as _json
-from typing import List
+from typing import Dict, List, Union, Sequence
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import validation_error_message
 from hyperglass.constants import STATUS_CODE_MAP
+
+
+def validation_error_message(*errors: Dict) -> str:
+    """Parse errors return from pydantic.ValidationError.errors()."""
+
+    errs = ("\n",)
+
+    for err in errors:
+        loc = " → ".join(str(loc) for loc in err["loc"])
+        errs += (f'Field: {loc}\n  Error: {err["msg"]}\n',)
+
+    return "\n".join(errs)
 
 
 class HyperglassError(Exception):
@@ -203,4 +214,19 @@ class UnsupportedDevice(_UnformattedHyperglassError):
 class ParsingError(_UnformattedHyperglassError):
     """Raised when there is a problem parsing a structured response."""
 
-    _level = "danger"
+    def __init__(
+        self,
+        unformatted_msg: Union[Sequence[Dict], str],
+        level: str = "danger",
+        **kwargs,
+    ):
+        """Format error message with keyword arguments."""
+        if isinstance(unformatted_msg, Sequence):
+            self._message = validation_error_message(*unformatted_msg)
+        else:
+            self._message = unformatted_msg.format(**kwargs)
+        self._level = level or self._level
+        self._keywords = list(kwargs.values())
+        super().__init__(
+            message=self._message, level=self._level, keywords=self._keywords
+        )

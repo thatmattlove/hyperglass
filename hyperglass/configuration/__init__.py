@@ -502,4 +502,5 @@ REDIS_CONFIG = {
     "host": str(params.cache.host),
     "port": params.cache.port,
     "decode_responses": True,
+    "password": params.cache.password,
 }

@@ -18,6 +18,7 @@ from loguru._logger import Logger as LoguruLogger
 
 # Project
 from hyperglass.log import log
+from hyperglass.cache import AsyncCache
 from hyperglass.models import HyperglassModel
 
 
@@ -147,14 +148,7 @@ async def build_ui(app_path):
 
 
 async def write_env(variables: Dict) -> str:
-    """Write environment variables to temporary JSON file.
-
-    Arguments:
-        variables {dict} -- Environment variables to write.
-
-    Raises:
-        RuntimeError: Raised on any errors.
-    """
+    """Write environment variables to temporary JSON file."""
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
     env_vars = json.dumps(variables)
 
@@ -167,47 +161,8 @@ async def write_env(variables: Dict) -> str:
     return f"Wrote {env_vars} to {str(env_file)}"
 
 
-async def check_redis(db: int, config: Dict) -> bool:
-    """Ensure Redis is running before starting server.
-
-    Arguments:
-        db {int} -- Redis database ID
-        config {dict} -- Redis configuration parameters
-
-    Raises:
-        RuntimeError: Raised if Redis is not running.
-
-    Returns:
-        {bool} -- True if redis is running.
-    """
-    # Third Party
-    import aredis
-
-    redis_instance = aredis.StrictRedis(db=db, **config)
-    redis_host = config["host"]
-    redis_port = config["port"]
-    try:
-        await redis_instance.echo("hyperglass test")
-    except Exception:
-        raise RuntimeError(
-            f"Redis isn't running at: {redis_host}:{redis_port}"
-        ) from None
-    return True
-
-
 async def clear_redis_cache(db: int, config: Dict) -> bool:
-    """Clear the Redis cache.
-
-    Arguments:
-        db {int} -- Redis database ID
-        config {dict} -- Redis configuration parameters
-
-    Raises:
-        RuntimeError: Raised if clearing the cache produces an error.
-
-    Returns:
-        {bool} -- True if cache was cleared.
-    """
+    """Clear the Redis cache."""
     # Third Party
     import aredis
 
@@ -934,18 +889,6 @@ def current_log_level(logger: LoguruLogger) -> str:
         current_level = "info"
 
     return current_level
-
-
-def validation_error_message(*errors: Dict) -> str:
-    """Parse errors return from pydantic.ValidationError.errors()."""
-
-    errs = ("\n",)
-
-    for err in errors:
-        loc = " → ".join(str(loc) for loc in err["loc"])
-        errs += (f'Field: {loc}\n  Error: {err["msg"]}\n',)
-
-    return "\n".join(errs)
 
 
 def resolve_hostname(hostname: str) -> Generator:

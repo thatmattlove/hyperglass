@@ -12,12 +12,14 @@ from gunicorn.app.base import BaseApplication
 
 # Project
 from hyperglass.log import log
-from hyperglass.cache import AsyncCache
 from hyperglass.constants import MIN_PYTHON_VERSION, __version__
 
 pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
 if sys.version_info < MIN_PYTHON_VERSION:
     raise RuntimeError(f"Python {pretty_version}+ is required.")
+
+# Project
+from hyperglass.cache import SyncCache
 
 from hyperglass.configuration import (  # isort:skip
     params,
@@ -29,7 +31,6 @@ from hyperglass.configuration import (  # isort:skip
 )
 from hyperglass.util import (  # isort:skip
     cpu_count,
-    check_redis,
     build_frontend,
     clear_redis_cache,
     format_listen_address,
@@ -44,14 +45,11 @@ else:
     loglevel = "WARNING"
 
 
-async def check_redis_instance():
-    """Ensure Redis is running before starting server.
+def check_redis_instance() -> bool:
+    """Ensure Redis is running before starting server."""
 
-    Returns:
-        {bool} -- True if Redis is running.
-    """
-    await check_redis(db=params.cache.database, config=REDIS_CONFIG)
-
+    cache = SyncCache(db=params.cache.database, **REDIS_CONFIG)
+    cache.test()
     log.debug("Redis is running at: {}:{}", REDIS_CONFIG["host"], REDIS_CONFIG["port"])
     return True
 
@@ -81,15 +79,13 @@ async def clear_cache():
         pass
 
 
-async def cache_config():
+def cache_config():
     """Add configuration to Redis cache as a pickled object."""
     # Standard Library
     import pickle
 
-    cache = AsyncCache(
-        db=params.cache.database, host=params.cache.host, port=params.cache.port
-    )
-    await cache.set("HYPERGLASS_CONFIG", pickle.dumps(params))
+    cache = SyncCache(db=params.cache.database, **REDIS_CONFIG)
+    cache.set("HYPERGLASS_CONFIG", pickle.dumps(params))
 
     return True
 
@@ -107,8 +103,9 @@ def on_starting(server: Arbiter):
 
         await gather(build_ui(), cache_config())
 
-    aiorun(check_redis_instance())
-    aiorun(runner())
+    check_redis_instance()
+    aiorun(build_ui())
+    cache_config()
 
     log.success(
         "Started hyperglass {v} on http://{h}:{p} with {w} workers",

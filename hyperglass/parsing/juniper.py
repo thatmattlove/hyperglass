@@ -9,7 +9,6 @@ from pydantic import ValidationError
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import validation_error_message
 from hyperglass.exceptions import ParsingError, ResponseEmpty
 from hyperglass.configuration import params
 from hyperglass.parsing.models.juniper import JuniperRoute
@@ -58,6 +57,6 @@ def parse_juniper(output: Iterable) -> Dict:  # noqa: C901
 
         except ValidationError as err:
             log.critical(str(err))
-            raise ParsingError(validation_error_message(*err.errors()))
+            raise ParsingError(err.errors())
 
     return data

@@ -123,7 +123,7 @@ def start(build, direct, workers):
         elif not build and direct:
             uvicorn_start(**kwargs)
 
-    except Exception as err:
+    except BaseException as err:
         error(str(err))
 
 

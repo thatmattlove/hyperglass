@@ -3,7 +3,10 @@
 # Standard Library
 import re
 import json
-from typing import Any
+from typing import Any, Optional
+
+# Third Party
+from pydantic import SecretStr
 
 
 class BaseCache:
@@ -14,6 +17,7 @@ class BaseCache:
         db: int,
         host: str = "localhost",
         port: int = 6379,
+        password: Optional[SecretStr] = None,
         decode_responses: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -21,12 +25,15 @@ class BaseCache:
         self.db: int = db
         self.host: str = str(host)
         self.port: int = port
+        self.password: Optional[SecretStr] = password
         self.decode_responses: bool = decode_responses
         self.redis_args: dict = kwargs
 
     def __repr__(self) -> str:
         """Represent class state."""
-        return f"HyperglassCache(db={self.db}, host={self.host}, port={self.port})"
+        return "HyperglassCache(db={}, host={}, port={}, password={})".format(
+            self.db, self.host, self.port, self.password
+        )
 
     def parse_types(self, value: str) -> Any:
         """Parse a string to standard python types."""

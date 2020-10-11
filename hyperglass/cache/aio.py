@@ -23,16 +23,46 @@ class AsyncCache(BaseCache):
     def __init__(self, *args, **kwargs):
         """Initialize Redis connection."""
         super().__init__(*args, **kwargs)
+
+        password = self.password
+        if password is not None:
+            password = password.get_secret_value()
+
+        self.instance: AsyncRedis = AsyncRedis(
+            db=self.db,
+            host=self.host,
+            port=self.port,
+            password=password,
+            decode_responses=self.decode_responses,
+            **self.redis_args,
+        )
+
+    async def test(self):
+        """Send an echo to Redis to ensure it can be reached."""
         try:
-            self.instance: AsyncRedis = AsyncRedis(
-                db=self.db,
-                host=self.host,
-                port=self.port,
-                decode_responses=self.decode_responses,
-                **self.redis_args,
-            )
+            await self.instance.echo("hyperglass test")
         except RedisError as err:
-            raise HyperglassError(str(err), level="danger")
+            err_msg = str(err)
+            if not err_msg and hasattr(err, "__context__"):
+                # Some Redis exceptions are raised without a message
+                # even if they are raised from another exception that
+                # does have a message.
+                err_msg = str(err.__context__)
+
+            if "auth" in err_msg.lower():
+                raise HyperglassError(
+                    "Authentication to Redis server {server} failed.".format(
+                        server=repr(self)
+                    ),
+                    level="danger",
+                ) from None
+            else:
+                raise HyperglassError(
+                    "Unable to connect to Redis server {server}".format(
+                        server=repr(self)
+                    ),
+                    level="danger",
+                ) from None
 
     async def get(self, *args: str) -> Any:
         """Get item(s) from cache."""
