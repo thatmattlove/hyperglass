@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta61 - 2020-10-11
+
+### POTENTIALLY BREAKING CHANGE
+When hyperglass starts up, it will check to see if `~/hyperglass` or `/etc/hyperglass/` exists. Previously, it would silently choose the first one found, even if both exist. Now, if both exist, an exception is raised with instruction to delete one of them. If your system has both directories, hyperglass may not start up normally after you upgrade.
+
+### Fixed
+- Fix a DNS resolution issue which caused Debian systems to be unable to resolve the hostnames of any devices. This was due to differences in how the Python socket module works on Debian vs other distros (even Ubuntu).
+
+### Added
+- [#81](https://github.com/checktheroads/hyperglass/issues/81): Add support for SSH key authentication. See [the docs](https://hyperglass.io/docs/adding-devices#credential) for more details.
+
 ## 1.0.0-beta60 - 2020-10-10
 
 ### Fixed
