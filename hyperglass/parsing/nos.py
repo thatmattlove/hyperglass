@@ -1,5 +1,6 @@
 """Map NOS and Commands to Parsing Functions."""
 
+# Local
 from .juniper import parse_juniper
 from .mikrotik import parse_mikrotik
 

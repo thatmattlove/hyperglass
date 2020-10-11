@@ -10,6 +10,7 @@ from hyperglass.parsing.nos import scrape_parsers, structured_parsers
 from hyperglass.parsing.common import parsers
 from hyperglass.models.config.devices import Device
 
+# Local
 from ._construct import Construct
 
 

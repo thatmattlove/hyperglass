@@ -3,6 +3,7 @@
 # Third Party
 from pydantic import StrictStr
 
+# Local
 from ..main import HyperglassModel, HyperglassModelExtra
 
 

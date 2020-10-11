@@ -19,6 +19,7 @@ from hyperglass.log import log
 from hyperglass.exceptions import AuthError, ScrapeError, DeviceTimeout
 from hyperglass.configuration import params
 
+# Local
 from .ssh import SSHConnection
 
 netmiko_nos_globals = {

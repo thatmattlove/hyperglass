@@ -17,6 +17,7 @@ from hyperglass.exceptions import DeviceTimeout, ResponseEmpty
 from hyperglass.models.api import Query
 from hyperglass.configuration import params
 
+# Local
 from .drivers import AgentConnection, NetmikoConnection, ScrapliConnection
 
 DRIVER_MAP = {

@@ -10,6 +10,7 @@ from pydantic import StrictStr, root_validator
 # Project
 from hyperglass.log import log
 
+# Local
 from .main import HyperglassModel, HyperglassModelExtra
 
 _WEBHOOK_TITLE = "hyperglass received a valid query with the following data"

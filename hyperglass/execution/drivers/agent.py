@@ -20,6 +20,7 @@ from hyperglass.encode import jwt_decode, jwt_encode
 from hyperglass.exceptions import RestError, ResponseEmpty
 from hyperglass.configuration import params
 
+# Local
 from ._common import Connection
 
 

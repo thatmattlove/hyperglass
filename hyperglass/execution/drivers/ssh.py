@@ -9,6 +9,7 @@ from hyperglass.exceptions import ScrapeError
 from hyperglass.configuration import params
 from hyperglass.compat._sshtunnel import BaseSSHTunnelForwarderError, open_tunnel
 
+# Local
 from ._common import Connection
 
 

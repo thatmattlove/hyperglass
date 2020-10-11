@@ -13,6 +13,7 @@ from pydantic import BaseModel, StrictStr, constr, validator
 from hyperglass.exceptions import InputInvalid
 from hyperglass.configuration import params, devices
 
+# Local
 from .types import SupportedQuery
 from .validators import (
     validate_ip,

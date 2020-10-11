@@ -682,7 +682,7 @@ async def build_frontend(  # noqa: C901
     return True
 
 
-def set_app_path(required=False):
+def set_app_path(required: bool = False) -> Path:
     """Find app directory and set value to environment variable."""
 
     # Standard Library
@@ -711,15 +711,15 @@ def set_app_path(required=False):
     No configuration directories were determined to both exist and be readable
     by hyperglass. hyperglass is running as user '{un}' (UID '{uid}'), and tried
     to access the following directories:
-    {dir}""".format(
+{dir}""".format(
                 un=getuser(),
                 uid=os.getuid(),
-                dir="\n".join([" - " + str(p) for p in config_paths]),
+                dir="\n".join(["\t - " + str(p) for p in config_paths]),
             )
         )
 
     os.environ["hyperglass_directory"] = str(matched_path)
-    return True
+    return matched_path
 
 
 def format_listen_address(listen_address: Union[IPv4Address, IPv6Address, str]) -> str:
