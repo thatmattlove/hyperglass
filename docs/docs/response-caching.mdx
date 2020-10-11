@@ -10,13 +10,14 @@ hyperglass uses [Redis](https://redis.io/) for cache storage. Every query is cac
 
 Common Redis parameters are configurable, in case you already have a dedicated Redis server you'd prefer to use, instead of running it on the same server as hyperglass:
 
-| Parameter   |  Type   | Default       | Description                                                   |
-| :---------- | :-----: | :------------ | :------------------------------------------------------------ |
-| `host`      | String  | `'localhost'` | Redis server IP address or hostname.                          |
-| `port`      | Integer | `6379`        | Redis server TCP port.                                        |
-| `database`  | Integer | `1`           | Database ID for hyperglass.                                   |
-| `timeout`   | Integer | `120`         | Time in seconds query output will be kept in the Redis cache. |
-| `show_text` | Boolean | `true`        | Show the [cache message](ui/text) in the hyperglass UI.       |
+| Parameter   |  Type   | Default       | Description                                                                                            |
+| :---------- | :-----: | :------------ | :----------------------------------------------------------------------------------------------------- |
+| `host`      | String  | `'localhost'` | Redis server IP address or hostname.                                                                   |
+| `port`      | Integer | `6379`        | Redis server TCP port.                                                                                 |
+| `database`  | Integer | `1`           | Database ID for hyperglass.                                                                            |
+| `password`  | String  | `None`        | Password for [Redis password authentication](https://redis.io/topics/security#authentication-feature). |
+| `timeout`   | Integer | `120`         | Time in seconds query output will be kept in the Redis cache.                                          |
+| `show_text` | Boolean | `true`        | Show the [cache message](ui/text) in the hyperglass UI.                                                |
 
 :::important Caching
 hyperglass caches every query response to a Redis database, and always responds to a request with the cached value. If hyperglass receives a query for which it has no matching cached entry, the query parameters are used to created a new cache entry, hyperglass executes the request normally, writes the response to the cache, and then returns the response to the end user.
