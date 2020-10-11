@@ -6,8 +6,8 @@ from typing import Union, Optional
 # Third Party
 from pydantic import SecretStr, StrictInt, StrictStr, StrictBool, IPvAnyAddress
 
-# Project
-from hyperglass.models import HyperglassModel
+# Local
+from ..main import HyperglassModel
 
 
 class Cache(HyperglassModel):

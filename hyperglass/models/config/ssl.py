@@ -6,8 +6,8 @@ from typing import Optional
 # Third Party
 from pydantic import Field, FilePath, StrictBool
 
-# Project
-from hyperglass.models import HyperglassModel
+# Local
+from ..main import HyperglassModel
 
 
 class Ssl(HyperglassModel):

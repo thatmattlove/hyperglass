@@ -18,9 +18,11 @@ from pydantic import (
 from pydantic.color import Color
 
 # Project
-from hyperglass.models import HyperglassModel
 from hyperglass.constants import DNS_OVER_HTTPS, FUNC_COLOR_MAP
-from hyperglass.configuration.models.opengraph import OpenGraph
+
+# Local
+from ..main import HyperglassModel
+from .opengraph import OpenGraph
 
 DEFAULT_IMAGES = Path(__file__).parent.parent.parent / "images"
 

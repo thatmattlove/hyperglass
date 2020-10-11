@@ -8,7 +8,7 @@ from hyperglass.log import log
 from hyperglass.models.api import Query
 from hyperglass.parsing.nos import scrape_parsers, structured_parsers
 from hyperglass.parsing.common import parsers
-from hyperglass.configuration.models.devices import Device
+from hyperglass.models.config.devices import Device
 
 from ._construct import Construct
 

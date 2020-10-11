@@ -51,7 +51,7 @@ def _comment_optional_files():
 
 def _validate_devices():
     # Project
-    from hyperglass.configuration.models.devices import Devices
+    from hyperglass.models.config.devices import Devices
 
     with DEVICES.open() as raw:
         devices_dict = yaml.safe_load(raw.read()) or {}
@@ -77,7 +77,7 @@ def _validate_commands():
 
 def _validate_main():
     # Project
-    from hyperglass.configuration.models.params import Params
+    from hyperglass.models.config.params import Params
 
     with MAIN.open() as raw:
         main_dict = yaml.safe_load(raw.read()) or {}

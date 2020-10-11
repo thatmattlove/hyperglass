@@ -16,8 +16,8 @@ from pydantic import (
     root_validator,
 )
 
-# Project
-from hyperglass.models import HyperglassModel, HyperglassModelExtra
+# Local
+from ..main import HyperglassModel, HyperglassModelExtra
 
 ACLAction = constr(regex=r"permit|deny")
 

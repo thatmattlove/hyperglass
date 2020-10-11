@@ -9,9 +9,11 @@ from pydantic import StrictInt, StrictStr, validator
 
 # Project
 from hyperglass.util import resolve_hostname
-from hyperglass.models import HyperglassModel
 from hyperglass.exceptions import ConfigError, UnsupportedDevice
-from hyperglass.configuration.models.credential import Credential
+
+# Local
+from ..main import HyperglassModel
+from .credential import Credential
 
 
 class Proxy(HyperglassModel):

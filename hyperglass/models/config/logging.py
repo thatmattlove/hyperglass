@@ -21,8 +21,10 @@ from pydantic import (
 )
 
 # Project
-from hyperglass.models import HyperglassModel, HyperglassModelExtra
 from hyperglass.constants import __version__
+
+# Local
+from ..main import HyperglassModel, HyperglassModelExtra
 
 HttpAuthMode = constr(regex=r"(basic|api_key)")
 HttpProvider = constr(regex=r"(msteams|slack|generic)")

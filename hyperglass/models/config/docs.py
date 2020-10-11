@@ -2,9 +2,9 @@
 # Third Party
 from pydantic import Field, HttpUrl, StrictStr, StrictBool, constr
 
-# Project
-from hyperglass.models import HyperglassModel
-from hyperglass.models.fields import AnyUri
+# Local
+from ..main import HyperglassModel
+from ..fields import AnyUri
 
 DocsMode = constr(regex=r"(swagger|redoc)")
 

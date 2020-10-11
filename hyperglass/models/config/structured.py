@@ -6,8 +6,8 @@ from typing import List
 # Third Party
 from pydantic import StrictStr, constr
 
-# Project
-from hyperglass.models import HyperglassModel
+# Local
+from ..main import HyperglassModel
 
 StructuredCommunityMode = constr(regex=r"(permit|deny)")
 StructuredRPKIMode = constr(regex=r"(router|external)")

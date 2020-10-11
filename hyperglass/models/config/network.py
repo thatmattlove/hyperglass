@@ -3,8 +3,8 @@
 # Third Party
 from pydantic import Field, StrictStr
 
-# Project
-from hyperglass.models import HyperglassModel
+# Local
+from ..main import HyperglassModel
 
 
 class Network(HyperglassModel):

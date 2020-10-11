@@ -7,8 +7,8 @@ from pathlib import Path
 # Third Party
 from pydantic import FilePath, validator
 
-# Project
-from hyperglass.models import HyperglassModel
+# Local
+from ..main import HyperglassModel
 
 CONFIG_PATH = Path(os.environ["hyperglass_directory"])
 DEFAULT_IMAGES = Path(__file__).parent.parent.parent / "images"

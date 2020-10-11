@@ -7,8 +7,10 @@ from typing import List
 from pydantic import Field, StrictStr, StrictBool, constr
 
 # Project
-from hyperglass.models import HyperglassModel
 from hyperglass.constants import SUPPORTED_QUERY_TYPES
+
+# Local
+from ..main import HyperglassModel
 
 ASPathMode = constr(regex=r"asplain|asdot")
 CommunityInput = constr(regex=r"(input|select)")

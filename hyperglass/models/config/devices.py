@@ -13,14 +13,16 @@ from pydantic import StrictInt, StrictStr, StrictBool, validator
 # Project
 from hyperglass.log import log
 from hyperglass.util import validate_nos, resolve_hostname
-from hyperglass.models import HyperglassModel, HyperglassModelExtra
 from hyperglass.constants import SCRAPE_HELPERS, SUPPORTED_STRUCTURED_OUTPUT
 from hyperglass.exceptions import ConfigError, UnsupportedDevice
-from hyperglass.configuration.models.ssl import Ssl
-from hyperglass.configuration.models.vrf import Vrf, Info
-from hyperglass.configuration.models.proxy import Proxy
-from hyperglass.configuration.models.network import Network
-from hyperglass.configuration.models.credential import Credential
+
+# Local
+from .ssl import Ssl
+from .vrf import Vrf, Info
+from ..main import HyperglassModel, HyperglassModelExtra
+from .proxy import Proxy
+from .network import Network
+from .credential import Credential
 
 _default_vrf = {
     "name": "default",

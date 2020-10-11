@@ -15,16 +15,16 @@ from pydantic import (
     validator,
 )
 
-# Project
-from hyperglass.models import HyperglassModel
-from hyperglass.models.fields import IntFloat
-from hyperglass.configuration.models.web import Web
-from hyperglass.configuration.models.docs import Docs
-from hyperglass.configuration.models.cache import Cache
-from hyperglass.configuration.models.logging import Logging
-from hyperglass.configuration.models.queries import Queries
-from hyperglass.configuration.models.messages import Messages
-from hyperglass.configuration.models.structured import Structured
+# Local
+from .web import Web
+from .docs import Docs
+from ..main import HyperglassModel
+from .cache import Cache
+from ..fields import IntFloat
+from .logging import Logging
+from .queries import Queries
+from .messages import Messages
+from .structured import Structured
 
 Localhost = constr(regex=r"localhost")
 
