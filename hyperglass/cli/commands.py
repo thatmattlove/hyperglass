@@ -123,7 +123,8 @@ def start(build, direct, workers):
             start(**kwargs)
         elif not build and direct:
             uvicorn_start(**kwargs)
-
+    except KeyboardInterrupt:
+        error("Stopping hyperglass due to keyboard interrupt.")
     except BaseException as err:
         error(str(err))
 

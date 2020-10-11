@@ -4,14 +4,16 @@
 import sys
 import math
 import shutil
+import logging
 import platform
 
 # Third Party
 from gunicorn.arbiter import Arbiter
 from gunicorn.app.base import BaseApplication
+from gunicorn.glogging import Logger
 
 # Project
-from hyperglass.log import log
+from hyperglass.log import log, setup_lib_logging
 from hyperglass.constants import MIN_PYTHON_VERSION, __version__
 
 pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
@@ -43,6 +45,23 @@ if params.debug:
 else:
     workers = cpu_count(2)
     loglevel = "WARNING"
+
+
+class StubbedGunicornLogger(Logger):
+    """Custom logging to direct Gunicorn/Uvicorn logs to Loguru/Rich.
+
+    See: https://pawamoy.github.io/posts/unify-logging-for-a-gunicorn-uvicorn-app/
+    """
+
+    def setup(self, cfg):
+        """Override Gunicorn setup."""
+        handler = logging.NullHandler()
+        self.error_logger = logging.getLogger("gunicorn.error")
+        self.error_logger.addHandler(handler)
+        self.access_logger = logging.getLogger("gunicorn.access")
+        self.access_logger.addHandler(handler)
+        self.error_logger.setLevel(loglevel)
+        self.access_logger.setLevel(loglevel)
 
 
 def check_redis_instance() -> bool:
@@ -92,6 +111,8 @@ def cache_config():
 
 def on_starting(server: Arbiter):
     """Gunicorn pre-start tasks."""
+
+    setup_lib_logging(params.debug)
 
     python_version = platform.python_version()
     required = ".".join((str(v) for v in MIN_PYTHON_VERSION))
@@ -173,7 +194,10 @@ def start(**kwargs):
             "timeout": math.ceil(params.request_timeout * 1.25),
             "on_starting": on_starting,
             "on_exit": on_exit,
-            "raw_env": ["testing=test"],
+            "logger_class": StubbedGunicornLogger,
+            "accesslog": "-",
+            "errorlog": "-",
+            "logconfig_dict": {"formatters": {"generic": {"format": "%(message)s"}}},
             **kwargs,
         },
     ).run()

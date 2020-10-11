@@ -37,29 +37,27 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 # Standard Library
-import sys
+import logging
 
 # Third Party
 import uvloop
+import rich.traceback
 
 # Project
+from hyperglass.log import _get_rich
 from hyperglass.util import set_app_path
 from hyperglass.constants import METADATA
 
-try:
-    # Third Party
-    import stackprinter
-except ImportError:
-    pass
-else:
-    if sys.stdout.isatty():
-        _style = "darkbg2"
-    else:
-        _style = "plaintext"
-    stackprinter.set_excepthook(style=_style)
+# Use Rich for traceback formatting.
+rich.traceback.install()
 
+# Set Rich as the default logging handler.
+logging.getLogger().handlers = [_get_rich(True)]
+
+# Find hyperglass application directory.
 set_app_path()
 
+# Use Uvloop for performance.
 uvloop.install()
 
 __name__, __version__, __author__, __copyright__, __license__ = METADATA

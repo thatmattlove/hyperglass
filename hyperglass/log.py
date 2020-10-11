@@ -54,6 +54,23 @@ def _get_rich(debug: bool = False) -> RichHandler:
     return RichHandler(**rich_kwargs)
 
 
+def setup_lib_logging(debug: bool = False) -> None:
+    """Override the logging handlers for dependency libraries."""
+    for name in (
+        "gunicorn",
+        "gunicorn.access",
+        "gunicorn.error",
+        "uvicorn",
+        "uvicorn.access",
+        "uvicorn.error",
+        "uvicorn.asgi",
+        "netmiko",
+        "scrapli",
+        "httpx",
+    ):
+        logging.getLogger(name).handlers = [_get_rich(debug)]
+
+
 def base_logger():
     """Initialize hyperglass logging instance."""
     _loguru_logger.remove()
@@ -74,31 +91,6 @@ def _log_success(self, message, *a, **kw):
 
 
 logging.Logger.success = _log_success
-
-builtin_logging_config = {
-    "version": 1,
-    "formatters": {"basic": {"format": "%(message)s"}},
-    "root": {"level": "INFO", "handlers": ["rich"]},
-    "handlers": {
-        "rich": {
-            "level": "INFO",
-            "formatter": "basic",
-            "class": "rich.logging.RichHandler",
-        },
-        "console": {
-            "level": "INFO",
-            "formatter": "basic",
-            "class": "rich.logging.RichHandler",
-        },
-    },
-    "loggers": {
-        "": {"handlers": ["console"], "level": "INFO", "propagate": True},
-        "uvicorn": {"handlers": ["rich"], "level": "INFO", "propagate": True},
-        "uvicorn.access": {"handlers": ["rich"], "level": "INFO", "propagate": True},
-        "uvicorn.error": {"handlers": ["rich"], "level": "ERROR", "propagate": True},
-        "uvicorn.asgi": {"handlers": ["rich"], "level": "INFO", "propagate": True},
-    },
-}
 
 
 def set_log_level(logger, debug):
