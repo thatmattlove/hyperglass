@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta60 - 2020-10-10
+
+### Fixed
+- [#90](https://github.com/checktheroads/hyperglass/issues/90): Fix a typing error that caused ping & traceroute queries to fail for certain devices.
+
+### Added
+- [#82](https://github.com/checktheroads/hyperglass/issues/82): Add support for Redis password authentication. Authentication can be configured in the following manner:
+
+```yaml
+# hyperglass.yaml
+cache:
+  password: examplepassword
+```
+
+This would correspond with the following stanza in the Redis configuration file:
+
+```
+requirepass examplepassword
+```
+
 ## 1.0.0-beta59 - 2020-10-05
 
 ### Added
