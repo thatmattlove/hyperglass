@@ -1,16 +1,8 @@
 """Command parsers applied to all unstructured output."""
 
 
-def remove_command(commands, output):
-    """Remove anything before the command if found in output.
-
-    Arguments:
-        command {str} -- Command run for query
-        output {str} -- Raw output
-
-    Returns:
-        {str} -- Parsed output
-    """
+def remove_command(commands: str, output: str) -> str:
+    """Remove anything before the command if found in output."""
     _output = output.strip().split("\n")
 
     for command in commands:

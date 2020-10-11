@@ -228,7 +228,7 @@ immutables = ">=0.9"
 
 [[package]]
 name = "cryptography"
-version = "3.1.1"
+version = "3.0"
 description = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
 category = "main"
 optional = false
@@ -241,6 +241,7 @@ six = ">=1.4.1"
 [package.extras]
 docs = ["sphinx (>=1.6.5,<1.8.0 || >1.8.0,<3.1.0 || >3.1.0,<3.1.1 || >3.1.1)", "sphinx-rtd-theme"]
 docstest = ["doc8", "pyenchant (>=1.6.11)", "twine (>=1.12.0)", "sphinxcontrib-spelling (>=4.0.1)"]
+idna = ["idna (>=2.1)"]
 pep8test = ["black", "flake8", "flake8-import-order", "pep8-naming"]
 ssh = ["bcrypt (>=3.1.5)"]
 test = ["pytest (>=3.6.0,<3.9.0 || >3.9.0,<3.9.1 || >3.9.1,<3.9.2 || >3.9.2)", "pretend", "iso8601", "pytz", "hypothesis (>=1.11.4,<3.79.2 || >3.79.2)"]
@@ -1100,35 +1101,36 @@ paramiko = "*"
 
 [[package]]
 name = "scrapli"
-version = "2020.9.26"
-description = "Screen scraping (ssh|telnet) client focused on network devices"
+version = "2020.10.10"
+description = "Fast, flexible, sync/async, Python 3.6+ screen scraping client specifically for network devices"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
-scrapli-asyncssh = {version = ">=2020.07.04", optional = true, markers = "extra == \"asyncssh\""}
+scrapli-asyncssh = {version = ">=2020.10.10", optional = true, markers = "extra == \"asyncssh\""}
 
 [package.extras]
-asyncssh = ["scrapli-asyncssh (>=2020.07.04)"]
-full = ["textfsm (>=1.1.0,<2.0.0)", "ntc-templates (>=1.1.0,<2.0.0)", "genie (>=20.2)", "pyats (>=20.2)", "scrapli-paramiko (>=2020.06.06)", "scrapli-ssh2 (>=2020.06.06)", "scrapli-asyncssh (>=2020.07.04)", "scrapli-netconf (>=2020.07.26)"]
+asyncssh = ["scrapli-asyncssh (>=2020.10.10)"]
+community = ["scrapli-community (>=2020.09.19)"]
+full = ["textfsm (>=1.1.0,<2.0.0)", "ntc-templates (>=1.1.0,<2.0.0)", "ttp (>=0.4.0,<1.0.0)", "scrapli-paramiko (>=2020.10.10)", "scrapli-ssh2 (>=2020.10.10)", "scrapli-asyncssh (>=2020.10.10)", "scrapli-community (>=2020.09.19)", "genie (>=20.2)", "pyats (>=20.2)"]
 genie = ["genie (>=20.2)", "pyats (>=20.2)"]
-netconf = ["scrapli-netconf (>=2020.07.26)"]
-paramiko = ["scrapli-paramiko (>=2020.06.06)"]
-ssh2 = ["scrapli-ssh2 (>=2020.06.06)"]
+paramiko = ["scrapli-paramiko (>=2020.10.10)"]
+ssh2 = ["scrapli-ssh2 (>=2020.10.10)"]
 textfsm = ["textfsm (>=1.1.0,<2.0.0)", "ntc-templates (>=1.1.0,<2.0.0)"]
+ttp = ["ttp (>=0.4.0,<1.0.0)"]
 
 [[package]]
 name = "scrapli-asyncssh"
-version = "2020.7.4"
+version = "2020.10.10"
 description = "asyncssh transport plugin for the scrapli SSH|Telnet screen scraping library"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
-asyncssh = ">=2.2.1"
-scrapli = ">=2020.06.06"
+asyncssh = ">=2.2.1,<3.0.0"
+scrapli = ">=2020.10.10"
 
 [[package]]
 name = "six"
@@ -1422,7 +1424,7 @@ testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2.3)", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.1,<4.0"
-content-hash = "67a20675519d82a10792cfea4c1f23b841b34ff0d7f07e434093b15b17c51755"
+content-hash = "87de34ae3f9c6bf6d10e23e60a251ad2d02b966c30941d01d51fcfe8c5e7a4bf"
 
 [metadata.files]
 aiocontextvars = [
@@ -1543,28 +1545,25 @@ contextvars = [
     {file = "contextvars-2.4.tar.gz", hash = "sha256:f38c908aaa59c14335eeea12abea5f443646216c4e29380d7bf34d2018e2c39e"},
 ]
 cryptography = [
-    {file = "cryptography-3.1.1-cp27-cp27m-macosx_10_10_x86_64.whl", hash = "sha256:65beb15e7f9c16e15934569d29fb4def74ea1469d8781f6b3507ab896d6d8719"},
-    {file = "cryptography-3.1.1-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:983c0c3de4cb9fcba68fd3f45ed846eb86a2a8b8d8bc5bb18364c4d00b3c61fe"},
-    {file = "cryptography-3.1.1-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:e97a3b627e3cb63c415a16245d6cef2139cca18bb1183d1b9375a1c14e83f3b3"},
-    {file = "cryptography-3.1.1-cp27-cp27m-win32.whl", hash = "sha256:cb179acdd4ae1e4a5a160d80b87841b3d0e0be84af46c7bb2cd7ece57a39c4ba"},
-    {file = "cryptography-3.1.1-cp27-cp27m-win_amd64.whl", hash = "sha256:b372026ebf32fe2523159f27d9f0e9f485092e43b00a5adacf732192a70ba118"},
-    {file = "cryptography-3.1.1-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:680da076cad81cdf5ffcac50c477b6790be81768d30f9da9e01960c4b18a66db"},
-    {file = "cryptography-3.1.1-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:5d52c72449bb02dd45a773a203196e6d4fae34e158769c896012401f33064396"},
-    {file = "cryptography-3.1.1-cp35-abi3-macosx_10_10_x86_64.whl", hash = "sha256:f0e099fc4cc697450c3dd4031791559692dd941a95254cb9aeded66a7aa8b9bc"},
-    {file = "cryptography-3.1.1-cp35-abi3-manylinux1_x86_64.whl", hash = "sha256:a7597ffc67987b37b12e09c029bd1dc43965f75d328076ae85721b84046e9ca7"},
-    {file = "cryptography-3.1.1-cp35-abi3-manylinux2010_x86_64.whl", hash = "sha256:4549b137d8cbe3c2eadfa56c0c858b78acbeff956bd461e40000b2164d9167c6"},
-    {file = "cryptography-3.1.1-cp35-abi3-manylinux2014_aarch64.whl", hash = "sha256:89aceb31cd5f9fc2449fe8cf3810797ca52b65f1489002d58fe190bfb265c536"},
-    {file = "cryptography-3.1.1-cp35-cp35m-win32.whl", hash = "sha256:559d622aef2a2dff98a892eef321433ba5bc55b2485220a8ca289c1ecc2bd54f"},
-    {file = "cryptography-3.1.1-cp35-cp35m-win_amd64.whl", hash = "sha256:451cdf60be4dafb6a3b78802006a020e6cd709c22d240f94f7a0696240a17154"},
-    {file = "cryptography-3.1.1-cp36-abi3-win32.whl", hash = "sha256:762bc5a0df03c51ee3f09c621e1cee64e3a079a2b5020de82f1613873d79ee70"},
-    {file = "cryptography-3.1.1-cp36-abi3-win_amd64.whl", hash = "sha256:b12e715c10a13ca1bd27fbceed9adc8c5ff640f8e1f7ea76416352de703523c8"},
-    {file = "cryptography-3.1.1-cp36-cp36m-win32.whl", hash = "sha256:21b47c59fcb1c36f1113f3709d37935368e34815ea1d7073862e92f810dc7499"},
-    {file = "cryptography-3.1.1-cp36-cp36m-win_amd64.whl", hash = "sha256:48ee615a779ffa749d7d50c291761dc921d93d7cf203dca2db663b4f193f0e49"},
-    {file = "cryptography-3.1.1-cp37-cp37m-win32.whl", hash = "sha256:b2bded09c578d19e08bd2c5bb8fed7f103e089752c9cf7ca7ca7de522326e921"},
-    {file = "cryptography-3.1.1-cp37-cp37m-win_amd64.whl", hash = "sha256:f99317a0fa2e49917689b8cf977510addcfaaab769b3f899b9c481bbd76730c2"},
-    {file = "cryptography-3.1.1-cp38-cp38-win32.whl", hash = "sha256:ab010e461bb6b444eaf7f8c813bb716be2d78ab786103f9608ffd37a4bd7d490"},
-    {file = "cryptography-3.1.1-cp38-cp38-win_amd64.whl", hash = "sha256:99d4984aabd4c7182050bca76176ce2dbc9fa9748afe583a7865c12954d714ba"},
-    {file = "cryptography-3.1.1.tar.gz", hash = "sha256:9d9fc6a16357965d282dd4ab6531013935425d0dc4950df2e0cf2a1b1ac1017d"},
+    {file = "cryptography-3.0-cp27-cp27m-macosx_10_10_x86_64.whl", hash = "sha256:ab49edd5bea8d8b39a44b3db618e4783ef84c19c8b47286bf05dfdb3efb01c83"},
+    {file = "cryptography-3.0-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:124af7255ffc8e964d9ff26971b3a6153e1a8a220b9a685dc407976ecb27a06a"},
+    {file = "cryptography-3.0-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:51e40123083d2f946794f9fe4adeeee2922b581fa3602128ce85ff813d85b81f"},
+    {file = "cryptography-3.0-cp27-cp27m-win32.whl", hash = "sha256:dea0ba7fe6f9461d244679efa968d215ea1f989b9c1957d7f10c21e5c7c09ad6"},
+    {file = "cryptography-3.0-cp27-cp27m-win_amd64.whl", hash = "sha256:8ecf9400d0893836ff41b6f977a33972145a855b6efeb605b49ee273c5e6469f"},
+    {file = "cryptography-3.0-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:0c608ff4d4adad9e39b5057de43657515c7da1ccb1807c3a27d4cf31fc923b4b"},
+    {file = "cryptography-3.0-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:bec7568c6970b865f2bcebbe84d547c52bb2abadf74cefce396ba07571109c67"},
+    {file = "cryptography-3.0-cp35-abi3-macosx_10_10_x86_64.whl", hash = "sha256:0cbfed8ea74631fe4de00630f4bb592dad564d57f73150d6f6796a24e76c76cd"},
+    {file = "cryptography-3.0-cp35-abi3-manylinux1_x86_64.whl", hash = "sha256:a09fd9c1cca9a46b6ad4bea0a1f86ab1de3c0c932364dbcf9a6c2a5eeb44fa77"},
+    {file = "cryptography-3.0-cp35-abi3-manylinux2010_x86_64.whl", hash = "sha256:ce82cc06588e5cbc2a7df3c8a9c778f2cb722f56835a23a68b5a7264726bb00c"},
+    {file = "cryptography-3.0-cp35-cp35m-win32.whl", hash = "sha256:9367d00e14dee8d02134c6c9524bb4bd39d4c162456343d07191e2a0b5ec8b3b"},
+    {file = "cryptography-3.0-cp35-cp35m-win_amd64.whl", hash = "sha256:384d7c681b1ab904fff3400a6909261cae1d0939cc483a68bdedab282fb89a07"},
+    {file = "cryptography-3.0-cp36-cp36m-win32.whl", hash = "sha256:4d355f2aee4a29063c10164b032d9fa8a82e2c30768737a2fd56d256146ad559"},
+    {file = "cryptography-3.0-cp36-cp36m-win_amd64.whl", hash = "sha256:45741f5499150593178fc98d2c1a9c6722df88b99c821ad6ae298eff0ba1ae71"},
+    {file = "cryptography-3.0-cp37-cp37m-win32.whl", hash = "sha256:8ecef21ac982aa78309bb6f092d1677812927e8b5ef204a10c326fc29f1367e2"},
+    {file = "cryptography-3.0-cp37-cp37m-win_amd64.whl", hash = "sha256:4b9303507254ccb1181d1803a2080a798910ba89b1a3c9f53639885c90f7a756"},
+    {file = "cryptography-3.0-cp38-cp38-win32.whl", hash = "sha256:8713ddb888119b0d2a1462357d5946b8911be01ddbf31451e1d07eaa5077a261"},
+    {file = "cryptography-3.0-cp38-cp38-win_amd64.whl", hash = "sha256:bea0b0468f89cdea625bb3f692cd7a4222d80a6bdafd6fb923963f2b9da0e15f"},
+    {file = "cryptography-3.0.tar.gz", hash = "sha256:8e924dbc025206e97756e8903039662aa58aa9ba357d8e1d8fc29e3092322053"},
 ]
 cssselect2 = [
     {file = "cssselect2-0.3.0-py3-none-any.whl", hash = "sha256:97d7d4234f846f9996d838964d38e13b45541c18143bc55cf00e4bc1281ace76"},
@@ -2045,12 +2044,12 @@ scp = [
     {file = "scp-0.13.2.tar.gz", hash = "sha256:ef9d6e67c0331485d3db146bf9ee9baff8a48f3eb0e6c08276a8584b13bf34b3"},
 ]
 scrapli = [
-    {file = "scrapli-2020.9.26-py3-none-any.whl", hash = "sha256:e6291621a69f4a9eda6a50a9cdea6ddb99b93da5207fd85684ee18639cad4038"},
-    {file = "scrapli-2020.9.26.tar.gz", hash = "sha256:f1d7fff372fda609c555f05f5c7413d917622de474346f5dfeceae9f0fff5fab"},
+    {file = "scrapli-2020.10.10-py3-none-any.whl", hash = "sha256:852cbc0768f4b7a67b9545e03caa5e0ae58db30506578891eb848ac637f9a7df"},
+    {file = "scrapli-2020.10.10.tar.gz", hash = "sha256:91528b423ffd69714eced6dc966cfa07d922bfaca656d1055d3af94b3fd1f5fe"},
 ]
 scrapli-asyncssh = [
-    {file = "scrapli_asyncssh-2020.7.4-py3-none-any.whl", hash = "sha256:c24ba14ef5cb695e1c510f14968839d75e0f11501fac3dcd4e21f419ade04c43"},
-    {file = "scrapli_asyncssh-2020.7.4.tar.gz", hash = "sha256:d69a1013d692ef13e86f1e630e99ce35432f469eebfc618c80b4801893828c44"},
+    {file = "scrapli_asyncssh-2020.10.10-py3-none-any.whl", hash = "sha256:46713e4d93bf2c784a33c336ae7ddce401969213097f8d03b48e96c1850e4e38"},
+    {file = "scrapli_asyncssh-2020.10.10.tar.gz", hash = "sha256:454fdb177ff8b3c599f69a58cf6046f3f86fd6f54a16bacd8d1024da7f3e6fda"},
 ]
 six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},

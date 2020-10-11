@@ -60,9 +60,9 @@ class Connection:
             and self.device.nos in structured_nos
             and self.query_type not in structured_query_types
         ):
-            for coro in parsers:
+            for func in parsers:
                 for response in output:
-                    _output = await coro(commands=self.query, output=response)
+                    _output = func(commands=self.query, output=response)
                     parsed += (_output,)
             response = "\n\n".join(parsed)
         elif (
