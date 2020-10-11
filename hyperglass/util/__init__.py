@@ -692,6 +692,13 @@ def set_app_path(required: bool = False) -> Path:
 
     config_paths = (Path.home() / "hyperglass", Path("/etc/hyperglass/"))
 
+    # Ensure only one app directory exists to reduce confusion.
+    if all((p.exists() for p in config_paths)):
+        raise RuntimeError(
+            "Both '{}' and '{}' exist. ".format(*(p.as_posix() for p in config_paths))
+            + "Please choose only one configuration directory and delete the other."
+        )
+
     for path in config_paths:
         try:
             if path.exists():
@@ -708,9 +715,9 @@ def set_app_path(required: bool = False) -> Path:
         # Only raise an error if required is True
         raise RuntimeError(
             """
-    No configuration directories were determined to both exist and be readable
-    by hyperglass. hyperglass is running as user '{un}' (UID '{uid}'), and tried
-    to access the following directories:
+No configuration directories were determined to both exist and be readable
+by hyperglass. hyperglass is running as user '{un}' (UID '{uid}'), and tried
+to access the following directories:
 {dir}""".format(
                 un=getuser(),
                 uid=os.getuid(),
