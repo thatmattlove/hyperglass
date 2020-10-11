@@ -79,7 +79,10 @@ For HTTP devices (i.e. devices using [hyperglass-agent](https://github.com/check
 | Parameter       | Type   | Description                                                  |
 | :-------------- | :----- | :----------------------------------------------------------- |
 | <R/> `username` | String | Username                                                     |
-| <R/> `password` | String | Password <MiniNote>Passwords will never be logged</MiniNote> |
+| `password`      | String | Password <MiniNote>Passwords will never be logged</MiniNote> |
+| `key`           | Path   | Path to SSH Private Key                                      |
+
+To use SSH key authentication, simply specify the path to the SSH private key with `key:`. If the key is encrypted, set the private key's password to the with the `password:` field, and hyperglass will use it to decrypt the SSH key.
 
 ### `ssl`
 

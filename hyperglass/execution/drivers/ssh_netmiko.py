@@ -60,20 +60,35 @@ class NetmikoConnection(SSHConnection):
 
         send_args = netmiko_nos_send_args.get(self.device.nos, {})
 
-        netmiko_args = {
+        driver_kwargs = {
             "host": host or self.device._target,
             "port": port or self.device.port,
             "device_type": self.device.nos,
             "username": self.device.credential.username,
-            "password": self.device.credential.password.get_secret_value(),
             "global_delay_factor": params.netmiko_delay_factor,
             "timeout": math.floor(params.request_timeout * 1.25),
             "session_timeout": math.ceil(params.request_timeout - 1),
             **global_args,
         }
 
+        if self.device.credential._method == "password":
+            # Use password auth if no key is defined.
+            driver_kwargs[
+                "password"
+            ] = self.device.credential.password.get_secret_value()
+        else:
+            # Otherwise, use key auth.
+            driver_kwargs["use_keys"] = True
+            driver_kwargs["key_file"] = self.device.credential.key
+            if self.device.credential._method == "encrypted_key":
+                # If the key is encrypted, use the password field as the
+                # private key password.
+                driver_kwargs[
+                    "passphrase"
+                ] = self.device.credential.password.get_secret_value()
+
         try:
-            nm_connect_direct = ConnectHandler(**netmiko_args)
+            nm_connect_direct = ConnectHandler(**driver_kwargs)
 
             responses = ()
 

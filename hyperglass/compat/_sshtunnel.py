@@ -53,6 +53,8 @@ from hyperglass.configuration import params
 if params.debug:
     logging.getLogger("paramiko").setLevel(logging.DEBUG)
 
+log.bind(logger_name="paramiko")
+
 TUNNEL_TIMEOUT = 1.0  #: Timeout (seconds) for tunnel connection
 _DAEMON = False  #: Use daemon threads in connections
 _CONNECTION_COUNTER = 1
@@ -759,7 +761,7 @@ class SSHTunnelForwarder:
         host_pkey_directories=None,  # look for keys in ~/.ssh
         gateway_timeout=None,
         *args,
-        **kwargs  # for backwards compatibility
+        **kwargs,  # for backwards compatibility
     ):
         self.logger = logger or log
         self.ssh_host_key = ssh_host_key

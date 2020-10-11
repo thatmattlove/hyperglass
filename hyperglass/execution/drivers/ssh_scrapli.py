@@ -77,13 +77,27 @@ class ScrapliConnection(SSHConnection):
             "host": host or self.device._target,
             "port": port or self.device.port,
             "auth_username": self.device.credential.username,
-            "auth_password": self.device.credential.password.get_secret_value(),
             "timeout_transport": math.floor(params.request_timeout * 1.25),
             "transport": "asyncssh",
             "auth_strict_key": False,
             "ssh_known_hosts_file": False,
             "ssh_config_file": False,
         }
+
+        if self.device.credential._method == "password":
+            # Use password auth if no key is defined.
+            driver_kwargs[
+                "auth_password"
+            ] = self.device.credential.password.get_secret_value()
+        else:
+            # Otherwise, use key auth.
+            driver_kwargs["auth_private_key"] = self.device.credential.key.as_posix()
+            if self.device.credential._method == "encrypted_key":
+                # If the key is encrypted, use the password field as the
+                # private key password.
+                driver_kwargs[
+                    "auth_private_key_passphrase"
+                ] = self.device.credential.password.get_secret_value()
 
         driver = driver(**driver_kwargs)
         driver.logger = log.bind(logger_name=f"scrapli.driver-{driver._host}")
