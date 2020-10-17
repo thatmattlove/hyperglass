@@ -41,15 +41,11 @@ import logging
 
 # Third Party
 import uvloop
-import rich.traceback
 
 # Project
 from hyperglass.log import _get_rich
 from hyperglass.util import set_app_path
 from hyperglass.constants import METADATA
-
-# Use Rich for traceback formatting.
-rich.traceback.install()
 
 # Set Rich as the default logging handler.
 logging.getLogger().handlers = [_get_rich(True)]

@@ -2,11 +2,16 @@
 
 # Standard Library
 import json as _json
-from typing import Dict, List, Union, Sequence
+from typing import Dict, List, Union, Optional, Sequence
+
+# Third Party
+from rich.console import Console
 
 # Project
 from hyperglass.log import log
 from hyperglass.constants import STATUS_CODE_MAP
+
+console = Console()
 
 
 def validation_error_message(*errors: Dict) -> str:
@@ -24,14 +29,13 @@ def validation_error_message(*errors: Dict) -> str:
 class HyperglassError(Exception):
     """hyperglass base exception."""
 
-    def __init__(self, message="", level="warning", keywords=None):
-        """Initialize the hyperglass base exception class.
-
-        Keyword Arguments:
-            message {str} -- Error message (default: {""})
-            level {str} -- Error severity (default: {"warning"})
-            keywords {list} -- 'Important' keywords (default: {None})
-        """
+    def __init__(
+        self,
+        message: str = "",
+        level: str = "warning",
+        keywords: Optional[List[str]] = None,
+    ) -> None:
+        """Initialize the hyperglass base exception class."""
         self._message = message
         self._level = level
         self._keywords = keywords or []
@@ -42,76 +46,46 @@ class HyperglassError(Exception):
         else:
             log.info(repr(self))
 
-    def __str__(self):
-        """Return the instance's error message.
+        console.print_exception(extra_lines=6)
 
-        Returns:
-            {str} -- Error Message
-        """
+    def __str__(self) -> str:
+        """Return the instance's error message."""
         return self._message
 
-    def __repr__(self):
-        """Return the instance's severity & error message in a string.
-
-        Returns:
-            {str} -- Error message with code
-        """
+    def __repr__(self) -> str:
+        """Return the instance's severity & error message in a string."""
         return f"[{self.level.upper()}] {self._message}"
 
-    def dict(self):
-        """Return the instance's attributes as a dictionary.
-
-        Returns:
-            {dict} -- Exception attributes in dict
-        """
+    def dict(self) -> Dict:
+        """Return the instance's attributes as a dictionary."""
         return {
             "message": self._message,
             "level": self._level,
             "keywords": self._keywords,
         }
 
-    def json(self):
-        """Return the instance's attributes as a JSON object.
-
-        Returns:
-            {str} -- Exception attributes as JSON
-        """
+    def json(self) -> str:
+        """Return the instance's attributes as a JSON object."""
         return _json.dumps(self.__dict__())
 
     @property
-    def message(self):
-        """Return the instance's `message` attribute.
-
-        Returns:
-            {str} -- Error Message
-        """
+    def message(self) -> str:
+        """Return the instance's `message` attribute."""
         return self._message
 
     @property
-    def level(self):
-        """Return the instance's `level` attribute.
-
-        Returns:
-            {str} -- Alert name
-        """
+    def level(self) -> str:
+        """Return the instance's `level` attribute."""
         return self._level
 
     @property
-    def keywords(self):
-        """Return the instance's `keywords` attribute.
-
-        Returns:
-            {list} -- Keywords List
-        """
+    def keywords(self) -> List[str]:
+        """Return the instance's `keywords` attribute."""
         return self._keywords
 
     @property
-    def status_code(self):
-        """Return HTTP status code based on level level.
-
-        Returns:
-            {int} -- HTTP Status Code
-        """
+    def status_code(self) -> int:
+        """Return HTTP status code based on level level."""
         return STATUS_CODE_MAP.get(self._level, 500)
 
 
@@ -120,14 +94,10 @@ class _UnformattedHyperglassError(HyperglassError):
 
     _level = "warning"
 
-    def __init__(self, unformatted_msg="", level=None, **kwargs):
-        """Format error message with keyword arguments.
-
-        Keyword Arguments:
-            message {str} -- Error message (default: {""})
-            level {str} -- Error severity (default: {"warning"})
-            keywords {list} -- 'Important' keywords (default: {None})
-        """
+    def __init__(
+        self, unformatted_msg: str = "", level: Optional[str] = None, **kwargs
+    ) -> None:
+        """Format error message with keyword arguments."""
         self._message = unformatted_msg.format(**kwargs)
         self._level = level or self._level
         self._keywords = list(kwargs.values())
@@ -140,7 +110,7 @@ class _PredefinedHyperglassError(HyperglassError):
     _message = "undefined"
     _level = "warning"
 
-    def __init__(self, level=None, **kwargs):
+    def __init__(self, level: Optional[str] = None, **kwargs) -> None:
         self._fmt_msg = self._message.format(**kwargs)
         self._level = level or self._level
         self._keywords = list(kwargs.values())
@@ -152,7 +122,7 @@ class _PredefinedHyperglassError(HyperglassError):
 class ConfigInvalid(HyperglassError):
     """Raised when a config item fails type or option validation."""
 
-    def __init__(self, errors: List) -> None:
+    def __init__(self, errors: List[str]) -> None:
         """Parse Pydantic ValidationError."""
 
         super().__init__(message=validation_error_message(*errors))
@@ -219,7 +189,7 @@ class ParsingError(_UnformattedHyperglassError):
         unformatted_msg: Union[Sequence[Dict], str],
         level: str = "danger",
         **kwargs,
-    ):
+    ) -> None:
         """Format error message with keyword arguments."""
         if isinstance(unformatted_msg, Sequence):
             self._message = validation_error_message(*unformatted_msg)
