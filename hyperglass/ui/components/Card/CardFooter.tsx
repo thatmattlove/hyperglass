@@ -1,18 +1,19 @@
 import * as React from 'react';
 import { Flex } from '@chakra-ui/core';
 
-export const CardFooter = ({ children, ...props }) => (
+import type { FlexProps } from '@chakra-ui/core';
+
+export const CardFooter = (props: FlexProps) => (
   <Flex
     p={4}
-    roundedBottomLeft={4}
-    roundedBottomRight={4}
     direction="column"
-    borderTopWidth="1px"
     overflowX="hidden"
     overflowY="hidden"
     flexDirection="row"
+    borderTopWidth="1px"
+    roundedBottomLeft={4}
+    roundedBottomRight={4}
     justifyContent="space-between"
-    {...props}>
-    {children}
-  </Flex>
+    {...props}
+  />
 );
