@@ -5,7 +5,7 @@ https://github.com/carlmontanari/scrapli
 
 # Standard Library
 import math
-from typing import Iterable
+from typing import Sequence
 
 # Third Party
 from scrapli.driver import AsyncGenericDriver
@@ -37,11 +37,17 @@ from hyperglass.configuration import params
 from .ssh import SSHConnection
 
 SCRAPLI_DRIVER_MAP = {
+    "arista_eos": AsyncEOSDriver,
     "cisco_ios": AsyncIOSXEDriver,
     "cisco_nxos": AsyncNXOSDriver,
     "cisco_xr": AsyncIOSXRDriver,
     "juniper": AsyncJunosDriver,
-    "arista_eos": AsyncEOSDriver,
+    "tnsr": AsyncGenericDriver,
+}
+
+driver_global_args = {
+    # Per-NOS driver keyword arguments
+    "tnsr": {"comms_prompt_pattern": r"\S+\s\S+[\#\>]"},
 }
 
 
@@ -55,7 +61,7 @@ def _map_driver(nos: str) -> AsyncGenericDriver:
 class ScrapliConnection(SSHConnection):
     """Handle a device connection via Scrapli."""
 
-    async def collect(self, host: str = None, port: int = None) -> Iterable:
+    async def collect(self, host: str = None, port: int = None) -> Sequence:
         """Connect directly to a device.
 
         Directly connects to the router via Netmiko library, returns the
@@ -73,6 +79,8 @@ class ScrapliConnection(SSHConnection):
         else:
             log.debug("Connecting directly to {}", self.device.name)
 
+        global_args = driver_global_args.get(self.device.nos, {})
+
         driver_kwargs = {
             "host": host or self.device._target,
             "port": port or self.device.port,
@@ -82,6 +90,7 @@ class ScrapliConnection(SSHConnection):
             "auth_strict_key": False,
             "ssh_known_hosts_file": False,
             "ssh_config_file": False,
+            **global_args,
         }
 
         if self.device.credential._method == "password":

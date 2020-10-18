@@ -66,6 +66,7 @@ SCRAPE_HELPERS = {
     "junos": "juniper",
     "ios": "cisco_ios",
     "mikrotik": "mikrotik_routeros",
+    "tsnr": "tnsr",
 }
 
 DRIVER_MAP = {
@@ -75,6 +76,7 @@ DRIVER_MAP = {
     "cisco_xr": "scrapli",
     "cisco_nxos": "scrapli",
     "juniper": "scrapli",
+    "tnsr": "scrapli",
     "frr": "hyperglass_agent",
     "bird": "hyperglass_agent",
 }

@@ -39,16 +39,17 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 - Full IPv6 support
 - Customizable everything: features, theme, UI/API text, error messages, commands
 - Built in support for:
+    - Arista EOS
+    - BIRD
+    - Cisco IOS-XR
     - Cisco IOS/IOS-XE
     - Cisco NX-OS
-    - Cisco IOS-XR
-    - Juniper JunOS
-    - Arista EOS
-    - Huawei
-    - Mikrotik
-    - VyOS
     - FRRouting
-    - BIRD
+    - Huawei
+    - Juniper JunOS
+    - Mikrotik
+    - TNSR
+    - VyOS
 - Configurable support for any other [supported platform](https://hyperglass.io/docs/platforms)
 - Optionally access devices via an SSH proxy/jump server
 - VRF support

@@ -1,6 +1,7 @@
 """Validate command configuration variables."""
 
 # Local
+from .tnsr import TNSRCommands
 from .vyos import VyosCommands
 from ..main import HyperglassModelExtra
 from .arista import AristaCommands
@@ -14,14 +15,15 @@ from .mikrotik_routeros import MikrotikRouterOS
 from .mikrotik_switchos import MikrotikSwitchOS
 
 _NOS_MAP = {
-    "juniper": JuniperCommands,
-    "cisco_ios": CiscoIOSCommands,
-    "cisco_xr": CiscoXRCommands,
-    "cisco_nxos": CiscoNXOSCommands,
     "arista": AristaCommands,
+    "cisco_ios": CiscoIOSCommands,
+    "cisco_nxos": CiscoNXOSCommands,
+    "cisco_xr": CiscoXRCommands,
     "huawei": HuaweiCommands,
+    "juniper": JuniperCommands,
     "mikrotik_routeros": MikrotikRouterOS,
     "mikrotik_switchos": MikrotikSwitchOS,
+    "tnsr": TNSRCommands,
     "vyos": VyosCommands,
 }
 
@@ -36,7 +38,8 @@ class Commands(HyperglassModelExtra):
     cisco_nxos: CommandGroup = CiscoNXOSCommands()
     huawei: CommandGroup = HuaweiCommands()
     mikrotik_routeros: CommandGroup = MikrotikRouterOS()
-    mikortik_switchos: CommandGroup = MikrotikSwitchOS()
+    mikrotik_switchos: CommandGroup = MikrotikSwitchOS()
+    tnsr: CommandGroup = TNSRCommands()
     vyos: CommandGroup = VyosCommands()
 
     @classmethod
