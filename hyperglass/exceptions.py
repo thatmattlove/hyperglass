@@ -1,6 +1,7 @@
 """Custom exceptions for hyperglass."""
 
 # Standard Library
+import sys
 import json as _json
 from typing import Dict, List, Union, Optional, Sequence
 
@@ -46,7 +47,11 @@ class HyperglassError(Exception):
         else:
             log.info(repr(self))
 
-        console.print_exception(extra_lines=6)
+        if all(sys.exc_info()):
+            # Rich will raise a ValueError if print_exception() is used
+            # outside of a try/except block. Only use Rich for traceback
+            # printing if the exception is caught.
+            console.print_exception(extra_lines=6)
 
     def __str__(self) -> str:
         """Return the instance's error message."""
