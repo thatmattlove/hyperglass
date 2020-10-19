@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { forwardRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   List,
@@ -14,6 +13,8 @@ import {
   Table,
 } from './MDComponents';
 
+import type { IMarkdown } from './types';
+
 const mdComponents = {
   paragraph: Paragraph,
   link: Link,
@@ -27,6 +28,6 @@ const mdComponents = {
   tableCell: TableData,
 };
 
-export const Markdown = forwardRef(({ content }, ref) => (
-  <ReactMarkdown ref={ref} renderers={mdComponents} source={content} />
-));
+export const Markdown = (props: IMarkdown) => (
+  <ReactMarkdown renderers={mdComponents} source={props.content} />
+);

@@ -1966,6 +1966,11 @@
     "@types/prop-types" "*"
     csstype "^3.0.2"
 
+"@types/string-format@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/string-format/-/string-format-2.0.0.tgz#c1588f507be7b8ef5eb5074a41e48e4538f3f6d5"
+  integrity sha512-mMwtmgN0ureESnJ3SuMM4W9lsi4CgOxs43YxNo14SDHgzJ+OPYO3yM7nOTJTh8x5YICseBdtrySUbvxnpb+NYQ==
+
 "@types/tinycolor2@1.4.2":
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/@types/tinycolor2/-/tinycolor2-1.4.2.tgz#721ca5c5d1a2988b4a886e35c2ffc5735b6afbdf"

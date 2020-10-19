@@ -1,26 +1,26 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Flex, useColorMode } from '@chakra-ui/core';
+import { Box, Flex } from '@chakra-ui/core';
 import { FiCode } from '@meronex/icons/fi';
 import { GoLinkExternal } from '@meronex/icons/go';
-import format from 'string-format';
-import { useConfig } from 'app/context';
+import stringFormat from 'string-format';
+import { useConfig, useColorValue } from '~/context';
 import { FooterButton } from './FooterButton';
 import { FooterContent } from './FooterContent';
 
-format.extend(String.prototype, {});
-
-const footerBg = { light: 'blackAlpha.50', dark: 'whiteAlpha.100' };
-const footerColor = { light: 'black', dark: 'white' };
-const contentBorder = { light: 'blackAlpha.100', dark: 'whiteAlpha.200' };
+import type { TFooterItems } from './types';
 
 export const Footer = () => {
   const config = useConfig();
-  const { colorMode } = useColorMode();
   const [helpVisible, showHelp] = useState(false);
   const [termsVisible, showTerms] = useState(false);
   const [creditVisible, showCredit] = useState(false);
-  const handleCollapse = i => {
+
+  const footerBg = useColorValue('blackAlpha.50', 'whiteAlpha.100');
+  const footerColor = useColorValue('black', 'white');
+  const contentBorder = useColorValue('blackAlpha.100', 'whiteAlpha.200');
+
+  const handleCollapse = (i: TFooterItems) => {
     if (i === 'help') {
       showTerms(false);
       showCredit(false);
@@ -35,18 +35,19 @@ export const Footer = () => {
       showTerms(!termsVisible);
     }
   };
+
   const extUrl = config.web.external_link.url.includes('{primary_asn}')
-    ? config.web.external_link.url.format({ primary_asn: config.primary_asn })
+    ? stringFormat(config.web.external_link.url, { primary_asn: config.primary_asn })
     : config.web.external_link.url || '/';
+
   return (
     <>
       {config.web.help_menu.enable && (
         <FooterContent
           isOpen={helpVisible}
           content={config.content.help_menu}
-          title={config.web.help_menu.title}
-          bg={footerBg[colorMode]}
-          borderColor={contentBorder[colorMode]}
+          bg={footerBg}
+          borderColor={contentBorder}
           side="left"
         />
       )}
@@ -54,9 +55,8 @@ export const Footer = () => {
         <FooterContent
           isOpen={termsVisible}
           content={config.content.terms}
-          title={config.web.terms.title}
-          bg={footerBg[colorMode]}
-          borderColor={contentBorder[colorMode]}
+          bg={footerBg}
+          borderColor={contentBorder}
           side="left"
         />
       )}
@@ -64,9 +64,8 @@ export const Footer = () => {
         <FooterContent
           isOpen={creditVisible}
           content={config.content.credit}
-          title={config.web.credit.title}
-          bg={footerBg[colorMode]}
-          borderColor={contentBorder[colorMode]}
+          bg={footerBg}
+          borderColor={contentBorder}
           side="right"
         />
       )}
@@ -78,8 +77,8 @@ export const Footer = () => {
         flexWrap="wrap"
         textAlign="center"
         alignItems="center"
-        bg={footerBg[colorMode]}
-        color={footerColor[colorMode]}
+        bg={footerBg}
+        color={footerColor}
         justifyContent="space-between">
         {config.web.terms.enable && (
           <FooterButton
@@ -115,13 +114,11 @@ export const Footer = () => {
         )}
         {config.web.external_link.enable && (
           <FooterButton
-            as="a"
             href={extUrl}
+            side="right"
             aria-label={config.web.external_link.title}
-            target="_blank"
-            rel="noopener noreferrer"
             variant="ghost"
-            rightIcon={GoLinkExternal}
+            rightIcon={<Box as={GoLinkExternal} />}
             size="xs">
             {config.web.external_link.title}
           </FooterButton>
