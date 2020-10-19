@@ -1,6 +1,9 @@
 ---
 language: minimal
 dist: bionic
+branches:
+  only:
+    - v1.0.0
 
 jobs:
   include:
