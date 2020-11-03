@@ -1,9 +1,7 @@
-import * as React from 'react';
-import { useMemo } from 'react';
 import { Flex, Icon, Text } from '@chakra-ui/core';
 import { usePagination, useSortBy, useTable } from 'react-table';
-import { useMedia } from 'app/context';
-import { CardBody, CardFooter, CardHeader } from 'app/components';
+import { useMedia } from '~/context';
+import { CardBody, CardFooter, CardHeader, If } from '~/components';
 import { TableMain } from './TableMain';
 import { TableCell } from './TableCell';
 import { TableHead } from './TableHead';
@@ -12,40 +10,49 @@ import { TableBody } from './TableBody';
 import { TableIconButton } from './TableIconButton';
 import { TableSelectShow } from './TableSelectShow';
 
-export const Table = ({
-  columns,
-  data,
-  tableHeading,
-  initialPageSize = 10,
-  onRowClick,
-  striped = false,
-  bordersVertical = false,
-  bordersHorizontal = false,
-  cellRender = null,
-  rowHighlightProp,
-  rowHighlightBg,
-  rowHighlightColor,
-}) => {
-  const tableColumns = useMemo(() => columns, [columns]);
+import type { ITable } from './types';
+
+export const Table = (props: ITable) => {
+  const {
+    columns,
+    data,
+    heading,
+    onRowClick,
+    striped = false,
+    bordersVertical = false,
+    bordersHorizontal = false,
+    cellRender,
+    rowHighlightProp,
+    rowHighlightBg,
+    rowHighlightColor,
+  } = props;
 
   const { isSm, isMd } = useMedia();
 
-  const defaultColumn = useMemo(
-    () => ({
-      minWidth: 100,
-      width: 150,
-      maxWidth: 300,
-    }),
-    [],
-  );
+  const defaultColumn = {
+    minWidth: 100,
+    width: 150,
+    maxWidth: 300,
+  };
 
-  let hiddenColumns = [];
+  let hiddenColumns = [] as string[];
 
-  tableColumns.map(col => {
-    if (col.hidden === true) {
+  for (const col of columns) {
+    if (col.hidden) {
       hiddenColumns.push(col.accessor);
     }
-  });
+  }
+
+  const table = useTable(
+    {
+      columns,
+      defaultColumn,
+      data,
+      initialState: { hiddenColumns },
+    },
+    useSortBy,
+    usePagination,
+  );
 
   const {
     getTableProps,
@@ -61,47 +68,33 @@ export const Table = ({
     previousPage,
     setPageSize,
     state: { pageIndex, pageSize },
-  } = useTable(
-    {
-      columns: tableColumns,
-      defaultColumn,
-      data,
-      initialState: {
-        pageIndex: 0,
-        pageSize: initialPageSize,
-        hiddenColumns: hiddenColumns,
-      },
-    },
-    useSortBy,
-    usePagination,
-  );
+  } = table;
 
   return (
     <CardBody>
-      {!!tableHeading && <CardHeader>{tableHeading}</CardHeader>}
+      {heading && <CardHeader>{heading}</CardHeader>}
       <TableMain {...getTableProps()}>
         <TableHead>
-          {headerGroups.map(headerGroup => (
-            <TableRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
+          {headerGroups.map((headerGroup, i) => (
+            <TableRow index={i} {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
                 <TableCell
                   as="th"
                   align={column.align}
-                  key={column.id}
                   {...column.getHeaderProps()}
                   {...column.getSortByToggleProps()}>
                   <Text fontSize="sm" fontWeight="bold" display="inline-block">
                     {column.render('Header')}
                   </Text>
-                  {column.isSorted ? (
-                    column.isSortedDesc ? (
+                  <If condition={column.isSorted}>
+                    <If condition={column.isSortedDesc}>
                       <Icon name="chevron-down" size={4} ml={1} />
-                    ) : (
+                    </If>
+                    <If condition={!column.isSortedDesc}>
                       <Icon name="chevron-up" size={4} ml={1} />
-                    )
-                  ) : (
-                    ''
-                  )}
+                    </If>
+                  </If>
+                  <If condition={!column.isSorted}>{''}</If>
                 </TableCell>
               ))}
             </TableRow>
@@ -117,7 +110,7 @@ export const Table = ({
                   doHorizontalBorders={bordersHorizontal}
                   onClick={() => onRowClick && onRowClick(row)}
                   key={key}
-                  highlight={row.values[rowHighlightProp] ?? false}
+                  highlight={row.values[rowHighlightProp ?? ''] ?? false}
                   highlightBg={rowHighlightBg}
                   highlightColor={rowHighlightColor}
                   {...row.getRowProps()}>

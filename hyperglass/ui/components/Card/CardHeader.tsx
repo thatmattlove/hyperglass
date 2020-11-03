@@ -1,10 +1,7 @@
-import * as React from 'react';
 import { Flex, Text } from '@chakra-ui/core';
 import { useColorValue } from '~/context';
 
-import type { FlexProps } from '@chakra-ui/core';
-
-export const CardHeader = (props: FlexProps) => {
+export const CardHeader = (props: ICardHeader) => {
   const { children, ...rest } = props;
   const bg = useColorValue('blackAlpha.50', 'whiteAlpha.100');
   return (

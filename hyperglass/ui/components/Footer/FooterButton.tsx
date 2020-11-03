@@ -1,8 +1,5 @@
-import * as React from 'react';
 import { Button, Flex, FlexProps } from '@chakra-ui/core';
 import { withAnimation } from '~/components';
-
-import type { IFooterButton } from './types';
 
 const AnimatedFlex = withAnimation<FlexProps>(Flex);
 

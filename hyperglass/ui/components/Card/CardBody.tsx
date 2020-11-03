@@ -1,8 +1,5 @@
-import * as React from 'react';
 import { Flex } from '@chakra-ui/core';
 import { useColorValue } from '~/context';
-
-import type { ICardBody } from './types';
 
 export const CardBody = (props: ICardBody) => {
   const { onClick, ...rest } = props;

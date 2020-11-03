@@ -33,4 +33,5 @@ export * from './SubmitButton';
 export * from './Table';
 export * from './TextOutput';
 export * from './Title';
+export * from './Util';
 export * from './withAnimation';

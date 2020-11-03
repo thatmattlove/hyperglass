@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {
   Checkbox as ChakraCheckbox,
   Divider as ChakraDivider,

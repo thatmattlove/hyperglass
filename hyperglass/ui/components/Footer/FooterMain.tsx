@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useState } from 'react';
 import { Box, Flex } from '@chakra-ui/core';
 import { FiCode } from '@meronex/icons/fi';
@@ -7,8 +6,6 @@ import stringFormat from 'string-format';
 import { useConfig, useColorValue } from '~/context';
 import { FooterButton } from './FooterButton';
 import { FooterContent } from './FooterContent';
-
-import type { TFooterItems } from './types';
 
 export const Footer = () => {
   const config = useConfig();

@@ -1,4 +1,4 @@
-import type { ReactNode, RefObject } from 'react';
+import type { ReactNode } from 'react';
 import type { IConfig, IFormData } from '~/types';
 
 export interface IHyperglassProvider {

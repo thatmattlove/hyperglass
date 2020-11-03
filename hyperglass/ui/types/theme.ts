@@ -1,3 +1,4 @@
+import type { Theme as DefaultTheme } from '@chakra-ui/theme';
 import type { ColorHues } from '@chakra-ui/theme/dist/types/foundations/colors';
 
 interface ChakraColors {
@@ -43,4 +44,8 @@ export interface Colors extends AllColors {
 export interface Fonts {
   body: string;
   mono: string;
+}
+
+export interface ITheme extends Omit<DefaultTheme, 'colors'> {
+  colors: CustomColors;
 }

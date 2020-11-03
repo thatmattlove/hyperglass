@@ -1,9 +1,5 @@
-import * as React from 'react';
-import { forwardRef } from 'react';
 import { Box, Collapse } from '@chakra-ui/core';
 import { Markdown } from '~/components';
-
-import type { IFooterContent } from './types';
 
 export const FooterContent = (props: IFooterContent) => {
   const { isOpen = false, content, side = 'left', children: _, ...rest } = props;

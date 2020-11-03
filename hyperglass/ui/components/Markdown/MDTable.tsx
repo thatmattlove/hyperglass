@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Box } from '@chakra-ui/core';
 import { useColorValue } from '~/context';
 import type { BoxProps } from '@chakra-ui/core';

@@ -1,9 +1,8 @@
-import * as React from 'react';
 import { createContext, useContext, useMemo } from 'react';
-import { ChakraProvider, useColorModeValue } from '@chakra-ui/core';
+import { ChakraProvider, useTheme as useChakraTheme } from '@chakra-ui/core';
 import { makeTheme, defaultTheme } from '~/util';
 
-import type { IConfig } from '~/types';
+import type { IConfig, ITheme } from '~/types';
 import type { IHyperglassProvider } from './types';
 
 const HyperglassContext = createContext<IConfig>(Object());
@@ -21,4 +20,5 @@ export const HyperglassProvider = (props: IHyperglassProvider) => {
 };
 
 export const useConfig = () => useContext(HyperglassContext);
-export const useColorValue = useColorModeValue;
+export const useTheme = (): ITheme => useChakraTheme();
+export { useColorModeValue as useColorValue } from '@chakra-ui/core';

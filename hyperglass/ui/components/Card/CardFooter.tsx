@@ -1,9 +1,6 @@
-import * as React from 'react';
 import { Flex } from '@chakra-ui/core';
 
-import type { FlexProps } from '@chakra-ui/core';
-
-export const CardFooter = (props: FlexProps) => (
+export const CardFooter = (props: ICardFooter) => (
   <Flex
     p={4}
     direction="column"
