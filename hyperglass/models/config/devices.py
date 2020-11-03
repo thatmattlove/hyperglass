@@ -155,18 +155,16 @@ class Device(HyperglassModel):
         return value
 
     @validator("commands", always=True)
-    def validate_commands(cls, value, values):
-        """If a named command profile is not defined, use the NOS name.
-
-        Arguments:
-            value {str} -- Reference to command profile
-            values {dict} -- Other already-validated fields
-
-        Returns:
-            {str} -- Command profile or NOS name
-        """
+    def validate_commands(cls, value: str, values: "Device") -> str:
+        """If a named command profile is not defined, use the NOS name."""
         if value is None:
             value = values["nos"]
+
+            # If the _telnet prefix is added, remove it from the command
+            # profile so the commands are the same regardless of
+            # protocol.
+            if "_telnet" in value:
+                value = value.replace("_telnet", "")
         return value
 
     @validator("vrfs", pre=True)
@@ -282,7 +280,7 @@ class Devices(HyperglassModelExtra):
             # classes, for when iteration over all routers is required.
             hostnames.add(device.name)
             objects.add(device)
-            all_nos.add(device.nos)
+            all_nos.add(device.commands)
 
             for vrf in device.vrfs:
 
