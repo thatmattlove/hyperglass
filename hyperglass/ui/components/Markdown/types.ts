@@ -1,24 +1,36 @@
-import type { ReactNode } from 'react';
-import type { BoxProps, CheckboxProps, HeadingProps } from '@chakra-ui/core';
-export interface IMarkdown {
+import type {
+  BoxProps,
+  CheckboxProps,
+  HeadingProps,
+  ListProps,
+  ListItemProps,
+} from '@chakra-ui/react';
+
+export interface TMarkdown {
   content: string;
 }
-export interface ICheckbox extends CheckboxProps {
+
+export interface TCheckbox extends CheckboxProps {
   checked: boolean;
 }
 
-export interface IList {
-  ordered: boolean;
-  children?: ReactNode;
+export interface TListItem extends ListItemProps {
+  checked: boolean;
 }
-export interface IHeading extends HeadingProps {
+
+export interface TList extends ListProps {
+  ordered: boolean;
+  children?: React.ReactNode;
+}
+
+export interface THeading extends HeadingProps {
   level: 1 | 2 | 3 | 4 | 5 | 6;
 }
 
-export interface ICodeBlock {
-  value: ReactNode;
+export interface TCodeBlock {
+  value: React.ReactNode;
 }
 
-export interface ITableData extends BoxProps {
+export interface TTableData extends BoxProps {
   isHeader: boolean;
 }

@@ -94,16 +94,17 @@ export interface IDeviceVrf extends IDeviceVrfBase {
   ipv6: boolean;
 }
 
-interface IDeviceBase {
+interface TDeviceBase {
+  name: string;
   network: string;
   display_name: string;
 }
 
-export interface IDevice extends IDeviceBase {
+export interface TDevice extends TDeviceBase {
   vrfs: IDeviceVrf[];
 }
 
-export interface INetworkLocation extends IDeviceBase {
+export interface INetworkLocation extends TDeviceBase {
   vrfs: IDeviceVrfBase[];
 }
 
@@ -112,7 +113,7 @@ export interface INetwork {
   locations: INetworkLocation[];
 }
 
-export type TParsedDataField = [string, string, 'left' | 'right' | 'center' | null];
+export type TParsedDataField = [string, keyof TRoute, 'left' | 'right' | 'center' | null];
 
 export interface IQueryContent {
   content: string;
@@ -152,11 +153,12 @@ export interface IConfig {
   google_analytics?: string;
   site_title: string;
   site_keywords: string[];
+  site_description: string;
   web: IConfigWeb;
   messages: IConfigMessages;
   hyperglass_version: string;
   queries: IConfigQueries;
-  devices: IDevice[];
+  devices: TDevice[];
   vrfs: IDeviceVrfBase[];
   parsed_data_fields: TParsedDataField[];
   content: IConfigContent;

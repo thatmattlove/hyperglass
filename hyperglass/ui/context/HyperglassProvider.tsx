@@ -1,13 +1,19 @@
 import { createContext, useContext, useMemo } from 'react';
-import { ChakraProvider, useTheme as useChakraTheme } from '@chakra-ui/core';
+import {
+  useToken,
+  ChakraProvider,
+  useColorModeValue,
+  useBreakpointValue,
+  useTheme as useChakraTheme,
+} from '@chakra-ui/react';
 import { makeTheme, defaultTheme } from '~/util';
 
 import type { IConfig, ITheme } from '~/types';
-import type { IHyperglassProvider } from './types';
+import type { THyperglassProvider } from './types';
 
 const HyperglassContext = createContext<IConfig>(Object());
 
-export const HyperglassProvider = (props: IHyperglassProvider) => {
+export const HyperglassProvider = (props: THyperglassProvider) => {
   const { config, children } = props;
   const value = useMemo(() => config, []);
   const userTheme = value && makeTheme(value.web.theme);
@@ -19,6 +25,13 @@ export const HyperglassProvider = (props: IHyperglassProvider) => {
   );
 };
 
-export const useConfig = () => useContext(HyperglassContext);
+export const useConfig = (): IConfig => useContext(HyperglassContext);
 export const useTheme = (): ITheme => useChakraTheme();
-export { useColorModeValue as useColorValue } from '@chakra-ui/core';
+
+export const useMobile = (): boolean =>
+  useBreakpointValue({ base: true, md: true, lg: false, xl: false }) ?? true;
+
+export const useColorToken = (light: string, dark: string): ValueOf<ITheme['colors']> =>
+  useColorModeValue(useToken('colors', light), useToken('colors', dark));
+
+export { useColorModeValue as useColorValue, useBreakpointValue } from '@chakra-ui/react';

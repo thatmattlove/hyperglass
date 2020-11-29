@@ -1,1 +1,1 @@
-export * from './If';
+export * from './if';

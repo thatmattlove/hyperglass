@@ -10,8 +10,14 @@ const color = { light: 'black', dark: 'white' };
 export const Layout = ({ children }) => {
   const config = useConfig();
   const { colorMode } = useColorMode();
-  const { greetingAck, setGreetingAck } = useHyperglassState();
+  const { greetingAck, setGreetingAck, setSubmitting, setFormData } = useHyperglassState();
   const containerRef = useRef(null);
+
+  const resetForm = () => {
+    containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setSubmitting(false);
+    setFormData({});
+  };
 
   return (
     <>
@@ -23,7 +29,7 @@ export const Layout = ({ children }) => {
         flexDirection="column"
         color={color[colorMode]}>
         <Flex px={2} flex="0 1 auto" flexDirection="column">
-          <Header layoutRef={containerRef} />
+          <Header resetForm={resetForm} />
         </Flex>
         <Flex
           px={2}

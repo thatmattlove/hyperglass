@@ -1,4 +1,6 @@
-export const If = (props: IIf) => {
-  const { condition, render, children, ...rest } = props;
-  return condition ? (render ? render(rest) : children) : null;
+import type { TIf } from './types';
+
+export const If = (props: TIf) => {
+  const { c, render, children, ...rest } = props;
+  return c ? (render ? render(rest) : children) : null;
 };

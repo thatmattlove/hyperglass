@@ -1,5 +1,5 @@
 import { createState, useState } from '@hookstate/core';
-import type { IGlobalState } from './types';
+import type { TGlobalState } from './types';
 
 // const StateContext = createContext(null);
 
@@ -26,7 +26,7 @@ import type { IGlobalState } from './types';
 
 // export const useHyperglassState = () => useContext(StateContext);
 
-export const globalState = createState<IGlobalState>({
+export const globalState = createState<TGlobalState>({
   isSubmitting: false,
   formData: { query_location: [], query_target: '', query_type: '', query_vrf: '' },
 });

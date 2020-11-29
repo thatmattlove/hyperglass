@@ -1,36 +1,30 @@
-import type { BoxProps } from '@chakra-ui/core';
-import type { Colors } from '~/types';
+import type { BoxProps, IconButtonProps } from '@chakra-ui/react';
 
-export interface IColumn {
-  Header: string;
-  accessor: string;
-  align: 'left' | 'right' | null;
-  hidden: boolean;
-}
+import type { Colors, TColumn } from '~/types';
 
-export interface ITable {
-  columns: IColumn[];
-  data: IRoute[];
-  heading?: ReactNode;
-  onRowClick?: (row: IRoute) => void;
+export interface TTable {
+  columns: TColumn[];
+  data: TRoute[];
+  heading?: React.ReactNode;
   striped?: boolean;
   bordersVertical?: boolean;
   bordersHorizontal?: boolean;
-  cellRender?: ReactFC;
+  cellRender?: React.ReactNode;
   rowHighlightProp?: keyof IRoute;
   rowHighlightBg?: keyof Colors;
-  rowHighlightColor?: string;
 }
 
-export interface ITableCell extends BoxProps {
-  bordersVertical: [boolean, number, number];
-  align: BoxProps['textAlign'];
+export interface TTableCell extends Omit<BoxProps, 'align'> {
+  bordersVertical?: [boolean, number];
+  align?: 'left' | 'right' | 'center';
 }
 
-export interface ITableRow extends BoxProps {
+export interface TTableRow extends BoxProps {
   highlight?: boolean;
   highlightBg?: keyof Colors;
   doStripe?: boolean;
   doHorizontalBorders?: boolean;
   index: number;
 }
+
+export type TTableIconButton = Omit<IconButtonProps, 'aria-label'>;

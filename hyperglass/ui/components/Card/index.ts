@@ -1,3 +1,3 @@
-export * from './CardBody';
-export * from './CardFooter';
-export * from './CardHeader';
+export * from './body';
+export * from './footer';
+export * from './header';

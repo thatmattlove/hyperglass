@@ -1,12 +1,11 @@
-import type { ReactNode } from 'react';
 import type { IConfig, IFormData } from '~/types';
 
-export interface IHyperglassProvider {
+export interface THyperglassProvider {
   config: IConfig;
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
-export interface IGlobalState {
+export interface TGlobalState {
   isSubmitting: boolean;
   formData: IFormData;
 }

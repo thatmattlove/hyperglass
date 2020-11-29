@@ -10,11 +10,12 @@ import {
   InlineCode,
   Divider,
   Table,
-} from './MDComponents';
+} from './elements';
 
-import type { IMarkdown } from './types';
+import type { ReactMarkdownProps } from 'react-markdown';
+import type { TMarkdown } from './types';
 
-const mdComponents = {
+const renderers = {
   paragraph: Paragraph,
   link: Link,
   heading: Heading,
@@ -25,8 +26,8 @@ const mdComponents = {
   code: CodeBlock,
   table: Table,
   tableCell: TableData,
-};
+} as ReactMarkdownProps['renderers'];
 
-export const Markdown = (props: IMarkdown) => (
-  <ReactMarkdown renderers={mdComponents} source={props.content} />
+export const Markdown = (props: TMarkdown) => (
+  <ReactMarkdown renderers={renderers} source={props.content} />
 );
