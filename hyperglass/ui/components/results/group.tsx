@@ -8,7 +8,7 @@ import { Result } from './individual';
 import type { TResults } from './types';
 
 export const Results = (props: TResults) => {
-  const { queryLocation, queryType, queryVrf, queryTarget, setSubmitting, ...rest } = props;
+  const { queryLocation, queryType, queryVrf, queryTarget, ...rest } = props;
   const { request_timeout, devices, queries, vrfs, web } = useConfig();
   const targetBg = useToken('colors', 'teal.600');
   const queryBg = useToken('colors', 'cyan.500');

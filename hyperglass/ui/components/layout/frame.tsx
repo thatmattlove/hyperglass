@@ -4,7 +4,9 @@ import { useConfig, useColorValue, useGlobalState } from '~/context';
 import { If, Debugger, Greeting, Footer, Header } from '~/components';
 import { useGreeting } from '~/hooks';
 
-export const Layout: React.FC = props => {
+import type { TFrame } from './types';
+
+export const Frame = (props: TFrame) => {
   const { web, developer_mode } = useConfig();
   const { isSubmitting, formData } = useGlobalState();
   const [greetingAck, setGreetingAck] = useGreeting();
@@ -27,9 +29,10 @@ export const Layout: React.FC = props => {
         bg={bg}
         w="100%"
         color={color}
+        flexDir="column"
         minHeight="100vh"
         ref={containerRef}
-        flexDirection="column">
+        {...props}>
         <Flex px={2} flex="0 1 auto" flexDirection="column">
           <Header resetForm={resetForm} />
         </Flex>

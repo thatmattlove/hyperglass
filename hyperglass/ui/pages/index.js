@@ -2,12 +2,10 @@ import * as React from 'react';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import { Meta, Loading } from 'app/components';
-const LookingGlass = dynamic(
-  () => import('app/components/LookingGlass').then(i => i.LookingGlass),
-  {
-    loading: Loading,
-  },
-);
+
+const Layout = dynamic(() => import('~/components').then(i => i.Layout), {
+  loading: Loading,
+});
 
 const Index = ({ faviconComponents }) => {
   return (
@@ -18,7 +16,7 @@ const Index = ({ faviconComponents }) => {
         ))}
       </Head>
       <Meta />
-      <LookingGlass />
+      <Layout />
     </>
   );
 };

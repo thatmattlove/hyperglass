@@ -32,7 +32,6 @@ export interface TResult {
 }
 
 export interface TResults extends BoxProps {
-  setSubmitting(v: boolean): boolean;
   queryType: TQueryTypes;
   queryLocation: string[];
   queryTarget: string;

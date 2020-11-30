@@ -62,5 +62,5 @@ declare global {
   type Animated<T> = Omit<T, keyof MotionProps> &
     Omit<MotionProps, keyof T> & { transition?: MotionProps['transition'] };
 
-  type MeronexIcon = import('@meronex/icons').IconType;
+  type MeronexIcon = import('@meronex/icons').IconBaseProps;
 }

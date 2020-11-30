@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 import { forwardRef, useMemo } from 'react';
-import { AccordionIcon, Icon, Spinner, Stack, Text, Tooltip, useColorMode } from '@chakra-ui/react';
+import { AccordionIcon, Icon, Spinner, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { useConfig, useColorValue } from '~/context';
 import { useStrf } from '~/hooks';
 

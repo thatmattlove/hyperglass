@@ -35,10 +35,10 @@ interface CustomColors {
 }
 
 type AllColors = CustomColors & ChakraColors;
-type ColorKey = keyof AllColors;
+export type ColorNames = keyof AllColors;
 
 export interface Colors extends AllColors {
-  original: { [key in ColorKey]: string };
+  original: { [key in ColorNames]: string };
 }
 
 export interface Fonts {

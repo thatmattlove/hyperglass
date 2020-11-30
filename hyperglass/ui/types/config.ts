@@ -1,5 +1,7 @@
 import { Colors, Fonts } from './theme';
 
+export type TQueryFields = 'query_type' | 'query_target' | 'query_location' | 'query_vrf';
+
 export interface IConfigMessages {
   no_input: string;
   acl_denied: string;
@@ -49,13 +51,20 @@ export interface TConfigGreeting {
   required: boolean;
 }
 
+export interface TConfigWebLogo {
+  width: string;
+  height: string | null;
+  light_format: string;
+  dark_format: string;
+}
+
 export interface IConfigWeb {
   credit: { enable: boolean };
   dns_provider: { name: string; url: string };
   external_link: { enable: boolean; title: string; url: string };
   greeting: TConfigGreeting;
   help_menu: { enable: boolean; title: string };
-  logo: { width: string; height: string | null; light_format: string; dark_format: string };
+  logo: TConfigWebLogo;
   terms: { enable: boolean; title: string };
   text: IConfigWebText;
   theme: IConfigTheme;
@@ -111,18 +120,18 @@ export interface TDevice extends TDeviceBase {
   vrfs: IDeviceVrf[];
 }
 
-export interface INetworkLocation extends TDeviceBase {
+export interface TNetworkLocation extends TDeviceBase {
   vrfs: IDeviceVrfBase[];
 }
 
-export interface INetwork {
+export interface TNetwork {
   display_name: string;
-  locations: INetworkLocation[];
+  locations: TNetworkLocation[];
 }
 
 export type TParsedDataField = [string, keyof TRoute, 'left' | 'right' | 'center' | null];
 
-export interface IQueryContent {
+export interface TQueryContent {
   content: string;
   enable: boolean;
   params: {
@@ -141,11 +150,11 @@ export interface IConfigContent {
   greeting: string;
   vrf: {
     [k: string]: {
-      bgp_route: IQueryContent;
-      bgp_community: IQueryContent;
-      bgp_aspath: IQueryContent;
-      ping: IQueryContent;
-      traceroute: IQueryContent;
+      bgp_route: TQueryContent;
+      bgp_community: TQueryContent;
+      bgp_aspath: TQueryContent;
+      ping: TQueryContent;
+      traceroute: TQueryContent;
     };
   };
 }
@@ -166,6 +175,7 @@ export interface IConfig {
   hyperglass_version: string;
   queries: IConfigQueries;
   devices: TDevice[];
+  networks: TNetwork[];
   vrfs: IDeviceVrfBase[];
   parsed_data_fields: TParsedDataField[];
   content: IConfigContent;
