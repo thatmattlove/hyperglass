@@ -34,4 +34,8 @@ export const useMobile = (): boolean =>
 export const useColorToken = (light: string, dark: string): ValueOf<ITheme['colors']> =>
   useColorModeValue(useToken('colors', light), useToken('colors', dark));
 
-export { useColorModeValue as useColorValue, useBreakpointValue } from '@chakra-ui/react';
+export {
+  useColorMode,
+  useBreakpointValue,
+  useColorModeValue as useColorValue,
+} from '@chakra-ui/react';

@@ -1,55 +1,48 @@
-import * as React from 'react';
 import {
-  Button,
+  Tag,
   Modal,
+  Stack,
+  Button,
+  useTheme,
+  ModalBody,
+  ModalHeader,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  Stack,
-  Tag,
-  useDisclosure,
   useColorMode,
-  useTheme,
-} from '@chakra-ui/core';
-import { useConfig, useMedia } from 'app/context';
-import { CodeBlock } from 'app/components';
-
-const prettyMediaSize = {
-  sm: 'SMALL',
-  md: 'MEDIUM',
-  lg: 'LARGE',
-  xl: 'X-LARGE',
-};
+  useDisclosure,
+  ModalCloseButton,
+} from '@chakra-ui/react';
+import { useConfig, useColorValue, useBreakpointValue } from '~/context';
+import { CodeBlock } from '~/components';
 
 export const Debugger = () => {
   const { isOpen: configOpen, onOpen: onConfigOpen, onClose: configClose } = useDisclosure();
   const { isOpen: themeOpen, onOpen: onThemeOpen, onClose: themeClose } = useDisclosure();
+  const { colorMode } = useColorMode();
   const config = useConfig();
   const theme = useTheme();
-  const bg = { light: 'white', dark: 'black' };
-  const color = { light: 'black', dark: 'white' };
-  const { colorMode } = useColorMode();
-  const { mediaSize } = useMedia();
-  const borderColor = { light: 'gray.100', dark: 'gray.600' };
+  const bg = useColorValue('white', 'black');
+  const color = useColorValue('black', 'white');
+  const borderColor = useColorValue('gray.100', 'gray.600');
+  const mediaSize =
+    useBreakpointValue({ base: 'SMALL', md: 'MEDIUM', lg: 'LARGE', xl: 'X-LARGE' }) ?? 'UNKNOWN';
   return (
     <>
       <Stack
-        borderWidth="1px"
-        borderColor={borderColor[colorMode]}
         py={4}
         px={4}
         isInline
-        position="relative"
         left={0}
         right={0}
         bottom={0}
-        justifyContent="center"
+        maxW="100%"
         zIndex={1000}
-        maxW="100%">
+        borderWidth="1px"
+        position="relative"
+        justifyContent="center"
+        borderColor={borderColor}>
         <Tag variantColor="gray">{colorMode.toUpperCase()}</Tag>
-        <Tag variantColor="teal">{prettyMediaSize[mediaSize]}</Tag>
+        <Tag variantColor="teal">{mediaSize}</Tag>
         <Button size="sm" variantColor="cyan" onClick={onConfigOpen}>
           View Config
         </Button>
@@ -59,12 +52,7 @@ export const Debugger = () => {
       </Stack>
       <Modal isOpen={configOpen} onClose={configClose} size="full">
         <ModalOverlay />
-        <ModalContent
-          bg={bg[colorMode]}
-          color={color[colorMode]}
-          py={4}
-          borderRadius="md"
-          maxW="90%">
+        <ModalContent bg={bg} color={color} py={4} borderRadius="md" maxW="90%">
           <ModalHeader>Loaded Configuration</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -74,12 +62,7 @@ export const Debugger = () => {
       </Modal>
       <Modal isOpen={themeOpen} onClose={themeClose} size="full">
         <ModalOverlay />
-        <ModalContent
-          bg={bg[colorMode]}
-          color={color[colorMode]}
-          py={4}
-          borderRadius="md"
-          maxW="90%">
+        <ModalContent bg={bg} color={color} py={4} borderRadius="md" maxW="90%">
           <ModalHeader>Loaded Theme</ModalHeader>
           <ModalCloseButton />
           <ModalBody>

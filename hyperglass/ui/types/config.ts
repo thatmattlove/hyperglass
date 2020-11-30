@@ -42,11 +42,18 @@ export interface IConfigWebText {
   rpki_unverified: string;
 }
 
+export interface TConfigGreeting {
+  enable: boolean;
+  title: string;
+  button: string;
+  required: boolean;
+}
+
 export interface IConfigWeb {
   credit: { enable: boolean };
   dns_provider: { name: string; url: string };
   external_link: { enable: boolean; title: string; url: string };
-  greeting: { enable: boolean; title: string; button: string; required: boolean };
+  greeting: TConfigGreeting;
   help_menu: { enable: boolean; title: string };
   logo: { width: string; height: string | null; light_format: string; dark_format: string };
   terms: { enable: boolean; title: string };

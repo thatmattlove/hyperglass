@@ -1,5 +1,9 @@
-import type { FlexProps, TextProps } from '@chakra-ui/react';
+import type { BoxProps, FlexProps, TextProps } from '@chakra-ui/react';
 import type { CellProps } from 'react-table';
+
+export interface TTextOutput extends Omit<BoxProps, 'children'> {
+  children: string;
+}
 
 export interface TActive {
   isActive: boolean;

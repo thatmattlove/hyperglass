@@ -6,3 +6,5 @@ export interface TOpposingOptions {
 export interface TStringTableData extends Omit<TQueryResponse, 'output'> {
   output: TStructuredResponse;
 }
+
+export type TUseGreetingReturn = [boolean, () => void];
