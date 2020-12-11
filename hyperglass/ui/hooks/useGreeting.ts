@@ -5,11 +5,13 @@ import type { TUseGreetingReturn } from './types';
 
 export function useGreeting(): TUseGreetingReturn {
   const state = useState<boolean>(false);
-  state.attach(Persistence('plugin-persisted-data-key'));
+  if (typeof window !== 'undefined') {
+    state.attach(Persistence('hyperglass-greeting'));
+  }
 
-  function setAck(): void {
+  function setAck(v: boolean = true): void {
     if (!state.get()) {
-      state.set(true);
+      state.set(v);
     }
     return;
   }

@@ -32,6 +32,7 @@ interface CustomColors {
   tertiary: ColorHues;
   dark: ColorHues;
   light: ColorHues;
+  success: ColorHues;
 }
 
 type AllColors = CustomColors & ChakraColors;

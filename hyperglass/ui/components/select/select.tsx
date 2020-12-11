@@ -1,6 +1,6 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import ReactSelect from 'react-select';
-import { Box } from '@chakra-ui/react';
+import { Box, useDisclosure } from '@chakra-ui/react';
 import { useColorMode } from '~/context';
 import {
   useRSTheme,
@@ -17,7 +17,8 @@ import {
   useIndicatorSeparatorStyle,
 } from './styles';
 
-import type { TSelect, TSelectOption, TSelectContext, TBoxAsReactSelect } from './types';
+import type { TSelectOption } from '~/types';
+import type { TSelect, TSelectContext, TBoxAsReactSelect } from './types';
 
 const SelectContext = createContext<TSelectContext>(Object());
 export const useSelectContext = () => useContext(SelectContext);
@@ -26,7 +27,8 @@ const ReactSelectAsBox = (props: TBoxAsReactSelect) => <Box as={ReactSelect} {..
 
 export const Select = (props: TSelect) => {
   const { ctl, options, multi, onSelect, ...rest } = props;
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const { colorMode } = useColorMode();
 
   const selectContext = useMemo<TSelectContext>(() => ({ colorMode, isOpen }), [colorMode, isOpen]);
@@ -49,18 +51,14 @@ export const Select = (props: TSelect) => {
   return (
     <SelectContext.Provider value={selectContext}>
       <ReactSelectAsBox
-        as={ReactSelect}
-        options={options}
-        isMulti={multi}
         onChange={handleChange}
-        ref={ctl}
-        onMenuClose={() => {
-          isOpen && setIsOpen(false);
-        }}
-        onMenuOpen={() => {
-          !isOpen && setIsOpen(true);
-        }}
+        onMenuClose={onClose}
+        onMenuOpen={onOpen}
+        options={options}
+        as={ReactSelect}
+        isMulti={multi}
         theme={rsTheme}
+        ref={ctl}
         styles={{
           menuPortal,
           multiValue,

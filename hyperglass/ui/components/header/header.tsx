@@ -1,11 +1,11 @@
 import { Flex } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useColorValue, useConfig, useGlobalState, useBreakpointValue } from '~/context';
 import { AnimatedDiv, Title, ResetButton, ColorModeToggle } from '~/components';
+import { useColorValue, useConfig, useGlobalState, useBreakpointValue } from '~/context';
 import { useBooleanValue } from '~/hooks';
 
 import type { ResponsiveValue } from '@chakra-ui/react';
-import type { THeader, TTitleMode } from './types';
+import type { THeader, TTitleMode, THeaderLayout } from './types';
 
 const headerTransition = {
   type: 'spring',
@@ -139,7 +139,10 @@ export const Header = (props: THeader) => {
       lg: [resetButton, title, colorModeToggle],
       xl: [resetButton, title, colorModeToggle],
     },
-  );
+  ) as THeaderLayout;
+
+  const layoutBp: keyof THeaderLayout =
+    useBreakpointValue({ base: 'sm', md: 'md', lg: 'lg', xl: 'xl' }) ?? 'sm';
 
   return (
     <Flex
@@ -158,7 +161,7 @@ export const Header = (props: THeader) => {
         justify="space-between"
         flex="1 0 auto"
         alignItems={isSubmitting ? 'center' : 'flex-start'}>
-        {layout}
+        {layout[layoutBp]}
       </Flex>
     </Flex>
   );

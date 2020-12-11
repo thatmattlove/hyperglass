@@ -70,42 +70,42 @@ export interface IConfigWeb {
   theme: IConfigTheme;
 }
 
-export interface IQuery {
+export interface TQuery {
   name: string;
   enable: boolean;
   display_name: string;
 }
 
-export interface IBGPCommunity {
+export interface TBGPCommunity {
   community: string;
   display_name: string;
   description: string;
 }
 
-export interface IQueryBGPRoute extends IQuery {}
-export interface IQueryBGPASPath extends IQuery {}
-export interface IQueryPing extends IQuery {}
-export interface IQueryTraceroute extends IQuery {}
-export interface IQueryBGPCommunity extends IQuery {
+export interface IQueryBGPRoute extends TQuery {}
+export interface IQueryBGPASPath extends TQuery {}
+export interface IQueryPing extends TQuery {}
+export interface IQueryTraceroute extends TQuery {}
+export interface IQueryBGPCommunity extends TQuery {
   mode: 'input' | 'select';
-  communities: IBGPCommunity[];
+  communities: TBGPCommunity[];
 }
 
-export interface IConfigQueries {
+export interface TConfigQueries {
   bgp_route: IQueryBGPRoute;
   bgp_community: IQueryBGPCommunity;
   bgp_aspath: IQueryBGPASPath;
   ping: IQueryPing;
   traceroute: IQueryTraceroute;
-  list: IQuery[];
+  list: TQuery[];
 }
 
-interface IDeviceVrfBase {
+interface TDeviceVrfBase {
   id: string;
   display_name: string;
 }
 
-export interface IDeviceVrf extends IDeviceVrfBase {
+export interface TDeviceVrf extends TDeviceVrfBase {
   ipv4: boolean;
   ipv6: boolean;
 }
@@ -117,11 +117,11 @@ interface TDeviceBase {
 }
 
 export interface TDevice extends TDeviceBase {
-  vrfs: IDeviceVrf[];
+  vrfs: TDeviceVrf[];
 }
 
 export interface TNetworkLocation extends TDeviceBase {
-  vrfs: IDeviceVrfBase[];
+  vrfs: TDeviceVrfBase[];
 }
 
 export interface TNetwork {
@@ -173,10 +173,23 @@ export interface IConfig {
   web: IConfigWeb;
   messages: IConfigMessages;
   hyperglass_version: string;
-  queries: IConfigQueries;
+  queries: TConfigQueries;
   devices: TDevice[];
   networks: TNetwork[];
-  vrfs: IDeviceVrfBase[];
+  vrfs: TDeviceVrfBase[];
   parsed_data_fields: TParsedDataField[];
   content: IConfigContent;
+}
+
+export interface Favicon {
+  rel: string | null;
+  dimensions: [number, number];
+  image_format: string;
+  prefix: string;
+}
+
+export interface FaviconComponent {
+  rel: string;
+  href: string;
+  type: string;
 }

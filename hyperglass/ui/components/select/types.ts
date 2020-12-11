@@ -10,34 +10,24 @@ import type {
   PlaceholderProps,
 } from 'react-select';
 import type { BoxProps } from '@chakra-ui/react';
-import type { ColorNames } from '~/types';
+import type { ColorNames, TSelectOption, TSelectOptionGroup } from '~/types';
 
 export interface TSelectState {
   [k: string]: string[];
 }
-
-export type TSelectOption = {
-  label: string;
-  value: string;
-};
-
-export type TSelectOptionGroup = {
-  label: string;
-  options: TSelectOption[];
-};
 
 export type TOptions = Array<TSelectOptionGroup | TSelectOption>;
 
 export type TBoxAsReactSelect = Omit<IReactSelect, 'isMulti' | 'onSelect' | 'onChange'> &
   Omit<BoxProps, 'onChange' | 'onSelect'>;
 
-export interface TSelect extends TBoxAsReactSelect {
-  options: TOptions;
+export interface TSelectBase extends TBoxAsReactSelect {
   name: string;
-  required?: boolean;
   multi?: boolean;
-  onSelect?: (v: TSelectOption[]) => void;
-  onChange?: (c: TSelectOption | TSelectOption[]) => void;
+  options: TOptions;
+  required?: boolean;
+  onSelect?: (s: TSelectOption) => void;
+  onChange?: (c: TSelectOption) => void;
   colorScheme?: ColorNames;
 }
 

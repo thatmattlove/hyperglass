@@ -1,4 +1,4 @@
-import type { IConfig, IFormData } from '~/types';
+import type { IConfig, TFormData } from '~/types';
 
 export interface THyperglassProvider {
   config: IConfig;
@@ -7,5 +7,5 @@ export interface THyperglassProvider {
 
 export interface TGlobalState {
   isSubmitting: boolean;
-  formData: IFormData;
+  formData: TFormData;
 }

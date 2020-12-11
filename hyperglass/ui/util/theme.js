@@ -1,37 +1,17 @@
-import { theme as chakraTheme } from '@chakra-ui/core';
+import { theme as chakraTheme } from '@chakra-ui/react';
 import chroma from 'chroma-js';
 
 const alphaColors = color => ({
-  900: chroma(color)
-    .alpha(0.92)
-    .css(),
-  800: chroma(color)
-    .alpha(0.8)
-    .css(),
-  700: chroma(color)
-    .alpha(0.6)
-    .css(),
-  600: chroma(color)
-    .alpha(0.48)
-    .css(),
-  500: chroma(color)
-    .alpha(0.38)
-    .css(),
-  400: chroma(color)
-    .alpha(0.24)
-    .css(),
-  300: chroma(color)
-    .alpha(0.16)
-    .css(),
-  200: chroma(color)
-    .alpha(0.12)
-    .css(),
-  100: chroma(color)
-    .alpha(0.08)
-    .css(),
-  50: chroma(color)
-    .alpha(0.04)
-    .css(),
+  900: chroma(color).alpha(0.92).css(),
+  800: chroma(color).alpha(0.8).css(),
+  700: chroma(color).alpha(0.6).css(),
+  600: chroma(color).alpha(0.48).css(),
+  500: chroma(color).alpha(0.38).css(),
+  400: chroma(color).alpha(0.24).css(),
+  300: chroma(color).alpha(0.16).css(),
+  200: chroma(color).alpha(0.12).css(),
+  100: chroma(color).alpha(0.08).css(),
+  50: chroma(color).alpha(0.04).css(),
 });
 
 const generateColors = colorInput => {
@@ -166,13 +146,10 @@ export const opposingColor = (theme, color) => {
 
 export const googleFontUrl = (fontFamily, weights = [300, 400, 700]) => {
   const urlWeights = weights.join(',');
-  const fontName = fontFamily
-    .split(/, /)[0]
-    .trim()
-    .replace(/'|"/g, '');
+  const fontName = fontFamily.split(/, /)[0].trim().replace(/'|"/g, '');
   const urlFont = fontName.split(/ /).join('+');
   const urlBase = `https://fonts.googleapis.com/css?family=${urlFont}:${urlWeights}&display=swap`;
   return urlBase;
 };
 
-export { theme as defaultTheme } from '@chakra-ui/core';
+export { theme as defaultTheme } from '@chakra-ui/react';

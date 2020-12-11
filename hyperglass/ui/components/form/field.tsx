@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Flex, FormControl, FormLabel, FormErrorMessage } from '@chakra-ui/react';
 import { If } from '~/components';
 import { useColorValue } from '~/context';
@@ -6,9 +7,29 @@ import { useBooleanValue } from '~/hooks';
 import { TField } from './types';
 
 export const FormField = (props: TField) => {
-  const { label, name, error, hiddenLabels, labelAddOn, fieldAddOn, children, ...rest } = props;
+  const {
+    name,
+    label,
+    errors,
+    children,
+    labelAddOn,
+    fieldAddOn,
+    hiddenLabels = false,
+    ...rest
+  } = props;
   const labelColor = useColorValue('blackAlpha.700', 'whiteAlpha.700');
   const opacity = useBooleanValue(hiddenLabels, 0, undefined);
+
+  const error = useMemo<string | undefined>(() => {
+    let result;
+    if (Array.isArray(errors)) {
+      result = errors.join(', ');
+    } else if (typeof errors === 'string') {
+      result = errors;
+    }
+    return result;
+  }, [errors]);
+
   return (
     <FormControl
       mx={2}
@@ -38,7 +59,7 @@ export const FormField = (props: TField) => {
           {fieldAddOn}
         </Flex>
       </If>
-      <FormErrorMessage opacity={opacity}>{error && error.message}</FormErrorMessage>
+      <FormErrorMessage opacity={opacity}>{error}</FormErrorMessage>
     </FormControl>
   );
 };

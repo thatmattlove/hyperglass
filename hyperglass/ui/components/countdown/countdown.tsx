@@ -1,4 +1,4 @@
-import { Text } from '@chakra-ui/core';
+import { Text } from '@chakra-ui/react';
 import ReactCountdown, { zeroPad } from 'react-countdown';
 import { If } from '~/components';
 import { useColorValue } from '~/context';
@@ -13,10 +13,10 @@ const Renderer = (props: IRenderer) => {
   const bg = useColorValue('black', 'white');
   return (
     <>
-      <If condition={completed}>
+      <If c={completed}>
         <Text fontSize="xs" />
       </If>
-      <If condition={!completed}>
+      <If c={!completed}>
         <Text fontSize="xs" color="gray.500">
           {text}
           <Text as="span" fontSize="xs" color={bg}>

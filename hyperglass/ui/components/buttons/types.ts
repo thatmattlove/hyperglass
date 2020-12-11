@@ -15,12 +15,12 @@ export type TButtonSizeMap = {
 };
 
 export interface TSubmitButton extends BoxProps {
-  isLoading: boolean;
-  isDisabled: boolean;
-  isActive: boolean;
-  isFullWidth: boolean;
-  size: keyof TButtonSizeMap;
-  loadingText: string;
+  isLoading?: boolean;
+  isDisabled?: boolean;
+  isActive?: boolean;
+  isFullWidth?: boolean;
+  size?: keyof TButtonSizeMap;
+  loadingText?: string;
 }
 
 export interface TRequeryButton extends ButtonProps {

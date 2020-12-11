@@ -1,7 +1,9 @@
 import { Flex, Spinner } from '@chakra-ui/react';
 import { useColorValue } from '~/context';
 
-export const Loading: React.FC = () => {
+import type { LoadableBaseOptions } from 'next/dynamic';
+
+export const Loading: LoadableBaseOptions['loading'] = () => {
   const bg = useColorValue('white', 'black');
   const color = useColorValue('black', 'white');
   return (

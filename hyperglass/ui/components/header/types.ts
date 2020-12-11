@@ -7,3 +7,10 @@ export interface THeader extends FlexProps {
 }
 
 export type TTitleMode = IConfig['web']['text']['title_mode'];
+
+export type THeaderLayout = {
+  sm: [JSX.Element, JSX.Element, JSX.Element];
+  md: [JSX.Element, JSX.Element, JSX.Element];
+  lg: [JSX.Element, JSX.Element, JSX.Element];
+  xl: [JSX.Element, JSX.Element, JSX.Element];
+};

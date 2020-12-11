@@ -1,12 +1,9 @@
 import { useMemo } from 'react';
 import { Select } from '~/components';
+import { useConfig } from '~/context';
 
-import type { TNetwork } from '~/types';
-import type { TQueryLocation, OnChangeArgs } from './types';
-
-function isOnChangeArgsArray(e: OnChangeArgs | OnChangeArgs[]): e is OnChangeArgs[] {
-  return Array.isArray(e);
-}
+import type { TNetwork, TSelectOption } from '~/types';
+import type { TQuerySelectField } from './types';
 
 function buildOptions(networks: TNetwork[]) {
   return networks.map(net => {
@@ -20,15 +17,16 @@ function buildOptions(networks: TNetwork[]) {
   });
 }
 
-export const QueryLocation = (props: TQueryLocation) => {
-  const { locations, onChange, label } = props;
+export const QueryLocation = (props: TQuerySelectField) => {
+  const { onChange, label } = props;
 
-  const options = useMemo(() => buildOptions(locations), [locations.length]);
+  const { networks } = useConfig();
+  const options = useMemo(() => buildOptions(networks), [networks.length]);
 
-  function handleChange(e: OnChangeArgs | OnChangeArgs[]): void {
-    if (isOnChangeArgsArray(e)) {
-      const value = e.map(sel => sel.value as string);
-      onChange({ label: 'query_location', value });
+  function handleChange(e: TSelectOption): void {
+    if (Array.isArray(e.value)) {
+      const value = e.value.map(sel => sel);
+      onChange({ field: 'query_location', value });
     }
   }
 

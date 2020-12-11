@@ -1,12 +1,22 @@
-import * as React from 'react';
 import Head from 'next/head';
+import { HyperglassProvider } from '~/context';
+import { IConfig } from '~/types';
 // import { useRouter } from "next/router";
-import { HyperglassProvider } from 'app/context';
 // import Error from "./_error";
 
-const config = process.env._HYPERGLASS_CONFIG_;
+import type { AppProps, AppInitialProps } from 'next/app';
 
-const Hyperglass = ({ Component, pageProps }) => {
+type TAppProps = AppProps & AppInitialProps;
+
+interface TApp extends TAppProps {
+  appProps: { config: IConfig };
+}
+
+type TAppInitial = Pick<TApp, 'appProps'>;
+
+const App = (props: TApp) => {
+  const { Component, pageProps, appProps } = props;
+  const { config } = appProps;
   // const { asPath } = useRouter();
   // if (asPath === "/structured") {
   //   return <Error msg="/structured" statusCode={404} />;
@@ -29,4 +39,9 @@ const Hyperglass = ({ Component, pageProps }) => {
   );
 };
 
-export default Hyperglass;
+App.getInitialProps = async (): Promise<TAppInitial> => {
+  const config = (process.env._HYPERGLASS_CONFIG_ as unknown) as IConfig;
+  return { appProps: { config } };
+};
+
+export default App;

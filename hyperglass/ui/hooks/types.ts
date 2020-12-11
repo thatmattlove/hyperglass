@@ -7,4 +7,4 @@ export interface TStringTableData extends Omit<TQueryResponse, 'output'> {
   output: TStructuredResponse;
 }
 
-export type TUseGreetingReturn = [boolean, () => void];
+export type TUseGreetingReturn = [boolean, (v?: boolean) => void];
