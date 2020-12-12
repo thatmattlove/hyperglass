@@ -23,13 +23,13 @@ export const useControlStyle = (base: TStyles, state: TControl): TStyles => {
   const { colorMode } = useSelectContext();
   const borderHover = useColorValue(
     useToken('colors', 'gray.300'),
-    useToken('colors', 'whiteAlpha.200'),
+    useToken('colors', 'whiteAlpha.400'),
   );
-  const focusBorder = useToken('colors', 'secondary.500');
+  const focusBorder = useColorValue(useToken('colors', 'blue.500'), useToken('colors', 'blue.300'));
   const invalidBorder = useColorValue(useToken('colors', 'red.500'), useToken('colors', 'red.300'));
-
+  const borderColor = useColorValue('inherit', useToken('colors', 'whiteAlpha.50'));
   const borderRadius = useToken('radii', 'md');
-  const minHeight = useToken('sizes', 'lg');
+  const minHeight = useToken('space', 12);
   const color = useColorValue(useToken('colors', 'black'), useToken('colors', 'whiteAlpha.800'));
   const backgroundColor = useColorValue(
     useToken('colors', 'white'),
@@ -40,9 +40,12 @@ export const useControlStyle = (base: TStyles, state: TControl): TStyles => {
     borderRadius,
     color,
     minHeight,
+    transition: 'all 0.2s',
+    borderColor: isFocused ? focusBorder : borderColor,
+    boxShadow: isFocused ? `0 0 0 1px ${focusBorder}` : undefined,
     '&:hover': { borderColor: isFocused ? focusBorder : borderHover },
     '&:hover > div > span': { backgroundColor: borderHover },
-
+    '&:focus': { borderColor: focusBorder },
     '&.invalid': { borderColor: invalidBorder, boxShadow: `0 0 0 1px ${invalidBorder}` },
   };
   return useMemo(() => mergeWith({}, base, styles), [colorMode, isFocused]);
@@ -52,7 +55,7 @@ export const useMenuStyle = (base: TStyles, state: TMenu): TStyles => {
   const { colorMode, isOpen } = useSelectContext();
   const backgroundColor = useColorValue(
     useToken('colors', 'white'),
-    useToken('colors', 'whiteFaded.50'),
+    useToken('colors', 'blackFaded.800'),
   );
   const borderRadius = useToken('radii', 'md');
   const styles = { borderRadius, backgroundColor };
@@ -87,7 +90,7 @@ export const useMenuListStyle = (base: TStyles, state: TMenuList): TStyles => {
 };
 
 export const useOptionStyle = (base: TStyles, state: TOption): TStyles => {
-  const { isFocused } = state;
+  const { isFocused, isSelected, isDisabled } = state;
   const { colorMode, isOpen } = useSelectContext();
   const fontSize = useToken('fontSizes', 'lg');
   const disabled = useToken('colors', 'whiteAlpha.400');
@@ -103,31 +106,42 @@ export const useOptionStyle = (base: TStyles, state: TOption): TStyles => {
     useToken('colors', 'primary.600'),
     useToken('colors', 'primary.400'),
   );
-  const disabledColor = useOpposingColor(disabled);
-  const selectedColor = useOpposingColor(selected);
-  const focusedColor = useOpposingColor(focused);
+
   const activeColor = useOpposingColor(active);
 
+  const backgroundColor = useMemo(() => {
+    let bg = 'transparent';
+    switch (true) {
+      case isDisabled:
+        bg = disabled;
+        break;
+      case isSelected:
+        bg = selected;
+        break;
+      case isFocused:
+        bg = focused;
+        break;
+    }
+    return bg;
+  }, [isDisabled, isFocused, isSelected]);
+
+  const color = useOpposingColor(backgroundColor);
+
   const styles = {
-    backgroundColor: state.isDisabled
-      ? disabled
-      : state.isSelected
-      ? selected
-      : state.isFocused
-      ? focused
-      : 'transparent',
-    color: state.isDisabled
-      ? disabledColor
-      : state.isSelected
-      ? selectedColor
-      : state.isFocused
-      ? focusedColor
-      : 'transparent',
+    backgroundColor,
+    color,
     fontSize,
     '&:focus': { backgroundColor: active, color: activeColor },
     '&:active': { backgroundColor: active, color: activeColor },
   };
-  return useMemo(() => mergeWith({}, base, styles), [colorMode, isFocused, isOpen]);
+
+  return useMemo(() => mergeWith({}, base, styles), [
+    isOpen,
+    colorMode,
+    isFocused,
+    isDisabled,
+    isSelected,
+  ]);
 };
 
 export const useIndicatorSeparatorStyle = (base: TStyles, state: TIndicator): TStyles => {
@@ -142,8 +156,9 @@ export const useIndicatorSeparatorStyle = (base: TStyles, state: TIndicator): TS
 
 export const usePlaceholderStyle = (base: TStyles, state: TPlaceholder): TStyles => {
   const { colorMode } = useSelectContext();
-  const color = useColorValue(useToken('colors', 'whiteAlpha.700'), useToken('colors', 'gray.600'));
-  return useMemo(() => mergeWith({}, base, { color }), [colorMode]);
+  const color = useColorValue(useToken('colors', 'gray.600'), useToken('colors', 'whiteAlpha.700'));
+  const fontSize = useToken('fontSizes', 'lg');
+  return useMemo(() => mergeWith({}, base, { color, fontSize }), [colorMode]);
 };
 
 export const useSingleValueStyle = (props: TStyles) => {

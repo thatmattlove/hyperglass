@@ -25,14 +25,7 @@ export const Frame = (props: TFrame) => {
 
   return (
     <>
-      <Flex
-        bg={bg}
-        w="100%"
-        color={color}
-        flexDir="column"
-        minHeight="100vh"
-        ref={containerRef}
-        {...props}>
+      <Flex bg={bg} w="100%" color={color} flexDir="column" minHeight="100vh" ref={containerRef}>
         <Flex px={2} flex="0 1 auto" flexDirection="column">
           <Header resetForm={resetForm} />
         </Flex>
@@ -49,9 +42,9 @@ export const Frame = (props: TFrame) => {
           {...props}
         />
         <Footer />
-        <If c={developer_mode}>
+        {/* <If c={developer_mode}>
           <Debugger />
-        </If>
+        </If> */}
       </Flex>
       <If c={web.greeting.enable && !greetingAck}>
         <Greeting onClickThrough={setGreetingAck} />

@@ -1,16 +1,11 @@
-import type { ButtonProps, DrawerProps, DrawerContentProps } from '@chakra-ui/react';
+import type { MenuListProps } from '@chakra-ui/react';
 
 type TFooterSide = 'left' | 'right';
 
-export interface TFooterButton extends ButtonProps {
+export interface TFooterButton extends Omit<MenuListProps, 'title'> {
   side: TFooterSide;
-  href?: string;
-}
-
-export interface TFooterContent extends Omit<DrawerProps, 'children'>, DrawerContentProps {
-  isOpen: boolean;
+  title?: MenuListProps['children'];
   content: string;
-  side: TFooterSide;
 }
 
 export type TFooterItems = 'help' | 'credit' | 'terms';

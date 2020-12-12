@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Box, Flex } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { uniqWith } from 'lodash';
 import * as yup from 'yup';
 import {
+  AnimatedForm,
   FormRow,
   QueryVrf,
   FormField,
@@ -248,13 +249,16 @@ export const HyperglassForm = () => {
   Object.keys(errors).length >= 1 && console.error(errors);
 
   return (
-    <Box
+    <AnimatedForm
       p={0}
       my={4}
       w="100%"
-      as="form"
       mx="auto"
       textAlign="left"
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      exit={{ opacity: 0, x: -300 }}
+      initial={{ opacity: 0, y: 300 }}
       onSubmit={handleSubmit(onSubmit)}
       maxW={{ base: '100%', lg: '75%' }}>
       <FormRow>
@@ -330,6 +334,6 @@ export const HyperglassForm = () => {
           <SubmitButton isLoading={isSubmitting.value} />
         </Flex>
       </FormRow>
-    </Box>
+    </AnimatedForm>
   );
 };

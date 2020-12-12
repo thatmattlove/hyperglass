@@ -24,7 +24,7 @@ export const QueryLocation = (props: TQuerySelectField) => {
   const options = useMemo(() => buildOptions(networks), [networks.length]);
 
   function handleChange(e: TSelectOption): void {
-    if (Array.isArray(e.value)) {
+    if (Array.isArray(e?.value) && e !== null) {
       const value = e.value.map(sel => sel);
       onChange({ field: 'query_location', value });
     }

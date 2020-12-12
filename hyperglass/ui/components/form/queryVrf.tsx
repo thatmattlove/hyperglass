@@ -14,7 +14,9 @@ export const QueryVrf = (props: TQueryVrf) => {
   const options = useMemo(() => buildOptions(vrfs), [vrfs.length]);
 
   function handleChange(e: TSelectOption): void {
-    onChange({ field: 'query_vrf', value: e.value });
+    if (e !== null) {
+      onChange({ field: 'query_vrf', value: e.value });
+    }
   }
 
   return (

@@ -33,7 +33,7 @@ export const CommunitySelect = (props: TCommunitySelect) => {
   const options = useMemo(() => buildOptions(communities), [communities.length]);
 
   function handleChange(e: TSelectOption | TSelectOption[]): void {
-    if (!Array.isArray(e)) {
+    if (!Array.isArray(e) && e !== null) {
       onChange({ field: name, value: e.value });
     }
   }

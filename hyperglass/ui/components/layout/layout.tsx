@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { If, HyperglassForm, Results } from '~/components';
 import { useGlobalState } from '~/context';
 import { all } from '~/util';
@@ -28,13 +28,7 @@ export const Layout: React.FC = () => {
       </If>
       <AnimatePresence>
         <If c={!isSubmitting.value}>
-          <motion.div
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            exit={{ opacity: 0, x: -300 }}
-            initial={{ opacity: 0, y: 300 }}>
-            <HyperglassForm />
-          </motion.div>
+          <HyperglassForm />
         </If>
       </AnimatePresence>
     </Frame>

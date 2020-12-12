@@ -18,7 +18,9 @@ export const QueryType = (props: TQuerySelectField) => {
   const options = useMemo(() => buildOptions(queries.list), [queries.list.length]);
 
   function handleChange(e: TSelectOption): void {
-    onChange({ field: 'query_type', value: e.value });
+    if (e !== null) {
+      onChange({ field: 'query_type', value: e.value });
+    }
   }
 
   return (

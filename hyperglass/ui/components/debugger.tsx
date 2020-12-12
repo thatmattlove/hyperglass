@@ -41,12 +41,12 @@ export const Debugger = () => {
         position="relative"
         justifyContent="center"
         borderColor={borderColor}>
-        <Tag variantColor="gray">{colorMode.toUpperCase()}</Tag>
-        <Tag variantColor="teal">{mediaSize}</Tag>
-        <Button size="sm" variantColor="cyan" onClick={onConfigOpen}>
+        <Tag colorScheme="gray">{colorMode.toUpperCase()}</Tag>
+        <Tag colorScheme="teal">{mediaSize}</Tag>
+        <Button size="sm" colorScheme="cyan" onClick={onConfigOpen}>
           View Config
         </Button>
-        <Button size="sm" variantColor="purple" onClick={onThemeOpen}>
+        <Button size="sm" colorScheme="purple" onClick={onThemeOpen}>
           View Theme
         </Button>
       </Stack>

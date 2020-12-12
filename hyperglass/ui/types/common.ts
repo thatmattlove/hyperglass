@@ -1,7 +1,8 @@
 export type TSelectOption = {
   label: string;
   value: string | string[];
-};
+  group?: string;
+} | null;
 
 export type TSelectOptionGroup = {
   label: string;

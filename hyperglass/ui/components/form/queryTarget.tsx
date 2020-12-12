@@ -56,11 +56,11 @@ export const QueryTarget = (props: TQueryTarget) => {
         bg={bg}
         size="lg"
         color={color}
+        borderRadius="md"
         onBlur={handleBlur}
         onFocus={handleBlur}
         value={displayValue}
         borderColor={border}
-        borderRadius="0.25rem"
         onChange={handleChange}
         aria-label={placeholder}
         onKeyDown={handleKeyDown}

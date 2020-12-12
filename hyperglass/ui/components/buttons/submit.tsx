@@ -46,9 +46,9 @@ export const SubmitButton = forwardRef<HTMLDivElement, TSubmitButton>((props, re
   } = props;
   const _isDisabled = isDisabled || isLoading;
 
-  const bg = useColorValue('primary.500', 'primary.300');
-  const bgActive = useColorValue('primary.600', 'primary.400');
-  const bgHover = useColorValue('primary.400', 'primary.200');
+  const bg = useColorValue('primary.400', 'primary.500');
+  const bgActive = useColorValue('primary.500', 'primary.600');
+  const bgHover = useColorValue('primary.300', 'primary.400');
   const color = useOpposingColor(bg);
   const colorActive = useOpposingColor(bgActive);
   const colorHover = useOpposingColor(bgHover);
