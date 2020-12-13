@@ -43,6 +43,11 @@ class Params(HyperglassModel):
         title="Developer Mode",
         description='Enable developer mode. If enabled, the hyperglass backend (Python) and frontend (React/Javascript) applications are "unlinked", so that React tools can be used for front end development. A `<Debugger />` convenience component is also displayed in the UI for easier UI development.',
     )
+    fake_output: StrictBool = Field(
+        False,
+        title="Fake Output",
+        description="If enabled, the hyperglass backend will return static fake output for development/testing purposes.",
+    )
     primary_asn: Union[StrictInt, StrictStr] = Field(
         "65001",
         title="Primary ASN",

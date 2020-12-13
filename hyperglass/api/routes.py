@@ -23,6 +23,9 @@ from hyperglass.models.api import Query, EncodedRequest
 from hyperglass.configuration import REDIS_CONFIG, params, devices
 from hyperglass.execution.main import execute
 
+# Local
+from .fake_output import fake_output
+
 APP_PATH = os.environ["hyperglass_directory"]
 
 
@@ -115,9 +118,16 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
         )
 
         timestamp = query_data.timestamp
-        # Pass request to execution module
+
         starttime = time.time()
-        cache_output = await execute(query_data)
+
+        if params.fake_output:
+            # Return fake, static data for development purposes, if enabled.
+            cache_output = await fake_output(query_data.device.structured_output)
+        else:
+            # Pass request to execution module
+            cache_output = await execute(query_data)
+
         endtime = time.time()
         elapsedtime = round(endtime - starttime, 4)
         log.debug("Query {} took {} seconds to run.", cache_key, elapsedtime)
