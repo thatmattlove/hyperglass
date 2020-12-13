@@ -5,8 +5,8 @@ from typing import Union
 # Third Party
 from pydantic import BaseModel, StrictStr
 
-# Project
-from hyperglass.models.fields import StrictBytes
+# Local
+from ..fields import StrictBytes
 
 
 class EncodedRequest(BaseModel):

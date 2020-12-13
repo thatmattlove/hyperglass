@@ -9,8 +9,10 @@ from pydantic import StrictInt, StrictStr, StrictBool, constr, root_validator
 
 # Project
 from hyperglass.log import log
-from hyperglass.models import HyperglassModel
-from hyperglass.parsing.models.serialized import ParsedRoutes
+
+# Local
+from ..main import HyperglassModel
+from .serialized import ParsedRoutes
 
 FRRPeerType = constr(regex=r"(internal|external)")
 

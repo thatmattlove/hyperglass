@@ -1,7 +1,7 @@
 """Base Connection Class."""
 
 # Standard Library
-from typing import Iterable
+from typing import Dict, Union, Sequence
 
 # Project
 from hyperglass.log import log
@@ -27,8 +27,8 @@ class Connection:
         self.query = self._query.queries()
 
     async def parsed_response(  # noqa: C901 ("too complex")
-        self, output: Iterable
-    ) -> str:
+        self, output: Sequence[str]
+    ) -> Union[str, Sequence[Dict]]:
         """Send output through common parsers."""
 
         log.debug("Pre-parsed responses:\n{}", output)

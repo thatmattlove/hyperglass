@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from hyperglass.log import log
 from hyperglass.exceptions import ParsingError, ResponseEmpty
 from hyperglass.configuration import params
-from hyperglass.parsing.models.juniper import JuniperRoute
+from hyperglass.models.parsing.juniper import JuniperRoute
 
 
 def parse_juniper(output: Iterable) -> Dict:  # noqa: C901

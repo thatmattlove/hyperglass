@@ -8,9 +8,11 @@ from typing import List
 from pydantic import StrictInt, StrictStr, StrictBool, constr, validator
 
 # Project
-from hyperglass.models import HyperglassModel
 from hyperglass.configuration import params
 from hyperglass.external.rpki import rpki_state
+
+# Local
+from ..main import HyperglassModel
 
 WinningWeight = constr(regex=r"(low|high)")
 

@@ -8,7 +8,7 @@ hyperglass-frr API calls, returns the output back to the front end.
 
 # Standard Library
 import signal
-from typing import Any, Dict, Union, Callable
+from typing import Any, Dict, Union, Callable, Sequence
 
 # Project
 from hyperglass.log import log
@@ -36,7 +36,7 @@ def handle_timeout(**exc_args: Any) -> Callable:
     return handler
 
 
-async def execute(query: Query) -> Union[str, Dict]:
+async def execute(query: Query) -> Union[str, Sequence[Dict]]:
     """Initiate query validation and execution."""
 
     output = params.messages.general

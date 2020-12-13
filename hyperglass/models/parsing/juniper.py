@@ -8,8 +8,10 @@ from pydantic import StrictInt, StrictStr, StrictBool, validator, root_validator
 
 # Project
 from hyperglass.log import log
-from hyperglass.models import HyperglassModel
-from hyperglass.parsing.models.serialized import ParsedRoutes
+
+# Local
+from ..main import HyperglassModel
+from .serialized import ParsedRoutes
 
 RPKI_STATE_MAP = {
     "invalid": 0,
