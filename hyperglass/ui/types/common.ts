@@ -1,8 +1,12 @@
-export type TSelectOption = {
+export type TSelectOptionBase = {
   label: string;
-  value: string | string[];
+  value: string;
   group?: string;
-} | null;
+};
+
+export type TSelectOption = TSelectOptionBase | null;
+
+export type TSelectOptionMulti = TSelectOptionBase[] | null;
 
 export type TSelectOptionGroup = {
   label: string;

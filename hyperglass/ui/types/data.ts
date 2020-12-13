@@ -1,4 +1,5 @@
-export type TQueryTypes = '' | 'bgp_route' | 'bgp_community' | 'bgp_aspath' | 'ping' | 'traceroute';
+export type TQueryTypes = '' | TValidQueryTypes;
+export type TValidQueryTypes = 'bgp_route' | 'bgp_community' | 'bgp_aspath' | 'ping' | 'traceroute';
 
 export interface TFormData {
   query_location: string[];

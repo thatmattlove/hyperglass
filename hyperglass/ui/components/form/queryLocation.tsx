@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Select } from '~/components';
 import { useConfig } from '~/context';
 
-import type { TNetwork, TSelectOption } from '~/types';
+import type { TNetwork, TSelectOptionMulti } from '~/types';
 import type { TQuerySelectField } from './types';
 
 function buildOptions(networks: TNetwork[]) {
@@ -23,11 +23,12 @@ export const QueryLocation = (props: TQuerySelectField) => {
   const { networks } = useConfig();
   const options = useMemo(() => buildOptions(networks), [networks.length]);
 
-  function handleChange(e: TSelectOption): void {
-    if (Array.isArray(e?.value) && e !== null) {
-      const value = e.value.map(sel => sel);
-      onChange({ field: 'query_location', value });
+  function handleChange(e: TSelectOptionMulti): void {
+    if (e === null) {
+      e = [];
     }
+    const value = e.map(sel => sel.value);
+    onChange({ field: 'query_location', value });
   }
 
   return (

@@ -19,7 +19,7 @@ export const ResetButton = forwardRef<HTMLButtonElement, ButtonProps>((props, re
       aria-label="Reset Form"
       opacity={isSubmitting.value ? 1 : 0}
       {...props}>
-      <Icon as={ChevronLeft} boxSize={24} />
+      <Icon as={ChevronLeft} boxSize={8} />
     </Button>
   );
 });

@@ -42,9 +42,9 @@ export const Frame = (props: TFrame) => {
           {...props}
         />
         <Footer />
-        {/* <If c={developer_mode}>
+        <If c={developer_mode}>
           <Debugger />
-        </If> */}
+        </If>
       </Flex>
       <If c={web.greeting.enable && !greetingAck}>
         <Greeting onClickThrough={setGreetingAck} />

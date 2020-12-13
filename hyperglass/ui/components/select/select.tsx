@@ -18,14 +18,14 @@ import {
 } from './styles';
 
 import type { TSelectOption } from '~/types';
-import type { TSelect, TSelectContext, TBoxAsReactSelect } from './types';
+import type { TSelectBase, TSelectContext, TBoxAsReactSelect } from './types';
 
 const SelectContext = createContext<TSelectContext>(Object());
 export const useSelectContext = () => useContext(SelectContext);
 
 const ReactSelectAsBox = (props: TBoxAsReactSelect) => <Box as={ReactSelect} {...props} />;
 
-export const Select = (props: TSelect) => {
+export const Select = (props: TSelectBase) => {
   const { ctl, options, multi, onSelect, ...rest } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
 

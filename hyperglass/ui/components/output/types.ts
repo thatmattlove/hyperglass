@@ -32,7 +32,11 @@ export interface TCommunities {
 }
 
 export interface TRPKIState {
-  state: 0 | 1 | 2 | 3;
+  state:
+    | 0 // Invalid
+    | 1 // Valid
+    | 2 // Unknown
+    | 3; // Unverified
   active: boolean;
 }
 

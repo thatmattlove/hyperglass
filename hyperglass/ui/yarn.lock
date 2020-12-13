@@ -1055,10 +1055,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-select@^3.0.22":
-  version "3.0.22"
-  resolved "https://registry.yarnpkg.com/@types/react-select/-/react-select-3.0.22.tgz#b88306365e99fa86809a5c0ce0f1b4e8d0b626bf"
-  integrity sha512-fqgmC979JPr/6476Pau6QnmI9zVV664R7Q92Ld1rgTn+umtUXT5X3+PO/x6O4imCZnh7XCqZcouabWAlAQJNpQ==
+"@types/react-select@^3.0.28":
+  version "3.0.28"
+  resolved "https://registry.yarnpkg.com/@types/react-select/-/react-select-3.0.28.tgz#b9adb98421926321b81c4cfe6a40121c96a421f0"
+  integrity sha512-Gfg3a/EPLyUQkfezcCQkmLW1Vz6+ziclJhn8dpBUEYJF3IUoxS81ToAi3ky2xtnAyk2wJFMXLvE73KiUd56yTA==
   dependencies:
     "@types/react" "*"
     "@types/react-dom" "*"
@@ -5549,10 +5549,10 @@ react-remove-scroll@2.4.0:
     use-callback-ref "^1.2.3"
     use-sidecar "^1.0.1"
 
-react-select@^3.0.8:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/react-select/-/react-select-3.1.0.tgz#ab098720b2e9fe275047c993f0d0caf5ded17c27"
-  integrity sha512-wBFVblBH1iuCBprtpyGtd1dGMadsG36W5/t2Aj8OE6WbByDg5jIFyT7X5gT+l0qmT5TqWhxX+VsKJvCEl2uL9g==
+react-select@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/react-select/-/react-select-3.1.1.tgz#156a5b4a6c22b1e3d62a919cb1fd827adb4060bc"
+  integrity sha512-HjC6jT2BhUxbIbxMZWqVcDibrEpdUJCfGicN0MMV+BQyKtCaPTgFekKWiOizSCy4jdsLMGjLqcFGJMhVGWB0Dg==
   dependencies:
     "@babel/runtime" "^7.4.4"
     "@emotion/cache" "^10.0.9"

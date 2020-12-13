@@ -26,7 +26,7 @@ export interface TSelectBase extends TBoxAsReactSelect {
   multi?: boolean;
   options: TOptions;
   required?: boolean;
-  onSelect?: (s: TSelectOption) => void;
+  onSelect?: (s: TSelectOption[]) => void;
   onChange?: (c: TSelectOption) => void;
   colorScheme?: ColorNames;
 }

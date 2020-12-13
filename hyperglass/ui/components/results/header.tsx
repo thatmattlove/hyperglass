@@ -1,13 +1,11 @@
-import dynamic from 'next/dynamic';
 import { forwardRef, useMemo } from 'react';
-import { AccordionIcon, Icon, Spinner, Stack, Text, Tooltip } from '@chakra-ui/react';
+import { AccordionIcon, Box, Spinner, Stack, Text, Tooltip } from '@chakra-ui/react';
+import { BisError as Warning } from '@meronex/icons/bi';
+import { FaCheckCircle as Check } from '@meronex/icons/fa';
 import { useConfig, useColorValue } from '~/context';
 import { useStrf } from '~/hooks';
 
 import type { TResultHeader } from './types';
-
-const Check = dynamic<MeronexIcon>(() => import('@meronex/icons/fa').then(i => i.FaCheckCircle));
-const Warning = dynamic<MeronexIcon>(() => import('@meronex/icons/bi').then(i => i.BisError));
 
 const runtimeText = (runtime: number, text: string): string => {
   let unit = 'seconds';
@@ -34,11 +32,11 @@ export const ResultHeader = forwardRef<HTMLDivElement, TResultHeader>((props, re
         <Spinner size="sm" mr={4} color={status} />
       ) : error ? (
         <Tooltip hasArrow label={errorMsg} placement="top">
-          <Icon as={Warning} color={warning} mr={4} boxSize={6} />
+          <Box as={Warning} color={warning} mr={4} boxSize={6} />
         </Tooltip>
       ) : (
         <Tooltip hasArrow label={label} placement="top">
-          <Icon as={Check} color={defaultStatus} mr={4} boxSize={6} />
+          <Box as={Check} color={defaultStatus} mr={4} boxSize={6} />
         </Tooltip>
       )}
       <Text fontSize="lg">{title}</Text>

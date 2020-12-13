@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Flex } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { uniqWith } from 'lodash';
+import { intersectionWith } from 'lodash';
 import * as yup from 'yup';
 import {
+  If,
   AnimatedForm,
   FormRow,
   QueryVrf,
@@ -17,30 +18,17 @@ import {
   CommunitySelect,
 } from '~/components';
 import { useConfig, useGlobalState } from '~/context';
-import { useStrf, useGreeting } from '~/hooks';
+import { useStrf, useGreeting, useDevice } from '~/hooks';
+import { isQueryType, isString } from '~/types';
 
 import type { Families, TFormData, TDeviceVrf, TQueryTypes, OnChangeArgs } from '~/types';
 
-function isString(a: any): a is string {
-  return typeof a === 'string';
-}
-
-function isQueryType(q: any): q is TQueryTypes {
-  let result = false;
-  if (
-    typeof q === 'string' &&
-    ['bgp_route', 'bgp_community', 'bgp_aspath', 'ping', 'traceroute'].includes(q)
-  ) {
-    result = true;
-  }
-  return result;
-}
-
 export const HyperglassForm = () => {
-  const { web, content, devices, messages, networks, queries } = useConfig();
+  const { web, content, messages, queries } = useConfig();
 
   const { formData, isSubmitting } = useGlobalState();
   const [greetingAck, setGreetingAck] = useGreeting();
+  const getDevice = useDevice();
 
   const noQueryType = useStrf(messages.no_input, { field: web.text.query_type });
   const noQueryLoc = useStrf(messages.no_input, { field: web.text.query_location });
@@ -77,105 +65,23 @@ export const HyperglassForm = () => {
     }
   }
 
-  /*
-  const handleLocChange = locObj => {
-    setQueryLocation(locObj.value);
-    const allVrfs = [];
-    const deviceVrfs = [];
-    locObj.value.map(loc => {
-      const locVrfs = [];
-      config.devices[loc].vrfs.map(vrf => {
-        locVrfs.push({
-          label: vrf.display_name,
-          value: vrf.id,
-        });
-        deviceVrfs.push([{ id: vrf.id, ipv4: vrf.ipv4, ipv6: vrf.ipv6 }]);
-      });
-      allVrfs.push(locVrfs);
-    });
+  function handleLocChange(locations: string[]): void {
+    const allVrfs = [] as TDeviceVrf[][];
 
-  deviceVrfs.length !== 0 &&
-    intersecting.length !== 0 &&
-    deviceVrfs
-      .filter(v => intersecting.every(i => i.id === v.id))
-      .reduce((a, b) => a.concat(b))
-      .filter(v => v.id === 'default')
-      .map(v => {
-        v.ipv4 === true && ipv4++;
-        v.ipv6 === true && ipv6++;
-      });
-  */
+    setQueryLocation(locations);
 
-  // function handleLocChange(locObj: TSelectOption) {
-  //   const allVrfs = [] as TDeviceVrf[][];
-  //   const deviceVrfs = [] as TDeviceVrf[][];
-
-  //   if (Array.isArray(locObj.value)) {
-  //     setQueryLocation(locObj.value);
-  //     for (const loc of locObj.value) {
-  //       const locVrfs = [] as TDeviceVrf[];
-  //       for (const vrf of devices.filter(dev => dev.name === loc)[0].vrfs) {
-  //         locVrfs.push(vrf);
-  //         deviceVrfs.push([vrf]);
-  //       }
-  //       allVrfs.push(locVrfs);
-  //     }
-  //   }
-
-  //   // Use _.intersectionWith to create an array of VRFs common to all selected locations.
-  //   const intersecting: TDeviceVrf[] = intersectionWith(...allVrfs, isEqual);
-  //   setAvailVrfs(intersecting);
-
-  //   // If there are no intersecting VRFs, use the default VRF.
-  //   if (intersecting.filter(i => i.id === queryVrf).length === 0 && queryVrf !== 'default') {
-  //     setQueryVrf('default');
-  //   }
-
-  //   let ipv4 = 0;
-  //   let ipv6 = 0;
-
-  //   if (deviceVrfs.length !== 0 && intersecting.length !== 0) {
-  //     const matching = deviceVrfs
-  //       // Select intersecting VRFs
-  //       .filter(v => intersecting.every(i => i.id === v.id))
-  //       .reduce((a, b) => a.concat(b))
-  //       .filter(v => v.id === 'default');
-
-  //     for (const match of matching) {
-  //       if (match.ipv4) {
-  //         ipv4++;
-  //       }
-  //       if (match.ipv6) {
-  //         ipv6++;
-  //       }
-  //     }
-  //   }
-
-  //   if (ipv4 !== 0 && ipv4 === ipv6) {
-  //     setFamilies([4, 6]);
-  //   } else if (ipv4 > ipv6) {
-  //     setFamilies([4]);
-  //   } else if (ipv4 < ipv6) {
-  //     setFamilies([6]);
-  //   } else {
-  //     setFamilies([]);
-  //   }
-  // }
-
-  function handleLocChange(locations: string | string[]): void {
-    const allVrfs = [] as TDeviceVrf[];
-
-    if (Array.isArray(locations)) {
-      setQueryLocation(locations);
-      for (const loc of locations) {
-        for (const vrf of devices.filter(dev => dev.name === loc)[0].vrfs) {
-          allVrfs.push(vrf);
-        }
-      }
+    // Create an array of each device's VRFs.
+    for (const loc of locations) {
+      const device = getDevice(loc);
+      allVrfs.push(device.vrfs);
     }
 
     // Use _.intersectionWith to create an array of VRFs common to all selected locations.
-    const intersecting = uniqWith<TDeviceVrf>(allVrfs, (a, b) => a.id === b.id);
+    const intersecting = intersectionWith(
+      ...allVrfs,
+      (a: TDeviceVrf, b: TDeviceVrf) => a.id === b.id,
+    );
+
     setAvailVrfs(intersecting);
 
     // If there are no intersecting VRFs, use the default VRF.
@@ -211,7 +117,7 @@ export const HyperglassForm = () => {
   function handleChange(e: OnChangeArgs): void {
     setValue(e.field, e.value);
 
-    if (e.field === 'query_location') {
+    if (e.field === 'query_location' && Array.isArray(e.value)) {
       handleLocChange(e.value);
     } else if (e.field === 'query_type' && isQueryType(e.value)) {
       setQueryType(e.value);
@@ -277,11 +183,11 @@ export const HyperglassForm = () => {
         </FormField>
       </FormRow>
       <FormRow>
-        {availVrfs.length > 1 && (
+        <If c={availVrfs.length > 1}>
           <FormField label={web.text.query_vrf} name="query_vrf" errors={errors.query_vrf}>
             <QueryVrf label={web.text.query_vrf} vrfs={availVrfs} onChange={handleChange} />
           </FormField>
-        )}
+        </If>
         <FormField
           name="query_target"
           errors={errors.query_target}
@@ -298,7 +204,7 @@ export const HyperglassForm = () => {
               />
             )
           }>
-          {queryType === 'bgp_community' && queries.bgp_community.mode === 'select' ? (
+          <If c={queryType === 'bgp_community' && queries.bgp_community.mode === 'select'}>
             <CommunitySelect
               name="query_target"
               register={register}
@@ -306,7 +212,8 @@ export const HyperglassForm = () => {
               onChange={handleChange}
               communities={queries.bgp_community.communities}
             />
-          ) : (
+          </If>
+          <If c={!(queryType === 'bgp_community' && queries.bgp_community.mode === 'select')}>
             <QueryTarget
               name="query_target"
               register={register}
@@ -319,7 +226,7 @@ export const HyperglassForm = () => {
               setDisplayValue={setDisplayTarget}
               placeholder={web.text.query_target}
             />
-          )}
+          </If>
         </FormField>
       </FormRow>
       <FormRow mt={0} justifyContent="flex-end">

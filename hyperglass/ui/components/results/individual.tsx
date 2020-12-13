@@ -119,7 +119,7 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
 
   let copyValue = data?.output;
 
-  const formatData = useTableToString(queryTarget, data, [data.format]);
+  const formatData = useTableToString(queryTarget, data, [data?.format]);
 
   if (data?.format === 'application/json') {
     copyValue = formatData();

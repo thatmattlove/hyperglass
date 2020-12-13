@@ -121,12 +121,12 @@ export interface TDevice extends TDeviceBase {
 }
 
 export interface TNetworkLocation extends TDeviceBase {
-  vrfs: TDeviceVrfBase[];
+  vrfs: TDeviceVrf[];
 }
 
 export interface TNetwork {
   display_name: string;
-  locations: TNetworkLocation[];
+  locations: TDevice[];
 }
 
 export type TParsedDataField = [string, keyof TRoute, 'left' | 'right' | 'center' | null];

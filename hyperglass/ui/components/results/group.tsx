@@ -3,13 +3,16 @@ import { Accordion, Box, Stack, useToken } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedDiv, Label } from '~/components';
 import { useConfig, useBreakpointValue } from '~/context';
+import { useDevice } from '~/hooks';
+import { isQueryType } from '~/types';
 import { Result } from './individual';
 
 import type { TResults } from './types';
 
 export const Results = (props: TResults) => {
   const { queryLocation, queryType, queryVrf, queryTarget, ...rest } = props;
-  const { request_timeout, devices, queries, vrfs, web } = useConfig();
+  const { request_timeout, queries, vrfs, web } = useConfig();
+  const getDevice = useDevice();
   const targetBg = useToken('colors', 'teal.600');
   const queryBg = useToken('colors', 'cyan.500');
   const vrfBg = useToken('colors', 'blue.500');
@@ -61,6 +64,11 @@ export const Results = (props: TResults) => {
   const matchedVrf =
     vrfs.filter(v => v.id === queryVrf)[0] ?? vrfs.filter(v => v.id === 'default')[0];
 
+  let queryTypeLabel = '';
+  if (isQueryType(queryType)) {
+    queryTypeLabel = queries[queryType].display_name;
+  }
+
   return (
     <>
       <Box
@@ -84,7 +92,7 @@ export const Results = (props: TResults) => {
                     bg={queryBg}
                     label={web.text.query_type}
                     fontSize={{ base: 'xs', md: 'sm' }}
-                    value={queries[queryType].display_name}
+                    value={queryTypeLabel}
                   />
                 </motion.div>
                 <motion.div
@@ -134,7 +142,7 @@ export const Results = (props: TResults) => {
           <AnimatePresence>
             {queryLocation &&
               queryLocation.map((loc, i) => {
-                const device = devices.filter(d => d.name === loc)[0];
+                const device = getDevice(loc);
                 return (
                   <motion.div
                     animate={{ opacity: 1, y: 0 }}
