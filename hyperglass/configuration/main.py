@@ -358,7 +358,12 @@ def _build_networks():
                         "display_name": device.display_name,
                         "network": device.network.display_name,
                         "vrfs": [
-                            {"id": vrf.name, "display_name": vrf.display_name}
+                            {
+                                "id": vrf.name,
+                                "display_name": vrf.display_name,
+                                "ipv4": True if vrf.ipv4 else False,  # noqa: IF100
+                                "ipv6": True if vrf.ipv6 else False,  # noqa: IF100
+                            }
                             for vrf in device.vrfs
                         ],
                     }
