@@ -3,8 +3,7 @@ import dayjs from 'dayjs';
 import relativeTimePlugin from 'dayjs/plugin/relativeTime';
 import utcPlugin from 'dayjs/plugin/utc';
 import { useConfig } from '~/context';
-
-import { TStringTableData } from './types';
+import { isStructuredOutput } from '~/types';
 
 dayjs.extend(relativeTimePlugin);
 dayjs.extend(utcPlugin);
@@ -48,10 +47,10 @@ function formatTime(val: number): string {
 
 export function useTableToString(
   target: string,
-  data: TStringTableData,
+  data: TQueryResponse | undefined,
   ...deps: any
 ): () => string {
-  const { web, parsed_data_fields } = useConfig();
+  const { web, parsed_data_fields, messages } = useConfig();
 
   function formatRpkiState(val: number): string {
     const rpkiStates = [
@@ -83,26 +82,29 @@ export function useTableToString(
     }
   }
 
-  function doFormat(target: string, data: TStringTableData): string {
+  function doFormat(target: string, data: TQueryResponse | undefined): string {
+    let result = messages.no_output;
     try {
-      let tableStringParts = [`Routes For: ${target}`, `Timestamp: ${data.timestamp} UTC`];
-
-      data.output.routes.map(route => {
-        parsed_data_fields.map(field => {
-          const [header, accessor, align] = field;
-          if (align !== null) {
-            let value = route[accessor];
-            const fmtFunc = getFmtFunc(accessor);
-            value = fmtFunc(value);
-            if (accessor === 'prefix') {
-              tableStringParts.push(`  - ${header}: ${value}`);
-            } else {
-              tableStringParts.push(`    - ${header}: ${value}`);
+      if (typeof data !== 'undefined' && isStructuredOutput(data)) {
+        let tableStringParts = [`Routes For: ${target}`, `Timestamp: ${data.timestamp} UTC`];
+        for (const route of data.output.routes) {
+          for (const field of parsed_data_fields) {
+            const [header, accessor, align] = field;
+            if (align !== null) {
+              let value = route[accessor];
+              const fmtFunc = getFmtFunc(accessor);
+              value = fmtFunc(value);
+              if (accessor === 'prefix') {
+                tableStringParts.push(`  - ${header}: ${value}`);
+              } else {
+                tableStringParts.push(`    - ${header}: ${value}`);
+              }
             }
           }
-        });
-      });
-      return tableStringParts.join('\n');
+        }
+        result = tableStringParts.join('\n');
+      }
+      return result;
     } catch (err) {
       console.error(err);
       return `An error occurred while parsing the output: '${err.message}'`;

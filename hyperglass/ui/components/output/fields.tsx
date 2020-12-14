@@ -1,14 +1,9 @@
-import dynamic from 'next/dynamic';
-import {
-  Icon,
-  Text,
-  Popover,
-  Tooltip,
-  PopoverArrow,
-  PopoverContent,
-  PopoverTrigger,
-} from '@chakra-ui/react';
-import { MdLastPage } from '@meronex/icons/md';
+import { Icon, Text, Box, Tooltip, Menu, MenuButton, MenuList } from '@chakra-ui/react';
+import { CgMoreO as More } from '@meronex/icons/cg';
+import { BisError as Warning } from '@meronex/icons/bi';
+import { MdNotInterested as NotAllowed, MdLastPage } from '@meronex/icons/md';
+import { BsQuestionCircleFill as Question } from '@meronex/icons/bs';
+import { FaCheckCircle as Check, FaChevronRight as ChevronRight } from '@meronex/icons/fa';
 import dayjs from 'dayjs';
 import relativeTimePlugin from 'dayjs/plugin/relativeTime';
 import utcPlugin from 'dayjs/plugin/utc';
@@ -27,19 +22,6 @@ import type {
 
 dayjs.extend(relativeTimePlugin);
 dayjs.extend(utcPlugin);
-
-const Check = dynamic<MeronexIcon>(() => import('@meronex/icons/fa').then(i => i.FaCheckCircle));
-const More = dynamic<MeronexIcon>(() => import('@meronex/icons/cg').then(i => i.CgMoreO));
-const NotAllowed = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/md').then(i => i.MdNotInterested),
-);
-const Question = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/bs').then(i => i.BsQuestionCircleFill),
-);
-const Warning = dynamic<MeronexIcon>(() => import('@meronex/icons/bi').then(i => i.BisError));
-const ChevronRight = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/fa').then(i => i.FaChevronRight),
-);
 
 export const MonoField = (props: TMonoField) => {
   const { v, ...rest } = props;
@@ -128,22 +110,21 @@ export const Communities = (props: TCommunities) => {
         </Tooltip>
       </If>
       <If c={communities.length !== 0}>
-        <Popover trigger="hover" placement="right">
-          <PopoverTrigger>
+        <Menu>
+          <MenuButton>
             <Icon as={More} />
-          </PopoverTrigger>
-          <PopoverContent
-            p={4}
+          </MenuButton>
+          <MenuList
+            p={3}
             width="unset"
             color={color}
             textAlign="left"
             fontFamily="mono"
             fontWeight="normal"
             whiteSpace="pre-wrap">
-            <PopoverArrow />
             {communities.join('\n')}
-          </PopoverContent>
-        </Popover>
+          </MenuList>
+        </Menu>
       </If>
     </>
   );
@@ -173,7 +154,7 @@ export const RPKIState = (props: TRPKIState) => {
 
   return (
     <Tooltip hasArrow placement="right" label={text[state] ?? text[3]}>
-      <Icon icon={icon[state]} color={color[+active][state]} />
+      <Box as={icon[state]} color={color[+active][state]} />
     </Tooltip>
   );
 };

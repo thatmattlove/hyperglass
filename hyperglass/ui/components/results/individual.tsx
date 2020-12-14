@@ -10,17 +10,16 @@ import {
   AccordionButton,
 } from '@chakra-ui/react';
 import { BsLightningFill } from '@meronex/icons/bs';
-import useAxios from 'axios-hooks';
 import { startCase } from 'lodash';
 import { BGPTable, Countdown, CopyButton, RequeryButton, TextOutput, If } from '~/components';
 import { useColorValue, useConfig, useMobile } from '~/context';
-import { useStrf, useTableToString } from '~/hooks';
+import { useStrf, useLGQuery, useTableToString } from '~/hooks';
+import { isStructuredOutput, isStringOutput } from '~/types';
 import { FormattedError } from './error';
 import { ResultHeader } from './header';
+import { isStackError, isFetchError, isLGError } from './guards';
 
-import type { TAccordionHeaderWrapper, TResult } from './types';
-
-type TErrorLevels = 'success' | 'warning' | 'error';
+import type { TAccordionHeaderWrapper, TResult, TErrorLevels } from './types';
 
 const AccordionHeaderWrapper = (props: TAccordionHeaderWrapper) => {
   const { hoverBg, ...rest } = props;
@@ -38,7 +37,6 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
   const {
     index,
     device,
-    timeout,
     queryVrf,
     queryType,
     queryTarget,
@@ -54,20 +52,12 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
   const scrollbarHover = useColorValue('blackAlpha.400', 'whiteAlpha.400');
   const scrollbarBg = useColorValue('blackAlpha.50', 'whiteAlpha.50');
 
-  let [{ data, loading, error }, refetch] = useAxios(
-    {
-      url: '/api/query/',
-      method: 'post',
-      data: {
-        query_vrf: queryVrf,
-        query_type: queryType,
-        query_target: queryTarget,
-        query_location: queryLocation,
-      },
-      timeout,
-    },
-    { useCache: false },
-  );
+  const { data, error, isError, isLoading, refetch } = useLGQuery({
+    queryLocation,
+    queryTarget,
+    queryType,
+    queryVrf,
+  });
 
   const cacheLabel = useStrf(web.text.cache_icon, { time: data?.timestamp }, [data?.timestamp]);
 
@@ -79,16 +69,23 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
     setOverride(true);
   };
 
-  const errorKw = (error && error.response?.data?.keywords) || [];
+  const errorKeywords = useMemo(() => {
+    let kw = [] as string[];
+    if (isLGError(error)) {
+      kw = error.keywords;
+    }
+    return kw;
+  }, [isError]);
 
   let errorMsg;
-  if (error && error.response?.data?.output) {
-    errorMsg = error.response.data.output;
-  } else if (error && error.message.startsWith('timeout')) {
+
+  if (isLGError(error)) {
+    errorMsg = error.output as string;
+  } else if (isFetchError(error)) {
+    errorMsg = startCase(error.statusText);
+  } else if (isStackError(error) && error.message.toLowerCase().startsWith('timeout')) {
     errorMsg = messages.request_timeout;
-  } else if (error?.response?.statusText) {
-    errorMsg = startCase(error.response.statusText);
-  } else if (error && error.message) {
+  } else if (isStackError(error)) {
     errorMsg = startCase(error.message);
   } else {
     errorMsg = messages.general;
@@ -96,7 +93,7 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
 
   error && console.error(error);
 
-  const getErrorLevel = (): TErrorLevels => {
+  const errorLevel = useMemo<TErrorLevels>(() => {
     const statusMap = {
       success: 'success',
       warning: 'warning',
@@ -106,18 +103,22 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
 
     let e: TErrorLevels = 'error';
 
-    if (error?.response?.data?.level) {
-      const idx = error.response.data.level as TResponseLevel;
+    if (isLGError(error)) {
+      const idx = error.level as TResponseLevel;
       e = statusMap[idx];
     }
     return e;
-  };
+  }, [error]);
 
-  const errorLevel = useMemo(() => getErrorLevel(), [error]);
+  const tableComponent = useMemo<boolean>(() => {
+    let result = false;
+    if (typeof queryType.match(/^bgp_\w+$/) !== null && data?.format === 'application/json') {
+      result = true;
+    }
+    return result;
+  }, [queryType, data?.format]);
 
-  const tableComponent = useMemo(() => typeof queryType.match(/^bgp_\w+$/) !== null, [queryType]);
-
-  let copyValue = data?.output;
+  let copyValue = data?.output as string;
 
   const formatData = useTableToString(queryTarget, data, [data?.format]);
 
@@ -130,18 +131,22 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
   }
 
   useEffect(() => {
-    !loading && resultsComplete === null && setComplete(index);
-  }, [loading, resultsComplete]);
+    if (isLoading && resultsComplete === null) {
+      setComplete(index);
+    }
+  }, [isLoading, resultsComplete]);
 
   useEffect(() => {
-    resultsComplete === index && !hasOverride && setOpen(true);
+    if (resultsComplete === index && !hasOverride) {
+      setOpen(true);
+    }
   }, [resultsComplete, index]);
 
   return (
     <AccordionItem
       ref={ref}
       isOpen={isOpen}
-      isDisabled={loading}
+      isDisabled={isLoading}
       css={{
         '&:last-of-type': { borderBottom: 'none' },
         '&:first-of-type': { borderTop: 'none' },
@@ -155,17 +160,17 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
           flex="1 0 auto"
           onClick={handleToggle}>
           <ResultHeader
-            error={error}
-            loading={loading}
+            isError={isError}
+            loading={isLoading}
             errorMsg={errorMsg}
             errorLevel={errorLevel}
-            runtime={data?.runtime}
+            runtime={data?.runtime ?? 0}
             title={device.display_name}
           />
         </AccordionButton>
         <ButtonGroup px={[1, 1, 3, 3]} py={2}>
-          <CopyButton copyValue={copyValue} isDisabled={loading} />
-          <RequeryButton requery={refetch} variant="ghost" isDisabled={loading} />
+          <CopyButton copyValue={copyValue} isDisabled={isLoading} />
+          <RequeryButton requery={refetch} variant="ghost" isDisabled={isLoading} />
         </ButtonGroup>
       </AccordionHeaderWrapper>
       <AccordionPanel
@@ -188,20 +193,16 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
         }}>
         <Flex direction="column" flexWrap="wrap">
           <Flex direction="column" flex="1 0 auto" maxW={error ? '100%' : undefined}>
-            <If c={!error && data}>
-              <If c={tableComponent}>
-                <BGPTable>{data?.output}</BGPTable>
-              </If>
-              <If c={!tableComponent}>
-                <TextOutput>{data?.output}</TextOutput>
-              </If>
-            </If>
-
-            {error && (
-              <Alert rounded="lg" my={2} py={4} status={errorLevel}>
-                <FormattedError keywords={errorKw} message={errorMsg} />
-              </Alert>
+            {!isError && typeof data !== 'undefined' && (
+              <>
+                {isStructuredOutput(data) && tableComponent ? (
+                  <BGPTable>{data.output}</BGPTable>
+                ) : isStringOutput(data) && !tableComponent ? (
+                  <TextOutput>{data.output}</TextOutput>
+                ) : null}
+              </>
             )}
+            {isError && <Alert rounded="lg" my={2} py={4} status={errorLevel}></Alert>}
           </Flex>
         </Flex>
 

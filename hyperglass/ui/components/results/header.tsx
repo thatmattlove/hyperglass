@@ -1,5 +1,5 @@
-import { forwardRef, useMemo } from 'react';
-import { AccordionIcon, Box, Spinner, Stack, Text, Tooltip } from '@chakra-ui/react';
+import { useMemo } from 'react';
+import { AccordionIcon, Box, Spinner, HStack, Text, Tooltip } from '@chakra-ui/react';
 import { BisError as Warning } from '@meronex/icons/bi';
 import { FaCheckCircle as Check } from '@meronex/icons/fa';
 import { useConfig, useColorValue } from '~/context';
@@ -15,8 +15,8 @@ const runtimeText = (runtime: number, text: string): string => {
   return `${text} ${unit}`;
 };
 
-export const ResultHeader = forwardRef<HTMLDivElement, TResultHeader>((props, ref) => {
-  const { title, loading, error, errorMsg, errorLevel, runtime } = props;
+export const ResultHeader = (props: TResultHeader) => {
+  const { title, loading, isError, errorMsg, errorLevel, runtime } = props;
 
   const status = useColorValue('primary.500', 'primary.300');
   const warning = useColorValue(`${errorLevel}.500`, `${errorLevel}.300`);
@@ -27,20 +27,27 @@ export const ResultHeader = forwardRef<HTMLDivElement, TResultHeader>((props, re
   const label = useMemo(() => runtimeText(runtime, text), [runtime]);
 
   return (
-    <Stack ref={ref} isInline alignItems="center" w="100%">
-      {loading ? (
-        <Spinner size="sm" mr={4} color={status} />
-      ) : error ? (
-        <Tooltip hasArrow label={errorMsg} placement="top">
-          <Box as={Warning} color={warning} mr={4} boxSize={6} />
-        </Tooltip>
-      ) : (
-        <Tooltip hasArrow label={label} placement="top">
-          <Box as={Check} color={defaultStatus} mr={4} boxSize={6} />
-        </Tooltip>
-      )}
+    <HStack alignItems="center" w="100%">
+      <Tooltip
+        hasArrow
+        placement="top"
+        isDisabled={loading}
+        label={isError ? errorMsg : label}
+        colorScheme={isError ? errorLevel : 'success'}>
+        {loading ? (
+          <Spinner size="sm" mr={4} color={status} />
+        ) : (
+          <Box
+            as={isError ? Warning : Check}
+            color={isError ? warning : defaultStatus}
+            mr={4}
+            boxSize={6}
+          />
+        )}
+      </Tooltip>
+
       <Text fontSize="lg">{title}</Text>
       <AccordionIcon ml="auto" />
-    </Stack>
+    </HStack>
   );
-});
+};

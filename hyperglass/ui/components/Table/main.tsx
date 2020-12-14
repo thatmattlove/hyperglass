@@ -1,3 +1,4 @@
+import * as React from 'react';
 import dynamic from 'next/dynamic';
 import { Flex, Icon, Text } from '@chakra-ui/react';
 import { usePagination, useSortBy, useTable } from 'react-table';
@@ -68,18 +69,18 @@ export function Table(props: TTable) {
   const instance = useTable<TRoute>(options, ...plugins);
 
   const {
-    getTableProps,
-    headerGroups,
-    prepareRow,
     page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
     gotoPage,
     nextPage,
-    previousPage,
+    pageCount,
+    prepareRow,
+    canNextPage,
+    pageOptions,
     setPageSize,
+    headerGroups,
+    previousPage,
+    getTableProps,
+    canPreviousPage,
     state: { pageIndex, pageSize },
   } = instance;
 
@@ -116,7 +117,6 @@ export function Table(props: TTable) {
         <TableBody>
           {page.map((row, key) => {
             prepareRow(row);
-
             return (
               <TableRow
                 index={key}
@@ -131,7 +131,8 @@ export function Table(props: TTable) {
                       align={cell.column.align}
                       bordersVertical={[bordersVertical, i]}
                       {...cell.getCellProps()}>
-                      {cellRender ?? cell.render('Cell')}
+                      {/* {cellRender ?? cell.render('Cell')} */}
+                      {React.createElement(cellRender, cell)}
                     </TableCell>
                   );
                 })}
