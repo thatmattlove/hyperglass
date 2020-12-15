@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { Icon, Text, Box, Tooltip, Menu, MenuButton, MenuList } from '@chakra-ui/react';
 import { CgMoreO as More } from '@meronex/icons/cg';
 import { BisError as Warning } from '@meronex/icons/bi';
@@ -9,6 +10,7 @@ import relativeTimePlugin from 'dayjs/plugin/relativeTime';
 import utcPlugin from 'dayjs/plugin/utc';
 import { useConfig, useColorValue } from '~/context';
 import { If } from '~/components';
+import { useOpposingColor } from '~/hooks';
 
 import type {
   TAge,
@@ -76,8 +78,10 @@ export const Weight = (props: TWeight) => {
 export const ASPath = (props: TASPath) => {
   const { path, active } = props;
   const color = useColorValue(
+    // light: inactive, active
     ['blackAlpha.500', 'blackAlpha.500'],
-    ['blackAlpha.500', 'whiteAlpha.300'],
+    // dark: inactive, active
+    ['whiteAlpha.600', 'blackAlpha.700'],
   );
 
   if (path.length === 0) {
@@ -88,7 +92,10 @@ export const ASPath = (props: TASPath) => {
 
   path.map((asn, i) => {
     const asnStr = String(asn);
-    i !== 0 && paths.push(<Icon as={ChevronRight} key={`separator-${i}`} color={color[+active]} />);
+    i !== 0 &&
+      paths.push(
+        <Icon as={ChevronRight} key={`separator-${i}`} color={color[+active]} boxSize={5} px={2} />,
+      );
     paths.push(
       <Text fontSize="sm" as="span" whiteSpace="pre" fontFamily="mono" key={`as-${asnStr}-${i}`}>
         {asnStr}
@@ -130,10 +137,10 @@ export const Communities = (props: TCommunities) => {
   );
 };
 
-export const RPKIState = (props: TRPKIState) => {
+export const RPKIState = forwardRef<HTMLDivElement, TRPKIState>((props, ref) => {
   const { state, active } = props;
   const { web } = useConfig();
-  const color = useColorValue(
+  const bg = useColorValue(
     [
       ['red.400', 'green.500', 'yellow.400', 'gray.500'],
       ['red.500', 'green.500', 'yellow.500', 'gray.600'],
@@ -143,6 +150,7 @@ export const RPKIState = (props: TRPKIState) => {
       ['red.500', 'green.600', 'yellow.500', 'gray.800'],
     ],
   );
+  const color = useOpposingColor(bg[+active][state]);
   const icon = [NotAllowed, Check, Warning, Question];
 
   const text = [
@@ -153,8 +161,15 @@ export const RPKIState = (props: TRPKIState) => {
   ];
 
   return (
-    <Tooltip hasArrow placement="right" label={text[state] ?? text[3]}>
-      <Box as={icon[state]} color={color[+active][state]} />
+    <Tooltip
+      hasArrow
+      placement="right"
+      label={text[state] ?? text[3]}
+      bg={bg[+active][state]}
+      color={color}>
+      <Box ref={ref} boxSize={5}>
+        <Box as={icon[state]} color={bg[+active][state]} />
+      </Box>
     </Tooltip>
   );
-};
+});

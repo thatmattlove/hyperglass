@@ -191,20 +191,22 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
 
           '-ms-overflow-style': { display: 'none' },
         }}>
-        <Flex direction="column" flexWrap="wrap">
+        <Box>
           <Flex direction="column" flex="1 0 auto" maxW={error ? '100%' : undefined}>
             {!isError && typeof data !== 'undefined' && (
               <>
-                {isStructuredOutput(data) && tableComponent ? (
+                {isStructuredOutput(data) && data.level === 'success' && tableComponent ? (
                   <BGPTable>{data.output}</BGPTable>
-                ) : isStringOutput(data) && !tableComponent ? (
+                ) : isStringOutput(data) && data.level === 'success' && !tableComponent ? (
                   <TextOutput>{data.output}</TextOutput>
+                ) : isStringOutput(data) && data.level !== 'success' ? (
+                  <FormattedError message={data.output} keywords={errorKeywords} />
                 ) : null}
               </>
             )}
             {isError && <Alert rounded="lg" my={2} py={4} status={errorLevel}></Alert>}
           </Flex>
-        </Flex>
+        </Box>
 
         <Flex direction="row" flexWrap="wrap">
           <Flex

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useToken } from '@chakra-ui/react';
 import { getColor, isLight } from '@chakra-ui/theme-tools';
 import { useTheme } from '~/context';
@@ -20,16 +20,15 @@ export function useIsDark(color: string) {
 }
 
 export function useOpposingColor(color: string, options?: TOpposingOptions): string {
-  const [opposingColor, setOpposingColor] = useState<string>('inherit');
   const isBlack = useIsDark(color);
 
-  const dark = useToken('colors', options?.dark ?? 'original.dark');
-  const light = useToken('colors', options?.light ?? 'original.light');
-
-  isBlack && opposingColor !== dark && setOpposingColor(dark);
-  !isBlack && opposingColor !== light && setOpposingColor(light);
-
-  return opposingColor;
+  return useMemo(() => {
+    if (isBlack) {
+      return options?.dark ?? 'black';
+    } else {
+      return options?.light ?? 'white';
+    }
+  }, [color]);
 }
 
 export function useOpposingToken(color: string, options?: TOpposingOptions): string {
@@ -40,5 +39,5 @@ export function useOpposingToken(color: string, options?: TOpposingOptions): str
 
   isBlack && opposingColor !== dark && setOpposingColor(dark);
   !isBlack && opposingColor !== light && setOpposingColor(light);
-  return opposingColor;
+  return useMemo(() => opposingColor, [color]);
 }

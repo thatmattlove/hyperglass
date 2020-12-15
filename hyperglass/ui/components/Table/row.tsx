@@ -23,7 +23,6 @@ export const TableRow = (props: TTableRow) => {
     { borderTop: '1px', borderTopColor: 'whiteAlpha.100' },
   );
   let bg;
-  const color = useOpposingColor(bgStripe);
 
   if (highlight) {
     bg = `${highlightBg}.${alpha}`;
@@ -31,14 +30,15 @@ export const TableRow = (props: TTableRow) => {
   } else if (doStripe && index % 2 !== 0) {
     bg = bgStripe;
   }
-
+  const defaultBg = useColorValue('white', 'black');
+  const color = useOpposingColor(bg ?? defaultBg);
   const borderProps = doHorizontalBorders && index !== 0 ? rowBorder : {};
 
   return (
     <Box
       as="tr"
       bg={bg}
-      color={highlight ? color : undefined}
+      css={{ '& > td': { color } }}
       fontWeight={highlight ? 'bold' : undefined}
       _hover={{
         cursor: 'pointer',

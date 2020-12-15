@@ -5,10 +5,6 @@ import type { TCell } from './types';
 export const Cell = (props: TCell) => {
   const { data, rawData } = props;
   const cellId = data.column.id as keyof TRoute;
-  console.group(cellId);
-  console.dir(data);
-  console.dir(rawData);
-  console.groupEnd();
   const component = {
     med: <MonoField v={data.value} />,
     age: <Age inSeconds={data.value} />,

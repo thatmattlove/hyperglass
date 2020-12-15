@@ -15,7 +15,13 @@ import { TableSelectShow } from './pageSelect';
 import type { TableOptions, PluginHook, Row } from 'react-table';
 import type { TTable } from './types';
 
-const ChevronUp = dynamic<MeronexIcon>(() => import('@meronex/icons/fa').then(i => i.FaChevronUp));
+const ChevronRight = dynamic<MeronexIcon>(() =>
+  import('@meronex/icons/fa').then(i => i.FaChevronRight),
+);
+
+const ChevronLeft = dynamic<MeronexIcon>(() =>
+  import('@meronex/icons/fa').then(i => i.FaChevronLeft),
+);
 
 const ChevronDown = dynamic<MeronexIcon>(() =>
   import('@meronex/icons/fa').then(i => i.FaChevronDown),
@@ -105,7 +111,7 @@ export function Table(props: TTable) {
                       <Icon as={ChevronDown} boxSize={4} ml={1} />
                     </If>
                     <If c={!column.isSortedDesc}>
-                      <Icon as={ChevronUp} boxSize={4} ml={1} />
+                      <Icon as={ChevronRight} boxSize={4} ml={1} />
                     </If>
                   </If>
                   <If c={!column.isSorted}>{''}</If>
@@ -147,13 +153,13 @@ export function Table(props: TTable) {
             mr={2}
             onClick={() => gotoPage(0)}
             isDisabled={!canPreviousPage}
-            icon={<Icon as={DoubleChevronLeft} boxSize={3} />}
+            icon={<Icon as={DoubleChevronLeft} boxSize={4} />}
           />
           <TableIconButton
             mr={2}
             onClick={() => previousPage()}
             isDisabled={!canPreviousPage}
-            icon={<Icon as={DoubleChevronLeft} boxSize={6} />}
+            icon={<Icon as={ChevronLeft} boxSize={3} />}
           />
         </Flex>
         <Flex justifyContent="center" alignItems="center">
@@ -177,12 +183,12 @@ export function Table(props: TTable) {
             ml={2}
             onClick={nextPage}
             isDisabled={!canNextPage}
-            icon={<Icon as={ChevronUp} boxSize={6} />}
+            icon={<Icon as={ChevronRight} boxSize={3} />}
           />
           <TableIconButton
             ml={2}
             isDisabled={!canNextPage}
-            icon={<Icon as={DoubleChevronRight} boxSize={3} />}
+            icon={<Icon as={DoubleChevronRight} boxSize={4} />}
             onClick={() => gotoPage(pageCount ? pageCount - 1 : 1)}
           />
         </Flex>
