@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
-import { Button, Icon, Spinner, Stack, Tag, Text, Tooltip } from '@chakra-ui/react';
+import { useEffect, useMemo } from 'react';
+import { Button, Stack, Text, VStack } from '@chakra-ui/react';
 import { useQuery } from 'react-query';
-import { useConfig } from '~/context';
-import { useStrf } from '~/hooks';
+import { FiArrowRightCircle as RightArrow } from '@meronex/icons/fi';
+import { useConfig, useColorValue, useGlobalState } from '~/context';
+import { useStrf, useLGState } from '~/hooks';
 
-import type { DnsOverHttps, ColorNames } from '~/types';
+import type { DnsOverHttps } from '~/types';
 import type { TResolvedTarget } from './types';
 
 function findAnswer(data: DnsOverHttps.Response | undefined): string {
@@ -17,26 +18,32 @@ function findAnswer(data: DnsOverHttps.Response | undefined): string {
 }
 
 export const ResolvedTarget = (props: TResolvedTarget) => {
-  const { fqdnTarget, setTarget, queryTarget, families, availVrfs } = props;
+  const { setTarget } = props;
   const { web } = useConfig();
+  const { isSubmitting } = useGlobalState();
+  const { fqdnTarget, queryTarget, families, formData } = useLGState();
+
+  const color = useColorValue('secondary.500', 'secondary.300');
 
   const dnsUrl = web.dns_provider.url;
-  const query4 = Array.from(families).includes(4);
-  const query6 = Array.from(families).includes(6);
+  const query4 = Array.from(families.value).includes(4);
+  const query6 = Array.from(families.value).includes(6);
 
   const tooltip4 = useStrf(web.text.fqdn_tooltip, { protocol: 'IPv4' });
   const tooltip6 = useStrf(web.text.fqdn_tooltip, { protocol: 'IPv6' });
+  const [messageStart, messageEnd] = useMemo(() => web.text.fqdn_message.split('{fqdn}'), [
+    web.text.fqdn_message,
+  ]);
 
   const { data: data4, isLoading: isLoading4, isError: isError4 } = useQuery(
-    [fqdnTarget, 4],
+    [fqdnTarget.value, 4],
     dnsQuery,
   );
 
   const { data: data6, isLoading: isLoading6, isError: isError6 } = useQuery(
-    [fqdnTarget, 6],
+    [fqdnTarget.value, 6],
     dnsQuery,
   );
-
   async function dnsQuery(
     target: string,
     family: 4 | 6,
@@ -58,13 +65,9 @@ export const ResolvedTarget = (props: TResolvedTarget) => {
   function handleOverride(value: string): void {
     setTarget({ field: 'query_target', value });
   }
-
-  function isSelected(value: string): ColorNames {
-    if (value === queryTarget) {
-      return 'success';
-    } else {
-      return 'secondary';
-    }
+  function selectTarget(value: string): void {
+    formData.set(p => ({ ...p, query_target: value }));
+    isSubmitting.set(true);
   }
 
   useEffect(() => {
@@ -78,69 +81,42 @@ export const ResolvedTarget = (props: TResolvedTarget) => {
   }, [data4, data6]);
 
   return (
-    <Stack
-      isInline
-      w="100%"
-      justifyContent={
-        query4 && data4?.Answer && query6 && data6?.Answer && availVrfs.length > 1
-          ? 'space-between'
-          : 'flex-end'
-      }
-      flexWrap="wrap">
-      {isLoading4 ||
-        isError4 ||
-        (query4 && findAnswer(data4) && (
-          <Tag my={2}>
-            <Tooltip hasArrow label={tooltip4} placement="bottom">
-              <Button
-                px={2}
-                mr={2}
-                py="0.1rem"
-                minW="unset"
-                fontSize="xs"
-                height="unset"
-                borderRadius="md"
-                colorScheme={isSelected(findAnswer(data4))}
-                onClick={() => handleOverride(findAnswer(data4))}>
-                IPv4
-              </Button>
-            </Tooltip>
-            {isLoading4 && <Spinner />}
-            {isError4 && <Icon name="warning" />}
-            {findAnswer(data4) && (
-              <Text fontSize="xs" fontFamily="mono" as="span" fontWeight={400}>
-                {findAnswer(data4)}
-              </Text>
-            )}
-          </Tag>
-        ))}
-      {isLoading6 ||
-        isError6 ||
-        (query6 && findAnswer(data6) && (
-          <Tag my={2}>
-            <Tooltip hasArrow label={tooltip6} placement="bottom">
-              <Button
-                px={2}
-                mr={2}
-                py="0.1rem"
-                minW="unset"
-                fontSize="xs"
-                height="unset"
-                borderRadius="md"
-                colorScheme={isSelected(findAnswer(data6))}
-                onClick={() => handleOverride(findAnswer(data6))}>
-                IPv6
-              </Button>
-            </Tooltip>
-            {isLoading6 && <Spinner />}
-            {isError6 && <Icon name="warning" />}
-            {findAnswer(data6) && (
-              <Text fontSize="xs" fontFamily="mono" as="span" fontWeight={400}>
-                {findAnswer(data6)}
-              </Text>
-            )}
-          </Tag>
-        ))}
-    </Stack>
+    <VStack w="100%" spacing={4} justify="center">
+      <Text fontSize="sm" textAlign="center">
+        {messageStart}
+        <Text as="span" fontSize="sm" fontWeight="bold" color={color}>
+          {fqdnTarget.value}
+        </Text>
+        {messageEnd}
+      </Text>
+      <Stack spacing={2}>
+        {!isLoading4 && !isError4 && query4 && findAnswer(data4) && (
+          <Button
+            size="sm"
+            fontSize="xs"
+            colorScheme="primary"
+            justifyContent="space-between"
+            rightIcon={<RightArrow size="18px" />}
+            title={tooltip4}
+            fontFamily="mono"
+            onClick={() => selectTarget(findAnswer(data4))}>
+            {findAnswer(data4)}
+          </Button>
+        )}
+        {!isLoading6 && !isError6 && query6 && findAnswer(data6) && (
+          <Button
+            size="sm"
+            fontSize="xs"
+            colorScheme="secondary"
+            justifyContent="space-between"
+            rightIcon={<RightArrow size="18px" />}
+            title={tooltip6}
+            fontFamily="mono"
+            onClick={() => selectTarget(findAnswer(data6))}>
+            {findAnswer(data6)}
+          </Button>
+        )}
+      </Stack>
+    </VStack>
   );
 };

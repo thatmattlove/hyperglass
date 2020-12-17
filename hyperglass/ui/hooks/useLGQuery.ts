@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query';
 import { useConfig } from '~/context';
 
-import type { TFormState } from '~/types';
+import type { TFormQuery } from '~/types';
 
 /**
  * Fetch Wrapper that incorporates a timeout via a passed AbortController instance.
@@ -30,11 +30,11 @@ export async function fetchWithTimeout(
   return await fetch(uri, config);
 }
 
-export function useLGQuery(query: TFormState) {
+export function useLGQuery(query: TFormQuery) {
   const { request_timeout } = useConfig();
   const controller = new AbortController();
 
-  async function runQuery(url: string, requestData: TFormState): Promise<TQueryResponse> {
+  async function runQuery(url: string, requestData: TFormQuery): Promise<TQueryResponse> {
     const { queryLocation, queryTarget, queryType, queryVrf } = requestData;
     const res = await fetchWithTimeout(
       url,

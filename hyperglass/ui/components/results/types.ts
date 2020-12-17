@@ -1,5 +1,5 @@
-import type { BoxProps, FlexProps } from '@chakra-ui/react';
-import type { TDevice, TQueryTypes, TFormState } from '~/types';
+import type { FlexProps } from '@chakra-ui/react';
+import type { TDevice, TQueryTypes } from '~/types';
 
 export interface TResultHeader {
   title: string;
@@ -26,10 +26,8 @@ export interface TResult {
   queryType: TQueryTypes;
   queryTarget: string;
   setComplete(v: number | null): void;
-  queryLocation: string[];
+  queryLocation: string;
   resultsComplete: number | null;
 }
-
-export type TResults = TFormState & BoxProps;
 
 export type TErrorLevels = 'success' | 'warning' | 'error';

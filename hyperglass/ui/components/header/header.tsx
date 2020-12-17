@@ -75,7 +75,7 @@ export const Header = (props: THeader) => {
   const resetButton = (
     <AnimatePresence key="resetButton">
       <AnimatedDiv
-        layoutTransition={headerTransition}
+        transition={headerTransition}
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0, width: 'unset' }}
         exit={{ opacity: 0, x: -50 }}
@@ -94,7 +94,7 @@ export const Header = (props: THeader) => {
       key="title"
       px={1}
       alignItems={isSubmitting ? 'center' : ['center', 'center', 'flex-end', 'flex-end']}
-      positionTransition={headerTransition}
+      transition={headerTransition}
       initial={{ scale: 0.5 }}
       animate={
         isSubmitting && web.text.title_mode === 'text_only'
@@ -114,7 +114,7 @@ export const Header = (props: THeader) => {
   );
   const colorModeToggle = (
     <AnimatedDiv
-      layoutTransition={headerTransition}
+      transition={headerTransition}
       key="colorModeToggle"
       alignItems="center"
       initial={{ opacity: 0 }}

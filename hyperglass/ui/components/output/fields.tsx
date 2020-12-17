@@ -2,14 +2,15 @@ import { forwardRef } from 'react';
 import { Icon, Text, Box, Tooltip, Menu, MenuButton, MenuList } from '@chakra-ui/react';
 import { CgMoreO as More } from '@meronex/icons/cg';
 import { BisError as Warning } from '@meronex/icons/bi';
-import { MdNotInterested as NotAllowed, MdLastPage } from '@meronex/icons/md';
+import { MdNotInterested as NotAllowed } from '@meronex/icons/md';
+import { RiHome2Fill as End } from '@meronex/icons/ri';
 import { BsQuestionCircleFill as Question } from '@meronex/icons/bs';
 import { FaCheckCircle as Check, FaChevronRight as ChevronRight } from '@meronex/icons/fa';
 import dayjs from 'dayjs';
 import relativeTimePlugin from 'dayjs/plugin/relativeTime';
 import utcPlugin from 'dayjs/plugin/utc';
-import { useConfig, useColorValue } from '~/context';
 import { If } from '~/components';
+import { useConfig, useColorValue } from '~/context';
 import { useOpposingColor } from '~/hooks';
 
 import type {
@@ -85,7 +86,7 @@ export const ASPath = (props: TASPath) => {
   );
 
   if (path.length === 0) {
-    return <Icon as={MdLastPage} />;
+    return <Icon as={End} />;
   }
 
   let paths = [] as JSX.Element[];
@@ -108,7 +109,8 @@ export const ASPath = (props: TASPath) => {
 
 export const Communities = (props: TCommunities) => {
   const { communities } = props;
-  const color = useColorValue('black', 'white');
+  const bg = useColorValue('white', 'gray.900');
+  const color = useOpposingColor(bg);
   return (
     <>
       <If c={communities.length === 0}>
@@ -123,6 +125,7 @@ export const Communities = (props: TCommunities) => {
           </MenuButton>
           <MenuList
             p={3}
+            bg={bg}
             width="unset"
             color={color}
             textAlign="left"

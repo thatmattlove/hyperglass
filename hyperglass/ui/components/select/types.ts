@@ -10,7 +10,7 @@ import type {
   PlaceholderProps,
 } from 'react-select';
 import type { BoxProps } from '@chakra-ui/react';
-import type { ColorNames, TSelectOption, TSelectOptionGroup } from '~/types';
+import type { ColorNames, TSelectOption, TSelectOptionMulti, TSelectOptionGroup } from '~/types';
 
 export interface TSelectState {
   [k: string]: string[];
@@ -27,7 +27,7 @@ export interface TSelectBase extends TBoxAsReactSelect {
   options: TOptions;
   required?: boolean;
   onSelect?: (s: TSelectOption[]) => void;
-  onChange?: (c: TSelectOption) => void;
+  onChange?: (c: TSelectOption | TSelectOptionMulti) => void;
   colorScheme?: ColorNames;
 }
 
@@ -52,19 +52,19 @@ export interface TRSTheme extends Omit<Theme, 'borderRadius'> {
   borderRadius: string | number;
 }
 
-export type TControl = ControlProps<TOptions>;
+export type TControl = ControlProps<TOptions, false>;
 
-export type TMenu = MenuProps<TOptions>;
+export type TMenu = MenuProps<TOptions, false>;
 
-export type TMenuList = MenuListComponentProps<TOptions>;
+export type TMenuList = MenuListComponentProps<TOptions, false>;
 
-export type TOption = OptionProps<TOptions>;
+export type TOption = OptionProps<TOptions, false>;
 
 export type TMultiValueState = MultiValueProps<TOptions>;
 
-export type TIndicator = IndicatorProps<TOptions>;
+export type TIndicator = IndicatorProps<TOptions, false>;
 
-export type TPlaceholder = PlaceholderProps<TOptions>;
+export type TPlaceholder = PlaceholderProps<TOptions, false>;
 
 export type TMultiValue = Pick<TSelectContext, 'colorMode'>;
 

@@ -15,7 +15,7 @@ function buildOptions(communities: TBGPCommunity[]): TSelectOption[] {
   }));
 }
 
-const Option = (props: OptionProps<Dict>) => {
+const Option = (props: OptionProps<Dict, false>) => {
   const { label, data } = props;
   return (
     <components.Option {...props}>

@@ -3,15 +3,19 @@ import { Accordion, Box, Stack, useToken } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedDiv, Label } from '~/components';
 import { useConfig, useBreakpointValue } from '~/context';
-import { useDevice } from '~/hooks';
+import { useDevice, useLGState } from '~/hooks';
 import { isQueryType } from '~/types';
 import { Result } from './individual';
 
-import type { TResults } from './types';
-
-export const Results = (props: TResults) => {
-  const { queryLocation, queryType, queryVrf, queryTarget, ...rest } = props;
-  const { request_timeout, queries, vrfs, web } = useConfig();
+export const Results = () => {
+  const { queries, vrfs, web } = useConfig();
+  const { formData } = useLGState();
+  const {
+    query_location: queryLocation,
+    query_target: queryTarget,
+    query_type: queryType,
+    query_vrf: queryVrf,
+  } = formData;
   const getDevice = useDevice();
   const targetBg = useToken('colors', 'teal.600');
   const queryBg = useToken('colors', 'cyan.500');
@@ -62,11 +66,11 @@ export const Results = (props: TResults) => {
   const [resultsComplete, setComplete] = useState<number | null>(null);
 
   const matchedVrf =
-    vrfs.filter(v => v.id === queryVrf)[0] ?? vrfs.filter(v => v.id === 'default')[0];
+    vrfs.filter(v => v.id === queryVrf.value)[0] ?? vrfs.filter(v => v.id === 'default')[0];
 
   let queryTypeLabel = '';
-  if (isQueryType(queryType)) {
-    queryTypeLabel = queries[queryType].display_name;
+  if (isQueryType(queryType.value)) {
+    queryTypeLabel = queries[queryType.value].display_name;
   }
 
   return (
@@ -77,8 +81,7 @@ export const Results = (props: TResults) => {
         w="100%"
         mx="auto"
         textAlign="left"
-        maxW={{ base: '100%', lg: '75%', xl: '50%' }}
-        {...rest}>
+        maxW={{ base: '100%', lg: '75%', xl: '50%' }}>
         <Stack isInline align="center" justify="center" mt={4} flexWrap="wrap">
           <AnimatePresence>
             {queryLocation && (
@@ -102,7 +105,7 @@ export const Results = (props: TResults) => {
                   transition={{ duration: 0.3, delay: 0.3 }}>
                   <Label
                     bg={targetBg}
-                    value={queryTarget}
+                    value={queryTarget.value}
                     label={web.text.query_target}
                     fontSize={{ base: 'xs', md: 'sm' }}
                   />
@@ -138,27 +141,26 @@ export const Results = (props: TResults) => {
         transition={{ duration: 0.3 }}
         animate={{ opacity: 1, y: 0 }}
         maxW={{ base: '100%', md: '75%' }}>
-        <Accordion allowMultiple>
+        <Accordion allowMultiple allowToggle>
           <AnimatePresence>
             {queryLocation &&
               queryLocation.map((loc, i) => {
-                const device = getDevice(loc);
+                const device = getDevice(loc.value);
                 return (
                   <motion.div
+                    key={loc.value}
                     animate={{ opacity: 1, y: 0 }}
                     initial={{ opacity: 0, y: 300 }}
                     transition={{ duration: 0.3, delay: i * 0.3 }}
                     exit={{ opacity: 0, y: 300 }}>
                     <Result
-                      key={loc}
                       index={i}
                       device={device}
-                      queryLocation={loc}
-                      queryVrf={queryVrf}
-                      queryType={queryType}
-                      queryTarget={queryTarget}
+                      queryLocation={loc.value}
+                      queryVrf={queryVrf.value}
                       setComplete={setComplete}
-                      timeout={request_timeout * 1000}
+                      queryType={queryType.value}
+                      queryTarget={queryTarget.value}
                       resultsComplete={resultsComplete}
                     />
                   </motion.div>

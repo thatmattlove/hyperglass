@@ -1,5 +1,5 @@
 import type { BoxProps, FlexProps, TextProps } from '@chakra-ui/react';
-import type { CellProps } from 'react-table';
+import type { TCellRender } from '~/types';
 
 export interface TTextOutput extends Omit<BoxProps, 'children'> {
   children: string;
@@ -41,7 +41,7 @@ export interface TRPKIState {
 }
 
 export interface TCell {
-  data: CellProps<TRouteField>;
+  data: TCellRender;
   rawData: TStructuredResponse;
 }
 

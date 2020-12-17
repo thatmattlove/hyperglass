@@ -1,6 +1,6 @@
 import type { FormControlProps } from '@chakra-ui/react';
 import type { FieldError, Control } from 'react-hook-form';
-import type { TDeviceVrf, TBGPCommunity, OnChangeArgs, Families, TFormData } from '~/types';
+import type { TDeviceVrf, TBGPCommunity, OnChangeArgs, TFormData } from '~/types';
 
 export interface TField extends FormControlProps {
   name: string;
@@ -59,9 +59,5 @@ export interface TQueryTarget {
 }
 
 export interface TResolvedTarget {
-  families: Families;
-  queryTarget: string;
-  availVrfs: TDeviceVrf[];
-  fqdnTarget: string | null;
   setTarget(e: OnChangeArgs): void;
 }

@@ -6,3 +6,4 @@ export * from './useOpposingColor';
 export * from './useSessionStorage';
 export * from './useStrf';
 export * from './useTableToString';
+export * from './useLGState';

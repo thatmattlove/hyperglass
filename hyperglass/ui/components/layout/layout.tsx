@@ -1,12 +1,13 @@
 import { AnimatePresence } from 'framer-motion';
 import { If, HyperglassForm, Results } from '~/components';
 import { useGlobalState } from '~/context';
+import { useLGState } from '~/hooks';
 import { all } from '~/util';
 import { Frame } from './frame';
 
 export const Layout: React.FC = () => {
-  const { isSubmitting, formData } = useGlobalState();
-
+  const { isSubmitting } = useGlobalState();
+  const { formData } = useLGState();
   return (
     <Frame>
       <If
@@ -19,12 +20,7 @@ export const Layout: React.FC = () => {
             formData.query_vrf.value,
           )
         }>
-        <Results
-          queryLocation={formData.query_location.value}
-          queryType={formData.query_type.value}
-          queryVrf={formData.query_vrf.value}
-          queryTarget={formData.query_target.value}
-        />
+        <Results />
       </If>
       <AnimatePresence>
         <If c={!isSubmitting.value}>

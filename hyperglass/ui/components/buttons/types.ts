@@ -1,4 +1,5 @@
-import type { BoxProps, ButtonProps } from '@chakra-ui/react';
+import type { IconButtonProps, ButtonProps } from '@chakra-ui/react';
+import type { OnChangeArgs } from '~/types';
 
 export interface TCopyButton extends ButtonProps {
   copyValue: string;
@@ -7,20 +8,9 @@ export interface TCopyButton extends ButtonProps {
 export interface TColorModeToggle extends ButtonProps {
   size?: string;
 }
-export type TButtonSizeMap = {
-  xs: BoxProps;
-  sm: BoxProps;
-  md: BoxProps;
-  lg: BoxProps;
-};
 
-export interface TSubmitButton extends BoxProps {
-  isLoading?: boolean;
-  isDisabled?: boolean;
-  isActive?: boolean;
-  isFullWidth?: boolean;
-  size?: keyof TButtonSizeMap;
-  loadingText?: string;
+export interface TSubmitButton extends Omit<IconButtonProps, 'aria-label'> {
+  handleChange(e: OnChangeArgs): void;
 }
 
 export interface TRequeryButton extends ButtonProps {

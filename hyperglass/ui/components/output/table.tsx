@@ -3,8 +3,7 @@ import { useConfig } from '~/context';
 import { Table } from '~/components';
 import { Cell } from './cell';
 
-import type { CellProps } from 'react-table';
-import type { TColumn, TParsedDataField } from '~/types';
+import type { TColumn, TParsedDataField, TCellRender } from '~/types';
 import type { TBGPTable } from './types';
 
 function makeColumns(fields: TParsedDataField[]): TColumn[] {
@@ -37,7 +36,7 @@ export const BGPTable = (props: TBGPTable) => {
         columns={columns}
         data={data.routes}
         rowHighlightProp="active"
-        cellRender={(d: CellProps<TRouteField>) => <Cell data={d} rawData={data} />}
+        Cell={(d: TCellRender) => <Cell data={d} rawData={data} />}
         bordersHorizontal
         rowHighlightBg="green"
       />

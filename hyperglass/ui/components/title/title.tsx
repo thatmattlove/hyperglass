@@ -11,13 +11,13 @@ import type { TTitle, TTextOnly } from './types';
 
 const TextOnly = (props: TTextOnly) => {
   const { showSubtitle, ...rest } = props;
-  const textAlign = useBooleanValue(
-    showSubtitle,
-    { base: 'right', md: 'center' },
-    { base: 'left', md: 'center' },
-  );
+
   return (
-    <Stack spacing={2} maxW="100%" textAlign={textAlign} {...rest}>
+    <Stack
+      spacing={2}
+      maxW="100%"
+      textAlign={showSubtitle ? ['right', 'center'] : ['left', 'center']}
+      {...rest}>
       <TitleOnly showSubtitle={showSubtitle} />
       <If c={showSubtitle}>
         <SubtitleOnly />

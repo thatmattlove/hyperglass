@@ -82,6 +82,6 @@ export const TableData = (props: TTableData) => {
 };
 
 export const Paragraph = (props: TextProps) => <ChakraText {...props} />;
-export const InlineCode = (props: CodeProps) => <ChakraCode {...props} />;
+export const InlineCode = (props: CodeProps) => <ChakraCode children={props.children} />;
 export const Divider = (props: DividerProps) => <ChakraDivider {...props} />;
 export const Table = (props: BoxProps) => <ChakraTable {...props} />;

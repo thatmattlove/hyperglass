@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Flex } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { intersectionWith } from 'lodash';
@@ -14,19 +14,20 @@ import {
   QueryTarget,
   SubmitButton,
   QueryLocation,
-  ResolvedTarget,
   CommunitySelect,
 } from '~/components';
 import { useConfig, useGlobalState } from '~/context';
-import { useStrf, useGreeting, useDevice } from '~/hooks';
+import { useStrf, useGreeting, useDevice, useLGState } from '~/hooks';
 import { isQueryType, isString } from '~/types';
 
-import type { Families, TFormData, TDeviceVrf, TQueryTypes, OnChangeArgs } from '~/types';
+import type { TFormData, TDeviceVrf, OnChangeArgs } from '~/types';
+
+const fqdnPattern = /^(?!:\/\/)([a-zA-Z0-9-]+\.)?[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z-]{2,6}?$/gim;
 
 export const HyperglassForm = () => {
   const { web, content, messages, queries } = useConfig();
 
-  const { formData, isSubmitting } = useGlobalState();
+  const { isSubmitting } = useGlobalState();
   const [greetingAck, setGreetingAck] = useGreeting();
   const getDevice = useDevice();
 
@@ -41,24 +42,34 @@ export const HyperglassForm = () => {
     query_target: yup.string().required(noQueryTarget),
   });
 
-  const { handleSubmit, register, unregister, setValue, errors } = useForm<TFormData>({
+  const { handleSubmit, register, unregister, setValue, errors, reset } = useForm<TFormData>({
     validationSchema: formSchema,
-    defaultValues: { query_vrf: 'default', query_target: '' },
+    defaultValues: { query_vrf: 'default', query_target: '', query_location: [], query_type: '' },
   });
 
-  const [queryLocation, setQueryLocation] = useState<string[]>([]);
-  const [queryType, setQueryType] = useState<TQueryTypes>('');
-  const [queryVrf, setQueryVrf] = useState<string>('');
-  const [queryTarget, setQueryTarget] = useState<string>('');
-  const [availVrfs, setAvailVrfs] = useState<TDeviceVrf[]>([]);
-  const [fqdnTarget, setFqdnTarget] = useState<string | null>('');
-  const [displayTarget, setDisplayTarget] = useState<string>('');
-  const [families, setFamilies] = useState<Families>([]);
+  const {
+    queryVrf,
+    families,
+    queryType,
+    availVrfs,
+    fqdnTarget,
+    btnLoading,
+    queryTarget,
+    resolvedOpen,
+    queryLocation,
+    displayTarget,
+    formData,
+  } = useLGState();
 
-  function onSubmit(values: TFormData): void {
+  function submitHandler(values: TFormData) {
     if (!greetingAck && web.greeting.required) {
       window.location.reload(false);
       setGreetingAck(false);
+    } else if (fqdnPattern.test(values.query_target)) {
+      btnLoading.set(true);
+      fqdnTarget.set(values.query_target);
+      formData.set(values);
+      resolvedOpen();
     } else {
       formData.set(values);
       isSubmitting.set(true);
@@ -68,7 +79,7 @@ export const HyperglassForm = () => {
   function handleLocChange(locations: string[]): void {
     const allVrfs = [] as TDeviceVrf[][];
 
-    setQueryLocation(locations);
+    queryLocation.set(locations);
 
     // Create an array of each device's VRFs.
     for (const loc of locations) {
@@ -82,11 +93,14 @@ export const HyperglassForm = () => {
       (a: TDeviceVrf, b: TDeviceVrf) => a.id === b.id,
     );
 
-    setAvailVrfs(intersecting);
+    availVrfs.set(intersecting);
 
     // If there are no intersecting VRFs, use the default VRF.
-    if (intersecting.filter(i => i.id === queryVrf).length === 0 && queryVrf !== 'default') {
-      setQueryVrf('default');
+    if (
+      intersecting.filter(i => i.id === queryVrf.value).length === 0 &&
+      queryVrf.value !== 'default'
+    ) {
+      queryVrf.set('default');
     }
 
     let ipv4 = 0;
@@ -104,13 +118,13 @@ export const HyperglassForm = () => {
     }
 
     if (ipv4 !== 0 && ipv4 === ipv6) {
-      setFamilies([4, 6]);
+      families.set([4, 6]);
     } else if (ipv4 > ipv6) {
-      setFamilies([4]);
+      families.set([4]);
     } else if (ipv4 < ipv6) {
-      setFamilies([6]);
+      families.set([6]);
     } else {
-      setFamilies([]);
+      families.set([]);
     }
   }
 
@@ -120,35 +134,35 @@ export const HyperglassForm = () => {
     if (e.field === 'query_location' && Array.isArray(e.value)) {
       handleLocChange(e.value);
     } else if (e.field === 'query_type' && isQueryType(e.value)) {
-      setQueryType(e.value);
+      queryType.set(e.value);
     } else if (e.field === 'query_vrf' && isString(e.value)) {
-      setQueryVrf(e.value);
+      queryVrf.set(e.value);
     } else if (e.field === 'query_target' && isString(e.value)) {
-      setQueryTarget(e.value);
+      queryTarget.set(e.value);
     }
   }
 
   const vrfContent = useMemo(() => {
-    if (Object.keys(content.vrf).includes(queryVrf) && queryType !== '') {
-      return content.vrf[queryVrf][queryType];
+    if (Object.keys(content.vrf).includes(queryVrf.value) && queryType.value !== '') {
+      return content.vrf[queryVrf.value][queryType.value];
     }
   }, [queryVrf]);
 
   const isFqdnQuery = useMemo(() => {
-    return ['bgp_route', 'ping', 'traceroute'].includes(queryType);
+    return ['bgp_route', 'ping', 'traceroute'].includes(queryType.value);
   }, [queryType]);
 
   const fqdnQuery = useMemo(() => {
     let result = null;
-    if (fqdnTarget && queryVrf === 'default' && fqdnTarget) {
+    if (fqdnTarget && queryVrf.value === 'default' && fqdnTarget) {
       result = fqdnTarget;
     }
     return result;
   }, [queryVrf, queryType]);
 
   useEffect(() => {
-    register({ name: 'query_location' });
-    register({ name: 'query_type' });
+    register({ name: 'query_location', required: true });
+    register({ name: 'query_type', required: true });
     register({ name: 'query_vrf' });
   }, [register]);
 
@@ -165,7 +179,7 @@ export const HyperglassForm = () => {
       transition={{ duration: 0.3 }}
       exit={{ opacity: 0, x: -300 }}
       initial={{ opacity: 0, y: 300 }}
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(submitHandler)}
       maxW={{ base: '100%', lg: '75%' }}>
       <FormRow>
         <FormField
@@ -185,26 +199,11 @@ export const HyperglassForm = () => {
       <FormRow>
         <If c={availVrfs.length > 1}>
           <FormField label={web.text.query_vrf} name="query_vrf" errors={errors.query_vrf}>
-            <QueryVrf label={web.text.query_vrf} vrfs={availVrfs} onChange={handleChange} />
+            <QueryVrf label={web.text.query_vrf} vrfs={availVrfs.value} onChange={handleChange} />
           </FormField>
         </If>
-        <FormField
-          name="query_target"
-          errors={errors.query_target}
-          label={web.text.query_target}
-          fieldAddOn={
-            queryLocation.length !== 0 &&
-            fqdnQuery !== null && (
-              <ResolvedTarget
-                families={families}
-                availVrfs={availVrfs}
-                fqdnTarget={fqdnQuery}
-                setTarget={handleChange}
-                queryTarget={queryTarget}
-              />
-            )
-          }>
-          <If c={queryType === 'bgp_community' && queries.bgp_community.mode === 'select'}>
+        <FormField name="query_target" errors={errors.query_target} label={web.text.query_target}>
+          <If c={queryType.value === 'bgp_community' && queries.bgp_community.mode === 'select'}>
             <CommunitySelect
               name="query_target"
               register={register}
@@ -213,17 +212,17 @@ export const HyperglassForm = () => {
               communities={queries.bgp_community.communities}
             />
           </If>
-          <If c={!(queryType === 'bgp_community' && queries.bgp_community.mode === 'select')}>
+          <If c={!(queryType.value === 'bgp_community' && queries.bgp_community.mode === 'select')}>
             <QueryTarget
               name="query_target"
               register={register}
-              value={queryTarget}
+              value={queryTarget.value}
               unregister={unregister}
-              setFqdn={setFqdnTarget}
+              setFqdn={fqdnTarget.set}
               setTarget={handleChange}
               resolveTarget={isFqdnQuery}
-              displayValue={displayTarget}
-              setDisplayValue={setDisplayTarget}
+              displayValue={displayTarget.value}
+              setDisplayValue={displayTarget.set}
               placeholder={web.text.query_target}
             />
           </If>
@@ -238,7 +237,7 @@ export const HyperglassForm = () => {
           flex="0 0 0"
           flexDir="column"
           mr={{ base: 0, lg: 2 }}>
-          <SubmitButton isLoading={isSubmitting.value} />
+          <SubmitButton handleChange={handleChange} />
         </Flex>
       </FormRow>
     </AnimatedForm>

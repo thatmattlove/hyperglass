@@ -15,6 +15,10 @@ export interface TFormState {
   queryTarget: string;
 }
 
+export interface TFormQuery extends Omit<TFormState, 'queryLocation'> {
+  queryLocation: string;
+}
+
 export interface TStringTableData extends Omit<TQueryResponse, 'output'> {
   output: TStructuredResponse;
 }

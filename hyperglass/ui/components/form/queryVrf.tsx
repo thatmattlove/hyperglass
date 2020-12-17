@@ -13,8 +13,8 @@ export const QueryVrf = (props: TQueryVrf) => {
 
   const options = useMemo(() => buildOptions(vrfs), [vrfs.length]);
 
-  function handleChange(e: TSelectOption): void {
-    if (e !== null) {
+  function handleChange(e: TSelectOption | TSelectOption[]): void {
+    if (!Array.isArray(e) && e !== null) {
       onChange({ field: 'query_vrf', value: e.value });
     }
   }

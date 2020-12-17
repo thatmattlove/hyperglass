@@ -14,8 +14,9 @@ export interface TCheckbox extends CheckboxProps {
   checked: boolean;
 }
 
-export interface TListItem extends ListItemProps {
+export interface TListItem {
   checked: boolean;
+  children?: React.ReactNode;
 }
 
 export interface TList extends ListProps {

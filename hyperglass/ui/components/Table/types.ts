@@ -1,6 +1,6 @@
 import type { BoxProps, IconButtonProps } from '@chakra-ui/react';
 
-import type { Colors, TColumn } from '~/types';
+import type { Colors, TColumn, TCellRender } from '~/types';
 
 export interface TTable {
   columns: TColumn[];
@@ -9,7 +9,7 @@ export interface TTable {
   striped?: boolean;
   bordersVertical?: boolean;
   bordersHorizontal?: boolean;
-  cellRender?: React.ReactNode;
+  Cell?: React.FC<TCellRender>;
   rowHighlightProp?: keyof IRoute;
   rowHighlightBg?: keyof Colors;
 }

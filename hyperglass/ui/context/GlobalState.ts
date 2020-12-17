@@ -1,5 +1,5 @@
 import { createState, useState } from '@hookstate/core';
-import type { TGlobalState } from './types';
+import type { TGlobalState, TUseGlobalState } from './types';
 
 // const StateContext = createContext(null);
 
@@ -26,8 +26,23 @@ import type { TGlobalState } from './types';
 
 // export const useHyperglassState = () => useContext(StateContext);
 
-export const globalState = createState<TGlobalState>({
+const defaultFormData = {
+  query_location: [],
+  query_target: '',
+  query_type: '',
+  query_vrf: '',
+} as TGlobalState['formData'];
+
+const globalState = createState<TGlobalState>({
   isSubmitting: false,
-  formData: { query_location: [], query_target: '', query_type: '', query_vrf: '' },
+  formData: defaultFormData,
 });
-export const useGlobalState = () => useState(globalState);
+
+export function useGlobalState(): TUseGlobalState {
+  const state = useState<TGlobalState>(globalState);
+  function resetForm(): void {
+    state.formData.set(defaultFormData);
+    state.isSubmitting.set(false);
+  }
+  return { resetForm, ...state };
+}

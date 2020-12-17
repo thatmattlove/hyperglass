@@ -1,6 +1,5 @@
 import dynamic from 'next/dynamic';
 import { Button, Icon, Tooltip, useClipboard } from '@chakra-ui/react';
-import { If } from '~/components';
 
 const Copy = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiCopy));
 const Check = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiCheck));
@@ -18,15 +17,9 @@ export const CopyButton = (props: TCopyButton) => {
         size="sm"
         variant="ghost"
         onClick={onCopy}
-        zIndex="dropdown"
-        colorScheme="secondary"
+        colorScheme="primary"
         {...rest}>
-        <If c={hasCopied}>
-          <Icon as={Check} boxSize="16px" />
-        </If>
-        <If c={!hasCopied}>
-          <Icon as={Copy} boxSize="16px" />
-        </If>
+        <Icon as={hasCopied ? Check : Copy} boxSize="16px" />
       </Button>
     </Tooltip>
   );

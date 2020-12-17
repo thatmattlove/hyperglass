@@ -1,4 +1,3 @@
-import * as React from 'react';
 import dynamic from 'next/dynamic';
 import { Flex, Icon, Text } from '@chakra-ui/react';
 import { usePagination, useSortBy, useTable } from 'react-table';
@@ -12,7 +11,8 @@ import { TableBody } from './body';
 import { TableIconButton } from './button';
 import { TableSelectShow } from './pageSelect';
 
-import type { TableOptions, PluginHook, Row } from 'react-table';
+import type { TableOptions, PluginHook } from 'react-table';
+import type { TCellRender } from '~/types';
 import type { TTable } from './types';
 
 const ChevronRight = dynamic<MeronexIcon>(() =>
@@ -39,7 +39,7 @@ export function Table(props: TTable) {
     data,
     columns,
     heading,
-    cellRender,
+    Cell,
     rowHighlightBg,
     striped = false,
     rowHighlightProp,
@@ -132,13 +132,17 @@ export function Table(props: TTable) {
                 highlight={row.values[rowHighlightProp ?? ''] ?? false}
                 {...row.getRowProps()}>
                 {row.cells.map((cell, i) => {
+                  const { column, row, value } = cell as TCellRender;
                   return (
                     <TableCell
                       align={cell.column.align}
                       bordersVertical={[bordersVertical, i]}
                       {...cell.getCellProps()}>
-                      {/* {cellRender ?? cell.render('Cell')} */}
-                      {React.createElement(cellRender, cell)}
+                      {typeof Cell !== 'undefined' ? (
+                        <Cell column={column} row={row} value={value} />
+                      ) : (
+                        cell.render('Cell')
+                      )}
                     </TableCell>
                   );
                 })}

@@ -145,7 +145,6 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
   return (
     <AccordionItem
       ref={ref}
-      isOpen={isOpen}
       isDisabled={isLoading}
       css={{
         '&:last-of-type': { borderBottom: 'none' },
@@ -170,7 +169,7 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
         </AccordionButton>
         <ButtonGroup px={[1, 1, 3, 3]} py={2}>
           <CopyButton copyValue={copyValue} isDisabled={isLoading} />
-          <RequeryButton requery={refetch} variant="ghost" isDisabled={isLoading} />
+          <RequeryButton requery={refetch} isDisabled={isLoading} />
         </ButtonGroup>
       </AccordionHeaderWrapper>
       <AccordionPanel
@@ -200,11 +199,12 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
                 ) : isStringOutput(data) && data.level === 'success' && !tableComponent ? (
                   <TextOutput>{data.output}</TextOutput>
                 ) : isStringOutput(data) && data.level !== 'success' ? (
-                  <FormattedError message={data.output} keywords={errorKeywords} />
+                  <Alert rounded="lg" my={2} py={4} status={errorLevel}>
+                    <FormattedError message={data.output} keywords={errorKeywords} />
+                  </Alert>
                 ) : null}
               </>
             )}
-            {isError && <Alert rounded="lg" my={2} py={4} status={errorLevel}></Alert>}
           </Flex>
         </Box>
 
@@ -214,7 +214,7 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
             mt={2}
             justifyContent={['flex-start', 'flex-start', 'flex-end', 'flex-end']}
             flex="1 0 auto">
-            <If c={cache.show_text && data && !error}>
+            <If c={cache.show_text && typeof data !== 'undefined' && !error}>
               <If c={!isMobile}>
                 <Countdown timeout={cache.timeout} text={web.text.cache_prefix} />
               </If>
