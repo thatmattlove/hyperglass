@@ -9,6 +9,7 @@ import {
   AccordionPanel,
   AccordionButton,
 } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
 import { BsLightningFill } from '@meronex/icons/bs';
 import { startCase } from 'lodash';
 import { BGPTable, Countdown, CopyButton, RequeryButton, TextOutput, If } from '~/components';
@@ -20,6 +21,8 @@ import { ResultHeader } from './header';
 import { isStackError, isFetchError, isLGError } from './guards';
 
 import type { TAccordionHeaderWrapper, TResult, TErrorLevels } from './types';
+
+const AnimatedAccordionItem = motion.custom(AccordionItem);
 
 const AccordionHeaderWrapper = (props: TAccordionHeaderWrapper) => {
   const { hoverBg, ...rest } = props;
@@ -143,9 +146,13 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
   }, [resultsComplete, index]);
 
   return (
-    <AccordionItem
+    <AnimatedAccordionItem
       ref={ref}
       isDisabled={isLoading}
+      exit={{ opacity: 0, y: 300 }}
+      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 300 }}
+      transition={{ duration: 0.3, delay: index * 0.3 }}
       css={{
         '&:last-of-type': { borderBottom: 'none' },
         '&:first-of-type': { borderTop: 'none' },
@@ -234,6 +241,6 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
           </Flex>
         </Flex>
       </AccordionPanel>
-    </AccordionItem>
+    </AnimatedAccordionItem>
   );
 });

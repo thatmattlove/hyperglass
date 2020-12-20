@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useFormContext } from 'react-hook-form';
 import { Select } from '~/components';
 import { useConfig } from '~/context';
 
@@ -14,6 +15,7 @@ function buildOptions(queryTypes: TQuery[]): TSelectOption[] {
 export const QueryType = (props: TQuerySelectField) => {
   const { onChange, label } = props;
   const { queries } = useConfig();
+  const { errors } = useFormContext();
 
   const options = useMemo(() => buildOptions(queries.list), [queries.list.length]);
 
@@ -30,6 +32,7 @@ export const QueryType = (props: TQuerySelectField) => {
       options={options}
       aria-label={label}
       onChange={handleChange}
+      isError={typeof errors.query_type !== 'undefined'}
     />
   );
 };

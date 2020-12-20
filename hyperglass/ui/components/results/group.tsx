@@ -147,23 +147,16 @@ export const Results = () => {
               queryLocation.map((loc, i) => {
                 const device = getDevice(loc.value);
                 return (
-                  <motion.div
-                    key={loc.value}
-                    animate={{ opacity: 1, y: 0 }}
-                    initial={{ opacity: 0, y: 300 }}
-                    transition={{ duration: 0.3, delay: i * 0.3 }}
-                    exit={{ opacity: 0, y: 300 }}>
-                    <Result
-                      index={i}
-                      device={device}
-                      queryLocation={loc.value}
-                      queryVrf={queryVrf.value}
-                      setComplete={setComplete}
-                      queryType={queryType.value}
-                      queryTarget={queryTarget.value}
-                      resultsComplete={resultsComplete}
-                    />
-                  </motion.div>
+                  <Result
+                    index={i}
+                    device={device}
+                    queryLocation={loc.value}
+                    queryVrf={queryVrf.value}
+                    setComplete={setComplete}
+                    queryType={queryType.value}
+                    queryTarget={queryTarget.value}
+                    resultsComplete={resultsComplete}
+                  />
                 );
               })}
           </AnimatePresence>

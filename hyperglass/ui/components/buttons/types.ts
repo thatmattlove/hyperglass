@@ -16,3 +16,10 @@ export interface TSubmitButton extends Omit<IconButtonProps, 'aria-label'> {
 export interface TRequeryButton extends ButtonProps {
   requery(): void;
 }
+
+export interface TRSubmitButton {
+  isOpen: boolean;
+  onClose(): void;
+  onChange(e: OnChangeArgs): void;
+  children: React.ReactNode;
+}

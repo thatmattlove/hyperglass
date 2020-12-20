@@ -1,13 +1,11 @@
 import { AnimatePresence } from 'framer-motion';
 import { If, HyperglassForm, Results } from '~/components';
-import { useGlobalState } from '~/context';
 import { useLGState } from '~/hooks';
 import { all } from '~/util';
 import { Frame } from './frame';
 
 export const Layout: React.FC = () => {
-  const { isSubmitting } = useGlobalState();
-  const { formData } = useLGState();
+  const { isSubmitting, formData } = useLGState();
   return (
     <Frame>
       <If

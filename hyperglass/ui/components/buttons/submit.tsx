@@ -1,51 +1,110 @@
 import {
-  IconButton,
+  Modal,
   Popover,
-  PopoverTrigger,
-  PopoverArrow,
-  PopoverCloseButton,
+  ModalBody,
+  IconButton,
   PopoverBody,
+  ModalOverlay,
+  ModalContent,
+  PopoverArrow,
+  PopoverTrigger,
   PopoverContent,
+  ModalCloseButton,
+  PopoverCloseButton,
 } from '@chakra-ui/react';
 import { FiSearch } from '@meronex/icons/fi';
-import { ResolvedTarget } from '~/components';
+import { If, ResolvedTarget } from '~/components';
+import { useMobile } from '~/context';
 import { useLGState } from '~/hooks';
 
-import type { TSubmitButton } from './types';
+import type { IconButtonProps } from '@chakra-ui/react';
+import type { OnChangeArgs } from '~/types';
+import type { TSubmitButton, TRSubmitButton } from './types';
+
+const SubmitIcon = (props: Omit<IconButtonProps, 'aria-label'>) => {
+  const { isLoading } = props;
+  return (
+    <IconButton
+      size="lg"
+      width={16}
+      type="submit"
+      icon={<FiSearch />}
+      title="Submit Query"
+      colorScheme="primary"
+      isLoading={isLoading}
+      aria-label="Submit Query"
+    />
+  );
+};
+
+/**
+ * Mobile Submit Button
+ */
+const MSubmitButton = (props: TRSubmitButton) => {
+  const { children, isOpen, onClose, onChange } = props;
+  return (
+    <>
+      {children}
+      <Modal
+        size="xs"
+        isCentered
+        isOpen={isOpen}
+        onClose={onClose}
+        closeOnEsc={false}
+        closeOnOverlayClick={false}
+        motionPreset="slideInBottom">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalBody px={4} py={10}>
+            {isOpen && <ResolvedTarget setTarget={onChange} />}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+};
+
+/**
+ * Desktop Submit Button
+ */
+const DSubmitButton = (props: TRSubmitButton) => {
+  const { children, isOpen, onClose, onChange } = props;
+  return (
+    <Popover isOpen={isOpen} onClose={onClose} closeOnBlur={false}>
+      <PopoverTrigger>{children}</PopoverTrigger>
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverCloseButton />
+        <PopoverBody p={6}>{isOpen && <ResolvedTarget setTarget={onChange} />}</PopoverBody>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 export const SubmitButton = (props: TSubmitButton) => {
-  const { children, handleChange, ...rest } = props;
-  const { btnLoading, resolvedIsOpen, resolvedClose } = useLGState();
+  const { handleChange } = props;
+  const { btnLoading, resolvedIsOpen, resolvedClose, resetForm } = useLGState();
+  const isMobile = useMobile();
 
   function handleClose(): void {
     btnLoading.set(false);
+    resetForm();
     resolvedClose();
   }
 
   return (
     <>
-      <Popover isOpen={resolvedIsOpen.value} onClose={handleClose} closeOnBlur={false}>
-        <PopoverTrigger>
-          <IconButton
-            size="lg"
-            width={16}
-            type="submit"
-            icon={<FiSearch />}
-            title="Submit Query"
-            aria-label="Submit Query"
-            colorScheme="primary"
-            isLoading={btnLoading.value}
-            {...rest}
-          />
-        </PopoverTrigger>
-        <PopoverContent>
-          <PopoverArrow />
-          <PopoverCloseButton />
-          <PopoverBody p={6}>
-            {resolvedIsOpen.value && <ResolvedTarget setTarget={handleChange} />}
-          </PopoverBody>
-        </PopoverContent>
-      </Popover>
+      <If c={isMobile}>
+        <MSubmitButton isOpen={resolvedIsOpen.value} onClose={handleClose} onChange={handleChange}>
+          <SubmitIcon isLoading={btnLoading.value} />
+        </MSubmitButton>
+      </If>
+      <If c={!isMobile}>
+        <DSubmitButton isOpen={resolvedIsOpen.value} onClose={handleClose} onChange={handleChange}>
+          <SubmitIcon isLoading={btnLoading.value} />
+        </DSubmitButton>
+      </If>
     </>
   );
 };

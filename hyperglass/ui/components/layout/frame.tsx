@@ -1,33 +1,31 @@
 import { useRef } from 'react';
 import { Flex } from '@chakra-ui/react';
-import { useConfig, useColorValue, useGlobalState } from '~/context';
+import { useConfig, useColorValue } from '~/context';
 import { If, Debugger, Greeting, Footer, Header } from '~/components';
-import { useGreeting } from '~/hooks';
+import { useLGState } from '~/hooks';
 
 import type { TFrame } from './types';
 
 export const Frame = (props: TFrame) => {
-  const { web, developer_mode } = useConfig();
-  const { isSubmitting, formData } = useGlobalState();
-  const [greetingAck, setGreetingAck] = useGreeting();
+  const { developer_mode } = useConfig();
+  const { isSubmitting, resetForm } = useLGState();
 
   const bg = useColorValue('white', 'black');
   const color = useColorValue('black', 'white');
 
   const containerRef = useRef<HTMLDivElement>({} as HTMLDivElement);
 
-  function resetForm(): void {
+  function handleReset(): void {
     containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     isSubmitting.set(false);
-    formData.set({ query_location: [], query_target: '', query_type: '', query_vrf: '' });
-    return;
+    resetForm();
   }
 
   return (
     <>
       <Flex bg={bg} w="100%" color={color} flexDir="column" minHeight="100vh" ref={containerRef}>
         <Flex px={2} flex="0 1 auto" flexDirection="column">
-          <Header resetForm={resetForm} />
+          <Header resetForm={handleReset} />
         </Flex>
         <Flex
           px={2}
@@ -46,9 +44,7 @@ export const Frame = (props: TFrame) => {
           <Debugger />
         </If>
       </Flex>
-      <If c={web.greeting.enable && !greetingAck}>
-        <Greeting onClickThrough={setGreetingAck} />
-      </If>
+      <Greeting />
     </>
   );
 };

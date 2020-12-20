@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import dynamic from 'next/dynamic';
 import { Button, Icon } from '@chakra-ui/react';
-import { useGlobalState } from '~/context';
+import { useLGState } from '~/hooks';
 
 import type { ButtonProps } from '@chakra-ui/react';
 
@@ -10,7 +10,7 @@ const ChevronLeft = dynamic<MeronexIcon>(() =>
 );
 
 export const ResetButton = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-  const { isSubmitting } = useGlobalState();
+  const { isSubmitting } = useLGState();
   return (
     <Button
       ref={ref}

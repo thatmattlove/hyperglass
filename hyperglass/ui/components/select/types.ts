@@ -24,6 +24,7 @@ export type TBoxAsReactSelect = Omit<IReactSelect, 'isMulti' | 'onSelect' | 'onC
 export interface TSelectBase extends TBoxAsReactSelect {
   name: string;
   multi?: boolean;
+  isError?: boolean;
   options: TOptions;
   required?: boolean;
   onSelect?: (s: TSelectOption[]) => void;
@@ -34,6 +35,7 @@ export interface TSelectBase extends TBoxAsReactSelect {
 export interface TSelectContext {
   colorMode: 'light' | 'dark';
   isOpen: boolean;
+  isError: boolean;
 }
 
 export interface TMultiValueRemoveProps {

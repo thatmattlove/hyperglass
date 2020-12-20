@@ -1,8 +1,8 @@
 import { Flex } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedDiv, Title, ResetButton, ColorModeToggle } from '~/components';
-import { useColorValue, useConfig, useGlobalState, useBreakpointValue } from '~/context';
-import { useBooleanValue } from '~/hooks';
+import { useColorValue, useConfig, useBreakpointValue } from '~/context';
+import { useBooleanValue, useLGState } from '~/hooks';
 
 import type { ResponsiveValue } from '@chakra-ui/react';
 import type { THeader, TTitleMode, THeaderLayout } from './types';
@@ -39,7 +39,7 @@ export const Header = (props: THeader) => {
   const bg = useColorValue('white', 'black');
 
   const { web } = useConfig();
-  const { isSubmitting } = useGlobalState();
+  const { isSubmitting } = useLGState();
 
   const mlResetButton = useBooleanValue(isSubmitting.value, { base: 0, md: 2 }, undefined);
   const titleHeight = useBooleanValue(isSubmitting.value, undefined, { md: '20vh' });

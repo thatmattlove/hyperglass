@@ -20,7 +20,7 @@ import type {
 
 export const useControlStyle = (base: TStyles, state: TControl): TStyles => {
   const { isFocused } = state;
-  const { colorMode } = useSelectContext();
+  const { colorMode, isError } = useSelectContext();
   const borderHover = useColorValue(
     useToken('colors', 'gray.300'),
     useToken('colors', 'whiteAlpha.400'),
@@ -41,14 +41,18 @@ export const useControlStyle = (base: TStyles, state: TControl): TStyles => {
     color,
     minHeight,
     transition: 'all 0.2s',
-    borderColor: isFocused ? focusBorder : borderColor,
-    boxShadow: isFocused ? `0 0 0 1px ${focusBorder}` : undefined,
+    borderColor: isError ? invalidBorder : isFocused ? focusBorder : borderColor,
+    boxShadow: isError
+      ? `0 0 0 1px ${invalidBorder}`
+      : isFocused
+      ? `0 0 0 1px ${focusBorder}`
+      : undefined,
     '&:hover': { borderColor: isFocused ? focusBorder : borderHover },
     '&:hover > div > span': { backgroundColor: borderHover },
-    '&:focus': { borderColor: focusBorder },
+    '&:focus': { borderColor: isError ? invalidBorder : focusBorder },
     '&.invalid': { borderColor: invalidBorder, boxShadow: `0 0 0 1px ${invalidBorder}` },
   };
-  return useMemo(() => mergeWith({}, base, styles), [colorMode, isFocused]);
+  return useMemo(() => mergeWith({}, base, styles), [colorMode, isFocused, isError]);
 };
 
 export const useMenuStyle = (base: TStyles, state: TMenu): TStyles => {

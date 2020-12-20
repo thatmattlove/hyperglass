@@ -26,12 +26,16 @@ export const useSelectContext = () => useContext(SelectContext);
 const ReactSelectAsBox = (props: TBoxAsReactSelect) => <Box as={ReactSelect} {...props} />;
 
 export const Select = (props: TSelectBase) => {
-  const { ctl, options, multi, onSelect, ...rest } = props;
+  const { ctl, options, multi, onSelect, isError = false, ...rest } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { colorMode } = useColorMode();
 
-  const selectContext = useMemo<TSelectContext>(() => ({ colorMode, isOpen }), [colorMode, isOpen]);
+  const selectContext = useMemo<TSelectContext>(() => ({ colorMode, isOpen, isError }), [
+    colorMode,
+    isError,
+    isOpen,
+  ]);
 
   const handleChange = (changed: TSelectOption | TSelectOption[]) => {
     if (!Array.isArray(changed)) {

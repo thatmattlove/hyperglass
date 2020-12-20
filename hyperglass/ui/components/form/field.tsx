@@ -1,34 +1,24 @@
-import { useMemo } from 'react';
 import { Flex, FormControl, FormLabel, FormErrorMessage } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
 import { If } from '~/components';
 import { useColorValue } from '~/context';
 import { useBooleanValue } from '~/hooks';
 
-import { TField } from './types';
+import { TField, TFormError } from './types';
 
 export const FormField = (props: TField) => {
-  const {
-    name,
-    label,
-    errors,
-    children,
-    labelAddOn,
-    fieldAddOn,
-    hiddenLabels = false,
-    ...rest
-  } = props;
+  const { name, label, children, labelAddOn, fieldAddOn, hiddenLabels = false, ...rest } = props;
   const labelColor = useColorValue('blackAlpha.700', 'whiteAlpha.700');
+  const errorColor = useColorValue('red.500', 'red.300');
   const opacity = useBooleanValue(hiddenLabels, 0, undefined);
 
-  const error = useMemo<string | undefined>(() => {
-    let result;
-    if (Array.isArray(errors)) {
-      result = errors.join(', ');
-    } else if (typeof errors === 'string') {
-      result = errors;
-    }
-    return result;
-  }, [errors]);
+  const { errors } = useFormContext();
+
+  const error = name in errors && (errors[name] as TFormError);
+
+  if (error !== false) {
+    console.warn(`${label} Error: ${error.message}`);
+  }
 
   return (
     <FormControl
@@ -38,7 +28,7 @@ export const FormField = (props: TField) => {
       maxW="100%"
       flexDir="column"
       my={{ base: 2, lg: 4 }}
-      isInvalid={typeof error !== 'undefined'}
+      isInvalid={error !== false}
       flex={{ base: '1 0 100%', lg: '1 0 33.33%' }}
       {...rest}>
       <FormLabel
@@ -47,7 +37,7 @@ export const FormField = (props: TField) => {
         htmlFor={name}
         display="flex"
         opacity={opacity}
-        color={labelColor}
+        color={error !== false ? errorColor : labelColor}
         alignItems="center"
         justifyContent="space-between">
         {label}
@@ -59,7 +49,7 @@ export const FormField = (props: TField) => {
           {fieldAddOn}
         </Flex>
       </If>
-      <FormErrorMessage opacity={opacity}>{error}</FormErrorMessage>
+      <FormErrorMessage opacity={opacity}>{error && error.message}</FormErrorMessage>
     </FormControl>
   );
 };

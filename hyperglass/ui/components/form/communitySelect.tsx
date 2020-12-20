@@ -20,6 +20,7 @@ const Option = (props: OptionProps<Dict, false>) => {
   return (
     <components.Option {...props}>
       <Text as="span">{label}</Text>
+      <br />
       <Text fontSize="xs" as="span">
         {data.description}
       </Text>

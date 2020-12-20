@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { Button, Stack, Text, VStack } from '@chakra-ui/react';
 import { useQuery } from 'react-query';
 import { FiArrowRightCircle as RightArrow } from '@meronex/icons/fi';
-import { useConfig, useColorValue, useGlobalState } from '~/context';
+import { useConfig, useColorValue } from '~/context';
 import { useStrf, useLGState } from '~/hooks';
 
 import type { DnsOverHttps } from '~/types';
@@ -20,8 +20,7 @@ function findAnswer(data: DnsOverHttps.Response | undefined): string {
 export const ResolvedTarget = (props: TResolvedTarget) => {
   const { setTarget } = props;
   const { web } = useConfig();
-  const { isSubmitting } = useGlobalState();
-  const { fqdnTarget, queryTarget, families, formData } = useLGState();
+  const { fqdnTarget, isSubmitting, families, formData } = useLGState();
 
   const color = useColorValue('secondary.500', 'secondary.300');
 

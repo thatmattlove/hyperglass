@@ -4,6 +4,7 @@ import type { State } from '@hookstate/core';
 import type { Families, TDeviceVrf, TQueryTypes, TFormData } from '~/types';
 
 type TLGState = {
+  isSubmitting: boolean;
   queryVrf: string;
   families: Families;
   queryTarget: string;
@@ -20,9 +21,11 @@ type TLGState = {
 type TLGStateHandlers = {
   resolvedOpen(): void;
   resolvedClose(): void;
+  resetForm(): void;
 };
 
 const LGState = createState<TLGState>({
+  isSubmitting: false,
   resolvedIsOpen: false,
   displayTarget: '',
   queryLocation: [],
@@ -44,6 +47,20 @@ export function useLGState(): State<TLGState> & TLGStateHandlers {
   function resolvedClose() {
     state.resolvedIsOpen.set(false);
   }
+  function resetForm() {
+    state.merge({
+      queryVrf: '',
+      families: [],
+      queryType: '',
+      queryTarget: '',
+      fqdnTarget: null,
+      queryLocation: [],
+      displayTarget: '',
+      resolvedIsOpen: false,
+      btnLoading: false,
+      formData: { query_location: [], query_target: '', query_type: '', query_vrf: '' },
+    });
+  }
 
-  return { resolvedOpen, resolvedClose, ...state };
+  return { resetForm, resolvedOpen, resolvedClose, ...state };
 }

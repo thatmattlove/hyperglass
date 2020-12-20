@@ -1,7 +1,7 @@
 import {
   Tag,
   Modal,
-  Stack,
+  HStack,
   Button,
   useTheme,
   ModalBody,
@@ -14,6 +14,30 @@ import {
 } from '@chakra-ui/react';
 import { useConfig, useColorValue, useBreakpointValue } from '~/context';
 import { CodeBlock } from '~/components';
+import type { UseDisclosureReturn } from '@chakra-ui/react';
+
+interface TViewer extends Pick<UseDisclosureReturn, 'isOpen' | 'onClose'> {
+  title: string;
+  children: React.ReactNode;
+}
+
+const Viewer = (props: TViewer) => {
+  const { title, isOpen, onClose, children } = props;
+  const bg = useColorValue('white', 'black');
+  const color = useColorValue('black', 'white');
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} size="full" scrollBehavior="inside">
+      <ModalOverlay />
+      <ModalContent bg={bg} color={color} py={4} borderRadius="md" maxW="90%">
+        <ModalHeader>{title}</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <CodeBlock>{children}</CodeBlock>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+};
 
 export const Debugger = () => {
   const { isOpen: configOpen, onOpen: onConfigOpen, onClose: configClose } = useDisclosure();
@@ -21,17 +45,16 @@ export const Debugger = () => {
   const { colorMode } = useColorMode();
   const config = useConfig();
   const theme = useTheme();
-  const bg = useColorValue('white', 'black');
-  const color = useColorValue('black', 'white');
   const borderColor = useColorValue('gray.100', 'gray.600');
   const mediaSize =
     useBreakpointValue({ base: 'SMALL', md: 'MEDIUM', lg: 'LARGE', xl: 'X-LARGE' }) ?? 'UNKNOWN';
+  const tagSize = useBreakpointValue({ base: 'sm', lg: 'lg' }) ?? 'lg';
+  const btnSize = useBreakpointValue({ base: 'xs', lg: 'sm' }) ?? 'sm';
   return (
     <>
-      <Stack
+      <HStack
         py={4}
         px={4}
-        isInline
         left={0}
         right={0}
         bottom={0}
@@ -40,36 +63,27 @@ export const Debugger = () => {
         borderWidth="1px"
         position="relative"
         justifyContent="center"
-        borderColor={borderColor}>
-        <Tag colorScheme="gray">{colorMode.toUpperCase()}</Tag>
-        <Tag colorScheme="teal">{mediaSize}</Tag>
-        <Button size="sm" colorScheme="cyan" onClick={onConfigOpen}>
+        borderColor={borderColor}
+        spacing={{ base: 2, lg: 8 }}>
+        <Tag size={tagSize} colorScheme="gray">
+          {colorMode.toUpperCase()}
+        </Tag>
+        <Button size={btnSize} colorScheme="blue" onClick={onConfigOpen}>
           View Config
         </Button>
-        <Button size="sm" colorScheme="purple" onClick={onThemeOpen}>
+        <Button size={btnSize} colorScheme="red" onClick={onThemeOpen}>
           View Theme
         </Button>
-      </Stack>
-      <Modal isOpen={configOpen} onClose={configClose} size="full">
-        <ModalOverlay />
-        <ModalContent bg={bg} color={color} py={4} borderRadius="md" maxW="90%">
-          <ModalHeader>Loaded Configuration</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <CodeBlock>{JSON.stringify(config, null, 4)}</CodeBlock>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-      <Modal isOpen={themeOpen} onClose={themeClose} size="full">
-        <ModalOverlay />
-        <ModalContent bg={bg} color={color} py={4} borderRadius="md" maxW="90%">
-          <ModalHeader>Loaded Theme</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <CodeBlock>{JSON.stringify(theme, null, 4)}</CodeBlock>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+        <Tag size={tagSize} colorScheme="teal">
+          {mediaSize}
+        </Tag>
+      </HStack>
+      <Viewer isOpen={configOpen} onClose={configClose} title="Config">
+        {JSON.stringify(config, null, 4)}
+      </Viewer>
+      <Viewer isOpen={themeOpen} onClose={themeClose} title="Theme">
+        {JSON.stringify(theme, null, 4)}
+      </Viewer>
     </>
   );
 };

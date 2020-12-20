@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from 'react';
 import { Flex } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { intersectionWith } from 'lodash';
 import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
   If,
   AnimatedForm,
@@ -16,7 +17,7 @@ import {
   QueryLocation,
   CommunitySelect,
 } from '~/components';
-import { useConfig, useGlobalState } from '~/context';
+import { useConfig } from '~/context';
 import { useStrf, useGreeting, useDevice, useLGState } from '~/hooks';
 import { isQueryType, isString } from '~/types';
 
@@ -27,7 +28,6 @@ const fqdnPattern = /^(?!:\/\/)([a-zA-Z0-9-]+\.)?[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-z
 export const HyperglassForm = () => {
   const { web, content, messages, queries } = useConfig();
 
-  const { isSubmitting } = useGlobalState();
   const [greetingAck, setGreetingAck] = useGreeting();
   const getDevice = useDevice();
 
@@ -42,23 +42,24 @@ export const HyperglassForm = () => {
     query_target: yup.string().required(noQueryTarget),
   });
 
-  const { handleSubmit, register, unregister, setValue, errors, reset } = useForm<TFormData>({
-    validationSchema: formSchema,
+  const formInstance = useForm<TFormData>({
+    resolver: yupResolver(formSchema),
     defaultValues: { query_vrf: 'default', query_target: '', query_location: [], query_type: '' },
   });
+  const { handleSubmit, register, unregister, setValue, errors } = formInstance;
 
   const {
     queryVrf,
     families,
+    formData,
     queryType,
     availVrfs,
     fqdnTarget,
     btnLoading,
     queryTarget,
+    isSubmitting,
     resolvedOpen,
     queryLocation,
-    displayTarget,
-    formData,
   } = useLGState();
 
   function submitHandler(values: TFormData) {
@@ -150,96 +151,81 @@ export const HyperglassForm = () => {
 
   const isFqdnQuery = useMemo(() => {
     return ['bgp_route', 'ping', 'traceroute'].includes(queryType.value);
-  }, [queryType]);
-
-  const fqdnQuery = useMemo(() => {
-    let result = null;
-    if (fqdnTarget && queryVrf.value === 'default' && fqdnTarget) {
-      result = fqdnTarget;
-    }
-    return result;
-  }, [queryVrf, queryType]);
+  }, [queryType.value]);
 
   useEffect(() => {
     register({ name: 'query_location', required: true });
     register({ name: 'query_type', required: true });
     register({ name: 'query_vrf' });
+    register({ name: 'query_target', required: true });
   }, [register]);
 
-  Object.keys(errors).length >= 1 && console.error(errors);
-
   return (
-    <AnimatedForm
-      p={0}
-      my={4}
-      w="100%"
-      mx="auto"
-      textAlign="left"
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      exit={{ opacity: 0, x: -300 }}
-      initial={{ opacity: 0, y: 300 }}
-      onSubmit={handleSubmit(submitHandler)}
-      maxW={{ base: '100%', lg: '75%' }}>
-      <FormRow>
-        <FormField
-          name="query_location"
-          errors={errors.query_location}
-          label={web.text.query_location}>
-          <QueryLocation onChange={handleChange} label={web.text.query_location} />
-        </FormField>
-        <FormField
-          name="query_type"
-          errors={errors.query_type}
-          label={web.text.query_type}
-          labelAddOn={vrfContent && <HelpModal item={vrfContent} name="query_type" />}>
-          <QueryType onChange={handleChange} label={web.text.query_type} />
-        </FormField>
-      </FormRow>
-      <FormRow>
-        <If c={availVrfs.length > 1}>
-          <FormField label={web.text.query_vrf} name="query_vrf" errors={errors.query_vrf}>
-            <QueryVrf label={web.text.query_vrf} vrfs={availVrfs.value} onChange={handleChange} />
+    <FormProvider {...formInstance}>
+      <AnimatedForm
+        p={0}
+        my={4}
+        w="100%"
+        mx="auto"
+        textAlign="left"
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        exit={{ opacity: 0, x: -300 }}
+        initial={{ opacity: 0, y: 300 }}
+        maxW={{ base: '100%', lg: '75%' }}
+        onSubmit={handleSubmit(submitHandler)}>
+        <FormRow>
+          <FormField name="query_location" label={web.text.query_location}>
+            <QueryLocation onChange={handleChange} label={web.text.query_location} />
           </FormField>
-        </If>
-        <FormField name="query_target" errors={errors.query_target} label={web.text.query_target}>
-          <If c={queryType.value === 'bgp_community' && queries.bgp_community.mode === 'select'}>
-            <CommunitySelect
-              name="query_target"
-              register={register}
-              unregister={unregister}
-              onChange={handleChange}
-              communities={queries.bgp_community.communities}
-            />
+          <FormField
+            name="query_type"
+            label={web.text.query_type}
+            labelAddOn={vrfContent && <HelpModal item={vrfContent} name="query_type" />}>
+            <QueryType onChange={handleChange} label={web.text.query_type} />
+          </FormField>
+        </FormRow>
+        <FormRow>
+          <If c={availVrfs.length > 1}>
+            <FormField label={web.text.query_vrf} name="query_vrf">
+              <QueryVrf label={web.text.query_vrf} vrfs={availVrfs.value} onChange={handleChange} />
+            </FormField>
           </If>
-          <If c={!(queryType.value === 'bgp_community' && queries.bgp_community.mode === 'select')}>
-            <QueryTarget
-              name="query_target"
-              register={register}
-              value={queryTarget.value}
-              unregister={unregister}
-              setFqdn={fqdnTarget.set}
-              setTarget={handleChange}
-              resolveTarget={isFqdnQuery}
-              displayValue={displayTarget.value}
-              setDisplayValue={displayTarget.set}
-              placeholder={web.text.query_target}
-            />
-          </If>
-        </FormField>
-      </FormRow>
-      <FormRow mt={0} justifyContent="flex-end">
-        <Flex
-          my={2}
-          w="100%"
-          ml="auto"
-          maxW="100%"
-          flex="0 0 0"
-          flexDir="column"
-          mr={{ base: 0, lg: 2 }}>
-          <SubmitButton handleChange={handleChange} />
-        </Flex>
-      </FormRow>
-    </AnimatedForm>
+          <FormField name="query_target" label={web.text.query_target}>
+            <If c={queryType.value === 'bgp_community' && queries.bgp_community.mode === 'select'}>
+              <CommunitySelect
+                name="query_target"
+                register={register}
+                unregister={unregister}
+                onChange={handleChange}
+                communities={queries.bgp_community.communities}
+              />
+            </If>
+            <If
+              c={!(queryType.value === 'bgp_community' && queries.bgp_community.mode === 'select')}>
+              <QueryTarget
+                name="query_target"
+                register={register}
+                setTarget={handleChange}
+                resolveTarget={isFqdnQuery}
+                placeholder={web.text.query_target}
+              />
+            </If>
+          </FormField>
+        </FormRow>
+        <FormRow mt={0} justifyContent="flex-end">
+          <Flex
+            my={2}
+            w="100%"
+            ml="auto"
+            maxW="100%"
+            flex="0 0 0"
+            flexDir="column"
+            mr={{ base: 0, lg: 2 }}>
+            <SubmitButton handleChange={handleChange} />
+          </Flex>
+        </FormRow>
+      </AnimatedForm>
+    </FormProvider>
   );
 };

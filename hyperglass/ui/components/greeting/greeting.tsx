@@ -11,31 +11,40 @@ import {
 } from '@chakra-ui/react';
 import { If, Markdown } from '~/components';
 import { useConfig, useColorValue } from '~/context';
+import { useGreeting, useOpposingColor } from '~/hooks';
 
 import type { TGreeting } from './types';
 
 export const Greeting = (props: TGreeting) => {
-  const { onClickThrough, ...rest } = props;
   const { web, content } = useConfig();
   const { isOpen, onClose } = useDisclosure();
+  const [greetingAck, setGreetingAck] = useGreeting();
 
-  const bg = useColorValue('white', 'black');
-  const color = useColorValue('black', 'white');
+  const bg = useColorValue('white', 'gray.800');
+  const color = useOpposingColor(bg);
 
-  function handleClick(): void {
-    onClickThrough();
-    onClose();
-    return;
+  function handleClose(ack: boolean = false): void {
+    if (web.greeting.required && !greetingAck && !ack) {
+      setGreetingAck(false);
+    } else if (web.greeting.required && !greetingAck && ack) {
+      setGreetingAck();
+      onClose();
+    } else if (web.greeting.required && greetingAck) {
+      onClose();
+    } else if (!web.greeting.required) {
+      setGreetingAck();
+      onClose();
+    }
   }
-
   return (
     <Modal
+      size="lg"
       isCentered
-      size="full"
-      isOpen={isOpen}
-      onClose={handleClick}
-      closeOnEsc={!web.greeting.required}
-      closeOnOverlayClick={!web.greeting.required}>
+      onClose={handleClose}
+      motionPreset="slideInBottom"
+      closeOnEsc={web.greeting.required}
+      isOpen={!greetingAck ? true : isOpen}
+      closeOnOverlayClick={web.greeting.required}>
       <ModalOverlay />
       <ModalContent
         py={4}
@@ -43,7 +52,7 @@ export const Greeting = (props: TGreeting) => {
         color={color}
         borderRadius="md"
         maxW={{ base: '95%', md: '75%' }}
-        {...rest}>
+        {...props}>
         <ModalHeader>{web.greeting.title}</ModalHeader>
         <If c={!web.greeting.required}>
           <ModalCloseButton />
@@ -52,7 +61,7 @@ export const Greeting = (props: TGreeting) => {
           <Markdown content={content.greeting} />
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="primary" onClick={handleClick}>
+          <Button colorScheme="primary" onClick={() => handleClose(true)}>
             {web.greeting.button}
           </Button>
         </ModalFooter>

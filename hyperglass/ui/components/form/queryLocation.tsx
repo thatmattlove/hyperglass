@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useFormContext } from 'react-hook-form';
 import { Select } from '~/components';
 import { useConfig } from '~/context';
 
@@ -21,6 +22,8 @@ export const QueryLocation = (props: TQuerySelectField) => {
   const { onChange, label } = props;
 
   const { networks } = useConfig();
+  const { errors } = useFormContext();
+
   const options = useMemo(() => buildOptions(networks), [networks.length]);
 
   function handleChange(e: TSelectOption | TSelectOption[]): void {
@@ -44,6 +47,7 @@ export const QueryLocation = (props: TQuerySelectField) => {
       name="query_location"
       onChange={handleChange}
       closeMenuOnSelect={false}
+      isError={typeof errors.query_location !== 'undefined'}
     />
   );
 };

@@ -1,8 +1,8 @@
 import { forwardRef } from 'react';
 import { Button, Stack } from '@chakra-ui/react';
 import { If } from '~/components';
-import { useConfig, useGlobalState } from '~/context';
-import { useBooleanValue } from '~/hooks';
+import { useConfig } from '~/context';
+import { useBooleanValue, useLGState } from '~/hooks';
 import { TitleOnly } from './titleOnly';
 import { SubtitleOnly } from './subtitleOnly';
 import { Logo } from './logo';
@@ -47,7 +47,7 @@ export const Title = forwardRef<HTMLButtonElement, TTitle>((props, ref) => {
   const { web } = useConfig();
   const titleMode = web.text.title_mode;
 
-  const { isSubmitting } = useGlobalState();
+  const { isSubmitting } = useLGState();
 
   const justify = useBooleanValue(
     isSubmitting.value,
