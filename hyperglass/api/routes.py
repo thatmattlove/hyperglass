@@ -123,7 +123,7 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
 
         if params.fake_output:
             # Return fake, static data for development purposes, if enabled.
-            cache_output = await fake_output(query_data.device.structured_output)
+            cache_output = await fake_output(json_output)
         else:
             # Pass request to execution module
             cache_output = await execute(query_data)
