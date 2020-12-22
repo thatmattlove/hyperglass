@@ -17,7 +17,7 @@ export const CopyButton = (props: TCopyButton) => {
         size="sm"
         variant="ghost"
         onClick={onCopy}
-        colorScheme="primary"
+        colorScheme="secondary"
         {...rest}>
         <Icon as={hasCopied ? Check : Copy} boxSize="16px" />
       </Button>

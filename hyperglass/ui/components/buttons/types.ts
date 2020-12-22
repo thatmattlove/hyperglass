@@ -23,3 +23,7 @@ export interface TRSubmitButton {
   onChange(e: OnChangeArgs): void;
   children: React.ReactNode;
 }
+
+export interface TPathButton {
+  onOpen(): void;
+}

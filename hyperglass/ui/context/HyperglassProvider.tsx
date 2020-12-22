@@ -31,7 +31,7 @@ export const useTheme = (): ITheme => useChakraTheme();
 export const useMobile = (): boolean =>
   useBreakpointValue({ base: true, md: true, lg: false, xl: false }) ?? true;
 
-export const useColorToken = (light: string, dark: string): ValueOf<ITheme['colors']> =>
+export const useColorToken = (light: string, dark: string): string =>
   useColorModeValue(useToken('colors', light), useToken('colors', dark));
 
 export {

@@ -15,6 +15,7 @@ export * from './lookingGlass';
 export * from './markdown';
 export * from './meta';
 export * from './output';
+export * from './path';
 export * from './results';
 export * from './select';
 export * from './table';

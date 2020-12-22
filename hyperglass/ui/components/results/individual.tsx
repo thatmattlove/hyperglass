@@ -12,9 +12,9 @@ import {
 import { motion } from 'framer-motion';
 import { BsLightningFill } from '@meronex/icons/bs';
 import { startCase } from 'lodash';
-import { BGPTable, Countdown, CopyButton, RequeryButton, TextOutput, If } from '~/components';
+import { BGPTable, Countdown, CopyButton, RequeryButton, TextOutput, If, Path } from '~/components';
 import { useColorValue, useConfig, useMobile } from '~/context';
-import { useStrf, useLGQuery, useTableToString } from '~/hooks';
+import { useStrf, useLGQuery, useLGState, useTableToString } from '~/hooks';
 import { isStructuredOutput, isStringOutput } from '~/types';
 import { FormattedError } from './error';
 import { ResultHeader } from './header';
@@ -49,11 +49,14 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
   } = props;
 
   const { web, cache, messages } = useConfig();
+
   const isMobile = useMobile();
   const color = useColorValue('black', 'white');
   const scrollbar = useColorValue('blackAlpha.300', 'whiteAlpha.300');
   const scrollbarHover = useColorValue('blackAlpha.400', 'whiteAlpha.400');
   const scrollbarBg = useColorValue('blackAlpha.50', 'whiteAlpha.50');
+
+  const { responses } = useLGState();
 
   const { data, error, isError, isLoading, refetch } = useLGQuery({
     queryLocation,
@@ -61,6 +64,10 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
     queryType,
     queryVrf,
   });
+
+  if (typeof data !== 'undefined') {
+    responses.merge({ [device.name]: data });
+  }
 
   const cacheLabel = useStrf(web.text.cache_icon, { time: data?.timestamp }, [data?.timestamp]);
 
@@ -175,6 +182,9 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
           />
         </AccordionButton>
         <ButtonGroup px={[1, 1, 3, 3]} py={2}>
+          {isStructuredOutput(data) && data.level === 'success' && tableComponent && (
+            <Path device={device.name} />
+          )}
           <CopyButton copyValue={copyValue} isDisabled={isLoading} />
           <RequeryButton requery={refetch} isDisabled={isLoading} />
         </ButtonGroup>
@@ -199,7 +209,7 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
         }}>
         <Box>
           <Flex direction="column" flex="1 0 auto" maxW={error ? '100%' : undefined}>
-            {!isError && typeof data !== 'undefined' && (
+            {!isError && typeof data !== 'undefined' ? (
               <>
                 {isStructuredOutput(data) && data.level === 'success' && tableComponent ? (
                   <BGPTable>{data.output}</BGPTable>
@@ -209,8 +219,16 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
                   <Alert rounded="lg" my={2} py={4} status={errorLevel}>
                     <FormattedError message={data.output} keywords={errorKeywords} />
                   </Alert>
-                ) : null}
+                ) : (
+                  <Alert rounded="lg" my={2} py={4} status={errorLevel}>
+                    <FormattedError message={errorMsg} keywords={errorKeywords} />
+                  </Alert>
+                )}
               </>
+            ) : (
+              <Alert rounded="lg" my={2} py={4} status={errorLevel}>
+                <FormattedError message={errorMsg} keywords={errorKeywords} />
+              </Alert>
             )}
           </Flex>
         </Box>
