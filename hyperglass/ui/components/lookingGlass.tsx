@@ -15,7 +15,6 @@ import {
   QueryTarget,
   SubmitButton,
   QueryLocation,
-  CommunitySelect,
 } from '~/components';
 import { useConfig } from '~/context';
 import { useStrf, useGreeting, useDevice, useLGState } from '~/hooks';
@@ -37,16 +36,17 @@ export const HyperglassForm = () => {
 
   const formSchema = yup.object().shape({
     query_location: yup.array().of(yup.string()).required(noQueryLoc),
+    query_target: yup.string().required(noQueryTarget),
     query_type: yup.string().required(noQueryType),
     query_vrf: yup.string(),
-    query_target: yup.string().required(noQueryTarget),
   });
 
   const formInstance = useForm<TFormData>({
     resolver: yupResolver(formSchema),
     defaultValues: { query_vrf: 'default', query_target: '', query_location: [], query_type: '' },
   });
-  const { handleSubmit, register, unregister, setValue, errors } = formInstance;
+
+  const { handleSubmit, register, unregister, setValue, getValues } = formInstance;
 
   const {
     queryVrf,
@@ -63,6 +63,8 @@ export const HyperglassForm = () => {
   } = useLGState();
 
   function submitHandler(values: TFormData) {
+    console.dir(values);
+    console.dir(formData.value);
     if (!greetingAck && web.greeting.required) {
       window.location.reload(false);
       setGreetingAck(false);
@@ -141,6 +143,8 @@ export const HyperglassForm = () => {
     } else if (e.field === 'query_target' && isString(e.value)) {
       queryTarget.set(e.value);
     }
+    console.log(e.field, e.value);
+    console.dir(getValues());
   }
 
   const vrfContent = useMemo(() => {
@@ -155,9 +159,9 @@ export const HyperglassForm = () => {
 
   useEffect(() => {
     register({ name: 'query_location', required: true });
+    register({ name: 'query_target', required: true });
     register({ name: 'query_type', required: true });
     register({ name: 'query_vrf' });
-    register({ name: 'query_target', required: true });
   }, [register]);
 
   return (
@@ -192,25 +196,13 @@ export const HyperglassForm = () => {
             </FormField>
           </If>
           <FormField name="query_target" label={web.text.query_target}>
-            <If c={queryType.value === 'bgp_community' && queries.bgp_community.mode === 'select'}>
-              <CommunitySelect
-                name="query_target"
-                register={register}
-                unregister={unregister}
-                onChange={handleChange}
-                communities={queries.bgp_community.communities}
-              />
-            </If>
-            <If
-              c={!(queryType.value === 'bgp_community' && queries.bgp_community.mode === 'select')}>
-              <QueryTarget
-                name="query_target"
-                register={register}
-                setTarget={handleChange}
-                resolveTarget={isFqdnQuery}
-                placeholder={web.text.query_target}
-              />
-            </If>
+            <QueryTarget
+              name="query_target"
+              register={register}
+              onChange={handleChange}
+              resolveTarget={isFqdnQuery}
+              placeholder={web.text.query_target}
+            />
           </FormField>
         </FormRow>
         <FormRow mt={0} justifyContent="flex-end">

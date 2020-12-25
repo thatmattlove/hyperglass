@@ -1,4 +1,3 @@
-export * from './communitySelect';
 export * from './field';
 export * from './queryLocation';
 export * from './queryTarget';

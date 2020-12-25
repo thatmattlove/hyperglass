@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import {
   Modal,
   Popover,
@@ -18,24 +19,26 @@ import { useMobile } from '~/context';
 import { useLGState } from '~/hooks';
 
 import type { IconButtonProps } from '@chakra-ui/react';
-import type { OnChangeArgs } from '~/types';
 import type { TSubmitButton, TRSubmitButton } from './types';
 
-const SubmitIcon = (props: Omit<IconButtonProps, 'aria-label'>) => {
-  const { isLoading } = props;
-  return (
-    <IconButton
-      size="lg"
-      width={16}
-      type="submit"
-      icon={<FiSearch />}
-      title="Submit Query"
-      colorScheme="primary"
-      isLoading={isLoading}
-      aria-label="Submit Query"
-    />
-  );
-};
+const SubmitIcon = forwardRef<HTMLButtonElement, Omit<IconButtonProps, 'aria-label'>>(
+  (props, ref) => {
+    const { isLoading } = props;
+    return (
+      <IconButton
+        ref={ref}
+        size="lg"
+        width={16}
+        type="submit"
+        icon={<FiSearch />}
+        title="Submit Query"
+        colorScheme="primary"
+        isLoading={isLoading}
+        aria-label="Submit Query"
+      />
+    );
+  },
+);
 
 /**
  * Mobile Submit Button

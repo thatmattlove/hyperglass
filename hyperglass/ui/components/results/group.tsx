@@ -148,6 +148,7 @@ export const Results = () => {
                 const device = getDevice(loc.value);
                 return (
                   <Result
+                    key={i}
                     index={i}
                     device={device}
                     queryLocation={loc.value}

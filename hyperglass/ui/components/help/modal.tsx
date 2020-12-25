@@ -31,19 +31,15 @@ export const HelpModal = (props: THelpModal) => {
           animate={{ opacity: 1, scale: 1 }}
           initial={{ opacity: 0, scale: 0.3 }}>
           <IconButton
-            h={3}
-            w={3}
             mb={1}
             ml={1}
-            maxH={3}
-            maxW={3}
             minH={3}
             minW={3}
-            size="sm"
+            size="md"
             variant="link"
             icon={<Info />}
             onClick={onOpen}
-            colorScheme="primary"
+            colorScheme="blue"
             aria-label={`${name}_help`}
           />
         </motion.div>

@@ -3,7 +3,9 @@ import { Button, Icon, Tooltip } from '@chakra-ui/react';
 
 import type { TPathButton } from './types';
 
-const PathIcon = dynamic<MeronexIcon>(() => import('@meronex/icons/gr').then(i => i.GrNetwork));
+const PathIcon = dynamic<MeronexIcon>(() =>
+  import('@meronex/icons/bi').then(i => i.BisNetworkChart),
+);
 
 export const PathButton = (props: TPathButton) => {
   const { onOpen } = props;

@@ -29,7 +29,6 @@ export interface TCommunitySelect {
   onChange: OnChange;
   communities: TBGPCommunity[];
   register: Control['register'];
-  unregister: Control['unregister'];
 }
 
 export interface TQueryTarget {
@@ -37,7 +36,7 @@ export interface TQueryTarget {
   placeholder: string;
   resolveTarget: boolean;
   register: Control['register'];
-  setTarget(e: OnChangeArgs): void;
+  onChange(e: OnChangeArgs): void;
 }
 
 export interface TResolvedTarget {
