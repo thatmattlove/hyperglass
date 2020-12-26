@@ -4,7 +4,7 @@ import {
   Flex,
   Alert,
   Tooltip,
-  ButtonGroup,
+  HStack,
   AccordionItem,
   AccordionPanel,
   AccordionButton,
@@ -181,13 +181,13 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
             title={device.display_name}
           />
         </AccordionButton>
-        <ButtonGroup px={[1, 1, 3, 3]} py={2}>
+        <HStack py={2} spacing={1}>
           {isStructuredOutput(data) && data.level === 'success' && tableComponent && (
             <Path device={device.name} />
           )}
           <CopyButton copyValue={copyValue} isDisabled={isLoading} />
           <RequeryButton requery={refetch} isDisabled={isLoading} />
-        </ButtonGroup>
+        </HStack>
       </AccordionHeaderWrapper>
       <AccordionPanel
         pb={4}
