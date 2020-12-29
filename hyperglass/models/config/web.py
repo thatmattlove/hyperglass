@@ -30,6 +30,7 @@ Percentage = constr(regex=r"^([1-9][0-9]?|100)\%$")
 TitleMode = constr(regex=("logo_only|text_only|logo_title|logo_subtitle|all"))
 ColorMode = constr(regex=r"light|dark")
 DOHProvider = constr(regex="|".join(DNS_OVER_HTTPS.keys()))
+Title = constr(max_length=32)
 
 
 class Analytics(HyperglassModel):
@@ -102,7 +103,7 @@ class Logo(HyperglassModel):
     light: FilePath = DEFAULT_IMAGES / "hyperglass-light.svg"
     dark: FilePath = DEFAULT_IMAGES / "hyperglass-dark.svg"
     favicon: FilePath = DEFAULT_IMAGES / "hyperglass-icon.svg"
-    width: Optional[Union[StrictInt, Percentage]] = "75%"
+    width: Optional[Union[StrictInt, Percentage]] = "100%"
     height: Optional[Union[StrictInt, Percentage]]
 
 
@@ -118,8 +119,8 @@ class Text(HyperglassModel):
     """Validation model for params.branding.text."""
 
     title_mode: TitleMode = "logo_only"
-    title: StrictStr = "hyperglass"
-    subtitle: StrictStr = "Network Looking Glass"
+    title: Title = "hyperglass"
+    subtitle: Title = "Network Looking Glass"
     query_location: StrictStr = "Location"
     query_type: StrictStr = "Query Type"
     query_target: StrictStr = "Target"
