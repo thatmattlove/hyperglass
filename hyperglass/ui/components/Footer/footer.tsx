@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
-import { Button, Flex, Link } from '@chakra-ui/react';
-import { If } from '~/components';
-import { useConfig, useColorValue } from '~/context';
+import { Button, Flex, Link, HStack, useToken } from '@chakra-ui/react';
+import { If, ColorModeToggle } from '~/components';
+import { useConfig, useMobile, useColorValue, useBreakpointValue } from '~/context';
 import { useStrf } from '~/hooks';
 import { FooterButton } from './button';
 
@@ -16,41 +16,45 @@ export const Footer = () => {
 
   const extUrl = useStrf(web.external_link.url, { primary_asn }) ?? '/';
 
+  const size = useBreakpointValue({ base: useToken('sizes', 4), lg: useToken('sizes', 6) });
+  const btnSize = useBreakpointValue({ base: 'xs', lg: 'sm' });
+
+  const isMobile = useMobile();
+
   return (
-    <Flex
+    <HStack
       px={6}
+      py={4}
       w="100%"
       zIndex={1}
       as="footer"
       bg={footerBg}
-      flexWrap="wrap"
-      textAlign="center"
-      alignItems="center"
       color={footerColor}
-      py={{ base: 4, lg: 2 }}
-      justifyContent="space-between">
+      spacing={{ base: 8, lg: 6 }}
+      justifyContent={{ base: 'center', lg: 'space-between' }}>
       <If c={web.terms.enable}>
         <FooterButton side="left" content={content.terms} title={web.terms.title} />
       </If>
       <If c={web.help_menu.enable}>
         <FooterButton side="left" content={content.help_menu} title={web.help_menu.title} />
       </If>
-      <Flex p={0} flexGrow={0} flexShrink={0} maxWidth="100%" flexBasis="auto" marginRight="auto" />
-      <If c={web.credit.enable}>
-        <FooterButton side="right" content={content.credit} title={<CodeIcon />} />
-      </If>
       <If c={web.external_link.enable}>
         <Button
-          size="xs"
           as={Link}
           isExternal
           href={extUrl}
+          size={btnSize}
           variant="ghost"
           rightIcon={<ExtIcon />}
           aria-label={web.external_link.title}>
           {web.external_link.title}
         </Button>
       </If>
-    </Flex>
+      {!isMobile && <Flex p={0} flex="0 0 auto" maxWidth="100%" mr="auto" />}
+      <If c={web.credit.enable}>
+        <FooterButton side="right" content={content.credit} title={<CodeIcon />} />
+      </If>
+      <ColorModeToggle size={size} />
+    </HStack>
   );
 };

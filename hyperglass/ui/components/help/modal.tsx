@@ -1,50 +1,48 @@
 import dynamic from 'next/dynamic';
 import {
-  IconButton,
   Modal,
+  ScaleFade,
+  ModalBody,
+  IconButton,
+  ModalHeader,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
   useDisclosure,
+  ModalCloseButton,
 } from '@chakra-ui/react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Markdown } from '~/components';
 import { useColorValue } from '~/context';
+import { isQueryContent } from '~/types';
 
 import type { THelpModal } from './types';
 
 const Info = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiInfo));
 
 export const HelpModal = (props: THelpModal) => {
-  const { item, name, ...rest } = props;
+  const { visible, item, name, ...rest } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const bg = useColorValue('whiteFaded.50', 'blackFaded.800');
   const color = useColorValue('black', 'white');
+  if (!isQueryContent(item)) {
+    return null;
+  }
   return (
     <>
-      <AnimatePresence>
-        <motion.div
-          transition={{ duration: 0.2 }}
-          exit={{ opacity: 0, scale: 0.3 }}
-          animate={{ opacity: 1, scale: 1 }}
-          initial={{ opacity: 0, scale: 0.3 }}>
-          <IconButton
-            mb={1}
-            ml={1}
-            minH={3}
-            minW={3}
-            size="md"
-            variant="link"
-            icon={<Info />}
-            onClick={onOpen}
-            colorScheme="blue"
-            aria-label={`${name}_help`}
-          />
-        </motion.div>
-      </AnimatePresence>
-      <Modal isOpen={isOpen} onClose={onClose} size="xl">
+      <ScaleFade in={visible} unmountOnExit>
+        <IconButton
+          mb={1}
+          ml={1}
+          minH={3}
+          minW={3}
+          size="md"
+          variant="link"
+          icon={<Info />}
+          onClick={onOpen}
+          colorScheme="blue"
+          aria-label={`${name}_help`}
+        />
+      </ScaleFade>
+      <Modal isOpen={isOpen} onClose={onClose} size="xl" motionPreset="slideInRight">
         <ModalOverlay />
         <ModalContent bg={bg} color={color} py={4} borderRadius="md" {...rest}>
           <ModalHeader>{item.params.title}</ModalHeader>

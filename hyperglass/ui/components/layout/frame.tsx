@@ -1,8 +1,9 @@
 import { useRef } from 'react';
 import { Flex } from '@chakra-ui/react';
-import { useConfig, useColorValue } from '~/context';
 import { If, Debugger, Greeting, Footer, Header } from '~/components';
+import { useConfig, useColorValue } from '~/context';
 import { useLGState } from '~/hooks';
+import { ResetButton } from './resetButton';
 
 import type { TFrame } from './types';
 
@@ -23,10 +24,15 @@ export const Frame = (props: TFrame) => {
 
   return (
     <>
-      <Flex bg={bg} w="100%" color={color} flexDir="column" minHeight="100vh" ref={containerRef}>
-        <Flex px={2} flex="0 1 auto" flexDirection="column">
-          <Header resetForm={handleReset} />
-        </Flex>
+      <Flex
+        bg={bg}
+        w="100%"
+        id="__hyperglass"
+        color={color}
+        flexDir="column"
+        minHeight="100vh"
+        ref={containerRef}>
+        <Header resetForm={handleReset} />
         <Flex
           px={2}
           py={0}
@@ -43,6 +49,7 @@ export const Frame = (props: TFrame) => {
         <If c={developer_mode}>
           <Debugger />
         </If>
+        <ResetButton developerMode={developer_mode} resetForm={handleReset} />
       </Flex>
       <Greeting />
     </>
