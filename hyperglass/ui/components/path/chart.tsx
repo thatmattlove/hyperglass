@@ -20,7 +20,7 @@ export const Chart = (props: TChart) => {
   const flowProps = useBreakpointValue<Omit<ReactFlowProps, 'elements'>>({
     base: { defaultPosition: [0, 300], defaultZoom: 0 },
     lg: { defaultPosition: [100, 300], defaultZoom: 0.7 },
-  });
+  }) ?? { defaultPosition: [100, 300], defaultZoom: 0.7 };
 
   const elements = useMemo(() => [...buildElements({ asn: primary_asn, name: org_name }, data)], [
     data,
@@ -45,7 +45,7 @@ const ASNode = (props: TNode<TNodeData>) => {
   const color = useColorValue('black', 'white');
   const bg = useColorValue('white', 'whiteAlpha.100');
 
-  const { data: asnData, isError, isLoading } = useASNDetail(asn);
+  const { data: asnData, isError, isLoading } = useASNDetail(String(asn));
 
   return (
     <>

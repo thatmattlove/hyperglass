@@ -2,6 +2,7 @@ import { useQuery } from 'react-query';
 import { useConfig } from '~/context';
 
 import type { TFormQuery } from '~/types';
+import type { TUseLGQueryFn } from './types';
 
 /**
  * Fetch Wrapper that incorporates a timeout via a passed AbortController instance.
@@ -31,11 +32,12 @@ export async function fetchWithTimeout(
 }
 
 export function useLGQuery(query: TFormQuery) {
-  const { request_timeout } = useConfig();
+  const { request_timeout, cache } = useConfig();
   const controller = new AbortController();
 
-  async function runQuery(url: string, requestData: TFormQuery): Promise<TQueryResponse> {
-    const { queryLocation, queryTarget, queryType, queryVrf } = requestData;
+  async function runQuery(ctx: TUseLGQueryFn): Promise<TQueryResponse> {
+    const [url, data] = ctx.queryKey;
+    const { queryLocation, queryTarget, queryType, queryVrf } = data;
     const res = await fetchWithTimeout(
       url,
       {
@@ -57,6 +59,11 @@ export function useLGQuery(query: TFormQuery) {
   return useQuery<TQueryResponse, Response | TQueryResponse | Error>(
     ['/api/query/', query],
     runQuery,
-    { refetchInterval: false },
+    {
+      cacheTime: cache.timeout * 1000 * 0.95,
+      refetchOnWindowFocus: false,
+      refetchInterval: false,
+      refetchOnMount: false,
+    },
   );
 }

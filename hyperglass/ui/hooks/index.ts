@@ -7,5 +7,4 @@ export * from './useLGState';
 export * from './useOpposingColor';
 export * from './useStrf';
 export * from './useTableToString';
-export * from './useScaledText';
 export * from './useScaledTitle';

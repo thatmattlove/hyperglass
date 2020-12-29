@@ -4,6 +4,7 @@ import {
   Flex,
   Alert,
   Tooltip,
+  Icon,
   HStack,
   AccordionItem,
   AccordionPanel,
@@ -60,12 +61,18 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
 
   const { responses } = useLGState();
 
-  const { data, error, isError, isLoading, refetch } = useLGQuery({
+  const { data, error, isError, isLoading, refetch, isFetching, isFetchedAfterMount } = useLGQuery({
     queryLocation,
     queryTarget,
     queryType,
     queryVrf,
   });
+
+  const isCached = useMemo(() => data?.cached || !isFetchedAfterMount, [
+    data,
+    isLoading,
+    isFetching,
+  ]);
 
   if (typeof data !== 'undefined') {
     responses.merge({ [device.name]: data });
@@ -234,29 +241,26 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
         </Box>
 
         <Flex direction="row" flexWrap="wrap">
-          <Flex
+          <HStack
             px={3}
             mt={2}
-            justifyContent={['flex-start', 'flex-start', 'flex-end', 'flex-end']}
-            flex="1 0 auto">
-            <If c={cache.show_text && typeof data !== 'undefined' && !error}>
+            spacing={1}
+            flex="1 0 auto"
+            justifyContent={{ base: 'flex-start', lg: 'flex-end' }}>
+            <If c={cache.show_text && !isError && isCached}>
               <If c={!isMobile}>
                 <Countdown timeout={cache.timeout} text={web.text.cache_prefix} />
               </If>
-              <Tooltip
-                display={!data?.cached ? 'none' : undefined}
-                hasArrow
-                label={cacheLabel}
-                placement="top">
-                <Box ml={1} display={data?.cached ? 'block' : 'none'}>
-                  <BsLightningFill color={color} />
+              <Tooltip hasArrow label={cacheLabel} placement="top">
+                <Box>
+                  <Icon as={BsLightningFill} color={color} />
                 </Box>
               </Tooltip>
               <If c={isMobile}>
                 <Countdown timeout={cache.timeout} text={web.text.cache_prefix} />
               </If>
             </If>
-          </Flex>
+          </HStack>
         </Flex>
       </AccordionPanel>
     </AnimatedAccordionItem>

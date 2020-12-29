@@ -6,12 +6,15 @@ import {
   useBreakpointValue,
   useTheme as useChakraTheme,
 } from '@chakra-ui/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { makeTheme, defaultTheme } from '~/util';
 
 import type { IConfig, ITheme } from '~/types';
 import type { THyperglassProvider } from './types';
 
 const HyperglassContext = createContext<IConfig>(Object());
+
+const queryClient = new QueryClient();
 
 export const HyperglassProvider = (props: THyperglassProvider) => {
   const { config, children } = props;
@@ -20,7 +23,9 @@ export const HyperglassProvider = (props: THyperglassProvider) => {
   const theme = value ? userTheme : defaultTheme;
   return (
     <ChakraProvider theme={theme}>
-      <HyperglassContext.Provider value={value}>{children}</HyperglassContext.Provider>
+      <HyperglassContext.Provider value={value}>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      </HyperglassContext.Provider>
     </ChakraProvider>
   );
 };
