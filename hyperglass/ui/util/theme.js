@@ -120,29 +120,8 @@ export const makeTheme = userTheme => ({
   ...chakraTheme,
   colors: importColors(userTheme.colors),
   fonts: importFonts(userTheme.fonts),
+  global: () => ({ body: { overflow: 'hidden' } }),
 });
-
-export const isDark = color => {
-  // YIQ equation from http://24ways.org/2010/calculating-color-contrast
-  const rgb = chroma(color).rgb();
-  const yiq = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
-  return yiq < 128;
-};
-
-export const isLight = color => isDark(color);
-
-export const opposingColor = (theme, color) => {
-  if (color.match(/^\w+\.\d+$/m)) {
-    const colorParts = color.split('.');
-    if (colorParts.length !== 2) {
-      throw Error(`Color is improperly formatted. Got '${color}'`);
-    }
-    const [colorName, colorOpacity] = colorParts;
-    color = theme.colors[colorName][colorOpacity];
-  }
-  const opposing = isDark(color) ? theme.colors.white : theme.colors.black;
-  return opposing;
-};
 
 export const googleFontUrl = (fontFamily, weights = [300, 400, 700]) => {
   const urlWeights = weights.join(',');
