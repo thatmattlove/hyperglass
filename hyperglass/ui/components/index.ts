@@ -19,5 +19,4 @@ export * from './path';
 export * from './results';
 export * from './select';
 export * from './table';
-export * from './title';
 export * from './util';

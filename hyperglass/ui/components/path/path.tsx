@@ -23,6 +23,7 @@ export const Path = (props: TPath) => {
   const response = getResponse(device);
   const output = response?.output as TStructuredResponse;
   const bg = useColorValue('whiteFaded.50', 'blackFaded.900');
+
   return (
     <>
       <PathButton onOpen={onOpen} />

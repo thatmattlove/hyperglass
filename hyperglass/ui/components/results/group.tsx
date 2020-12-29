@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Accordion, Box, Stack, useToken } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedDiv, Label } from '~/components';
@@ -63,7 +63,7 @@ export const Results = () => {
     xl: { opacity: 0, x: 100 },
   });
 
-  const [resultsComplete, setComplete] = useState<number | null>(null);
+  const [resultsComplete, setComplete] = useState<number[]>([]);
 
   const matchedVrf =
     vrfs.filter(v => v.id === queryVrf.value)[0] ?? vrfs.filter(v => v.id === 'default')[0];
@@ -72,6 +72,13 @@ export const Results = () => {
   if (isQueryType(queryType.value)) {
     queryTypeLabel = queries[queryType.value].display_name;
   }
+
+  // Scroll to the top of the page when results load - primarily for mobile.
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
+  }, []);
 
   return (
     <>
@@ -141,7 +148,7 @@ export const Results = () => {
         transition={{ duration: 0.3 }}
         animate={{ opacity: 1, y: 0 }}
         maxW={{ base: '100%', md: '75%' }}>
-        <Accordion allowMultiple allowToggle>
+        <Accordion allowMultiple allowToggle index={resultsComplete}>
           <AnimatePresence>
             {queryLocation &&
               queryLocation.map((loc, i) => {

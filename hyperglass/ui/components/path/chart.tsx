@@ -19,7 +19,7 @@ export const Chart = (props: TChart) => {
 
   const flowProps = useBreakpointValue<Omit<ReactFlowProps, 'elements'>>({
     base: { defaultPosition: [0, 300], defaultZoom: 0 },
-    lg: { defaultPosition: [500, 450] },
+    lg: { defaultPosition: [100, 300], defaultZoom: 0.7 },
   });
 
   const elements = useMemo(() => [...buildElements({ asn: primary_asn, name: org_name }, data)], [
@@ -29,7 +29,7 @@ export const Chart = (props: TChart) => {
   return (
     <ReactFlowProvider>
       <Box boxSize="100%" zIndex={1}>
-        <ReactFlow elements={elements} nodeTypes={{ TestNode }} {...flowProps}>
+        <ReactFlow elements={elements} nodeTypes={{ ASNode }} {...flowProps}>
           <Background color={dots} />
           <Controls />
         </ReactFlow>
@@ -38,7 +38,7 @@ export const Chart = (props: TChart) => {
   );
 };
 
-const TestNode = (props: TNode<TNodeData>) => {
+const ASNode = (props: TNode<TNodeData>) => {
   const { data } = props;
   const { asn, name, hasChildren, hasParents } = data;
 

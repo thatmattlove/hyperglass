@@ -23,11 +23,11 @@ export interface TResult {
   index: number;
   device: TDevice;
   queryVrf: string;
-  queryType: TQueryTypes;
   queryTarget: string;
-  setComplete(v: number | null): void;
   queryLocation: string;
-  resultsComplete: number | null;
+  queryType: TQueryTypes;
+  resultsComplete: number[];
+  setComplete: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 export type TErrorLevels = 'success' | 'warning' | 'error';

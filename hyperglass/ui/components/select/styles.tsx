@@ -27,7 +27,10 @@ export const useControlStyle = (base: TStyles, state: TControl): TStyles => {
   );
   const focusBorder = useColorValue(useToken('colors', 'blue.500'), useToken('colors', 'blue.300'));
   const invalidBorder = useColorValue(useToken('colors', 'red.500'), useToken('colors', 'red.300'));
-  const borderColor = useColorValue('inherit', useToken('colors', 'whiteAlpha.50'));
+  const borderColor = useColorValue(
+    useToken('colors', 'gray.100'),
+    useToken('colors', 'whiteAlpha.50'),
+  );
   const borderRadius = useToken('radii', 'md');
   const minHeight = useToken('space', 12);
   const color = useColorValue(useToken('colors', 'black'), useToken('colors', 'whiteAlpha.800'));
@@ -132,11 +135,11 @@ export const useOptionStyle = (base: TStyles, state: TOption): TStyles => {
   const color = useOpposingColor(backgroundColor);
 
   const styles = {
-    backgroundColor,
-    color,
-    fontSize,
-    '&:focus': { backgroundColor: active, color: activeColor },
+    color: backgroundColor === 'transparent' ? 'currentColor' : color,
     '&:active': { backgroundColor: active, color: activeColor },
+    '&:focus': { backgroundColor: active, color: activeColor },
+    backgroundColor,
+    fontSize,
   };
 
   return useMemo(() => mergeWith({}, base, styles), [

@@ -10,7 +10,7 @@ function treeToElement(part: PathPart, len: number, index: number): FlowElement[
   let elements = [
     {
       id: String(part.base),
-      type: 'TestNode',
+      type: 'ASNode',
       position: { x, y },
       data: {
         asn: part.base,
@@ -50,7 +50,7 @@ export function* buildElements(base: BasePath, data: TStructuredResponse): Gener
   // Add the first hop at the base.
   yield {
     id: base.asn,
-    type: 'TestNode',
+    type: 'ASNode',
     position: { x: 150, y: numHops * 10 },
     data: { asn: base.asn, name: base.name, hasChildren: true, hasParents: false },
   };

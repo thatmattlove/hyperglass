@@ -18,7 +18,7 @@ import {
 } from '~/components';
 import { useConfig } from '~/context';
 import { useStrf, useGreeting, useDevice, useLGState } from '~/hooks';
-import { isQueryType, isString } from '~/types';
+import { isQueryType, isQueryContent, isString } from '~/types';
 
 import type { TFormData, TDeviceVrf, OnChangeArgs } from '~/types';
 
@@ -63,8 +63,6 @@ export const HyperglassForm = () => {
   } = useLGState();
 
   function submitHandler(values: TFormData) {
-    console.dir(values);
-    console.dir(formData.value);
     if (!greetingAck && web.greeting.required) {
       window.location.reload(false);
       setGreetingAck(false);
@@ -143,15 +141,15 @@ export const HyperglassForm = () => {
     } else if (e.field === 'query_target' && isString(e.value)) {
       queryTarget.set(e.value);
     }
-    console.log(e.field, e.value);
-    console.dir(getValues());
   }
 
   const vrfContent = useMemo(() => {
     if (Object.keys(content.vrf).includes(queryVrf.value) && queryType.value !== '') {
       return content.vrf[queryVrf.value][queryType.value];
+    } else {
+      return null;
     }
-  }, [queryVrf]);
+  }, [queryVrf.value, queryLocation.value, queryType.value]);
 
   const isFqdnQuery = useMemo(() => {
     return ['bgp_route', 'ping', 'traceroute'].includes(queryType.value);
@@ -185,7 +183,9 @@ export const HyperglassForm = () => {
           <FormField
             name="query_type"
             label={web.text.query_type}
-            labelAddOn={vrfContent && <HelpModal item={vrfContent} name="query_type" />}>
+            labelAddOn={
+              <HelpModal visible={isQueryContent(vrfContent)} item={vrfContent} name="query_type" />
+            }>
             <QueryType onChange={handleChange} label={web.text.query_type} />
           </FormField>
         </FormRow>

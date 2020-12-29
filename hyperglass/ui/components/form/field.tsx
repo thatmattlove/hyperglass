@@ -37,9 +37,9 @@ export const FormField = (props: TField) => {
         htmlFor={name}
         display="flex"
         opacity={opacity}
-        color={error !== false ? errorColor : labelColor}
         alignItems="center"
-        justifyContent="space-between">
+        justifyContent="space-between"
+        color={error !== false ? errorColor : labelColor}>
         {label}
         <If c={typeof labelAddOn !== 'undefined'}>{labelAddOn}</If>
       </FormLabel>

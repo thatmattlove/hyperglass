@@ -16,9 +16,9 @@ import { BGPTable, Countdown, CopyButton, RequeryButton, TextOutput, If, Path } 
 import { useColorValue, useConfig, useMobile } from '~/context';
 import { useStrf, useLGQuery, useLGState, useTableToString } from '~/hooks';
 import { isStructuredOutput, isStringOutput } from '~/types';
+import { isStackError, isFetchError, isLGError } from './guards';
 import { FormattedError } from './error';
 import { ResultHeader } from './header';
-import { isStackError, isFetchError, isLGError } from './guards';
 
 import type { TAccordionHeaderWrapper, TResult, TErrorLevels } from './types';
 
@@ -71,12 +71,15 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
 
   const cacheLabel = useStrf(web.text.cache_icon, { time: data?.timestamp }, [data?.timestamp]);
 
-  const [isOpen, setOpen] = useState(false);
-  const [hasOverride, setOverride] = useState(false);
-
   const handleToggle = () => {
-    setOpen(!isOpen);
-    setOverride(true);
+    // Close if open.
+    if (resultsComplete.includes(index)) {
+      setComplete(p => p.filter(i => i !== index));
+    }
+    // Open if closed.
+    else if (!resultsComplete.includes(index)) {
+      setComplete(p => [...p, index]);
+    }
   };
 
   const errorKeywords = useMemo(() => {
@@ -140,17 +143,12 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
     copyValue = errorMsg;
   }
 
+  // If this is the first completed result, open it.
   useEffect(() => {
-    if (isLoading && resultsComplete === null) {
-      setComplete(index);
+    if (!isLoading && !isError && resultsComplete.length === 0) {
+      setComplete([index]);
     }
-  }, [isLoading, resultsComplete]);
-
-  useEffect(() => {
-    if (resultsComplete === index && !hasOverride) {
-      setOpen(true);
-    }
-  }, [resultsComplete, index]);
+  }, [isLoading, isError]);
 
   return (
     <AnimatedAccordionItem
