@@ -1,28 +1,24 @@
 import { Flex, Spinner } from '@chakra-ui/react';
-import { useColorValue } from '~/context';
 
 import type { LoadableBaseOptions } from 'next/dynamic';
 
-export const Loading: LoadableBaseOptions['loading'] = () => {
-  const bg = useColorValue('white', 'black');
-  const color = useColorValue('black', 'white');
-  return (
-    <Flex flexDirection="column" minHeight="100vh" w="100%" bg={bg} color={color}>
-      <Flex
-        px={2}
-        py={0}
-        w="100%"
-        as="main"
-        flexGrow={1}
-        flexShrink={1}
-        flexBasis="auto"
-        textAlign="center"
-        alignItems="center"
-        justifyContent="start"
-        flexDirection="column"
-        mt={{ base: '50%', xl: '25%' }}>
-        <Spinner color="primary.500" w="6rem" h="6rem" />
-      </Flex>
+export const Loading: LoadableBaseOptions['loading'] = () => (
+  <Flex flexDirection="column" minHeight="100vh" w="100%">
+    <Flex
+      px={2}
+      py={0}
+      w="100%"
+      bg="white"
+      color="black"
+      flex="1 1 auto"
+      textAlign="center"
+      alignItems="center"
+      justifyContent="center"
+      flexDirection="column"
+      css={{
+        '@media (prefers-color-scheme: dark)': { backgroundColor: 'black', color: 'white' },
+      }}>
+      <Spinner color="primary.500" w="6rem" h="6rem" />
     </Flex>
-  );
-};
+  </Flex>
+);
