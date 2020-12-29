@@ -1,4 +1,4 @@
-import type { MenuListProps } from '@chakra-ui/react';
+import type { ButtonProps, MenuListProps } from '@chakra-ui/react';
 
 type TFooterSide = 'left' | 'right';
 
@@ -9,3 +9,7 @@ export interface TFooterButton extends Omit<MenuListProps, 'title'> {
 }
 
 export type TFooterItems = 'help' | 'credit' | 'terms';
+
+export interface TColorModeToggle extends ButtonProps {
+  size?: string;
+}

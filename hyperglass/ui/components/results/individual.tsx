@@ -12,11 +12,13 @@ import {
 import { motion } from 'framer-motion';
 import { BsLightningFill } from '@meronex/icons/bs';
 import { startCase } from 'lodash';
-import { BGPTable, Countdown, CopyButton, RequeryButton, TextOutput, If, Path } from '~/components';
+import { BGPTable, Countdown, TextOutput, If, Path } from '~/components';
 import { useColorValue, useConfig, useMobile } from '~/context';
 import { useStrf, useLGQuery, useLGState, useTableToString } from '~/hooks';
 import { isStructuredOutput, isStringOutput } from '~/types';
 import { isStackError, isFetchError, isLGError } from './guards';
+import { RequeryButton } from './requeryButton';
+import { CopyButton } from './copyButton';
 import { FormattedError } from './error';
 import { ResultHeader } from './header';
 

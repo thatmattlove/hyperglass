@@ -18,7 +18,7 @@ export const RequeryButton = forwardRef<HTMLButtonElement, TRequeryButton>((prop
         size="sm"
         zIndex="1"
         variant="ghost"
-        onClick={requery}
+        onClick={requery as TRequeryButton['onClick']}
         colorScheme="secondary"
         {...rest}>
         <Icon as={Repeat} boxSize="16px" />

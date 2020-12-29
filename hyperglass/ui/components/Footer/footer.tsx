@@ -1,9 +1,10 @@
 import dynamic from 'next/dynamic';
-import { Button, Flex, Link, HStack, useToken } from '@chakra-ui/react';
-import { If, ColorModeToggle } from '~/components';
+import { Button, Flex, Link, Icon, HStack, useToken } from '@chakra-ui/react';
+import { If } from '~/components';
 import { useConfig, useMobile, useColorValue, useBreakpointValue } from '~/context';
 import { useStrf } from '~/hooks';
 import { FooterButton } from './button';
+import { ColorModeToggle } from './colorMode';
 
 const CodeIcon = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiCode));
 const ExtIcon = dynamic<MeronexIcon>(() => import('@meronex/icons/go').then(i => i.GoLinkExternal));
@@ -52,7 +53,11 @@ export const Footer = () => {
       </If>
       {!isMobile && <Flex p={0} flex="0 0 auto" maxWidth="100%" mr="auto" />}
       <If c={web.credit.enable}>
-        <FooterButton side="right" content={content.credit} title={<CodeIcon />} />
+        <FooterButton
+          side="right"
+          content={content.credit}
+          title={<Icon as={CodeIcon} boxSize={size} />}
+        />
       </If>
       <ColorModeToggle size={size} />
     </HStack>

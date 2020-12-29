@@ -15,7 +15,7 @@ export const Chart = (props: TChart) => {
   const { data } = props;
   const { primary_asn, org_name } = useConfig();
 
-  const dots = useColorToken('blackAlpha.500', 'whiteAlpha.400');
+  const dots = useColorToken('colors', 'blackAlpha.500', 'whiteAlpha.400');
 
   const flowProps = useBreakpointValue<Omit<ReactFlowProps, 'elements'>>({
     base: { defaultPosition: [0, 300], defaultZoom: 0 },

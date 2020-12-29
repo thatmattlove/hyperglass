@@ -25,7 +25,3 @@ export interface THeaderCtx {
   showSubtitle: boolean;
   titleRef: React.MutableRefObject<HTMLHeadingElement>;
 }
-
-export interface THeaderState {
-  fontSize: string;
-}

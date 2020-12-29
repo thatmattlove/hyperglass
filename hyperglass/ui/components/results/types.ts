@@ -1,4 +1,5 @@
-import type { FlexProps } from '@chakra-ui/react';
+import type { ButtonProps, FlexProps } from '@chakra-ui/react';
+import type { QueryResultBase } from 'react-query';
 import type { TDevice, TQueryTypes } from '~/types';
 
 export interface TResultHeader {
@@ -31,3 +32,11 @@ export interface TResult {
 }
 
 export type TErrorLevels = 'success' | 'warning' | 'error';
+
+export interface TCopyButton extends ButtonProps {
+  copyValue: string;
+}
+
+export interface TRequeryButton extends ButtonProps {
+  requery: QueryResultBase<TQueryResponse>['refetch'];
+}

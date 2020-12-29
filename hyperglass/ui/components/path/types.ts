@@ -23,3 +23,7 @@ export interface BasePath {
   asn: string;
   name: string;
 }
+
+export interface TPathButton {
+  onOpen(): void;
+}

@@ -1,14 +1,13 @@
 import { Heading } from '@chakra-ui/react';
 import { useConfig } from '~/context';
-import { useBooleanValue } from '~/hooks';
-import { useHeaderCtx } from './context';
+import { useBooleanValue, useLGState } from '~/hooks';
 import { useTitleSize } from './useTitleSize';
 
 export const TitleOnly = () => {
-  const { showSubtitle } = useHeaderCtx();
   const { web } = useConfig();
+  const { isSubmitting } = useLGState();
 
-  const margin = useBooleanValue(showSubtitle, 2, 0);
+  const margin = useBooleanValue(isSubmitting.value, 0, 2);
   const sizeSm = useTitleSize(web.text.title, '2xl', []);
 
   return (

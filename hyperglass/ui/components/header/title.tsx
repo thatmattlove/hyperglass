@@ -5,7 +5,6 @@ import { useConfig, useMobile } from '~/context';
 import { useBooleanValue, useLGState } from '~/hooks';
 import { Logo } from './logo';
 import { TitleOnly } from './titleOnly';
-import { useHeaderCtx } from './context';
 import { SubtitleOnly } from './subtitleOnly';
 
 import type { StackProps } from '@chakra-ui/react';
@@ -22,13 +21,13 @@ const MWrapper = (props: StackProps) => <VStack spacing={1} alignItems="flex-sta
  * Title wrapper for desktop devices, breakpoints lg & xl.
  */
 const DWrapper = (props: TDWrapper) => {
-  const { showSubtitle } = useHeaderCtx();
+  const { isSubmitting } = useLGState();
   return (
     <AnimatedVStack
       spacing={1}
       initial="main"
       alignItems="center"
-      animate={showSubtitle ? 'main' : 'submitting'}
+      animate={isSubmitting.value ? 'submitting' : 'main'}
       transition={{ damping: 15, type: 'spring', stiffness: 100 }}
       variants={{ submitting: { scale: 0.5 }, main: { scale: 1 } }}
       {...props}

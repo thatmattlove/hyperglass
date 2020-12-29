@@ -8,9 +8,9 @@ import {
   Skeleton,
   ModalCloseButton,
 } from '@chakra-ui/react';
-import { PathButton } from '~/components';
 import { useColorValue } from '~/context';
 import { useLGState } from '~/hooks';
+import { PathButton } from './button';
 import { Chart } from './chart';
 
 import type { TPath } from './types';

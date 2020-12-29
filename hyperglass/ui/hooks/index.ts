@@ -5,7 +5,6 @@ export * from './useGreeting';
 export * from './useLGQuery';
 export * from './useLGState';
 export * from './useOpposingColor';
-export * from './useSessionStorage';
 export * from './useStrf';
 export * from './useTableToString';
 export * from './useScaledText';
