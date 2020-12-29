@@ -17,6 +17,7 @@ type TAppInitial = Pick<TApp, 'appProps'>;
 const App = (props: TApp) => {
   const { Component, pageProps, appProps } = props;
   const { config } = appProps;
+
   // const { asPath } = useRouter();
   // if (asPath === "/structured") {
   //   return <Error msg="/structured" statusCode={404} />;
@@ -31,6 +32,7 @@ const App = (props: TApp) => {
         <meta name="og:image" content="/images/opengraph.jpg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <HyperglassProvider config={config}>
         <Component {...pageProps} />
