@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useToken } from '@chakra-ui/react';
 import { mergeWith } from '@chakra-ui/utils';
 import { useOpposingColor } from '~/hooks';
-import { useColorValue, useMobile } from '~/context';
+import { useColorValue, useColorToken, useMobile } from '~/context';
 import { useSelectContext } from './select';
 
 import type {
@@ -21,23 +21,16 @@ import type {
 export const useControlStyle = (base: TStyles, state: TControl): TStyles => {
   const { isFocused } = state;
   const { colorMode, isError } = useSelectContext();
-  const borderHover = useColorValue(
-    useToken('colors', 'gray.300'),
-    useToken('colors', 'whiteAlpha.400'),
-  );
-  const focusBorder = useColorValue(useToken('colors', 'blue.500'), useToken('colors', 'blue.300'));
-  const invalidBorder = useColorValue(useToken('colors', 'red.500'), useToken('colors', 'red.300'));
-  const borderColor = useColorValue(
-    useToken('colors', 'gray.100'),
-    useToken('colors', 'whiteAlpha.50'),
-  );
-  const borderRadius = useToken('radii', 'md');
+
   const minHeight = useToken('space', 12);
-  const color = useColorValue(useToken('colors', 'black'), useToken('colors', 'whiteAlpha.800'));
-  const backgroundColor = useColorValue(
-    useToken('colors', 'white'),
-    useToken('colors', 'whiteAlpha.100'),
-  );
+  const borderRadius = useToken('radii', 'md');
+  const color = useColorToken('colors', 'black', 'whiteAlpha.800');
+  const focusBorder = useColorToken('colors', 'blue.500', 'blue.300');
+  const invalidBorder = useColorToken('colors', 'red.500', 'red.300');
+  const borderColor = useColorToken('colors', 'gray.100', 'whiteAlpha.50');
+  const borderHover = useColorToken('colors', 'gray.300', 'whiteAlpha.400');
+  const backgroundColor = useColorToken('colors', 'white', 'whiteAlpha.100');
+
   const styles = {
     backgroundColor,
     borderRadius,
@@ -58,12 +51,9 @@ export const useControlStyle = (base: TStyles, state: TControl): TStyles => {
   return useMemo(() => mergeWith({}, base, styles), [colorMode, isFocused, isError]);
 };
 
-export const useMenuStyle = (base: TStyles, state: TMenu): TStyles => {
+export const useMenuStyle = (base: TStyles, _: TMenu): TStyles => {
   const { colorMode, isOpen } = useSelectContext();
-  const backgroundColor = useColorValue(
-    useToken('colors', 'white'),
-    useToken('colors', 'blackFaded.800'),
-  );
+  const backgroundColor = useColorToken('colors', 'white', 'blackFaded.800');
   const borderRadius = useToken('radii', 'md');
   const styles = { borderRadius, backgroundColor };
   return useMemo(() => mergeWith({}, base, styles), [colorMode, isOpen]);
@@ -72,19 +62,9 @@ export const useMenuStyle = (base: TStyles, state: TMenu): TStyles => {
 export const useMenuListStyle = (base: TStyles, state: TMenuList): TStyles => {
   const { colorMode, isOpen } = useSelectContext();
 
-  const scrollbarTrack = useColorValue(
-    useToken('colors', 'blackAlpha.50'),
-    useToken('colors', 'whiteAlpha.50'),
-  );
-  const scrollbarThumb = useColorValue(
-    useToken('colors', 'blackAlpha.300'),
-    useToken('colors', 'whiteAlpha.300'),
-  );
-
-  const scrollbarThumbHover = useColorValue(
-    useToken('colors', 'blackAlpha.400'),
-    useToken('colors', 'whiteAlpha.400'),
-  );
+  const scrollbarTrack = useColorToken('colors', 'blackAlpha.50', 'whiteAlpha.50');
+  const scrollbarThumb = useColorToken('colors', 'blackAlpha.300', 'whiteAlpha.300');
+  const scrollbarThumbHover = useColorToken('colors', 'blackAlpha.400', 'whiteAlpha.400');
 
   const styles = {
     '&::-webkit-scrollbar': { width: '5px' },
@@ -99,20 +79,12 @@ export const useMenuListStyle = (base: TStyles, state: TMenuList): TStyles => {
 export const useOptionStyle = (base: TStyles, state: TOption): TStyles => {
   const { isFocused, isSelected, isDisabled } = state;
   const { colorMode, isOpen } = useSelectContext();
+
   const fontSize = useToken('fontSizes', 'lg');
   const disabled = useToken('colors', 'whiteAlpha.400');
-  const selected = useColorValue(
-    useToken('colors', 'blackAlpha.400'),
-    useToken('colors', 'whiteAlpha.400'),
-  );
-  const focused = useColorValue(
-    useToken('colors', 'primary.500'),
-    useToken('colors', 'primary.300'),
-  );
-  const active = useColorValue(
-    useToken('colors', 'primary.600'),
-    useToken('colors', 'primary.400'),
-  );
+  const active = useColorToken('colors', 'primary.600', 'primary.400');
+  const focused = useColorToken('colors', 'primary.500', 'primary.300');
+  const selected = useColorToken('colors', 'blackAlpha.400', 'whiteAlpha.400');
 
   const activeColor = useOpposingColor(active);
 
@@ -153,17 +125,14 @@ export const useOptionStyle = (base: TStyles, state: TOption): TStyles => {
 
 export const useIndicatorSeparatorStyle = (base: TStyles, state: TIndicator): TStyles => {
   const { colorMode } = useSelectContext();
-  const backgroundColor = useColorValue(
-    useToken('colors', 'whiteAlpha.700'),
-    useToken('colors', 'gray.600'),
-  );
+  const backgroundColor = useColorToken('colors', 'whiteAlpha.700', 'gray.600');
   const styles = { backgroundColor };
   return useMemo(() => mergeWith({}, base, styles), [colorMode]);
 };
 
 export const usePlaceholderStyle = (base: TStyles, state: TPlaceholder): TStyles => {
   const { colorMode } = useSelectContext();
-  const color = useColorValue(useToken('colors', 'gray.600'), useToken('colors', 'whiteAlpha.700'));
+  const color = useColorToken('colors', 'gray.600', 'whiteAlpha.700');
   const fontSize = useToken('fontSizes', 'lg');
   return useMemo(() => mergeWith({}, base, { color, fontSize }), [colorMode]);
 };
@@ -184,13 +153,10 @@ export const useSingleValueStyle = (props: TStyles) => {
 export const useMultiValueStyle = (props: TMultiValue) => {
   const { colorMode } = props;
 
-  const backgroundColor = useColorValue(
-    useToken('colors', 'primary.500'),
-    useToken('colors', 'primary.300'),
-  );
+  const backgroundColor = useColorToken('colors', 'primary.500', 'primary.300');
   const color = useOpposingColor(backgroundColor);
-  const styles = { backgroundColor, color };
 
+  const styles = { backgroundColor, color };
   return useCallback((base: TStyles, state: TMultiValueState) => mergeWith({}, base, styles), [
     backgroundColor,
     colorMode,
@@ -199,13 +165,11 @@ export const useMultiValueStyle = (props: TMultiValue) => {
 
 export const useMultiValueLabelStyle = (props: TMultiValue) => {
   const { colorMode } = props;
-  const backgroundColor = useColorValue(
-    useToken('colors', 'primary.500'),
-    useToken('colors', 'primary.300'),
-  );
-  const color = useOpposingColor(backgroundColor);
-  const styles = { color };
 
+  const backgroundColor = useColorToken('colors', 'primary.500', 'primary.300');
+  const color = useOpposingColor(backgroundColor);
+
+  const styles = { color };
   return useCallback((base: TStyles, state: TMultiValueState) => mergeWith({}, base, styles), [
     colorMode,
   ]);
@@ -213,11 +177,10 @@ export const useMultiValueLabelStyle = (props: TMultiValue) => {
 
 export const useMultiValueRemoveStyle = (props: TMultiValue) => {
   const { colorMode } = props;
-  const backgroundColor = useColorValue(
-    useToken('colors', 'primary.500'),
-    useToken('colors', 'primary.300'),
-  );
+
+  const backgroundColor = useColorToken('colors', 'primary.500', 'primary.300');
   const color = useOpposingColor(backgroundColor);
+
   const styles = {
     color,
     '&:hover': { backgroundColor: 'inherit', color, opacity: 0.7 },
