@@ -17,3 +17,13 @@ export interface TUseASNDetailFn {
   pageParam?: QueryFunctionContext['pageParam'];
   queryKey: string;
 }
+
+interface TUseDNSQueryParams {
+  target: string;
+  family: 4 | 6;
+}
+
+export interface TUseDNSQueryFn {
+  pageParam?: QueryFunctionContext['pageParam'];
+  queryKey: [string | null, TUseDNSQueryParams];
+}
