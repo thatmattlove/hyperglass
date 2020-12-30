@@ -22,7 +22,9 @@ To add, as an example, a Cisco router, add the following to your `devices.yaml`,
 routers:
   - name: router01.pop01
     address: 10.0.0.1
-    network: AS65000
+    network:
+      name: primary
+      display_name: Main Network
     credential:
       username: username
       password: password
@@ -43,15 +45,24 @@ routers:
 | :------------------ | :-----: | :----------------------------------------------------------------------------------------------------------------- |
 | <R/> `name`         | String  | Device hostname. This is not user-facing.                                                                          |
 | <R/> `address`      | String  | Device management hostname or IP address.                                                                          |
-| <R/> `network`      | String  | Primary network this device is a member of. Used for device grouping. Usually something like 'AS65000'.            |
+| <R/> `network`      |         | [Device Network Configuration](#network)                                                                           |
 | <R/> `display_name` | String  | Device's user-facing name.                                                                                         |
 | <R/> `port`         | Integer | TCP port used to connect to the device.                                                                            |
 | <R/> `nos`          | String  | Network Operating System. <MiniNote>Must be a <Link to="platforms">supported platform</Link>.</MiniNote>           |
 | `structured_output` | Boolean | Disabled output parsing to structured data.                                                                        |
 | <R/>`credential`    |         | [Device Credential Configuration](#credential)                                                                     |
-| <R/>`vrfs`          |         | [Device VRF Configuration](#vrfs)                                                                                   |
+| <R/>`vrfs`          |         | [Device VRF Configuration](#vrfs)                                                                                  |
 | `proxy`             |         | [SSH Proxy Configuration](#proxy)                                                                                  |
 | `ssl`               |         | [SSL Configuration](#ssl) for devices using [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent). |
+
+### `network`
+
+???
+
+| Parameter         |  Type   | Default       | Description                                                                                                      |
+| :---------------- | :-----: | :------------ | :--------------------------------------------------------------------------------------------------------------- |
+| <R/> `name`            | String  |               | Internal name of the device's primary network.                                                              |
+| <R/> `display_name`    | String  |               | Display name of the device's primary network.                                                               |
 
 ### `proxy`
 
