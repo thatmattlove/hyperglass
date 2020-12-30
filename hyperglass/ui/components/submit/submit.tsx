@@ -87,11 +87,12 @@ const DSubmitButton = (props: TRSubmitButton) => {
 
 export const SubmitButton = (props: TSubmitButton) => {
   const { handleChange } = props;
-  const { btnLoading, resolvedIsOpen, resolvedClose, resetForm } = useLGState();
+  const { btnLoading, resolvedIsOpen, resolvedClose, resetForm, isSubmitting } = useLGState();
   const isMobile = useMobile();
 
   function handleClose(): void {
     btnLoading.set(false);
+    isSubmitting.set(false);
     resetForm();
     resolvedClose();
   }

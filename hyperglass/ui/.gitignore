@@ -1,5 +1,6 @@
 .DS_Store
 # dev/test files
+TODO.txt
 *.tmp*
 test*
 *.log
