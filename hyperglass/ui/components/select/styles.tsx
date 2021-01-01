@@ -53,7 +53,7 @@ export const useControlStyle = (base: TStyles, state: TControl): TStyles => {
 
 export const useMenuStyle = (base: TStyles, _: TMenu): TStyles => {
   const { colorMode, isOpen } = useSelectContext();
-  const backgroundColor = useColorToken('colors', 'white', 'blackFaded.800');
+  const backgroundColor = useColorToken('colors', 'white', 'blackSolid.700');
   const borderRadius = useToken('radii', 'md');
   const styles = { borderRadius, backgroundColor };
   return useMemo(() => mergeWith({}, base, styles), [colorMode, isOpen]);

@@ -25,8 +25,8 @@ export const TableRow = (props: TTableRow) => {
   let bg;
 
   if (highlight) {
-    bg = `${highlightBg}.${alpha}`;
-    hoverBg = `${highlightBg}.${alphaHover}`;
+    bg = `${String(highlightBg)}.${alpha}`;
+    hoverBg = `${String(highlightBg)}.${alphaHover}`;
   } else if (doStripe && index % 2 !== 0) {
     bg = bgStripe;
   }
@@ -42,7 +42,7 @@ export const TableRow = (props: TTableRow) => {
       fontWeight={highlight ? 'bold' : undefined}
       _hover={{
         cursor: 'pointer',
-        backgroundColor: highlight ? `${highlightBg}.${alphaHover}` : hoverBg,
+        backgroundColor: highlight ? `${String(highlightBg)}.${alphaHover}` : hoverBg,
       }}
       {...borderProps}
       {...rest}

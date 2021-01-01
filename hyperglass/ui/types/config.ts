@@ -1,4 +1,4 @@
-import { Colors, Fonts } from './theme';
+import type { Theme } from './theme';
 
 export type TQueryFields = 'query_type' | 'query_target' | 'query_location' | 'query_vrf';
 
@@ -21,9 +21,9 @@ export interface IConfigMessages {
 }
 
 export interface IConfigTheme {
-  colors: Colors;
+  colors: { [k: string]: string };
   default_color_mode: 'light' | 'dark' | null;
-  fonts: Fonts;
+  fonts: Theme.Fonts;
 }
 
 export interface IConfigWebText {

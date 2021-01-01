@@ -21,7 +21,7 @@ const Info = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.
 export const HelpModal = (props: THelpModal) => {
   const { visible, item, name, ...rest } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const bg = useColorValue('whiteFaded.50', 'blackFaded.800');
+  const bg = useColorValue('whiteSolid.50', 'blackSolid.800');
   const color = useColorValue('black', 'white');
   if (!isQueryContent(item)) {
     return null;

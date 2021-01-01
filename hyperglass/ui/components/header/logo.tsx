@@ -38,8 +38,8 @@ export const Logo = (props: TLogo) => {
   const { web } = useConfig();
   const { width } = web.logo;
 
-  const skeletonA = useColorValue('whiteFaded.100', 'blackFaded.800');
-  const skeletonB = useColorValue('original.light', 'original.dark');
+  const skeletonA = useColorValue('whiteSolid.100', 'blackSolid.800');
+  const skeletonB = useColorValue('light.500', 'dark.500');
 
   const [source, setFallback] = useLogo();
 

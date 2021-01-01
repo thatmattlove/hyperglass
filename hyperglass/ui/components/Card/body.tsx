@@ -5,8 +5,8 @@ import type { ICardBody } from './types';
 
 export const CardBody = (props: ICardBody) => {
   const { onClick, ...rest } = props;
-  const bg = useColorValue('white', 'original.dark');
-  const color = useColorValue('original.dark', 'white');
+  const bg = useColorValue('white', 'dark.500');
+  const color = useColorValue('dark.500', 'white');
   return (
     <Flex
       bg={bg}

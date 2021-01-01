@@ -16,7 +16,7 @@ import {
 import { FiSearch } from '@meronex/icons/fi';
 import { useFormContext } from 'react-hook-form';
 import { If, ResolvedTarget } from '~/components';
-import { useMobile } from '~/context';
+import { useMobile, useColorValue } from '~/context';
 import { useLGState, useLGMethods } from '~/hooks';
 
 import type { IconButtonProps } from '@chakra-ui/react';
@@ -47,6 +47,7 @@ const SubmitIcon = forwardRef<HTMLButtonElement, Omit<IconButtonProps, 'aria-lab
  */
 const MSubmitButton = (props: TRSubmitButton) => {
   const { children, isOpen, onClose, onChange } = props;
+  const bg = useColorValue('white', 'gray.900');
   return (
     <>
       {children}
@@ -59,7 +60,7 @@ const MSubmitButton = (props: TRSubmitButton) => {
         closeOnOverlayClick={false}
         motionPreset="slideInBottom">
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent bg={bg}>
           <ModalCloseButton />
           <ModalBody px={4} py={10}>
             {isOpen && <ResolvedTarget setTarget={onChange} />}
@@ -75,11 +76,12 @@ const MSubmitButton = (props: TRSubmitButton) => {
  */
 const DSubmitButton = (props: TRSubmitButton) => {
   const { children, isOpen, onClose, onChange } = props;
+  const bg = useColorValue('white', 'gray.900');
   return (
     <Popover isOpen={isOpen} onClose={onClose} closeOnBlur={false}>
       <PopoverTrigger>{children}</PopoverTrigger>
-      <PopoverContent>
-        <PopoverArrow />
+      <PopoverContent bg={bg}>
+        <PopoverArrow bg={bg} />
         <PopoverCloseButton />
         <PopoverBody p={6}>{isOpen && <ResolvedTarget setTarget={onChange} />}</PopoverBody>
       </PopoverContent>

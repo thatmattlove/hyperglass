@@ -6,11 +6,11 @@ import type {
   OptionProps,
   MultiValueProps,
   IndicatorProps,
-  Theme,
+  Theme as RSTheme,
   PlaceholderProps,
 } from 'react-select';
 import type { BoxProps } from '@chakra-ui/react';
-import type { ColorNames, TSelectOption, TSelectOptionMulti, TSelectOptionGroup } from '~/types';
+import type { Theme, TSelectOption, TSelectOptionMulti, TSelectOptionGroup } from '~/types';
 
 export interface TSelectState {
   [k: string]: string[];
@@ -29,7 +29,7 @@ export interface TSelectBase extends TReactSelectChakra {
   required?: boolean;
   onSelect?: (s: TSelectOption[]) => void;
   onChange?: (c: TSelectOption | TSelectOptionMulti) => void;
-  colorScheme?: ColorNames;
+  colorScheme?: Theme.ColorNames;
 }
 
 export interface TSelectContext {
@@ -50,7 +50,7 @@ export interface TMultiValueRemoveProps {
   selectProps: any;
 }
 
-export interface TRSTheme extends Omit<Theme, 'borderRadius'> {
+export interface TRSTheme extends Omit<RSTheme, 'borderRadius'> {
   borderRadius: string | number;
 }
 

@@ -9,7 +9,7 @@ import {
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { makeTheme, defaultTheme } from '~/util';
 
-import type { IConfig, ITheme } from '~/types';
+import type { IConfig, Theme } from '~/types';
 import type { THyperglassProvider } from './types';
 
 const HyperglassContext = createContext<IConfig>(Object());
@@ -38,7 +38,7 @@ export const useConfig = (): IConfig => useContext(HyperglassContext);
 /**
  * Get the current theme object.
  */
-export const useTheme = (): ITheme => useChakraTheme();
+export const useTheme = (): Theme.Full => useChakraTheme();
 
 /**
  * Determine if device is mobile or desktop based on Chakra UI theme breakpoints.
@@ -50,7 +50,7 @@ export const useMobile = (): boolean =>
  * Convenience function to combine Chakra UI's useToken & useColorModeValue.
  */
 export const useColorToken = <L extends string, D extends string>(
-  token: keyof ITheme,
+  token: keyof Theme.Full,
   light: L,
   dark: D,
 ): L | D => useColorModeValue(useToken(token, light), useToken(token, dark));

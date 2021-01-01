@@ -22,7 +22,7 @@ export const Path = (props: TPath) => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const response = getResponse(device);
   const output = response?.output as TStructuredResponse;
-  const bg = useColorValue('whiteFaded.50', 'blackFaded.900');
+  const bg = useColorValue('whiteSolid.50', 'blackSolid.900');
 
   return (
     <>

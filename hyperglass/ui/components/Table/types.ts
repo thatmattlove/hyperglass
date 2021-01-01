@@ -1,17 +1,17 @@
 import type { BoxProps, IconButtonProps } from '@chakra-ui/react';
 
-import type { Colors, TColumn, TCellRender } from '~/types';
+import type { Theme, TColumn, TCellRender } from '~/types';
 
 export interface TTable {
-  columns: TColumn[];
   data: TRoute[];
-  heading?: React.ReactNode;
   striped?: boolean;
+  columns: TColumn[];
+  heading?: React.ReactNode;
   bordersVertical?: boolean;
   bordersHorizontal?: boolean;
   Cell?: React.FC<TCellRender>;
   rowHighlightProp?: keyof IRoute;
-  rowHighlightBg?: keyof Colors;
+  rowHighlightBg?: Theme.ColorNames;
 }
 
 export interface TTableCell extends Omit<BoxProps, 'align'> {
@@ -20,10 +20,10 @@ export interface TTableCell extends Omit<BoxProps, 'align'> {
 }
 
 export interface TTableRow extends BoxProps {
-  highlight?: boolean;
-  highlightBg?: keyof Colors;
-  doStripe?: boolean;
+  highlightBg?: Theme.ColorNames;
   doHorizontalBorders?: boolean;
+  highlight?: boolean;
+  doStripe?: boolean;
   index: number;
 }
 
