@@ -1,4 +1,4 @@
-name: Backend Linting
+name: Backend Testing
 on: [push, pull_request]
 
 jobs:
@@ -6,7 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.8]
         poetry-version: [1.1.4]
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
@@ -23,3 +23,5 @@ jobs:
         run: poetry install
       - name: Flake8
         run: poetry run flake8 hyperglass
+      - name: Run hyperglass
+        run: '.tests/app/setup.sh'

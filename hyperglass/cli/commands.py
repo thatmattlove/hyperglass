@@ -96,7 +96,7 @@ def build_frontend():
     default=0,
     help=f"Number of workers. By default, calculated from CPU cores [{cpu_count(2)}]",
 )
-def start(build, direct, workers):
+def start(build, direct, workers):  # noqa: C901
     """Start web server and optionally build frontend assets."""
     try:
         # Project
