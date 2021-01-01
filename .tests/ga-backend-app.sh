@@ -20,7 +20,7 @@ fi
 
 echo "[INFO] Starting hyperglass..."
 poetry run hyperglass start &> $HOME/hyperglass-ci.log &
-sleep 180
+# sleep 180
 
 if [[ ! $? == 0 ]]; then
     echo "[ERROR] Failed to start hyperglass."
