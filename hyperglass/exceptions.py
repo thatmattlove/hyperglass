@@ -3,7 +3,7 @@
 # Standard Library
 import sys
 import json as _json
-from typing import Dict, List, Union, Optional, Sequence
+from typing import Dict, List, Union, Optional
 
 # Third Party
 from rich.console import Console
@@ -190,18 +190,13 @@ class ParsingError(_UnformattedHyperglassError):
     """Raised when there is a problem parsing a structured response."""
 
     def __init__(
-        self,
-        unformatted_msg: Union[Sequence[Dict], str],
-        level: str = "danger",
-        **kwargs,
+        self, unformatted_msg: Union[List[Dict], str], level: str = "danger", **kwargs,
     ) -> None:
         """Format error message with keyword arguments."""
-        if isinstance(unformatted_msg, Sequence):
+        if isinstance(unformatted_msg, list):
             self._message = validation_error_message(*unformatted_msg)
         else:
             self._message = unformatted_msg.format(**kwargs)
         self._level = level or self._level
         self._keywords = list(kwargs.values())
-        super().__init__(
-            message=self._message, level=self._level, keywords=self._keywords
-        )
+        super().__init__(self._message, level=self._level, keywords=self._keywords)
