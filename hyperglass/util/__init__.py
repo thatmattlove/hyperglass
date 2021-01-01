@@ -317,16 +317,10 @@ async def node_initial(dev_mode=False):
 
     ui_path = Path(__file__).parent.parent / "ui"
 
-    mode = ""
-    if not dev_mode:
-        mode = "--prod"
-
-    command = "yarn {m} --silent --emoji false".format(m=mode)
-
     all_messages = []
     try:
         proc = await asyncio.create_subprocess_shell(
-            cmd=command,
+            cmd="yarn --silent --emoji false",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=ui_path,
