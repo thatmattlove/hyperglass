@@ -57,8 +57,8 @@ const ASNode = (props: TNode<TNodeData>) => {
               <Box h={2} w={24}>
                 <SkeletonText noOfLines={1} color={color} />
               </Box>
-            ) : !isError && asnData?.data?.description_short ? (
-              asnData.data.description_short
+            ) : !isError && asnData?.data?.asn.organization?.orgName ? (
+              asnData.data.asn.organization.orgName
             ) : (
               name
             )}
