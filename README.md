@@ -15,11 +15,14 @@
 
 [![PyPI](https://img.shields.io/pypi/v/hyperglass?style=for-the-badge)](https://pypi.org/project/hyperglass/)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/hyperglass?color=%2340798C&style=for-the-badge)
-[![CI](https://img.shields.io/travis/com/checktheroads/hyperglass/v1.0.0?style=for-the-badge)](https://travis-ci.com/github/checktheroads/hyperglass)
 
 [![GitHub Contributors](https://img.shields.io/github/contributors/checktheroads/hyperglass?color=40798C&style=for-the-badge)](https://github.com/checktheroads/hyperglass)
 [![Gitter](https://img.shields.io/gitter/room/checktheroads/hyperglass?color=ff5e5b&style=for-the-badge)](https://gitter.im/hyperglass)
 [![Telegram](https://img.shields.io/badge/chat-telegram-blue?style=for-the-badge&color=blue&logo=telegram)](https://t.me/hyperglasslg)
+
+[![Frontend Tests](https://img.shields.io/github/workflow/status/checktheroads/hyperglass/Frontend%20Testing?label=Frontend%20Tests&style=for-the-badge)](https://github.com/checktheroads/hyperglass/actions?query=workflow%3A%Frontend+Testing%22)
+[![Backend Tests](https://img.shields.io/github/workflow/status/checktheroads/hyperglass/Backend%20Testing?label=Backend%20Tests&style=for-the-badge)](https://github.com/checktheroads/hyperglass/actions?query=workflow%3A%Backend+Testing%22)
+[![Installer Tests](https://img.shields.io/github/workflow/status/checktheroads/hyperglass/Installer%20Testing?label=Installer%20Tests&style=for-the-badge)](https://github.com/checktheroads/hyperglass/actions?query=workflow%3A%Installer+Testing%22)
 
 <br/>
 
