@@ -55,7 +55,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 - VRF support
 - Access List/prefix-list style query control to whitelist or blacklist query targets on a per-VRF basis
 - REST API with automatic, configurable OpenAPI documentation
-- Modern, responsive UI built on [ReactJS](https://reactjs.org/), with [NextJS](https://nextjs.org/) & [Chakra UI](https://chakra-ui.com/)
+- Modern, responsive UI built on [ReactJS](https://reactjs.org/), with [NextJS](https://nextjs.org/) & [Chakra UI](https://chakra-ui.com/), written in [TypeScript](https://www.typescriptlang.org/)
 - Query multiple devices simultaneously
 - Browser-based DNS-over-HTTPS resolution of FQDN queries
 
