@@ -40,4 +40,5 @@ export interface TQueryTarget {
 
 export interface TResolvedTarget {
   setTarget(e: OnChangeArgs): void;
+  errorClose(): void;
 }

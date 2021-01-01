@@ -127,6 +127,8 @@ class Text(HyperglassModel):
     query_vrf: StrictStr = "Routing Table"
     fqdn_tooltip: StrictStr = "Use {protocol}"  # Formatted by Javascript
     fqdn_message: StrictStr = "Your browser has resolved {fqdn} to"  # Formatted by Javascript
+    fqdn_error: StrictStr = "Unable to resolve {fqdn}"  # Formatted by Javascript
+    fqdn_error_button: StrictStr = "Try Again"
     cache_prefix: StrictStr = "Results cached for "
     cache_icon: StrictStr = "Cached from {time} UTC"  # Formatted by Javascript
     complete_time: StrictStr = "Completed in {seconds}"  # Formatted by Javascript

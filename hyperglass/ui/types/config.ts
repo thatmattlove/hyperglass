@@ -36,6 +36,8 @@ export interface IConfigWebText {
   query_vrf: string;
   fqdn_tooltip: string;
   fqdn_message: string;
+  fqdn_error: string;
+  fqdn_error_button: string;
   cache_prefix: string;
   cache_icon: string;
   complete_time: string;

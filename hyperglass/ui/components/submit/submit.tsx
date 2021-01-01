@@ -63,7 +63,7 @@ const MSubmitButton = (props: TRSubmitButton) => {
         <ModalContent bg={bg}>
           <ModalCloseButton />
           <ModalBody px={4} py={10}>
-            {isOpen && <ResolvedTarget setTarget={onChange} />}
+            {isOpen && <ResolvedTarget setTarget={onChange} errorClose={onClose} />}
           </ModalBody>
         </ModalContent>
       </Modal>
@@ -83,7 +83,9 @@ const DSubmitButton = (props: TRSubmitButton) => {
       <PopoverContent bg={bg}>
         <PopoverArrow bg={bg} />
         <PopoverCloseButton />
-        <PopoverBody p={6}>{isOpen && <ResolvedTarget setTarget={onChange} />}</PopoverBody>
+        <PopoverBody p={6}>
+          {isOpen && <ResolvedTarget setTarget={onChange} errorClose={onClose} />}
+        </PopoverBody>
       </PopoverContent>
     </Popover>
   );
