@@ -14,4 +14,4 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run hyperglass
-        run: './install.sh'
+        run: 'sudo bash ./install.sh'
