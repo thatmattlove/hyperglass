@@ -26,5 +26,5 @@ jobs:
         run: yarn install
 
       - name: TypeScript Check
-        working-directory: ${{ end.working-directory }}
+        working-directory: ${{ env.working-directory }}
         run: yarn typecheck
