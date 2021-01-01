@@ -868,14 +868,14 @@ def make_repr(_class):
 def validate_nos(nos):
     """Validate device NOS is supported."""
     # Third Party
-    from netmiko.ssh_dispatcher import CLASS_MAPPER_BASE
+    from netmiko.ssh_dispatcher import CLASS_MAPPER
 
     # Project
     from hyperglass.constants import DRIVER_MAP
 
     result = (False, None)
 
-    all_nos = {*DRIVER_MAP.keys(), *CLASS_MAPPER_BASE.keys()}
+    all_nos = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
 
     if nos in all_nos:
         result = (True, DRIVER_MAP.get(nos, "netmiko"))

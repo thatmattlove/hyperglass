@@ -71,6 +71,11 @@ class NetmikoConnection(SSHConnection):
             **global_args,
         }
 
+        if "_telnet" in self.device.nos:
+            # Telnet devices with a low delay factor (default) tend to
+            # throw login errors.
+            driver_kwargs["global_delay_factor"] = 2
+
         if self.device.credential._method == "password":
             # Use password auth if no key is defined.
             driver_kwargs[

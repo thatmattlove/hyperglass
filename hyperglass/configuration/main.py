@@ -4,12 +4,11 @@
 import os
 import copy
 import json
-from typing import Dict, List, Union, Callable
+from typing import Dict
 from pathlib import Path
 
 # Third Party
 import yaml
-from pydantic import ValidationError
 
 # Project
 from hyperglass.log import (
@@ -19,15 +18,12 @@ from hyperglass.log import (
     enable_syslog_logging,
 )
 from hyperglass.util import check_path, set_app_path, set_cache_env, current_log_level
-from hyperglass.models import HyperglassModel
 from hyperglass.constants import (
-    TRANSPORT_REST,
     SUPPORTED_QUERY_TYPES,
     PARSED_RESPONSE_FIELDS,
-    SUPPORTED_STRUCTURED_OUTPUT,
     __version__,
 )
-from hyperglass.exceptions import ConfigError, ConfigInvalid, ConfigMissing
+from hyperglass.exceptions import ConfigError, ConfigMissing
 from hyperglass.models.commands import Commands
 from hyperglass.models.config.params import Params
 from hyperglass.models.config.devices import Devices
@@ -40,6 +36,7 @@ from hyperglass.configuration.defaults import (
 
 # Local
 from .markdown import get_markdown
+from .validation import validate_config, validate_nos_commands
 
 set_app_path(required=True)
 
@@ -55,18 +52,8 @@ CONFIG_FILES = (
 )
 
 
-def _check_config_files(directory):
-    """Verify config files exist and are readable.
-
-    Arguments:
-        directory {Path} -- Config directory Path object
-
-    Raises:
-        ConfigMissing: Raised if a required config file does not pass checks.
-
-    Returns:
-        {tuple} -- main config, devices config, commands config
-    """
+def _check_config_files(directory: Path):
+    """Verify config files exist and are readable."""
     files = ()
     for file in CONFIG_FILES:
         file_name, required = file
@@ -124,42 +111,6 @@ def _config_optional(config_path: Path) -> Dict:
     return config
 
 
-def _validate_nos_commands(all_nos, commands):
-    nos_with_commands = commands.dict().keys()
-
-    for nos in all_nos:
-        valid = False
-        if nos in SUPPORTED_STRUCTURED_OUTPUT:
-            valid = True
-        elif nos in TRANSPORT_REST:
-            valid = True
-        elif nos in nos_with_commands:
-            valid = True
-
-        if not valid:
-            raise ConfigError(
-                '"{nos}" is used on a device, '
-                + 'but no command profile for "{nos}" is defined.',
-                nos=nos,
-            )
-
-    return True
-
-
-def _validate_config(config: Union[Dict, List], importer: Callable) -> HyperglassModel:
-    validated = None
-    try:
-        if isinstance(config, Dict):
-            validated = importer(**config)
-        elif isinstance(config, List):
-            validated = importer(config)
-    except ValidationError as err:
-        log.error(str(err))
-        raise ConfigInvalid(err.errors()) from None
-
-    return validated
-
-
 user_config = _config_optional(CONFIG_MAIN)
 
 # Read raw debug value from config to enable debugging quickly.
@@ -167,7 +118,7 @@ set_log_level(logger=log, debug=user_config.get("debug", True))
 
 # Map imported user configuration to expected schema.
 log.debug("Unvalidated configuration from {}: {}", CONFIG_MAIN, user_config)
-params = _validate_config(config=user_config, importer=Params)
+params = validate_config(config=user_config, importer=Params)
 
 # Re-evaluate debug state after config is validated
 log_level = current_log_level(log)
@@ -180,15 +131,15 @@ elif not params.debug and log_level == "debug":
 # Map imported user commands to expected schema.
 _user_commands = _config_optional(CONFIG_COMMANDS)
 log.debug("Unvalidated commands from {}: {}", CONFIG_COMMANDS, _user_commands)
-commands = _validate_config(config=_user_commands, importer=Commands.import_params)
+commands = validate_config(config=_user_commands, importer=Commands.import_params)
 
 # Map imported user devices to expected schema.
 _user_devices = _config_required(CONFIG_DEVICES)
 log.debug("Unvalidated devices from {}: {}", CONFIG_DEVICES, _user_devices)
-devices = _validate_config(config=_user_devices.get("routers", []), importer=Devices)
+devices = validate_config(config=_user_devices.get("routers", []), importer=Devices)
 
 # Validate commands are both supported and properly mapped.
-_validate_nos_commands(devices.all_nos, commands)
+validate_nos_commands(devices.all_nos, commands)
 
 # Set cache configurations to environment variables, so they can be
 # used without importing this module (Gunicorn, etc).
