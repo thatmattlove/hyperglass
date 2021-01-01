@@ -10,6 +10,8 @@ jobs:
         node-version: [14.x]
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
+    env:
+      working-directory: ./hyperglass/ui
     steps:
       - name: Git Checkout
         uses: actions/checkout@v2
@@ -20,7 +22,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install Dependencies
+        working-directory: ${{ env.working-directory }}
         run: yarn install
 
       - name: TypeScript Check
         uses: icrawl/action-tsc@v1
+        with:
+          project: ${{ env.working-directory }}
