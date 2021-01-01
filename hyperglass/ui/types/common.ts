@@ -1,3 +1,5 @@
+import { State } from '@hookstate/core';
+
 export type TSelectOptionBase = {
   label: string;
   value: string;
@@ -7,6 +9,8 @@ export type TSelectOptionBase = {
 export type TSelectOption = TSelectOptionBase | null;
 
 export type TSelectOptionMulti = TSelectOptionBase[] | null;
+
+export type TSelectOptionState = State<TSelectOption>;
 
 export type TSelectOptionGroup = {
   label: string;

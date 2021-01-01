@@ -18,10 +18,10 @@ export interface TSelectState {
 
 export type TOptions = Array<TSelectOptionGroup | TSelectOption>;
 
-export type TBoxAsReactSelect = Omit<IReactSelect, 'isMulti' | 'onSelect' | 'onChange'> &
+export type TReactSelectChakra = Omit<IReactSelect, 'isMulti' | 'onSelect' | 'onChange'> &
   Omit<BoxProps, 'onChange' | 'onSelect'>;
 
-export interface TSelectBase extends TBoxAsReactSelect {
+export interface TSelectBase extends TReactSelectChakra {
   name: string;
   multi?: boolean;
   isError?: boolean;

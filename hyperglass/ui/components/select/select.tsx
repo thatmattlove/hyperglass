@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo } from 'react';
 import ReactSelect from 'react-select';
-import { Box, useDisclosure } from '@chakra-ui/react';
+import { chakra, useDisclosure } from '@chakra-ui/react';
 import { useColorMode } from '~/context';
 import {
   useRSTheme,
@@ -18,15 +18,15 @@ import {
 } from './styles';
 
 import type { TSelectOption } from '~/types';
-import type { TSelectBase, TSelectContext, TBoxAsReactSelect } from './types';
+import type { TSelectBase, TSelectContext, TReactSelectChakra } from './types';
 
 const SelectContext = createContext<TSelectContext>(Object());
 export const useSelectContext = () => useContext(SelectContext);
 
-const ReactSelectAsBox = (props: TBoxAsReactSelect) => <Box as={ReactSelect} {...props} />;
+const ReactSelectChakra = chakra<typeof ReactSelect, TReactSelectChakra>(ReactSelect);
 
 export const Select = (props: TSelectBase) => {
-  const { ctl, options, multi, onSelect, isError = false, ...rest } = props;
+  const { options, multi, onSelect, isError = false, ...rest } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { colorMode } = useColorMode();
@@ -37,7 +37,7 @@ export const Select = (props: TSelectBase) => {
     isOpen,
   ]);
 
-  const handleChange = (changed: TSelectOption | TSelectOption[]) => {
+  const defaultOnChange = (changed: TSelectOption | TSelectOption[]) => {
     if (!Array.isArray(changed)) {
       changed = [changed];
     }
@@ -54,15 +54,14 @@ export const Select = (props: TSelectBase) => {
 
   return (
     <SelectContext.Provider value={selectContext}>
-      <ReactSelectAsBox
-        onChange={handleChange}
+      <ReactSelectChakra
+        onChange={defaultOnChange}
         onMenuClose={onClose}
         onMenuOpen={onOpen}
+        isClearable={true}
         options={options}
-        as={ReactSelect}
         isMulti={multi}
         theme={rsTheme}
-        ref={ctl}
         styles={{
           menuPortal,
           multiValue,
