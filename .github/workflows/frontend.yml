@@ -26,6 +26,5 @@ jobs:
         run: yarn install
 
       - name: TypeScript Check
-        uses: icrawl/action-tsc@v1
-        with:
-          project: ${{ env.working-directory }}
+        working-directory: ${{ end.working-directory }}
+        run: yarn typecheck
