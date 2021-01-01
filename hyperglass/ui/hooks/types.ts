@@ -1,3 +1,4 @@
+import { State } from '@hookstate/core';
 import type { QueryFunctionContext } from 'react-query';
 import type { TFormQuery } from '~/types';
 
@@ -6,7 +7,13 @@ export interface TOpposingOptions {
   dark?: string;
 }
 
-export type TUseGreetingReturn = [boolean, (v?: boolean) => void];
+export type TUseGreetingReturn = {
+  ack: State<boolean>;
+  isOpen: State<boolean>;
+  open(): void;
+  close(): void;
+  greetingReady(): boolean;
+};
 
 export interface TUseLGQueryFn {
   pageParam?: QueryFunctionContext['pageParam'];

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Modal,
   Button,
@@ -6,7 +7,6 @@ import {
   ModalFooter,
   ModalOverlay,
   ModalContent,
-  useDisclosure,
   ModalCloseButton,
 } from '@chakra-ui/react';
 import { If, Markdown } from '~/components';
@@ -17,25 +17,29 @@ import type { TGreeting } from './types';
 
 export const Greeting = (props: TGreeting) => {
   const { web, content } = useConfig();
-  const { isOpen, onClose } = useDisclosure();
-  const [greetingAck, setGreetingAck] = useGreeting();
+  const { ack: greetingAck, isOpen, close, open } = useGreeting();
 
   const bg = useColorValue('white', 'gray.800');
   const color = useOpposingColor(bg);
 
   function handleClose(ack: boolean = false): void {
-    if (web.greeting.required && !greetingAck && !ack) {
-      setGreetingAck(false);
-    } else if (web.greeting.required && !greetingAck && ack) {
-      setGreetingAck();
-      onClose();
-    } else if (web.greeting.required && greetingAck) {
-      onClose();
+    if (web.greeting.required && !greetingAck.value && !ack) {
+      greetingAck.set(false);
+    } else if (web.greeting.required && !greetingAck.value && ack) {
+      greetingAck.set(true);
+      close();
+    } else if (web.greeting.required && greetingAck.value) {
+      close();
     } else if (!web.greeting.required) {
-      setGreetingAck();
-      onClose();
+      greetingAck.set(true);
+      close();
     }
   }
+  useEffect(() => {
+    if (!greetingAck.value && web.greeting.enable) {
+      isOpen.set(true);
+    }
+  }, []);
   return (
     <Modal
       size="lg"
@@ -43,7 +47,7 @@ export const Greeting = (props: TGreeting) => {
       onClose={handleClose}
       motionPreset="slideInBottom"
       closeOnEsc={web.greeting.required}
-      isOpen={!greetingAck ? true : isOpen}
+      isOpen={isOpen.value}
       closeOnOverlayClick={web.greeting.required}>
       <ModalOverlay />
       <ModalContent
