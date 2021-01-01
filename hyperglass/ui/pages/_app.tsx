@@ -3,6 +3,9 @@ import { HyperglassProvider } from '~/context';
 import { IConfig } from '~/types';
 // import { useRouter } from "next/router";
 // import Error from "./_error";
+if (process.env.NODE_ENV === 'development') {
+  require('@hookstate/devtools');
+}
 
 import type { AppProps, AppInitialProps } from 'next/app';
 

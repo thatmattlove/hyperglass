@@ -1,21 +1,30 @@
 import { Text } from '@chakra-ui/react';
-import strReplace from 'react-string-replace';
 
 import type { TFormattedError } from './types';
 
+type TFormatError = string | JSX.Element;
+
+function formatError(text: string, values: string[], regex: RegExp): TFormatError[] | TFormatError {
+  if (!values.length) {
+    return text;
+  }
+
+  const parts = text.split(regex);
+
+  return parts.reduce((prev, current, i) => {
+    if (!i) {
+      return [current];
+    }
+
+    return prev.concat(
+      values.includes(current) ? <strong key={i + current}>{current}</strong> : current,
+    );
+  }, [] as TFormatError[]);
+}
+
 export const FormattedError = (props: TFormattedError) => {
   const { keywords, message } = props;
-  const patternStr = keywords.map(kw => `(${kw})`).join('|');
-  const pattern = new RegExp(patternStr, 'gi');
-  let errorFmt;
-  try {
-    errorFmt = strReplace(message, pattern, match => (
-      <Text key={match} as="strong">
-        {match}
-      </Text>
-    ));
-  } catch (err) {
-    errorFmt = <Text as="span">{message}</Text>;
-  }
-  return <Text as="span">{keywords.length !== 0 ? errorFmt : message}</Text>;
+  const pattern = new RegExp(keywords.map(kw => `(${kw})`).join('|'), 'gi');
+  const things = formatError(message, keywords, pattern);
+  return <Text as="span">{keywords.length !== 0 ? things : message}</Text>;
 };

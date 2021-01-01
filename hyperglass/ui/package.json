@@ -37,12 +37,12 @@
     "react-markdown": "^4.3.1",
     "react-query": "^3.5.6",
     "react-select": "^3.1.1",
-    "react-string-replace": "^0.4.4",
     "react-table": "^7.6.2",
     "string-format": "^2.0.0",
     "yup": "^0.32.8"
   },
   "devDependencies": {
+    "@hookstate/devtools": "^3.0.0",
     "@types/node": "^14.11.10",
     "@types/react-select": "^3.0.28",
     "@types/react-table": "^7.0.25",
