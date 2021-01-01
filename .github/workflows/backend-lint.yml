@@ -1,5 +1,5 @@
 name: Backend Linting
-on: pull_request
+on: [push, pull_request]
 
 jobs:
   ci:
