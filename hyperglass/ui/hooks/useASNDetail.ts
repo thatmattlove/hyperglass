@@ -9,6 +9,9 @@ async function query(ctx: TUseASNDetailFn): Promise<TASNDetails> {
   return await res.json();
 }
 
+/**
+ * Query the bgpview.io API to get an ASN's organization name for the AS Path component.
+ */
 export function useASNDetail(asn: string) {
   return useQuery(asn, query, {
     refetchOnWindowFocus: false,

@@ -30,12 +30,25 @@ export const HyperglassProvider = (props: THyperglassProvider) => {
   );
 };
 
+/**
+ * Get the current configuration.
+ */
 export const useConfig = (): IConfig => useContext(HyperglassContext);
+
+/**
+ * Get the current theme object.
+ */
 export const useTheme = (): ITheme => useChakraTheme();
 
+/**
+ * Determine if device is mobile or desktop based on Chakra UI theme breakpoints.
+ */
 export const useMobile = (): boolean =>
-  useBreakpointValue({ base: true, md: true, lg: false, xl: false }) ?? true;
+  useBreakpointValue<boolean>({ base: true, md: true, lg: false, xl: false }) ?? true;
 
+/**
+ * Convenience function to combine Chakra UI's useToken & useColorModeValue.
+ */
 export const useColorToken = <L extends string, D extends string>(
   token: keyof ITheme,
   light: L,

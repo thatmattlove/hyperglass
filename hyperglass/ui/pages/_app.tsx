@@ -1,8 +1,7 @@
 import Head from 'next/head';
 import { HyperglassProvider } from '~/context';
 import { IConfig } from '~/types';
-// import { useRouter } from "next/router";
-// import Error from "./_error";
+
 if (process.env.NODE_ENV === 'development') {
   require('@hookstate/devtools');
 }
@@ -21,10 +20,6 @@ const App = (props: TApp) => {
   const { Component, pageProps, appProps } = props;
   const { config } = appProps;
 
-  // const { asPath } = useRouter();
-  // if (asPath === "/structured") {
-  //   return <Error msg="/structured" statusCode={404} />;
-  // }
   return (
     <>
       <Head>

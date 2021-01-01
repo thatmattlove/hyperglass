@@ -1,8 +1,11 @@
 import { useMemo } from 'react';
 import format from 'string-format';
 
-type FmtArgs = { [k: string]: any } | string;
+import type { UseStrfArgs } from './types';
 
-export function useStrf(str: string, fmt: FmtArgs, ...deps: any[]): string {
+/**
+ * Format a string with variables, like Python's string.format()
+ */
+export function useStrf(str: string, fmt: UseStrfArgs, ...deps: any[]): string {
   return useMemo(() => format(str, fmt), deps);
 }

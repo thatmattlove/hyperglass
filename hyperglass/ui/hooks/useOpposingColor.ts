@@ -1,10 +1,13 @@
-import { useMemo, useState } from 'react';
-import { useToken } from '@chakra-ui/react';
+import { useMemo } from 'react';
 import { getColor, isLight } from '@chakra-ui/theme-tools';
 import { useTheme } from '~/context';
 
 import type { TOpposingOptions } from './types';
 
+/**
+ * Parse the color string to determine if it's a Chakra UI theme key, and determine if the
+ * opposing color should be black or white.
+ */
 export function useIsDark(color: string) {
   const theme = useTheme();
   if (typeof color === 'string' && color.match(/[a-zA-Z]+\.[a-zA-Z0-9]+/g)) {
@@ -19,6 +22,9 @@ export function useIsDark(color: string) {
   return opposingShouldBeDark;
 }
 
+/**
+ * Determine if the foreground color for `color` should be white or black.
+ */
 export function useOpposingColor(color: string, options?: TOpposingOptions): string {
   const isBlack = useIsDark(color);
 
@@ -29,15 +35,4 @@ export function useOpposingColor(color: string, options?: TOpposingOptions): str
       return options?.light ?? 'white';
     }
   }, [color]);
-}
-
-export function useOpposingToken(color: string, options?: TOpposingOptions): string {
-  const [opposingColor, setOpposingColor] = useState<string>('inherit');
-  const isBlack = useIsDark(color);
-  const dark = options?.dark ?? 'dark';
-  const light = options?.light ?? 'light';
-
-  isBlack && opposingColor !== dark && setOpposingColor(dark);
-  !isBlack && opposingColor !== light && setOpposingColor(light);
-  return useMemo(() => opposingColor, [color]);
 }

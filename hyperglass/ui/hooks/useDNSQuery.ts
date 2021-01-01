@@ -5,6 +5,9 @@ import { fetchWithTimeout } from '~/util';
 import type { DnsOverHttps } from '~/types';
 import type { TUseDNSQueryFn } from './types';
 
+/**
+ * Perform a DNS over HTTPS query using the application/dns-json MIME type.
+ */
 async function dnsQuery(ctx: TUseDNSQueryFn): Promise<DnsOverHttps.Response | undefined> {
   const [url, { target, family }] = ctx.queryKey;
 
@@ -30,7 +33,20 @@ async function dnsQuery(ctx: TUseDNSQueryFn): Promise<DnsOverHttps.Response | un
   return json;
 }
 
-export function useDNSQuery(target: string | null, family: 4 | 6) {
+/**
+ * Query the configured DNS over HTTPS provider for the provided target. If `family` is `4`, only
+ * an A record will be queried. If `family` is `6`, only a AAAA record will be queried.
+ */
+export function useDNSQuery(
+  /**
+   * Hostname for DNS query.
+   */
+  target: string | null,
+  /**
+   * Address family, e.g. IPv4 or IPv6.
+   */
+  family: 4 | 6,
+) {
   const { cache, web } = useConfig();
   return useQuery([web.dns_provider.url, { target, family }], dnsQuery, {
     cacheTime: cache.timeout * 1000,

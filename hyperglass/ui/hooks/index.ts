@@ -6,6 +6,5 @@ export * from './useGreeting';
 export * from './useLGQuery';
 export * from './useLGState';
 export * from './useOpposingColor';
-export * from './useScaledTitle';
 export * from './useStrf';
 export * from './useTableToString';

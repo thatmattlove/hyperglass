@@ -4,28 +4,29 @@ import isEqual from 'react-fast-compare';
 import { all } from '~/util';
 
 import type { State, PluginStateControl, Plugin } from '@hookstate/core';
-import type { Families, TDeviceVrf, TQueryTypes, TSelectOption } from '~/types';
+import type { TLGState, TLGStateHandlers, TMethodsExtension } from './types';
 
-const PluginID = Symbol('Methods');
+const MethodsId = Symbol('Methods');
 
 /**
- * Public API
+ * hookstate plugin to provide convenience functions for the useLGState hook.
  */
-interface MethodsExtension {
-  getResponse(d: string): TQueryResponse | null;
-  resolvedClose(): void;
-  resolvedOpen(): void;
-  formReady(): boolean;
-  resetForm(): void;
-}
-
 class MethodsInstance {
+  /**
+   * Set the DNS resolver Popover to opened.
+   */
   public resolvedOpen(state: State<TLGState>) {
     state.resolvedIsOpen.set(true);
   }
+  /**
+   * Set the DNS resolver Popover to closed.
+   */
   public resolvedClose(state: State<TLGState>) {
     state.resolvedIsOpen.set(false);
   }
+  /**
+   * Find a response based on the device ID.
+   */
   public getResponse(state: State<TLGState>, device: string): TQueryResponse | null {
     if (device in state.responses) {
       return state.responses[device].value;
@@ -33,6 +34,10 @@ class MethodsInstance {
       return null;
     }
   }
+  /**
+   * Determine if the form is ready for submission, e.g. all fields have values and isSubmitting
+   * has been set to true. This ultimately controls the UI layout.
+   */
   public formReady(state: State<TLGState>): boolean {
     return (
       state.isSubmitting.value &&
@@ -46,6 +51,9 @@ class MethodsInstance {
       )
     );
   }
+  /**
+   * Reset form values affected by the form state to their default values.
+   */
   public resetForm(state: State<TLGState>) {
     state.merge({
       queryVrf: '',
@@ -62,13 +70,34 @@ class MethodsInstance {
       selections: { queryLocation: [], queryType: null, queryVrf: null },
     });
   }
+  public stateExporter<O extends unknown>(obj: O): O | null {
+    let result = null;
+    if (obj === null) {
+      return result;
+    }
+    try {
+      result = JSON.parse(JSON.stringify(obj));
+    } catch (err) {
+      console.error(err.message);
+    }
+    return result;
+  }
 }
 
+/**
+ * Plugin Initialization.
+ */
 function Methods(): Plugin;
-function Methods(inst: State<TLGState>): MethodsExtension;
-function Methods(inst?: State<TLGState>): Plugin | MethodsExtension {
+/**
+ * Plugin Attachment.
+ */
+function Methods(inst: State<TLGState>): TMethodsExtension;
+/**
+ * Plugin Instance.
+ */
+function Methods(inst?: State<TLGState>): Plugin | TMethodsExtension {
   if (inst) {
-    const [instance] = inst.attach(PluginID) as [
+    const [instance] = inst.attach(MethodsId) as [
       MethodsInstance | Error,
       PluginStateControl<TLGState>,
     ];
@@ -83,45 +112,16 @@ function Methods(inst?: State<TLGState>): Plugin | MethodsExtension {
       resolvedOpen: () => instance.resolvedOpen(inst),
       resolvedClose: () => instance.resolvedClose(inst),
       getResponse: device => instance.getResponse(inst, device),
+      stateExporter: obj => instance.stateExporter(obj),
     };
   }
   return {
-    id: PluginID,
+    id: MethodsId,
     init: () => {
       return new MethodsInstance() as {};
     },
   };
 }
-
-interface TSelections {
-  queryLocation: TSelectOption[] | [];
-  queryType: TSelectOption | null;
-  queryVrf: TSelectOption | null;
-}
-
-type TLGState = {
-  queryVrf: string;
-  families: Families;
-  queryTarget: string;
-  btnLoading: boolean;
-  isSubmitting: boolean;
-  displayTarget: string;
-  queryType: TQueryTypes;
-  queryLocation: string[];
-  availVrfs: TDeviceVrf[];
-  resolvedIsOpen: boolean;
-  selections: TSelections;
-  responses: { [d: string]: TQueryResponse };
-};
-
-type TLGStateHandlers = {
-  exportState<S extends unknown | null>(s: S): S | null;
-  getResponse(d: string): TQueryResponse | null;
-  resolvedClose(): void;
-  resolvedOpen(): void;
-  formReady(): boolean;
-  resetForm(): void;
-};
 
 const LGState = createState<TLGState>({
   selections: { queryLocation: [], queryType: null, queryVrf: null },
@@ -138,27 +138,20 @@ const LGState = createState<TLGState>({
   families: [],
 });
 
+/**
+ * Global state hook for state used throughout hyperglass.
+ */
 export function useLGState(): State<TLGState> {
   return useState<TLGState>(LGState);
 }
 
-function stateExporter<O extends unknown>(obj: O): O | null {
-  let result = null;
-  if (obj === null) {
-    return result;
-  }
-  try {
-    result = JSON.parse(JSON.stringify(obj));
-  } catch (err) {
-    console.error(err.message);
-  }
-  return result;
-}
-
+/**
+ * Plugin for useLGState() that provides convenience methods for its state.
+ */
 export function useLGMethods(): TLGStateHandlers {
   const state = useLGState();
   state.attach(Methods);
-  const exporter = useCallback(stateExporter, [isEqual]);
+  const exporter = useCallback(Methods(state).stateExporter, [isEqual]);
   return {
     exportState(s) {
       return exporter(s);

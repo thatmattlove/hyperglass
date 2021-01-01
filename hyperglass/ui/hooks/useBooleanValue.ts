@@ -1,5 +1,8 @@
 import { useMemo } from 'react';
 
+/**
+ * Track the state of a boolean and return values based on its state.
+ */
 export function useBooleanValue<T extends any, F extends any>(
   status: boolean,
   ifTrue: T,
