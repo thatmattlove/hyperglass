@@ -9,7 +9,7 @@ import {
   ModalCloseButton,
 } from '@chakra-ui/react';
 import { useColorValue } from '~/context';
-import { useLGState } from '~/hooks';
+import { useLGState, useLGMethods } from '~/hooks';
 import { PathButton } from './button';
 import { Chart } from './chart';
 
@@ -17,9 +17,9 @@ import type { TPath } from './types';
 
 export const Path = (props: TPath) => {
   const { device } = props;
-  const { getResponse } = useLGState();
-  const { isOpen, onClose, onOpen } = useDisclosure();
   const { displayTarget } = useLGState();
+  const { getResponse } = useLGMethods();
+  const { isOpen, onClose, onOpen } = useDisclosure();
   const response = getResponse(device);
   const output = response?.output as TStructuredResponse;
   const bg = useColorValue('whiteFaded.50', 'blackFaded.900');

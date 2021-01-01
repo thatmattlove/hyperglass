@@ -7,5 +7,5 @@ export function isFetchError(error: any): error is Response {
 }
 
 export function isLGError(error: any): error is TQueryResponse {
-  return error !== null && 'output' in error;
+  return typeof error !== 'undefined' && error !== null && 'output' in error;
 }

@@ -9,13 +9,8 @@ import { Result } from './individual';
 
 export const Results = () => {
   const { queries, vrfs, web } = useConfig();
-  const { formData } = useLGState();
-  const {
-    query_location: queryLocation,
-    query_target: queryTarget,
-    query_type: queryType,
-    query_vrf: queryVrf,
-  } = formData;
+  const { queryLocation, queryTarget, queryType, queryVrf } = useLGState();
+
   const getDevice = useDevice();
   const targetBg = useToken('colors', 'teal.600');
   const queryBg = useToken('colors', 'cyan.500');
@@ -91,7 +86,7 @@ export const Results = () => {
         maxW={{ base: '100%', lg: '75%', xl: '50%' }}>
         <Stack isInline align="center" justify="center" mt={4} flexWrap="wrap">
           <AnimatePresence>
-            {queryLocation && (
+            {queryLocation.value && (
               <>
                 <motion.div
                   initial={initialLeft}
@@ -150,7 +145,7 @@ export const Results = () => {
         maxW={{ base: '100%', md: '75%' }}>
         <Accordion allowMultiple allowToggle index={resultsComplete}>
           <AnimatePresence>
-            {queryLocation &&
+            {queryLocation.value &&
               queryLocation.map((loc, i) => {
                 const device = getDevice(loc.value);
                 return (

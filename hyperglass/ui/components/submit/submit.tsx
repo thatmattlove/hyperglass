@@ -14,16 +14,17 @@ import {
   PopoverCloseButton,
 } from '@chakra-ui/react';
 import { FiSearch } from '@meronex/icons/fi';
+import { useFormContext } from 'react-hook-form';
 import { If, ResolvedTarget } from '~/components';
 import { useMobile } from '~/context';
-import { useLGState } from '~/hooks';
+import { useLGState, useLGMethods } from '~/hooks';
 
 import type { IconButtonProps } from '@chakra-ui/react';
 import type { TSubmitButton, TRSubmitButton } from './types';
 
 const SubmitIcon = forwardRef<HTMLButtonElement, Omit<IconButtonProps, 'aria-label'>>(
   (props, ref) => {
-    const { isLoading } = props;
+    const { isLoading, ...rest } = props;
     return (
       <IconButton
         ref={ref}
@@ -35,6 +36,7 @@ const SubmitIcon = forwardRef<HTMLButtonElement, Omit<IconButtonProps, 'aria-lab
         colorScheme="primary"
         isLoading={isLoading}
         aria-label="Submit Query"
+        {...rest}
       />
     );
   },
@@ -87,12 +89,14 @@ const DSubmitButton = (props: TRSubmitButton) => {
 
 export const SubmitButton = (props: TSubmitButton) => {
   const { handleChange } = props;
-  const { btnLoading, resolvedIsOpen, resolvedClose, resetForm, isSubmitting } = useLGState();
   const isMobile = useMobile();
+  const { resolvedIsOpen, btnLoading } = useLGState();
+  const { resolvedClose, resetForm } = useLGMethods();
+
+  const { reset } = useFormContext();
 
   function handleClose(): void {
-    btnLoading.set(false);
-    isSubmitting.set(false);
+    reset();
     resetForm();
     resolvedClose();
   }

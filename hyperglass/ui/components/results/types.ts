@@ -1,5 +1,5 @@
 import type { ButtonProps, FlexProps } from '@chakra-ui/react';
-import type { QueryResultBase } from 'react-query';
+import type { UseQueryResult } from 'react-query';
 import type { TDevice, TQueryTypes } from '~/types';
 
 export interface TResultHeader {
@@ -38,5 +38,5 @@ export interface TCopyButton extends ButtonProps {
 }
 
 export interface TRequeryButton extends ButtonProps {
-  requery: QueryResultBase<TQueryResponse>['refetch'];
+  requery: UseQueryResult<TQueryResponse>['refetch'];
 }

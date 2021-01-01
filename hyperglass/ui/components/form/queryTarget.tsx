@@ -33,26 +33,22 @@ const Option = (props: OptionProps<Dict, false>) => {
 };
 
 export const QueryTarget = (props: TQueryTarget) => {
-  const { name, register, onChange, placeholder, resolveTarget } = props;
+  const { name, register, onChange, placeholder } = props;
 
   const bg = useColorValue('white', 'whiteAlpha.100');
   const color = useColorValue('gray.400', 'whiteAlpha.800');
   const border = useColorValue('gray.100', 'whiteAlpha.50');
   const placeholderColor = useColorValue('gray.600', 'whiteAlpha.700');
 
-  const { queryType, queryTarget, fqdnTarget, displayTarget } = useLGState();
+  const { queryType, queryTarget, displayTarget } = useLGState();
 
   const { queries } = useConfig();
 
   const options = useMemo(() => buildOptions(queries.bgp_community.communities), []);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>): void {
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>): void {
     displayTarget.set(e.target.value);
     onChange({ field: name, value: e.target.value });
-
-    if (resolveTarget && displayTarget.value && fqdnPattern.test(displayTarget.value)) {
-      fqdnTarget.set(displayTarget.value);
-    }
   }
 
   function handleSelectChange(e: TSelectOption | TSelectOption[]): void {
@@ -71,8 +67,8 @@ export const QueryTarget = (props: TQueryTarget) => {
           name={name}
           options={options}
           innerRef={register}
-          onChange={handleSelectChange}
           components={{ Option }}
+          onChange={handleSelectChange}
         />
       </If>
       <If c={!(queryType.value === 'bgp_community' && queries.bgp_community.mode === 'select')}>
@@ -82,11 +78,11 @@ export const QueryTarget = (props: TQueryTarget) => {
           color={color}
           borderRadius="md"
           borderColor={border}
-          onChange={handleChange}
           aria-label={placeholder}
           placeholder={placeholder}
           value={displayTarget.value}
           name="query_target_display"
+          onChange={handleInputChange}
           _placeholder={{ color: placeholderColor }}
         />
       </If>

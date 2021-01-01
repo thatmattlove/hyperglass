@@ -2,14 +2,15 @@ import { useRef } from 'react';
 import { Flex } from '@chakra-ui/react';
 import { If, Debugger, Greeting, Footer, Header } from '~/components';
 import { useConfig, useColorValue } from '~/context';
-import { useLGState } from '~/hooks';
+import { useLGState, useLGMethods } from '~/hooks';
 import { ResetButton } from './resetButton';
 
 import type { TFrame } from './types';
 
 export const Frame = (props: TFrame) => {
   const { developer_mode } = useConfig();
-  const { isSubmitting, resetForm } = useLGState();
+  const { isSubmitting } = useLGState();
+  const { resetForm } = useLGMethods();
 
   const bg = useColorValue('white', 'black');
   const color = useColorValue('black', 'white');

@@ -93,11 +93,11 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
 
   const errorKeywords = useMemo(() => {
     let kw = [] as string[];
-    if (isLGError(error)) {
-      kw = error.keywords;
+    if (isLGError(data)) {
+      kw = data.keywords;
     }
     return kw;
-  }, [isError]);
+  }, [data]);
 
   let errorMsg;
 
@@ -113,7 +113,7 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
     errorMsg = messages.general;
   }
 
-  error && console.error(error);
+  isError && console.error(error);
 
   const errorLevel = useMemo<TErrorLevels>(() => {
     const statusMap = {

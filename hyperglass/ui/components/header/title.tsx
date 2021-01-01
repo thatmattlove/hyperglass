@@ -2,7 +2,7 @@ import { Flex, Button, VStack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { If } from '~/components';
 import { useConfig, useMobile } from '~/context';
-import { useBooleanValue, useLGState } from '~/hooks';
+import { useBooleanValue, useLGState, useLGMethods } from '~/hooks';
 import { Logo } from './logo';
 import { TitleOnly } from './titleOnly';
 import { SubtitleOnly } from './subtitleOnly';
@@ -98,7 +98,8 @@ export const Title = (props: TTitle) => {
   const { web } = useConfig();
   const titleMode = web.text.title_mode;
 
-  const { isSubmitting, resetForm } = useLGState();
+  const { isSubmitting } = useLGState();
+  const { resetForm } = useLGMethods();
 
   const titleHeight = useBooleanValue(isSubmitting.value, undefined, { md: '20vh' });
 

@@ -19,11 +19,10 @@ function findAnswer(data: DnsOverHttps.Response | undefined): string {
 export const ResolvedTarget = (props: TResolvedTarget) => {
   const { setTarget } = props;
   const { web } = useConfig();
-  const { fqdnTarget, isSubmitting, families, formData } = useLGState();
+  const { displayTarget, isSubmitting, families, queryTarget } = useLGState();
 
   const color = useColorValue('secondary.500', 'secondary.300');
 
-  const dnsUrl = web.dns_provider.url;
   const query4 = Array.from(families.value).includes(4);
   const query6 = Array.from(families.value).includes(6);
 
@@ -34,12 +33,12 @@ export const ResolvedTarget = (props: TResolvedTarget) => {
   ]);
 
   const { data: data4, isLoading: isLoading4, isError: isError4 } = useDNSQuery(
-    fqdnTarget.value,
+    displayTarget.value,
     4,
   );
 
   const { data: data6, isLoading: isLoading6, isError: isError6 } = useDNSQuery(
-    fqdnTarget.value,
+    displayTarget.value,
     6,
   );
 
@@ -47,7 +46,7 @@ export const ResolvedTarget = (props: TResolvedTarget) => {
     setTarget({ field: 'query_target', value });
   }
   function selectTarget(value: string): void {
-    formData.set(p => ({ ...p, query_target: value }));
+    queryTarget.set(value);
     isSubmitting.set(true);
   }
 
@@ -66,7 +65,7 @@ export const ResolvedTarget = (props: TResolvedTarget) => {
       <Text fontSize="sm" textAlign="center">
         {messageStart}
         <Text as="span" fontSize="sm" fontWeight="bold" color={color}>
-          {`${fqdnTarget.value}`.toLowerCase()}
+          {`${displayTarget.value}`.toLowerCase()}
         </Text>
         {messageEnd}
       </Text>

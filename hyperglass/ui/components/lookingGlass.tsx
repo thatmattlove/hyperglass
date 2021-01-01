@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { Flex } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { intersectionWith } from 'lodash';
@@ -17,17 +17,34 @@ import {
   QueryLocation,
 } from '~/components';
 import { useConfig } from '~/context';
-import { useStrf, useGreeting, useDevice, useLGState } from '~/hooks';
+import { useStrf, useGreeting, useDevice, useLGState, useLGMethods } from '~/hooks';
 import { isQueryType, isQueryContent, isString } from '~/types';
 
 import type { TFormData, TDeviceVrf, OnChangeArgs } from '~/types';
 
-const fqdnPattern = /^(?!:\/\/)([a-zA-Z0-9-]+\.)?[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z-]{2,6}?$/gim;
+/**
+ * Don't set the global flag on this.
+ * @see https://stackoverflow.com/questions/24084926/javascript-regexp-cant-use-twice
+ *
+ * TLDR: the test() will pass the first time, but not the second. In React Strict Mode & in a dev
+ * environment, this will mean isFqdn will be true the first time, then false the second time,
+ * submitting the FQDN to hyperglass the second time.
+ */
+const fqdnPattern = new RegExp(
+  /^(?!:\/\/)([a-zA-Z0-9-]+\.)?[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z-]{2,6}?$/im,
+);
 
-export const HyperglassForm = () => {
-  const { web, content, messages, queries } = useConfig();
+function useIsFqdn(target: string, _type: string) {
+  return useCallback(
+    (): boolean => ['bgp_route', 'ping', 'traceroute'].includes(_type) && fqdnPattern.test(target),
+    [target, _type],
+  );
+}
 
-  const [greetingAck, setGreetingAck] = useGreeting();
+export const LookingGlass = () => {
+  const { web, content, messages } = useConfig();
+
+  const { ack, greetingReady, isOpen: greetingIsOpen } = useGreeting();
   const getDevice = useDevice();
 
   const noQueryType = useStrf(messages.no_input, { field: web.text.query_type });
@@ -46,34 +63,55 @@ export const HyperglassForm = () => {
     defaultValues: { query_vrf: 'default', query_target: '', query_location: [], query_type: '' },
   });
 
-  const { handleSubmit, register, unregister, setValue, getValues } = formInstance;
+  const { handleSubmit, register, setValue } = formInstance;
 
   const {
     queryVrf,
     families,
-    formData,
     queryType,
     availVrfs,
-    fqdnTarget,
     btnLoading,
     queryTarget,
     isSubmitting,
-    resolvedOpen,
     queryLocation,
+    displayTarget,
   } = useLGState();
 
-  function submitHandler(values: TFormData) {
-    if (!greetingAck && web.greeting.required) {
-      window.location.reload(false);
-      setGreetingAck(false);
-    } else if (fqdnPattern.test(values.query_target)) {
+  const { resolvedOpen, resetForm } = useLGMethods();
+
+  const isFqdnQuery = useIsFqdn(queryTarget.value, queryType.value);
+
+  function submitHandler() {
+    /**
+     * Before submitting a query, make sure the greeting is acknowledged if required. This should
+     * be handled before loading the app, but people be sneaky.
+     */
+    if (!greetingReady()) {
+      resetForm();
+      location.reload();
+    }
+
+    // Determine if queryTarget is an FQDN.
+    const isFqdn = isFqdnQuery();
+
+    if (greetingReady() && !isFqdn) {
+      return isSubmitting.set(true);
+    }
+
+    if (greetingReady() && isFqdn) {
       btnLoading.set(true);
-      fqdnTarget.set(values.query_target);
-      formData.set(values);
-      resolvedOpen();
+      return resolvedOpen();
     } else {
-      formData.set(values);
-      isSubmitting.set(true);
+      console.group('%cSomething went wrong', 'color:red;');
+      console.table({
+        'Greeting Required': web.greeting.required,
+        'Greeting Ready': greetingReady(),
+        'Greeting Acknowledged': ack.value,
+        'Query Target': queryTarget.value,
+        'Query Type': queryType.value,
+        'Is FQDN': isFqdn,
+      });
+      console.groupEnd();
     }
   }
 
@@ -104,38 +142,65 @@ export const HyperglassForm = () => {
       queryVrf.set('default');
     }
 
+    // Determine which address families are available in the intersecting VRFs.
     let ipv4 = 0;
     let ipv6 = 0;
 
-    if (intersecting.length !== 0) {
-      for (const intersection of intersecting) {
-        if (intersection.ipv4) {
-          ipv4++;
-        }
-        if (intersection.ipv6) {
-          ipv6++;
-        }
+    for (const intersection of intersecting) {
+      if (intersection.ipv4) {
+        // If IPv4 is enabled in this VRF, count it.
+        ipv4++;
+      }
+      if (intersection.ipv6) {
+        // If IPv6 is enabled in this VRF, count it.
+        ipv6++;
       }
     }
 
     if (ipv4 !== 0 && ipv4 === ipv6) {
+      /**
+       * If ipv4 & ipv6 are equal, this means every VRF has both IPv4 & IPv6 enabled. In that
+       * case, signal that both A & AAAA records should be queried if the query is an FQDN.
+       */
       families.set([4, 6]);
     } else if (ipv4 > ipv6) {
+      /**
+       * If ipv4 is greater than ipv6, this means that IPv6 is not enabled on all VRFs, i.e. there
+       * are some VRFs with IPv4 enabled but IPv6 disabled. In that case, only query A records.
+       */
       families.set([4]);
     } else if (ipv4 < ipv6) {
+      /**
+       * If ipv6 is greater than ipv4, this means that IPv4 is not enabled on all VRFs, i.e. there
+       * are some VRFs with IPv6 enabled but IPv4 disabled. In that case, only query AAAA records.
+       */
       families.set([6]);
     } else {
+      /**
+       * If both ipv4 and ipv6 are 0, then both ipv4 and ipv6 are disabled, and why does that VRF
+       * even exist?
+       */
       families.set([]);
     }
   }
 
   function handleChange(e: OnChangeArgs): void {
+    // Signal the field & value to react-hook-form.
     setValue(e.field, e.value);
 
     if (e.field === 'query_location' && Array.isArray(e.value)) {
       handleLocChange(e.value);
     } else if (e.field === 'query_type' && isQueryType(e.value)) {
       queryType.set(e.value);
+      if (queryTarget.value !== '') {
+        /**
+         * Reset queryTarget as well, so that, for example, selecting BGP Community, and selecting
+         * a community, then changing the queryType to BGP Route doesn't preserve the selected
+         * community as the queryTarget.
+         */
+        queryTarget.set('');
+        displayTarget.set('');
+      }
     } else if (e.field === 'query_vrf' && isString(e.value)) {
       queryVrf.set(e.value);
     } else if (e.field === 'query_target' && isString(e.value)) {
@@ -143,17 +208,20 @@ export const HyperglassForm = () => {
     }
   }
 
+  /**
+   * Select the correct help content based on the selected VRF & Query Type. Also remove the icon
+   * if no locations are set.
+   */
   const vrfContent = useMemo(() => {
+    if (queryLocation.value.length === 0) {
+      return null;
+    }
     if (Object.keys(content.vrf).includes(queryVrf.value) && queryType.value !== '') {
       return content.vrf[queryVrf.value][queryType.value];
     } else {
       return null;
     }
   }, [queryVrf.value, queryLocation.value, queryType.value]);
-
-  const isFqdnQuery = useMemo(() => {
-    return ['bgp_route', 'ping', 'traceroute'].includes(queryType.value);
-  }, [queryType.value]);
 
   useEffect(() => {
     register({ name: 'query_location', required: true });
@@ -200,7 +268,6 @@ export const HyperglassForm = () => {
               name="query_target"
               register={register}
               onChange={handleChange}
-              resolveTarget={isFqdnQuery}
               placeholder={web.text.query_target}
             />
           </FormField>

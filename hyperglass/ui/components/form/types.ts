@@ -1,5 +1,5 @@
 import type { FormControlProps } from '@chakra-ui/react';
-import type { FieldError, Control } from 'react-hook-form';
+import type { Control } from 'react-hook-form';
 import type { TDeviceVrf, TBGPCommunity, OnChangeArgs } from '~/types';
 import type { ValidationError } from 'yup';
 
@@ -34,7 +34,6 @@ export interface TCommunitySelect {
 export interface TQueryTarget {
   name: string;
   placeholder: string;
-  resolveTarget: boolean;
   register: Control['register'];
   onChange(e: OnChangeArgs): void;
 }
