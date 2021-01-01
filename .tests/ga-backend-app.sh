@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+LOG_FILE="$HOME/hyperglass-ci.log"
+
 echo "[INFO] Starting setup..."
 poetry run hyperglass setup -d
 echo "[SUCCESS] Setup completed."
@@ -19,8 +21,8 @@ else
 fi
 
 echo "[INFO] Starting hyperglass..."
-poetry run hyperglass start &> $HOME/hyperglass-ci.log &
-# sleep 180
+poetry run hyperglass start &> $LOG_FILE &
+sleep 5
 
 if [[ ! $? == 0 ]]; then
     echo "[ERROR] Failed to start hyperglass."
@@ -40,7 +42,7 @@ if [[ ! $? == 0 ]]; then
     exit 1
 elif [[ ! "$STATUS" == "200" ]]; then
     echo "[ERROR] HTTP test failed. Startup log:"
-    cat /var/log/hyperglassci.log
+    cat $LOG_FILE
     exit 1
 fi
 
