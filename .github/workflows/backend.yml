@@ -6,22 +6,42 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.8]
+        node-version: [14.x]
+        redis-version: [5, 6]
         poetry-version: [1.1.4]
+        python-version: [3.6, 3.8]
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Git Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Python
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Run image
+
+      - name: Install Poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
           poetry-version: ${{ matrix.poetry-version }}
-      - name: Install Dependencies
+
+      - name: Install Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Start Redis
+        uses: supercharge/redis-github-action@1.1.0
+        with:
+          redis-version: ${{ matrix.redis-version }}
+
+      - name: Install Python Dependencies
         run: poetry install
-      - name: Flake8
+
+      - name: Run Flake8
         run: poetry run flake8 hyperglass
+
       - name: Run hyperglass
-        run: '.tests/app/setup.sh'
+        run: '.tests/ga-backend-app.sh'

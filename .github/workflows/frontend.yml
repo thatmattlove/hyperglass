@@ -1,0 +1,26 @@
+name: Frontend Testing
+on: [push, pull_request]
+
+jobs:
+  frontend:
+    name: Type Check
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [14.x]
+        os: [ubuntu-20.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: TypeScript Check
+        uses: icrawl/action-tsc@v1
