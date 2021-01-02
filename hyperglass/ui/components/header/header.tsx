@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { Flex, ScaleFade } from '@chakra-ui/react';
+import { AnimatedDiv } from '~/components';
 import { useColorValue, useBreakpointValue } from '~/context';
 import { useBooleanValue, useLGState } from '~/hooks';
 import { Title } from './title';
@@ -36,15 +37,17 @@ export const Header = (props: THeader) => {
       color="gray.500"
       {...rest}>
       <ScaleFade in initialScale={0.5} style={{ width: '100%' }}>
-        <Flex
+        <AnimatedDiv
+          layout
           height="100%"
+          display="flex"
           ref={titleRef}
           maxW={titleWidth}
           // This is here for the logo
           justifyContent={justify}
-          mx={{ base: 0, lg: 'auto' }}>
+          mx={{ base: isSubmitting.value ? 'auto' : 0, lg: 'auto' }}>
           <Title />
-        </Flex>
+        </AnimatedDiv>
       </ScaleFade>
     </Flex>
   );

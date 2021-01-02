@@ -8,14 +8,24 @@ import { TitleOnly } from './titleOnly';
 import { SubtitleOnly } from './subtitleOnly';
 
 import type { StackProps } from '@chakra-ui/react';
-import type { TTitle, TTitleWrapper, TDWrapper } from './types';
+import type { TTitle, TTitleWrapper, TDWrapper, TMWrapper } from './types';
 
 const AnimatedVStack = motion.custom(VStack);
 
 /**
  * Title wrapper for mobile devices, breakpoints sm & md.
  */
-const MWrapper = (props: StackProps) => <VStack spacing={1} alignItems="flex-start" {...props} />;
+const MWrapper = (props: TMWrapper) => {
+  const { isSubmitting } = useLGState();
+  return (
+    <AnimatedVStack
+      layout
+      spacing={1}
+      alignItems={isSubmitting.value ? 'center' : 'flex-start'}
+      {...props}
+    />
+  );
+};
 
 /**
  * Title wrapper for desktop devices, breakpoints lg & xl.

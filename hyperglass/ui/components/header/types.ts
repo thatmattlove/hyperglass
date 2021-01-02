@@ -13,6 +13,8 @@ export type THeaderLayout = {
 };
 export type TDWrapper = Omit<StackProps, 'transition'> & MotionProps;
 
+export type TMWrapper = Omit<StackProps, 'transition'> & MotionProps;
+
 export interface TTitle extends FlexProps {}
 
 export interface TTitleOnly extends HeadingProps {}
