@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta66 - 2021-01-02
+
+### Fixed
+- Fixed Safari browser-specific issues
+- Fixed mobile layout issues
+
+### Changed
+- `web.theme.colors.black` and `web.theme.colors.white` are now `web.theme.colors.dark` and `web.theme.colors.light respectively`
+
 ## 1.0.0-beta65 - 2021-01-01
 
 ### Added
