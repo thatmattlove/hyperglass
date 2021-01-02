@@ -28,7 +28,7 @@ jobs:
       - name: Build hyperglass
         run: |
           poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
-          poetry build -f sdist
+          poetry build
 
       - name: Publish hyperglass release
         run: poetry publish
