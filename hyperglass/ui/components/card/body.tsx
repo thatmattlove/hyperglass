@@ -11,7 +11,6 @@ export const CardBody = (props: ICardBody) => {
     <Flex
       bg={bg}
       w="100%"
-      maxW="95%"
       rounded="md"
       color={color}
       onClick={onClick}

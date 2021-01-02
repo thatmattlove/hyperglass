@@ -119,15 +119,17 @@ export const Communities = (props: TCommunities) => {
         </Tooltip>
       </If>
       <If c={communities.length !== 0}>
-        <Menu>
+        <Menu preventOverflow fixed>
           <MenuButton>
             <Icon as={More} />
           </MenuButton>
           <MenuList
             p={3}
             bg={bg}
+            minW={32}
             width="unset"
             color={color}
+            boxShadow="2xl"
             textAlign="left"
             fontFamily="mono"
             fontWeight="normal"

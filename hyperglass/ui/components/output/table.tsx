@@ -31,7 +31,7 @@ export const BGPTable = (props: TBGPTable) => {
   const columns = makeColumns(parsed_data_fields);
 
   return (
-    <Flex my={8} justify="center" maxW={['100%', '100%', '100%', '100%']} w="100%" {...rest}>
+    <Flex my={8} justify="center" maxW="100%" w="100%" {...rest}>
       <Table
         columns={columns}
         data={data.routes}
