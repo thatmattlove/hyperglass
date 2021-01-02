@@ -1,5 +1,7 @@
 import dynamic from 'next/dynamic';
-import { Box, Flex, Icon, IconButton, Slide } from '@chakra-ui/react';
+import { Flex, Icon, IconButton } from '@chakra-ui/react';
+import { AnimatePresence } from 'framer-motion';
+import { AnimatedDiv } from '~/components';
 import { useColorValue } from '~/context';
 import { useLGState, useOpposingColor } from '~/hooks';
 
@@ -13,27 +15,33 @@ export const ResetButton = (props: TResetButton) => {
   const bg = useColorValue('primary.500', 'primary.300');
   const color = useOpposingColor(bg);
   return (
-    <Slide direction="left" in={isSubmitting.value} unmountOnExit style={{ width: 'auto' }}>
-      <Box
-        bg={bg}
-        left={0}
-        zIndex={4}
-        bottom={24}
-        boxSize={12}
-        color={color}
-        position="fixed"
-        borderRightRadius="md"
-        mb={developerMode ? 14 : undefined}>
-        <Flex boxSize="100%" justifyContent="center" alignItems="center" {...rest}>
-          <IconButton
-            color="current"
-            variant="ghost"
-            aria-label="Reset"
-            onClick={resetForm}
-            icon={<Icon as={LeftArrow} boxSize={8} />}
-          />
-        </Flex>
-      </Box>
-    </Slide>
+    <AnimatePresence>
+      {isSubmitting.value && (
+        <AnimatedDiv
+          bg={bg}
+          left={0}
+          zIndex={4}
+          bottom={24}
+          boxSize={12}
+          color={color}
+          position="fixed"
+          animate={{ x: 0 }}
+          exit={{ x: '-100%' }}
+          borderRightRadius="md"
+          initial={{ x: '-100%' }}
+          mb={developerMode ? { base: 0, lg: 14 } : undefined}
+          transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}>
+          <Flex boxSize="100%" justifyContent="center" alignItems="center" {...rest}>
+            <IconButton
+              variant="unstyled"
+              color="current"
+              aria-label="Reset"
+              onClick={resetForm}
+              icon={<Icon as={LeftArrow} boxSize={8} />}
+            />
+          </Flex>
+        </AnimatedDiv>
+      )}
+    </AnimatePresence>
   );
 };

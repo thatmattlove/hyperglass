@@ -30,6 +30,7 @@
     "next": "^10.0.4",
     "react": "^17.0.1",
     "react-countdown": "^2.2.1",
+    "react-device-detect": "^1.15.0",
     "react-dom": "^17.0.1",
     "react-fast-compare": "^3.2.0",
     "react-flow-renderer": "^8.2.3",

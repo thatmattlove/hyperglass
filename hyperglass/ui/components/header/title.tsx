@@ -115,6 +115,13 @@ export const Title = (props: TTitle) => {
       flexDir="column"
       minH={titleHeight}
       justifyContent="center"
+      /* flexBasis
+        This is a fix for Safari specifically. LMGTFY: Safari flex-basis width. Nutshell: Safari
+        is stupid, in that it infers the default flex-basis from the width, 100%. Other browsers
+        don't do this. Without the below fix, the logo will appear gigantic, filling the entire
+        div up to the parent's max-width. The fix is to hard-code a flex-basis width.
+       */
+      flexBasis={{ base: '100%', lg: '33%' }}
       mt={[null, isSubmitting.value ? null : 'auto']}
       {...rest}>
       <Button

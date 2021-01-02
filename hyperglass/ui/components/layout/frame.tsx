@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { Flex } from '@chakra-ui/react';
+import { isSafari } from 'react-device-detect';
 import { If, Debugger, Greeting, Footer, Header } from '~/components';
 import { useConfig, useColorValue } from '~/context';
 import { useLGState, useLGMethods } from '~/hooks';
@@ -28,11 +29,17 @@ export const Frame = (props: TFrame) => {
       <Flex
         bg={bg}
         w="100%"
-        id="__hyperglass"
         color={color}
+        flex="1 0 auto"
         flexDir="column"
-        minHeight="100vh"
-        ref={containerRef}>
+        id="__hyperglass"
+        ref={containerRef}
+        /** minHeight
+         * This is a Safari-specific fix. Without it, the footer will appear to be "under" the
+         * viewport. Safari needs `-webkit-fill-available`, but other browsers need `100vh`.
+         * @see https://allthingssmitty.com/2020/05/11/css-fix-for-100vh-in-mobile-webkit/
+         */
+        minHeight={isSafari ? '-webkit-fill-available' : '100vh'}>
         <Header resetForm={handleReset} />
         <Flex
           px={2}
