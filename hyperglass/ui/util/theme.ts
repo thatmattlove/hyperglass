@@ -173,12 +173,30 @@ function importColors(userColors: IConfigTheme['colors']): Theme.Colors {
   };
 }
 
-export function makeTheme(userTheme: IConfigTheme): Theme.Full {
+export function makeTheme(
+  userTheme: IConfigTheme,
+  defaultColorMode: 'dark' | 'light' | null,
+): Theme.Full {
   const [fonts, fontWeights] = importFonts(userTheme.fonts);
+  const colors = importColors(userTheme.colors);
+  const config = {} as Theme.Full['config'];
+
+  switch (defaultColorMode) {
+    case null:
+      config.useSystemColorMode = true;
+      break;
+    case 'light':
+      config.initialColorMode = 'light';
+      break;
+    case 'dark':
+      config.initialColorMode = 'dark';
+      break;
+  }
 
   const defaultTheme = extendTheme({
-    colors: importColors(userTheme.colors),
     fonts,
+    colors,
+    config,
     fontWeights,
     styles: {
       global: props => ({

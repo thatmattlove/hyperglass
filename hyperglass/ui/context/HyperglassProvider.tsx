@@ -19,7 +19,7 @@ const queryClient = new QueryClient();
 export const HyperglassProvider = (props: THyperglassProvider) => {
   const { config, children } = props;
   const value = useMemo(() => config, []);
-  const userTheme = value && makeTheme(value.web.theme);
+  const userTheme = value && makeTheme(value.web.theme, value.web.theme.default_color_mode);
   const theme = value ? userTheme : defaultTheme;
   return (
     <ChakraProvider theme={theme}>
