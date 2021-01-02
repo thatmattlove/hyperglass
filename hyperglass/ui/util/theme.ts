@@ -7,9 +7,32 @@ import {
   readableColorIsBlack,
 } from 'color2k';
 import { extendTheme } from '@chakra-ui/react';
+import { mode } from '@chakra-ui/theme-tools';
 
 import type { Theme as ChakraTheme } from '@chakra-ui/react';
 import type { IConfigTheme, Theme } from '~/types';
+
+const defaultBodyFonts = [
+  '-apple-system',
+  'BlinkMacSystemFont',
+  '"Segoe UI"',
+  'Helvetica',
+  'Arial',
+  'sans-serif',
+  '"Apple Color Emoji"',
+  '"Segoe UI Emoji"',
+  '"Segoe UI Symbol"',
+];
+
+const defaultMonoFonts = [
+  'SFMono-Regular',
+  'Melno',
+  'Monaco',
+  'Consolas',
+  '"Liberation Mono"',
+  '"Courier New"',
+  'monospace',
+];
 
 export function isLight(color: string) {
   return readableColorIsBlack(color);
@@ -73,28 +96,6 @@ function generateColors(colorInput: string) {
   });
   return colorMap;
 }
-
-const defaultBodyFonts = [
-  '-apple-system',
-  'BlinkMacSystemFont',
-  '"Segoe UI"',
-  'Helvetica',
-  'Arial',
-  'sans-serif',
-  '"Apple Color Emoji"',
-  '"Segoe UI Emoji"',
-  '"Segoe UI Symbol"',
-];
-
-const defaultMonoFonts = [
-  'SFMono-Regular',
-  'Melno',
-  'Monaco',
-  'Consolas',
-  '"Liberation Mono"',
-  '"Courier New"',
-  'monospace',
-];
 
 function generatePalette(palette: IConfigTheme['colors']): Theme.Colors {
   const generatedPalette = Object();
@@ -180,7 +181,13 @@ export function makeTheme(userTheme: IConfigTheme): Theme.Full {
     fonts,
     fontWeights,
     styles: {
-      global: () => ({ html: { scrollBehavior: 'smooth' }, body: { overflow: 'hidden' } }),
+      global: props => ({
+        html: { scrollBehavior: 'smooth', height: '-webkit-fill-available' },
+        body: {
+          background: mode('light.500', 'dark.500')(props),
+          color: mode('black', 'white')(props),
+        },
+      }),
     },
   });
 

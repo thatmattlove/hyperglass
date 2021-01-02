@@ -3,12 +3,14 @@ import type { ColorHues } from '@chakra-ui/theme/dist/types/foundations/colors';
 
 export namespace Theme {
   type ExtraColors = {
-    primary: ColorHues;
-    secondary: ColorHues;
-    tertiary: ColorHues;
     dark: ColorHues;
     light: ColorHues;
+    error: ColorHues;
+    danger: ColorHues;
+    primary: ColorHues;
     success: ColorHues;
+    warning: ColorHues;
+    secondary: ColorHues;
     blackSolid: ColorHues;
     whiteSolid: ColorHues;
   };
