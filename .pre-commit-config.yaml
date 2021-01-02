@@ -5,11 +5,3 @@ repos:
       - id: flake8
         stages:
           - commit
-  - repo: local
-    hooks:
-      - id: validate_examples
-        name: Validate Examples
-        stages:
-          - commit
-        entry: hooks.sh
-        language: script
