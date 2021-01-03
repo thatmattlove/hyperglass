@@ -1,7 +1,11 @@
 .getStarted[class][class]:not(.button--active):not(:hover) {
-    color: var(--ifm-color-secondary);
+  color: var(--ifm-color-secondary);
+}
+
+.getStarted[class][class]:not(.button--active):hover {
+  color: var(--ifm-color-white);
 }
 
 .year {
-    color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
 }

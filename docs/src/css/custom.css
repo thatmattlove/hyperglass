@@ -31,6 +31,7 @@
     "Segoe UI Symbol";
   --ifm-font-family-monospace: "Fira Code", SFMono-Regular, Menlo, Monaco,
     Consolas, "Liberation Mono", "Courier New", monospace;
+  --ifm-code-padding-vertical: 0.05rem;
 }
 
 :root {
