@@ -5,3 +5,11 @@ repos:
       - id: flake8
         stages:
           - commit
+  - repo: local
+    hooks:
+      - id: frontend_checks
+        name: Frontend Checks
+        stages:
+          - commit
+        entry: ./.tests/pre-commit-frontend.sh
+        language: script
