@@ -54,7 +54,9 @@ CONFIG_FILES = (
 
 def _check_config_files(directory: Path):
     """Verify config files exist and are readable."""
+
     files = ()
+
     for file in CONFIG_FILES:
         file_name, required = file
         file_path = directory / file_name
@@ -70,7 +72,7 @@ def _check_config_files(directory: Path):
                 + "Defaults will be used.",
                 f=str(file_path),
             )
-        files += (file_path,)
+        files += (checked,)
 
     return files
 
@@ -97,8 +99,10 @@ def _config_required(config_path: Path) -> Dict:
 
 def _config_optional(config_path: Path) -> Dict:
 
+    config = {}
+
     if config_path is None:
-        config = {}
+        return config
 
     else:
         try:

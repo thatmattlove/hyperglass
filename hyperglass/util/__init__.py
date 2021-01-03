@@ -65,8 +65,9 @@ def check_path(
             else:
                 raise FileNotFoundError(f"{str(path)} does not exist.")
 
-        with path.open(mode):
-            result = path
+        if path.exists():
+            with path.open(mode):
+                result = path
 
     except Exception:
         result = None
@@ -517,7 +518,7 @@ async def build_frontend(  # noqa: C901
     params: Dict,
     app_path: Path,
     force: bool = False,
-):
+) -> bool:
     """Perform full frontend UI build process.
 
     Securely creates temporary file, writes frontend configuration
