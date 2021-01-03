@@ -9,6 +9,8 @@ repos:
     hooks:
       - id: frontend_checks
         name: Frontend Checks
+        files: 'hyperglass/ui/*'
+        exclude: 'hyperglass/ui/node_modules'
         stages:
           - commit
         entry: ./.tests/pre-commit-frontend.sh
