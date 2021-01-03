@@ -13,6 +13,8 @@ jobs:
         python-version: [3.6, 3.8]
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
+    env:
+      HYPERGLASS_UI_BUILD_TIMEOUT: 600
 
     steps:
       - name: Git Checkout
