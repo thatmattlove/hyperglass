@@ -24,12 +24,7 @@ const docusaurusConfig = {
       links: [
         { to: "docs/introduction", label: "Docs", position: "left" },
         { to: "screenshots", label: "Screenshots", position: "left" },
-        { to: "demo", label: "Demo", position: "left" },
-        // {
-        //   href: "https://demo.hyperglass.io",
-        //   label: "Demo",
-        //   position: "left",
-        // },
+        { href: "https://demo.hyperglass.io", label: "Demo", position: "left" },
       ],
     },
     footer: {
