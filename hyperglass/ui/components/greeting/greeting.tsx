@@ -45,9 +45,9 @@ export const Greeting = (props: TGreeting) => {
       size="lg"
       isCentered
       onClose={handleClose}
+      isOpen={isOpen.value}
       motionPreset="slideInBottom"
       closeOnEsc={web.greeting.required}
-      isOpen={isOpen.value}
       closeOnOverlayClick={web.greeting.required}>
       <ModalOverlay />
       <ModalContent

@@ -1,31 +1,33 @@
 import ReactMarkdown from 'react-markdown';
 import {
+  Br,
   List,
-  ListItem,
-  Heading,
   Link,
+  Table,
+  Heading,
+  Divider,
+  ListItem,
   CodeBlock,
   TableData,
   Paragraph,
   InlineCode,
-  Divider,
-  Table,
 } from './elements';
 
 import type { ReactMarkdownProps } from 'react-markdown';
 import type { TMarkdown } from './types';
 
 const renderers = {
-  paragraph: Paragraph,
+  break: Br,
   link: Link,
-  heading: Heading,
-  inlineCode: InlineCode,
   list: List,
-  listItem: ListItem,
-  thematicBreak: Divider,
-  code: CodeBlock,
   table: Table,
+  code: CodeBlock,
+  heading: Heading,
+  listItem: ListItem,
+  paragraph: Paragraph,
   tableCell: TableData,
+  inlineCode: InlineCode,
+  thematicBreak: Divider,
 } as ReactMarkdownProps['renderers'];
 
 export const Markdown = (props: TMarkdown) => (

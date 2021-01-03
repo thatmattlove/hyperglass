@@ -1,11 +1,12 @@
 import { Flex, Button, VStack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
+import { isSafari } from 'react-device-detect';
 import { If } from '~/components';
 import { useConfig, useMobile } from '~/context';
 import { useBooleanValue, useLGState, useLGMethods } from '~/hooks';
-import { Logo } from './logo';
-import { TitleOnly } from './titleOnly';
 import { SubtitleOnly } from './subtitleOnly';
+import { TitleOnly } from './titleOnly';
+import { Logo } from './logo';
 
 import type { TTitle, TTitleWrapper, TDWrapper, TMWrapper } from './types';
 
@@ -130,7 +131,7 @@ export const Title = (props: TTitle) => {
         don't do this. Without the below fix, the logo will appear gigantic, filling the entire
         div up to the parent's max-width. The fix is to hard-code a flex-basis width.
        */
-      flexBasis={{ base: '100%', lg: '33%' }}
+      flexBasis={{ base: '100%', lg: isSafari ? '33%' : '100%' }}
       mt={[null, isSubmitting.value ? null : 'auto']}
       {...rest}>
       <Button
