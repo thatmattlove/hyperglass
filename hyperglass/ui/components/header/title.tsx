@@ -7,7 +7,6 @@ import { Logo } from './logo';
 import { TitleOnly } from './titleOnly';
 import { SubtitleOnly } from './subtitleOnly';
 
-import type { StackProps } from '@chakra-ui/react';
 import type { TTitle, TTitleWrapper, TDWrapper, TMWrapper } from './types';
 
 const AnimatedVStack = motion.custom(VStack);
@@ -49,11 +48,11 @@ const DWrapper = (props: TDWrapper) => {
  * Universal wrapper for title sub-components, which will be different depending on the
  * `title_mode` configuration variable.
  */
-const TitleWrapper = (props: TDWrapper | StackProps) => {
+const TitleWrapper = (props: TDWrapper | TMWrapper) => {
   const isMobile = useMobile();
   return (
     <>
-      {isMobile ? <MWrapper {...(props as StackProps)} /> : <DWrapper {...(props as TDWrapper)} />}
+      {isMobile ? <MWrapper {...(props as TMWrapper)} /> : <DWrapper {...(props as TDWrapper)} />}
     </>
   );
 };
