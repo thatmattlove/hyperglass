@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 
-pwd
-ls -lsah
+$UI_DIR="hyperglass/ui"
 
-cd hyperglass/ui
+if git diff --cached --name-only | grep --quiet "$UI_DIR"
+then
+    echo "No frontend files have changed, skipping pre-commit check..."
+    exit 0
+fi
+
+cd $UI_DIR
 
 yarn typecheck

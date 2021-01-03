@@ -8,6 +8,7 @@ const config = require(String(configFile));
 
 const { NODE_ENV: env, _HYPERGLASS_URL_: envUrl } = config;
 
+// testing
 const devProxy = {
   '/api/query/': { target: envUrl + 'api/query/', pathRewrite: { '^/api/query/': '' } },
   '/images': { target: envUrl + 'images', pathRewrite: { '^/images': '' } },
@@ -31,7 +32,7 @@ app
 
     // Set up the proxy.
     if (dev && devProxy) {
-      Object.keys(devProxy).forEach(function(context) {
+      Object.keys(devProxy).forEach(function (context) {
         server.use(proxyMiddleware(context, devProxy[context]));
       });
     }
