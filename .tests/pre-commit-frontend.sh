@@ -5,7 +5,7 @@ UI_DIR="./hyperglass/ui"
 if git diff --cached --name-only | grep --quiet $UI_DIR
 then
     cd $UI_DIR
-    yarn typecheck
+    node_modules/.bin/tsc
 else
     echo "No frontend files have changed, skipping pre-commit check..."
     exit 0
