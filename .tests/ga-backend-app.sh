@@ -2,6 +2,9 @@
 
 LOG_FILE="$HOME/hyperglass-ci.log"
 
+echo "[INFO] Copying devices.yaml file..."
+cp ./examples/devices.yaml $HOME/hyperglass/devices.yaml
+
 echo "[INFO] Starting setup..."
 poetry run hyperglass setup -d
 echo "[SUCCESS] Setup completed."
