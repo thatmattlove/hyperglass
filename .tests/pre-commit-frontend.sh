@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-cd ../hyperglass/ui
+pwd
+ls -lsah
+
+cd hyperglass/ui
 
 yarn typecheck
-
-exit 0
