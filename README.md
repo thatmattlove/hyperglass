@@ -1,6 +1,6 @@
 <div align="center">
   <br/>
-  <img src="https://res.cloudinary.com/hyperglass/image/upload/v1593916013/logo.svg" width=300></img>
+  <img src="https://res.cloudinary.com/hyperglass/image/upload/v1593916013/logo-light.svg" width=300></img>
   <br/>
   <h3>The network looking glass that tries to make the internet better.</h3>
   <br/>  
@@ -11,7 +11,7 @@
 
 <div align="center">
 
-[**Documentation**](https://hyperglass.io)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Screenshots**](https://hyperglass.io/screenshots)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Live Demo**](https://hyperglass.io/demo)
+[**Documentation**](https://hyperglass.io)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Screenshots**](https://hyperglass.io/screenshots)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Live Demo**](https://demo.hyperglass.io/)
 
 [![PyPI](https://img.shields.io/pypi/v/hyperglass?style=for-the-badge)](https://pypi.org/project/hyperglass/)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/hyperglass?color=%2340798C&style=for-the-badge)
@@ -77,10 +77,18 @@ Any users, potential users, or contributors of hyperglass are welcome to join an
 
 **hyperglass is developed with the express intention of being free to the networking community**.
 
-*However, the hyperglass demo does cost [@checktheroads](https://github.com/checktheroads) about $15/month for 3 Digital Ocean droplets, and $60/year for the [hyperglass.io](https://hyperglass.io) domain. If you're feeling particularly helpful and want to help offset that cost, small donations are welcome.*
+*However, the hyperglass demo does cost [@checktheroads](https://github.com/checktheroads) $60/year for the [hyperglass.io](https://hyperglass.io) domain. If you're feeling particularly helpful and want to help offset that cost, small donations are welcome.*
 
 [![Donate](https://img.shields.io/badge/Donate-blue.svg?logo=paypal&style=for-the-badge)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZQFH3BB2B5M3E&source=url)
 
-## License
+## Acknowledgements
 
-[Clear BSD License](https://github.com/checktheroads/hyperglass/v1.0.0/LICENSE)
+hyperglass is built entirely on open-source software. Here are some of the awesome libraries used, check them out too!
+
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [Netmiko](https://github.com/ktbyers/netmiko)
+- [Scrapli](https://github.com/carlmontanari/scrapli)
+- [Pydantic](https://pydantic-docs.helpmanual.io/)
+- [Chakra UI](https://chakra-ui.com/)
+
+[![GitHub](https://img.shields.io/github/license/checktheroads/hyperglass?color=330036&style=for-the-badge)](https://github.com/checktheroads/hyperglass/blob/v1.0.0/LICENSE)
