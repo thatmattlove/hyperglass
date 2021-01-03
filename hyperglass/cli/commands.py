@@ -170,7 +170,6 @@ def setup(unattended):
     # Project
     from hyperglass.cli.util import (
         create_dir,
-        move_files,
         make_systemd,
         write_to_file,
         install_systemd,
@@ -207,18 +206,6 @@ def setup(unattended):
         create_dir(path, parents=True)
 
     migrate_static_assets(install_path)
-
-    example_dir = WORKING_DIR.parent / "examples"
-    files = example_dir.iterdir()
-
-    do_move = True
-    if not unattended and not confirm(
-        "Do you want to install example configuration files? (This is non-destructive)"
-    ):
-        do_move = False
-
-    if do_move:
-        move_files(example_dir, install_path, files)
 
     if install_path == user_path:
         user = getuser()

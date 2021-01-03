@@ -21,15 +21,18 @@ Options:
    -h, --help     🙏 Show this help message
 
 Commands:
-   build-ui  🦋 Create a new UI build
-   secret    🔒 Generate agent secret
-   setup     🧰 Run the setup wizard
-   start     🚀 Start web server
+   build-ui     🦋 Create a new UI build
+   clear-cache  🧼 Clear the Redis cache
+   secret       🔒 Generate agent secret
+   setup        🧰 Run the setup wizard
+   start        🚀 Start web server
 ```
 
 ## Setup Wizard
 
-To start the setup wizard, run `hyperglass setup` and you'll receive the following prompts:
+To start the setup wizard, run `hyperglass setup`.
+
+You'll receive the following prompts:
 
 ### Installation Directory
 
@@ -41,14 +44,6 @@ To start the setup wizard, run `hyperglass setup` and you'll receive the followi
 
 hyperglass requires a directory on your system to store configuration files, the web UI, logos, etc. You may choose between the current user's home directory or `/etc`.
 
-### Configuration files
-
-```shell-session
-Do you want to install example configuration files? (This is non-destructive) [y/N]:
-```
-
-hyperglass can install example configuration files to your hyperglass installation directory to make it a little easier to get up and running.
-
 ### Systemd Service
 
 ```shell-session
@@ -59,4 +54,29 @@ hyperglass also includes a [systemd](https://systemd.io/) service file, which ca
 
 ```shell-session
 $ sudo systemctl enable hyperglass
+```
+
+## UI Build
+
+After running the setup, the `build-ui` command needs to be run for the first time. This command creates the required file structure for the UI, initializes frontend dependencies, and generates favicons.
+
+:::note
+If your system's compute resources are too low, the `build-ui` step will likely fail. See the [system requirements](production.mdx) section for more information.
+:::
+
+```shell-session
+$ hyperglass build-ui
+✅ Completed UI build in development mode
+```
+
+## Startup
+
+To start hyperglass at the console run `hyperglass start`.
+
+:::important
+hyperglass won't start without a `devices.yaml` file. See the [Adding Devices](adding-devices.mdx) section for instructions on how add devices.
+:::
+
+```shell-session
+$ hyperglass start
 ```
