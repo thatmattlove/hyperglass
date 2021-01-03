@@ -2,12 +2,13 @@ name: Installer Testing
 on: [push, pull_request]
 
 jobs:
-  ci:
+  installer:
+    name: Installer Tests
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-latest]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Git Checkout

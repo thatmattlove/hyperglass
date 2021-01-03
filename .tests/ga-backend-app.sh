@@ -3,6 +3,8 @@
 LOG_FILE="$HOME/hyperglass-ci.log"
 
 echo "[INFO] Copying devices.yaml file..."
+pwd
+ls -lsah
 cp ./hyperglass/examples/devices.yaml $HOME/hyperglass/devices.yaml
 
 echo "[INFO] Starting setup..."

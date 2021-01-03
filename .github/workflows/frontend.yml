@@ -3,13 +3,13 @@ on: [push, pull_request]
 
 jobs:
   frontend:
-    name: Type Check
+    name: Frontend Tests
     strategy:
       fail-fast: false
       matrix:
         node-version: [14.x]
-        os: [ubuntu-20.04]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-latest]
+    runs-on: ubuntu-latest
     env:
       working-directory: ./hyperglass/ui
     steps:

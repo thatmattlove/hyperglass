@@ -4,14 +4,15 @@ on:
     types: [published]
 
 jobs:
-  ci:
+  release:
+    name: Release to PyPI
     strategy:
       fail-fast: false
       matrix:
         python-version: [3.6]
-        os: [ubuntu-20.04]
         poetry-version: [1.1.4]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-latest]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Git Checkout

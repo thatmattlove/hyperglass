@@ -2,7 +2,8 @@ name: Backend Testing
 on: [push, pull_request]
 
 jobs:
-  ci:
+  backend:
+    name: Backend Tests
     strategy:
       fail-fast: false
       matrix:
@@ -10,8 +11,8 @@ jobs:
         redis-version: [5, 6]
         poetry-version: [1.1.4]
         python-version: [3.6, 3.8]
-        os: [ubuntu-20.04]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-latest]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Git Checkout
