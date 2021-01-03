@@ -2,15 +2,13 @@
 
 LOG_FILE="$HOME/hyperglass-ci.log"
 
-echo "[INFO] Copying devices.yaml file..."
-pwd
-ls -lsah
-cp ./hyperglass/examples/devices.yaml $HOME/hyperglass/devices.yaml
-
 echo "[INFO] Starting setup..."
 poetry run hyperglass setup -d
 echo "[SUCCESS] Setup completed."
 sleep 2
+
+echo "[INFO] Copying devices.yaml file..."
+cp ./hyperglass/examples/devices.yaml $HOME/hyperglass/devices.yaml
 
 echo "[INFO] Setting listen_address..."
 echo "listen_address: 127.0.0.1" >> $HOME/hyperglass/hyperglass.yaml
