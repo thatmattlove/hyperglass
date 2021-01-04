@@ -25,6 +25,11 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: yarn install
 
-      - name: TypeScript Check
-        working-directory: ${{ env.working-directory }}
-        run: yarn typecheck
+      - name: TypeScript
+        run: ./.tests/pre-commit-frontend.sh --typescript
+
+      - name: ESLint
+        run: ./.tests/pre-commit-frontend.sh --eslint
+
+      - name: ESLint
+        run: ./.tests/pre-commit-frontend.sh --prettier
