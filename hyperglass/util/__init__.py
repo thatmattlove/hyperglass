@@ -104,13 +104,15 @@ async def build_ui(app_path):
         RuntimeError: Raised if exit code is not 0.
         RuntimeError: Raised when any other error occurs.
     """
+    timeout = 90
 
-    try:
-        timeout = os.environ["HYPERGLASS_UI_BUILD_TIMEOUT"]
+    if "HYPERGLASS_UI_BUILD_TIMEOUT" in os.environ:
+        timeout = int(os.environ["HYPERGLASS_UI_BUILD_TIMEOUT"])
         log.info("Found UI build timeout environment variable: {}", timeout)
-        timeout = int(timeout)
-    except KeyError:
-        timeout = 90
+
+    elif "POETRY_HYPERGLASS_UI_BUILD_TIMEOUT" in os.environ:
+        timeout = int(os.environ["POETRY_HYPERGLASS_UI_BUILD_TIMEOUT"])
+        log.info("Found UI build timeout environment variable: {}", timeout)
 
     ui_dir = Path(__file__).parent.parent / "ui"
     build_dir = app_path / "static" / "ui"
