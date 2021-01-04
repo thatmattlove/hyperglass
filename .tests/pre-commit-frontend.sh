@@ -22,9 +22,17 @@ do
     if [ "$arg" == "--typescript" ]
     then
         check_typescript
-    else [ "$arg" == "--eslint" ]
+        exit 0
+    elif [ "$arg" == "--eslint" ]
+    then
         check_eslint
-    else [ "$arg" == "--prettier" ]
+        exit 0
+    elif [ "$arg" == "--prettier" ]
+    then
         check_prettier
+        exit 0
+    else
+        echo "Arguments --typescript, --eslint, or --prettier required."
+        exit 1
     fi
 done
