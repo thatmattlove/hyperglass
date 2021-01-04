@@ -10,7 +10,7 @@
     "build": "next build && next export -o ../hyperglass/static/ui",
     "start": "next start",
     "clean": "rimraf --no-glob ./.next ./out",
-    "typecheck": "tsc",
+    "typecheck": "tsc --noEmit",
     "check:es:build": "es-check es5 './.next/static/**/*.js' -v",
     "check:es:export": "es-check es5 './out/**/*.js' -v"
   },
