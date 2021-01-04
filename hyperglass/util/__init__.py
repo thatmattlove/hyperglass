@@ -97,13 +97,9 @@ def check_python() -> str:
     return platform.python_version()
 
 
-async def build_ui(app_path):
-    """Execute `next build` & `next export` from UI directory.
+def get_ui_build_timeout() -> int:
+    """Read the UI build timeout from environment variables or set a default."""
 
-    Raises:
-        RuntimeError: Raised if exit code is not 0.
-        RuntimeError: Raised when any other error occurs.
-    """
     timeout = 90
 
     if "HYPERGLASS_UI_BUILD_TIMEOUT" in os.environ:
@@ -113,6 +109,18 @@ async def build_ui(app_path):
     elif "POETRY_HYPERGLASS_UI_BUILD_TIMEOUT" in os.environ:
         timeout = int(os.environ["POETRY_HYPERGLASS_UI_BUILD_TIMEOUT"])
         log.info("Found UI build timeout environment variable: {}", timeout)
+
+    return timeout
+
+
+async def build_ui(app_path):
+    """Execute `next build` & `next export` from UI directory.
+
+    Raises:
+        RuntimeError: Raised if exit code is not 0.
+        RuntimeError: Raised when any other error occurs.
+    """
+    timeout = get_ui_build_timeout()
 
     ui_dir = Path(__file__).parent.parent / "ui"
     build_dir = app_path / "static" / "ui"
@@ -320,6 +328,8 @@ async def node_initial(dev_mode=False):
 
     ui_path = Path(__file__).parent.parent / "ui"
 
+    timeout = get_ui_build_timeout()
+
     all_messages = []
     try:
         proc = await asyncio.create_subprocess_shell(
@@ -329,7 +339,7 @@ async def node_initial(dev_mode=False):
             cwd=ui_path,
         )
 
-        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
         messages = stdout.decode("utf-8").strip()
         errors = stderr.decode("utf-8").strip()
 
