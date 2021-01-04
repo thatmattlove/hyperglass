@@ -6,7 +6,7 @@ import { useBooleanValue } from '~/hooks';
 
 import { TField, TFormError } from './types';
 
-export const FormField = (props: TField) => {
+export const FormField: React.FC<TField> = (props: TField) => {
   const { name, label, children, labelAddOn, fieldAddOn, hiddenLabels = false, ...rest } = props;
   const labelColor = useColorValue('blackAlpha.700', 'whiteAlpha.700');
   const errorColor = useColorValue('red.500', 'red.300');
@@ -30,7 +30,8 @@ export const FormField = (props: TField) => {
       my={{ base: 2, lg: 4 }}
       isInvalid={error !== false}
       flex={{ base: '1 0 100%', lg: '1 0 33.33%' }}
-      {...rest}>
+      {...rest}
+    >
       <FormLabel
         pl={1}
         pr={0}
@@ -39,7 +40,8 @@ export const FormField = (props: TField) => {
         opacity={opacity}
         alignItems="center"
         justifyContent="space-between"
-        color={error !== false ? errorColor : labelColor}>
+        color={error !== false ? errorColor : labelColor}
+      >
         {label}
         <If c={typeof labelAddOn !== 'undefined'}>{labelAddOn}</If>
       </FormLabel>

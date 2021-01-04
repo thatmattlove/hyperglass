@@ -6,7 +6,10 @@ import type { TRequeryButton } from './types';
 
 const Repeat = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiRepeat));
 
-export const RequeryButton = forwardRef<HTMLButtonElement, TRequeryButton>((props, ref) => {
+const _RequeryButton: React.ForwardRefRenderFunction<HTMLButtonElement, TRequeryButton> = (
+  props: TRequeryButton,
+  ref,
+) => {
   const { requery, ...rest } = props;
 
   return (
@@ -20,9 +23,12 @@ export const RequeryButton = forwardRef<HTMLButtonElement, TRequeryButton>((prop
         variant="ghost"
         onClick={requery as TRequeryButton['onClick']}
         colorScheme="secondary"
-        {...rest}>
+        {...rest}
+      >
         <Icon as={Repeat} boxSize="16px" />
       </Button>
     </Tooltip>
   );
-});
+};
+
+export const RequeryButton = forwardRef<HTMLButtonElement, TRequeryButton>(_RequeryButton);

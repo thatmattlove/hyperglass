@@ -9,7 +9,7 @@ function buildOptions(queryVrfs: TDeviceVrf[]): TSelectOption[] {
   return queryVrfs.map(q => ({ value: q.id, label: q.display_name }));
 }
 
-export const QueryVrf = (props: TQueryVrf) => {
+export const QueryVrf: React.FC<TQueryVrf> = (props: TQueryVrf) => {
   const { vrfs, onChange, label } = props;
   const { selections } = useLGState();
   const { exportState } = useLGMethods();

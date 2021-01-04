@@ -4,7 +4,7 @@ import { useOpposingColor } from '~/hooks';
 
 import type { TTableRow } from './types';
 
-export const TableRow = (props: TTableRow) => {
+export const TableRow: React.FC<TTableRow> = (props: TTableRow) => {
   const {
     index = 0,
     doStripe = false,

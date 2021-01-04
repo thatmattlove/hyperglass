@@ -3,7 +3,7 @@ import { useColorValue } from '~/context';
 
 import type { BoxProps } from '@chakra-ui/react';
 
-export const CodeBlock = (props: BoxProps) => {
+export const CodeBlock: React.FC<BoxProps> = (props: BoxProps) => {
   const bg = useColorValue('blackAlpha.100', 'gray.800');
   const color = useColorValue('black', 'white');
   return (

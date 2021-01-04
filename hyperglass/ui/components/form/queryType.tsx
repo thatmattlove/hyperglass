@@ -13,7 +13,7 @@ function buildOptions(queryTypes: TQuery[]): TSelectOption[] {
     .map(q => ({ value: q.name, label: q.display_name }));
 }
 
-export const QueryType = (props: TQuerySelectField) => {
+export const QueryType: React.FC<TQuerySelectField> = (props: TQuerySelectField) => {
   const { onChange, label } = props;
   const { queries } = useConfig();
   const { errors } = useFormContext();

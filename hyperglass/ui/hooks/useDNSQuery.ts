@@ -2,6 +2,7 @@ import { useQuery } from 'react-query';
 import { useConfig } from '~/context';
 import { fetchWithTimeout } from '~/util';
 
+import type { QueryObserverResult } from 'react-query';
 import type { DnsOverHttps } from '~/types';
 import type { TUseDNSQueryFn } from './types';
 
@@ -46,7 +47,7 @@ export function useDNSQuery(
    * Address family, e.g. IPv4 or IPv6.
    */
   family: 4 | 6,
-) {
+): QueryObserverResult<DnsOverHttps.Response> {
   const { cache, web } = useConfig();
   return useQuery([web.dns_provider.url, { target, family }], dnsQuery, {
     cacheTime: cache.timeout * 1000,

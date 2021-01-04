@@ -7,7 +7,7 @@ import type { BasePath } from './types';
 function treeToElement(part: PathPart, len: number, index: number): FlowElement[] {
   const x = index * 250;
   const y = -(len * 10);
-  let elements = [
+  const elements = [
     {
       id: String(part.base),
       type: 'ASNode',
@@ -55,7 +55,7 @@ export function* buildElements(base: BasePath, data: TStructuredResponse): Gener
     data: { asn: base.asn, name: base.name, hasChildren: true, hasParents: false },
   };
 
-  for (const [i, path] of childPaths.entries()) {
+  for (const path of childPaths) {
     // path = Each unique path from origin
     const first = path[0];
     yield { id: `e${base.asn}-${first.id}`, source: base.asn, target: first.id };

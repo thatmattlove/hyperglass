@@ -3,7 +3,7 @@ import { useConfig } from '~/context';
 import { useBooleanValue, useLGState } from '~/hooks';
 import { useTitleSize } from './useTitleSize';
 
-export const TitleOnly = () => {
+export const TitleOnly: React.FC = () => {
   const { web } = useConfig();
   const { isSubmitting } = useLGState();
 

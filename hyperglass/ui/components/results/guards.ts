@@ -1,9 +1,12 @@
+/* eslint @typescript-eslint/no-explicit-any: 0 */
+/* eslint @typescript-eslint/explicit-module-boundary-types: 0 */
+
 export function isStackError(error: any): error is Error {
-  return error !== null && 'message' in error;
+  return typeof error !== 'undefined' && error !== null && 'message' in error;
 }
 
 export function isFetchError(error: any): error is Response {
-  return error !== null && 'statusText' in error;
+  return typeof error !== 'undefined' && error !== null && 'statusText' in error;
 }
 
 export function isLGError(error: any): error is TQueryResponse {

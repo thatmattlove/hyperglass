@@ -2,7 +2,7 @@ import { Flex } from '@chakra-ui/react';
 
 import { FlexProps } from '@chakra-ui/react';
 
-export const FormRow = (props: FlexProps) => {
+export const FormRow: React.FC<FlexProps> = (props: FlexProps) => {
   return (
     <Flex
       w="100%"

@@ -6,7 +6,7 @@ const Check = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i
 
 import type { TCopyButton } from './types';
 
-export const CopyButton = (props: TCopyButton) => {
+export const CopyButton: React.FC<TCopyButton> = (props: TCopyButton) => {
   const { copyValue, ...rest } = props;
   const { onCopy, hasCopied } = useClipboard(copyValue);
   return (
@@ -18,7 +18,8 @@ export const CopyButton = (props: TCopyButton) => {
         variant="ghost"
         onClick={onCopy}
         colorScheme="secondary"
-        {...rest}>
+        {...rest}
+      >
         <Icon as={hasCopied ? Check : Copy} boxSize="16px" />
       </Button>
     </Tooltip>

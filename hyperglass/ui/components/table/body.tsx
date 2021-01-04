@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react';
 
 import type { BoxProps } from '@chakra-ui/react';
 
-export const TableBody = (props: BoxProps) => (
+export const TableBody: React.FC<BoxProps> = (props: BoxProps) => (
   <Box
     as="tbody"
     overflowY="scroll"

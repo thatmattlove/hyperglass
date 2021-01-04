@@ -8,7 +8,7 @@ export interface TPath {
   device: string;
 }
 
-export interface TNode<D extends any> extends Omit<NodeProps, 'data'> {
+export interface TNode<D extends unknown> extends Omit<NodeProps, 'data'> {
   data: D;
 }
 

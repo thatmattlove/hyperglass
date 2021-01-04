@@ -2,7 +2,7 @@ import { MonoField, Active, Weight, Age, Communities, RPKIState, ASPath } from '
 
 import type { TCell } from './types';
 
-export const Cell = (props: TCell) => {
+export const Cell: React.FC<TCell> = (props: TCell) => {
   const { data, rawData } = props;
   const cellId = data.column.id as keyof TRoute;
   const component = {

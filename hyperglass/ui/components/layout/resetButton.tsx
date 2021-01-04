@@ -9,7 +9,7 @@ import type { TResetButton } from './types';
 
 const LeftArrow = dynamic<MeronexIcon>(() => import('@meronex/icons/fa').then(i => i.FaAngleLeft));
 
-export const ResetButton = (props: TResetButton) => {
+export const ResetButton: React.FC<TResetButton> = (props: TResetButton) => {
   const { developerMode, resetForm, ...rest } = props;
   const { isSubmitting } = useLGState();
   const bg = useColorValue('primary.500', 'primary.300');
@@ -30,7 +30,8 @@ export const ResetButton = (props: TResetButton) => {
           borderRightRadius="md"
           initial={{ x: '-100%' }}
           mb={developerMode ? { base: 0, lg: 14 } : undefined}
-          transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}>
+          transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+        >
           <Flex boxSize="100%" justifyContent="center" alignItems="center" {...rest}>
             <IconButton
               variant="unstyled"

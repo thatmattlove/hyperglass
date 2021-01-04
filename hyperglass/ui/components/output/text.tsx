@@ -3,7 +3,7 @@ import { useColorValue } from '~/context';
 
 import type { TTextOutput } from './types';
 
-export const TextOutput = (props: TTextOutput) => {
+export const TextOutput: React.FC<TTextOutput> = (props: TTextOutput) => {
   const { children, ...rest } = props;
 
   const bg = useColorValue('blackAlpha.100', 'gray.800');
@@ -31,7 +31,8 @@ export const TextOutput = (props: TTextOutput) => {
           color: selectionColor,
         },
       }}
-      {...rest}>
+      {...rest}
+    >
       {children.split('\\n').join('\n').replace(/\n\n/g, '\n')}
     </Box>
   );

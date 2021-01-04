@@ -6,7 +6,7 @@ const Plus = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.
 const Minus = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiMinus));
 const Square = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiSquare));
 
-export const Controls = () => {
+export const Controls: React.FC = () => {
   const { fitView, zoomIn, zoomOut } = useZoomPanHelper();
   return (
     <ButtonGroup
@@ -18,7 +18,8 @@ export const Controls = () => {
       isAttached
       pos="absolute"
       variant="solid"
-      colorScheme="secondary">
+      colorScheme="secondary"
+    >
       <IconButton icon={<Plus />} onClick={() => zoomIn()} aria-label="Zoom In" />
       <IconButton icon={<Minus />} onClick={() => zoomOut()} aria-label="Zoom Out" />
       <IconButton icon={<Square />} onClick={() => fitView()} aria-label="Fit Nodes" />

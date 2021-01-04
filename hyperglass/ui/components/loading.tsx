@@ -17,7 +17,8 @@ export const Loading: LoadableBaseOptions['loading'] = () => (
       flexDirection="column"
       css={{
         '@media (prefers-color-scheme: dark)': { backgroundColor: 'black', color: 'white' },
-      }}>
+      }}
+    >
       <Spinner color="primary.500" w="6rem" h="6rem" />
     </Flex>
   </Flex>

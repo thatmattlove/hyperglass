@@ -7,7 +7,7 @@ const PathIcon = dynamic<MeronexIcon>(() =>
   import('@meronex/icons/bi').then(i => i.BisNetworkChart),
 );
 
-export const PathButton = (props: TPathButton) => {
+export const PathButton: React.FC<TPathButton> = (props: TPathButton) => {
   const { onOpen } = props;
   return (
     <Tooltip hasArrow label="View AS Path" placement="top">

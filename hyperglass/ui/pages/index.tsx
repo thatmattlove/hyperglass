@@ -13,7 +13,7 @@ interface TIndex {
   favicons: FaviconComponent[];
 }
 
-const Index = (props: TIndex) => {
+const Index: React.FC<TIndex> = (props: TIndex) => {
   const { favicons } = props;
   return (
     <>
@@ -32,7 +32,8 @@ const Index = (props: TIndex) => {
 export const getStaticProps: GetStaticProps<TIndex> = async () => {
   const faviconConfig = (process.env._HYPERGLASS_FAVICONS_ as unknown) as Favicon[];
   const favicons = faviconConfig.map(icon => {
-    let { image_format, dimensions, prefix, rel } = icon;
+    const { image_format, dimensions, prefix } = icon;
+    let { rel } = icon;
     if (rel === null) {
       rel = '';
     }

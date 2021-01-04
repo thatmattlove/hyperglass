@@ -15,7 +15,7 @@ import { Chart } from './chart';
 
 import type { TPath } from './types';
 
-export const Path = (props: TPath) => {
+export const Path: React.FC<TPath> = (props: TPath) => {
   const { device } = props;
   const { displayTarget } = useLGState();
   const { getResponse } = useLGMethods();
@@ -33,7 +33,8 @@ export const Path = (props: TPath) => {
           bg={bg}
           mt={{ base: 4, lg: '' }}
           maxH={{ base: '80%', lg: '60%' }}
-          maxW={{ base: '100%', lg: '80%' }}>
+          maxW={{ base: '100%', lg: '80%' }}
+        >
           <ModalHeader>{`Path to ${displayTarget.value}`}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>

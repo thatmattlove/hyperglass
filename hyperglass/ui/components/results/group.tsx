@@ -7,7 +7,7 @@ import { useDevice, useLGState } from '~/hooks';
 import { isQueryType } from '~/types';
 import { Result } from './individual';
 
-export const Results = () => {
+export const Results: React.FC = () => {
   const { queries, vrfs, web } = useConfig();
   const { queryLocation, queryTarget, queryType, queryVrf } = useLGState();
 
@@ -83,7 +83,8 @@ export const Results = () => {
         w="100%"
         mx="auto"
         textAlign="left"
-        maxW={{ base: '100%', lg: '75%', xl: '50%' }}>
+        maxW={{ base: '100%', lg: '75%', xl: '50%' }}
+      >
         <Stack isInline align="center" justify="center" mt={4} flexWrap="wrap">
           <AnimatePresence>
             {queryLocation.value && (
@@ -92,7 +93,8 @@ export const Results = () => {
                   initial={initialLeft}
                   animate={animateLeft}
                   exit={{ opacity: 0, x: -100 }}
-                  transition={{ duration: 0.3, delay: 0.3 }}>
+                  transition={{ duration: 0.3, delay: 0.3 }}
+                >
                   <Label
                     bg={queryBg}
                     label={web.text.query_type}
@@ -104,7 +106,8 @@ export const Results = () => {
                   initial={initialCenter}
                   animate={animateCenter}
                   exit={{ opacity: 0, scale: 0.5 }}
-                  transition={{ duration: 0.3, delay: 0.3 }}>
+                  transition={{ duration: 0.3, delay: 0.3 }}
+                >
                   <Label
                     bg={targetBg}
                     value={queryTarget.value}
@@ -116,7 +119,8 @@ export const Results = () => {
                   initial={initialRight}
                   animate={animateRight}
                   exit={{ opacity: 0, x: 100 }}
-                  transition={{ duration: 0.3, delay: 0.3 }}>
+                  transition={{ duration: 0.3, delay: 0.3 }}
+                >
                   <Label
                     bg={vrfBg}
                     label={web.text.query_vrf}
@@ -142,7 +146,8 @@ export const Results = () => {
         exit={{ opacity: 0, y: 300 }}
         transition={{ duration: 0.3 }}
         animate={{ opacity: 1, y: 0 }}
-        maxW={{ base: '100%', md: '75%' }}>
+        maxW={{ base: '100%', md: '75%' }}
+      >
         <Accordion allowMultiple allowToggle index={resultsComplete}>
           <AnimatePresence>
             {queryLocation.value &&

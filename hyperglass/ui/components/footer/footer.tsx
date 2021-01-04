@@ -9,7 +9,7 @@ import { ColorModeToggle } from './colorMode';
 const CodeIcon = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiCode));
 const ExtIcon = dynamic<MeronexIcon>(() => import('@meronex/icons/go').then(i => i.GoLinkExternal));
 
-export const Footer = () => {
+export const Footer: React.FC = () => {
   const { web, content, primary_asn } = useConfig();
 
   const footerBg = useColorValue('blackAlpha.50', 'whiteAlpha.100');
@@ -32,7 +32,8 @@ export const Footer = () => {
       bg={footerBg}
       color={footerColor}
       spacing={{ base: 8, lg: 6 }}
-      justifyContent={{ base: 'center', lg: 'space-between' }}>
+      justifyContent={{ base: 'center', lg: 'space-between' }}
+    >
       <If c={web.terms.enable}>
         <FooterButton side="left" content={content.terms} title={web.terms.title} />
       </If>
@@ -47,7 +48,8 @@ export const Footer = () => {
           size={btnSize}
           variant="ghost"
           rightIcon={<ExtIcon />}
-          aria-label={web.external_link.title}>
+          aria-label={web.external_link.title}
+        >
           {web.external_link.title}
         </Button>
       </If>

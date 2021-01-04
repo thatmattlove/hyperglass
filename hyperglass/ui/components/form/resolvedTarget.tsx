@@ -96,7 +96,8 @@ export const ResolvedTarget = (props: TResolvedTarget) => {
             colorScheme="primary"
             justifyContent="space-between"
             onClick={() => selectTarget(answer4)}
-            rightIcon={<RightArrow boxSize="18px" />}>
+            rightIcon={<RightArrow boxSize="18px" />}
+          >
             {answer4}
           </Button>
         )}
@@ -109,7 +110,8 @@ export const ResolvedTarget = (props: TResolvedTarget) => {
             colorScheme="secondary"
             justifyContent="space-between"
             onClick={() => selectTarget(answer6)}
-            rightIcon={<RightArrow boxSize="18px" />}>
+            rightIcon={<RightArrow boxSize="18px" />}
+          >
             {answer6}
           </Button>
         )}
@@ -126,7 +128,8 @@ export const ResolvedTarget = (props: TResolvedTarget) => {
               colorScheme="red"
               variant="outline"
               onClick={errorClose}
-              leftIcon={<LeftArrow />}>
+              leftIcon={<LeftArrow />}
+            >
               {web.text.fqdn_error_button}
             </Button>
           </>

@@ -43,7 +43,7 @@ function formatTime(val: number): string {
 export function useTableToString(
   target: string,
   data: TQueryResponse | undefined,
-  ...deps: any
+  ...deps: unknown[]
 ): () => string {
   const { web, parsed_data_fields, messages } = useConfig();
 
@@ -81,7 +81,7 @@ export function useTableToString(
     let result = messages.no_output;
     try {
       if (typeof data !== 'undefined' && isStructuredOutput(data)) {
-        let tableStringParts = [`Routes For: ${target}`, `Timestamp: ${data.timestamp} UTC`];
+        const tableStringParts = [`Routes For: ${target}`, `Timestamp: ${data.timestamp} UTC`];
         for (const route of data.output.routes) {
           for (const field of parsed_data_fields) {
             const [header, accessor, align] = field;

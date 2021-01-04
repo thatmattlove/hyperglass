@@ -15,9 +15,9 @@ import { useGreeting, useOpposingColor } from '~/hooks';
 
 import type { TGreeting } from './types';
 
-export const Greeting = (props: TGreeting) => {
+export const Greeting: React.FC<TGreeting> = (props: TGreeting) => {
   const { web, content } = useConfig();
-  const { ack: greetingAck, isOpen, close, open } = useGreeting();
+  const { ack: greetingAck, isOpen, close } = useGreeting();
 
   const bg = useColorValue('white', 'gray.800');
   const color = useOpposingColor(bg);
@@ -48,7 +48,8 @@ export const Greeting = (props: TGreeting) => {
       isOpen={isOpen.value}
       motionPreset="slideInBottom"
       closeOnEsc={web.greeting.required}
-      closeOnOverlayClick={web.greeting.required}>
+      closeOnOverlayClick={web.greeting.required}
+    >
       <ModalOverlay />
       <ModalContent
         py={4}
@@ -56,7 +57,8 @@ export const Greeting = (props: TGreeting) => {
         color={color}
         borderRadius="md"
         maxW={{ base: '95%', md: '75%' }}
-        {...props}>
+        {...props}
+      >
         <ModalHeader>{web.greeting.title}</ModalHeader>
         <If c={!web.greeting.required}>
           <ModalCloseButton />

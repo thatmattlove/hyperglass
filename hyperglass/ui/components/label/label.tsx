@@ -5,7 +5,7 @@ import { useOpposingColor } from '~/hooks';
 
 import type { TLabel } from './types';
 
-export const Label = forwardRef<HTMLDivElement, TLabel>((props, ref) => {
+const _Label: React.ForwardRefRenderFunction<HTMLDivElement, TLabel> = (props: TLabel, ref) => {
   const { value, label, labelColor, bg = 'primary.600', valueColor, ...rest } = props;
 
   const valueColorAuto = useOpposingColor(bg);
@@ -19,7 +19,8 @@ export const Label = forwardRef<HTMLDivElement, TLabel>((props, ref) => {
       alignItems="center"
       mx={{ base: 1, md: 2 }}
       justifyContent="flex-start"
-      {...rest}>
+      {...rest}
+    >
       <Flex
         mb={2}
         mr={0}
@@ -35,7 +36,8 @@ export const Label = forwardRef<HTMLDivElement, TLabel>((props, ref) => {
         borderBottomLeftRadius={4}
         borderBottomRightRadius={0}
         fontSize={{ base: 'xs', md: 'sm' }}
-        color={valueColor ?? valueColorAuto}>
+        color={valueColor ?? valueColorAuto}
+      >
         {value}
       </Flex>
       <Flex
@@ -53,9 +55,12 @@ export const Label = forwardRef<HTMLDivElement, TLabel>((props, ref) => {
         borderBottomRightRadius={4}
         fontSize={{ base: 'xs', md: 'sm' }}
         color={labelColor ?? defaultLabelColor}
-        boxShadow={`inset 0px 0px 0px 1px ${bg}`}>
+        boxShadow={`inset 0px 0px 0px 1px ${bg}`}
+      >
         {label}
       </Flex>
     </Flex>
   );
-});
+};
+
+export const Label = forwardRef(_Label);

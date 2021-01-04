@@ -9,8 +9,6 @@ import type { OptionProps } from 'react-select';
 import type { TBGPCommunity, TSelectOption } from '~/types';
 import type { TQueryTarget } from './types';
 
-const fqdnPattern = /^(?!:\/\/)([a-zA-Z0-9-]+\.)?[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z-]{2,6}?$/gim;
-
 function buildOptions(communities: TBGPCommunity[]): TSelectOption[] {
   return communities.map(c => ({
     value: c.community,
@@ -32,7 +30,7 @@ const Option = (props: OptionProps<Dict, false>) => {
   );
 };
 
-export const QueryTarget = (props: TQueryTarget) => {
+export const QueryTarget: React.FC<TQueryTarget> = (props: TQueryTarget) => {
   const { name, register, onChange, placeholder } = props;
 
   const bg = useColorValue('white', 'whiteAlpha.100');

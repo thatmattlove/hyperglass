@@ -2,13 +2,14 @@ import { useQuery } from 'react-query';
 import { useConfig } from '~/context';
 import { fetchWithTimeout } from '~/util';
 
+import type { QueryObserverResult } from 'react-query';
 import type { TFormQuery } from '~/types';
 import type { TUseLGQueryFn } from './types';
 
 /**
  * Custom hook handle submission of a query to the hyperglass backend.
  */
-export function useLGQuery(query: TFormQuery) {
+export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryResponse> {
   const { request_timeout, cache } = useConfig();
   const controller = new AbortController();
 

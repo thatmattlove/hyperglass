@@ -8,7 +8,7 @@ import { ResetButton } from './resetButton';
 
 import type { TFrame } from './types';
 
-export const Frame = (props: TFrame) => {
+export const Frame: React.FC<TFrame> = (props: TFrame) => {
   const { developer_mode } = useConfig();
   const { isSubmitting } = useLGState();
   const { resetForm } = useLGMethods();
@@ -39,7 +39,8 @@ export const Frame = (props: TFrame) => {
          * viewport. Safari needs `-webkit-fill-available`, but other browsers need `100vh`.
          * @see https://allthingssmitty.com/2020/05/11/css-fix-for-100vh-in-mobile-webkit/
          */
-        minHeight={isSafari ? '-webkit-fill-available' : '100vh'}>
+        minHeight={isSafari ? '-webkit-fill-available' : '100vh'}
+      >
         <Header resetForm={handleReset} />
         <Flex
           px={2}

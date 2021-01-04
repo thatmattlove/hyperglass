@@ -11,7 +11,7 @@ import { buildElements } from './util';
 import type { ReactFlowProps } from 'react-flow-renderer';
 import type { TChart, TNode, TNodeData } from './types';
 
-export const Chart = (props: TChart) => {
+export const Chart: React.FC<TChart> = (props: TChart) => {
   const { data } = props;
   const { primary_asn, org_name } = useConfig();
 
@@ -38,7 +38,7 @@ export const Chart = (props: TChart) => {
   );
 };
 
-const ASNode = (props: TNode<TNodeData>) => {
+const ASNode: React.FC<TNode<TNodeData>> = (props: TNode<TNodeData>) => {
   const { data } = props;
   const { asn, name, hasChildren, hasParents } = data;
 

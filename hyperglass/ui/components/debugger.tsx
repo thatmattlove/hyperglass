@@ -21,7 +21,7 @@ interface TViewer extends Pick<UseDisclosureReturn, 'isOpen' | 'onClose'> {
   children: React.ReactNode;
 }
 
-const Viewer = (props: TViewer) => {
+const Viewer: React.FC<TViewer> = (props: TViewer) => {
   const { title, isOpen, onClose, children } = props;
   const bg = useColorValue('white', 'black');
   const color = useColorValue('black', 'white');
@@ -39,7 +39,7 @@ const Viewer = (props: TViewer) => {
   );
 };
 
-export const Debugger = () => {
+export const Debugger: React.FC = () => {
   const { isOpen: configOpen, onOpen: onConfigOpen, onClose: configClose } = useDisclosure();
   const { isOpen: themeOpen, onOpen: onThemeOpen, onClose: themeClose } = useDisclosure();
   const { colorMode } = useColorMode();
@@ -64,7 +64,8 @@ export const Debugger = () => {
         position="relative"
         justifyContent="center"
         borderColor={borderColor}
-        spacing={{ base: 2, lg: 8 }}>
+        spacing={{ base: 2, lg: 8 }}
+      >
         <Tag size={tagSize} colorScheme="gray">
           {colorMode.toUpperCase()}
         </Tag>

@@ -1,3 +1,6 @@
+/* eslint @typescript-eslint/no-explicit-any: 0 */
+/* eslint @typescript-eslint/explicit-module-boundary-types: 0 */
+
 import type {
   Props as IReactSelect,
   ControlProps,
@@ -8,6 +11,7 @@ import type {
   IndicatorProps,
   Theme as RSTheme,
   PlaceholderProps,
+  Styles as RSStyles,
 } from 'react-select';
 import type { BoxProps } from '@chakra-ui/react';
 import type { Theme, TSelectOption, TSelectOptionMulti, TSelectOptionGroup } from '~/types';
@@ -69,5 +73,9 @@ export type TIndicator = IndicatorProps<TOptions, false>;
 export type TPlaceholder = PlaceholderProps<TOptions, false>;
 
 export type TMultiValue = Pick<TSelectContext, 'colorMode'>;
+
+export type TRSStyleCallback = (base: RSStyles) => RSStyles;
+
+export type TRSThemeCallback = (theme: TRSTheme) => TRSTheme;
 
 export type { Styles as TStyles } from 'react-select';

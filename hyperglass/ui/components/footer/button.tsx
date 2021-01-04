@@ -1,11 +1,11 @@
-import { Box, Button, Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
+import { Button, Menu, MenuButton, MenuList } from '@chakra-ui/react';
 import { Markdown } from '~/components';
 import { useColorValue, useBreakpointValue } from '~/context';
 import { useOpposingColor } from '~/hooks';
 
 import type { TFooterButton } from './types';
 
-export const FooterButton = (props: TFooterButton) => {
+export const FooterButton: React.FC<TFooterButton> = (props: TFooterButton) => {
   const { content, title, side, ...rest } = props;
   const placement = side === 'left' ? 'top' : side === 'right' ? 'top-end' : undefined;
   const bg = useColorValue('white', 'gray.900');
@@ -17,7 +17,8 @@ export const FooterButton = (props: TFooterButton) => {
         as={Button}
         size={size}
         variant="ghost"
-        aria-label={typeof title === 'string' ? title : undefined}>
+        aria-label={typeof title === 'string' ? title : undefined}
+      >
         {title}
       </MenuButton>
       <MenuList
@@ -29,7 +30,8 @@ export const FooterButton = (props: TFooterButton) => {
         textAlign="left"
         mx={{ base: 1, lg: 2 }}
         maxW={{ base: '100%', lg: '50vw' }}
-        {...rest}>
+        {...rest}
+      >
         <Markdown content={content} />
       </MenuList>
     </Menu>

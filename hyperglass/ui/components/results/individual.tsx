@@ -27,7 +27,9 @@ import type { TAccordionHeaderWrapper, TResult, TErrorLevels } from './types';
 
 const AnimatedAccordionItem = motion.custom(AccordionItem);
 
-const AccordionHeaderWrapper = (props: TAccordionHeaderWrapper) => {
+const AccordionHeaderWrapper: React.FC<TAccordionHeaderWrapper> = (
+  props: TAccordionHeaderWrapper,
+) => {
   const { hoverBg, ...rest } = props;
   return (
     <Flex
@@ -39,7 +41,7 @@ const AccordionHeaderWrapper = (props: TAccordionHeaderWrapper) => {
   );
 };
 
-export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
+const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props: TResult, ref) => {
   const {
     index,
     device,
@@ -170,7 +172,8 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
       css={{
         '&:last-of-type': { borderBottom: 'none' },
         '&:first-of-type': { borderTop: 'none' },
-      }}>
+      }}
+    >
       <AccordionHeaderWrapper hoverBg="blackAlpha.50">
         <AccordionButton
           py={2}
@@ -178,7 +181,8 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
           _hover={{}}
           _focus={{}}
           flex="1 0 auto"
-          onClick={handleToggle}>
+          onClick={handleToggle}
+        >
           <ResultHeader
             isError={isError}
             loading={isLoading}
@@ -213,7 +217,8 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
           },
 
           '-ms-overflow-style': { display: 'none' },
-        }}>
+        }}
+      >
         <Box>
           <Flex direction="column" flex="1 0 auto" maxW={error ? '100%' : undefined}>
             {!isError && typeof data !== 'undefined' ? (
@@ -246,7 +251,8 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
             mt={2}
             spacing={1}
             flex="1 0 auto"
-            justifyContent={{ base: 'flex-start', lg: 'flex-end' }}>
+            justifyContent={{ base: 'flex-start', lg: 'flex-end' }}
+          >
             <If c={cache.show_text && !isError && isCached}>
               <If c={!isMobile}>
                 <Countdown timeout={cache.timeout} text={web.text.cache_prefix} />
@@ -265,4 +271,6 @@ export const Result = forwardRef<HTMLDivElement, TResult>((props, ref) => {
       </AccordionPanel>
     </AnimatedAccordionItem>
   );
-});
+};
+
+export const Result = forwardRef<HTMLDivElement, TResult>(_Result);

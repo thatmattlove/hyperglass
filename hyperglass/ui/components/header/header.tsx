@@ -7,7 +7,7 @@ import { Title } from './title';
 
 import type { THeader } from './types';
 
-export const Header = (props: THeader) => {
+export const Header: React.FC<THeader> = (props: THeader) => {
   const { resetForm, ...rest } = props;
 
   const bg = useColorValue('white', 'black');
@@ -35,7 +35,8 @@ export const Header = (props: THeader) => {
       width="full"
       flex="0 1 auto"
       color="gray.500"
-      {...rest}>
+      {...rest}
+    >
       <ScaleFade in initialScale={0.5} style={{ width: '100%' }}>
         <AnimatedDiv
           layout
@@ -45,7 +46,8 @@ export const Header = (props: THeader) => {
           maxW={titleWidth}
           // This is here for the logo
           justifyContent={justify}
-          mx={{ base: isSubmitting.value ? 'auto' : 0, lg: 'auto' }}>
+          mx={{ base: isSubmitting.value ? 'auto' : 0, lg: 'auto' }}
+        >
           <Title />
         </AnimatedDiv>
       </ScaleFade>

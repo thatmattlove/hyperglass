@@ -19,7 +19,7 @@ function buildOptions(networks: TNetwork[]) {
   });
 }
 
-export const QueryLocation = (props: TQuerySelectField) => {
+export const QueryLocation: React.FC<TQuerySelectField> = (props: TQuerySelectField) => {
   const { onChange, label } = props;
 
   const { networks } = useConfig();

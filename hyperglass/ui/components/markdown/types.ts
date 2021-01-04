@@ -1,10 +1,4 @@
-import type {
-  BoxProps,
-  CheckboxProps,
-  HeadingProps,
-  ListProps,
-  ListItemProps,
-} from '@chakra-ui/react';
+import type { BoxProps, CheckboxProps, HeadingProps, ListProps } from '@chakra-ui/react';
 
 export interface TMarkdown {
   content: string;

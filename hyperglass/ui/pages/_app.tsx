@@ -2,21 +2,21 @@ import Head from 'next/head';
 import { HyperglassProvider } from '~/context';
 import { IConfig } from '~/types';
 
+import type { AppProps, AppInitialProps, AppContext } from 'next/app';
+
 if (process.env.NODE_ENV === 'development') {
   require('@hookstate/devtools');
 }
 
-import type { AppProps, AppInitialProps } from 'next/app';
+type TApp = { config: IConfig };
 
-type TAppProps = AppProps & AppInitialProps;
+type GetInitialPropsReturn<IP> = AppProps & AppInitialProps & { appProps: IP };
 
-interface TApp extends TAppProps {
-  appProps: { config: IConfig };
-}
+type Temp<IP> = React.FC<GetInitialPropsReturn<IP>> & {
+  getInitialProps(c?: AppContext): Promise<{ appProps: IP }>;
+};
 
-type TAppInitial = Pick<TApp, 'appProps'>;
-
-const App = (props: TApp) => {
+const App: Temp<TApp> = (props: GetInitialPropsReturn<TApp>) => {
   const { Component, pageProps, appProps } = props;
   const { config } = appProps;
 
@@ -42,7 +42,7 @@ const App = (props: TApp) => {
   );
 };
 
-App.getInitialProps = async (): Promise<TAppInitial> => {
+App.getInitialProps = async function getInitialProps() {
   const config = (process.env._HYPERGLASS_CONFIG_ as unknown) as IConfig;
   return { appProps: { config } };
 };

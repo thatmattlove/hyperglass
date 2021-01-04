@@ -22,30 +22,32 @@ import { useLGState, useLGMethods } from '~/hooks';
 import type { IconButtonProps } from '@chakra-ui/react';
 import type { TSubmitButton, TRSubmitButton } from './types';
 
-const SubmitIcon = forwardRef<HTMLButtonElement, Omit<IconButtonProps, 'aria-label'>>(
-  (props, ref) => {
-    const { isLoading, ...rest } = props;
-    return (
-      <IconButton
-        ref={ref}
-        size="lg"
-        width={16}
-        type="submit"
-        icon={<FiSearch />}
-        title="Submit Query"
-        colorScheme="primary"
-        isLoading={isLoading}
-        aria-label="Submit Query"
-        {...rest}
-      />
-    );
-  },
-);
+const _SubmitIcon: React.ForwardRefRenderFunction<
+  HTMLButtonElement,
+  Omit<IconButtonProps, 'aria-label'>
+> = (props: Omit<IconButtonProps, 'aria-label'>, ref) => {
+  const { isLoading, ...rest } = props;
+  return (
+    <IconButton
+      ref={ref}
+      size="lg"
+      width={16}
+      type="submit"
+      icon={<FiSearch />}
+      title="Submit Query"
+      colorScheme="primary"
+      isLoading={isLoading}
+      aria-label="Submit Query"
+      {...rest}
+    />
+  );
+};
+const SubmitIcon = forwardRef<HTMLButtonElement, Omit<IconButtonProps, 'aria-label'>>(_SubmitIcon);
 
 /**
  * Mobile Submit Button
  */
-const MSubmitButton = (props: TRSubmitButton) => {
+const MSubmitButton: React.FC<TRSubmitButton> = (props: TRSubmitButton) => {
   const { children, isOpen, onClose, onChange } = props;
   const bg = useColorValue('white', 'gray.900');
   return (
@@ -58,7 +60,8 @@ const MSubmitButton = (props: TRSubmitButton) => {
         onClose={onClose}
         closeOnEsc={false}
         closeOnOverlayClick={false}
-        motionPreset="slideInBottom">
+        motionPreset="slideInBottom"
+      >
         <ModalOverlay />
         <ModalContent bg={bg}>
           <ModalCloseButton />
@@ -74,7 +77,7 @@ const MSubmitButton = (props: TRSubmitButton) => {
 /**
  * Desktop Submit Button
  */
-const DSubmitButton = (props: TRSubmitButton) => {
+const DSubmitButton: React.FC<TRSubmitButton> = (props: TRSubmitButton) => {
   const { children, isOpen, onClose, onChange } = props;
   const bg = useColorValue('white', 'gray.900');
   return (
@@ -91,7 +94,7 @@ const DSubmitButton = (props: TRSubmitButton) => {
   );
 };
 
-export const SubmitButton = (props: TSubmitButton) => {
+export const SubmitButton: React.FC<TSubmitButton> = (props: TSubmitButton) => {
   const { handleChange } = props;
   const isMobile = useMobile();
   const { resolvedIsOpen, btnLoading } = useLGState();

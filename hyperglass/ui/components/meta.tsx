@@ -4,7 +4,7 @@ import { useTheme } from '@chakra-ui/react';
 import { useConfig } from '~/context';
 import { googleFontUrl } from '~/util';
 
-export const Meta = () => {
+export const Meta: React.FC = () => {
   const config = useConfig();
   const { fonts } = useTheme();
   const [location, setLocation] = useState('/');

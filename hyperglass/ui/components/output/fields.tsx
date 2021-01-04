@@ -26,7 +26,7 @@ import type {
 dayjs.extend(relativeTimePlugin);
 dayjs.extend(utcPlugin);
 
-export const MonoField = (props: TMonoField) => {
+export const MonoField: React.FC<TMonoField> = (props: TMonoField) => {
   const { v, ...rest } = props;
   return (
     <Text as="span" fontSize="sm" fontFamily="mono" {...rest}>
@@ -35,7 +35,7 @@ export const MonoField = (props: TMonoField) => {
   );
 };
 
-export const Active = (props: TActive) => {
+export const Active: React.FC<TActive> = (props: TActive) => {
   const { isActive } = props;
   const color = useColorValue(['gray.500', 'green.500'], ['whiteAlpha.300', 'blackAlpha.500']);
   return (
@@ -50,7 +50,7 @@ export const Active = (props: TActive) => {
   );
 };
 
-export const Age = (props: TAge) => {
+export const Age: React.FC<TAge> = (props: TAge) => {
   const { inSeconds, ...rest } = props;
   const now = dayjs.utc();
   const then = now.subtract(inSeconds, 'second');
@@ -63,7 +63,7 @@ export const Age = (props: TAge) => {
   );
 };
 
-export const Weight = (props: TWeight) => {
+export const Weight: React.FC<TWeight> = (props: TWeight) => {
   const { weight, winningWeight, ...rest } = props;
   const fixMeText =
     winningWeight === 'low' ? 'Lower Weight is Preferred' : 'Higher Weight is Preferred';
@@ -76,7 +76,7 @@ export const Weight = (props: TWeight) => {
   );
 };
 
-export const ASPath = (props: TASPath) => {
+export const ASPath: React.FC<TASPath> = (props: TASPath) => {
   const { path, active } = props;
   const color = useColorValue(
     // light: inactive, active
@@ -89,7 +89,7 @@ export const ASPath = (props: TASPath) => {
     return <Icon as={End} />;
   }
 
-  let paths = [] as JSX.Element[];
+  const paths = [] as JSX.Element[];
 
   path.map((asn, i) => {
     const asnStr = String(asn);
@@ -107,7 +107,7 @@ export const ASPath = (props: TASPath) => {
   return <>{paths}</>;
 };
 
-export const Communities = (props: TCommunities) => {
+export const Communities: React.FC<TCommunities> = (props: TCommunities) => {
   const { communities } = props;
   const bg = useColorValue('white', 'gray.900');
   const color = useOpposingColor(bg);
@@ -133,7 +133,8 @@ export const Communities = (props: TCommunities) => {
             textAlign="left"
             fontFamily="mono"
             fontWeight="normal"
-            whiteSpace="pre-wrap">
+            whiteSpace="pre-wrap"
+          >
             {communities.join('\n')}
           </MenuList>
         </Menu>
@@ -142,7 +143,10 @@ export const Communities = (props: TCommunities) => {
   );
 };
 
-export const RPKIState = forwardRef<HTMLDivElement, TRPKIState>((props, ref) => {
+const _RPKIState: React.ForwardRefRenderFunction<HTMLDivElement, TRPKIState> = (
+  props: TRPKIState,
+  ref,
+) => {
   const { state, active } = props;
   const { web } = useConfig();
   const bg = useColorValue(
@@ -171,10 +175,13 @@ export const RPKIState = forwardRef<HTMLDivElement, TRPKIState>((props, ref) => 
       placement="right"
       label={text[state] ?? text[3]}
       bg={bg[+active][state]}
-      color={color}>
+      color={color}
+    >
       <Box ref={ref} boxSize={5}>
         <Box as={icon[state]} color={bg[+active][state]} />
       </Box>
     </Tooltip>
   );
-});
+};
+
+export const RPKIState = forwardRef<HTMLDivElement, TRPKIState>(_RPKIState);

@@ -1,6 +1,6 @@
 import type { TIf } from './types';
 
-export const If = (props: TIf) => {
-  const { c, render, children, ...rest } = props;
-  return c ? (render ? render(rest) : children) : null;
+export const If = (props: React.PropsWithChildren<TIf>): React.ReactNode | null => {
+  const { c, children } = props;
+  return c ? children : null;
 };

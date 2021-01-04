@@ -14,9 +14,9 @@ import { useMobile } from '~/context';
 // 5xl: 7
 type Sizes = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
 
-export function useTitleSize(title: string, defaultSize: Sizes, deps: any[] = []) {
+export function useTitleSize(title: string, defaultSize: Sizes, deps: unknown[] = []): string {
   const [size, setSize] = useState<Sizes>(defaultSize);
-  const realSize = useToken('fontSizes', size);
+  const realSize = useToken('fontSizes', size) as string;
   const isMobile = useMobile();
   function getSize(l: number): void {
     switch (true) {

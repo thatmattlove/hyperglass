@@ -41,10 +41,10 @@ function useIsFqdn(target: string, _type: string) {
   );
 }
 
-export const LookingGlass = () => {
+export const LookingGlass: React.FC = () => {
   const { web, content, messages } = useConfig();
 
-  const { ack, greetingReady, isOpen: greetingIsOpen } = useGreeting();
+  const { ack, greetingReady } = useGreeting();
   const getDevice = useDevice();
 
   const noQueryType = useStrf(messages.no_input, { field: web.text.query_type });
@@ -243,7 +243,8 @@ export const LookingGlass = () => {
         exit={{ opacity: 0, x: -300 }}
         initial={{ opacity: 0, y: 300 }}
         maxW={{ base: '100%', lg: '75%' }}
-        onSubmit={handleSubmit(submitHandler)}>
+        onSubmit={handleSubmit(submitHandler)}
+      >
         <FormRow>
           <FormField name="query_location" label={web.text.query_location}>
             <QueryLocation onChange={handleChange} label={web.text.query_location} />
@@ -253,7 +254,8 @@ export const LookingGlass = () => {
             label={web.text.query_type}
             labelAddOn={
               <HelpModal visible={isQueryContent(vrfContent)} item={vrfContent} name="query_type" />
-            }>
+            }
+          >
             <QueryType onChange={handleChange} label={web.text.query_type} />
           </FormField>
         </FormRow>
@@ -280,7 +282,8 @@ export const LookingGlass = () => {
             maxW="100%"
             flex="0 0 0"
             flexDir="column"
-            mr={{ base: 0, lg: 2 }}>
+            mr={{ base: 0, lg: 2 }}
+          >
             <SubmitButton handleChange={handleChange} />
           </Flex>
         </FormRow>

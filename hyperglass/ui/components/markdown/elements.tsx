@@ -44,12 +44,12 @@ function clean<P extends ChakraProps>(props: P): P {
   return props;
 }
 
-export const Checkbox = (props: TCheckbox & MDProps) => {
+export const Checkbox: React.FC<TCheckbox & MDProps> = (props: TCheckbox & MDProps) => {
   const { checked, node, ...rest } = props;
   return <ChakraCheckbox isChecked={checked} {...rest} />;
 };
 
-export const List = (props: TList) => {
+export const List: React.FC<TList> = (props: TList) => {
   const { ordered, ...rest } = props;
   return (
     <>
@@ -63,7 +63,7 @@ export const List = (props: TList) => {
   );
 };
 
-export const ListItem = (props: TListItem & MDProps) => {
+export const ListItem: React.FC<TListItem & MDProps> = (props: TListItem & MDProps) => {
   const { checked, node, ...rest } = props;
   return checked ? (
     <Checkbox checked={checked} node={node} {...rest} />
@@ -72,7 +72,7 @@ export const ListItem = (props: TListItem & MDProps) => {
   );
 };
 
-export const Heading = (props: THeading) => {
+export const Heading: React.FC<THeading> = (props: THeading) => {
   const { level, ...rest } = props;
 
   const levelMap = {
@@ -87,14 +87,16 @@ export const Heading = (props: THeading) => {
   return <ChakraHeading {...levelMap[level]} {...clean<Omit<THeading, 'level'>>(rest)} />;
 };
 
-export const Link = (props: LinkProps) => {
+export const Link: React.FC<LinkProps> = (props: LinkProps) => {
   const color = useColorValue('blue.500', 'blue.300');
   return <ChakraLink isExternal color={color} {...clean<LinkProps>(props)} />;
 };
 
-export const CodeBlock = (props: TCodeBlock) => <CustomCodeBlock>{props.value}</CustomCodeBlock>;
+export const CodeBlock: React.FC<TCodeBlock> = (props: TCodeBlock) => (
+  <CustomCodeBlock>{props.value}</CustomCodeBlock>
+);
 
-export const TableData = (props: TTableData) => {
+export const TableData: React.FC<TTableData> = (props: TTableData) => {
   const { isHeader, ...rest } = props;
   return (
     <>
@@ -108,7 +110,7 @@ export const TableData = (props: TTableData) => {
   );
 };
 
-export const Paragraph = (props: TextProps) => (
+export const Paragraph: React.FC<TextProps> = (props: TextProps) => (
   <ChakraText
     my={4}
     css={{
@@ -118,11 +120,19 @@ export const Paragraph = (props: TextProps) => (
     {...clean<TextProps>(props)}
   />
 );
-export const InlineCode = (props: CodeProps) => (
+
+export const InlineCode: React.FC<CodeProps> = (props: CodeProps) => (
   <ChakraCode borderRadius="md" px={1} {...clean<CodeProps>(props)} />
 );
-export const Divider = (props: DividerProps) => (
+
+export const Divider: React.FC<DividerProps> = (props: DividerProps) => (
   <ChakraDivider my={2} {...clean<DividerProps>(props)} />
 );
-export const Table = (props: BoxProps) => <ChakraTable {...clean<BoxProps>(props)} />;
-export const Br = (props: BoxProps) => <Box as="br" m={16} {...clean<BoxProps>(props)} />;
+
+export const Table: React.FC<BoxProps> = (props: BoxProps) => (
+  <ChakraTable {...clean<BoxProps>(props)} />
+);
+
+export const Br: React.FC<BoxProps> = (props: BoxProps) => (
+  <Box as="br" m={16} {...clean<BoxProps>(props)} />
+);

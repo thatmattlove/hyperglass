@@ -6,16 +6,14 @@ import { useColorValue, useColorToken, useMobile } from '~/context';
 import { useSelectContext } from './select';
 
 import type {
-  TControl,
-  TIndicator,
   TMenu,
-  TMenuList,
-  TMultiValueState,
   TOption,
-  TPlaceholder,
   TStyles,
+  TControl,
   TRSTheme,
   TMultiValue,
+  TRSThemeCallback,
+  TRSStyleCallback,
 } from './types';
 
 export const useControlStyle = (base: TStyles, state: TControl): TStyles => {
@@ -59,7 +57,7 @@ export const useMenuStyle = (base: TStyles, _: TMenu): TStyles => {
   return useMemo(() => mergeWith({}, base, styles), [colorMode, isOpen]);
 };
 
-export const useMenuListStyle = (base: TStyles, state: TMenuList): TStyles => {
+export const useMenuListStyle = (base: TStyles): TStyles => {
   const { colorMode, isOpen } = useSelectContext();
 
   const scrollbarTrack = useColorToken('colors', 'blackAlpha.50', 'whiteAlpha.50');
@@ -123,59 +121,51 @@ export const useOptionStyle = (base: TStyles, state: TOption): TStyles => {
   ]);
 };
 
-export const useIndicatorSeparatorStyle = (base: TStyles, state: TIndicator): TStyles => {
+export const useIndicatorSeparatorStyle = (base: TStyles): TStyles => {
   const { colorMode } = useSelectContext();
   const backgroundColor = useColorToken('colors', 'whiteAlpha.700', 'gray.600');
   const styles = { backgroundColor };
   return useMemo(() => mergeWith({}, base, styles), [colorMode]);
 };
 
-export const usePlaceholderStyle = (base: TStyles, state: TPlaceholder): TStyles => {
+export const usePlaceholderStyle = (base: TStyles): TStyles => {
   const { colorMode } = useSelectContext();
   const color = useColorToken('colors', 'gray.600', 'whiteAlpha.700');
   const fontSize = useToken('fontSizes', 'lg');
   return useMemo(() => mergeWith({}, base, { color, fontSize }), [colorMode]);
 };
 
-export const useSingleValueStyle = (props: TStyles) => {
+export const useSingleValueStyle = (): TRSStyleCallback => {
   const { colorMode } = useSelectContext();
 
   const color = useColorValue('black', 'whiteAlpha.800');
   const fontSize = useToken('fontSizes', 'lg');
 
   const styles = { color, fontSize };
-  return useCallback((base: TStyles, state: TMultiValueState) => mergeWith({}, base, styles), [
-    color,
-    colorMode,
-  ]);
+  return useCallback((base: TStyles) => mergeWith({}, base, styles), [color, colorMode]);
 };
 
-export const useMultiValueStyle = (props: TMultiValue) => {
+export const useMultiValueStyle = (props: TMultiValue): TRSStyleCallback => {
   const { colorMode } = props;
 
   const backgroundColor = useColorToken('colors', 'primary.500', 'primary.300');
   const color = useOpposingColor(backgroundColor);
 
   const styles = { backgroundColor, color };
-  return useCallback((base: TStyles, state: TMultiValueState) => mergeWith({}, base, styles), [
-    backgroundColor,
-    colorMode,
-  ]);
+  return useCallback((base: TStyles) => mergeWith({}, base, styles), [backgroundColor, colorMode]);
 };
 
-export const useMultiValueLabelStyle = (props: TMultiValue) => {
+export const useMultiValueLabelStyle = (props: TMultiValue): TRSStyleCallback => {
   const { colorMode } = props;
 
   const backgroundColor = useColorToken('colors', 'primary.500', 'primary.300');
   const color = useOpposingColor(backgroundColor);
 
   const styles = { color };
-  return useCallback((base: TStyles, state: TMultiValueState) => mergeWith({}, base, styles), [
-    colorMode,
-  ]);
+  return useCallback((base: TStyles) => mergeWith({}, base, styles), [colorMode]);
 };
 
-export const useMultiValueRemoveStyle = (props: TMultiValue) => {
+export const useMultiValueRemoveStyle = (props: TMultiValue): TRSStyleCallback => {
   const { colorMode } = props;
 
   const backgroundColor = useColorToken('colors', 'primary.500', 'primary.300');
@@ -185,22 +175,18 @@ export const useMultiValueRemoveStyle = (props: TMultiValue) => {
     color,
     '&:hover': { backgroundColor: 'inherit', color, opacity: 0.7 },
   };
-  return useCallback((base: TStyles, state: TMultiValueState) => mergeWith({}, base, styles), [
-    colorMode,
-  ]);
+  return useCallback((base: TStyles) => mergeWith({}, base, styles), [colorMode]);
 };
 
-export const useRSTheme = (props: TMultiValue) => {
+export const useRSTheme = (): TRSThemeCallback => {
   const borderRadius = useToken('radii', 'md');
   return useCallback((t: TRSTheme): TRSTheme => ({ ...t, borderRadius }), []);
 };
 
-export const useMenuPortal = (props: TMultiValue) => {
+export const useMenuPortal = (): TRSStyleCallback => {
   const isMobile = useMobile();
   const styles = {
     zIndex: isMobile ? 1500 : 1,
   };
-  return useCallback((base: TStyles, state: TMultiValueState) => mergeWith({}, base, styles), [
-    isMobile,
-  ]);
+  return useCallback((base: TStyles) => mergeWith({}, base, styles), [isMobile]);
 };

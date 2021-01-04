@@ -30,6 +30,13 @@
     "isolatedModules": true,
     "jsx": "preserve"
   },
-  "exclude": ["node_modules"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "types/globals.d.ts"]
+  "exclude": ["node_modules", ".next"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "types/globals.d.ts",
+    "next.config.js",
+    "nextdev.js"
+  ]
 }

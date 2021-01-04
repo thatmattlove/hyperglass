@@ -3,7 +3,7 @@ import { useColorValue } from '~/context';
 
 import type { BoxProps } from '@chakra-ui/react';
 
-export const TableMain = (props: BoxProps) => {
+export const TableMain: React.FC<BoxProps> = (props: BoxProps) => {
   const scrollbar = useColorValue('blackAlpha.300', 'whiteAlpha.300');
   const scrollbarHover = useColorValue('blackAlpha.400', 'whiteAlpha.400');
   const scrollbarBg = useColorValue('blackAlpha.50', 'whiteAlpha.50');

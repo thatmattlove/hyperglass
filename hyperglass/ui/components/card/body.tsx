@@ -1,12 +1,13 @@
 import { Flex } from '@chakra-ui/react';
 import { useColorValue } from '~/context';
 
-import type { ICardBody } from './types';
+import type { TCardBody } from './types';
 
-export const CardBody = (props: ICardBody) => {
+export const CardBody: React.FC<TCardBody> = (props: TCardBody) => {
   const { onClick, ...rest } = props;
   const bg = useColorValue('white', 'dark.500');
   const color = useColorValue('dark.500', 'white');
+  console.log('some shit');
   return (
     <Flex
       bg={bg}

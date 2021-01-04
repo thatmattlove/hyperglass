@@ -21,11 +21,11 @@ import type { TSelectOption } from '~/types';
 import type { TSelectBase, TSelectContext, TReactSelectChakra } from './types';
 
 const SelectContext = createContext<TSelectContext>(Object());
-export const useSelectContext = () => useContext(SelectContext);
+export const useSelectContext = (): TSelectContext => useContext(SelectContext);
 
 const ReactSelectChakra = chakra<typeof ReactSelect, TReactSelectChakra>(ReactSelect);
 
-export const Select = (props: TSelectBase) => {
+export const Select: React.FC<TSelectBase> = (props: TSelectBase) => {
   const { options, multi, onSelect, isError = false, ...rest } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -49,8 +49,8 @@ export const Select = (props: TSelectBase) => {
   const multiValue = useMultiValueStyle({ colorMode });
   const multiValueLabel = useMultiValueLabelStyle({ colorMode });
   const multiValueRemove = useMultiValueRemoveStyle({ colorMode });
-  const menuPortal = useMenuPortal({ colorMode });
-  const rsTheme = useRSTheme({ colorMode });
+  const menuPortal = useMenuPortal();
+  const rsTheme = useRSTheme();
 
   return (
     <SelectContext.Provider value={selectContext}>

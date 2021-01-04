@@ -1,9 +1,9 @@
 import { Flex, Text } from '@chakra-ui/react';
 import { useColorValue } from '~/context';
 
-import type { ICardHeader } from './types';
+import type { TCardHeader } from './types';
 
-export const CardHeader = (props: ICardHeader) => {
+export const CardHeader: React.FC<TCardHeader> = (props: TCardHeader) => {
   const { children, ...rest } = props;
   const bg = useColorValue('blackAlpha.50', 'whiteAlpha.100');
   return (
@@ -14,7 +14,8 @@ export const CardHeader = (props: ICardHeader) => {
       roundedTopLeft={4}
       roundedTopRight={4}
       borderBottomWidth="1px"
-      {...rest}>
+      {...rest}
+    >
       <Text fontWeight="bold">{children}</Text>
     </Flex>
   );

@@ -1,3 +1,6 @@
+// This rule isn't needed because react-table does this for us, for better or worse.
+/* eslint react/jsx-key: 0 */
+
 import dynamic from 'next/dynamic';
 import { Flex, Icon, Text } from '@chakra-ui/react';
 import { usePagination, useSortBy, useTable } from 'react-table';
@@ -34,7 +37,7 @@ const DoubleChevronLeft = dynamic<MeronexIcon>(() =>
   import('@meronex/icons/fi').then(i => i.FiChevronsLeft),
 );
 
-export function Table(props: TTable) {
+export const Table: React.FC<TTable> = (props: TTable) => {
   const {
     data,
     columns,
@@ -55,7 +58,7 @@ export function Table(props: TTable) {
     maxWidth: 300,
   };
 
-  let hiddenColumns = [] as string[];
+  const hiddenColumns = [] as string[];
 
   for (const col of columns) {
     if (col.hidden) {
@@ -102,7 +105,8 @@ export function Table(props: TTable) {
                   as="th"
                   align={column.align}
                   {...column.getHeaderProps()}
-                  {...column.getSortByToggleProps()}>
+                  {...column.getSortByToggleProps()}
+                >
                   <Text fontSize="sm" fontWeight="bold" display="inline-block">
                     {column.render('Header')}
                   </Text>
@@ -130,14 +134,16 @@ export function Table(props: TTable) {
                 highlightBg={rowHighlightBg}
                 doHorizontalBorders={bordersHorizontal}
                 highlight={row.values[rowHighlightProp ?? ''] ?? false}
-                {...row.getRowProps()}>
+                {...row.getRowProps()}
+              >
                 {row.cells.map((cell, i) => {
                   const { column, row, value } = cell as TCellRender;
                   return (
                     <TableCell
                       align={cell.column.align}
                       bordersVertical={[bordersVertical, i]}
-                      {...cell.getCellProps()}>
+                      {...cell.getCellProps()}
+                    >
                       {typeof Cell !== 'undefined' ? (
                         <Cell column={column} row={row} value={value} />
                       ) : (
@@ -199,4 +205,4 @@ export function Table(props: TTable) {
       </CardFooter>
     </CardBody>
   );
-}
+};

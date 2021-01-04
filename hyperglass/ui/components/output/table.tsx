@@ -10,7 +10,7 @@ function makeColumns(fields: TParsedDataField[]): TColumn[] {
   return fields.map(pair => {
     const [header, accessor, align] = pair;
 
-    let columnConfig = {
+    const columnConfig = {
       align,
       accessor,
       hidden: false,
@@ -25,7 +25,7 @@ function makeColumns(fields: TParsedDataField[]): TColumn[] {
   });
 }
 
-export const BGPTable = (props: TBGPTable) => {
+export const BGPTable: React.FC<TBGPTable> = (props: TBGPTable) => {
   const { children: data, ...rest } = props;
   const { parsed_data_fields } = useConfig();
   const columns = makeColumns(parsed_data_fields);
@@ -34,11 +34,11 @@ export const BGPTable = (props: TBGPTable) => {
     <Flex my={8} justify="center" maxW="100%" w="100%" {...rest}>
       <Table
         columns={columns}
+        bordersHorizontal
         data={data.routes}
+        rowHighlightBg="green"
         rowHighlightProp="active"
         Cell={(d: TCellRender) => <Cell data={d} rawData={data} />}
-        bordersHorizontal
-        rowHighlightBg="green"
       />
     </Flex>
   );

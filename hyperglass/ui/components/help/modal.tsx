@@ -18,7 +18,7 @@ import type { THelpModal } from './types';
 
 const Info = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiInfo));
 
-export const HelpModal = (props: THelpModal) => {
+export const HelpModal: React.FC<THelpModal> = (props: THelpModal) => {
   const { visible, item, name, ...rest } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const bg = useColorValue('whiteSolid.50', 'blackSolid.800');

@@ -15,7 +15,7 @@ const runtimeText = (runtime: number, text: string): string => {
   return `${text} ${unit}`;
 };
 
-export const ResultHeader = (props: TResultHeader) => {
+export const ResultHeader: React.FC<TResultHeader> = (props: TResultHeader) => {
   const { title, loading, isError, errorMsg, errorLevel, runtime } = props;
 
   const status = useColorValue('primary.500', 'primary.300');
@@ -36,7 +36,8 @@ export const ResultHeader = (props: TResultHeader) => {
         isDisabled={loading}
         label={isError ? errorMsg : label}
         bg={isError ? warning : defaultStatus}
-        color={color}>
+        color={color}
+      >
         <Box boxSize={6}>
           {loading ? (
             <Spinner size="sm" mr={4} color={status} />

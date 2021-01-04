@@ -1,8 +1,8 @@
 import { Flex } from '@chakra-ui/react';
 
-import type { ICardFooter } from './types';
+import type { TCardFooter } from './types';
 
-export const CardFooter = (props: ICardFooter) => (
+export const CardFooter: React.FC<TCardFooter> = (props: TCardFooter) => (
   <Flex
     p={4}
     direction="column"

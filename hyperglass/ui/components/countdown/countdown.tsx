@@ -3,11 +3,11 @@ import ReactCountdown, { zeroPad } from 'react-countdown';
 import { If } from '~/components';
 import { useColorValue } from '~/context';
 
-import type { ICountdown, IRenderer } from './types';
+import type { TCountdown, TRenderer } from './types';
 
-const Renderer = (props: IRenderer) => {
+const Renderer: React.FC<TRenderer> = (props: TRenderer) => {
   const { hours, minutes, seconds, completed, text } = props;
-  let time = [zeroPad(seconds)];
+  const time = [zeroPad(seconds)];
   minutes !== 0 && time.unshift(zeroPad(minutes));
   hours !== 0 && time.unshift(zeroPad(hours));
   const bg = useColorValue('black', 'white');
@@ -28,7 +28,7 @@ const Renderer = (props: IRenderer) => {
   );
 };
 
-export const Countdown = (props: ICountdown) => {
+export const Countdown: React.FC<TCountdown> = (props: TCountdown) => {
   const { timeout, text } = props;
   const then = timeout * 1000;
   return (

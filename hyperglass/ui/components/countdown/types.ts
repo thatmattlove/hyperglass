@@ -1,10 +1,10 @@
 import type { CountdownRenderProps } from 'react-countdown';
 
-export interface IRenderer extends CountdownRenderProps {
+export interface TRenderer extends CountdownRenderProps {
   text: string;
 }
 
-export interface ICountdown {
+export interface TCountdown {
   timeout: number;
   text: string;
 }

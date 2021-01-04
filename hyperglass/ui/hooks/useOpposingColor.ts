@@ -8,7 +8,7 @@ import type { TOpposingOptions } from './types';
  * Parse the color string to determine if it's a Chakra UI theme key, and determine if the
  * opposing color should be black or white.
  */
-export function useIsDark(color: string) {
+export function useIsDark(color: string): boolean {
   const theme = useTheme();
   if (typeof color === 'string' && color.match(/[a-zA-Z]+\.[a-zA-Z0-9]+/g)) {
     color = getColor(theme, color, color);

@@ -12,14 +12,14 @@ import {
 } from '@chakra-ui/react';
 import { inRange } from 'lodash';
 
-import type { NextPageContext } from 'next';
+import type { NextPage, NextPageContext } from 'next';
 
 interface TError {
   status: string;
   code: number;
 }
 
-const ErrorContent = (props: TError) => {
+const ErrorContent: React.FC<TError> = (props: TError) => {
   const { status, code } = props;
   const router = useRouter();
 
@@ -52,12 +52,13 @@ const ErrorContent = (props: TError) => {
         alignItems="center"
         flexDirection="column"
         justifyContent="start"
-        mt={{ base: '50%', xl: '25%' }}>
+        mt={{ base: '50%', xl: '25%' }}
+      >
         <Heading mb={4} as="h1" fontSize="2xl">
           <Text as="span" color={errorColor[baseCode]}>
             {status}
           </Text>
-          {code === 404 && <Text as="span"> isn't a thing...</Text>}
+          {code === 404 && <Text as="span">{` isn't a thing...`}</Text>}
         </Heading>
         <Button variant="outline" onClick={handleClick} colorScheme={colorScheme[baseCode]}>
           Home
@@ -67,7 +68,7 @@ const ErrorContent = (props: TError) => {
   );
 };
 
-const ErrorPage = (props: TError) => {
+const ErrorPage: NextPage<TError> = (props: TError) => {
   const { status, code } = props;
   return (
     <ThemeProvider theme={theme}>

@@ -1,5 +1,5 @@
-export function all(...iter: any[]) {
-  for (let i of iter) {
+export function all<I extends unknown>(...iter: I[]): boolean {
+  for (const i of iter) {
     if (!i) {
       return false;
     }
@@ -13,19 +13,19 @@ export function flatten<T extends unknown>(arr: any[][]): T[] {
   }, []);
 }
 
-export function chunkArray<A extends any>(array: A[], size: number): A[][] {
-  let result = [] as A[][];
+export function chunkArray<A extends unknown>(array: A[], size: number): A[][] {
+  const result = [] as A[][];
   for (let i = 0; i < array.length; i += size) {
-    let chunk = array.slice(i, i + size);
+    const chunk = array.slice(i, i + size);
     result.push(chunk);
   }
   return result;
 }
 
-interface PathPart {
+type PathPart = {
   base: number;
   children: PathPart[];
-}
+};
 
 /**
  * Arrange an array of arrays into a tree of nodes.
@@ -33,17 +33,17 @@ interface PathPart {
  * Blatantly stolen from:
  * @see https://gist.github.com/stephanbogner/4b590f992ead470658a5ebf09167b03d
  */
-export function arrangeIntoTree<P extends any>(paths: P[][]): PathPart[] {
-  let tree = [] as PathPart[];
+export function arrangeIntoTree<P extends unknown>(paths: P[][]): PathPart[] {
+  const tree = [] as PathPart[];
 
   for (let i = 0; i < paths.length; i++) {
-    let path = paths[i];
+    const path = paths[i];
     let currentLevel = tree;
 
     for (let j = 0; j < path.length; j++) {
-      let part = path[j];
+      const part = path[j];
 
-      const existingPath = findWhere(currentLevel, 'base', part);
+      const existingPath = findWhere<PathPart, typeof part>(currentLevel, 'base', part);
 
       if (existingPath !== false) {
         currentLevel = existingPath.children;
@@ -60,8 +60,13 @@ export function arrangeIntoTree<P extends any>(paths: P[][]): PathPart[] {
   }
   return tree;
 
-  function findWhere<V extends any>(array: any[], idx: string, value: V): PathPart | false {
+  function findWhere<A extends Record<string, unknown>, V extends unknown>(
+    array: A[],
+    idx: string,
+    value: V,
+  ): A | false {
     let t = 0;
+
     while (t < array.length && array[t][idx] !== value) {
       t++;
     }
