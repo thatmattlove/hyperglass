@@ -23,10 +23,8 @@ do
     then
         check_typescript
     else [ "$arg" == "--eslint" ]
-    then
         check_eslint
     else [ "$arg" == "--prettier" ]
-    then
         check_prettier
     fi
 done
