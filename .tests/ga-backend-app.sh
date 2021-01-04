@@ -2,8 +2,11 @@
 
 LOG_FILE="$HOME/hyperglass-ci.log"
 
+export POETRY_HYPERGLASS_UI_BUILD_TIMEOUT="600"
+echo "[INFO] Set build timeout to $POETRY_HYPERGLASS_UI_BUILD_TIMEOUT seconds"
+
 echo "[INFO] Starting setup..."
-poetry run hyperglass setup -d
+poetry run hyperglass setup -d &> $LOG_FILE
 echo "[SUCCESS] Setup completed."
 sleep 2
 
@@ -14,10 +17,11 @@ echo "[INFO] Setting listen_address..."
 echo "listen_address: 127.0.0.1" >> $HOME/hyperglass/hyperglass.yaml
 
 echo "[INFO] Starting UI build."
-poetry run hyperglass build-ui
+poetry run hyperglass build-ui &> $LOG_FILE
 
 if [[ ! $? == 0 ]]; then
-    echo "[ERROR] Failed to start hyperglass."
+    echo "[ERROR] Failed to build hyperglass ui."
+    cat /tmp/hyperglass.log
     exit 1
 else
     echo "[SUCCESS] UI build completed."
@@ -29,6 +33,7 @@ sleep 120
 
 if [[ ! $? == 0 ]]; then
     echo "[ERROR] Failed to start hyperglass."
+    cat /tmp/hyperglass.log
     exit 1
 else
     echo "[SUCCESS] Started hyperglass."
@@ -44,7 +49,7 @@ if [[ ! $? == 0 ]]; then
     echo "[ERROR] HTTP test failed."
     exit 1
 elif [[ ! "$STATUS" == "200" ]]; then
-    echo "[ERROR] HTTP test failed. Startup log:"
+    echo "[ERROR] HTTP test failed."
     cat $LOG_FILE
     exit 1
 fi
