@@ -14,7 +14,7 @@ jobs:
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     env:
-      HYPERGLASS_UI_BUILD_TIMEOUT: 600
+      POETRY_HYPERGLASS_UI_BUILD_TIMEOUT: 600
 
     steps:
       - name: Git Checkout
@@ -47,4 +47,4 @@ jobs:
         run: poetry run flake8 hyperglass
 
       - name: Run hyperglass
-        run: ".tests/ga-backend-app.sh"
+        run: '.tests/ga-backend-app.sh'
