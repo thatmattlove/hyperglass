@@ -115,6 +115,18 @@ $ sudo yum -y install gcc-c++ make nodejs yarn redis
 
 </Tabs>
 
+#### CentOS
+
+Documentation for CentOS is still in-progress. However, it's been determined that these dependencies _may_ also be required, depending on the version of CentOS:
+
+```shell-session
+$ sudo yum install libtiff-devel libjpeg-devel openjpeg2-devel zlib-devel \
+    freetype-devel lcms2-devel libwebp-devel tcl-devel tk-devel \
+    harfbuzz-devel fribidi-devel libraqm-devel libimagequant-devel libxcb-devel
+```
+
+These may be necessary dependencies for the [Pillow](https://pillow.readthedocs.io/en/latest) library, which hyperglass uses to handle logos, favicons, and OpenGraph images. The above dependencies were taken from [here](https://pillow.readthedocs.io/en/latest/installation.html), and may change over time.
+
 ### Application
 
 ```shell-session
