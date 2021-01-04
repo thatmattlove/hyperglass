@@ -7,11 +7,31 @@ repos:
           - commit
   - repo: local
     hooks:
-      - id: frontend_checks
-        name: Frontend Checks
+      - id: typescript
+        name: Frontend TypeScript Check
         files: 'hyperglass/ui/*'
-        exclude: 'hyperglass/ui/node_modules'
+        exclude: 'hyperglass/ui/node_modules|hyperglass/ui/.next'
         stages:
           - commit
-        entry: ./.tests/pre-commit-frontend.sh
+        entry: ./hyperglass/ui/node_modules/.bin/tsc
+        language: script
+  - repo: local
+    hooks:
+      - id: eslint
+        name: Frontend ESLint Check
+        files: 'hyperglass/ui/*'
+        exclude: 'hyperglass/ui/node_modules|hyperglass/ui/.next'
+        stages:
+          - commit
+        entry: ./hyperglass/ui/node_modules/.bin/eslint .
+        language: script
+  - repo: local
+    hooks:
+      - id: prettier
+        name: Frontend Prettier Check
+        files: 'hyperglass/ui/*'
+        exclude: 'hyperglass/ui/node_modules|hyperglass/ui/.next'
+        stages:
+          - commit
+        entry: ./hyperglass/ui/node_modules/.bin/prettier -c -w .
         language: script
