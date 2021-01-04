@@ -22,15 +22,15 @@ do
     if [ "$arg" == "--typescript" ]
     then
         check_typescript
-        exit 0
+        exit $?
     elif [ "$arg" == "--eslint" ]
     then
         check_eslint
-        exit 0
+        exit $?
     elif [ "$arg" == "--prettier" ]
     then
         check_prettier
-        exit 0
+        exit $?
     else
         echo "Arguments --typescript, --eslint, or --prettier required."
         exit 1
