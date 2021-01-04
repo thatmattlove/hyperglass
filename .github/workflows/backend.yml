@@ -47,4 +47,4 @@ jobs:
         run: poetry run flake8 hyperglass
 
       - name: Run hyperglass
-        run: '.tests/ga-backend-app.sh'
+        run: ".tests/ga-backend-app.sh"

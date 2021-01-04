@@ -5,10 +5,10 @@ Because I've been solo-maintaining and building hyperglass since around April 20
 - **Pristine code quality**
   - [Black](https://github.com/python/black) formatting for Python
   - Strict adherence to ESLint/Prettier configs for Javascript/React
-  - *ZERO* linting errors
-  - Linting exceptions only used when there is *no other way*, and should be accompanied with comments about why there is no other way.
+  - _ZERO_ linting errors
+  - Linting exceptions only used when there is _no other way_, and should be accompanied with comments about why there is no other way.
 - **No hard-coding**
-  - Anything visible to the end-user *must* be customizable by the administrator. If it's not, or can't be, leave code or PR comments as to why.
+  - Anything visible to the end-user _must_ be customizable by the administrator. If it's not, or can't be, leave code or PR comments as to why.
   - This includes things like timeouts, error messages, etc.
 - **Mobile & Accessible**
   - All UI element must be available on both desktop and mobile devices
