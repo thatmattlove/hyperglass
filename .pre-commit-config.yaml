@@ -13,7 +13,7 @@ repos:
         exclude: 'hyperglass/ui/node_modules|hyperglass/ui/.next'
         stages:
           - commit
-        entry: ./hyperglass/ui/node_modules/.bin/tsc
+        entry: ./hyperglass/ui/node_modules/.bin/tsc -p ./hyperglass/ui
         language: script
   - repo: local
     hooks:
@@ -23,7 +23,7 @@ repos:
         exclude: 'hyperglass/ui/node_modules|hyperglass/ui/.next'
         stages:
           - commit
-        entry: ./hyperglass/ui/node_modules/.bin/eslint .
+        entry: ./hyperglass/ui/node_modules/.bin/eslint ./hyperglass/ui
         language: script
   - repo: local
     hooks:
@@ -33,5 +33,5 @@ repos:
         exclude: 'hyperglass/ui/node_modules|hyperglass/ui/.next'
         stages:
           - commit
-        entry: ./hyperglass/ui/node_modules/.bin/prettier -c -w .
+        entry: ./hyperglass/ui/node_modules/.bin/prettier -c -w ./hyperglass/ui
         language: script
