@@ -22,6 +22,7 @@ poetry run hyperglass build-ui &> $LOG_FILE
 if [[ ! $? == 0 ]]; then
     echo "[ERROR] Failed to build hyperglass ui."
     cat /tmp/hyperglass.log
+    cat $LOG_FILE
     exit 1
 else
     echo "[SUCCESS] UI build completed."
@@ -34,6 +35,7 @@ sleep 120
 if [[ ! $? == 0 ]]; then
     echo "[ERROR] Failed to start hyperglass."
     cat /tmp/hyperglass.log
+    cat $LOG_FILE
     exit 1
 else
     echo "[SUCCESS] Started hyperglass."
@@ -50,6 +52,7 @@ if [[ ! $? == 0 ]]; then
     exit 1
 elif [[ ! "$STATUS" == "200" ]]; then
     echo "[ERROR] HTTP test failed."
+    cat /tmp/hyperglass.log
     cat $LOG_FILE
     exit 1
 fi
