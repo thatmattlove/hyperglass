@@ -31,5 +31,5 @@ jobs:
       - name: ESLint
         run: ./.tests/pre-commit-frontend.sh --eslint
 
-      - name: ESLint
+      - name: Prettier
         run: ./.tests/pre-commit-frontend.sh --prettier
