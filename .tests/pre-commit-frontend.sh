@@ -1,15 +1,32 @@
 #!/usr/bin/env bash
 
-UI_DIR="./hyperglass/ui"
+UI_DIR="$(pwd)/hyperglass/ui"
 
-cd $UI_DIR
-node_modules/.bin/tsc
+check_typescript () {
+    cd $UI_DIR
+    node_modules/.bin/tsc
+}
 
-# if git diff --cached --name-only | grep --quiet $UI_DIR
-# then
-#     cd $UI_DIR
-#     node_modules/.bin/tsc
-# else
-#     echo "No frontend files have changed, skipping pre-commit check..."
-#     exit 0
-# fi
+check_eslint () {
+    cd $UI_DIR
+    node_modules/.bin/eslint .
+}
+
+check_prettier () {
+    cd $UI_DIR
+    node_modules/.bin/prettier -c -w .
+}
+
+for arg in "$@"
+do
+    if [ "$arg" == "--typescript" ]
+    then
+        check_typescript
+    else [ "$arg" == "--eslint" ]
+    then
+        check_eslint
+    else [ "$arg" == "--prettier" ]
+    then
+        check_prettier
+    fi
+done

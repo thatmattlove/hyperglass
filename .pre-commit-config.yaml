@@ -8,30 +8,30 @@ repos:
   - repo: local
     hooks:
       - id: typescript
-        name: Frontend TypeScript Check
+        name: TypeScript
         files: 'hyperglass/ui/*'
         exclude: 'hyperglass/ui/node_modules|hyperglass/ui/.next'
         stages:
           - commit
-        entry: ./hyperglass/ui/node_modules/.bin/tsc -p ./hyperglass/ui
+        entry: ./.tests/pre-commit-frontend.sh --typescript
         language: script
   - repo: local
     hooks:
       - id: eslint
-        name: Frontend ESLint Check
+        name: ESLint
         files: 'hyperglass/ui/*'
         exclude: 'hyperglass/ui/node_modules|hyperglass/ui/.next'
         stages:
           - commit
-        entry: ./hyperglass/ui/node_modules/.bin/eslint ./hyperglass/ui
+        entry: ./.tests/pre-commit-frontend.sh --eslint
         language: script
   - repo: local
     hooks:
       - id: prettier
-        name: Frontend Prettier Check
+        name: Prettier
         files: 'hyperglass/ui/*'
         exclude: 'hyperglass/ui/node_modules|hyperglass/ui/.next'
         stages:
           - commit
-        entry: ./hyperglass/ui/node_modules/.bin/prettier -c -w ./hyperglass/ui
+        entry: ./.tests/pre-commit-frontend.sh --prettier
         language: script
