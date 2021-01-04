@@ -4,7 +4,7 @@ UI_DIR="$(pwd)/hyperglass/ui"
 
 check_typescript () {
     cd $UI_DIR
-    node_modules/.bin/tsc
+    node_modules/.bin/tsc --noEmit
 }
 
 check_eslint () {
