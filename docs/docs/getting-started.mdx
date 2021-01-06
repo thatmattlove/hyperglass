@@ -53,6 +53,17 @@ $ sudo apt install -y python3.6-dev python3-pip
 
 <TabItem value="rhel">
 
+Documentation for CentOS is still in-progress. However, it's been determined that these dependencies _may_ also be required, depending on the version of CentOS:
+
+```shell-session
+$ sudo yum install libtiff-devel libjpeg-devel openjpeg2-devel zlib-devel \
+    freetype-devel lcms2-devel libwebp-devel tcl-devel tk-devel \
+    harfbuzz-devel fribidi-devel libraqm-devel libimagequant-devel \
+    libxcb-devel ncurses-devel
+```
+
+Until further testing with CentOS can be done, you should install the above dependencies _before_ installing Python 3. You may have to uninstall and re-install Python 3 if these dependencies weren't already installed.
+
 You can install python from the CentOS 7 repository:
 
 ```shell-session
@@ -97,6 +108,9 @@ $ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sour
 
 $ sudo apt update
 $ sudo apt install -y nodejs yarn redis-server
+
+$ sudo systemctl enable redis-server
+$ sudo systemctl restart redis-server
 ```
 
 </TabItem>
@@ -105,27 +119,18 @@ $ sudo apt install -y nodejs yarn redis-server
 
 ```shell-session
 $ curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -
-
-$ curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo
+$ curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
+$ sudo rpm --import https://dl.yarnpkg.com/rpm/pubkey.gpg
 
 $ sudo yum -y install gcc-c++ make nodejs yarn redis
+
+$ sudo systemctl enable redis
+$ sudo systemctl restart redis
 ```
 
 </TabItem>
 
 </Tabs>
-
-#### CentOS
-
-Documentation for CentOS is still in-progress. However, it's been determined that these dependencies _may_ also be required, depending on the version of CentOS:
-
-```shell-session
-$ sudo yum install libtiff-devel libjpeg-devel openjpeg2-devel zlib-devel \
-    freetype-devel lcms2-devel libwebp-devel tcl-devel tk-devel \
-    harfbuzz-devel fribidi-devel libraqm-devel libimagequant-devel libxcb-devel
-```
-
-These may be necessary dependencies for the [Pillow](https://pillow.readthedocs.io/en/latest) library, which hyperglass uses to handle logos, favicons, and OpenGraph images. The above dependencies were taken from [here](https://pillow.readthedocs.io/en/latest/installation.html), and may change over time.
 
 ### Application
 
