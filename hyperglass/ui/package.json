@@ -6,13 +6,15 @@
   "license": "BSD-3-Clause-Clear",
   "private": true,
   "scripts": {
+    "lint": "eslint .",
     "dev": "node nextdev",
-    "build": "next build && next export -o ../hyperglass/static/ui",
     "start": "next start",
-    "clean": "rimraf --no-glob ./.next ./out",
     "typecheck": "tsc --noEmit",
+    "format": "prettier -c -w .",
+    "clean": "rimraf --no-glob ./.next ./out",
+    "check:es:export": "es-check es5 './out/**/*.js' -v",
     "check:es:build": "es-check es5 './.next/static/**/*.js' -v",
-    "check:es:export": "es-check es5 './out/**/*.js' -v"
+    "build": "next build && next export -o ../hyperglass/static/ui"
   },
   "browserslist": "> 0.25%, not dead",
   "dependencies": {

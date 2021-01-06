@@ -7,7 +7,6 @@ export const CardBody: React.FC<TCardBody> = (props: TCardBody) => {
   const { onClick, ...rest } = props;
   const bg = useColorValue('white', 'dark.500');
   const color = useColorValue('dark.500', 'white');
-  console.log('some shit');
   return (
     <Flex
       bg={bg}

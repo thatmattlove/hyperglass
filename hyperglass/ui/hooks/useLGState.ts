@@ -118,6 +118,7 @@ function Methods(inst?: State<TLGState>): Plugin | TMethodsExtension {
   return {
     id: MethodsId,
     init: () => {
+      /* eslint @typescript-eslint/ban-types: 0 */
       return new MethodsInstance() as {};
     },
   };
