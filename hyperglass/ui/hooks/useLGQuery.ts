@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { useConfig } from '~/context';
 import { fetchWithTimeout } from '~/util';
@@ -34,6 +35,15 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryRespons
     );
     return await res.json();
   }
+
+  // Cancel any still-running queries on unmount.
+  useEffect(
+    () => () => {
+      controller.abort();
+    },
+    [],
+  );
+
   return useQuery<TQueryResponse, Response | TQueryResponse | Error>(
     ['/api/query/', query],
     runQuery,
