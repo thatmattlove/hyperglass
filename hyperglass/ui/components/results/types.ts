@@ -1,4 +1,5 @@
-import type { ButtonProps, FlexProps } from '@chakra-ui/react';
+import type { State } from '@hookstate/core';
+import type { ButtonProps } from '@chakra-ui/react';
 import type { UseQueryResult } from 'react-query';
 import type { TDevice, TQueryTypes } from '~/types';
 
@@ -16,10 +17,6 @@ export interface TFormattedError {
   message: string;
 }
 
-export interface TAccordionHeaderWrapper extends FlexProps {
-  hoverBg: FlexProps['bg'];
-}
-
 export interface TResult {
   index: number;
   device: TDevice;
@@ -27,8 +24,6 @@ export interface TResult {
   queryTarget: string;
   queryLocation: string;
   queryType: TQueryTypes;
-  resultsComplete: number[];
-  setComplete: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 export type TErrorLevels = 'success' | 'warning' | 'error';
@@ -40,3 +35,18 @@ export interface TCopyButton extends ButtonProps {
 export interface TRequeryButton extends ButtonProps {
   requery: UseQueryResult<TQueryResponse>['refetch'];
 }
+
+export type TUseResults = {
+  firstOpen: number | null;
+  locations: { [k: string]: { complete: boolean; open: boolean; index: number } };
+};
+
+export type TUseResultsMethods = {
+  toggle(loc: string): void;
+  setComplete(loc: string): void;
+  getOpen(): number[];
+};
+
+export type UseResultsReturn = {
+  results: State<TUseResults>;
+} & TUseResultsMethods;
