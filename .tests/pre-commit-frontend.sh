@@ -9,12 +9,12 @@ check_typescript () {
 
 check_eslint () {
     cd $UI_DIR
-    node_modules/.bin/eslint .
+    node_modules/.bin/eslint . --ext .ts --ext .tsx
 }
 
 check_prettier () {
     cd $UI_DIR
-    node_modules/.bin/prettier -c -w .
+    node_modules/.bin/prettier -c .
 }
 
 for arg in "$@"
