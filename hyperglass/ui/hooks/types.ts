@@ -1,5 +1,6 @@
-import { State } from '@hookstate/core';
+import type { State } from '@hookstate/core';
 import type { QueryFunctionContext } from 'react-query';
+import type * as ReactGA from 'react-ga';
 import type {
   TDevice,
   Families,
@@ -89,9 +90,14 @@ export type TLGStateHandlers = {
   stateExporter<O extends unknown>(o: O): O | null;
 };
 
-export type UseStrfArgs = { [k: string]: any } | string;
+export type UseStrfArgs = { [k: string]: unknown } | string;
 
-export type TTableToStringFormatter = (v: any) => string;
+export type TTableToStringFormatter =
+  | ((v: string) => string)
+  | ((v: number) => string)
+  | ((v: number[]) => string)
+  | ((v: string[]) => string)
+  | ((v: boolean) => string);
 
 export type TTableToStringFormatted = {
   age: (v: number) => string;
@@ -100,3 +106,13 @@ export type TTableToStringFormatted = {
   communities: (v: string[]) => string;
   rpki_state: (v: number, n: TRPKIStates) => string;
 };
+
+export type GAEffect = (ga: typeof ReactGA) => void;
+
+export interface GAReturn {
+  ga: typeof ReactGA;
+  initialize(trackingId: string | null, debug: boolean): void;
+  trackPage(path: string): void;
+  trackModal(path: string): void;
+  trackEvent(event: ReactGA.EventArgs): void;
+}

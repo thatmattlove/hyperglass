@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { useConfig } from '~/context';
+import { useGoogleAnalytics } from './useGoogleAnalytics';
 import { fetchWithTimeout } from '~/util';
 
 import type { QueryObserverResult } from 'react-query';
@@ -13,6 +14,17 @@ import type { TUseLGQueryFn } from './types';
 export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryResponse> {
   const { request_timeout, cache } = useConfig();
   const controller = new AbortController();
+
+  const { trackEvent } = useGoogleAnalytics();
+
+  trackEvent({
+    category: 'Query',
+    action: 'submit',
+    dimension1: query.queryLocation,
+    dimension2: query.queryTarget,
+    dimension3: query.queryType,
+    dimension4: query.queryVrf,
+  });
 
   async function runQuery(ctx: TUseLGQueryFn): Promise<TQueryResponse> {
     const [url, data] = ctx.queryKey;

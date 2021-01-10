@@ -115,6 +115,7 @@ class Params(HyperglassModel):
         title="Netmiko Delay Factor",
         description="Override the netmiko global delay factor.",
     )
+    google_analytics: Optional[StrictStr]
 
     # Sub Level Params
     cache: Cache = Cache()

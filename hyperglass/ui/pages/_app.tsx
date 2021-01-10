@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import Head from 'next/head';
 import { HyperglassProvider } from '~/context';
+import { useGoogleAnalytics } from '~/hooks';
 import { IConfig } from '~/types';
 
 import type { AppProps, AppInitialProps, AppContext } from 'next/app';
@@ -12,13 +14,20 @@ type TApp = { config: IConfig };
 
 type GetInitialPropsReturn<IP> = AppProps & AppInitialProps & { appProps: IP };
 
-type Temp<IP> = React.FC<GetInitialPropsReturn<IP>> & {
+type NextApp<IP> = React.FC<GetInitialPropsReturn<IP>> & {
   getInitialProps(c?: AppContext): Promise<{ appProps: IP }>;
 };
 
-const App: Temp<TApp> = (props: GetInitialPropsReturn<TApp>) => {
-  const { Component, pageProps, appProps } = props;
+const App: NextApp<TApp> = (props: GetInitialPropsReturn<TApp>) => {
+  const { Component, pageProps, appProps, router } = props;
   const { config } = appProps;
+  const { initialize, trackPage } = useGoogleAnalytics();
+
+  initialize(config.google_analytics, config.developer_mode);
+
+  useEffect(() => {
+    router.events.on('routeChangeComplete', trackPage);
+  }, []);
 
   return (
     <>

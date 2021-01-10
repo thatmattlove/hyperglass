@@ -1,6 +1,7 @@
 import { useQuery } from 'react-query';
 import { useConfig } from '~/context';
 import { fetchWithTimeout } from '~/util';
+import { useGoogleAnalytics } from './useGoogleAnalytics';
 
 import type { QueryObserverResult } from 'react-query';
 import type { DnsOverHttps } from '~/types';
@@ -49,6 +50,12 @@ export function useDNSQuery(
   family: 4 | 6,
 ): QueryObserverResult<DnsOverHttps.Response> {
   const { cache, web } = useConfig();
+  const { trackEvent } = useGoogleAnalytics();
+
+  if (typeof target === 'string') {
+    trackEvent({ category: 'DNS', action: 'Query', label: target, dimension1: `IPv${family}` });
+  }
+
   return useQuery([web.dns_provider.url, { target, family }], dnsQuery, {
     cacheTime: cache.timeout * 1000,
   });

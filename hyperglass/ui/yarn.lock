@@ -926,10 +926,10 @@
   resolved "https://registry.yarnpkg.com/@hookform/resolvers/-/resolvers-1.2.0.tgz#3a429b4bd3ec9981764fcdcc2491202f9f72d847"
   integrity sha512-YCKEj/3Kdo3uNt+zrWKV8txaiuATtvgHyz+KYmun3n5JDjxdI0HcVQgfcmJabmkBXBzKuIIrYfxaV8sRuAPZ8w==
 
-"@hookstate/core@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@hookstate/core/-/core-3.0.1.tgz#dc46ea71e3bf0ab5c2dc024029c9210ed12fbb84"
-  integrity sha512-buRie83l3FYPLCuaBE68puE3XS19r2O+jwC/kH2ikIW7ww8AavndR3MspzMMkNpq2zL8pZtIcpiWJBbn4Uq2Vw==
+"@hookstate/core@^3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@hookstate/core/-/core-3.0.3.tgz#9fdd0e29d3cd4f3ce70ec209071d9d31b3a33677"
+  integrity sha512-tlcBxWrOZCEw3ExHTlvLK93q+JPV6d1BayjvFkXIPDCNC0fSc/aXOWjE7gywTnUYrrsidYNiOBjAROHUIWHoUw==
 
 "@hookstate/devtools@^3.0.0":
   version "3.0.0"
@@ -6188,6 +6188,11 @@ react-focus-lock@2.4.1:
     react-clientside-effect "^1.2.2"
     use-callback-ref "^1.2.1"
     use-sidecar "^1.0.1"
+
+react-ga@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/react-ga/-/react-ga-3.3.0.tgz#c91f407198adcb3b49e2bc5c12b3fe460039b3ca"
+  integrity sha512-o8RScHj6Lb8cwy3GMrVH6NJvL+y0zpJvKtc0+wmH7Bt23rszJmnqEQxRbyrqUzk9DTJIHoP42bfO5rswC9SWBQ==
 
 react-hook-form@^6.13.1:
   version "6.13.1"

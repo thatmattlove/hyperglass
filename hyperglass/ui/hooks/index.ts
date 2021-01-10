@@ -2,6 +2,7 @@ export * from './useASNDetail';
 export * from './useBooleanValue';
 export * from './useDevice';
 export * from './useDNSQuery';
+export * from './useGoogleAnalytics';
 export * from './useGreeting';
 export * from './useLGQuery';
 export * from './useLGState';
