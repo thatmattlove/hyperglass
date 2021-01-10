@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { Button, chakra, Icon, Stack, Text, VStack } from '@chakra-ui/react';
+import { Button, chakra, Stack, Text, VStack } from '@chakra-ui/react';
 import { useConfig, useColorValue } from '~/context';
 import { useStrf, useLGState, useDNSQuery } from '~/hooks';
 
@@ -24,7 +24,7 @@ function findAnswer(data: DnsOverHttps.Response | undefined): string {
   return answer;
 }
 
-export const ResolvedTarget = (props: TResolvedTarget) => {
+export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget) => {
   const { setTarget, errorClose } = props;
   const { web } = useConfig();
   const { displayTarget, isSubmitting, families, queryTarget } = useLGState();

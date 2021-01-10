@@ -1,9 +1,11 @@
-import type { State, InferredStateKeysType } from '@hookstate/core';
+/* eslint @typescript-eslint/explicit-module-boundary-types: off */
+/* eslint @typescript-eslint/no-explicit-any: off */
+import type { State } from '@hookstate/core';
 import type { TValidQueryTypes, TStringTableData, TQueryResponseString } from './data';
 import type { TSelectOption } from './common';
 import type { TQueryContent } from './config';
 
-export function isQueryType(q: any): q is TValidQueryTypes {
+export function isQueryType(q: unknown): q is TValidQueryTypes {
   let result = false;
   if (
     typeof q === 'string' &&
@@ -14,7 +16,7 @@ export function isQueryType(q: any): q is TValidQueryTypes {
   return result;
 }
 
-export function isString(a: any): a is string {
+export function isString(a: unknown): a is string {
   return typeof a === 'string';
 }
 

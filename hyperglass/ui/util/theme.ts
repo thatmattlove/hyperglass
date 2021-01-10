@@ -34,11 +34,11 @@ const defaultMonoFonts = [
   'monospace',
 ];
 
-export function isLight(color: string) {
+export function isLight(color: string): boolean {
   return readableColorIsBlack(color);
 }
 
-export function isDark(color: string) {
+export function isDark(color: string): boolean {
   return !readableColorIsBlack(color);
 }
 

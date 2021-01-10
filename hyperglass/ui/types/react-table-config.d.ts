@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import type {
   TableInstance,
   UseSortByHooks,

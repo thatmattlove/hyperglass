@@ -7,12 +7,6 @@ export function all<I extends unknown>(...iter: I[]): boolean {
   return true;
 }
 
-export function flatten<T extends unknown>(arr: any[][]): T[] {
-  return arr.reduce(function (flat, toFlatten) {
-    return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
-  }, []);
-}
-
 export function chunkArray<A extends unknown>(array: A[], size: number): A[][] {
   const result = [] as A[][];
   for (let i = 0; i < array.length; i += size) {

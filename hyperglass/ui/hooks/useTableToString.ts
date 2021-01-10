@@ -87,7 +87,7 @@ export function useTableToString(
             const [header, accessor, align] = field;
             if (align !== null) {
               let value = route[accessor];
-              const fmtFunc = getFmtFunc(accessor);
+              const fmtFunc = getFmtFunc(accessor) as (v: typeof value) => string;
               value = fmtFunc(value);
               if (accessor === 'prefix') {
                 tableStringParts.push(`  - ${header}: ${value}`);
