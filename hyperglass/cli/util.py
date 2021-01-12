@@ -1,15 +1,14 @@
 """CLI utility functions."""
+
 # Standard Library
 import os
-import shutil
-from typing import Iterable
 from pathlib import Path
 
 # Third Party
 from click import echo, style
 
 # Project
-from hyperglass.cli.echo import info, error, status, success, warning
+from hyperglass.cli.echo import info, error, status, success
 from hyperglass.cli.static import CL, NL, WS, E
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -28,50 +27,6 @@ def async_command(func):
         return loop.run_until_complete(func(*args, **kwargs))
 
     return update_wrapper(wrapper, func)
-
-
-def fix_ownership(user, group, directory):
-    """Make user & group the owner of the directory."""
-    # Standard Library
-    import os
-    import grp
-    import pwd
-
-    uid = pwd.getpwnam(user).pw_uid
-    gid = grp.getgrnam(group).gr_gid
-    try:
-        for root, dirs, files in os.walk(directory):
-            for d in dirs:
-                full_path = os.path.join(root, d)
-                os.chown(full_path, uid, gid)
-            for f in files:
-                full_path = os.path.join(root, f)
-                os.chown(full_path, uid, gid)
-            os.chown(root, uid, gid)
-    except Exception as e:
-        error("Failed to change '{d}' ownership: {e}", d="hyperglass/", e=e)
-
-    success("Successfully changed '{d}' ownership", d="hyperglass/")
-
-
-def fix_permissions(directory):
-    """Make directory readable by public."""
-    # Standard Library
-    import os
-
-    try:
-        for root, dirs, files in os.walk(directory):
-            for d in dirs:
-                full_path = os.path.join(root, d)
-                os.chmod(full_path, 0o744)
-            for f in files:
-                full_path = os.path.join(root, f)
-                os.chmod(full_path, 0o744)
-            os.chmod(root, 0o744)
-    except Exception as e:
-        error("Failed to change '{d}' ownership: {e}", d="hyperglass/", e=e)
-
-    success("Successfully changed '{d}' ownership", d="hyperglass/")
 
 
 def start_web_server(start, params):
@@ -104,63 +59,6 @@ def start_web_server(start, params):
 
     except Exception as e:
         error("Failed to start web server: {e}", e=e)
-
-
-def migrate_config(config_dir):
-    """Copy example config files and remove .example extensions."""
-    status("Migrating example config files...")
-
-    # Standard Library
-    import shutil
-
-    examples = Path(PROJECT_ROOT / "examples").glob("*.yaml.example")
-
-    if not isinstance(config_dir, Path):
-        config_dir = Path(config_dir)
-
-    if not config_dir.exists():
-        error("'{d}' does not exist", d=str(config_dir))
-
-    migrated = 0
-    for file in examples:
-        target_file = config_dir / file.with_suffix("").name
-        try:
-            if target_file.exists():
-                info("{f} already exists", f=str(target_file))
-            else:
-                shutil.copyfile(file, target_file)
-                migrated += 1
-                info("Migrated {f}", f=str(target_file))
-        except Exception as e:
-            error("Failed to migrate '{f}': {e}", f=str(target_file), e=e)
-
-    if migrated == 0:
-        info("Migrated {n} example config files", n=migrated)
-    elif migrated > 0:
-        success("Successfully migrated {n} example config files", n=migrated)
-
-
-def migrate_systemd(source, destination):
-    """Copy example systemd service file to /etc/systemd/system/."""
-    # Standard Library
-    import os
-    import shutil
-
-    basefile, extension = os.path.splitext(source)
-    newfile = os.path.join(destination, basefile)
-
-    try:
-        status("Migrating example systemd service...")
-
-        if os.path.exists(newfile):
-            info("'{f}' already exists", f=str(newfile))
-        else:
-            shutil.copyfile(source, newfile)
-
-    except Exception as e:
-        error("Error migrating example systemd service: {e}", e=e)
-
-    success("Successfully migrated systemd service to: {f}", f=str(newfile))
 
 
 def build_ui():
@@ -236,109 +134,6 @@ def create_dir(path, **kwargs):
     return True
 
 
-def move_files(src, dst, files):  # noqa: C901
-    """Move iterable of files from source to destination.
-
-    Arguments:
-        src {Path} -- Current directory of files
-        dst {Path} -- Target destination directory
-        files {Iterable} -- Iterable of files
-    """
-
-    if not isinstance(src, Path):
-        try:
-            src = Path(src)
-        except TypeError:
-            error("{p} is not a valid path", p=src)
-    if not isinstance(dst, Path):
-        try:
-            dst = Path(dst)
-        except TypeError:
-            error("{p} is not a valid path", p=dst)
-
-    if not isinstance(files, Iterable):
-        error(
-            "{fa} must be an iterable (list, tuple, or generator). Received {f}",
-            fa="Files argument",
-            f=files,
-        )
-
-    for path in (src, dst):
-        if not path.exists():
-            error("{p} does not exist", p=str(path))
-
-    migrated = 0
-
-    for file in files:
-        dst_file = dst / file.name
-
-        if not file.exists():
-            error("{f} does not exist", f=file)
-
-        try:
-            if dst_file.exists():
-                warning("{f} already exists", f=dst_file)
-            else:
-                shutil.copyfile(file, dst_file)
-                migrated += 1
-                info("Migrated {f}", f=dst_file)
-        except Exception as e:
-            error("Failed to migrate {f}: {e}", f=dst_file, e=e)
-
-    if migrated == 0:
-        warning("Migrated {n} files", n=migrated)
-    elif migrated > 0:
-        success("Successfully migrated {n} files", n=migrated)
-    return True
-
-
-def make_systemd(user):
-    """Generate a systemd file based on the local system.
-
-    Arguments:
-        user {str} -- User hyperglass needs to be run as
-
-    Returns:
-        {str} -- Generated systemd template
-    """
-
-    # Third Party
-    import distro
-
-    template = """
-[Unit]
-Description=hyperglass
-After=network.target
-Requires={redis_name}
-
-[Service]
-User={user}
-Group={group}
-ExecStart={hyperglass_path} start
-
-[Install]
-WantedBy=multi-user.target
-    """
-    known_rhel = ("rhel", "centos")
-    distro = distro.linux_distribution(full_distribution_name=False)
-    if distro[0] in known_rhel:
-        redis_name = "redis"
-    else:
-        redis_name = "redis-server"
-
-    hyperglass_path = shutil.which("hyperglass")
-
-    if not hyperglass_path:
-        hyperglass_path = "python3 -m hyperglass.console"
-        warning("hyperglass executable not found, using {h}", h=hyperglass_path)
-
-    systemd = template.format(
-        redis_name=redis_name, user=user, group=user, hyperglass_path=hyperglass_path
-    )
-    info(f"Generated systemd service:\n{systemd}")
-    return systemd
-
-
 def write_to_file(file, data):
     """Write string data to a file.
 
@@ -362,47 +157,6 @@ def write_to_file(file, data):
         error("Error writing file {f}", f=file)
     elif file.exists():
         success("Wrote systemd file {f}", f=file)
-    return True
-
-
-def migrate_static_assets(app_path):
-    """Migrate app's static assets to app_path.
-
-    Arguments:
-        app_path {Path} -- hyperglass runtime path
-    """
-    # Project
-    from hyperglass.util import migrate_static_assets as _migrate
-
-    migrated, msg, a, b = _migrate(app_path)
-    if not migrated:
-        callback = error
-    elif migrated:
-        callback = success
-
-    callback(msg, a=a, b=b)
-
-
-def install_systemd(app_path: Path) -> bool:
-    """Installs generated systemd file to system's systemd directory."""
-
-    service = app_path / "hyperglass.service"
-    systemd = Path("/etc/systemd/system")
-    installed = systemd / "hyperglass.service"
-
-    if not systemd.exists():
-        error("{e} does not exist. Unable to install systemd service.", e=systemd)
-
-    try:
-        installed.symlink_to(service)
-        if not installed.exists():
-            warning("Unable to symlink {s} to {d}", s=service, d=installed)
-        else:
-            success("Symlinked {s} to {d}", s=service, d=installed)
-
-    except PermissionError:
-        warning("Permission denied to {f}. Systemd service not installed.", f=installed)
-
     return True
 
 

@@ -258,44 +258,6 @@ async def move_files(src, dst, files):  # noqa: C901
     return migrated
 
 
-def migrate_static_assets(app_path):
-    """Synchronize the project assets with the installation assets."""
-
-    # Standard Library
-    from filecmp import dircmp
-
-    asset_dir = Path(__file__).parent.parent / "images"
-    target_dir = app_path / "static" / "images"
-
-    target_exists = target_dir.exists()
-
-    if not target_exists:
-        shutil.copytree(asset_dir, target_dir)
-
-    # Compare the contents of the project's asset directory (considered
-    # the source of truth) with the installation directory. If they do
-    # not match, delete the installation directory's asset directory and
-    # re-copy it.
-    compare_initial = dircmp(asset_dir, target_dir, ignore=[".DS_Store"])
-
-    if not compare_initial.left_list == compare_initial.right_list:
-        shutil.rmtree(target_dir)
-        shutil.copytree(asset_dir, target_dir)
-
-        # Re-compare the source and destination directory contents to
-        # ensure they match.
-        compare_post = dircmp(asset_dir, target_dir, ignore=[".DS_Store"])
-
-        if not compare_post.left_list == compare_post.right_list:
-            return (
-                False,
-                "Files in {a} do not match files in {b}",
-                str(asset_dir),
-                str(target_dir),
-            )
-    return (True, "Migrated assets from {a} to {b}", str(asset_dir), str(target_dir))
-
-
 async def check_node_modules():
     """Check if node_modules exists and has contents.
 

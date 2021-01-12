@@ -2,12 +2,10 @@
 
 # Standard Library
 import sys
-from getpass import getuser
 from pathlib import Path
 
 # Third Party
-import inquirer
-from click import group, option, confirm, help_option
+from click import group, option, help_option
 
 # Project
 from hyperglass.util import cpu_count
@@ -16,6 +14,7 @@ from hyperglass.util import cpu_count
 from .echo import error, label, success, cmd_help
 from .util import build_ui
 from .static import LABEL, CLI_HELP, E
+from .installer import Installer
 from .formatting import HelpColorsGroup, HelpColorsCommand, random_colors
 
 # Define working directory
@@ -98,12 +97,9 @@ def build_frontend():
 )
 def start(build, direct, workers):  # noqa: C901
     """Start web server and optionally build frontend assets."""
-    try:
-        # Project
-        from hyperglass.api import start as uvicorn_start
-        from hyperglass.main import start
-    except ImportError as e:
-        error("Error importing hyperglass: {}", str(e))
+    # Project
+    from hyperglass.api import start as uvicorn_start
+    from hyperglass.main import start
 
     kwargs = {}
     if workers != 0:
@@ -121,10 +117,13 @@ def start(build, direct, workers):  # noqa: C901
 
         if not build and not direct:
             start(**kwargs)
+
         elif not build and direct:
             uvicorn_start(**kwargs)
+
     except KeyboardInterrupt:
         error("Stopping hyperglass due to keyboard interrupt.")
+
     except BaseException as err:
         error(str(err))
 
@@ -167,64 +166,14 @@ def generate_secret(length):
 )
 def setup(unattended):
     """Define application directory, move example files, generate systemd service."""
-    # Project
-    from hyperglass.cli.util import (
-        create_dir,
-        make_systemd,
-        write_to_file,
-        install_systemd,
-        migrate_static_assets,
+
+    installer = Installer(unattended=unattended)
+    installer.install()
+
+    success(
+        """Completed hyperglass installation.
+After adding your hyperglass.yaml file, you should run the `hyperglass build-ui` command."""  # noqa: E501
     )
-
-    user_path = Path.home() / "hyperglass"
-    root_path = Path("/etc/hyperglass/")
-
-    install_paths = [
-        inquirer.List(
-            "install_path",
-            message="Choose a directory for hyperglass",
-            choices=[user_path, root_path],
-        )
-    ]
-    if not unattended:
-        answer = inquirer.prompt(install_paths)
-        if answer is None:
-            error("A directory for hyperglass is required")
-        install_path = answer["install_path"]
-
-    elif unattended:
-        install_path = user_path
-
-    ui_dir = install_path / "static" / "ui"
-    images_dir = install_path / "static" / "images"
-    favicon_dir = images_dir / "favicons"
-    custom_dir = install_path / "static" / "custom"
-
-    create_dir(install_path)
-
-    for path in (ui_dir, images_dir, custom_dir, favicon_dir):
-        create_dir(path, parents=True)
-
-    migrate_static_assets(install_path)
-
-    if install_path == user_path:
-        user = getuser()
-    else:
-        user = "root"
-
-    do_systemd = True
-    if not unattended and not confirm(
-        "Do you want to generate a systemd service file?"
-    ):
-        do_systemd = False
-
-    if do_systemd:
-        systemd_file = install_path / "hyperglass.service"
-        systemd = make_systemd(user)
-        write_to_file(systemd_file, systemd)
-        install_systemd(install_path)
-
-    build_ui()
 
 
 @hg.command(
