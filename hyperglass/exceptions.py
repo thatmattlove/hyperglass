@@ -1,18 +1,12 @@
 """Custom exceptions for hyperglass."""
 
 # Standard Library
-import sys
 import json as _json
 from typing import Dict, List, Union, Optional
-
-# Third Party
-from rich.console import Console
 
 # Project
 from hyperglass.log import log
 from hyperglass.constants import STATUS_CODE_MAP
-
-console = Console()
 
 
 def validation_error_message(*errors: Dict) -> str:
@@ -46,12 +40,6 @@ class HyperglassError(Exception):
             log.critical(repr(self))
         else:
             log.info(repr(self))
-
-        if all(sys.exc_info()):
-            # Rich will raise a ValueError if print_exception() is used
-            # outside of a try/except block. Only use Rich for traceback
-            # printing if the exception is caught.
-            console.print_exception(extra_lines=6)
 
     def __str__(self) -> str:
         """Return the instance's error message."""

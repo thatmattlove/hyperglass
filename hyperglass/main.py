@@ -112,7 +112,7 @@ def cache_config():
 def on_starting(server: Arbiter):
     """Gunicorn pre-start tasks."""
 
-    setup_lib_logging(params.debug)
+    setup_lib_logging()
 
     python_version = platform.python_version()
     required = ".".join((str(v) for v in MIN_PYTHON_VERSION))

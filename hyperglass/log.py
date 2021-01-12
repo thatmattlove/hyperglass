@@ -2,21 +2,18 @@
 
 # Standard Library
 import os
+import sys
 import logging
 from datetime import datetime
 
 # Third Party
 from loguru import logger as _loguru_logger
-from rich.theme import Theme
-from rich.console import Console
-from rich.logging import RichHandler
 
-_FMT_FILE = (
+_FMT = (
     "<lvl><b>[{level}]</b> {time:YYYYMMDD} {time:HH:mm:ss} <lw>|</lw> {name}<lw>:</lw>"
     "<b>{line}</b> <lw>|</lw> {function}</lvl> <lvl><b>→</b></lvl> {message}"
 )
 _DATE_FMT = "%Y%m%d %H:%M:%S"
-_FMT_STDOUT = "{message}"
 _FMT_BASIC = "{message}"
 _LOG_LEVELS = [
     {"name": "TRACE", "no": 5, "color": "<m>"},
@@ -28,33 +25,8 @@ _LOG_LEVELS = [
     {"name": "CRITICAL", "no": 50, "color": "<r>"},
 ]
 
-_RICH_THEME = Theme(
-    {
-        "logging.level.debug": "bold grey50",
-        "logging.level.info": "bold blue",
-        "logging.level.success": "bold green",
-        "logging.level.warning": "bold yellow",
-        "logging.level.error": "bold dark_goldenrod",
-        "logging.level.critical": "bold red",
-    }
-)
 
-_RICH_CONSOLE = Console(theme=_RICH_THEME, log_time_format=_DATE_FMT)
-
-
-def _get_rich(debug: bool = False) -> RichHandler:
-    rich_kwargs = {
-        "level": "INFO",
-        "markup": True,
-        "rich_tracebacks": True,
-        "console": _RICH_CONSOLE,
-    }
-    if debug:
-        rich_kwargs["level"] = "DEBUG"
-    return RichHandler(**rich_kwargs)
-
-
-def setup_lib_logging(debug: bool = False) -> None:
+def setup_lib_logging() -> None:
     """Override the logging handlers for dependency libraries."""
     for name in (
         "gunicorn",
@@ -68,13 +40,13 @@ def setup_lib_logging(debug: bool = False) -> None:
         "scrapli",
         "httpx",
     ):
-        logging.getLogger(name).handlers = [_get_rich(debug)]
+        _loguru_logger.bind(logger_name=name)
 
 
-def base_logger():
+def base_logger(level: str = "INFO"):
     """Initialize hyperglass logging instance."""
     _loguru_logger.remove()
-    _loguru_logger.add(_get_rich(), format=_FMT_BASIC, level="INFO", enqueue=True)
+    _loguru_logger.add(sys.stdout, format=_FMT, level=level, enqueue=True)
     _loguru_logger.configure(levels=_LOG_LEVELS)
     return _loguru_logger
 
@@ -97,9 +69,7 @@ def set_log_level(logger, debug):
     """Set log level based on debug state."""
     if debug:
         os.environ["HYPERGLASS_LOG_LEVEL"] = "DEBUG"
-        logger.remove()
-        logger.add(_get_rich(True), format=_FMT_BASIC, level="DEBUG", enqueue=True)
-        logger.configure(levels=_LOG_LEVELS)
+        base_logger("DEBUG")
 
     if debug:
         logger.debug("Debugging enabled")
@@ -139,7 +109,7 @@ def enable_file_logging(logger, log_directory, log_format, log_max_size):
 
     logger.add(
         log_file,
-        format=_FMT_FILE,
+        format=_FMT,
         rotation=log_max_size,
         serialize=structured,
         enqueue=True,

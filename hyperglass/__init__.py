@@ -36,19 +36,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
-# Standard Library
-import logging
-
 # Third Party
 import uvloop
 
 # Project
-from hyperglass.log import _get_rich
 from hyperglass.util import set_app_path
 from hyperglass.constants import METADATA
-
-# Set Rich as the default logging handler.
-logging.getLogger().handlers = [_get_rich(True)]
 
 # Find hyperglass application directory.
 set_app_path()
