@@ -22,7 +22,9 @@ To add, as an example, a Cisco router, add the following to your `devices.yaml`,
 routers:
   - name: router01.pop01
     address: 10.0.0.1
-    network: AS65000
+    network:
+      name: production
+      display_name: AS65000
     credential:
       username: username
       password: password
@@ -49,7 +51,7 @@ routers:
 | <R/> `nos`          | String  | Network Operating System. <MiniNote>Must be a <Link to="platforms">supported platform</Link>.</MiniNote>           |
 | `structured_output` | Boolean | Disabled output parsing to structured data.                                                                        |
 | <R/>`credential`    |         | [Device Credential Configuration](#credential)                                                                     |
-| <R/>`vrfs`          |         | [Device VRF Configuration](#vrfs)                                                                                   |
+| <R/>`vrfs`          |         | [Device VRF Configuration](#vrfs)                                                                                  |
 | `proxy`             |         | [SSH Proxy Configuration](#proxy)                                                                                  |
 | `ssl`               |         | [SSL Configuration](#ssl) for devices using [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent). |
 
