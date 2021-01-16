@@ -44,18 +44,6 @@ You'll receive the following prompts:
 
 hyperglass requires a directory on your system to store configuration files, the web UI, logos, etc. You may choose between the current user's home directory or `/etc`.
 
-### Systemd Service
-
-```shell-session
-Do you want to generate a systemd service file? [y/N]:
-```
-
-hyperglass also includes a [systemd](https://systemd.io/) service file, which can be installed if you use systemd. If selected, a systemd service file will be generated and copied to the installation directory. Then, it will be symlinked to `/etc/systemd/system`. All you need to do to enable the service is run:
-
-```shell-session
-$ sudo systemctl enable hyperglass
-```
-
 ## UI Build
 
 After running the setup, the `build-ui` command needs to be run for the first time. This command creates the required file structure for the UI, initializes frontend dependencies, and generates favicons.
@@ -80,3 +68,7 @@ hyperglass won't start without a `devices.yaml` file. See the [Adding Devices](a
 ```shell-session
 $ hyperglass start
 ```
+
+:::tip Production
+Remember to check the [Production](production.mdx) section for instructions on how to run hyperglass in production. It includes instructions and examples for setting up a Reverse Proxy (such as NGINX or Caddy), and running hyperglass as a system service with systemd.
+:::

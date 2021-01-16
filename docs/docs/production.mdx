@@ -33,6 +33,53 @@ However, at build time, there are some fairly memory-intensive tasks which _will
 
 At **build**, hyperglass consumes approximately **196 MB** of storage. 194 MB of this is front-end dependencies, which are downloaded and installed when running a UI build. The other 2 MB is the hyperglass code itself. Once again, the minimum system requirements for most Linux distributions should be sufficient.
 
+## systemd
+
+More than likely, you'll want to run hyperglass as a background system service. [systemd](https://systemd.io/) is one of the most common ways of running services on Linux. To run hyperglass as a systemd service, create a file named `hyperglass.service` in your [installation directory](setup.mdx#installation-directory) and add following to it:
+
+```ini
+[Unit]
+Description=hyperglass
+After=network.target
+Requires=redis-server
+# Replace the above with Requires=redis for CentOS
+
+[Service]
+User=<user or root>
+Group=<user or root>
+ExecStart=<path to hyperglass> start
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Replace `<user or root>` with whichever user you're running hyperglass as. For example, if you're running hyperglass as a non-root user, you probably used `pip3 install hyperglass` (without `sudo`) to install hyperglass, and you're probably using `~/hyperglass` as your installation directory. However, if you're running hyperglass as root, you probably used `sudo pip3 install hyperglass` to install hyperglass, and you're probably using `/etc/hyperglass` as your installation directory.
+
+Systemd requires an absolute path for executables. This means you can't just put `hyperglass start` in the `ExecStart` field, it needs to be the full path. The easiest way to get this is to run `which hyperglass`, which will output the full path. It should look something like `/home/username/.local/bin/hyperglass` or `/usr/local/bin/hyperglass`.
+
+After adding the file, run the following:
+
+```bash
+# Replace <systemd file> with the path to the systemd file you just created.
+sudo ln -s <systemd file> /etc/systemd/system/hyperglass.service
+
+# Tell systemd to re-look at its service files, since you just added one.
+sudo systemctl daemon-reload
+
+# Tell systemd to run hyperglass on system startup.
+sudo systemctl enable hyperglass
+
+# Start the hyperglass service.
+sudo systemctl start hyperglass
+
+# Check the status of the hyperglass service.
+sudo systemctl status hyperglass
+```
+
+:::important Checking the status
+The first time hyperglass starts up, it will run through a UI build process, which will take a little time. You may have to wait a couple of minutes in between each check on hyperglass's status.
+:::
+
 ## Reverse Proxy
 
 You'll want to run hyperglass behind a reverse proxy in production to serve the static files more efficiently and offload SSL. Any reverse proxy should work, but hyperglass has been specifically tested with [Caddy](https://caddyserver.com/) and [NGINX](https://www.nginx.com/). Sample configs for both can be found below.

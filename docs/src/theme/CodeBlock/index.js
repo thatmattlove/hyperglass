@@ -22,7 +22,7 @@ import styles from "./styles.module.css";
 
 const highlightLinesRangeRegex = /{([\d,-]+)}/;
 const getHighlightDirectiveRegex = (
-  languages = ["js", "jsBlock", "jsx", "python", "html"]
+  languages = ["js", "jsBlock", "jsx", "python", "html", "ini"]
 ) => {
   // supported types of comments
   const comments = {
@@ -46,6 +46,7 @@ const getHighlightDirectiveRegex = (
       start: "<!--",
       end: "-->",
     },
+    ini: { start: "#", end: "" },
   };
   // supported directives
   const directives = [
@@ -82,6 +83,8 @@ const highlightDirectiveRegex = (lang) => {
     case "python":
     case "py":
       return getHighlightDirectiveRegex(["python"]);
+    case "ini":
+      return getHighlightDirectiveRegex(["ini"]);
 
     default:
       // all comment types
@@ -94,6 +97,7 @@ export default ({ children, className: languageClassName, metastring }) => {
   (typeof global !== "undefined" ? global : window).Prism = Prism;
   require("prismjs/components/prism-shell-session");
   require("prismjs/components/prism-nginx");
+  require("prismjs/components/prism-ini");
   const {
     siteConfig: {
       themeConfig: { prism = {} },
