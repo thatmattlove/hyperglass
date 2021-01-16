@@ -2,7 +2,7 @@
 
 # Standard Library
 import re
-from typing import Dict, Iterable
+from typing import Dict, List, Iterable, Generator
 
 # Third Party
 import xmltodict
@@ -14,32 +14,41 @@ from hyperglass.exceptions import ParsingError, ResponseEmpty
 from hyperglass.configuration import params
 from hyperglass.models.parsing.juniper import JuniperRoute
 
+REMOVE_PATTERNS = (
+    # The XML response can a CLI banner appended to the end of the XML
+    # string. For example:
+    # ```
+    # <rpc-reply>
+    # ...
+    # <cli>
+    #   <banner>{master}</banner>
+    # </cli>
+    # </rpc-reply>
+    #
+    # {master} noqa: E800
+    # ```
+    #
+    # This pattern will remove anything inside braces, including the braces.
+    r"\{.+\}",
+)
+
 
 def clean_xml_output(output: str) -> str:
     """Remove Juniper-specific patterns from output."""
-    patterns = (
-        """
-        The XML response can a CLI banner appended to the end of the XML
-        string. For example:
 
-        ```
-        <rpc-reply>
-        ...
-        <cli>
-          <banner>{master}</banner>
-        </cli>
-        </rpc-reply>
+    def scrub(lines: List[str]) -> Generator[str, None, None]:
+        """Clean & remove each pattern from each line."""
+        for pattern in REMOVE_PATTERNS:
+            for line in lines:
+                # Remove the pattern & strip extra newlines
+                scrubbed = re.sub(pattern, "", line.strip())
+                # Only return non-empty and non-newline lines
+                if scrubbed and scrubbed != "\n":
+                    yield scrubbed
 
-        {master}
-        ```
+    lines = scrub(output.splitlines())
 
-        This pattern will remove anything inside braces, including the braces.
-        """
-        r"\{.+\}",
-    )
-    lines = (line.strip() for line in output.split())
-    scrubbed_lines = (re.sub(pat, "", line) for pat in patterns for line in lines)
-    return "\n".join(scrubbed_lines)
+    return "\n".join(lines)
 
 
 def parse_juniper(output: Iterable) -> Dict:  # noqa: C901
@@ -48,6 +57,7 @@ def parse_juniper(output: Iterable) -> Dict:  # noqa: C901
 
     for i, response in enumerate(output):
         cleaned = clean_xml_output(response)
+
         try:
             parsed = xmltodict.parse(
                 cleaned, force_list=("rt", "rt-entry", "community")
