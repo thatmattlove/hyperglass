@@ -63,9 +63,10 @@ FUNC_COLOR_MAP = {
 TRANSPORT_REST = ("frr", "bird")
 
 SCRAPE_HELPERS = {
+    "mikrotik": "mikrotik_routeros",
+    "juniper_junos": "juniper",
     "junos": "juniper",
     "ios": "cisco_ios",
-    "mikrotik": "mikrotik_routeros",
     "tsnr": "tnsr",
 }
 

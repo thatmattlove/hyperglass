@@ -8,7 +8,7 @@ from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
-from pydantic import StrictInt, StrictStr, StrictBool, validator
+from pydantic import StrictInt, StrictStr, StrictBool, validator, root_validator
 
 # Project
 from hyperglass.log import log
@@ -113,26 +113,6 @@ class Device(HyperglassModel):
 
         return value
 
-    @validator("nos")
-    def supported_nos(cls, value):
-        """Validate that nos is supported by hyperglass.
-
-        Raises:
-            UnsupportedDevice: Raised if nos is unsupported.
-
-        Returns:
-            {str} -- Valid NOS
-        """
-        if value in SCRAPE_HELPERS.keys():
-            value = SCRAPE_HELPERS[value]
-
-        supported, _ = validate_nos(value)
-
-        if not supported:
-            raise UnsupportedDevice('"{nos}" is not supported.', nos=value)
-
-        return value
-
     @validator("ssl")
     def validate_ssl(cls, value, values):
         """Set default cert file location if undefined.
@@ -154,18 +134,43 @@ class Device(HyperglassModel):
                 value.cert = cert_file
         return value
 
-    @validator("commands", always=True)
-    def validate_commands(cls, value: str, values: "Device") -> str:
-        """If a named command profile is not defined, use the NOS name."""
-        if value is None:
-            value = values["nos"]
+    @root_validator(pre=True)
+    def validate_nos_commands(cls, values: "Device") -> "Device":
+        """Validate & rewrite NOS, set default commands."""
+
+        nos = values.get("nos", "")
+        if not nos:
+            # Ensure nos is defined.
+            raise ValueError(
+                f'Device {values["name"]} is missing a `nos` (Network Operating System).'
+            )
+
+        if nos in SCRAPE_HELPERS.keys():
+            # Rewrite NOS to helper value if needed.
+            nos = SCRAPE_HELPERS[nos]
+
+        # Verify NOS is supported by hyperglass.
+        supported, _ = validate_nos(nos)
+        if not supported:
+            raise UnsupportedDevice('"{nos}" is not supported.', nos=nos)
+
+        values["nos"] = nos
+
+        commands = values.get("commands")
+
+        if commands is None:
+            # If no commands are defined, set commands to the NOS.
+            inferred = values["nos"]
 
             # If the _telnet prefix is added, remove it from the command
             # profile so the commands are the same regardless of
             # protocol.
-            if "_telnet" in value:
-                value = value.replace("_telnet", "")
-        return value
+            if "_telnet" in inferred:
+                inferred = inferred.replace("_telnet", "")
+
+            values["commands"] = inferred
+
+        return values
 
     @validator("vrfs", pre=True)
     def validate_vrfs(cls, value, values):
