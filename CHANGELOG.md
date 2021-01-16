@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta72 - 2021-01-16
+
+### Fixed
+- [#104](https://github.com/checktheroads/hyperglass/issues/104): Handle the usage of `juniper_junos` as a NOS. `juniper_junos` will now automatically be mapped to `juniper`.
+- Fix an issue with dual RP juniper devices and structured output, where output containing `{master}` outside of the XML output was improperly stripped out, causing a parsing failure.
+
+### Changed
+- **BREAKING**: The installer no longer generates a Systemd service file. While this was likely convenient for most, it introduced significant complexity and caused most installations using `~/hyperglass` as the app path to fail, with no clear way to resolve it. Further, while Systemd is arguably the most common, it is not the *only* process manager available. As such, the docs will be updated with a Systemd example, much like the current reverse proxy documentation.
+
 ## 1.0.0-beta71 - 2021-01-10
 
 ### Added
