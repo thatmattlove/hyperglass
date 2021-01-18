@@ -13,6 +13,8 @@ METADATA = (__name__, __version__, __author__, __copyright__, __license__)
 
 MIN_PYTHON_VERSION = (3, 6)
 
+MIN_NODE_VERSION = 14
+
 TARGET_FORMAT_SPACE = ("huawei", "huawei_vrpv8")
 
 TARGET_JUNIPER_ASPATH = ("juniper", "juniper_junos")

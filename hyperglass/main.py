@@ -12,18 +12,27 @@ from gunicorn.arbiter import Arbiter
 from gunicorn.app.base import BaseApplication
 from gunicorn.glogging import Logger
 
-# Project
-from hyperglass.log import log, setup_lib_logging
-from hyperglass.constants import MIN_PYTHON_VERSION, __version__
+# Local
+from .log import log, setup_lib_logging
+from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
+from .util.frontend import get_node_version
 
+# Ensure the Python version meets the minimum requirements.
 pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
 if sys.version_info < MIN_PYTHON_VERSION:
     raise RuntimeError(f"Python {pretty_version}+ is required.")
 
-# Project
-from hyperglass.cache import SyncCache
+# Ensure the NodeJS version meets the minimum requirements.
+node_version = get_node_version()
 
-from hyperglass.configuration import (  # isort:skip
+if node_version != MIN_NODE_VERSION:
+    raise RuntimeError(f"NodeJS {MIN_NODE_VERSION}+ is required.")
+
+
+# Local
+from .cache import SyncCache
+
+from .configuration import (  # isort:skip
     params,
     URL_DEV,
     URL_PROD,
@@ -31,12 +40,14 @@ from hyperglass.configuration import (  # isort:skip
     REDIS_CONFIG,
     frontend_params,
 )
-from hyperglass.util import (  # isort:skip
+from .util import (  # isort:skip
     cpu_count,
     build_frontend,
     clear_redis_cache,
     format_listen_address,
 )
+
+
 from hyperglass.compat._asyncio import aiorun  # isort:skip
 
 if params.debug:

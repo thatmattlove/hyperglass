@@ -16,7 +16,7 @@ per-file-ignores=
     # Disable unused import warning for modules
     hyperglass/*/__init__.py:F401
     hyperglass/models/*/__init__.py:F401
-ignore=W503,C0330,R504,D202,S403,S301
+ignore=W503,C0330,R504,D202,S403,S301,S404
 select=B, BLK, C, D, E, F, I, II, N, P, PIE, S, R, W
 disable-noqa=False
 hang-closing=False
