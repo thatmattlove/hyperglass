@@ -13,7 +13,9 @@ class _IPv4(CommandSet):
     bgp_aspath: StrictStr = '/show router bgp routes aspath-regex {target}'
     bgp_route: StrictStr = "/show router bgp routes {target} ipv4 hunt"
     ping: StrictStr = "/ping {target} source-address {source}"
-    traceroute: StrictStr = "/traceroute {target} source-address {source} wait 2 seconds"
+    traceroute: StrictStr = (
+                  "/traceroute {target} source-address {source} wait 2 seconds"
+    )
 
 
 class _IPv6(CommandSet):
@@ -22,7 +24,10 @@ class _IPv6(CommandSet):
     bgp_aspath: StrictStr = '/show router bgp routes aspath-regex {target}'
     bgp_route: StrictStr = "/show router bgp routes {target} ipv6 hunt"
     ping: StrictStr = "/ping {target} source-address {source}"
-    traceroute: StrictStr = "/traceroute {target} source-address {source} wait 2 seconds"
+    traceroute: StrictStr = (
+                  "/traceroute {target} source-address {source} wait 2 seconds"
+    )
+
 
 class _VPNIPv4(CommandSet):
     """Default commands for dual afi commands."""
@@ -30,7 +35,10 @@ class _VPNIPv4(CommandSet):
     bgp_aspath: StrictStr = '/show router bgp routes aspath-regex {target}'
     bgp_route: StrictStr = "/show router bgp routes {target} vpn-ipv4 hunt"
     ping: StrictStr = "/ping {target} source-address {source}"
-    traceroute: StrictStr = "/traceroute {target} source-address {source} wait 2 seconds"
+    traceroute: StrictStr = (
+                  "/traceroute {target} source-address {source} wait 2 seconds"
+    )
+
 
 class _VPNIPv6(CommandSet):
     """Default commands for dual afi commands."""
@@ -38,7 +46,10 @@ class _VPNIPv6(CommandSet):
     bgp_aspath: StrictStr = '/show router bgp routes aspath-regex {target}'
     bgp_route: StrictStr = "/show router bgp routes {target} vpn-ipv6 hunt"
     ping: StrictStr = "/ping {target} source-address {source}"
-    traceroute: StrictStr = "/traceroute {target} source-address {source} wait 2 seconds"
+    traceroute: StrictStr = (
+                  "/traceroute {target} source-address {source} wait 2 seconds"
+    )
+
 
 class NokiaSROSCommands(CommandGroup):
     """Validation model for default nokia_sros commands."""
