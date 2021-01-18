@@ -51,6 +51,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
     - Huawei
     - Juniper JunOS
     - Mikrotik
+    - Nokia SR OS
     - TNSR
     - VyOS
 - Configurable support for any other [supported platform](https://hyperglass.io/docs/platforms)

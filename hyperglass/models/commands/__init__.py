@@ -11,6 +11,7 @@ from .juniper import JuniperCommands
 from .cisco_xr import CiscoXRCommands
 from .cisco_ios import CiscoIOSCommands
 from .cisco_nxos import CiscoNXOSCommands
+from .nokia_sros import NokiaSROSCommands
 from .mikrotik_routeros import MikrotikRouterOS
 from .mikrotik_switchos import MikrotikSwitchOS
 
@@ -23,6 +24,7 @@ _NOS_MAP = {
     "juniper": JuniperCommands,
     "mikrotik_routeros": MikrotikRouterOS,
     "mikrotik_switchos": MikrotikSwitchOS,
+    "nokia_sros": NokiaSROSCommands,
     "tnsr": TNSRCommands,
     "vyos": VyosCommands,
 }
@@ -39,6 +41,7 @@ class Commands(HyperglassModelExtra):
     huawei: CommandGroup = HuaweiCommands()
     mikrotik_routeros: CommandGroup = MikrotikRouterOS()
     mikrotik_switchos: CommandGroup = MikrotikSwitchOS()
+    nokia_sros: CommandGroup = NokiaSROSCommands()
     tnsr: CommandGroup = TNSRCommands()
     vyos: CommandGroup = VyosCommands()
 
