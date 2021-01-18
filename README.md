@@ -53,6 +53,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
     - Mikrotik
     - TNSR
     - VyOS
+    - Nokia SR OS
 - Configurable support for any other [supported platform](https://hyperglass.io/docs/platforms)
 - Optionally access devices via an SSH proxy/jump server
 - VRF support
