@@ -13,6 +13,7 @@ from .cisco_ios import CiscoIOSCommands
 from .cisco_nxos import CiscoNXOSCommands
 from .mikrotik_routeros import MikrotikRouterOS
 from .mikrotik_switchos import MikrotikSwitchOS
+from .nokia_sros import NokiaSROSCommands
 
 _NOS_MAP = {
     "arista": AristaCommands,
@@ -25,6 +26,7 @@ _NOS_MAP = {
     "mikrotik_switchos": MikrotikSwitchOS,
     "tnsr": TNSRCommands,
     "vyos": VyosCommands,
+    "nokia_sros": NokiaSROSCommands,
 }
 
 
@@ -41,6 +43,7 @@ class Commands(HyperglassModelExtra):
     mikrotik_switchos: CommandGroup = MikrotikSwitchOS()
     tnsr: CommandGroup = TNSRCommands()
     vyos: CommandGroup = VyosCommands()
+    nokia_sros: CommandGroup = NokiaSROSCommands()
 
     @classmethod
     def import_params(cls, **input_params):
