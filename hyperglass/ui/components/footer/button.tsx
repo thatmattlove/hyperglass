@@ -14,6 +14,7 @@ export const FooterButton: React.FC<TFooterButton> = (props: TFooterButton) => {
   return (
     <Menu placement={placement} preventOverflow isLazy>
       <MenuButton
+        zIndex={2}
         as={Button}
         size={size}
         variant="ghost"
@@ -25,9 +26,12 @@ export const FooterButton: React.FC<TFooterButton> = (props: TFooterButton) => {
         px={6}
         py={4}
         bg={bg}
+        // Ensure the height doesn't overtake the viewport, especially on mobile. See overflow also.
+        maxH="50vh"
         color={color}
         boxShadow="2xl"
         textAlign="left"
+        overflowY="auto"
         mx={{ base: 1, lg: 2 }}
         maxW={{ base: '100%', lg: '50vw' }}
         {...rest}
