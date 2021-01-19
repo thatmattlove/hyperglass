@@ -18,7 +18,7 @@
   },
   "browserslist": "> 0.25%, not dead",
   "dependencies": {
-    "@chakra-ui/react": "^1.1.0",
+    "@chakra-ui/react": "^1.1.5",
     "@emotion/react": "^11.1.4",
     "@emotion/styled": "^11.0.0",
     "@hookform/resolvers": "^1.2.0",

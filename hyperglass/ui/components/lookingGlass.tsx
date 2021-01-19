@@ -6,12 +6,12 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
   If,
-  AnimatedForm,
   FormRow,
   QueryVrf,
   FormField,
   HelpModal,
   QueryType,
+  AnimatedDiv,
   QueryTarget,
   SubmitButton,
   QueryLocation,
@@ -232,10 +232,11 @@ export const LookingGlass: React.FC = () => {
 
   return (
     <FormProvider {...formInstance}>
-      <AnimatedForm
+      <AnimatedDiv
         p={0}
         my={4}
         w="100%"
+        as="form"
         mx="auto"
         textAlign="left"
         animate={{ opacity: 1, y: 0 }}
@@ -287,7 +288,7 @@ export const LookingGlass: React.FC = () => {
             <SubmitButton handleChange={handleChange} />
           </Flex>
         </FormRow>
-      </AnimatedForm>
+      </AnimatedDiv>
     </FormProvider>
   );
 };
