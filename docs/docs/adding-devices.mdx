@@ -45,7 +45,7 @@ routers:
 | :------------------ | :-----: | :----------------------------------------------------------------------------------------------------------------- |
 | <R/> `name`         | String  | Device hostname. This is not user-facing.                                                                          |
 | <R/> `address`      | String  | Device management hostname or IP address.                                                                          |
-| <R/> `network`      | String  | Primary network this device is a member of. Used for device grouping. Usually something like 'AS65000'.            |
+| <R/> `network`      | String  | [Network Configuration](#network)                                                                                  |
 | <R/> `display_name` | String  | Device's user-facing name.                                                                                         |
 | <R/> `port`         | Integer | TCP port used to connect to the device.                                                                            |
 | <R/> `nos`          | String  | Network Operating System. <MiniNote>Must be a <Link to="platforms">supported platform</Link>.</MiniNote>           |
@@ -54,6 +54,15 @@ routers:
 | <R/>`vrfs`          |         | [Device VRF Configuration](#vrfs)                                                                                  |
 | `proxy`             |         | [SSH Proxy Configuration](#proxy)                                                                                  |
 | `ssl`               |         | [SSL Configuration](#ssl) for devices using [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent). |
+
+### `network`
+
+A network is only used for grouping. For example, if your network contains more than one ASN, you might want to group each device separately. Currently, you must define a network on each device.
+
+| Parameter           |  Type  | Description                                                          |
+| :------------------ | :----: | :------------------------------------------------------------------- |
+| <R/> `name`         | String | The network's name. This name is only used by hyperglass internally. |
+| <R/> `display_name` | String | The network's use-facing name.                                       |
 
 ### `proxy`
 
