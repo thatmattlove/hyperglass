@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta74 - 2021-01-25
+
+### Changed
+- The Scrapli driver no longer specifically ignores the system's SSH config file.
+- Updated UI dependencies.
+
+### Fixed
+- [#109](https://github.com/checktheroads/hyperglass/issues/109): Remove the custom error page, because it doesn't work and doesn't really add much.
+
 ## 1.0.0-beta73 - 2021-01-18
 
 ### Added
