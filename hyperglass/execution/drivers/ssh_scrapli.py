@@ -89,7 +89,6 @@ class ScrapliConnection(SSHConnection):
             "transport": "asyncssh",
             "auth_strict_key": False,
             "ssh_known_hosts_file": False,
-            "ssh_config_file": False,
             **global_args,
         }
 
