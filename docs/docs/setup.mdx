@@ -42,24 +42,24 @@ You'll receive the following prompts:
    /etc/hyperglass
 ```
 
-hyperglass requires a directory on your system to store configuration files, the web UI, logos, etc. You may choose between the current user's home directory or `/etc`.
+hyperglass requires a directory on your system to store configuration files, the web UI, logos, etc. You may choose between the current user's home directory or `/etc` (use the up/down arrow keys).
 
 ## UI Build
 
 After running the setup, the `build-ui` command needs to be run for the first time. This command creates the required file structure for the UI, initializes frontend dependencies, and generates favicons.
 
-:::note
-If your system's compute resources are too low, the `build-ui` step will likely fail. See the [system requirements](production.mdx) section for more information.
+:::caution
+If your system's compute resources are too low, the `build-ui` step will likely fail. You can use the `--timeout` flag to increase the default timeout of 180 seconds. You can also set the environment variable `HYPERGLASS_UI_BUILD_TIMEOUT` for the same result. See the [system requirements](production.mdx) section for more information about system resources.
 :::
 
 ```shell-session
 $ hyperglass build-ui
-✅ Completed UI build in development mode
+✅ Completed UI build in production mode
 ```
 
 ## Startup
 
-To start hyperglass at the console run `hyperglass start`.
+To start hyperglass from the console run `hyperglass start`.
 
 :::important
 hyperglass won't start without a `devices.yaml` file. See the [Adding Devices](adding-devices.mdx) section for instructions on how add devices.
