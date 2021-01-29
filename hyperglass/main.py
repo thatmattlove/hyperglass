@@ -29,26 +29,21 @@ if node_version != MIN_NODE_VERSION:
     raise RuntimeError(f"NodeJS {MIN_NODE_VERSION}+ is required.")
 
 
-# Local
-from .cache import SyncCache
+# Project
+from hyperglass.compat._asyncio import aiorun
 
-from .configuration import (  # isort:skip
-    params,
+# Local
+from .util import cpu_count, clear_redis_cache, format_listen_address
+from .cache import SyncCache
+from .configuration import (
     URL_DEV,
     URL_PROD,
     CONFIG_PATH,
     REDIS_CONFIG,
+    params,
     frontend_params,
 )
-from .util import (  # isort:skip
-    cpu_count,
-    build_frontend,
-    clear_redis_cache,
-    format_listen_address,
-)
-
-
-from hyperglass.compat._asyncio import aiorun  # isort:skip
+from .util.frontend import build_frontend
 
 if params.debug:
     workers = 1
@@ -84,12 +79,8 @@ def check_redis_instance() -> bool:
     return True
 
 
-async def build_ui():
-    """Perform a UI build prior to starting the application.
-
-    Returns:
-        {bool} -- True if successful.
-    """
+async def build_ui() -> bool:
+    """Perform a UI build prior to starting the application."""
     await build_frontend(
         dev_mode=params.developer_mode,
         dev_url=URL_DEV,
@@ -109,7 +100,7 @@ async def clear_cache():
         pass
 
 
-def cache_config():
+def cache_config() -> bool:
     """Add configuration to Redis cache as a pickled object."""
     # Standard Library
     import pickle

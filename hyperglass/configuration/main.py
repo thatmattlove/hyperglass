@@ -17,13 +17,14 @@ from hyperglass.log import (
     enable_file_logging,
     enable_syslog_logging,
 )
-from hyperglass.util import check_path, set_app_path, set_cache_env, current_log_level
+from hyperglass.util import set_app_path, set_cache_env, current_log_level
 from hyperglass.constants import (
     SUPPORTED_QUERY_TYPES,
     PARSED_RESPONSE_FIELDS,
     __version__,
 )
 from hyperglass.exceptions import ConfigError, ConfigMissing
+from hyperglass.util.files import check_path
 from hyperglass.models.commands import Commands
 from hyperglass.models.config.params import Params
 from hyperglass.models.config.devices import Devices
