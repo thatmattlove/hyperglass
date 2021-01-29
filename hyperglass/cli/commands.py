@@ -64,13 +64,10 @@ def hg():
 @hg.command(
     "build-ui", help=cmd_help(E.BUTTERFLY, "Create a new UI build", supports_color)
 )
-def build_frontend():
-    """Create a new UI build.
-
-    Raises:
-        click.ClickException: Raised on any errors.
-    """
-    return build_ui()
+@option("-t", "--timeout", required=False, default=180, help="Timeout in seconds")
+def build_frontend(timeout):
+    """Create a new UI build."""
+    return build_ui(timeout)
 
 
 @hg.command(  # noqa: C901
@@ -121,7 +118,7 @@ def start(build, direct, workers):  # noqa: C901
         elif not build and direct:
             uvicorn_start(**kwargs)
 
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
         error("Stopping hyperglass due to keyboard interrupt.")
 
     except BaseException as err:

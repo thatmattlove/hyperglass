@@ -14,7 +14,7 @@ from hyperglass.cli.static import CL, NL, WS, E
 PROJECT_ROOT = Path(__file__).parent.parent
 
 
-def async_command(func):
+def async_command(func) -> None:
     """Decororator for to make async functions runable from synchronous code."""
     # Standard Library
     import asyncio
@@ -61,21 +61,17 @@ def start_web_server(start, params):
         error("Failed to start web server: {e}", e=e)
 
 
-def build_ui():
-    """Create a new UI build.
-
-    Raises:
-        ClickException: Raised on any errors.
-    """
+def build_ui(timeout: int) -> None:
+    """Create a new UI build."""
     try:
         # Project
-        from hyperglass.util import build_frontend
         from hyperglass.configuration import CONFIG_PATH, params, frontend_params
+        from hyperglass.util.frontend import build_frontend
         from hyperglass.compat._asyncio import aiorun
     except ImportError as e:
         error("Error importing UI builder: {e}", e=e)
 
-    status("Starting new UI build...")
+    status("Starting new UI build with a {t} second timeout...", t=timeout)
 
     if params.developer_mode:
         dev_mode = "development"
@@ -102,7 +98,7 @@ def build_ui():
     return True
 
 
-def create_dir(path, **kwargs):
+def create_dir(path, **kwargs) -> bool:
     """Validate and attempt to create a directory, if it does not exist."""
 
     # If input path is not a path object, try to make it one
@@ -134,16 +130,8 @@ def create_dir(path, **kwargs):
     return True
 
 
-def write_to_file(file, data):
-    """Write string data to a file.
-
-    Arguments:
-        file {Path} -- File path
-        data {str} -- String data to write
-
-    Returns:
-        {bool} -- True if successful
-    """
+def write_to_file(file, data) -> bool:
+    """Write string data to a file."""
     try:
         with file.open("w+") as f:
             f.write(data.strip())
@@ -160,12 +148,8 @@ def write_to_file(file, data):
     return True
 
 
-def system_info():
-    """Create a markdown table of various system information.
-
-    Returns:
-        {str}: Markdown table
-    """
+def system_info() -> bool:
+    """Create a markdown table of various system information."""
     # Project
     from hyperglass.util.system_info import get_system_info
 

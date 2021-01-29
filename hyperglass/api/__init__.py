@@ -268,4 +268,4 @@ def start(**kwargs):
     try:
         uvicorn.run("hyperglass.api:app", **ASGI_PARAMS, **kwargs)
     except KeyboardInterrupt:
-        sys.exit(1)
+        sys.exit(0)
