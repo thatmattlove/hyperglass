@@ -1,14 +1,12 @@
-import { useMemo } from 'react';
 import { Box, Flex, SkeletonText, Badge, VStack } from '@chakra-ui/react';
 import ReactFlow from 'react-flow-renderer';
 import { Background, ReactFlowProvider } from 'react-flow-renderer';
 import { Handle, Position } from 'react-flow-renderer';
-import { useConfig, useColorValue, useColorToken, useBreakpointValue } from '~/context';
+import { useConfig, useColorValue, useColorToken } from '~/context';
 import { useASNDetail } from '~/hooks';
 import { Controls } from './controls';
-import { buildElements } from './util';
+import { useElements } from './useElements';
 
-import type { ReactFlowProps } from 'react-flow-renderer';
 import type { TChart, TNode, TNodeData } from './types';
 
 export const Chart: React.FC<TChart> = (props: TChart) => {
@@ -17,19 +15,17 @@ export const Chart: React.FC<TChart> = (props: TChart) => {
 
   const dots = useColorToken('colors', 'blackAlpha.500', 'whiteAlpha.400');
 
-  const flowProps = useBreakpointValue<Omit<ReactFlowProps, 'elements'>>({
-    base: { defaultPosition: [0, 300], defaultZoom: 0 },
-    lg: { defaultPosition: [100, 300], defaultZoom: 0.7 },
-  }) ?? { defaultPosition: [100, 300], defaultZoom: 0.7 };
-
-  const elements = useMemo(() => [...buildElements({ asn: primary_asn, name: org_name }, data)], [
-    data,
-  ]);
+  const elements = useElements({ asn: primary_asn, name: org_name }, data);
 
   return (
     <ReactFlowProvider>
       <Box boxSize="100%" zIndex={1}>
-        <ReactFlow elements={elements} nodeTypes={{ ASNode }} {...flowProps}>
+        <ReactFlow
+          snapToGrid
+          elements={elements}
+          nodeTypes={{ ASNode }}
+          onLoad={inst => setTimeout(() => inst.fitView(), 0)}
+        >
           <Background color={dots} />
           <Controls />
         </ReactFlow>

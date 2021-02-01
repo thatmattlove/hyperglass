@@ -5,13 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.0.0-beta75 - 2021-01-28
+## 1.0.0-beta.77 - 2021-02-01
+
+### Fixed
+- AS Path graph view now uses [dagre](https://github.com/dagrejs/dagre) to properly arrange each AS.
+
+## 1.0.0-beta.75 - 2021-01-28
 
 ### Changed
 - Default UI build timeout is now 180 seconds.
 - The hyperglass `build-ui` CLI command now accepts a `--timeout` argument to override the UI build timeout.
 
-## 1.0.0-beta74 - 2021-01-25
+## 1.0.0-beta.74 - 2021-01-25
 
 ### Changed
 - The Scrapli driver no longer specifically ignores the system's SSH config file.
@@ -20,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - [#109](https://github.com/checktheroads/hyperglass/issues/109): Remove the custom error page, because it doesn't work and doesn't really add much.
 
-## 1.0.0-beta73 - 2021-01-18
+## 1.0.0-beta.73 - 2021-01-18
 
 ### Added
 - [#106](https://github.com/checktheroads/hyperglass/issues/106): Add built-in support for Nokia SR OS (thanks @paunadeu!).
@@ -32,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - [#107](https://github.com/checktheroads/hyperglass/issues/107): Fix footer menu styling so it doesn't overflow the viewport, especially on mobile.
 
-## 1.0.0-beta72 - 2021-01-16
+## 1.0.0-beta.72 - 2021-01-16
 
 ### Fixed
 - [#104](https://github.com/checktheroads/hyperglass/issues/104): Handle the usage of `juniper_junos` as a NOS. `juniper_junos` will now automatically be mapped to `juniper`.
@@ -41,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **BREAKING**: The installer no longer generates a Systemd service file. While this was likely convenient for most, it introduced significant complexity and caused most installations using `~/hyperglass` as the app path to fail, with no clear way to resolve it. Further, while Systemd is arguably the most common, it is not the *only* process manager available. As such, the docs will be updated with a Systemd example, much like the current reverse proxy documentation.
 
-## 1.0.0-beta71 - 2021-01-10
+## 1.0.0-beta.71 - 2021-01-10
 
 ### Added
 - Added Google Analytics Support. Use the `google_analytics` field for the tracking ID in `hyperglass.yaml`.
@@ -49,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Minor frontend code improvements.
 
-## 1.0.0-beta70 - 2021-01-05
+## 1.0.0-beta.70 - 2021-01-05
 
 ### Fixed
 
@@ -58,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Query results now automatically cancel when each result panel unmounts (e.g. when one clicks the back button).
 
-## 1.0.0-beta69 - 2021-01-03
+## 1.0.0-beta.69 - 2021-01-03
 
 ### Fixed
 
@@ -69,14 +74,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Setup no longer adds example files
 
-## 1.0.0-beta67 - 2021-01-02
+## 1.0.0-beta.67 - 2021-01-02
 
 ### Fixed
 
 - Fix handling of `web.theme.default_color_mode`. Starting in 1.0.0-beta.65, it was completely ignored and used the library's default of `light`. Now, it's handled properly.
 - Fix table output layout issues, particularly on mobile.
 
-## 1.0.0-beta66 - 2021-01-02
+## 1.0.0-beta.66 - 2021-01-02
 
 ### Fixed
 
@@ -87,7 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `web.theme.colors.black` and `web.theme.colors.white` are now `web.theme.colors.dark` and `web.theme.colors.light respectively`
 
-## 1.0.0-beta65 - 2021-01-01
+## 1.0.0-beta.65 - 2021-01-01
 
 ### Added
 
@@ -102,7 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `web.text.title` and `web.text.subtitle` now carry a 32 character limit for simpler styling.
 - Various UI layout, styling improvements, and stability improvements.
 
-## 1.0.0-beta63 - 2020-10-18
+## 1.0.0-beta.63 - 2020-10-18
 
 ### Added
 
@@ -112,13 +117,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix an issue causing hyperglass custom exceptions to not be properly raised, which caused more generic error messages in the UI/API.
 
-## 1.0.0-beta62 - 2020-10-17
+## 1.0.0-beta.62 - 2020-10-17
 
 ### Fixed
 
 - Fix an issue causing exceptions not to be logged to the log file (but logged to stdout).
 
-## 1.0.0-beta61 - 2020-10-11
+## 1.0.0-beta.61 - 2020-10-11
 
 ### POTENTIALLY BREAKING CHANGE
 
@@ -132,7 +137,7 @@ When hyperglass starts up, it will check to see if `~/hyperglass` or `/etc/hyper
 
 - [#81](https://github.com/checktheroads/hyperglass/issues/81): Add support for SSH key authentication. See [the docs](https://hyperglass.io/docs/adding-devices#credential) for more details.
 
-## 1.0.0-beta60 - 2020-10-10
+## 1.0.0-beta.60 - 2020-10-10
 
 ### Fixed
 
@@ -154,7 +159,7 @@ This would correspond with the following stanza in the Redis configuration file:
 requirepass examplepassword
 ```
 
-## 1.0.0-beta59 - 2020-10-05
+## 1.0.0-beta.59 - 2020-10-05
 
 ### Added
 
@@ -166,7 +171,7 @@ requirepass examplepassword
 - Improve output parsing scalability - parsers can now be defined on a per-NOS basis regardless of whether or not structured-data is used.
 - Restructure model locations & importing to remove some complexities.
 
-## 1.0.0-beta58 - 2020-09-28
+## 1.0.0-beta.58 - 2020-09-28
 
 ### Changed
 
@@ -183,7 +188,7 @@ requirepass examplepassword
 - [#77](https://github.com/checktheroads/hyperglass/issues/77): Allow dashes in FQDN validation pattern.
 - [#83](https://github.com/checktheroads/hyperglass/issues/83): Fix lack of support for `protocol-nh` field in Juniper XML BGP table.
 
-## 1.0.0-beta57 - 2020-07-30
+## 1.0.0-beta.57 - 2020-07-30
 
 ### BREAKING CHANGE
 
@@ -201,7 +206,7 @@ $ hyperglass-agent send-certificate
 - Refactored device, query, proxy models to no longer scrub unsupported characters from the device name for the purposes of Python class attribute accessing.
 - Updated hyperglass-agent docs.
 
-## 1.0.0-beta56 - 2020-07-28
+## 1.0.0-beta.56 - 2020-07-28
 
 ### Changed
 
@@ -212,19 +217,19 @@ $ hyperglass-agent send-certificate
 
 - [#56](https://github.com/checktheroads/hyperglass/issues/56): Fix a silent Redis connection error if the Redis server was anything other than `localhost`, preventing hyperglass from starting.
 
-## 1.0.0-beta55 - 2020-07-27
+## 1.0.0-beta.55 - 2020-07-27
 
 ### Changed
 
 - Removed JS favicon build process in favor of native Python implementation ([favicons](https://github/checktheroads/favicons))
 
-## 1.0.0-beta54 - 2020-07-25
+## 1.0.0-beta.54 - 2020-07-25
 
 ### Fixed
 
 - Queries to hyperglass-agent devices failed due to the error `AttributeError: 'AgentConnection' object has no attribute 'collect'`
 
-## 1.0.0-beta53 - 2020-07-23
+## 1.0.0-beta.53 - 2020-07-23
 
 ### Added
 
@@ -240,7 +245,7 @@ $ hyperglass-agent send-certificate
 
 - UI: Error messages couldn't be copied with the copy button
 
-## 1.0.0-beta52 - 2020-07-19
+## 1.0.0-beta.52 - 2020-07-19
 
 ### Added
 
@@ -264,7 +269,7 @@ $ hyperglass-agent send-certificate
 - Improve command customization docs.
 - [#61](https://github.com/checktheroads/hyperglass/issues/61): Fixed copy output for table data. Output is now a bulleted list of parsed data.
 
-## 1.0.0-beta51 - 2020-07-13
+## 1.0.0-beta.51 - 2020-07-13
 
 ### Changed
 
@@ -276,7 +281,7 @@ $ hyperglass-agent send-certificate
 - [#54](https://github.com/checktheroads/hyperglass/issues/54): A Junos parsing error caused routes with no communities to raise an error.
 - Pre-validated config files are no longer logged on startup unless debugging is enabled.
 
-## 1.0.0-beta50 - 2020-07-12
+## 1.0.0-beta.50 - 2020-07-12
 
 ### Added
 
@@ -296,7 +301,7 @@ $ hyperglass-agent send-certificate
 - [#54](https://github.com/checktheroads/hyperglass/issues/54): A Junos structured/table output parsing error caused routes with multiple next-hops to raise an error.
 - RPKI validation no longer occurs twice (once on serialization of the output, once on validation of the API response).
 
-## 1.0.0-beta49 - 2020-07-05
+## 1.0.0-beta.49 - 2020-07-05
 
 ### Changed
 
@@ -308,7 +313,7 @@ $ hyperglass-agent send-certificate
 
 - Route lookups for private (RFC 1918) addresses failed due to an unnecessary lookup to [bgp.tools](https://bgp.tools)
 
-## 1.0.0-beta48 - 2020-07-04
+## 1.0.0-beta.48 - 2020-07-04
 
 ### Added
 
@@ -320,7 +325,7 @@ $ hyperglass-agent send-certificate
 - When copying the opengraph image, the copied image was not deleted.
 - Default traceroute help link now _actually_ points to the new docs site.
 
-## 1.0.0-beta47 - 2020-07-04
+## 1.0.0-beta.47 - 2020-07-04
 
 ### Added
 
@@ -341,13 +346,13 @@ $ hyperglass-agent send-certificate
 - Generated favicon manifest files now go to the correct directory.
 - Various docs site fixes
 
-## 1.0.0-beta46 - 2020-06-28
+## 1.0.0-beta.46 - 2020-06-28
 
 ### Added
 
 - Support for hyperglass-agent [0.1.5](https://github.com/checktheroads/hyperglass-agent)
 
-## 1.0.0-beta45 - 2020-06-27
+## 1.0.0-beta.45 - 2020-06-27
 
 ### Changed
 
@@ -358,7 +363,7 @@ $ hyperglass-agent send-certificate
 - Webhook construction bugs that caused webhooks not to send
 - Empty response handling for table output
 
-## 1.0.0-beta44 - 2020-06-26
+## 1.0.0-beta.44 - 2020-06-26
 
 ### Added
 
@@ -368,13 +373,13 @@ $ hyperglass-agent send-certificate
 
 - If webhooks were enabled, a hung test connection to RIPEStat would cause the query to time out
 
-## 1.0.0-beta43 - 2020-06-22
+## 1.0.0-beta.43 - 2020-06-22
 
 ### Fixed
 
 - Logo path handling in UI
 
-## 1.0.0-beta42 - 2020-06-21
+## 1.0.0-beta.42 - 2020-06-21
 
 ### Added
 

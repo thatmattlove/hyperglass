@@ -1,11 +1,11 @@
 import {
   Modal,
+  Skeleton,
   ModalBody,
   ModalHeader,
   ModalOverlay,
   ModalContent,
   useDisclosure,
-  Skeleton,
   ModalCloseButton,
 } from '@chakra-ui/react';
 import { useColorValue, useBreakpointValue } from '~/context';

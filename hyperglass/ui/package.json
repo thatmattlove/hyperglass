@@ -26,6 +26,7 @@
     "@hookstate/persistence": "^3.0.0",
     "@meronex/icons": "^4.0.0",
     "color2k": "^1.1.1",
+    "dagre": "^0.8.5",
     "dayjs": "^1.8.25",
     "framer-motion": "^3.2.2-rc.1",
     "lodash": "^4.17.15",
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@hookstate/devtools": "^3.0.0",
+    "@types/dagre": "^0.7.44",
     "@types/node": "^14.14.17",
     "@types/react": "^17.0.0",
     "@types/react-select": "^3.0.28",
