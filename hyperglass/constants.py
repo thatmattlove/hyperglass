@@ -74,12 +74,14 @@ SCRAPE_HELPERS = {
 
 DRIVER_MAP = {
     "arista_eos": "scrapli",
+    "bird_ssh": "scrapli",
     "cisco_ios": "scrapli",
     "cisco_xe": "scrapli",
     "cisco_xr": "scrapli",
     "cisco_nxos": "scrapli",
     "juniper": "scrapli",
     "tnsr": "scrapli",
+    "frr_ssh": "scrapli",
     "frr": "hyperglass_agent",
     "bird": "hyperglass_agent",
 }

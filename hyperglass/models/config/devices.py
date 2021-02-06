@@ -50,7 +50,7 @@ class Device(HyperglassModel):
     credential: Credential
     proxy: Optional[Proxy]
     display_name: StrictStr
-    port: StrictInt
+    port: StrictInt = 22
     ssl: Optional[Ssl]
     nos: StrictStr
     commands: Optional[StrictStr]

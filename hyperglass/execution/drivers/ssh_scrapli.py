@@ -38,9 +38,11 @@ from .ssh import SSHConnection
 
 SCRAPLI_DRIVER_MAP = {
     "arista_eos": AsyncEOSDriver,
+    "bird_ssh": AsyncGenericDriver,
     "cisco_ios": AsyncIOSXEDriver,
     "cisco_nxos": AsyncNXOSDriver,
     "cisco_xr": AsyncIOSXRDriver,
+    "frr_ssh": AsyncGenericDriver,
     "juniper": AsyncJunosDriver,
     "tnsr": AsyncGenericDriver,
 }

@@ -1,6 +1,7 @@
 """Validate command configuration variables."""
 
 # Local
+from .frr import FRRCommands
 from .tnsr import TNSRCommands
 from .vyos import VyosCommands
 from ..main import HyperglassModelExtra
@@ -14,12 +15,15 @@ from .cisco_nxos import CiscoNXOSCommands
 from .nokia_sros import NokiaSROSCommands
 from .mikrotik_routeros import MikrotikRouterOS
 from .mikrotik_switchos import MikrotikSwitchOS
+from .bird import BIRDCommands
 
 _NOS_MAP = {
     "arista": AristaCommands,
+    "bird_ssh": BIRDCommands,
     "cisco_ios": CiscoIOSCommands,
     "cisco_nxos": CiscoNXOSCommands,
     "cisco_xr": CiscoXRCommands,
+    "frr_ssh": FRRCommands,
     "huawei": HuaweiCommands,
     "juniper": JuniperCommands,
     "mikrotik_routeros": MikrotikRouterOS,
@@ -33,12 +37,14 @@ _NOS_MAP = {
 class Commands(HyperglassModelExtra):
     """Base class for command definitions."""
 
-    juniper: CommandGroup = JuniperCommands()
     arista: CommandGroup = AristaCommands()
+    bird_ssh: CommandGroup = BIRDCommands()
     cisco_ios: CommandGroup = CiscoIOSCommands()
-    cisco_xr: CommandGroup = CiscoXRCommands()
     cisco_nxos: CommandGroup = CiscoNXOSCommands()
+    cisco_xr: CommandGroup = CiscoXRCommands()
+    frr_ssh: CommandGroup = FRRCommands()
     huawei: CommandGroup = HuaweiCommands()
+    juniper: CommandGroup = JuniperCommands()
     mikrotik_routeros: CommandGroup = MikrotikRouterOS()
     mikrotik_switchos: CommandGroup = MikrotikSwitchOS()
     nokia_sros: CommandGroup = NokiaSROSCommands()
