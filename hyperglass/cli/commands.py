@@ -105,7 +105,7 @@ def start(build, direct, workers):  # noqa: C901
     try:
 
         if build:
-            build_complete = build_ui()
+            build_complete = build_ui(timeout=180)
 
             if build_complete and not direct:
                 start(**kwargs)
