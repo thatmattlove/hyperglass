@@ -5,10 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.0.0-beta.77 - 2021-02-01
+## 1.0.0-beta.76 - 2021-02-06
+
+**NOTICE**: *[hyperglass-agent](https://github.com/checktheroads/hyperglass-agent) will be deprecated soon. Use `frr_ssh` or `bird_ssh` for SSH connectivity in the meantime.*
+
+### Added
+- FRR & BIRD may now be accessed via standard SSH using the `frr_ssh` and `bird_ssh` NOS. [See the docs](https://hyperglass.io/docs/platforms#caveats) for important caveats.
+
+### Changed
+- `port` in `devices.yaml` now defaults to 22 if not specified.
 
 ### Fixed
 - AS Path graph view now uses [dagre](https://github.com/dagrejs/dagre) to properly arrange each AS.
+- Added timeout argument to `hyperglass start --build` - fixes issue where running a UI build in this way failed due to a missing timeout argument error.
 
 ## 1.0.0-beta.75 - 2021-01-28
 
