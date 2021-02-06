@@ -4,7 +4,7 @@
 from datetime import datetime
 
 __name__ = "hyperglass"
-__version__ = "1.0.0-beta.75"
+__version__ = "1.0.0-beta.76"
 __author__ = "Matt Love"
 __copyright__ = f"Copyright {datetime.now().year} Matthew Love"
 __license__ = "BSD 3-Clause Clear License"
@@ -74,12 +74,14 @@ SCRAPE_HELPERS = {
 
 DRIVER_MAP = {
     "arista_eos": "scrapli",
+    "bird_ssh": "scrapli",
     "cisco_ios": "scrapli",
     "cisco_xe": "scrapli",
     "cisco_xr": "scrapli",
     "cisco_nxos": "scrapli",
     "juniper": "scrapli",
     "tnsr": "scrapli",
+    "frr_ssh": "scrapli",
     "frr": "hyperglass_agent",
     "bird": "hyperglass_agent",
 }
