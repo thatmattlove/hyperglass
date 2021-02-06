@@ -11,8 +11,12 @@ description: Platforms supported by hyperglass
 
 The following platforms use [hyperglass-agent](agent/installation.mdx) for connection handling. When configuring the `nos` property of a device, use the value in the **Key** column.
 
+:::caution hyperglass agent is being deprecated
+While hyperglass-agent was a cool idea, maintaining the two codebases and protocol sets has proven cumbersome, with very little benefit. As of **v1.0.0-beta.76**, `frr_ssh` and `bird_ssh` are available for use as replacements.
+:::
+
 | Name      | Key    |
-| --------- | ------ |
+| :-------- | :----- |
 | BIRD      | `bird` |
 | FRRouting | `frr`  |
 
@@ -21,7 +25,7 @@ The following platforms use [hyperglass-agent](agent/installation.mdx) for conne
 The following platforms use [Netmiko](https://github.com/ktbyers/netmiko) or [Scrapli](https://github.com/carlmontanari/scrapli) for connection handling. When configuring the `nos` property of a device, use the value in the **Key** column.
 
 | Name                      | Key                   |
-| ------------------------- | --------------------- |
+| :------------------------ | :-------------------- |
 | A10                       | `a10`                 |
 | Accedian                  | `accedian`            |
 | Alcatel AOS               | `alcatel_aos`         |
@@ -31,6 +35,7 @@ The following platforms use [Netmiko](https://github.com/ktbyers/netmiko) or [Sc
 | Aruba                     | `aruba_os`            |
 | Avaya ERS                 | `avaya_ers`           |
 | Avaya VSP                 | `avaya_vsp`           |
+| BIRD                      | `bird_ssh`            |
 | Calix B6                  | `calix_b6`            |
 | Check Point GAiA          | `checkpoint_gaia`     |
 | Ciena SAOS                | `ciena_saos`          |
@@ -65,6 +70,7 @@ The following platforms use [Netmiko](https://github.com/ktbyers/netmiko) or [Sc
 | F5 Linux                  | `f5_linux`            |
 | Flex VNF                  | `flexvnf`             |
 | Fortinet                  | `fortinet`            |
+| FRRouting                 | `frr_ssh`             |
 | Generic Terminal Server   | `generic_termserver`  |
 | HPE/3COM Comware          | `hp_comware`          |
 | HPE ProCurve              | `hp_procurve`         |
@@ -97,3 +103,17 @@ The following platforms use [Netmiko](https://github.com/ktbyers/netmiko) or [Sc
 | Ubuiquiti EdgeSwitch      | `ubiquiti_edgeswitch` |
 | Vyatta VyOS               | `vyatta_vyos`         |
 | VyOS                      | `vyos`                |
+
+## Caveats
+
+### BIRD
+
+If using BIRD, more specifically [`bird_ssh`](platforms.mdx), you'll more than likely need to provide hyperglass with credentials that have root privileges. This is because, to my knowledge, the socket `birdc` uses is created by root. Therefore, if hyperglass runs the `birdc` commands as an unprivileged user, they will fail with a permissions error.
+
+### FRRouting
+
+The user account you provide hyperglass in the `credential` field needs to be a member of the `frrvty` group. See [the FRR docs](http://docs.frrouting.org/en/latest/vtysh.html) for more detail.
+
+### VyOS
+
+As of `vyos-1.3-rolling-202007050117` which is the latest release VyOS has been tested with hyperglass, VyOS does not support BGP or other dynamic routing protocols in a VRF. As such, the default BGP commands for VyOS **omit the VRF from the command**.
