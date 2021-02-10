@@ -11,7 +11,7 @@ from click import group, option, help_option
 from hyperglass.util import cpu_count
 
 # Local
-from .echo import error, label, success, cmd_help
+from .echo import error, label, success, warning, cmd_help
 from .util import build_ui
 from .static import LABEL, CLI_HELP, E
 from .installer import Installer
@@ -118,7 +118,10 @@ def start(build, direct, workers):  # noqa: C901
         elif not build and direct:
             uvicorn_start(**kwargs)
 
-    except (KeyboardInterrupt, SystemExit):
+    except (KeyboardInterrupt, SystemExit) as err:
+        error_message = str(err)
+        if (len(error_message)) > 1:
+            warning(str(err))
         error("Stopping hyperglass due to keyboard interrupt.")
 
     except BaseException as err:
