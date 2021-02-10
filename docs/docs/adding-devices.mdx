@@ -20,7 +20,7 @@ To add, as an example, a Cisco router, add the following to your `devices.yaml`,
 
 ```yaml title="devices.yaml"
 routers:
-  - name: router01.pop01
+  - name: New York City, NY
     address: 10.0.0.1
     network:
       name: production
@@ -28,7 +28,6 @@ routers:
     credential:
       username: username
       password: password
-    display_name: Phoenix, AZ
     port: 22
     nos: cisco_ios
     vrfs:
@@ -43,10 +42,9 @@ routers:
 
 | Parameter           |  Type   | Description                                                                                                        |
 | :------------------ | :-----: | :----------------------------------------------------------------------------------------------------------------- |
-| <R/> `name`         | String  | Device hostname. This is not user-facing.                                                                          |
+| <R/> `name`         | String  | Device's user-facing name.                                                                                         |
 | <R/> `address`      | String  | Device management hostname or IP address.                                                                          |
 | <R/> `network`      | String  | [Network Configuration](#network)                                                                                  |
-| <R/> `display_name` | String  | Device's user-facing name.                                                                                         |
 | <R/> `port`         | Integer | TCP port used to connect to the device. `22` by default.                                                           |
 | <R/> `nos`          | String  | Network Operating System. <MiniNote>Must be a <Link to="platforms">supported platform</Link>.</MiniNote>           |
 | `structured_output` | Boolean | Disabled output parsing to structured data.                                                                        |
@@ -208,8 +206,7 @@ Below is a full example with nearly every available knob turned:
 ```yaml title="devices.yaml"
 routers:
   # HTTP/hyperglass-agent device
-  - name: router01
-    display_name: HTTP Router
+  - name: HTTP Router
     address: 192.0.2.1
     network:
       name: primary
@@ -242,7 +239,7 @@ routers:
     proxy: null
 
   # SSH/netmiko device
-  - name: router02
+  - name: SSH Router
     address: 10.0.0.1
     network:
       name: primary
@@ -250,7 +247,6 @@ routers:
     credential:
       username: user
       password: pass
-    display_name: SSH Router
     port: 22
     nos: cisco_ios
     vrfs:
