@@ -45,7 +45,7 @@ export const Results: React.FC = () => {
                   <Result
                     index={i}
                     device={device}
-                    key={device.name}
+                    key={device._id}
                     queryLocation={loc.value}
                     queryVrf={queryVrf.value}
                     queryType={queryType.value}

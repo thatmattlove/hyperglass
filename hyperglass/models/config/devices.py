@@ -3,12 +3,19 @@
 # Standard Library
 import os
 import re
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, List, Tuple, Union, Optional
 from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
-from pydantic import StrictInt, StrictStr, StrictBool, validator, root_validator
+from pydantic import (
+    StrictInt,
+    StrictStr,
+    StrictBool,
+    PrivateAttr,
+    validator,
+    root_validator,
+)
 
 # Project
 from hyperglass.log import log
@@ -41,15 +48,43 @@ _default_vrf = {
 }
 
 
+def find_device_id(values: Dict) -> Tuple[str, Dict]:
+    """Generate device id & handle legacy display_name field."""
+
+    def generate_id(name: str) -> str:
+        scrubbed = re.sub(r"[^A-Za-z0-9\_\-\s]", "", name)
+        return "_".join(scrubbed.split()).lower()
+
+    name = values.pop("name", None)
+
+    if name is None:
+        raise ValueError("name is required.")
+
+    legacy_display_name = values.pop("display_name", None)
+
+    if legacy_display_name is not None:
+        log.warning(
+            "The 'display_name' field is deprecated. Use the 'name' field instead."
+        )
+        device_id = generate_id(legacy_display_name)
+        display_name = legacy_display_name
+    else:
+        device_id = generate_id(name)
+        display_name = name
+
+    return device_id, {"name": display_name, "display_name": None, **values}
+
+
 class Device(HyperglassModel):
     """Validation model for per-router config in devices.yaml."""
 
+    _id: StrictStr = PrivateAttr()
     name: StrictStr
     address: Union[IPv4Address, IPv6Address, StrictStr]
     network: Network
     credential: Credential
     proxy: Optional[Proxy]
-    display_name: StrictStr
+    display_name: Optional[StrictStr]
     port: StrictInt = 22
     ssl: Optional[Ssl]
     nos: StrictStr
@@ -58,6 +93,12 @@ class Device(HyperglassModel):
     display_vrfs: List[StrictStr] = []
     vrf_names: List[StrictStr] = []
     structured_output: Optional[StrictBool]
+
+    def __init__(self, **kwargs) -> None:
+        """Set the device ID."""
+        _id, values = find_device_id(kwargs)
+        super().__init__(**values)
+        self._id = _id
 
     def __hash__(self) -> int:
         """Make device object hashable so the object can be deduplicated with set()."""
@@ -245,6 +286,7 @@ class Device(HyperglassModel):
 class Devices(HyperglassModelExtra):
     """Validation model for device configurations."""
 
+    _ids: List[StrictStr] = []
     hostnames: List[StrictStr] = []
     vrfs: List[StrictStr] = []
     display_vrfs: List[StrictStr] = []
@@ -272,6 +314,7 @@ class Devices(HyperglassModelExtra):
         all_nos = set()
         objects = set()
         hostnames = set()
+        _ids = set()
 
         init_kwargs = {}
 
@@ -284,6 +327,7 @@ class Devices(HyperglassModelExtra):
             # list with `devices.hostnames`, same for all router
             # classes, for when iteration over all routers is required.
             hostnames.add(device.name)
+            _ids.add(device._id)
             objects.add(device)
             all_nos.add(device.commands)
 
@@ -320,19 +364,20 @@ class Devices(HyperglassModelExtra):
 
         # Convert the de-duplicated sets to a standard list, add lists
         # as class attributes. Sort router list by router name attribute
+        init_kwargs["_ids"] = list(_ids)
         init_kwargs["hostnames"] = list(hostnames)
         init_kwargs["all_nos"] = list(all_nos)
         init_kwargs["vrfs"] = list(vrfs)
         init_kwargs["display_vrfs"] = list(vrfs)
         init_kwargs["vrf_objects"] = list(vrf_objects)
-        init_kwargs["objects"] = sorted(objects, key=lambda x: x.display_name)
+        init_kwargs["objects"] = sorted(objects, key=lambda x: x.name)
 
         super().__init__(**init_kwargs)
 
     def __getitem__(self, accessor: str) -> Device:
         """Get a device by its name."""
         for device in self.objects:
-            if device.name == accessor:
+            if device._id == accessor:
                 return device
 
         raise AttributeError(f"No device named '{accessor}'")

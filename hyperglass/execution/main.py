@@ -51,7 +51,7 @@ async def execute(query: Query) -> Union[str, Sequence[Dict]]:
 
     timeout_args = {
         "unformatted_msg": params.messages.connection_error,
-        "device_name": query.device.display_name,
+        "device_name": query.device.name,
         "error": params.messages.request_timeout,
     }
 
@@ -73,9 +73,7 @@ async def execute(query: Query) -> Union[str, Sequence[Dict]]:
     output = await driver.parsed_response(response)
 
     if output == "" or output == "\n":
-        raise ResponseEmpty(
-            params.messages.no_output, device_name=query.device.display_name
-        )
+        raise ResponseEmpty(params.messages.no_output, device_name=query.device.name)
 
     log.debug("Output for query: {}:\n{}", query.json(), repr(output))
     signal.alarm(0)

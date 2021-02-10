@@ -136,7 +136,7 @@ class Query(BaseModel):
         """Create dictionary representation of instance."""
         if pretty:
             items = {
-                "query_location": self.device.display_name,
+                "query_location": self.device.name,
                 "query_type": self.query.display_name,
                 "query_vrf": self.query_vrf.display_name,
                 "query_target": str(self.query_target),
@@ -189,7 +189,7 @@ class Query(BaseModel):
         Returns:
             {str} -- Valid query_location
         """
-        if value not in devices.hostnames:
+        if value not in devices._ids:
             raise InputInvalid(
                 params.messages.invalid_field,
                 level="warning",
@@ -222,7 +222,7 @@ class Query(BaseModel):
             raise InputInvalid(
                 params.messages.vrf_not_associated,
                 vrf_name=vrf_object.display_name,
-                device_name=device.display_name,
+                device_name=device.name,
             )
         return device_vrf
 

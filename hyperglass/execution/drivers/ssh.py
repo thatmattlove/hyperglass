@@ -54,7 +54,7 @@ class SSHConnection(Connection):
                 )
                 raise ScrapeError(
                     params.messages.connection_error,
-                    device_name=self.device.display_name,
+                    device_name=self.device.name,
                     proxy=proxy.name,
                     error=str(scrape_proxy_error),
                 )

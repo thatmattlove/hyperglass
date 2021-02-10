@@ -114,9 +114,9 @@ export interface TDeviceVrf extends TDeviceVrfBase {
 }
 
 interface TDeviceBase {
+  _id: string;
   name: string;
   network: string;
-  display_name: string;
 }
 
 export interface TDevice extends TDeviceBase {

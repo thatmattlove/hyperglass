@@ -13,7 +13,7 @@ export function useDevice(): TUseDevice {
   const devices = useMemo(() => networks.map(n => n.locations).flat(), []);
 
   function getDevice(id: string): TDevice {
-    return devices.filter(dev => dev.name === id)[0];
+    return devices.filter(dev => dev._id === id)[0];
   }
 
   return useCallback(getDevice, []);

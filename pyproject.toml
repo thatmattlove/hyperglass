@@ -47,7 +47,7 @@ netmiko = "^3.3.2"
 paramiko = "^2.7.1"
 psutil = "^5.7.2"
 py-cpuinfo = "^7.0.0"
-pydantic = "^1.4"
+pydantic = "^1.7.3"
 python = ">=3.6.1,<4.0"
 redis = "^3.5.3"
 scrapli = {extras = ["asyncssh"], version = "^2020.9.26"}

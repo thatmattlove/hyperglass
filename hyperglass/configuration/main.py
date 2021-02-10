@@ -189,52 +189,6 @@ except KeyError:
     pass
 
 
-def _build_frontend_networks():
-    """Build filtered JSON structure of networks for frontend.
-
-    Schema:
-    {
-        "device.network.display_name": {
-            "device.name": {
-                "display_name": "device.display_name",
-                "vrfs": [
-                    "Global",
-                    "vrf.display_name"
-                ]
-            }
-        }
-    }
-
-    Raises:
-        ConfigError: Raised if parsing/building error occurs.
-
-    Returns:
-        {dict} -- Frontend networks
-    """
-    frontend_dict = {}
-    for device in devices.objects:
-        if device.network.display_name in frontend_dict:
-            frontend_dict[device.network.display_name].update(
-                {
-                    device.name: {
-                        "display_name": device.network.display_name,
-                        "vrfs": [vrf.display_name for vrf in device.vrfs],
-                    }
-                }
-            )
-        elif device.network.display_name not in frontend_dict:
-            frontend_dict[device.network.display_name] = {
-                device.name: {
-                    "display_name": device.network.display_name,
-                    "vrfs": [vrf.display_name for vrf in device.vrfs],
-                }
-            }
-    frontend_dict["default_vrf"] = devices.default_vrf
-    if not frontend_dict:
-        raise ConfigError(error_msg="Unable to build network to device mapping")
-    return frontend_dict
-
-
 def _build_frontend_devices():
     """Build filtered JSON structure of devices for frontend.
 
@@ -310,8 +264,8 @@ def _build_networks():
             if device.network.display_name == _network:
                 network_def["locations"].append(
                     {
+                        "_id": device._id,
                         "name": device.name,
-                        "display_name": device.display_name,
                         "network": device.network.display_name,
                         "vrfs": [
                             {
@@ -417,7 +371,6 @@ content_credit = CREDIT.format(version=__version__)
 
 vrfs = _build_vrfs()
 networks = _build_networks()
-frontend_networks = _build_frontend_networks()
 frontend_devices = _build_frontend_devices()
 _include_fields = {
     "cache": {"show_text", "timeout"},
@@ -443,7 +396,6 @@ _frontend_params.update(
     {
         "hyperglass_version": __version__,
         "queries": {**params.queries.map, "list": params.queries.list},
-        "devices": frontend_devices,
         "networks": networks,
         "vrfs": vrfs,
         "parsed_data_fields": PARSED_RESPONSE_FIELDS,

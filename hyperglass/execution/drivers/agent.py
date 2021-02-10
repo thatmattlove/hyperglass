@@ -42,7 +42,7 @@ class AgentConnection(Connection):
                     raise RestError(
                         "SSL Certificate for device {d} has not been imported",
                         level="danger",
-                        d=self.device.display_name,
+                        d=self.device.name,
                     )
             http_protocol = "https"
             client_params.update({"verify": str(self.device.ssl.cert)})
@@ -90,8 +90,7 @@ class AgentConnection(Connection):
 
                     elif raw_response.status_code == 204:
                         raise ResponseEmpty(
-                            params.messages.no_output,
-                            device_name=self.device.display_name,
+                            params.messages.no_output, device_name=self.device.name,
                         )
 
                     else:
@@ -102,14 +101,14 @@ class AgentConnection(Connection):
             log.error("Error connecting to device {}: {}", self.device.name, msg)
             raise RestError(
                 params.messages.connection_error,
-                device_name=self.device.display_name,
+                device_name=self.device.name,
                 error=msg,
             )
         except OSError as ose:
             log.critical(str(ose))
             raise RestError(
                 params.messages.connection_error,
-                device_name=self.device.display_name,
+                device_name=self.device.name,
                 error="System error",
             )
         except CertificateError as cert_error:
@@ -117,7 +116,7 @@ class AgentConnection(Connection):
             msg = parse_exception(cert_error)
             raise RestError(
                 params.messages.connection_error,
-                device_name=self.device.display_name,
+                device_name=self.device.name,
                 error=f"{msg}: {cert_error}",
             )
 
@@ -125,7 +124,7 @@ class AgentConnection(Connection):
             log.error("Response code is {}", raw_response.status_code)
             raise RestError(
                 params.messages.connection_error,
-                device_name=self.device.display_name,
+                device_name=self.device.name,
                 error=params.messages.general,
             )
 
@@ -133,7 +132,7 @@ class AgentConnection(Connection):
             log.error("No response from device {}", self.device.name)
             raise RestError(
                 params.messages.connection_error,
-                device_name=self.device.display_name,
+                device_name=self.device.name,
                 error=params.messages.no_response,
             )
 

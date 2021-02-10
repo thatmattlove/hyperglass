@@ -180,7 +180,6 @@ class RoutersResponse(BaseModel):
 
     name: StrictStr
     network: Network
-    display_name: StrictStr
     vrfs: List[Vrf]
 
     class Config:
@@ -188,15 +187,7 @@ class RoutersResponse(BaseModel):
 
         title = "Device"
         description = "Per-device attributes"
-        schema_extra = {
-            "examples": [
-                {
-                    "name": "router01-nyc01",
-                    "location": "nyc01",
-                    "display_name": "New York City, NY",
-                }
-            ]
-        }
+        schema_extra = {"examples": [{"name": "router01-nyc01", "location": "nyc01"}]}
 
 
 class CommunityResponse(BaseModel):

@@ -11,8 +11,8 @@ function buildOptions(networks: TNetwork[]) {
   return networks.map(net => {
     const label = net.display_name;
     const options = net.locations.map(loc => ({
-      label: loc.display_name,
-      value: loc.name,
+      label: loc.name,
+      value: loc._id,
       group: net.display_name,
     }));
     return { label, options };

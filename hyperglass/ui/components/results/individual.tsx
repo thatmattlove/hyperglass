@@ -66,7 +66,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
   ]);
 
   if (typeof data !== 'undefined') {
-    responses.merge({ [device.name]: data });
+    responses.merge({ [device._id]: data });
   }
 
   const cacheLabel = useStrf(web.text.cache_icon, { time: data?.timestamp }, [data?.timestamp]);
@@ -148,8 +148,8 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
 
   return (
     <AnimatedAccordionItem
-      id={device.name}
       ref={ref}
+      id={device._id}
       isDisabled={isLoading}
       exit={{ opacity: 0, y: 300 }}
       animate={{ opacity: 1, y: 0 }}
@@ -169,12 +169,12 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
               errorMsg={errorMsg}
               errorLevel={errorLevel}
               runtime={data?.runtime ?? 0}
-              title={device.display_name}
+              title={device.name}
             />
           </AccordionButton>
           <HStack py={2} spacing={1}>
             {isStructuredOutput(data) && data.level === 'success' && tableComponent && (
-              <Path device={device.name} />
+              <Path device={device._id} />
             )}
             <CopyButton copyValue={copyValue} isDisabled={isLoading} />
             <RequeryButton requery={refetch} isDisabled={isLoading} />

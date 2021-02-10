@@ -101,6 +101,7 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
         json_output = True
 
     cached = False
+    runtime = 65535
     if cache_response:
         log.debug("Query {} exists in cache", cache_key)
 
@@ -195,7 +196,7 @@ async def import_certificate(encoded_request: EncodedRequest):
         # Write certificate to file
         import_public_key(
             app_path=APP_PATH,
-            device_name=matched_device.name,
+            device_name=matched_device._id,
             keystring=decoded_request,
         )
     except RuntimeError as err:
