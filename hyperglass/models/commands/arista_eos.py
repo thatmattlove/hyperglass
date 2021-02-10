@@ -1,4 +1,4 @@
-"""Arista Command Model."""
+"""Arista EOS Command Model."""
 
 # Third Party
 from pydantic import StrictStr
@@ -47,8 +47,8 @@ class _VPNIPv6(CommandSet):
     traceroute: StrictStr = "traceroute vrf {vrf} ipv6 {target} source {source}"
 
 
-class AristaCommands(CommandGroup):
-    """Validation model for default arista commands."""
+class AristaEOSCommands(CommandGroup):
+    """Validation model for default arista_eos commands."""
 
     ipv4_default: _IPv4 = _IPv4()
     ipv6_default: _IPv6 = _IPv6()

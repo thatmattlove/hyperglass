@@ -6,19 +6,19 @@ from .bird import BIRDCommands
 from .tnsr import TNSRCommands
 from .vyos import VyosCommands
 from ..main import HyperglassModelExtra
-from .arista import AristaCommands
 from .common import CommandGroup
 from .huawei import HuaweiCommands
 from .juniper import JuniperCommands
 from .cisco_xr import CiscoXRCommands
 from .cisco_ios import CiscoIOSCommands
+from .arista_eos import AristaEOSCommands
 from .cisco_nxos import CiscoNXOSCommands
 from .nokia_sros import NokiaSROSCommands
 from .mikrotik_routeros import MikrotikRouterOS
 from .mikrotik_switchos import MikrotikSwitchOS
 
 _NOS_MAP = {
-    "arista": AristaCommands,
+    "arista_eos": AristaEOSCommands,
     "bird_ssh": BIRDCommands,
     "cisco_ios": CiscoIOSCommands,
     "cisco_nxos": CiscoNXOSCommands,
@@ -37,7 +37,7 @@ _NOS_MAP = {
 class Commands(HyperglassModelExtra):
     """Base class for command definitions."""
 
-    arista: CommandGroup = AristaCommands()
+    arista_eos: CommandGroup = AristaEOSCommands()
     bird_ssh: CommandGroup = BIRDCommands()
     cisco_ios: CommandGroup = CiscoIOSCommands()
     cisco_nxos: CommandGroup = CiscoNXOSCommands()
