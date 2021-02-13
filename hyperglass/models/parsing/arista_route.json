@@ -1,0 +1,65 @@
+{
+  "vrfs": {
+    "default": {
+      "routerId": "198.18.0.1",
+      "vrf": "default",
+      "bgpRouteEntries": {
+        "198.18.2.0/24": {
+          "totalPaths": 1,
+          "bgpAdvertisedPeerGroups": {},
+          "maskLength": 24,
+          "bgpRoutePaths": [
+            {
+              "asPathEntry": {
+                "asPathType": "External",
+                "asPath": "65002 65003"
+              },
+              "med": 8675309,
+              "localPreference": 100,
+              "weight": 0,
+              "peerEntry": {
+                "peerRouterId": "198.18.0.2",
+                "peerAddr": "198.18.0.2"
+              },
+              "reasonNotBestpath": "noReason",
+              "timestamp": 1612996830,
+              "nextHop": "198.18.0.2",
+              "routeType": {
+                "atomicAggregator": false,
+                "origin": "Igp",
+                "suppressed": false,
+                "queued": false,
+                "valid": true,
+                "ecmpContributor": false,
+                "luRoute": false,
+                "active": true,
+                "stale": false,
+                "ecmp": false,
+                "backup": false,
+                "ecmpHead": false,
+                "ucmp": false
+              },
+              "routeDetail": {
+                "origin": "Igp",
+                "labelStack": [],
+                "isLeaked": false,
+                "tunnelRibEligible": false,
+                "extCommunityList": [],
+                "extCommunityListRaw": [],
+                "communityList": ["65002:1"],
+                "rxSafi": "Unicast",
+                "bgpContributors": [],
+                "recvdFromRRClient": false,
+                "igpMetric": 1,
+                "largeCommunityList": [],
+                "domainPath": []
+              }
+            }
+          ],
+          "address": "198.18.2.0"
+        }
+      },
+      "asn": "65001"
+    }
+  }
+}
