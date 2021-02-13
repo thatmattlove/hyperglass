@@ -8,6 +8,7 @@ description: Configure structured data parameters
 Devices that support responding to a query with structured or easily parsable data can have their response data placed into an easier to read table (or JSON, when using the [REST API](rest-api)). Currently, the following platforms have structured data supported in hyperglass:
 
 - Juniper Junos
+- Arista EOS
 
 :::note
 Unlike with standard text output, devices with structured data enabled do not support customization of their commands. This is because the response must be something hyperglass is preconfigured to understand and parse, so hyperglass must maintain control over the specific command to run for a given platform.
@@ -65,3 +66,9 @@ structured:
   rpki:
     mode: external
 ```
+
+## Caveats
+
+### Arista EOS
+
+For whatever reason, Arista EOS does not supply certain details about routes in its JSON output when running commands `show ip bgp regex <pattern>` or `show ip bgp community <community>`. Specifically, the the route's timestamp and any attached communities are not supplied. When these commands are used with Arista EOS, hyperglass sets the timestamp to the current time, and the community to an empty list.
