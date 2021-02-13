@@ -136,6 +136,7 @@ class Text(HyperglassModel):
     rpki_valid: StrictStr = "Valid"
     rpki_unknown: StrictStr = "No ROAs Exist"
     rpki_unverified: StrictStr = "Not Verified"
+    no_communities: StrictStr = "No Communities"
 
     @validator("title_mode")
     def validate_title_mode(cls, value):

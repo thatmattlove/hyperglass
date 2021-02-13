@@ -1,8 +1,8 @@
 import { forwardRef } from 'react';
-import { Icon, Text, Box, Tooltip, Menu, MenuButton, MenuList } from '@chakra-ui/react';
+import { Icon, Text, Box, Tooltip, Menu, MenuButton, MenuList, Link } from '@chakra-ui/react';
 import { CgMoreO as More } from '@meronex/icons/cg';
 import { BisError as Warning } from '@meronex/icons/bi';
-import { MdNotInterested as NotAllowed } from '@meronex/icons/md';
+import { MdCancel as NotAllowed } from '@meronex/icons/md';
 import { RiHome2Fill as End } from '@meronex/icons/ri';
 import { BsQuestionCircleFill as Question } from '@meronex/icons/bs';
 import { FaCheckCircle as Check, FaChevronRight as ChevronRight } from '@meronex/icons/fa';
@@ -109,13 +109,16 @@ export const ASPath: React.FC<TASPath> = (props: TASPath) => {
 
 export const Communities: React.FC<TCommunities> = (props: TCommunities) => {
   const { communities } = props;
+  const { web } = useConfig();
   const bg = useColorValue('white', 'gray.900');
   const color = useOpposingColor(bg);
   return (
     <>
       <If c={communities.length === 0}>
-        <Tooltip placement="right" hasArrow label="No Communities">
-          <Icon as={Question} />
+        <Tooltip placement="right" hasArrow label={web.text.no_communities}>
+          <Link>
+            <Icon as={Question} />
+          </Link>
         </Tooltip>
       </If>
       <If c={communities.length !== 0}>

@@ -45,6 +45,7 @@ export interface IConfigWebText {
   rpki_valid: string;
   rpki_unknown: string;
   rpki_unverified: string;
+  no_communities: string;
 }
 
 export interface TConfigGreeting {
