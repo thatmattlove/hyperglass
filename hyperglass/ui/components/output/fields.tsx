@@ -155,11 +155,11 @@ const _RPKIState: React.ForwardRefRenderFunction<HTMLDivElement, TRPKIState> = (
   const bg = useColorValue(
     [
       ['red.400', 'green.500', 'yellow.400', 'gray.500'],
-      ['red.500', 'green.500', 'yellow.500', 'gray.600'],
+      ['red.500', 'green.500', 'yellow.600', 'gray.600'],
     ],
     [
       ['red.300', 'green.300', 'yellow.300', 'gray.300'],
-      ['red.500', 'green.600', 'yellow.500', 'gray.800'],
+      ['red.500', 'green.600', 'yellow.600', 'gray.800'],
     ],
   );
   const color = useOpposingColor(bg[+active][state]);
