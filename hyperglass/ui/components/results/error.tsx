@@ -26,5 +26,9 @@ export const FormattedError: React.FC<TFormattedError> = (props: TFormattedError
   const { keywords, message } = props;
   const pattern = new RegExp(keywords.map(kw => `(${kw})`).join('|'), 'gi');
   const things = formatError(message, keywords, pattern);
-  return <Text as="span">{keywords.length !== 0 ? things : message}</Text>;
+  return (
+    <Text as="span" fontWeight={keywords.length === 0 ? 'bold' : undefined}>
+      {keywords.length !== 0 ? things : message}
+    </Text>
+  );
 };

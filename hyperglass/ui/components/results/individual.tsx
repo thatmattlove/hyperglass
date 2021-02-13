@@ -164,7 +164,8 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
         <AccordionHeaderWrapper>
           <AccordionButton py={2} w="unset" _hover={{}} _focus={{}} flex="1 0 auto">
             <ResultHeader
-              isError={isLGOutputOrError(data)}
+              // isError={isLGOutputOrError(data)}
+              isError={isError}
               loading={isLoading}
               errorMsg={errorMsg}
               errorLevel={errorLevel}
@@ -208,17 +209,17 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
                   ) : isStringOutput(data) && data.level === 'success' && !tableComponent ? (
                     <TextOutput>{data.output}</TextOutput>
                   ) : isStringOutput(data) && data.level !== 'success' ? (
-                    <Alert rounded="lg" my={2} py={4} status={errorLevel}>
+                    <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
                       <FormattedError message={data.output} keywords={errorKeywords} />
                     </Alert>
                   ) : (
-                    <Alert rounded="lg" my={2} py={4} status={errorLevel}>
+                    <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
                       <FormattedError message={errorMsg} keywords={errorKeywords} />
                     </Alert>
                   )}
                 </>
               ) : (
-                <Alert rounded="lg" my={2} py={4} status={errorLevel}>
+                <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
                   <FormattedError message={errorMsg} keywords={errorKeywords} />
                 </Alert>
               )}

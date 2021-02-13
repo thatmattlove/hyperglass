@@ -45,7 +45,11 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryRespons
       request_timeout * 1000,
       controller,
     );
-    return await res.json();
+    try {
+      return await res.json();
+    } catch (err) {
+      throw new Error(res.statusText);
+    }
   }
 
   // Cancel any still-running queries on unmount.
