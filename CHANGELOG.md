@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta.78 - 2021-02-12
+
+### Added
+- Experimental table output/structured data support for Arista EOS.
+
+### Fixed
+- Corrected warning color on active routes in table output.
+
+### Changed
+- Caught fetch errors now display the HTTP status text in the UI, instead of the caught error message.
+
 ## 1.0.0-beta.77 - 2021-02-10
 
 **POTENTIALLY BREAKING CHANGE**: The device `display_name` field is being deprecated, in favor of a single `name` field, which will be displayed to the end user. The `display_name` field still works, but you should migrate away from it as soon as possible.
