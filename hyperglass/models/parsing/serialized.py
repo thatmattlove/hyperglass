@@ -3,6 +3,7 @@
 # Standard Library
 import re
 from typing import List
+from ipaddress import ip_network
 
 # Third Party
 from pydantic import StrictInt, StrictStr, StrictBool, constr, validator
@@ -87,6 +88,13 @@ class ParsedRouteEntry(HyperglassModel):
                 # Get last ASN in path
                 asn = as_path[-1]
 
+        try:
+            net = ip_network(values["prefix"])
+        except ValueError:
+            return 3
+
+        # Only do external RPKI lookups for global prefixes.
+        if net.is_global:
             return rpki_state(prefix=values["prefix"], asn=asn)
         else:
             return value
