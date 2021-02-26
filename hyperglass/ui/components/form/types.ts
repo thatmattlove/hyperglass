@@ -1,9 +1,6 @@
 import type { FormControlProps } from '@chakra-ui/react';
 import type { Control } from 'react-hook-form';
 import type { TDeviceVrf, TBGPCommunity, OnChangeArgs } from '~/types';
-import type { ValidationError } from 'yup';
-
-export type TFormError = Pick<ValidationError, 'message' | 'type'>;
 
 export interface TField extends FormControlProps {
   name: string;

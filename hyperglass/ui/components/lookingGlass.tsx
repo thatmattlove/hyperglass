@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { Flex } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { intersectionWith } from 'lodash';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { vestResolver } from '@hookform/resolvers/vest';
+import vest, { test, enforce } from 'vest';
 import {
   If,
   FormRow,
@@ -51,15 +51,29 @@ export const LookingGlass: React.FC = () => {
   const noQueryLoc = useStrf(messages.no_input, { field: web.text.query_location });
   const noQueryTarget = useStrf(messages.no_input, { field: web.text.query_target });
 
-  const formSchema = yup.object().shape({
-    query_location: yup.array().of(yup.string()).required(noQueryLoc),
-    query_target: yup.string().required(noQueryTarget),
-    query_type: yup.string().required(noQueryType),
-    query_vrf: yup.string(),
+  const formSchema = vest.create((data: TFormData = {} as TFormData) => {
+    test('query_location', noQueryLoc, () => {
+      enforce(data.query_location).isArrayOf(enforce.isString()).isNotEmpty();
+    });
+    test('query_target', noQueryTarget, () => {
+      enforce(data.query_target).longerThan(1);
+    });
+    test('query_type', noQueryType, () => {
+      enforce(data.query_type).anyOf(
+        enforce.equals('bgp_route'),
+        enforce.equals('bgp_community'),
+        enforce.equals('bgp_aspath'),
+        enforce.equals('ping'),
+        enforce.equals('traceroute'),
+      );
+    });
+    test('query_vrf', 'Query VRF is empty', () => {
+      enforce(data.query_vrf).isString();
+    });
   });
 
   const formInstance = useForm<TFormData>({
-    resolver: yupResolver(formSchema),
+    resolver: vestResolver(formSchema),
     defaultValues: { query_vrf: 'default', query_target: '', query_location: [], query_type: '' },
   });
 

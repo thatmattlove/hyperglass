@@ -4,7 +4,8 @@ import { If } from '~/components';
 import { useColorValue } from '~/context';
 import { useBooleanValue } from '~/hooks';
 
-import { TField, TFormError } from './types';
+import type { FieldError } from 'react-hook-form';
+import type { TField } from './types';
 
 export const FormField: React.FC<TField> = (props: TField) => {
   const { name, label, children, labelAddOn, fieldAddOn, hiddenLabels = false, ...rest } = props;
@@ -14,10 +15,10 @@ export const FormField: React.FC<TField> = (props: TField) => {
 
   const { errors } = useFormContext();
 
-  const error = name in errors && (errors[name] as TFormError);
+  const error = name in errors && (errors[name] as FieldError);
 
   if (error !== false) {
-    console.warn(`${label} Error: ${error.message}`);
+    console.warn(`Error on field '${label}': ${error.message}`);
   }
 
   return (
