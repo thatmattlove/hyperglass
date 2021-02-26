@@ -21,33 +21,24 @@ from .validators import (
     validate_community_input,
     validate_community_select,
 )
+from ..config.vrf import Vrf
 
 
-def get_vrf_object(vrf_name):
-    """Match VRF object from VRF name.
+def get_vrf_object(vrf_name: str) -> Vrf:
+    """Match VRF object from VRF name."""
 
-    Arguments:
-        vrf_name {str} -- VRF name
-
-    Raises:
-        InputInvalid: Raised if no VRF is matched.
-
-    Returns:
-        {object} -- Valid VRF object
-    """
-    matched = None
     for vrf_obj in devices.vrf_objects:
         if vrf_name is not None:
-            if vrf_name == vrf_obj.name or vrf_name == vrf_obj.display_name:
-                matched = vrf_obj
-                break
+            if vrf_name == vrf_obj._id or vrf_name == vrf_obj.display_name:
+                return vrf_obj
+
+            elif vrf_name == "__hyperglass_default" and vrf_obj.default:
+                return vrf_obj
         elif vrf_name is None:
-            if vrf_obj.name == "default":
-                matched = vrf_obj
-                break
-    if matched is None:
-        raise InputInvalid(params.messages.vrf_not_found, vrf_name=vrf_name)
-    return matched
+            if vrf_obj.default:
+                return vrf_obj
+
+    raise InputInvalid(params.messages.vrf_not_found, vrf_name=vrf_name)
 
 
 class Query(BaseModel):
@@ -145,7 +136,7 @@ class Query(BaseModel):
             items = {
                 "query_location": self.query_location,
                 "query_type": self.query_type,
-                "query_vrf": self.query_vrf.name,
+                "query_vrf": self.query_vrf._id,
                 "query_target": str(self.query_target),
             }
         return items
@@ -156,17 +147,7 @@ class Query(BaseModel):
 
     @validator("query_type")
     def validate_query_type(cls, value):
-        """Ensure query_type is enabled.
-
-        Arguments:
-            value {str} -- Query Type
-
-        Raises:
-            InputInvalid: Raised if query_type is disabled.
-
-        Returns:
-            {str} -- Valid query_type
-        """
+        """Ensure query_type is enabled."""
         query = params.queries[value]
         if not query.enable:
             raise InputInvalid(
@@ -178,17 +159,7 @@ class Query(BaseModel):
 
     @validator("query_location")
     def validate_query_location(cls, value):
-        """Ensure query_location is defined.
-
-        Arguments:
-            value {str} -- Unvalidated query_location
-
-        Raises:
-            InputInvalid: Raised if query_location is not defined.
-
-        Returns:
-            {str} -- Valid query_location
-        """
+        """Ensure query_location is defined."""
         if value not in devices._ids:
             raise InputInvalid(
                 params.messages.invalid_field,
@@ -200,17 +171,7 @@ class Query(BaseModel):
 
     @validator("query_vrf")
     def validate_query_vrf(cls, value, values):
-        """Ensure query_vrf is defined.
-
-        Arguments:
-            value {str} -- Unvalidated query_vrf
-
-        Raises:
-            InputInvalid: Raised if query_vrf is not defined.
-
-        Returns:
-            {str} -- Valid query_vrf
-        """
+        """Ensure query_vrf is defined."""
         vrf_object = get_vrf_object(value)
         device = devices[values["query_location"]]
         device_vrf = None

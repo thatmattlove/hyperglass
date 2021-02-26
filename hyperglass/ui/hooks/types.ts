@@ -50,6 +50,8 @@ export type TUseDevice = (
   deviceId: string,
 ) => TDevice;
 
+export type TUseVrf = (vrfId: string) => TDeviceVrf;
+
 export interface TSelections {
   queryLocation: TSelectOption[] | [];
   queryType: TSelectOption | null;

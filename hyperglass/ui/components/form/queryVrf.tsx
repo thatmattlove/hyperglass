@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import { Select } from '~/components';
 import { useLGMethods, useLGState } from '~/hooks';
 
-import { TDeviceVrf, TSelectOption } from '~/types';
+import type { TDeviceVrf, TSelectOption } from '~/types';
 import type { TQueryVrf } from './types';
 
 function buildOptions(queryVrfs: TDeviceVrf[]): TSelectOption[] {
-  return queryVrfs.map(q => ({ value: q.id, label: q.display_name }));
+  return queryVrfs.map(q => ({ value: q._id, label: q.display_name }));
 }
 
 export const QueryVrf: React.FC<TQueryVrf> = (props: TQueryVrf) => {

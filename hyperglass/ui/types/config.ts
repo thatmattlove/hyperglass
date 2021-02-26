@@ -105,8 +105,9 @@ export interface TConfigQueries {
 }
 
 interface TDeviceVrfBase {
-  id: string;
+  _id: string;
   display_name: string;
+  default: boolean;
 }
 
 export interface TDeviceVrf extends TDeviceVrfBase {

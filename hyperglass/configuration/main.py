@@ -4,7 +4,7 @@
 import os
 import copy
 import json
-from typing import Dict
+from typing import Dict, List
 from pathlib import Path
 
 # Third Party
@@ -220,6 +220,7 @@ def _build_frontend_devices():
                         {
                             "id": vrf.name,
                             "display_name": vrf.display_name,
+                            "default": vrf.default,
                             "ipv4": True if vrf.ipv4 else False,  # noqa: IF100
                             "ipv6": True if vrf.ipv6 else False,  # noqa: IF100
                         }
@@ -235,6 +236,7 @@ def _build_frontend_devices():
                     {
                         "id": vrf.name,
                         "display_name": vrf.display_name,
+                        "default": vrf.default,
                         "ipv4": True if vrf.ipv4 else False,  # noqa: IF100
                         "ipv6": True if vrf.ipv6 else False,  # noqa: IF100
                     }
@@ -246,15 +248,8 @@ def _build_frontend_devices():
     return frontend_dict
 
 
-def _build_networks():
-    """Build filtered JSON Structure of networks & devices for Jinja templates.
-
-    Raises:
-        ConfigError: Raised if parsing/building error occurs.
-
-    Returns:
-        {dict} -- Networks & devices
-    """
+def _build_networks() -> List[Dict]:
+    """Build filtered JSON Structure of networks & devices for Jinja templates."""
     networks = []
     _networks = list(set({device.network.display_name for device in devices.objects}))
 
@@ -269,8 +264,9 @@ def _build_networks():
                         "network": device.network.display_name,
                         "vrfs": [
                             {
-                                "id": vrf.name,
+                                "_id": vrf._id,
                                 "display_name": vrf.display_name,
+                                "default": vrf.default,
                                 "ipv4": True if vrf.ipv4 else False,  # noqa: IF100
                                 "ipv6": True if vrf.ipv6 else False,  # noqa: IF100
                             }
@@ -285,33 +281,13 @@ def _build_networks():
     return networks
 
 
-def _build_vrfs():
-    vrfs = []
-    for device in devices.objects:
-        for vrf in device.vrfs:
-
-            vrf_dict = {
-                "id": vrf.name,
-                "display_name": vrf.display_name,
-            }
-
-            if vrf_dict not in vrfs:
-                vrfs.append(vrf_dict)
-
-    return vrfs
-
-
 content_params = json.loads(
     params.json(include={"primary_asn", "org_name", "site_title", "site_description"})
 )
 
 
-def _build_vrf_help():
-    """Build a dict of vrfs as keys, help content as values.
-
-    Returns:
-        {dict} -- Formatted VRF help
-    """
+def _build_vrf_help() -> Dict:
+    """Build a dict of vrfs as keys, help content as values."""
     all_help = {}
     for vrf in devices.vrf_objects:
 
@@ -343,7 +319,7 @@ def _build_vrf_help():
                     }
                 )
 
-        all_help.update({vrf.name: vrf_help})
+        all_help.update({vrf._id: vrf_help})
 
     return all_help
 
@@ -369,7 +345,6 @@ content_terms = get_markdown(
 )
 content_credit = CREDIT.format(version=__version__)
 
-vrfs = _build_vrfs()
 networks = _build_networks()
 frontend_devices = _build_frontend_devices()
 _include_fields = {
@@ -397,7 +372,6 @@ _frontend_params.update(
         "hyperglass_version": __version__,
         "queries": {**params.queries.map, "list": params.queries.list},
         "networks": networks,
-        "vrfs": vrfs,
         "parsed_data_fields": PARSED_RESPONSE_FIELDS,
         "content": {
             "help_menu": content_help,

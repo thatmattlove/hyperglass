@@ -1,7 +1,8 @@
 """Validate VRF configuration variables."""
 
 # Standard Library
-from typing import List, Optional
+import re
+from typing import Dict, List, Optional
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
 
 # Third Party
@@ -10,16 +11,37 @@ from pydantic import (
     FilePath,
     StrictStr,
     StrictBool,
+    PrivateAttr,
     conint,
     constr,
     validator,
     root_validator,
 )
 
+# Project
+from hyperglass.log import log
+
 # Local
 from ..main import HyperglassModel, HyperglassModelExtra
 
 ACLAction = constr(regex=r"permit|deny")
+
+
+def find_vrf_id(values: Dict) -> str:
+    """Generate (private) VRF ID."""
+
+    def generate_id(name: str) -> str:
+        scrubbed = re.sub(r"[^A-Za-z0-9\_\-\s]", "", name)
+        return "_".join(scrubbed.split()).lower()
+
+    display_name = values.get("display_name")
+
+    if display_name is None:
+        raise ValueError("display_name is required.")
+
+    vrf_id = generate_id(display_name)
+
+    return vrf_id
 
 
 class AccessList4(HyperglassModel):
@@ -195,23 +217,33 @@ class DeviceVrf6(HyperglassModelExtra):
 class Vrf(HyperglassModel):
     """Validation model for per VRF/afi config in devices.yaml."""
 
+    _id: StrictStr = PrivateAttr()
     name: StrictStr
     display_name: StrictStr
     info: Info = Info()
     ipv4: Optional[DeviceVrf4]
     ipv6: Optional[DeviceVrf6]
+    default: StrictBool = False
+
+    def __init__(self, **kwargs) -> None:
+        """Set the VRF ID."""
+        _id = find_vrf_id(kwargs)
+        super().__init__(**kwargs)
+        self._id = _id
 
     @root_validator
-    def set_dynamic(cls, values):
-        """Set dynamic attributes before VRF initialization.
+    def set_dynamic(cls, values: Dict) -> Dict:
+        """Set dynamic attributes before VRF initialization."""
 
-        Arguments:
-            values {dict} -- Post-validation VRF attributes
-
-        Returns:
-            {dict} -- VRF with new attributes set
-        """
         if values["name"] == "default":
+            log.warning(
+                """You have set the VRF name to 'default'. This is no longer the way to
+designate a VRF as the default (or global routing table) VRF. Instead,
+add 'default: true' to the VRF definition.
+"""
+            )
+
+        if values.get("default", False) is True:
             protocol4 = "ipv4_default"
             protocol6 = "ipv6_default"
 
@@ -227,7 +259,7 @@ class Vrf(HyperglassModel):
             values["ipv6"].protocol = protocol6
             values["ipv6"].version = 6
 
-        if values.get("name") == "default" and values.get("display_name") is None:
+        if values.get("default", False) and values.get("display_name") is None:
             values["display_name"] = "Global"
 
         return values
@@ -245,7 +277,7 @@ class Vrf(HyperglassModel):
             {object} -- AFI object
         """
         if i not in (4, 6):
-            raise AttributeError(f"Must be 4 or 6, got '{i}")
+            raise AttributeError(f"Must be 4 or 6, got '{i}'")
 
         return getattr(self, f"ipv{i}")
 

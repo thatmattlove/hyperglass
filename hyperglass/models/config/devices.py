@@ -237,7 +237,7 @@ class Device(HyperglassModel):
         """
         vrfs = []
         for vrf in value:
-            vrf_name = vrf.get("name")
+            vrf_default = vrf.get("default", False)
 
             for afi in ("ipv4", "ipv6"):
                 vrf_afi = vrf.get(afi)
@@ -259,9 +259,7 @@ class Device(HyperglassModel):
             # to make one by replacing non-alphanumeric characters
             # with whitespaces and using str.title() to make each
             # word look "pretty".
-            if vrf_name != "default" and not isinstance(
-                vrf.get("display_name"), StrictStr
-            ):
+            if not vrf_default and not isinstance(vrf.get("display_name"), str):
                 new_name = vrf["name"]
                 new_name = re.sub(r"[^a-zA-Z0-9]", " ", new_name)
                 new_name = re.split(" ", new_name)
@@ -272,7 +270,7 @@ class Device(HyperglassModel):
                     f"Generated '{vrf['display_name']}'"
                 )
 
-            elif vrf_name == "default" and vrf.get("display_name") is None:
+            elif vrf_default and vrf.get("display_name") is None:
                 vrf["display_name"] = "Global"
 
             # Validate the non-default VRF against the standard

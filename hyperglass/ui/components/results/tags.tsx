@@ -2,7 +2,7 @@ import { Box, Stack, useToken } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Label } from '~/components';
 import { useConfig, useBreakpointValue } from '~/context';
-import { useLGState } from '~/hooks';
+import { useLGState, useVrf } from '~/hooks';
 import { isQueryType } from '~/types';
 
 import type { Transition } from 'framer-motion';
@@ -10,7 +10,7 @@ import type { Transition } from 'framer-motion';
 const transition = { duration: 0.3, delay: 0.5 } as Transition;
 
 export const Tags: React.FC = () => {
-  const { queries, vrfs, web } = useConfig();
+  const { queries, web } = useConfig();
   const { queryLocation, queryTarget, queryType, queryVrf } = useLGState();
 
   const targetBg = useToken('colors', 'teal.600');
@@ -64,8 +64,8 @@ export const Tags: React.FC = () => {
     queryTypeLabel = queries[queryType.value].display_name;
   }
 
-  const matchedVrf =
-    vrfs.filter(v => v.id === queryVrf.value)[0] ?? vrfs.filter(v => v.id === 'default')[0];
+  const getVrf = useVrf();
+  const vrf = getVrf(queryVrf.value);
 
   return (
     <Box
@@ -115,7 +115,7 @@ export const Tags: React.FC = () => {
                 <Label
                   bg={vrfBg}
                   label={web.text.query_vrf}
-                  value={matchedVrf.display_name}
+                  value={vrf.display_name}
                   fontSize={{ base: 'xs', md: 'sm' }}
                 />
               </motion.div>

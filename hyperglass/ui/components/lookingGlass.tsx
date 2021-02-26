@@ -129,17 +129,14 @@ export const LookingGlass: React.FC = () => {
     // Use _.intersectionWith to create an array of VRFs common to all selected locations.
     const intersecting = intersectionWith(
       ...allVrfs,
-      (a: TDeviceVrf, b: TDeviceVrf) => a.id === b.id,
+      (a: TDeviceVrf, b: TDeviceVrf) => a._id === b._id,
     );
 
     availVrfs.set(intersecting);
 
     // If there are no intersecting VRFs, use the default VRF.
-    if (
-      intersecting.filter(i => i.id === queryVrf.value).length === 0 &&
-      queryVrf.value !== 'default'
-    ) {
-      queryVrf.set('default');
+    if (intersecting.filter(i => i._id === queryVrf.value).length === 0) {
+      queryVrf.set('__hyperglass_default');
     }
 
     // Determine which address families are available in the intersecting VRFs.

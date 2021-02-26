@@ -9,3 +9,4 @@ export * from './useLGState';
 export * from './useOpposingColor';
 export * from './useStrf';
 export * from './useTableToString';
+export * from './useVrf';
