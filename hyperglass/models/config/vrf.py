@@ -2,7 +2,7 @@
 
 # Standard Library
 import re
-from typing import Dict, List, Optional
+from typing import Dict, List, Union, Optional
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
 
 # Third Party
@@ -17,6 +17,7 @@ from pydantic import (
     validator,
     root_validator,
 )
+from typing_extensions import Literal
 
 # Project
 from hyperglass.log import log
@@ -25,6 +26,7 @@ from hyperglass.log import log
 from ..main import HyperglassModel, HyperglassModelExtra
 
 ACLAction = constr(regex=r"permit|deny")
+AddressFamily = Union[Literal[4], Literal[6]]
 
 
 def find_vrf_id(values: Dict) -> str:
@@ -39,9 +41,7 @@ def find_vrf_id(values: Dict) -> str:
     if display_name is None:
         raise ValueError("display_name is required.")
 
-    vrf_id = generate_id(display_name)
-
-    return vrf_id
+    return generate_id(display_name)
 
 
 class AccessList4(HyperglassModel):
@@ -264,40 +264,19 @@ add 'default: true' to the VRF definition.
 
         return values
 
-    def __getitem__(self, i):
-        """Access the VRF's AFI by IP protocol number.
-
-        Arguments:
-            i {int} -- IP Protocol number (4|6)
-
-        Raises:
-            AttributeError: Raised if passed number is not 4 or 6.
-
-        Returns:
-            {object} -- AFI object
-        """
+    def __getitem__(self, i: AddressFamily) -> Union[DeviceVrf4, DeviceVrf6]:
+        """Access the VRF's AFI by IP protocol number."""
         if i not in (4, 6):
             raise AttributeError(f"Must be 4 or 6, got '{i}'")
 
         return getattr(self, f"ipv{i}")
 
-    def __hash__(self):
-        """Make VRF object hashable so the object can be deduplicated with set().
-
-        Returns:
-            {int} -- Hash of VRF name
-        """
+    def __hash__(self) -> int:
+        """Make VRF object hashable so the object can be deduplicated with set()."""
         return hash((self.name,))
 
-    def __eq__(self, other):
-        """Make VRF object comparable so the object can be deduplicated with set().
-
-        Arguments:
-            other {object} -- Object to compare
-
-        Returns:
-            {bool} -- True if comparison attributes are the same value
-        """
+    def __eq__(self, other: object) -> bool:
+        """Make VRF object comparable so the object can be deduplicated with set()."""
         result = False
         if isinstance(other, HyperglassModel):
             result = self.name == other.name
