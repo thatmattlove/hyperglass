@@ -31,7 +31,8 @@ routers:
     port: 22
     nos: cisco_ios
     vrfs:
-      - name: default
+      - name: global
+        default: true
         ipv4:
           source_address: 192.0.2.1
         ipv6:
@@ -107,13 +108,14 @@ If SSL is enabled, the public key of the device must be provided in the form of 
 
 The VRFs section is a list of available VRFs for a given device. Each VRF may be configured with the following fields:
 
-| Parameter      | Type   | Description                                                                                                                                                                                          |
-| :------------- | :----- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <R/> `name`    | String | The VRF's name, as known **by the device**. <MiniNote>hyperglass sends this field to the device for queries, so it needs to match the device's configuration.</MiniNote>                             |
-| `display_name` | String | The VRF's user-facing name. This field's value is visible in the UI. <MiniNote>If this is not specified, hyperglass will try to create a "pretty" display name based on the `name` field.</MiniNote> |
-| `info`         |        | [Per-VRF Contextual Help Configuration](#info)                                                                                                                                                       |
-| `ipv4`         |        | [VRF's IPv4 Configuration](#ipv4)                                                                                                                                                                    |
-| `ipv6`         |        | [VRF's IPv6 Configuration](#ipv6)                                                                                                                                                                    |
+| Parameter      | Type    | Description                                                                                                                                                                                                                                                                                                                                            |
+| :------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <R/> `name`    | String  | The VRF's name, as known **by the device**. <MiniNote>hyperglass sends this field to the device for queries, so it needs to match the device's configuration. If this is the default/global routing table on the device, this value isn't sent to the device.</MiniNote>                                                                               |
+| `display_name` | String  | The VRF's user-facing name. This field's value is visible in the UI. <MiniNote>If this is not specified, hyperglass will try to create a "pretty" display name based on the `name` field.</MiniNote>                                                                                                                                                   |
+| `default`      | Boolean | Indicate that this VRF is the device's default/global routing table (more specifically, that it does not require specifying the VRF name when running commands).<MiniNote>If this is set to `true`, the `ipv4_default`/`ipv6_default` [command sets](commands.mdx). If set to `false`, the `ipv4_vpn`/`ipv6_vpn` command sets will be used.</MiniNote> |
+| `info`         |         | [Per-VRF Contextual Help Configuration](#info)                                                                                                                                                                                                                                                                                                         |
+| `ipv4`         |         | [VRF's IPv4 Configuration](#ipv4)                                                                                                                                                                                                                                                                                                                      |
+| `ipv6`         |         | [VRF's IPv6 Configuration](#ipv6)                                                                                                                                                                                                                                                                                                                      |
 
 #### `ipv4`
 
@@ -220,7 +222,8 @@ routers:
     port: 8080
     nos: frr
     vrfs:
-      - name: default
+      - name: global
+        default: true
         ipv4:
           source_address: 192.0.2.1
           access_list:
@@ -250,7 +253,8 @@ routers:
     port: 22
     nos: cisco_ios
     vrfs:
-      - name: default
+      - name: global
+        default: true
         ipv4:
           source_address: 192.0.2.2
           access_list:
@@ -324,7 +328,8 @@ For a more complex example, here's an example of how to use YAML aliases & ancho
 ```yaml title="devices.yaml"
 my_vrfs:
   - &default
-    name: default
+    name: global
+    default: true
     display_name: Global
     ipv4:
       access_list: &default_ipv4_acl
@@ -346,6 +351,7 @@ my_vrfs:
           le: 64
   - &customer_a
     name: customer_a
+    default: false
     display_name: Customer A
     ipv4:
       access_list: &customer_a_ipv4_acl
