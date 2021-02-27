@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0-beta.79 - 2021-02-26
+
+### BREAKING CHANGE
+**Major changes have been made to how VRFs are defined and handled.** Previously, you would signal to hyperglass that a VRF was the "default" VRF (meaning, a VRF does not need to be specified in any commands) by setting `name: default` in the VRF block. This limitation meant that a VRF named `default` _had_ to be defined, and that any users who keep their global routing table in a non-default VRF must define it separately.
+
+Moving forward, the `name` field is only used to define the name of the VRF **as known by the device**. To signal that hyperglass should use the device's default VRF, set `default: true` on the VRF. **This is not the default**.
+
+### Fixed
+- Fix an issue where long-running commands, such as traceroutes that never complete, time out and display an error instead of the output.
+
+### Changed
+- Don't do external RPKI lookups for non global unicast prefixes.
+- Migrate to palette-by-numbers for theming.
+- Update UI dependencies.
+
 ## 1.0.0-beta.78 - 2021-02-12
 
 ### Added
