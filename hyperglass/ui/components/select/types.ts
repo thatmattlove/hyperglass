@@ -74,8 +74,8 @@ export type TPlaceholder = PlaceholderProps<TOptions, false>;
 
 export type TMultiValue = Pick<TSelectContext, 'colorMode'>;
 
-export type TRSStyleCallback = (base: RSStyles) => RSStyles;
+export type TRSStyleCallback = (base: TStyles) => TStyles;
 
 export type TRSThemeCallback = (theme: TRSTheme) => TRSTheme;
 
-export type { Styles as TStyles } from 'react-select';
+export type TStyles = RSStyles<TOptions, false>;

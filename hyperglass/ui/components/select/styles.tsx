@@ -59,12 +59,13 @@ export const useMenuStyle = (base: TStyles, _: TMenu): TStyles => {
 
 export const useMenuListStyle = (base: TStyles): TStyles => {
   const { colorMode, isOpen } = useSelectContext();
-
+  const backgroundColor = useColorToken('colors', 'white', 'blackSolid.700');
   const scrollbarTrack = useColorToken('colors', 'blackAlpha.50', 'whiteAlpha.50');
   const scrollbarThumb = useColorToken('colors', 'blackAlpha.300', 'whiteAlpha.300');
   const scrollbarThumbHover = useColorToken('colors', 'blackAlpha.400', 'whiteAlpha.400');
 
   const styles = {
+    backgroundColor,
     '&::-webkit-scrollbar': { width: '5px' },
     '&::-webkit-scrollbar-track': { backgroundColor: scrollbarTrack },
     '&::-webkit-scrollbar-thumb': { backgroundColor: scrollbarThumb },

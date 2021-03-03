@@ -58,7 +58,8 @@ export function makeTheme(
   defaultColorMode: 'dark' | 'light' | null,
 ): Theme.Full {
   const fonts = importFonts(userTheme.fonts);
-  const colors = importColors(userTheme.colors);
+  const { white, black, ...otherColors } = userTheme.colors;
+  const colors = importColors(otherColors);
   const config = {} as Theme.Full['config'];
   const fontWeights = {
     hairline: 300,
