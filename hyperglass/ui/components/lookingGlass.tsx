@@ -77,7 +77,7 @@ export const LookingGlass: React.FC = () => {
     defaultValues: { query_vrf: 'default', query_target: '', query_location: [], query_type: '' },
   });
 
-  const { handleSubmit, register, setValue } = formInstance;
+  const { handleSubmit, register, setValue, setError, clearErrors } = formInstance;
 
   const {
     queryVrf,
@@ -130,13 +130,16 @@ export const LookingGlass: React.FC = () => {
   }
 
   function handleLocChange(locations: string[]): void {
+    clearErrors('query_location');
     const allVrfs = [] as TDeviceVrf[][];
+    const locationNames = [] as string[];
 
     queryLocation.set(locations);
 
     // Create an array of each device's VRFs.
     for (const loc of locations) {
       const device = getDevice(loc);
+      locationNames.push(device.name);
       allVrfs.push(device.vrfs);
     }
 
@@ -148,9 +151,15 @@ export const LookingGlass: React.FC = () => {
 
     availVrfs.set(intersecting);
 
-    // If there are no intersecting VRFs, use the default VRF.
-    if (intersecting.filter(i => i._id === queryVrf.value).length === 0) {
-      queryVrf.set('__hyperglass_default');
+    // If there is more than one location selected, but there are no intersecting VRFs, show an error.
+    if (locations.length > 1 && intersecting.length === 0) {
+      setError('query_location', {
+        message: `${locationNames.join(', ')} have no VRFs in common.`,
+      });
+    }
+    // If there is only one intersecting VRF, set it as the form value so the user doesn't have to.
+    else if (intersecting.length === 1) {
+      queryVrf.set(intersecting[0]._id);
     }
 
     // Determine which address families are available in the intersecting VRFs.
