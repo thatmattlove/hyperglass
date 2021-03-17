@@ -74,7 +74,7 @@ _structured = CommandGroup(
         bgp_aspath='show route protocol bgp table {vrf}.inet6.0 aspath-regex "{target}" detail | display xml',
         bgp_community="show route protocol bgp table {vrf}.inet6.0 community {target} detail | display xml",
         ping="ping inet6 routing-instance {vrf} {target} count 5 source {source}",
-        traceroute="traceroute inet6 routing-instance {vrf} {target} wait 1 source {source}",
+        traceroute="traceroute inet6 routing-instance {vrf} {target} wait 2 source {source}",
     ),
 )
 
