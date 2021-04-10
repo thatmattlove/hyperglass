@@ -131,11 +131,11 @@ May be set to `null` to disable IPv4 for this VRF, on the parent device.
 
 May be set to `null` to disable IPv6 for this VRF, on the parent device.
 
-| Parameter             | Type    | Default | Description                                                           |
-| :-------------------- | :------ | :------ | :-------------------------------------------------------------------- |
-| <R/> `source_address` | String  |         | Device's source IPv6 address for directed queries (ping, traceroute). |
-| `force_cidr`          | Boolean | `true`  | Convert IP host queries to actual advertised containing prefix length |
-| `access_list`         |         |         | [IPv6 Access List Configuration](#access_list)                        |
+| Parameter             | Type    | Default | Description                                                                                                                            |
+| :-------------------- | :------ | :------ | :------------------------------------------------------------------------------------------------------------------------------------- |
+| <R/> `source_address` | String  |         | Device's source IPv6 address for directed queries (ping, traceroute). This address must be surrounded by quotes. Ex. "0000:0000:0000::"|
+| `force_cidr`          | Boolean | `true`  | Convert IP host queries to actual advertised containing prefix length                                                                  |
+| `access_list`         |         |         | [IPv6 Access List Configuration](#access_list)                                                                                         |
 
 :::note
 The `force_cidr` option will ensure that a **BGP Route** query for an IP host (/32 IPv4, /128 IPv6) is converted to its containing prefix. For example, a query for `1.1.1.1` would be converted to a query for `1.1.1.0/24`. This is because not all platforms support a BGP lookup for a host (this is primary a problem with IPv6, but the option applies to both address families).
