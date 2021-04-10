@@ -1,4 +1,5 @@
 import ReactMarkdown from 'react-markdown';
+import gfm from 'remark-gfm';
 import {
   Br,
   List,
@@ -7,9 +8,12 @@ import {
   Heading,
   Divider,
   ListItem,
+  TableRow,
   CodeBlock,
-  TableData,
+  TableCell,
   Paragraph,
+  TableBody,
+  TableHead,
   InlineCode,
 } from './elements';
 
@@ -23,13 +27,16 @@ const renderers = {
   table: Table,
   code: CodeBlock,
   heading: Heading,
+  tableRow: TableRow,
   listItem: ListItem,
+  tableHead: TableHead,
+  tableBody: TableBody,
   paragraph: Paragraph,
-  tableCell: TableData,
+  tableCell: TableCell,
   inlineCode: InlineCode,
   thematicBreak: Divider,
 } as ReactMarkdownProps['renderers'];
 
 export const Markdown: React.FC<TMarkdown> = (props: TMarkdown) => (
-  <ReactMarkdown renderers={renderers} source={props.content} />
+  <ReactMarkdown plugins={[gfm]} renderers={renderers} source={props.content} />
 );

@@ -1,29 +1,38 @@
 import {
+  Th,
+  Tr,
+  Td,
   Box,
+  Tbody,
+  Thead,
+  useToken,
   OrderedList,
   UnorderedList,
   Code as ChakraCode,
   Link as ChakraLink,
   Text as ChakraText,
+  Table as ChakraTable,
   Divider as ChakraDivider,
   Heading as ChakraHeading,
   Checkbox as ChakraCheckbox,
   ListItem as ChakraListItem,
-  useToken,
 } from '@chakra-ui/react';
-
 import { CodeBlock as CustomCodeBlock, If } from '~/components';
 import { useColorValue } from '~/context';
-import { TD, TH, Table as ChakraTable } from './table';
 
 import type {
   BoxProps,
   TextProps,
   CodeProps,
   LinkProps,
+  TableProps,
   ChakraProps,
   HeadingProps,
   DividerProps,
+  TableRowProps,
+  TableBodyProps,
+  TableCellProps,
+  TableHeadProps,
 } from '@chakra-ui/react';
 import type { TCheckbox, TList, THeading, TCodeBlock, TTableData, TListItem } from './types';
 
@@ -97,20 +106,6 @@ export const CodeBlock: React.FC<TCodeBlock> = (props: TCodeBlock) => (
   <CustomCodeBlock>{props.value}</CustomCodeBlock>
 );
 
-export const TableData: React.FC<TTableData> = (props: TTableData) => {
-  const { isHeader, ...rest } = props;
-  return (
-    <>
-      <If c={isHeader}>
-        <TH {...rest} />
-      </If>
-      <If c={!isHeader}>
-        <TD {...rest} />
-      </If>
-    </>
-  );
-};
-
 export const Paragraph: React.FC<TextProps> = (props: TextProps) => (
   <ChakraText
     my={4}
@@ -130,9 +125,35 @@ export const Divider: React.FC<DividerProps> = (props: DividerProps) => (
   <ChakraDivider my={2} {...clean<DividerProps>(props)} />
 );
 
-export const Table: React.FC<BoxProps> = (props: BoxProps) => (
-  <ChakraTable {...clean<BoxProps>(props)} />
+export const Table: React.FC<TableProps> = (props: TableProps) => (
+  <ChakraTable my={4} variant="simple" size="md" {...clean<TableProps>(props)} />
 );
+
+export const TableRow: React.FC<TableRowProps> = (props: TableRowProps) => (
+  <Tr {...clean<TableRowProps>(props)} />
+);
+
+export const TableBody: React.FC<TableBodyProps> = (props: TableBodyProps) => (
+  <Tbody {...clean<TableBodyProps>(props)} />
+);
+
+export const TableHead: React.FC<TableHeadProps> = (props: TableHeadProps) => (
+  <Thead {...clean<TableHeadProps>(props)} />
+);
+
+export const TableCell: React.FC<TTableData> = (props: TTableData) => {
+  const { isHeader, ...rest } = props;
+  return (
+    <>
+      <If c={isHeader}>
+        <Th {...clean<TableCellProps>(rest)} />
+      </If>
+      <If c={!isHeader}>
+        <Td {...clean<TableCellProps>(rest)} />
+      </If>
+    </>
+  );
+};
 
 export const Br: React.FC<BoxProps> = (props: BoxProps) => (
   <Box as="br" m={16} {...clean<BoxProps>(props)} />
