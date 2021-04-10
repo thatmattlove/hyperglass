@@ -156,7 +156,7 @@ class ThemeColors(HyperglassModel):
 
     black: Color = "#000000"
     white: Color = "#ffffff"
-    dark: Color = "#121212"
+    dark: Color = "#010101"
     light: Color = "#f5f6f7"
     gray: Color = "#c1c7cc"
     red: Color = "#d84b4b"

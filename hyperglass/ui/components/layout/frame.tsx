@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Flex } from '@chakra-ui/react';
 import { isSafari } from 'react-device-detect';
 import { If, Debugger, Greeting, Footer, Header } from '~/components';
-import { useConfig, useColorValue } from '~/context';
+import { useConfig } from '~/context';
 import { useLGState, useLGMethods } from '~/hooks';
 import { ResetButton } from './resetButton';
 
@@ -12,9 +12,6 @@ export const Frame: React.FC<TFrame> = (props: TFrame) => {
   const { developer_mode } = useConfig();
   const { isSubmitting } = useLGState();
   const { resetForm } = useLGMethods();
-
-  const bg = useColorValue('white', 'black');
-  const color = useColorValue('black', 'white');
 
   const containerRef = useRef<HTMLDivElement>({} as HTMLDivElement);
 
@@ -27,9 +24,7 @@ export const Frame: React.FC<TFrame> = (props: TFrame) => {
   return (
     <>
       <Flex
-        bg={bg}
         w="100%"
-        color={color}
         flex="1 0 auto"
         flexDir="column"
         id="__hyperglass"
