@@ -52,19 +52,20 @@ export const useControlStyle = (base: TStyles, state: TControl): TStyles => {
 export const useMenuStyle = (base: TStyles, _: TMenu): TStyles => {
   const { colorMode, isOpen } = useSelectContext();
   const backgroundColor = useColorToken('colors', 'white', 'blackSolid.700');
-  const borderRadius = useToken('radii', 'md');
-  const styles = { borderRadius, backgroundColor };
+  const styles = { backgroundColor };
   return useMemo(() => mergeWith({}, base, styles), [colorMode, isOpen]);
 };
 
 export const useMenuListStyle = (base: TStyles): TStyles => {
   const { colorMode, isOpen } = useSelectContext();
+  const borderRadius = useToken('radii', 'md');
   const backgroundColor = useColorToken('colors', 'white', 'blackSolid.700');
   const scrollbarTrack = useColorToken('colors', 'blackAlpha.50', 'whiteAlpha.50');
   const scrollbarThumb = useColorToken('colors', 'blackAlpha.300', 'whiteAlpha.300');
   const scrollbarThumbHover = useColorToken('colors', 'blackAlpha.400', 'whiteAlpha.400');
 
   const styles = {
+    borderRadius,
     backgroundColor,
     '&::-webkit-scrollbar': { width: '5px' },
     '&::-webkit-scrollbar-track': { backgroundColor: scrollbarTrack },
