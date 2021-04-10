@@ -8,15 +8,19 @@ import type { TNetwork, TSelectOption } from '~/types';
 import type { TQuerySelectField } from './types';
 
 function buildOptions(networks: TNetwork[]) {
-  return networks.map(net => {
-    const label = net.display_name;
-    const options = net.locations.map(loc => ({
-      label: loc.name,
-      value: loc._id,
-      group: net.display_name,
-    }));
-    return { label, options };
-  });
+  return networks
+    .map(net => {
+      const label = net.display_name;
+      const options = net.locations
+        .map(loc => ({
+          label: loc.name,
+          value: loc._id,
+          group: net.display_name,
+        }))
+        .sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
+      return { label, options };
+    })
+    .sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
 }
 
 export const QueryLocation: React.FC<TQuerySelectField> = (props: TQuerySelectField) => {
