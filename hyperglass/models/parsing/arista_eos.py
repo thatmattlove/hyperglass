@@ -38,7 +38,7 @@ class AristaAsPathEntry(_AristaBase):
     """Validation model for Arista asPathEntry."""
 
     as_path_type: str = "External"
-    as_path: str = ""
+    as_path: Optional[str] = ""
 
 
 class AristaPeerEntry(_AristaBase):
@@ -99,6 +99,8 @@ class AristaRoute(_AristaBase):
     router_id: str
     vrf: str
     bgp_route_entries: Dict[str, AristaRouteEntry]
+    # The raw value is really a string, but `int` will convert it.
+    asn: int
 
     @staticmethod
     def _get_route_age(timestamp: int) -> int:
@@ -108,6 +110,8 @@ class AristaRoute(_AristaBase):
 
     @staticmethod
     def _get_as_path(as_path: str) -> List[str]:
+        if as_path == "":
+            return []
         return [int(p) for p in as_path.split() if p.isdecimal()]
 
     def serialize(self):
@@ -129,6 +133,12 @@ class AristaRoute(_AristaBase):
                 if route.route_detail is not None:
                     communities = route.route_detail.community_list
 
+                # iBGP paths contain an empty AS_PATH array. If the AS_PATH is empty, we
+                # set the source_as to the router's local-as.
+                source_as = self.asn
+                if len(as_path) != 0:
+                    source_as = as_path[0]
+
                 routes.append(
                     {
                         "prefix": prefix,
@@ -140,7 +150,7 @@ class AristaRoute(_AristaBase):
                         "as_path": as_path,
                         "communities": communities,
                         "next_hop": route.next_hop,
-                        "source_as": as_path[0],
+                        "source_as": source_as,
                         "source_rid": route.peer_entry.peer_router_id,
                         "peer_rid": route.peer_entry.peer_router_id,
                         "rpki_state": rpki_state,
