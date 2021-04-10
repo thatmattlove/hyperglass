@@ -5,11 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# 1.0.0-beta.81 - 2021-04-10
+
+### Fixed
+- [#124](https://github.com/checktheroads/hyperglass/issues/124): Fix an issue where networks weren't always sorted alphabetically.
+- [#126](https://github.com/checktheroads/hyperglass/issues/126): Fix rendering of markdown tables.
+- [#132](https://github.com/checktheroads/hyperglass/issues/132): Fix an issue where iBGP routes on Arista devices caused output parsing to fail.
+- [#133](https://github.com/checktheroads/hyperglass/issues/133): Use body styles for background/foreground color, allowing the user to override the `light` and `dark` colors per the docs.
+- Fix an issue with select menu list style.
+
 ## 1.0.0-beta.80 - 2021-03-03
 
 ### Fixed
 - Fix an issue where the UI did not properly filter and detect the correct Query VRF when only one was defined.
-- [#121](https://github.com/checktheroads/hyperglass/issues/121) Fix issue with select menu styling in light mode.
+- [#121](https://github.com/checktheroads/hyperglass/issues/121): Fix issue with select menu styling in light mode.
 
 ## 1.0.0-beta.79 - 2021-02-26
 
