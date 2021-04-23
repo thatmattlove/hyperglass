@@ -108,7 +108,7 @@ class NetmikoConnection(SSHConnection):
             log.error(str(scrape_error))
             raise DeviceTimeout(
                 params.messages.connection_error,
-                device_name=self.device.display_name,
+                device_name=self.device.name,
                 proxy=None,
                 error=params.messages.request_timeout,
             )
@@ -121,14 +121,14 @@ class NetmikoConnection(SSHConnection):
 
             raise AuthError(
                 params.messages.connection_error,
-                device_name=self.device.display_name,
+                device_name=self.device.name,
                 proxy=None,
                 error=params.messages.authentication_error,
             )
         if not responses:
             raise ScrapeError(
                 params.messages.connection_error,
-                device_name=self.device.display_name,
+                device_name=self.device.name,
                 proxy=None,
                 error=params.messages.no_response,
             )

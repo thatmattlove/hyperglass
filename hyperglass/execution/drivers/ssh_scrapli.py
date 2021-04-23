@@ -126,7 +126,7 @@ class ScrapliConnection(SSHConnection):
             log.error(err)
             raise DeviceTimeout(
                 params.messages.connection_error,
-                device_name=self.device.display_name,
+                device_name=self.device.name,
                 proxy=None,
                 error=params.messages.request_timeout,
             )
@@ -139,7 +139,7 @@ class ScrapliConnection(SSHConnection):
 
             raise AuthError(
                 params.messages.connection_error,
-                device_name=self.device.display_name,
+                device_name=self.device.name,
                 proxy=None,
                 error=params.messages.authentication_error,
             )
@@ -147,7 +147,7 @@ class ScrapliConnection(SSHConnection):
             log.error(err)
             raise ScrapeError(
                 params.messages.connection_error,
-                device_name=self.device.display_name,
+                device_name=self.device.name,
                 proxy=None,
                 error=params.messages.no_response,
             )
@@ -155,7 +155,7 @@ class ScrapliConnection(SSHConnection):
         if not responses:
             raise ScrapeError(
                 params.messages.connection_error,
-                device_name=self.device.display_name,
+                device_name=self.device.name,
                 proxy=None,
                 error=params.messages.no_response,
             )
