@@ -8,7 +8,7 @@ import type { BoxProps } from '@chakra-ui/react';
  * Combined Chakra + Framer Motion component.
  * @see https://chakra-ui.com/guides/integrations/with-framer
  */
-export const AnimatedDiv = motion.custom(
+export const AnimatedDiv = motion(
   forwardRef<BoxProps, React.ElementType<BoxProps>>((props, ref) => {
     const chakraProps = Object.fromEntries(
       Object.entries(props).filter(([key]) => !isValidMotionProp(key)),

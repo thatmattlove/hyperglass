@@ -27,7 +27,7 @@ import { ResultHeader } from './header';
 
 import type { TResult, TErrorLevels } from './types';
 
-const AnimatedAccordionItem = motion.custom(AccordionItem);
+const AnimatedAccordionItem = motion(AccordionItem);
 
 const AccordionHeaderWrapper = chakra('div', {
   baseStyle: {

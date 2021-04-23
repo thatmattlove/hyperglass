@@ -122,7 +122,7 @@ export const Communities: React.FC<TCommunities> = (props: TCommunities) => {
         </Tooltip>
       </If>
       <If c={communities.length !== 0}>
-        <Menu preventOverflow fixed>
+        <Menu preventOverflow>
           <MenuButton>
             <Icon as={More} />
           </MenuButton>

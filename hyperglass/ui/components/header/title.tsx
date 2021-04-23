@@ -10,7 +10,7 @@ import { Logo } from './logo';
 
 import type { TTitle, TTitleWrapper, TDWrapper, TMWrapper } from './types';
 
-const AnimatedVStack = motion.custom(VStack);
+const AnimatedVStack = motion(VStack);
 
 /**
  * Title wrapper for mobile devices, breakpoints sm & md.

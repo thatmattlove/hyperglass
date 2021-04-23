@@ -53,7 +53,7 @@ export const Footer: React.FC = () => {
           {web.external_link.title}
         </Button>
       </If>
-      {!isMobile && <Flex p={0} flex="0 0 auto" maxWidth="100%" mr="auto" />}
+      {!isMobile && <Flex p={0} flex="1 0 auto" maxWidth="100%" mr="auto" />}
       <If c={web.credit.enable}>
         <FooterButton
           side="right"
