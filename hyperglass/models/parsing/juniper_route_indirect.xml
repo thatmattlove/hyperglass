@@ -1,0 +1,201 @@
+<rpc-reply xmlns:junos="http://xml.juniper.net/junos/18.2R3/junos">
+	<route-information xmlns="http://xml.juniper.net/junos/18.2R3/junos-routing">
+		<!-- keepalive -->
+		<route-table>
+			<table-name>
+				inet.0
+			</table-name>
+			<destination-count>
+				851462
+			</destination-count>
+			<total-route-count>
+				3145810
+			</total-route-count>
+			<active-route-count>
+				851425
+			</active-route-count>
+			<holddown-route-count>
+				1
+			</holddown-route-count>
+			<hidden-route-count>
+				94
+			</hidden-route-count>
+			<rt junos:style="detail">
+				<rt-destination>
+					199.34.94.96
+				</rt-destination>
+				<rt-prefix-length>
+					30
+				</rt-prefix-length>
+				<rt-entry-count junos:format="1 entry">
+					1
+				</rt-entry-count>
+				<rt-announced-count>
+					1
+				</rt-announced-count>
+				<rt-state>
+				</rt-state>
+				<rt-entry>
+					<active-tag>
+						*
+					</active-tag>
+					<current-active />
+					<last-active />
+					<protocol-name>
+						BGP
+					</protocol-name>
+					<preference>
+						200
+					</preference>
+					<preference2>
+						-451
+					</preference2>
+					<nh-type>
+						Indirect
+					</nh-type>
+					<nh-index>
+						0
+					</nh-index>
+					<nh-address>
+						0x159d47bc
+					</nh-address>
+					<nh-reference-count>
+						546728
+					</nh-reference-count>
+					<nh-kernel-id>
+						0
+					</nh-kernel-id>
+					<gateway>
+						199.34.94.1
+					</gateway>
+					<nh-type>
+						Router
+					</nh-type>
+					<nh-index>
+						897
+					</nh-index>
+					<nh junos:indent="16">
+						<nh-string>
+							Next hop
+						</nh-string>
+						<to>
+							100.64.0.21
+						</to>
+						<via>
+							et-0/0/2.3601
+						</via>
+						<selected-next-hop />
+						<label-element>
+							0x4261200
+						</label-element>
+						<label-element-parent>
+							0x0
+						</label-element-parent>
+						<label-element-refcount>
+							4
+						</label-element-refcount>
+						<label-element-childcount>
+							2
+						</label-element-childcount>
+						<label-element-lspid>
+							0
+						</label-element-lspid>
+						<session>
+							53c
+						</session>
+					</nh>
+					<protocol-nh junos:indent="16">
+						<to>
+							199.34.94.1
+						</to>
+						<indirect-nh>
+							0xa010e00 1048620 INH Session ID: 0x53e
+						</indirect-nh>
+					</protocol-nh>
+					<rt-entry-state>
+						Active Int Ext
+					</rt-entry-state>
+					<local-as>
+						14525
+					</local-as>
+					<peer-as>
+						14525
+					</peer-as>
+					<age junos:seconds="1767263">
+						2w6d 10:54:23
+					</age>
+					<metric>
+						0
+					</metric>
+					<metric2>
+						1000
+					</metric2>
+					<validation-state>
+						unverified
+					</validation-state>
+					<med-plus-igp>
+						1000
+					</med-plus-igp>
+					<task-name>
+						BGP_14525.199.34.94.1
+					</task-name>
+					<announce-bits>
+						4
+					</announce-bits>
+					<announce-tasks>
+						0-KRT 8-Resolve tree 3 10-Aggregate 12-RT
+					</announce-tasks>
+					<as-path>
+						AS path: I
+						AS path: Recorded
+					</as-path>
+					<bgp-path-attributes>
+						<attr-as-path-effective>
+							<aspath-effective-string>
+								AS path:
+							</aspath-effective-string>
+							<attr-value>
+								I
+							</attr-value>
+							<flags>
+							</flags>
+						</attr-as-path-effective>
+					</bgp-path-attributes>
+					<communities>
+						<community>
+							14525:0
+						</community>
+						<community>
+							14525:1
+						</community>
+						<community>
+							14525:1021
+						</community>
+						<community>
+							14525:2840
+						</community>
+						<community>
+							14525:3003
+						</community>
+						<community>
+							14525:4003
+						</community>
+					</communities>
+					<bgp-rt-flag>
+						Accepted
+					</bgp-rt-flag>
+					<local-preference>
+						450
+					</local-preference>
+					<peer-id>
+						199.34.94.1
+					</peer-id>
+				</rt-entry>
+			</rt>
+		</route-table>
+	</route-information>
+	<cli>
+		<banner>
+		</banner>
+	</cli>
+</rpc-reply>

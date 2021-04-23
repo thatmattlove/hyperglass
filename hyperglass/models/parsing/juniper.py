@@ -75,6 +75,9 @@ class JuniperRouteTableEntry(_JuniperBase):
             if "selected-next-hop" in hop:
                 selected_next_hop = hop.get("to", "")
                 break
+            elif hop.get("to") is not None:
+                selected_next_hop = hop["to"]
+                break
 
         values["next-hop"] = selected_next_hop
 
