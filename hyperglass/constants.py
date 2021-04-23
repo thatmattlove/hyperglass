@@ -74,7 +74,8 @@ SCRAPE_HELPERS = {
 }
 
 DRIVER_MAP = {
-    "arista_eos": "scrapli",
+    # TODO: Troubleshoot Arista with Scrapli, broken after upgrading to 2021.1.30.
+    # "arista_eos": "scrapli", # noqa: E800
     "bird_ssh": "scrapli",
     "cisco_ios": "scrapli",
     "cisco_xe": "scrapli",

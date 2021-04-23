@@ -12,7 +12,6 @@ from scrapli.driver import AsyncGenericDriver
 from scrapli.exceptions import (
     ScrapliTimeout,
     ScrapliException,
-    KeyVerificationFailed,
     ScrapliAuthenticationFailed,
 )
 from scrapli.driver.core import (
@@ -110,11 +109,12 @@ class ScrapliConnection(SSHConnection):
                 ] = self.device.credential.password.get_secret_value()
 
         driver = driver(**driver_kwargs)
-        driver.logger = log.bind(logger_name=f"scrapli.driver-{driver._host}")
+        driver.logger = log.bind(
+            logger_name=f"scrapli.{driver.host}:{driver.port}-driver"
+        )
 
         try:
             responses = ()
-
             async with driver as connection:
                 await connection.get_prompt()
                 for query in self.query:
@@ -127,10 +127,9 @@ class ScrapliConnection(SSHConnection):
             raise DeviceTimeout(
                 params.messages.connection_error,
                 device_name=self.device.name,
-                proxy=None,
                 error=params.messages.request_timeout,
             )
-        except (ScrapliAuthenticationFailed, KeyVerificationFailed) as err:
+        except ScrapliAuthenticationFailed as err:
             log.error(
                 "Error authenticating to device {loc}: {e}",
                 loc=self.device.name,
@@ -140,7 +139,6 @@ class ScrapliConnection(SSHConnection):
             raise AuthError(
                 params.messages.connection_error,
                 device_name=self.device.name,
-                proxy=None,
                 error=params.messages.authentication_error,
             )
         except ScrapliException as err:
@@ -148,7 +146,6 @@ class ScrapliConnection(SSHConnection):
             raise ScrapeError(
                 params.messages.connection_error,
                 device_name=self.device.name,
-                proxy=None,
                 error=params.messages.no_response,
             )
 
@@ -156,7 +153,6 @@ class ScrapliConnection(SSHConnection):
             raise ScrapeError(
                 params.messages.connection_error,
                 device_name=self.device.name,
-                proxy=None,
                 error=params.messages.no_response,
             )
 

@@ -50,10 +50,10 @@ py-cpuinfo = "^7.0.0"
 pydantic = "^1.7.3"
 python = ">=3.6.1,<4.0"
 redis = "^3.5.3"
-scrapli = {extras = ["asyncssh"], version = "^2020.9.26"}
 uvicorn = "^0.11"
 uvloop = "^0.14.0"
 xmltodict = "^0.12.0"
+scrapli = {extras = ["asyncssh"], version = "^2021.1.30"}
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.6.2"
