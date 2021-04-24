@@ -5,9 +5,11 @@ import re
 from typing import TypeVar
 
 # Third Party
-from pydantic import StrictInt, StrictFloat
+from pydantic import StrictInt, StrictFloat, constr
 
 IntFloat = TypeVar("IntFloat", StrictInt, StrictFloat)
+
+SupportedDriver = constr(regex=r"(scrapli|netmiko|hyperglass_agent)")
 
 
 class StrictBytes(bytes):

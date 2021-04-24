@@ -12,19 +12,24 @@ from typing import Any, Dict, Union, Callable, Sequence
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import validate_nos
 from hyperglass.exceptions import DeviceTimeout, ResponseEmpty
 from hyperglass.models.api import Query
 from hyperglass.configuration import params
 
 # Local
-from .drivers import AgentConnection, NetmikoConnection, ScrapliConnection
+from .drivers import Connection, AgentConnection, NetmikoConnection, ScrapliConnection
 
-DRIVER_MAP = {
-    "scrapli": ScrapliConnection,
-    "netmiko": NetmikoConnection,
-    "hyperglass_agent": AgentConnection,
-}
+
+def map_driver(driver_name: str) -> Connection:
+    """Get the correct driver class based on the driver name."""
+
+    if driver_name == "scrapli":
+        return ScrapliConnection
+
+    elif driver_name == "hyperglass_agent":
+        return AgentConnection
+
+    return NetmikoConnection
 
 
 def handle_timeout(**exc_args: Any) -> Callable:
@@ -44,9 +49,7 @@ async def execute(query: Query) -> Union[str, Sequence[Dict]]:
     log.debug("Received query for {}", query.json())
     log.debug("Matched device config: {}", query.device)
 
-    supported, driver_name = validate_nos(query.device.nos)
-
-    mapped_driver = DRIVER_MAP.get(driver_name, NetmikoConnection)
+    mapped_driver = map_driver(query.device.driver)
     driver = mapped_driver(query.device, query)
 
     timeout_args = {

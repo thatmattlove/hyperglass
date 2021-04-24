@@ -6,16 +6,21 @@ import sys
 import json
 import platform
 from queue import Queue
-from typing import Dict, Union, Generator
+from typing import Dict, Union, Optional, Generator
 from asyncio import iscoroutine
 from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address, ip_address
 
 # Third Party
 from loguru._logger import Logger as LoguruLogger
+from netmiko.ssh_dispatcher import CLASS_MAPPER
 
 # Project
 from hyperglass.log import log
+from hyperglass.constants import DRIVER_MAP
+
+ALL_NOS = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
+ALL_DRIVERS = {*DRIVER_MAP.values(), "netmiko"}
 
 
 def cpu_count(multiplier: int = 0) -> int:
@@ -250,20 +255,28 @@ def make_repr(_class):
 
 def validate_nos(nos):
     """Validate device NOS is supported."""
-    # Third Party
-    from netmiko.ssh_dispatcher import CLASS_MAPPER
-
-    # Project
-    from hyperglass.constants import DRIVER_MAP
 
     result = (False, None)
 
-    all_nos = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
-
-    if nos in all_nos:
+    if nos in ALL_NOS:
         result = (True, DRIVER_MAP.get(nos, "netmiko"))
 
     return result
+
+
+def get_driver(nos: str, driver: Optional[str]) -> str:
+    """Determine the appropriate driver for a device."""
+
+    if driver is None:
+        # If no driver is set, use the driver map with netmiko as
+        # fallback.
+        return DRIVER_MAP.get(nos, "netmiko")
+    elif driver in ALL_DRIVERS:
+        # If a driver is set and it is valid, allow it.
+        return driver
+    else:
+        # Otherwise, fail validation.
+        raise ValueError("{} is not a supported driver.".format(driver))
 
 
 def current_log_level(logger: LoguruLogger) -> str:

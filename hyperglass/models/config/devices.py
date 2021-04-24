@@ -19,7 +19,7 @@ from pydantic import (
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import validate_nos, resolve_hostname
+from hyperglass.util import get_driver, validate_nos, resolve_hostname
 from hyperglass.constants import SCRAPE_HELPERS, SUPPORTED_STRUCTURED_OUTPUT
 from hyperglass.exceptions import ConfigError, UnsupportedDevice
 
@@ -28,6 +28,7 @@ from .ssl import Ssl
 from .vrf import Vrf, Info
 from ..main import HyperglassModel, HyperglassModelExtra
 from .proxy import Proxy
+from ..fields import SupportedDriver
 from .network import Network
 from .credential import Credential
 
@@ -93,6 +94,7 @@ class Device(HyperglassModel):
     display_vrfs: List[StrictStr] = []
     vrf_names: List[StrictStr] = []
     structured_output: Optional[StrictBool]
+    driver: Optional[SupportedDriver]
 
     def __init__(self, **kwargs) -> None:
         """Set the device ID."""
@@ -130,15 +132,9 @@ class Device(HyperglassModel):
         return value
 
     @validator("structured_output", pre=True, always=True)
-    def validate_structured_output(cls, value, values):
-        """Validate structured output is supported on the device & set a default.
+    def validate_structured_output(cls, value: bool, values: Dict) -> bool:
+        """Validate structured output is supported on the device & set a default."""
 
-        Raises:
-            ConfigError: Raised if true on a device that doesn't support structured output.
-
-        Returns:
-            {bool} -- True if hyperglass should return structured output for this device.
-        """
         if value is True and values["nos"] not in SUPPORTED_STRUCTURED_OUTPUT:
             raise ConfigError(
                 "The 'structured_output' field is set to 'true' on device '{d}' with "
@@ -279,6 +275,11 @@ class Device(HyperglassModel):
 
             vrfs.append(vrf)
         return vrfs
+
+    @validator("driver")
+    def validate_driver(cls, value: Optional[str], values: Dict) -> Dict:
+        """Set the correct driver and override if supported."""
+        return get_driver(values["nos"], value)
 
 
 class Devices(HyperglassModelExtra):
