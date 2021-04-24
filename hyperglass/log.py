@@ -16,13 +16,13 @@ _FMT = (
 _DATE_FMT = "%Y%m%d %H:%M:%S"
 _FMT_BASIC = "{message}"
 _LOG_LEVELS = [
-    {"name": "TRACE", "no": 5, "color": "<m>"},
-    {"name": "DEBUG", "no": 10, "color": "<c>"},
-    {"name": "INFO", "no": 20, "color": "<le>"},
-    {"name": "SUCCESS", "no": 25, "color": "<g>"},
-    {"name": "WARNING", "no": 30, "color": "<y>"},
-    {"name": "ERROR", "no": 40, "color": "<y>"},
-    {"name": "CRITICAL", "no": 50, "color": "<r>"},
+    {"name": "TRACE", "color": "<m>"},
+    {"name": "DEBUG", "color": "<c>"},
+    {"name": "INFO", "color": "<le>"},
+    {"name": "SUCCESS", "color": "<g>"},
+    {"name": "WARNING", "color": "<y>"},
+    {"name": "ERROR", "color": "<y>"},
+    {"name": "CRITICAL", "color": "<r>"},
 ]
 
 

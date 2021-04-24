@@ -14,8 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#135](https://github.com/checktheroads/hyperglass/issues/135): Fix an issue where Juniper indirect next-hops were empty.
 
 ### Changed
-- Upgraded Scrapli to 2021.1.30
-- Upgraded UI dependencies
+- Updated major Python dependencies (FastAPI, Scrapli, Netmiko, Pydantic, Uvicorn, Gunicorn, etc.)
+- Updated UI dependencies
+
+### Added
+- The driver for devices can now be overridden with the `driver` parameter.
 
 # 1.0.0-beta.81 - 2021-04-10
 

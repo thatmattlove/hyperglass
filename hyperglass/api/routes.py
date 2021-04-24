@@ -176,6 +176,9 @@ async def import_certificate(encoded_request: EncodedRequest):
     """Import a certificate from hyperglass-agent."""
 
     # Try to match the requested device name with configured devices
+    log.debug(
+        "Attempting certificate import for device '{}'", devices[encoded_request.device]
+    )
     try:
         matched_device = devices[encoded_request.device]
     except AttributeError:

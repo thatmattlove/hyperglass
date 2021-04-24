@@ -9,7 +9,7 @@ from socket import gaierror
 
 # Third Party
 import httpx
-from httpx.status_codes import StatusCode
+from httpx import StatusCode
 
 # Project
 from hyperglass.log import log

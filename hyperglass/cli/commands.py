@@ -124,9 +124,6 @@ def start(build, direct, workers):  # noqa: C901
             warning(str(err))
         error("Stopping hyperglass due to keyboard interrupt.")
 
-    except BaseException as err:
-        error(str(err))
-
 
 @hg.command(
     "secret",
