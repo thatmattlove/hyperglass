@@ -19,7 +19,7 @@ export const Chart: React.FC<TChart> = (props: TChart) => {
 
   return (
     <ReactFlowProvider>
-      <Box boxSize="100%" zIndex={1}>
+      <Box w="100%" h={{ base: '100vh', lg: '70vh' }} zIndex={1}>
         <ReactFlow
           snapToGrid
           elements={elements}

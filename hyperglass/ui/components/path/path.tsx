@@ -31,7 +31,7 @@ export const Path: React.FC<TPath> = (props: TPath) => {
         <ModalOverlay />
         <ModalContent
           bg={bg}
-          mt={{ base: 4, lg: '' }}
+          minH={{ lg: '80vh' }}
           maxH={{ base: '80%', lg: '60%' }}
           maxW={{ base: '100%', lg: '80%' }}
         >
