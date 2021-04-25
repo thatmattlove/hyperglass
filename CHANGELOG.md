@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - [#135](https://github.com/checktheroads/hyperglass/issues/135): Fix an issue where Juniper indirect next-hops were empty.
+- Fix an issue where Juniper structured AS_PATH or Community queries would appear to fail if one address family (IPv4 or IPv6) had an empty response. For example, if an AS_PATH query for `.* 29414 .*` was made (which only returns IPv4 routes), the query would fail.
 
 ### Changed
 - Updated major Python dependencies (FastAPI, Scrapli, Netmiko, Pydantic, Uvicorn, Gunicorn, etc.)

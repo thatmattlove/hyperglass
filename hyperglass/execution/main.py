@@ -75,8 +75,20 @@ async def execute(query: Query) -> Union[str, Sequence[Dict]]:
 
     output = await driver.parsed_response(response)
 
-    if output == "" or output == "\n":
-        raise ResponseEmpty(params.messages.no_output, device_name=query.device.name)
+    if isinstance(output, str):
+        # If the output is a string (not structured) and is empty,
+        # produce an error.
+        if output == "" or output == "\n":
+            raise ResponseEmpty(
+                params.messages.no_output, device_name=query.device.name
+            )
+    elif isinstance(output, Dict):
+        # If the output an empty dict, responses have data, produce an
+        # error.
+        if not output:
+            raise ResponseEmpty(
+                params.messages.no_output, device_name=query.device.name
+            )
 
     log.debug("Output for query: {}:\n{}", query.json(), repr(output))
     signal.alarm(0)

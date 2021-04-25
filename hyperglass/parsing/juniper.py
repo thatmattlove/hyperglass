@@ -2,7 +2,7 @@
 
 # Standard Library
 import re
-from typing import Dict, List, Iterable, Generator
+from typing import Dict, List, Sequence, Generator
 
 # Third Party
 import xmltodict
@@ -10,8 +10,7 @@ from pydantic import ValidationError
 
 # Project
 from hyperglass.log import log
-from hyperglass.exceptions import ParsingError, ResponseEmpty
-from hyperglass.configuration import params
+from hyperglass.exceptions import ParsingError
 from hyperglass.models.parsing.juniper import JuniperRoute
 
 REMOVE_PATTERNS = (
@@ -51,7 +50,7 @@ def clean_xml_output(output: str) -> str:
     return "\n".join(lines)
 
 
-def parse_juniper(output: Iterable) -> Dict:  # noqa: C901
+def parse_juniper(output: Sequence) -> Dict:  # noqa: C901
     """Parse a Juniper BGP XML response."""
     data = {}
 
@@ -71,10 +70,10 @@ def parse_juniper(output: Iterable) -> Dict:  # noqa: C901
                 parsed_base = parsed["route-information"]
 
             if "route-table" not in parsed_base:
-                raise ResponseEmpty(params.messages.no_output)
+                return data
 
             if "rt" not in parsed_base["route-table"]:
-                raise ResponseEmpty(params.messages.no_output)
+                return data
 
             parsed = parsed_base["route-table"]
 
