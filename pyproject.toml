@@ -23,7 +23,7 @@ license = "BSD-3-Clause-Clear"
 name = "hyperglass"
 readme = "README.md"
 repository = "https://github.com/checktheroads/hyperglass"
-version = "1.0.0-beta.81"
+version = "1.0.0-beta.82"
 
 [tool.poetry.scripts]
 hyperglass = "hyperglass.console:CLI"
