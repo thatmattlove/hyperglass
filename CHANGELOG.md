@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated major Python dependencies (FastAPI, Scrapli, Netmiko, Pydantic, Uvicorn, Gunicorn, etc.)
 - Updated UI dependencies
+- [#128](https://github.com/checktheroads/hyperglass/pull/128): Add `best` to all Juniper BGP Route queries. See [Juniper docs](https://www.juniper.net/documentation/us/en/software/junos/bgp/topics/ref/command/show-route-best.html) for more details.
 
 ### Added
 - The driver for devices can now be overridden with the `driver` parameter.
