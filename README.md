@@ -15,10 +15,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/hyperglass?style=for-the-badge)](https://pypi.org/project/hyperglass/)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/hyperglass?color=%2340798C&style=for-the-badge)
-
 [![GitHub Contributors](https://img.shields.io/github/contributors/checktheroads/hyperglass?color=40798C&style=for-the-badge)](https://github.com/checktheroads/hyperglass)
-[![Gitter](https://img.shields.io/gitter/room/checktheroads/hyperglass?color=ff5e5b&style=for-the-badge)](https://gitter.im/hyperglass)
-[![Telegram](https://img.shields.io/badge/chat-telegram-blue?style=for-the-badge&color=blue&logo=telegram)](https://t.me/hyperglasslg)
 
 [![Frontend Tests](https://img.shields.io/github/workflow/status/checktheroads/hyperglass/Frontend%20Testing?label=Frontend%20Tests&style=for-the-badge)](https://github.com/checktheroads/hyperglass/actions?query=workflow%3A%Frontend+Testing%22)
 [![Backend Tests](https://img.shields.io/github/workflow/status/checktheroads/hyperglass/Backend%20Testing?label=Backend%20Tests&style=for-the-badge)](https://github.com/checktheroads/hyperglass/actions?query=workflow%3A%Backend+Testing%22)
@@ -27,10 +24,6 @@
 <br/>
 
 hyperglass is intended to make implementing a looking glass too easy not to do, with the lofty goal of improving the internet community at large by making looking glasses more common across autonomous systems of any size.
-
-<br/>
-
-⚠️ **v1.0.0** *is currently in beta. While everything should work, some things might not. Documentation and the live demo are not yet complete. For a fully working and documented version of hyperglass, **please go to the [v0 branch](https://github.com/checktheroads/hyperglass/tree/v0)**.*
 
 </div>
 
@@ -69,10 +62,8 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 
 ## Community
 
+- [Slack](https://slack.netbox.dev/)
 - [Telegram](https://t.me/hyperglasslg)
-- [Gitter](https://gitter.im/hyperglass)
-- [Twitter](https://twitter.com/checktheroads)
-- [Keybase](https://keybase.io/team/hyperglass)
 
 Any users, potential users, or contributors of hyperglass are welcome to join and discuss usage, feature requests, bugs, and other things.
 
