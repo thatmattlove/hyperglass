@@ -8,6 +8,7 @@ from .vyos import VyosCommands
 from ..main import HyperglassModelExtra
 from .common import CommandGroup
 from .huawei import HuaweiCommands
+from .huawei_vrpv8 import HuaweiVRPV8Commands
 from .juniper import JuniperCommands
 from .cisco_xr import CiscoXRCommands
 from .cisco_ios import CiscoIOSCommands
@@ -25,6 +26,7 @@ _NOS_MAP = {
     "cisco_xr": CiscoXRCommands,
     "frr_ssh": FRRCommands,
     "huawei": HuaweiCommands,
+    "huawei_vrpv8": HuaweiVRPV8Commands,
     "juniper": JuniperCommands,
     "mikrotik_routeros": MikrotikRouterOS,
     "mikrotik_switchos": MikrotikSwitchOS,
@@ -44,6 +46,7 @@ class Commands(HyperglassModelExtra):
     cisco_xr: CommandGroup = CiscoXRCommands()
     frr_ssh: CommandGroup = FRRCommands()
     huawei: CommandGroup = HuaweiCommands()
+    huawei_vrpv8: CommandGroup = HuaweiVRPV8Commands()
     juniper: CommandGroup = JuniperCommands()
     mikrotik_routeros: CommandGroup = MikrotikRouterOS()
     mikrotik_switchos: CommandGroup = MikrotikSwitchOS()
