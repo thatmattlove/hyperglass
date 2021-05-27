@@ -62,7 +62,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 
 ## Community
 
-- [Slack](https://slack.netbox.dev/)
+- [Slack](https://netdev.chat/)
 - [Telegram](https://t.me/hyperglasslg)
 
 Any users, potential users, or contributors of hyperglass are welcome to join and discuss usage, feature requests, bugs, and other things.
