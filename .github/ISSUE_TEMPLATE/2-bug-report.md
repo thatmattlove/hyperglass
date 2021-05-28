@@ -1,7 +1,7 @@
 ---
 name: Bug Report
 about: Report a problem or unexpected behavior
-labels: bug
+labels: possible-bug
 assignees: checktheroads
 ---
 
