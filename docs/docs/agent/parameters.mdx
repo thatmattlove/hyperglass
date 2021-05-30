@@ -9,6 +9,10 @@ description: hyperglass-agent configuration parameters.
 import M from "../../src/components/MiniNote";
 import PL from "../../src/components/PageLink";
 
+:::caution Deprecation Warning
+[hyperglass-agent](https://github.com/checktheroads/hyperglass-agent) is going to be deprecated soon. See [Issue #143](https://github.com/checktheroads/hyperglass/issues/143) and [here](platforms.mdx) for more detail.
+:::
+
 <div class="table--full-width" />
 
 ## Configuration File
@@ -62,3 +66,7 @@ By default, hyperglass-agent writes all log messages to a log file located at `/
 | `directory` | FilePath | `/tmp/`  | Directory at which to write the log file `hyperglass-agent.log`. Use `false` to disable file logging.                                                           |
 | `format`    |  String  | `'text'` | `'text'` for plain text non-structured logging, `'json'` for JSON structured logging. If JSON is enabled, the log file name will be `hyperglass-agent.log.json` |
 | `max_size`  |  String  | `'50MB'` | Maximum log file size before old logs are overwritten.                                                                                                          |
+
+:::caution Deprecation Warning
+[hyperglass-agent](https://github.com/checktheroads/hyperglass-agent) is going to be deprecated soon. See [Issue #143](https://github.com/checktheroads/hyperglass/issues/143) and [here](platforms.mdx) for more detail.
+:::

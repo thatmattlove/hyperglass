@@ -24,6 +24,13 @@
   --ifm-color-primary-light: #ff807e;
   --ifm-color-primary-lighter: #ff918f;
   --ifm-color-primary-lightest: #ffc4c3;
+  --ifm-color-success: #35b246;
+  --ifm-color-success-dark: #30a03f;
+  --ifm-color-success-darker: #2d973b;
+  --ifm-color-success-darkest: #257d31;
+  --ifm-color-success-light: #3ac44d;
+  --ifm-color-success-lighter: #43c755;
+  --ifm-color-success-lightest: #5dcf6d;
   --ifm-code-font-size: 95%;
   --ifm-font-family-base: "Nunito", system-ui, -apple-system, Segoe UI, Roboto,
     Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, "Segoe UI",

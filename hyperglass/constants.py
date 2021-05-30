@@ -62,7 +62,7 @@ FUNC_COLOR_MAP = {
     "danger": "red",
 }
 
-TRANSPORT_REST = ("frr", "bird")
+TRANSPORT_REST = ("frr_legacy", "bird_legacy")
 
 SCRAPE_HELPERS = {
     "arista": "arista_eos",
@@ -76,14 +76,14 @@ SCRAPE_HELPERS = {
 DRIVER_MAP = {
     # TODO: Troubleshoot Arista with Scrapli, broken after upgrading to 2021.1.30.
     # "arista_eos": "scrapli", # noqa: E800
-    "bird_ssh": "scrapli",
+    "bird": "scrapli",
     "cisco_ios": "scrapli",
     "cisco_xe": "scrapli",
     "cisco_xr": "scrapli",
     "cisco_nxos": "scrapli",
     "juniper": "scrapli",
     "tnsr": "scrapli",
-    "frr_ssh": "scrapli",
-    "frr": "hyperglass_agent",
-    "bird": "hyperglass_agent",
+    "frr": "scrapli",
+    "frr_legacy": "hyperglass_agent",
+    "bird_legacy": "hyperglass_agent",
 }
