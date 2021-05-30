@@ -5,7 +5,7 @@ requires = ["poetry>=0.12"]
 [tool.poetry]
 authors = ["Matt Love <matt@hyperglass.io>"]
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Information Technology",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: JavaScript",
@@ -23,7 +23,7 @@ license = "BSD-3-Clause-Clear"
 name = "hyperglass"
 readme = "README.md"
 repository = "https://github.com/checktheroads/hyperglass"
-version = "1.0.0-beta.82"
+version = "1.0.0"
 
 [tool.poetry.scripts]
 hyperglass = "hyperglass.console:CLI"
