@@ -125,6 +125,7 @@ class Query(BaseModel):
 
     def export_dict(self, pretty=False):
         """Create dictionary representation of instance."""
+
         if pretty:
             items = {
                 "query_location": self.device.name,
@@ -148,19 +149,26 @@ class Query(BaseModel):
     @validator("query_type")
     def validate_query_type(cls, value):
         """Ensure query_type is enabled."""
+
         query = params.queries[value]
+
         if not query.enable:
             raise InputInvalid(
                 params.messages.feature_not_enabled,
                 level="warning",
                 feature=query.display_name,
             )
+
         return value
 
     @validator("query_location")
     def validate_query_location(cls, value):
         """Ensure query_location is defined."""
-        if value not in devices._ids:
+
+        valid_id = value in devices._ids
+        valid_hostname = value in devices.hostnames
+
+        if not any((valid_id, valid_hostname)):
             raise InputInvalid(
                 params.messages.invalid_field,
                 level="warning",
@@ -172,13 +180,16 @@ class Query(BaseModel):
     @validator("query_vrf")
     def validate_query_vrf(cls, value, values):
         """Ensure query_vrf is defined."""
+
         vrf_object = get_vrf_object(value)
         device = devices[values["query_location"]]
         device_vrf = None
+
         for vrf in device.vrfs:
             if vrf == vrf_object:
                 device_vrf = vrf
                 break
+
         if device_vrf is None:
             raise InputInvalid(
                 params.messages.vrf_not_associated,
