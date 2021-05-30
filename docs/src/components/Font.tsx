@@ -1,8 +1,13 @@
-import React from "react";
+import * as React from "react";
 import clsx from "clsx";
 import styles from "./fonts.module.css";
 
-export default ({ name }) => {
+type FontProps = {
+  name: string;
+};
+
+const Font = (props: React.PropsWithChildren<FontProps>): JSX.Element => {
+  const { name } = props;
   const fontClass = { Nunito: "fontBody", "Fira Code": "fontMono" };
   return (
     <a href={`https://fonts.google.com/specimen/${name.split(" ").join("+")}`}>
@@ -10,3 +15,5 @@ export default ({ name }) => {
     </a>
   );
 };
+
+export default Font;

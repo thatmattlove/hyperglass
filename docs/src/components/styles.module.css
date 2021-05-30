@@ -1,25 +1,31 @@
 .code {
-    background-color: var(--ifm-code-background);
-    color: var(--ifm-code-color);
-    font-family: var(--ifm-font-family-monospace);
-    font-size: var(--ifm-code-font-size);
-    border-radius: var(--ifm-code-border-radius);
-    margin: 0;
-    padding: var(--ifm-code-padding-vertical) var(--ifm-code-padding-horizontal);
-    font-style: normal;
+  background-color: var(--ifm-code-background);
+  color: var(--ifm-code-color);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: var(--ifm-code-font-size);
+  border-radius: var(--ifm-code-border-radius);
+  margin: 0;
+  padding: var(--ifm-code-padding-vertical) var(--ifm-code-padding-horizontal);
+  font-style: normal;
 }
 
 .color {
-    border-radius: var(--ifm-global-radius);
-    display: inline-flex;
-    height: 1.5rem;
-    width: 1.5rem;
-    margin-right: 0.5rem;
-    padding: var(--ifm-code-padding-vertical) var(--ifm-code-padding-horizontal);
+  border-radius: var(--ifm-global-radius);
+  display: inline-flex;
+  height: 1.5rem;
+  width: 1.5rem;
+  margin-right: 0.5rem;
+  padding: var(--ifm-code-padding-vertical) var(--ifm-code-padding-horizontal);
 }
 
 .colorCode {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.Native {
+  /* color: var(--ifm-link-color); */
+  color: var(--ifm-color-success);
+  font-weight: bold;
 }
