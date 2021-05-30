@@ -2,6 +2,8 @@ import type { Theme } from './theme';
 
 export type TQueryFields = 'query_type' | 'query_target' | 'query_location' | 'query_vrf';
 
+type TSide = 'left' | 'right';
+
 export interface IConfigMessages {
   no_input: string;
   acl_denied: string;
@@ -62,10 +64,26 @@ export interface TConfigWebLogo {
   dark_format: string;
 }
 
+export interface TLink {
+  title: string;
+  url: string;
+  show_icon: boolean;
+  side: TSide;
+  order: number;
+}
+
+export interface TMenu {
+  title: string;
+  content: string;
+  side: TSide;
+  order: number;
+}
+
 export interface IConfigWeb {
   credit: { enable: boolean };
   dns_provider: { name: string; url: string };
-  external_link: { enable: boolean; title: string; url: string };
+  links: TLink[];
+  menus: TMenu[];
   greeting: TConfigGreeting;
   help_menu: { enable: boolean; title: string };
   logo: TConfigWebLogo;
@@ -149,8 +167,6 @@ export interface TQueryContent {
 }
 
 export interface IConfigContent {
-  help_menu: string;
-  terms: string;
   credit: string;
   greeting: string;
   vrf: {
