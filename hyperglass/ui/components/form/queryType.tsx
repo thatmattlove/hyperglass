@@ -16,7 +16,9 @@ function buildOptions(queryTypes: TQuery[]): TSelectOption[] {
 export const QueryType: React.FC<TQuerySelectField> = (props: TQuerySelectField) => {
   const { onChange, label } = props;
   const { queries } = useConfig();
-  const { errors } = useFormContext();
+  const {
+    formState: { errors },
+  } = useFormContext();
   const { selections } = useLGState();
   const { exportState } = useLGMethods();
 

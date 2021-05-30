@@ -13,7 +13,9 @@ export const FormField: React.FC<TField> = (props: TField) => {
   const errorColor = useColorValue('red.500', 'red.300');
   const opacity = useBooleanValue(hiddenLabels, 0, undefined);
 
-  const { errors } = useFormContext();
+  const {
+    formState: { errors },
+  } = useFormContext();
 
   const error = name in errors && (errors[name] as FieldError);
 

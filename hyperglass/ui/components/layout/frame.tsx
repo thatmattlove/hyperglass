@@ -38,15 +38,15 @@ export const Frame: React.FC<TFrame> = (props: TFrame) => {
       >
         <Header resetForm={handleReset} />
         <Flex
-          px={2}
+          px={4}
           py={0}
-          w="100%"
           as="main"
           align="center"
           flex="1 1 auto"
           justify="start"
           flexDir="column"
           textAlign="center"
+          w={{ base: '100%', lg: 'calc(100% - 1rem)' }}
           {...props}
         />
         <Footer />

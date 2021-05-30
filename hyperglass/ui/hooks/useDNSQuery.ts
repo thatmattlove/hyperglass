@@ -3,14 +3,16 @@ import { useConfig } from '~/context';
 import { fetchWithTimeout } from '~/util';
 import { useGoogleAnalytics } from './useGoogleAnalytics';
 
-import type { QueryObserverResult } from 'react-query';
+import type { QueryFunction, QueryFunctionContext, QueryObserverResult } from 'react-query';
 import type { DnsOverHttps } from '~/types';
-import type { TUseDNSQueryFn } from './types';
+import type { DNSQueryKey } from './types';
 
 /**
  * Perform a DNS over HTTPS query using the application/dns-json MIME type.
  */
-async function dnsQuery(ctx: TUseDNSQueryFn): Promise<DnsOverHttps.Response | undefined> {
+const query: QueryFunction<DnsOverHttps.Response, DNSQueryKey> = async (
+  ctx: QueryFunctionContext<DNSQueryKey>,
+) => {
   const [url, { target, family }] = ctx.queryKey;
 
   const controller = new AbortController();
@@ -33,7 +35,7 @@ async function dnsQuery(ctx: TUseDNSQueryFn): Promise<DnsOverHttps.Response | un
   }
 
   return json;
-}
+};
 
 /**
  * Query the configured DNS over HTTPS provider for the provided target. If `family` is `4`, only
@@ -56,7 +58,9 @@ export function useDNSQuery(
     trackEvent({ category: 'DNS', action: 'Query', label: target, dimension1: `IPv${family}` });
   }
 
-  return useQuery([web.dns_provider.url, { target, family }], dnsQuery, {
+  return useQuery<DnsOverHttps.Response, unknown, DnsOverHttps.Response, DNSQueryKey>({
+    queryKey: [web.dns_provider.url, { target, family }],
+    queryFn: query,
     cacheTime: cache.timeout * 1000,
   });
 }

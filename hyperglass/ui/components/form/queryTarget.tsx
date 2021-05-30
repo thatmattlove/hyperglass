@@ -58,7 +58,7 @@ export const QueryTarget: React.FC<TQueryTarget> = (props: TQueryTarget) => {
 
   return (
     <>
-      <input hidden readOnly name={name} ref={register} value={queryTarget.value} />
+      <input {...register} hidden readOnly value={queryTarget.value} />
       <If c={queryType.value === 'bgp_community' && queries.bgp_community.mode === 'select'}>
         <Select
           size="lg"

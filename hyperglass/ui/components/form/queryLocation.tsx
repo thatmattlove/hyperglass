@@ -27,7 +27,9 @@ export const QueryLocation: React.FC<TQuerySelectField> = (props: TQuerySelectFi
   const { onChange, label } = props;
 
   const { networks } = useConfig();
-  const { errors } = useFormContext();
+  const {
+    formState: { errors },
+  } = useFormContext();
   const { selections } = useLGState();
   const { exportState } = useLGMethods();
 

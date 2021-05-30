@@ -1,7 +1,7 @@
 /* eslint @typescript-eslint/explicit-module-boundary-types: off */
 /* eslint @typescript-eslint/no-explicit-any: off */
 import type { State } from '@hookstate/core';
-import type { TValidQueryTypes, TStringTableData, TQueryResponseString } from './data';
+import type { TFormData, TValidQueryTypes, TStringTableData, TQueryResponseString } from './data';
 import type { TSelectOption } from './common';
 import type { TQueryContent } from './config';
 
@@ -56,4 +56,11 @@ export function isState<S>(a: any): a is State<NonNullable<S>> {
     }
   }
   return result;
+}
+
+/**
+ * Determine if a form field name is a valid form key name.
+ */
+export function isQueryField(field: string): field is keyof TFormData {
+  return ['query_location', 'query_type', 'query_vrf', 'query_target'].includes(field);
 }

@@ -1,6 +1,6 @@
 import type { FormControlProps } from '@chakra-ui/react';
-import type { Control } from 'react-hook-form';
-import type { TDeviceVrf, TBGPCommunity, OnChangeArgs } from '~/types';
+import type { UseFormRegister } from 'react-hook-form';
+import type { TDeviceVrf, TBGPCommunity, OnChangeArgs, TFormData } from '~/types';
 
 export interface TField extends FormControlProps {
   name: string;
@@ -25,13 +25,13 @@ export interface TCommunitySelect {
   name: string;
   onChange: OnChange;
   communities: TBGPCommunity[];
-  register: Control['register'];
+  register: UseFormRegister<TFormData>;
 }
 
 export interface TQueryTarget {
   name: string;
   placeholder: string;
-  register: Control['register'];
+  register: UseFormRegister<TFormData>;
   onChange(e: OnChangeArgs): void;
 }
 

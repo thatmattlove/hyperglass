@@ -4,9 +4,9 @@ import { useConfig } from '~/context';
 import { useGoogleAnalytics } from './useGoogleAnalytics';
 import { fetchWithTimeout } from '~/util';
 
-import type { QueryObserverResult } from 'react-query';
+import type { QueryFunction, QueryFunctionContext, QueryObserverResult } from 'react-query';
 import type { TFormQuery } from '~/types';
-import type { TUseLGQueryFn } from './types';
+import type { LGQueryKey } from './types';
 
 /**
  * Custom hook handle submission of a query to the hyperglass backend.
@@ -26,7 +26,9 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryRespons
     dimension4: query.queryVrf,
   });
 
-  async function runQuery(ctx: TUseLGQueryFn): Promise<TQueryResponse> {
+  const runQuery: QueryFunction<TQueryResponse, LGQueryKey> = async (
+    ctx: QueryFunctionContext<LGQueryKey>,
+  ): Promise<TQueryResponse> => {
     const [url, data] = ctx.queryKey;
     const { queryLocation, queryTarget, queryType, queryVrf } = data;
     const res = await fetchWithTimeout(
@@ -50,7 +52,7 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryRespons
     } catch (err) {
       throw new Error(res.statusText);
     }
-  }
+  };
 
   // Cancel any still-running queries on unmount.
   useEffect(
@@ -60,18 +62,16 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryRespons
     [],
   );
 
-  return useQuery<TQueryResponse, Response | TQueryResponse | Error>(
-    ['/api/query/', query],
-    runQuery,
-    {
-      // Invalidate react-query's cache just shy of the configured cache timeout.
-      cacheTime: cache.timeout * 1000 * 0.95,
-      // Don't refetch when window refocuses.
-      refetchOnWindowFocus: false,
-      // Don't automatically refetch query data (queries should be on-off).
-      refetchInterval: false,
-      // Don't refetch on component remount.
-      refetchOnMount: false,
-    },
-  );
+  return useQuery<TQueryResponse, Response | TQueryResponse | Error, TQueryResponse, LGQueryKey>({
+    queryKey: ['/api/query/', query],
+    queryFn: runQuery,
+    // Invalidate react-query's cache just shy of the configured cache timeout.
+    cacheTime: cache.timeout * 1000 * 0.95,
+    // Don't refetch when window refocuses.
+    refetchOnWindowFocus: false,
+    // Don't automatically refetch query data (queries should be on-off).
+    refetchInterval: false,
+    // Don't refetch on component remount.
+    refetchOnMount: false,
+  });
 }
