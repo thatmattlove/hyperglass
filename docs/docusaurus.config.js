@@ -12,10 +12,6 @@ const docusaurusConfig = {
   projectName: "hyperglass",
   themeConfig: {
     image: "opengraph.jpg",
-    googleAnalytics: {
-      trackingID: googleTrackingId || " ",
-      anonymizeIP: false,
-    },
     algolia: {
       apiKey: algoliaKey || "dev",
       indexName: "hyperglass",

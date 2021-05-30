@@ -16,13 +16,13 @@ export function useLogoSrc(): UseLogoSrc {
     className = "logo-at-home";
   }
   const sourcesIcon = {
-    light: useBaseUrl("/static/hyperglass-icon-light.svg"),
-    dark: useBaseUrl("/static/hyperglass-icon-dark.svg"),
+    light: useBaseUrl("hyperglass-icon-light.svg"),
+    dark: useBaseUrl("hyperglass-icon-dark.svg"),
   };
 
   const sourcesFull = {
-    light: useBaseUrl("/static/hyperglass-light.svg"),
-    dark: useBaseUrl("/static/hyperglass-dark.svg"),
+    light: useBaseUrl("hyperglass-light.svg"),
+    dark: useBaseUrl("hyperglass-dark.svg"),
   };
 
   const sources = useMemo(() => {
