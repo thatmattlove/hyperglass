@@ -54,6 +54,7 @@ scrapli = {extras = ["asyncssh"], version = "^2021.1.30"}
 uvicorn = {extras = ["standard"], version = "^0.13.4"}
 uvloop = "^0.14.0"
 xmltodict = "^0.12.0"
+typing-extensions = "^3.7.4"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.6.2"

@@ -9,6 +9,7 @@ export const FormRow: React.FC<FlexProps> = (props: FlexProps) => {
       flexDir="row"
       flexWrap="wrap"
       justifyContent={{ base: 'center', lg: 'space-between' }}
+      sx={{ '& > *': { display: 'flex', flex: { base: '1 0 100%', lg: '1 0 33.33%' } } }}
       {...props}
     />
   );

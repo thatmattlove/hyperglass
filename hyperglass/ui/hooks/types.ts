@@ -8,6 +8,7 @@ import type {
   TDeviceVrf,
   TQueryTypes,
   TSelectOption,
+  TDirective,
 } from '~/types';
 
 export interface TOpposingOptions {
@@ -56,6 +57,7 @@ export interface TSelections {
   queryLocation: TSelectOption[] | [];
   queryType: TSelectOption | null;
   queryVrf: TSelectOption | null;
+  queryGroup: TSelectOption | null;
 }
 
 export interface TMethodsExtension {
@@ -69,14 +71,19 @@ export interface TMethodsExtension {
 
 export type TLGState = {
   queryVrf: string;
+  queryGroup: string;
   families: Families;
   queryTarget: string;
   btnLoading: boolean;
   isSubmitting: boolean;
   displayTarget: string;
-  queryType: TQueryTypes;
+  directive: TDirective | null;
+  // queryType: TQueryTypes;
+  queryType: string;
   queryLocation: string[];
   availVrfs: TDeviceVrf[];
+  availableGroups: string[];
+  availableTypes: string[];
   resolvedIsOpen: boolean;
   selections: TSelections;
   responses: { [d: string]: TQueryResponse };

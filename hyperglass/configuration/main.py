@@ -4,7 +4,7 @@
 import os
 import copy
 import json
-from typing import Dict, List
+from typing import Dict, List, Sequence, Generator
 from pathlib import Path
 
 # Third Party
@@ -25,9 +25,11 @@ from hyperglass.constants import (
 )
 from hyperglass.exceptions import ConfigError, ConfigMissing
 from hyperglass.util.files import check_path
-from hyperglass.models.commands import Commands
+
+# from hyperglass.models.commands import Commands
+from hyperglass.models.commands.generic import Directive
 from hyperglass.models.config.params import Params
-from hyperglass.models.config.devices import Devices
+from hyperglass.models.config.devices import Devices, Device
 from hyperglass.configuration.defaults import (
     CREDIT,
     DEFAULT_HELP,
@@ -116,6 +118,29 @@ def _config_optional(config_path: Path) -> Dict:
     return config
 
 
+def _get_commands(data: Dict) -> Sequence[Directive]:
+    commands = []
+    for name, command in data.items():
+        commands.append(Directive(id=name, **command))
+    return commands
+
+
+def _device_commands(
+    device: Dict, directives: Sequence[Directive]
+) -> Generator[Directive, None, None]:
+    device_commands = device.get("commands", [])
+    for directive in directives:
+        if directive.id in device_commands:
+            yield directive
+
+
+def _get_devices(data: Sequence[Dict], directives: Sequence[Directive]) -> Devices:
+    for device in data:
+        device_commands = list(_device_commands(device, directives))
+        device["commands"] = device_commands
+    return Devices(data)
+
+
 user_config = _config_optional(CONFIG_MAIN)
 
 # Read raw debug value from config to enable debugging quickly.
@@ -136,15 +161,16 @@ elif not params.debug and log_level == "debug":
 # Map imported user commands to expected schema.
 _user_commands = _config_optional(CONFIG_COMMANDS)
 log.debug("Unvalidated commands from {}: {}", CONFIG_COMMANDS, _user_commands)
-commands = validate_config(config=_user_commands, importer=Commands.import_params)
+commands = _get_commands(_user_commands)
 
 # Map imported user devices to expected schema.
 _user_devices = _config_required(CONFIG_DEVICES)
 log.debug("Unvalidated devices from {}: {}", CONFIG_DEVICES, _user_devices)
-devices = validate_config(config=_user_devices.get("routers", []), importer=Devices)
+# devices = validate_config(config=_user_devices.get("routers", []), importer=Devices)
+devices = _get_devices(_user_devices.get("routers", []), commands)
 
 # Validate commands are both supported and properly mapped.
-validate_nos_commands(devices.all_nos, commands)
+# validate_nos_commands(devices.all_nos, commands)
 
 # Set cache configurations to environment variables, so they can be
 # used without importing this module (Gunicorn, etc).
@@ -189,65 +215,6 @@ except KeyError:
     pass
 
 
-def _build_frontend_devices():
-    """Build filtered JSON structure of devices for frontend.
-
-    Schema:
-    {
-        "device.name": {
-            "display_name": "device.display_name",
-            "vrfs": [
-                "Global",
-                "vrf.display_name"
-            ]
-        }
-    }
-
-    Raises:
-        ConfigError: Raised if parsing/building error occurs.
-
-    Returns:
-        {dict} -- Frontend devices
-    """
-    frontend_dict = {}
-    for device in devices.objects:
-        if device.name in frontend_dict:
-            frontend_dict[device.name].update(
-                {
-                    "network": device.network.display_name,
-                    "display_name": device.display_name,
-                    "vrfs": [
-                        {
-                            "id": vrf.name,
-                            "display_name": vrf.display_name,
-                            "default": vrf.default,
-                            "ipv4": True if vrf.ipv4 else False,  # noqa: IF100
-                            "ipv6": True if vrf.ipv6 else False,  # noqa: IF100
-                        }
-                        for vrf in device.vrfs
-                    ],
-                }
-            )
-        elif device.name not in frontend_dict:
-            frontend_dict[device.name] = {
-                "network": device.network.display_name,
-                "display_name": device.display_name,
-                "vrfs": [
-                    {
-                        "id": vrf.name,
-                        "display_name": vrf.display_name,
-                        "default": vrf.default,
-                        "ipv4": True if vrf.ipv4 else False,  # noqa: IF100
-                        "ipv6": True if vrf.ipv6 else False,  # noqa: IF100
-                    }
-                    for vrf in device.vrfs
-                ],
-            }
-    if not frontend_dict:
-        raise ConfigError(error_msg="Unable to build network to device mapping")
-    return frontend_dict
-
-
 def _build_networks() -> List[Dict]:
     """Build filtered JSON Structure of networks & devices for Jinja templates."""
     networks = []
@@ -262,6 +229,7 @@ def _build_networks() -> List[Dict]:
                         "_id": device._id,
                         "name": device.name,
                         "network": device.network.display_name,
+                        "directives": [c.frontend(params) for c in device.commands],
                         "vrfs": [
                             {
                                 "_id": vrf._id,
@@ -346,7 +314,7 @@ content_terms = get_markdown(
 content_credit = CREDIT.format(version=__version__)
 
 networks = _build_networks()
-frontend_devices = _build_frontend_devices()
+
 _include_fields = {
     "cache": {"show_text", "timeout"},
     "debug": ...,

@@ -6,6 +6,7 @@ export interface TFormData {
   query_type: TQueryTypes;
   query_vrf: string;
   query_target: string;
+  query_group: string;
 }
 
 export interface TFormState {
@@ -13,6 +14,7 @@ export interface TFormState {
   queryType: TQueryTypes;
   queryVrf: string;
   queryTarget: string;
+  queryGroup: string;
 }
 
 export interface TFormQuery extends Omit<TFormState, 'queryLocation'> {

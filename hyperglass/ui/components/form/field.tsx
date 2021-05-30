@@ -24,13 +24,11 @@ export const FormField: React.FC<TField> = (props: TField) => {
   return (
     <FormControl
       mx={2}
-      d="flex"
       w="100%"
       maxW="100%"
       flexDir="column"
       my={{ base: 2, lg: 4 }}
       isInvalid={error !== false}
-      flex={{ base: '1 0 100%', lg: '1 0 33.33%' }}
       {...rest}
     >
       <FormLabel

@@ -7,7 +7,7 @@ import { Result } from './individual';
 import { Tags } from './tags';
 
 export const Results: React.FC = () => {
-  const { queryLocation, queryTarget, queryType, queryVrf } = useLGState();
+  const { queryLocation, queryTarget, queryType, queryVrf, queryGroup } = useLGState();
 
   const getDevice = useDevice();
 
@@ -49,6 +49,7 @@ export const Results: React.FC = () => {
                     queryLocation={loc.value}
                     queryVrf={queryVrf.value}
                     queryType={queryType.value}
+                    queryGroup={queryGroup.value}
                     queryTarget={queryTarget.value}
                   />
                 );

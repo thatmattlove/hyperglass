@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { Flex } from '@chakra-ui/react';
+import { Flex, ScaleFade, SlideFade } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { intersectionWith } from 'lodash';
+import isEqual from 'react-fast-compare';
 import { vestResolver } from '@hookform/resolvers/vest';
 import vest, { test, enforce } from 'vest';
 import {
   If,
   FormRow,
-  QueryVrf,
+  QueryGroup,
   FormField,
   HelpModal,
   QueryType,
@@ -18,7 +19,7 @@ import {
 } from '~/components';
 import { useConfig } from '~/context';
 import { useStrf, useGreeting, useDevice, useLGState, useLGMethods } from '~/hooks';
-import { isQueryType, isQueryContent, isString } from '~/types';
+import { isString } from '~/types';
 
 import type { TFormData, TDeviceVrf, OnChangeArgs } from '~/types';
 
@@ -42,7 +43,7 @@ function useIsFqdn(target: string, _type: string) {
 }
 
 export const LookingGlass: React.FC = () => {
-  const { web, content, messages } = useConfig();
+  const { web, messages } = useConfig();
 
   const { ack, greetingReady } = useGreeting();
   const getDevice = useDevice();
@@ -80,20 +81,38 @@ export const LookingGlass: React.FC = () => {
   const { handleSubmit, register, setValue, setError, clearErrors } = formInstance;
 
   const {
+    availableGroups,
     queryVrf,
-    families,
     queryType,
-    availVrfs,
+    directive,
+    availableTypes,
     btnLoading,
+    queryGroup,
     queryTarget,
     isSubmitting,
     queryLocation,
     displayTarget,
+    selections,
   } = useLGState();
 
   const { resolvedOpen, resetForm } = useLGMethods();
 
   const isFqdnQuery = useIsFqdn(queryTarget.value, queryType.value);
+
+  const selectedDirective = useMemo(() => {
+    if (queryType.value === '') {
+      return null;
+    }
+    for (const loc of queryLocation) {
+      const device = getDevice(loc.value);
+      for (const directive of device.directives) {
+        if (directive.name === queryType.value) {
+          return directive;
+        }
+      }
+    }
+    return null;
+  }, [queryType.value]);
 
   function submitHandler() {
     /**
@@ -133,6 +152,9 @@ export const LookingGlass: React.FC = () => {
     clearErrors('query_location');
     const allVrfs = [] as TDeviceVrf[][];
     const locationNames = [] as string[];
+    const allGroups = [] as string[][];
+    const allTypes = [] as string[][];
+    const allDevices = [];
 
     queryLocation.set(locations);
 
@@ -141,66 +163,76 @@ export const LookingGlass: React.FC = () => {
       const device = getDevice(loc);
       locationNames.push(device.name);
       allVrfs.push(device.vrfs);
+      allDevices.push(device);
+      const groups = new Set<string>();
+      for (const directive of device.directives) {
+        for (const group of directive.groups) {
+          groups.add(group);
+        }
+      }
+      allGroups.push(Array.from(groups));
     }
 
-    // Use _.intersectionWith to create an array of VRFs common to all selected locations.
-    const intersecting = intersectionWith(
-      ...allVrfs,
-      (a: TDeviceVrf, b: TDeviceVrf) => a._id === b._id,
-    );
+    const intersecting = intersectionWith(...allGroups, isEqual);
 
-    availVrfs.set(intersecting);
+    if (!intersecting.includes(queryGroup.value)) {
+      queryGroup.set('');
+      queryType.set('');
+      directive.set(null);
+      selections.merge({ queryGroup: null, queryType: null });
+    }
+
+    for (const group of intersecting) {
+      for (const device of allDevices) {
+        for (const directive of device.directives) {
+          if (directive.groups.includes(group)) {
+            // allTypes.add(directive.name);
+            allTypes.push(device.directives.map(d => d.name));
+          }
+        }
+      }
+    }
+
+    const intersectingTypes = intersectionWith(...allTypes, isEqual);
+
+    availableGroups.set(intersecting);
+    availableTypes.set(intersectingTypes);
 
     // If there is more than one location selected, but there are no intersecting VRFs, show an error.
     if (locations.length > 1 && intersecting.length === 0) {
       setError('query_location', {
-        message: `${locationNames.join(', ')} have no VRFs in common.`,
+        // message: `${locationNames.join(', ')} have no VRFs in common.`,
+        message: `${locationNames.join(', ')} have no groups in common.`,
       });
     }
     // If there is only one intersecting VRF, set it as the form value so the user doesn't have to.
     else if (intersecting.length === 1) {
-      queryVrf.set(intersecting[0]._id);
+      // queryVrf.set(intersecting[0]._id);
+      queryGroup.set(intersecting[0]);
     }
+    if (availableGroups.length > 1 && intersectingTypes.length === 0) {
+      setError('query_location', {
+        message: `${locationNames.join(', ')} have no query types in common.`,
+      });
+    } else if (intersectingTypes.length === 1) {
+      queryType.set(intersectingTypes[0]);
+    }
+  }
 
-    // Determine which address families are available in the intersecting VRFs.
-    let ipv4 = 0;
-    let ipv6 = 0;
-
-    for (const intersection of intersecting) {
-      if (intersection.ipv4) {
-        // If IPv4 is enabled in this VRF, count it.
-        ipv4++;
-      }
-      if (intersection.ipv6) {
-        // If IPv6 is enabled in this VRF, count it.
-        ipv6++;
+  function handleGroupChange(group: string): void {
+    queryGroup.set(group);
+    const availTypes = new Set<string>();
+    for (const loc of queryLocation) {
+      const device = getDevice(loc.value);
+      for (const directive of device.directives) {
+        if (directive.groups.includes(group)) {
+          availTypes.add(directive.name);
+        }
       }
     }
-
-    if (ipv4 !== 0 && ipv4 === ipv6) {
-      /**
-       * If ipv4 & ipv6 are equal, this means every VRF has both IPv4 & IPv6 enabled. In that
-       * case, signal that both A & AAAA records should be queried if the query is an FQDN.
-       */
-      families.set([4, 6]);
-    } else if (ipv4 > ipv6) {
-      /**
-       * If ipv4 is greater than ipv6, this means that IPv6 is not enabled on all VRFs, i.e. there
-       * are some VRFs with IPv4 enabled but IPv6 disabled. In that case, only query A records.
-       */
-      families.set([4]);
-    } else if (ipv4 < ipv6) {
-      /**
-       * If ipv6 is greater than ipv4, this means that IPv4 is not enabled on all VRFs, i.e. there
-       * are some VRFs with IPv6 enabled but IPv4 disabled. In that case, only query AAAA records.
-       */
-      families.set([6]);
-    } else {
-      /**
-       * If both ipv4 and ipv6 are 0, then both ipv4 and ipv6 are disabled, and why does that VRF
-       * even exist?
-       */
-      families.set([]);
+    availableTypes.set(Array.from(availTypes));
+    if (availableTypes.length === 1) {
+      queryType.set(availableTypes[0].value);
     }
   }
 
@@ -210,14 +242,12 @@ export const LookingGlass: React.FC = () => {
 
     if (e.field === 'query_location' && Array.isArray(e.value)) {
       handleLocChange(e.value);
-    } else if (e.field === 'query_type' && isQueryType(e.value)) {
+    } else if (e.field === 'query_type' && isString(e.value)) {
       queryType.set(e.value);
       if (queryTarget.value !== '') {
-        /**
-         * Reset queryTarget as well, so that, for example, selecting BGP Community, and selecting
-         * a community, then changing the queryType to BGP Route doesn't preserve the selected
-         * community as the queryTarget.
-         */
+        // Reset queryTarget as well, so that, for example, selecting BGP Community, and selecting
+        // a community, then changing the queryType to BGP Route doesn't preserve the selected
+        // community as the queryTarget.
         queryTarget.set('');
         displayTarget.set('');
       }
@@ -225,25 +255,21 @@ export const LookingGlass: React.FC = () => {
       queryVrf.set(e.value);
     } else if (e.field === 'query_target' && isString(e.value)) {
       queryTarget.set(e.value);
+    } else if (e.field === 'query_group' && isString(e.value)) {
+      // queryGroup.set(e.value);
+      handleGroupChange(e.value);
     }
+    console.table({
+      'Query Location': queryLocation.value,
+      'Query Type': queryType.value,
+      'Query Group': queryGroup.value,
+      'Query Target': queryTarget.value,
+      'Selected Directive': selectedDirective?.name ?? null,
+    });
   }
 
-  /**
-   * Select the correct help content based on the selected VRF & Query Type. Also remove the icon
-   * if no locations are set.
-   */
-  const vrfContent = useMemo(() => {
-    if (queryLocation.value.length === 0) {
-      return null;
-    }
-    if (Object.keys(content.vrf).includes(queryVrf.value) && queryType.value !== '') {
-      return content.vrf[queryVrf.value][queryType.value];
-    } else {
-      return null;
-    }
-  }, [queryVrf.value, queryLocation.value, queryType.value]);
-
   useEffect(() => {
+    register({ name: 'query_group', required: true });
     register({ name: 'query_location', required: true });
     register({ name: 'query_target', required: true });
     register({ name: 'query_type', required: true });
@@ -270,30 +296,44 @@ export const LookingGlass: React.FC = () => {
           <FormField name="query_location" label={web.text.query_location}>
             <QueryLocation onChange={handleChange} label={web.text.query_location} />
           </FormField>
-          <FormField
-            name="query_type"
-            label={web.text.query_type}
-            labelAddOn={
-              <HelpModal visible={isQueryContent(vrfContent)} item={vrfContent} name="query_type" />
-            }
-          >
-            <QueryType onChange={handleChange} label={web.text.query_type} />
-          </FormField>
-        </FormRow>
-        <FormRow>
-          <If c={availVrfs.length > 1}>
-            <FormField label={web.text.query_vrf} name="query_vrf">
-              <QueryVrf label={web.text.query_vrf} vrfs={availVrfs.value} onChange={handleChange} />
+          <If c={availableGroups.length > 1}>
+            <FormField label={web.text.query_vrf} name="query_group">
+              <QueryGroup
+                label={web.text.query_vrf}
+                groups={availableGroups.value}
+                onChange={handleChange}
+              />
             </FormField>
           </If>
-          <FormField name="query_target" label={web.text.query_target}>
-            <QueryTarget
-              name="query_target"
-              register={register}
-              onChange={handleChange}
-              placeholder={web.text.query_target}
-            />
-          </FormField>
+        </FormRow>
+        <FormRow>
+          <SlideFade offsetX={-100} in={availableTypes.length > 1} unmountOnExit>
+            <FormField
+              name="query_type"
+              label={web.text.query_type}
+              labelAddOn={
+                <HelpModal
+                  visible={selectedDirective?.info !== null}
+                  item={selectedDirective?.info ?? null}
+                  name="query_type"
+                />
+              }
+            >
+              <QueryType onChange={handleChange} label={web.text.query_type} />
+            </FormField>
+          </SlideFade>
+          <SlideFade offsetX={100} in={selectedDirective !== null} unmountOnExit>
+            {selectedDirective !== null && (
+              <FormField name="query_target" label={web.text.query_target}>
+                <QueryTarget
+                  name="query_target"
+                  register={register}
+                  onChange={handleChange}
+                  placeholder={selectedDirective.description}
+                />
+              </FormField>
+            )}
+          </SlideFade>
         </FormRow>
         <FormRow mt={0} justifyContent="flex-end">
           <Flex
@@ -305,7 +345,9 @@ export const LookingGlass: React.FC = () => {
             flexDir="column"
             mr={{ base: 0, lg: 2 }}
           >
-            <SubmitButton handleChange={handleChange} />
+            <ScaleFade initialScale={0.5} in={queryTarget.value !== ''}>
+              <SubmitButton handleChange={handleChange} />
+            </ScaleFade>
           </Flex>
         </FormRow>
       </AnimatedDiv>

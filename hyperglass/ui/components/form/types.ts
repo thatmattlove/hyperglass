@@ -21,6 +21,10 @@ export interface TQueryVrf extends TQuerySelectField {
   vrfs: TDeviceVrf[];
 }
 
+export interface TQueryGroup extends TQuerySelectField {
+  groups: string[];
+}
+
 export interface TCommunitySelect {
   name: string;
   onChange: OnChange;

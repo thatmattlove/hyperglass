@@ -18,12 +18,14 @@ class MethodsInstance {
   public resolvedOpen(state: State<TLGState>) {
     state.resolvedIsOpen.set(true);
   }
+
   /**
    * Set the DNS resolver Popover to closed.
    */
   public resolvedClose(state: State<TLGState>) {
     state.resolvedIsOpen.set(false);
   }
+
   /**
    * Find a response based on the device ID.
    */
@@ -34,6 +36,7 @@ class MethodsInstance {
       return null;
     }
   }
+
   /**
    * Determine if the form is ready for submission, e.g. all fields have values and isSubmitting
    * has been set to true. This ultimately controls the UI layout.
@@ -45,12 +48,14 @@ class MethodsInstance {
         ...[
           state.queryVrf.value !== '',
           state.queryType.value !== '',
+          state.queryGroup.value !== '',
           state.queryTarget.value !== '',
           state.queryLocation.length !== 0,
         ],
       )
     );
   }
+
   /**
    * Reset form values affected by the form state to their default values.
    */
@@ -59,6 +64,7 @@ class MethodsInstance {
       queryVrf: '',
       families: [],
       queryType: '',
+      queryGroup: '',
       responses: {},
       queryTarget: '',
       queryLocation: [],
@@ -67,9 +73,12 @@ class MethodsInstance {
       isSubmitting: false,
       resolvedIsOpen: false,
       availVrfs: [],
-      selections: { queryLocation: [], queryType: null, queryVrf: null },
+      availableGroups: [],
+      availableTypes: [],
+      selections: { queryLocation: [], queryType: null, queryVrf: null, queryGroup: null },
     });
   }
+
   public stateExporter<O extends unknown>(obj: O): O | null {
     let result = null;
     if (obj === null) {
@@ -125,13 +134,17 @@ function Methods(inst?: State<TLGState>): Plugin | TMethodsExtension {
 }
 
 const LGState = createState<TLGState>({
-  selections: { queryLocation: [], queryType: null, queryVrf: null },
+  selections: { queryLocation: [], queryType: null, queryVrf: null, queryGroup: null },
   resolvedIsOpen: false,
   isSubmitting: false,
+  availableGroups: [],
+  availableTypes: [],
+  directive: null,
   displayTarget: '',
   queryLocation: [],
   btnLoading: false,
   queryTarget: '',
+  queryGroup: '',
   queryType: '',
   availVrfs: [],
   responses: {},

@@ -115,10 +115,30 @@ export interface TDeviceVrf extends TDeviceVrfBase {
   ipv6: boolean;
 }
 
+interface TDirectiveBase {
+  name: string;
+  field_type: 'text' | 'select' | null;
+  description: string;
+  groups: string[];
+  info: TQueryContent | null;
+}
+
+interface TDirectiveOption {
+  name: string;
+  value: string;
+}
+
+interface TDirectiveSelect extends TDirectiveBase {
+  options: TDirectiveOption[];
+}
+
+export type TDirective = TDirectiveBase | TDirectiveSelect;
+
 interface TDeviceBase {
   _id: string;
   name: string;
   network: string;
+  directives: TDirective[];
 }
 
 export interface TDevice extends TDeviceBase {

@@ -39,7 +39,7 @@ const AccordionHeaderWrapper = chakra('div', {
 });
 
 const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props: TResult, ref) => {
-  const { index, device, queryVrf, queryType, queryTarget, queryLocation } = props;
+  const { index, device, queryVrf, queryType, queryTarget, queryLocation, queryGroup } = props;
 
   const { web, cache, messages } = useConfig();
   const { index: indices, setIndex } = useAccordionContext();
@@ -57,6 +57,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
     queryTarget,
     queryType,
     queryVrf,
+    queryGroup,
   });
 
   const isCached = useMemo(() => data?.cached || !isFetchedAfterMount, [

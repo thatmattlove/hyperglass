@@ -3,7 +3,7 @@
 # Standard Library
 import os
 import re
-from typing import Any, Dict, List, Tuple, Union, Optional
+from typing import Any, Dict, List, Tuple, Union, Optional, Sequence
 from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address
 
@@ -22,6 +22,8 @@ from hyperglass.log import log
 from hyperglass.util import get_driver, validate_nos, resolve_hostname
 from hyperglass.constants import SCRAPE_HELPERS, SUPPORTED_STRUCTURED_OUTPUT
 from hyperglass.exceptions import ConfigError, UnsupportedDevice
+from hyperglass.models.commands.generic import Directive
+
 
 # Local
 from .ssl import Ssl
@@ -89,10 +91,8 @@ class Device(HyperglassModel):
     port: StrictInt = 22
     ssl: Optional[Ssl]
     nos: StrictStr
-    commands: Optional[StrictStr]
+    commands: Sequence[Directive]
     vrfs: List[Vrf] = [_default_vrf]
-    display_vrfs: List[StrictStr] = []
-    vrf_names: List[StrictStr] = []
     structured_output: Optional[StrictBool]
     driver: Optional[SupportedDriver]
 
@@ -172,7 +172,7 @@ class Device(HyperglassModel):
         return value
 
     @root_validator(pre=True)
-    def validate_nos_commands(cls, values: "Device") -> "Device":
+    def validate_nos_commands(cls, values: Dict) -> Dict:
         """Validate & rewrite NOS, set default commands."""
 
         nos = values.get("nos", "")
@@ -205,7 +205,7 @@ class Device(HyperglassModel):
             if "_telnet" in inferred:
                 inferred = inferred.replace("_telnet", "")
 
-            values["commands"] = inferred
+            values["commands"] = [inferred]
 
         return values
 
@@ -288,7 +288,6 @@ class Devices(HyperglassModelExtra):
     _ids: List[StrictStr] = []
     hostnames: List[StrictStr] = []
     vrfs: List[StrictStr] = []
-    display_vrfs: List[StrictStr] = []
     vrf_objects: List[Vrf] = []
     objects: List[Device] = []
     all_nos: List[StrictStr] = []
@@ -300,15 +299,8 @@ class Devices(HyperglassModelExtra):
         Remove unsupported characters from device names, dynamically
         set attributes for the devices class. Builds lists of common
         attributes for easy access in other modules.
-
-        Arguments:
-            input_params {dict} -- Unvalidated router definitions
-
-        Returns:
-            {object} -- Validated routers object
         """
         vrfs = set()
-        display_vrfs = set()
         vrf_objects = set()
         all_nos = set()
         objects = set()
@@ -328,19 +320,13 @@ class Devices(HyperglassModelExtra):
             hostnames.add(device.name)
             _ids.add(device._id)
             objects.add(device)
-            all_nos.add(device.commands)
+            all_nos.add(device.nos)
 
             for vrf in device.vrfs:
 
                 # For each configured router VRF, add its name and
                 # display_name to a class set (for automatic de-duping).
                 vrfs.add(vrf.name)
-                display_vrfs.add(vrf.display_name)
-
-                # Also add the names to a router-level list so each
-                # router's VRFs and display VRFs can be easily accessed.
-                device.display_vrfs.append(vrf.display_name)
-                device.vrf_names.append(vrf.name)
 
                 # Add a 'default_vrf' attribute to the devices class
                 # which contains the configured default VRF display name.
@@ -367,7 +353,6 @@ class Devices(HyperglassModelExtra):
         init_kwargs["hostnames"] = list(hostnames)
         init_kwargs["all_nos"] = list(all_nos)
         init_kwargs["vrfs"] = list(vrfs)
-        init_kwargs["display_vrfs"] = list(vrfs)
         init_kwargs["vrf_objects"] = list(vrf_objects)
         init_kwargs["objects"] = sorted(objects, key=lambda x: x.name)
 

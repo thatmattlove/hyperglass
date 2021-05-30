@@ -23,12 +23,12 @@ interface TViewer extends Pick<UseDisclosureReturn, 'isOpen' | 'onClose'> {
 
 const Viewer: React.FC<TViewer> = (props: TViewer) => {
   const { title, isOpen, onClose, children } = props;
-  const bg = useColorValue('white', 'black');
+  const bg = useColorValue('white', 'blackSolid.700');
   const color = useColorValue('black', 'white');
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="full" scrollBehavior="inside">
       <ModalOverlay />
-      <ModalContent bg={bg} color={color} py={4} borderRadius="md" maxW="90%">
+      <ModalContent bg={bg} color={color} py={4} borderRadius="md" maxW="90%" minH="90vh">
         <ModalHeader>{title}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>

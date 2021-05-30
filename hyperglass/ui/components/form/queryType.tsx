@@ -1,34 +1,60 @@
 import { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { uniqBy } from 'lodash';
 import { Select } from '~/components';
 import { useConfig } from '~/context';
 import { useLGState, useLGMethods } from '~/hooks';
 
-import type { TQuery, TSelectOption } from '~/types';
+import type { TNetwork, TSelectOption } from '~/types';
 import type { TQuerySelectField } from './types';
 
-function buildOptions(queryTypes: TQuery[]): TSelectOption[] {
-  return queryTypes
-    .filter(q => q.enable === true)
-    .map(q => ({ value: q.name, label: q.display_name }));
+// function buildOptions(queryTypes: TQuery[]): TSelectOption[] {
+//   return queryTypes
+//     .filter(q => q.enable === true)
+//     .map(q => ({ value: q.name, label: q.display_name }));
+// }
+
+function* buildOptions(networks: TNetwork[]): Generator<TSelectOption> {
+  for (const net of networks) {
+    for (const loc of net.locations) {
+      for (const directive of loc.directives) {
+        const { name } = directive;
+        yield { value: name, label: name };
+      }
+    }
+  }
 }
 
 export const QueryType: React.FC<TQuerySelectField> = (props: TQuerySelectField) => {
   const { onChange, label } = props;
-  const { queries } = useConfig();
+  // const {
+  //   queries,
+  //   networks,
+  // } = useConfig();
   const { errors } = useFormContext();
-  const { selections } = useLGState();
+  const { selections, availableTypes, queryType } = useLGState();
   const { exportState } = useLGMethods();
 
-  const options = useMemo(() => buildOptions(queries.list), [queries.list.length]);
+  // const options = useMemo(() => buildOptions(queries.list), [queries.list.length]);
+  // const options = useMemo(() => Array.from(buildOptions(networks)), []);
+  // const options = useMemo(
+  //   () => uniqBy<TSelectOption>(Array.from(buildOptions(networks)), opt => opt?.label),
+  //   [],
+  // );
+  const options = useMemo(() => availableTypes.map(t => ({ label: t.value, value: t.value })), [
+    availableTypes.length,
+  ]);
 
   function handleChange(e: TSelectOption | TSelectOption[]): void {
+    let value = '';
     if (!Array.isArray(e) && e !== null) {
       selections.queryType.set(e);
-      onChange({ field: 'query_type', value: e.value });
+      value = e.value;
     } else {
       selections.queryType.set(null);
+      queryType.set('');
     }
+    onChange({ field: 'query_type', value });
   }
 
   return (

@@ -1,7 +1,7 @@
 import type { State } from '@hookstate/core';
 import type { ButtonProps } from '@chakra-ui/react';
 import type { UseQueryResult } from 'react-query';
-import type { TDevice, TQueryTypes } from '~/types';
+import type { TDevice } from '~/types';
 
 export interface TResultHeader {
   title: string;
@@ -21,9 +21,10 @@ export interface TResult {
   index: number;
   device: TDevice;
   queryVrf: string;
+  queryGroup: string;
   queryTarget: string;
   queryLocation: string;
-  queryType: TQueryTypes;
+  queryType: string;
 }
 
 export type TErrorLevels = 'success' | 'warning' | 'error';
