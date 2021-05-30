@@ -6,8 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 # 1.0.0 - 2021-05-30
 
-### BREAKING CHANGE
-The `external_link`, `help`, and `terms` parameters no longer exist and have been replaced with generic `links` and `menus` options.
+### BREAKING CHANGES
+- The `external_link`, `help`, and `terms` parameters no longer exist and have been replaced with generic `links` and `menus` options.
+- The transitionary `frr_ssh` and `bird_ssh` NOS parameters no longer exist — `frr` and `bird` can now be used for SSH-based connectivity. hyperglass-agent users must now use `frr_legacy` and `bird_legacy` until hyperglass-agent is fully deprecated.
 
 ### Fixed
 - [#139](https://github.com/checktheroads/hyperglass/issues/139): Fix an issue where the API cannot be queried by device name.
