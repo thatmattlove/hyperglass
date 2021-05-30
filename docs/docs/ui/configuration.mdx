@@ -6,7 +6,6 @@ keywords: [hyperglass, looking glass, web ui, gui, theme, colors, branding]
 description: Customize the Web UI
 ---
 
-import Link from "@docusaurus/Link";
 import R from "../../src/components/Required";
 import MiniNote from "../../src/components/MiniNote";
 import Code from "../../src/components/JSXCode";
@@ -14,7 +13,7 @@ import PageLink from "../../src/components/PageLink";
 
 ## Build
 
-hyperglass is build with [NextJS](https://nextjs.org/), a [React](https://reactjs.org/)-based UI framework that supports server-side rendering and static exporting, which contribute to hyperglass's speed and SEO-friendliness. At startup, hyperglass creates a new "UI build", which is a static export of the site and includes some elements of the [configuration](parameters).
+hyperglass is build with [NextJS](https://nextjs.org/), a [React](https://reactjs.org/)-based UI framework that supports server-side rendering and static exporting, which contribute to hyperglass's speed and SEO-friendliness. At startup, hyperglass creates a new "UI build", which is a static export of the site and includes some elements of the [configuration](parameters.mdx).
 
 This UI build process can be run manually via the hyperglass CLI:
 
@@ -70,13 +69,13 @@ If your organization's policy allows, and you don't mind, I request that you kee
 
 Specify an array/list of links to show in the footer. By default, a link to your ASN's PeeringDB page is used.
 
-| Parameter   |  Type   | Default                                         | Description                                                                                                                                          |
-| :---------- | :-----: | :---------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `title`     | String  | `'PeeringDB'`                                   | Link title/label                                                                                                                                     |
-| `url`       | String  | `'https://www.peeringdb.com/asn/{primary_asn}'` | Target URL. `{primary_asn}` will be replaced with the `primary_asn` value from <Link to="/docs/configuration#global-settings">Global Settings</Link> |
-| `show_icon` | Boolean | `true`                                          | Show an icon on the right side of the link indicating that the link will take the user away from the hyperglass page.                                |
-| `side`      | String  | `'left'`                                        | Show the link on the `'left'` or `'right'` side of the footer.                                                                                       |
-| `order`     | Integer | `0`                                             | Specify the order of the links (left to right). During rendering, `links` and [`menus`](#menus) are merged, so the order is used to sort both.       |
+| Parameter   |  Type   | Default                                         | Description                                                                                                                                    |
+| :---------- | :-----: | :---------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`     | String  | `'PeeringDB'`                                   | Link title/label                                                                                                                               |
+| `url`       | String  | `'https://www.peeringdb.com/asn/{primary_asn}'` | Target URL. `{primary_asn}` will be replaced with the `primary_asn` value from [Global Settings](parameters.mdx#global-settings)               |
+| `show_icon` | Boolean | `true`                                          | Show an icon on the right side of the link indicating that the link will take the user away from the hyperglass page.                          |
+| `side`      | String  | `'left'`                                        | Show the link on the `'left'` or `'right'` side of the footer.                                                                                 |
+| `order`     | Integer | `0`                                             | Specify the order of the links (left to right). During rendering, `links` and [`menus`](#menus) are merged, so the order is used to sort both. |
 
 #### Example
 

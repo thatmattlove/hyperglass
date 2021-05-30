@@ -6,7 +6,6 @@ keywords: [configuration, api, rest]
 description: Configure the REST API
 ---
 
-import Link from "@docusaurus/Link";
 import MiniNote from "../src/components/MiniNote";
 import Code from "../src/components/JSXCode";
 import PageLink from "../src/components/PageLink";
@@ -17,18 +16,18 @@ FastAPI provides built in support for both [Swagger UI](https://swagger.io/tools
 
 ## Settings
 
-| Parameter     |  Type   | Default                            | Description                                                                                                                                                |
-| :------------ | :-----: | :--------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enable`      | Boolean | `true`                             | Enable or disable the API documentation.                                                                                                                   |
-| `title`       | String  | `'{site_title} API Documentation'` | API documentation title. `{site_title}` will be replaced with the <Link to="/docs/configuration#global-settings"><Code>site_title</Code></Link> parameter. |
-| `description` | String  |                                    | API documentation description appearing below the title.                                                                                                   |
-| `base_url`    | String  | `'https://lg.example.net'`         | The base URL for your hyperglass site. Used by OpenAPI for dynamically creating hyperlinks.                                                                |
-| `mode`        | String  | `'redoc'`                          | OpenAPI UI library to use for the hyperglass API docs. <MiniNote>Must be <Code>redoc</Code> or <Code>swagger</Code></MiniNote>                             |
-| `uri`         | String  | `'/api/docs'`                      | HTTP URI/path where API documentation can be accessed.                                                                                                     |
-| `openapi_uri` | String  | `'/openapi.json'`                  | Path to the automatically generated `openapi.json` file.                                                                                                   |
-| `queries`     |         |                                    | `/queries` endpoint settings <PageLink to="#queries">➡️</PageLink>                                                                                         |
-| `query`       |         |                                    | `/query` endpoint settings <PageLink to="#query">➡️</PageLink>                                                                                             |
-| `devices`     |         |                                    | `/devices` endpoint settings <PageLink to="#devices">➡️</PageLink>                                                                                         |
+| Parameter     |  Type   | Default                            | Description                                                                                                                    |
+| :------------ | :-----: | :--------------------------------- | :----------------------------------------------------------------------------------------------------------------------------- |
+| `enable`      | Boolean | `true`                             | Enable or disable the API documentation.                                                                                       |
+| `title`       | String  | `'{site_title} API Documentation'` | API documentation title. `{site_title}` will be replaced with the [`site_title`](parameters.mdx#global-settings) parameter.    |
+| `description` | String  |                                    | API documentation description appearing below the title.                                                                       |
+| `base_url`    | String  | `'https://lg.example.net'`         | The base URL for your hyperglass site. Used by OpenAPI for dynamically creating hyperlinks.                                    |
+| `mode`        | String  | `'redoc'`                          | OpenAPI UI library to use for the hyperglass API docs. <MiniNote>Must be <Code>redoc</Code> or <Code>swagger</Code></MiniNote> |
+| `uri`         | String  | `'/api/docs'`                      | HTTP URI/path where API documentation can be accessed.                                                                         |
+| `openapi_uri` | String  | `'/openapi.json'`                  | Path to the automatically generated `openapi.json` file.                                                                       |
+| `queries`     |         |                                    | `/queries` endpoint settings <PageLink to="#queries">➡️</PageLink>                                                             |
+| `query`       |         |                                    | `/query` endpoint settings <PageLink to="#query">➡️</PageLink>                                                                 |
+| `devices`     |         |                                    | `/devices` endpoint settings <PageLink to="#devices">➡️</PageLink>                                                             |
 
 ### `queries`
 

@@ -20,7 +20,7 @@ While hyperglass is, to the extent possible, fully [asynchronous](https://docs.p
 To combat this, hyperglass uses the above worker strategy. **Ultimately, it's important to provision the appropriate number of CPU cores, corresponding to the number of concurrent sessions you might expect to have in your environment** (keeping in mind that if your system supports hyperthreading, each core equates to two workers).
 
 :::note
-When [debug](configuration.mdx#global-settings) is set to `true`, the number of workers is set to 1.
+When [debug](parameters.mdx#global-settings) is set to `true`, the number of workers is set to 1.
 :::
 
 ### Memory

@@ -98,7 +98,6 @@ const docusaurusConfig = {
       },
     ],
   ],
-  plugins: ["@docusaurus/plugin-google-analytics"],
 };
 
 module.exports = docusaurusConfig;
