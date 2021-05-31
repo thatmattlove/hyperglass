@@ -56,7 +56,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 - Query multiple devices simultaneously
 - Browser-based DNS-over-HTTPS resolution of FQDN queries
 
-*To request support for a specific platform, please [submit a Github Issue](https://github.com/checktheroads/hyperglass/issues/new) with the **enhancement** label.*
+*To request support for a specific platform, please [submit a Github Issue](https://github.com/checktheroads/hyperglass/issues/new) with the **feature** label.*
 
 ### [Get Started →](https://hyperglass.io/)
 

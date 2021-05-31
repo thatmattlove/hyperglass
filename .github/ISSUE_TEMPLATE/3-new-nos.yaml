@@ -1,0 +1,26 @@
+---
+name: New Network Operating System
+about: Request native support for a network operating system
+labels: feature
+body:
+  - type: markdown
+    attributes:
+      value: >
+        In order to natively support a new network operating system for hyperglass, please make sure it is supported by either Netmiko or Scrapli ([see here](https://hyperglass.io/docs/platforms)).
+  - type: input
+    attributes:
+      label: Manufacturer
+      description: What is the network vendor that manufactures the NOS? For example, for Juniper Junos, this would be Juniper.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Platform Name
+      description: What is the name of this NOS? For example, for Juniper Junos, this would be Junos
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Commands
+      description: >
+        Please provide the commands required to execute hyperglass commands ([see here](https://hyperglass.io/docs/commands#adding-a-custom-command-set)). If you do not know the commands, it is likely that this request will be either denied or may take a long time to implement.
