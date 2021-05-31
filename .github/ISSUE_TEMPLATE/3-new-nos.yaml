@@ -1,6 +1,6 @@
 ---
 name: New Network Operating System
-about: Request native support for a network operating system
+description: Request native support for a network operating system
 labels: feature
 body:
   - type: markdown
