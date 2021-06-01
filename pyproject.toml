@@ -3,7 +3,7 @@ build-backend = "poetry.masonry.api"
 requires = ["poetry>=0.12"]
 
 [tool.poetry]
-authors = ["Matt Love <matt@hyperglass.io>"]
+authors = ["Matt Love <matt@hyperglass.dev>"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Information Technology",
@@ -16,8 +16,8 @@ classifiers = [
   "Topic :: System :: Networking",
 ]
 description = "hyperglass is the modern network looking glass that tries to make the internet better."
-documentation = "https://hyperglass.io"
-homepage = "https://hyperglass.io"
+documentation = "https://hyperglass.dev"
+homepage = "https://hyperglass.dev"
 keywords = ["looking glass", "network automation", "isp", "bgp", "routing"]
 license = "BSD-3-Clause-Clear"
 name = "hyperglass"

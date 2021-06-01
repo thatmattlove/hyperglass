@@ -22,7 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 # 1.0.0-beta.82 - 2021-04-22
 
 ### BREAKING CHANGE
-**NodeJS 14.15 or later is required**. See [the docs](https://hyperglass.io/docs/getting-started) for installation instructions.
+**NodeJS 14.15 or later is required**. See [the docs](https://hyperglass.dev/docs/getting-started) for installation instructions.
 
 ### Fixed
 - [#135](https://github.com/checktheroads/hyperglass/issues/135): Fix an issue where Juniper indirect next-hops were empty.
@@ -92,7 +92,7 @@ Moving forward, the `name` field is only used to define the name of the VRF **as
 **NOTICE**: *[hyperglass-agent](https://github.com/checktheroads/hyperglass-agent) will be deprecated soon. Use `frr_ssh` or `bird_ssh` for SSH connectivity in the meantime.*
 
 ### Added
-- FRR & BIRD may now be accessed via standard SSH using the `frr_ssh` and `bird_ssh` NOS. [See the docs](https://hyperglass.io/docs/platforms#caveats) for important caveats.
+- FRR & BIRD may now be accessed via standard SSH using the `frr_ssh` and `bird_ssh` NOS. [See the docs](https://hyperglass.dev/docs/platforms#caveats) for important caveats.
 
 ### Changed
 - `port` in `devices.yaml` now defaults to 22 if not specified.
@@ -202,7 +202,7 @@ Moving forward, the `name` field is only used to define the name of the VRF **as
 
 ### Added
 
-- [#87](https://github.com/checktheroads/hyperglass/issues/87): [TNSR] Support. To add a TNSR device, use the `tnsr` [NOS key](https://hyperglass.io/docs/adding-devices#all-device-parameters).
+- [#87](https://github.com/checktheroads/hyperglass/issues/87): [TNSR] Support. To add a TNSR device, use the `tnsr` [NOS key](https://hyperglass.dev/docs/adding-devices#all-device-parameters).
 
 ### Fixed
 
@@ -226,7 +226,7 @@ When hyperglass starts up, it will check to see if `~/hyperglass` or `/etc/hyper
 
 ### Added
 
-- [#81](https://github.com/checktheroads/hyperglass/issues/81): Add support for SSH key authentication. See [the docs](https://hyperglass.io/docs/adding-devices#credential) for more details.
+- [#81](https://github.com/checktheroads/hyperglass/issues/81): Add support for SSH key authentication. See [the docs](https://hyperglass.dev/docs/adding-devices#credential) for more details.
 
 ## 1.0.0-beta.60 - 2020-10-10
 
@@ -408,7 +408,7 @@ $ hyperglass-agent send-certificate
 
 ### Added
 
-- New NOS: **VyOS**. [See docs for important caveats](https://hyperglass.io/docs/commands).
+- New NOS: **VyOS**. [See docs for important caveats](https://hyperglass.dev/docs/commands).
 
 ### Fixed
 
@@ -421,13 +421,13 @@ $ hyperglass-agent send-certificate
 ### Added
 
 - Opengraph images are now automatically generated in the correct format from any valid image file.
-- Better color mode toggle icons (they now match [hyperglass.io](https://hyperglass.io)).
+- Better color mode toggle icons (they now match [hyperglass.dev](https://hyperglass.dev)).
 
 ### Changed
 
 - Improved SEO & Accessibility for UI.
 - Default traceroute help link now points to new docs site.
-- Slightly different default black & white colors (they now match [hyperglass.io](https://hyperglass.io)).
+- Slightly different default black & white colors (they now match [hyperglass.dev](https://hyperglass.dev)).
 - Various docs site improvements
 
 ### Fixed
@@ -478,4 +478,4 @@ $ hyperglass-agent send-certificate
 
 ### Changed
 
-- **BREAKING CHANGE**: The `logo` section now requires the full path for logo files. See [the docs](https://hyperglass.io/docs/ui/logo) for details.
+- **BREAKING CHANGE**: The `logo` section now requires the full path for logo files. See [the docs](https://hyperglass.dev/docs/ui/logo) for details.

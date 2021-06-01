@@ -11,7 +11,7 @@
 
 <div align="center">
 
-[**Documentation**](https://hyperglass.io)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Live Demo**](https://demo.hyperglass.io/)
+[**Documentation**](https://hyperglass.dev)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Live Demo**](https://demo.hyperglass.dev/)
 
 [![PyPI](https://img.shields.io/pypi/v/hyperglass?style=for-the-badge)](https://pypi.org/project/hyperglass/)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/hyperglass?color=%2340798C&style=for-the-badge)
@@ -47,7 +47,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
     - Nokia SR OS
     - TNSR
     - VyOS
-- Configurable support for any other [supported platform](https://hyperglass.io/docs/platforms)
+- Configurable support for any other [supported platform](https://hyperglass.dev/docs/platforms)
 - Optionally access devices via an SSH proxy/jump server
 - VRF support
 - Access List/prefix-list style query control to whitelist or blacklist query targets on a per-VRF basis
@@ -58,7 +58,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 
 *To request support for a specific platform, please [submit a Github Issue](https://github.com/checktheroads/hyperglass/issues/new) with the **feature** label.*
 
-### [Get Started →](https://hyperglass.io/)
+### [Get Started →](https://hyperglass.dev/docs/introduction)
 
 ## Community
 
@@ -69,7 +69,7 @@ Any users, potential users, or contributors of hyperglass are welcome to join an
 
 **hyperglass is developed with the express intention of being free to the networking community**.
 
-*However, the hyperglass demo does cost [@checktheroads](https://github.com/checktheroads) $60/year for the [hyperglass.io](https://hyperglass.io) domain. If you're feeling particularly helpful and want to help offset that cost, small donations are welcome.*
+*However, if you're feeling particularly helpful or generous, small donations are welcome.*
 
 [![Donate](https://img.shields.io/badge/Donate-blue.svg?logo=paypal&style=for-the-badge)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZQFH3BB2B5M3E&source=url)
 

@@ -5,7 +5,7 @@ const { googleTrackingId, algoliaKey } = process.env;
 const docusaurusConfig = {
   title: "hyperglass",
   tagline: "the network looking glass that tries to make the internet better.",
-  url: "https://hyperglass.io",
+  url: "https://hyperglass.dev",
   baseUrl: "/",
   favicon: "img/favicon.ico",
   organizationName: "checktheroads",
@@ -23,7 +23,11 @@ const docusaurusConfig = {
     navbar: {
       items: [
         { to: "docs/introduction", label: "Docs", position: "left" },
-        { href: "https://demo.hyperglass.io", label: "Demo", position: "left" },
+        {
+          href: "https://demo.hyperglass.dev",
+          label: "Demo",
+          position: "left",
+        },
         {
           href: githubURL,
           position: "right",
