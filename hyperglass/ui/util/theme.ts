@@ -96,6 +96,7 @@ export function makeTheme(
         body: {
           background: mode('light.500', 'dark.500')(props),
           color: mode('black', 'white')(props),
+          overflowX: 'hidden',
         },
       }),
     },
