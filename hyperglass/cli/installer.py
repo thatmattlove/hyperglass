@@ -60,12 +60,10 @@ class Installer:
         if self.unattended:
             return USER_PATH
 
-        app_path = os.environ.get("HYPERGLASS_PATH", None)
+        if os.environ.get("HYPERGLASS_PATH"):
+            return Path(os.environ.get("HYPERGLASS_PATH"))
 
-        if app_path is None:
-            app_path = prompt_for_path()
-
-        return app_path
+        return Path(prompt_for_path())
 
     def _scaffold(self) -> None:
         """Create the file structure necessary for hyperglass to run."""
