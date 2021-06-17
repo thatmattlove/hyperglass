@@ -1,0 +1,4 @@
+cache:
+  host: redis.hyperglass
+  port: 6379
+listen_address: 0.0.0.0
