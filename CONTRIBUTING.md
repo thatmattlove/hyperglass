@@ -16,3 +16,14 @@ Because I've been solo-maintaining and building hyperglass since around April 20
 - **IPv6 Support**
   - Any new device support must include IPv6 commands
   - All frontend and backend code must support IPv6, both for running the application and processing queries
+
+## Branches
+
+The following are the primary branches used for development and release management:
+
+| Branch Name | Function               |
+| :---------- | :--------------------- |
+| `main`      | Tagged Stable Releases |
+| `develop`   | Ongoing Development    |
+
+Pull requests should be made against the `develop` branch.
