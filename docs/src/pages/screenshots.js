@@ -1,5 +1,5 @@
 import * as React from "react";
-import classnames from "classnames";
+import clsx from "clsx";
 import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
 import useBaseUrl from "@docusaurus/useBaseUrl";
@@ -11,13 +11,11 @@ function Screenshots() {
       description="hyperglass screenshots"
       keywords={["hyperglass", "screenshots"]}
     >
-      <header className={classnames("hero", styles.heroBanner)}>
-        <div className={classnames("container", styles.smallerTitleContainer)}>
-          <h1 className={classnames("hero__title", styles.title)}>
-            Coming Soon!
-          </h1>
+      <header className={clsx("hero", styles.heroBanner)}>
+        <div className={clsx("container", styles.smallerTitleContainer)}>
+          <h1 className={clsx("hero__title", styles.title)}>Coming Soon!</h1>
           <h2
-            className={classnames(
+            className={clsx(
               "hero__subtitle",
               styles.subTitle,
               styles.smallerTitle
@@ -29,7 +27,7 @@ function Screenshots() {
           </h2>
           <div className={styles.buttons}>
             <Link
-              className={classnames(
+              className={clsx(
                 "button button--outline button--secondary button--lg",
                 styles.homeBtn,
                 styles.btnSecondary
@@ -45,16 +43,16 @@ function Screenshots() {
         <section className={styles.content}>
           <div className="container">
             <div className="row">
-              <div className={classnames("col col--4")}>
+              <div className={clsx("col col--4")}>
                 <section className={styles.content}>
                   <div className="container">
                     <div className="row">
-                      <div className={classnames("col col--12")}></div>
+                      <div className={clsx("col col--12")}></div>
                     </div>
                   </div>
                 </section>
               </div>
-              <div className={classnames("col col--8")}></div>
+              <div className={clsx("col col--8")}></div>
             </div>
           </div>
         </section>

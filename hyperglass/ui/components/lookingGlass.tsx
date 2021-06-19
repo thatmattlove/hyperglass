@@ -19,7 +19,7 @@ import {
 } from '~/components';
 import { useConfig } from '~/context';
 import { useStrf, useGreeting, useDevice, useLGState, useLGMethods } from '~/hooks';
-import { isString } from '~/types';
+import { isQueryType, isQueryContent, isString, isQueryField } from '~/types';
 
 import type { TFormData, TDeviceVrf, OnChangeArgs } from '~/types';
 
@@ -238,7 +238,11 @@ export const LookingGlass: React.FC = () => {
 
   function handleChange(e: OnChangeArgs): void {
     // Signal the field & value to react-hook-form.
-    setValue(e.field, e.value);
+    if (isQueryField(e.field)) {
+      setValue(e.field, e.value);
+    } else {
+      throw new Error(`Field '${e.field}' is not a valid form field.`);
+    }
 
     if (e.field === 'query_location' && Array.isArray(e.value)) {
       handleLocChange(e.value);
@@ -269,11 +273,10 @@ export const LookingGlass: React.FC = () => {
   }
 
   useEffect(() => {
-    register({ name: 'query_group', required: true });
-    register({ name: 'query_location', required: true });
-    register({ name: 'query_target', required: true });
-    register({ name: 'query_type', required: true });
-    register({ name: 'query_vrf' });
+    register('query_location', { required: true });
+    register('query_target', { required: true });
+    register('query_type', { required: true });
+    register('query_vrf');
   }, [register]);
 
   return (

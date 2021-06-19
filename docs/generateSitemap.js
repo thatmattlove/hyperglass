@@ -18,7 +18,7 @@ const prettier = require("prettier");
                 console.log("Added entry to sitemap:", path, route);
                 return `
                   <url>
-                      <loc>${`https://hyperglass.io/${route}`}</loc>
+                      <loc>${`https://hyperglass.dev/${route}`}</loc>
                   </url>
               `;
               })

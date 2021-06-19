@@ -2,7 +2,6 @@
 
 # Standard Library
 import os
-import copy
 import json
 from typing import Dict, List, Sequence, Generator
 from pathlib import Path
@@ -18,6 +17,7 @@ from hyperglass.log import (
     enable_syslog_logging,
 )
 from hyperglass.util import set_app_path, set_cache_env, current_log_level
+from hyperglass.defaults import CREDIT, DEFAULT_DETAILS
 from hyperglass.constants import (
     SUPPORTED_QUERY_TYPES,
     PARSED_RESPONSE_FIELDS,
@@ -300,17 +300,6 @@ content_greeting = get_markdown(
 
 content_vrf = _build_vrf_help()
 
-content_help_params = copy.copy(content_params)
-content_help_params["title"] = params.web.help_menu.title
-content_help = get_markdown(
-    config_path=params.web.help_menu, default=DEFAULT_HELP, params=content_help_params
-)
-
-content_terms_params = copy.copy(content_params)
-content_terms_params["title"] = params.web.terms.title
-content_terms = get_markdown(
-    config_path=params.web.terms, default=DEFAULT_TERMS, params=content_terms_params
-)
 content_credit = CREDIT.format(version=__version__)
 
 networks = _build_networks()
@@ -342,8 +331,6 @@ _frontend_params.update(
         "networks": networks,
         "parsed_data_fields": PARSED_RESPONSE_FIELDS,
         "content": {
-            "help_menu": content_help,
-            "terms": content_terms,
             "credit": content_credit,
             "vrf": content_vrf,
             "greeting": content_greeting,

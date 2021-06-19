@@ -363,5 +363,7 @@ class Devices(HyperglassModelExtra):
         for device in self.objects:
             if device._id == accessor:
                 return device
+            elif device.name == accessor:
+                return device
 
         raise AttributeError(f"No device named '{accessor}'")

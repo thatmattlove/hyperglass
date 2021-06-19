@@ -1,16 +1,37 @@
+import { useMemo } from 'react';
 import { Button, Menu, MenuButton, MenuList } from '@chakra-ui/react';
 import { Markdown } from '~/components';
-import { useColorValue, useBreakpointValue } from '~/context';
-import { useOpposingColor } from '~/hooks';
+import { useColorValue, useBreakpointValue, useConfig } from '~/context';
+import { useOpposingColor, useStrf } from '~/hooks';
 
+import type { IConfig } from '~/types';
 import type { TFooterButton } from './types';
+
+/**
+ * Filter the configuration object based on values that are strings for formatting.
+ */
+function getConfigFmt(config: IConfig): Record<string, string> {
+  const fmt = {} as Record<string, string>;
+  for (const [k, v] of Object.entries(config)) {
+    if (typeof v === 'string') {
+      fmt[k] = v;
+    }
+  }
+  return fmt;
+}
 
 export const FooterButton: React.FC<TFooterButton> = (props: TFooterButton) => {
   const { content, title, side, ...rest } = props;
+
+  const config = useConfig();
+  const fmt = useMemo(() => getConfigFmt(config), []);
+  const fmtContent = useStrf(content, fmt);
+
   const placement = side === 'left' ? 'top' : side === 'right' ? 'top-end' : undefined;
   const bg = useColorValue('white', 'gray.900');
   const color = useOpposingColor(bg);
   const size = useBreakpointValue({ base: 'xs', lg: 'sm' });
+
   return (
     <Menu placement={placement} preventOverflow isLazy>
       <MenuButton
@@ -32,11 +53,12 @@ export const FooterButton: React.FC<TFooterButton> = (props: TFooterButton) => {
         boxShadow="2xl"
         textAlign="left"
         overflowY="auto"
+        whiteSpace="normal"
         mx={{ base: 1, lg: 2 }}
         maxW={{ base: '100%', lg: '50vw' }}
         {...rest}
       >
-        <Markdown content={content} />
+        <Markdown content={fmtContent} />
       </MenuList>
     </Menu>
   );

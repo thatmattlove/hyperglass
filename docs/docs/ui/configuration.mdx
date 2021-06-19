@@ -6,7 +6,6 @@ keywords: [hyperglass, looking glass, web ui, gui, theme, colors, branding]
 description: Customize the Web UI
 ---
 
-import Link from "@docusaurus/Link";
 import R from "../../src/components/Required";
 import MiniNote from "../../src/components/MiniNote";
 import Code from "../../src/components/JSXCode";
@@ -14,7 +13,7 @@ import PageLink from "../../src/components/PageLink";
 
 ## Build
 
-hyperglass is build with [NextJS](https://nextjs.org/), a [React](https://reactjs.org/)-based UI framework that supports server-side rendering and static exporting, which contribute to hyperglass's speed and SEO-friendliness. At startup, hyperglass creates a new "UI build", which is a static export of the site and includes some elements of the [configuration](parameters).
+hyperglass is build with [NextJS](https://nextjs.org/), a [React](https://reactjs.org/)-based UI framework that supports server-side rendering and static exporting, which contribute to hyperglass's speed and SEO-friendliness. At startup, hyperglass creates a new "UI build", which is a static export of the site and includes some elements of the [configuration](parameters.mdx).
 
 This UI build process can be run manually via the hyperglass CLI:
 
@@ -45,8 +44,8 @@ The `web` subsection contains multiple subsections of its own, should you wish t
 | `greeting`      | Greeting Modal                 |   <PageLink to="#greeting">➡️</PageLink>    |
 | `logo`          | Logo & Favicons                |      <PageLink to="logo">➡️</PageLink>      |
 | `opengraph`     | [OpenGraph](https://ogp.me/)   |   <PageLink to="#opengraph">➡️</PageLink>   |
-| `help_menu`     | Help Menu                      |   <PageLink to="#help_menu">➡️</PageLink>   |
-| `terms`         | Terms & Conditions             |     <PageLink to="#terms">➡️</PageLink>     |
+| `links`         | Footer Links                   |     <PageLink to="#links">➡️</PageLink>     |
+| `menus`         | Footer Menus                   |     <PageLink to="#menus">➡️</PageLink>     |
 | `text`          | Text, title, & names           |      <PageLink to="text">➡️</PageLink>      |
 | `theme`         | Colors & Fonts                 |     <PageLink to="theme">➡️</PageLink>      |
 
@@ -66,13 +65,55 @@ If your organization's policy allows, and you don't mind, I request that you kee
 | :-------- | :----: | :------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `name`    | String | `'cloudflare'` | DNS over HTTPS provider for in-browser DNS resolution. Cloudflare & Google supported. <MiniNote>Must be <Code>cloudflare</Code> or <Code>google</Code></MiniNote> |
 
-### `external_link`
+### `links`
 
-| Parameter |  Type   | Default                                         | Description                                                                                                                                          |
-| :-------- | :-----: | :---------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enable`  | Boolean | `true`                                          | Enable or disable the display of an external link                                                                                                    |
-| `title`   | String  | `'PeeringDB'`                                   | Link title/label                                                                                                                                     |
-| `url`     | String  | `'https://www.peeringdb.com/asn/{primary_asn}'` | Target URL. `{primary_asn}` will be replaced with the `primary_asn` value from <Link to="/docs/configuration#global-settings">Global Settings</Link> |
+Specify an array/list of links to show in the footer. By default, a link to your ASN's PeeringDB page is used.
+
+| Parameter   |  Type   | Default                                         | Description                                                                                                                                    |
+| :---------- | :-----: | :---------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`     | String  | `'PeeringDB'`                                   | Link title/label                                                                                                                               |
+| `url`       | String  | `'https://www.peeringdb.com/asn/{primary_asn}'` | Target URL. `{primary_asn}` will be replaced with the `primary_asn` value from [Global Settings](parameters.mdx#global-settings)               |
+| `show_icon` | Boolean | `true`                                          | Show an icon on the right side of the link indicating that the link will take the user away from the hyperglass page.                          |
+| `side`      | String  | `'left'`                                        | Show the link on the `'left'` or `'right'` side of the footer.                                                                                 |
+| `order`     | Integer | `0`                                             | Specify the order of the links (left to right). During rendering, `links` and [`menus`](#menus) are merged, so the order is used to sort both. |
+
+#### Example
+
+```yaml title="hyperglass.yaml"
+web:
+  links:
+    - title: Website
+      url: https://www.example.com
+      side: right
+      order: 5
+    - title: PeeringDB
+      url: https://www.peeringdb.com/asn/{primary_asn}
+      side: left
+      order: 2
+```
+
+### `menus`
+
+Specify an array/list of menus to show in the footer. A menu's content can be plain text or markdown. By default, generic help and terms & conditions menus are shown.
+
+| Parameter |  Type   | Default  | Description                                                                                                                                    |
+| :-------- | :-----: | :------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`   | String  |          | Menu title/label                                                                                                                               |
+| `content` | String  |          | Menu content. Can be any string content, or a path to a plain text or markdown file.                                                           |
+| `side`    | String  | `'left'` | Show the menu on the `'left'` or `'right'` side of the footer.                                                                                 |
+| `order`   | Integer | `0`      | Specify the order of the links (left to right). During rendering, [`links`](#links) and `menus` are merged, so the order is used to sort both. |
+
+#### Example
+
+```yaml title="hyperglass.yaml"
+web:
+  menus:
+    - title: Help
+      content: "Please contact [support@example.com](mailto:support@example.com) to get support."
+    - title: Terms & Conditions
+      content: /etc/hyperglass/terms-and-conditions.md
+      side: right
+```
 
 ### `greeting`
 
@@ -96,19 +137,3 @@ By default, [this Opengraph image](/opengraph.jpg) is set. If you define one wit
 | Parameter |  Type  | Description             |
 | :-------- | :----: | :---------------------- |
 | `image`   | String | Path to opengraph image |
-
-### `help_menu`
-
-| Parameter |  Type   | Default  | Description                                                                                  |
-| :-------- | :-----: | :------- | :------------------------------------------------------------------------------------------- |
-| `enable`  | Boolean | `true`   | Enable or display the display of the help menu                                               |
-| `file`    | String  |          | Path to a plain text or markdown file with content to override the default help menu content |
-| `title`   | String  | `'Help'` | Help menu title                                                                              |
-
-### `terms`
-
-| Parameter |  Type   | Default   | Description                                                                                   |
-| :-------- | :-----: | :-------- | :-------------------------------------------------------------------------------------------- |
-| `enable`  | Boolean | `true`    | Enable or display the display of terms & conditions                                           |
-| `file`    | String  |           | Path to a plain text or markdown file with content to override the default terms & conditions |
-| `title`   | String  | `'Terms'` | Terms & conditions title                                                                      |

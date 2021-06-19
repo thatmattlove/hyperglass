@@ -5,30 +5,38 @@ const { googleTrackingId, algoliaKey } = process.env;
 const docusaurusConfig = {
   title: "hyperglass",
   tagline: "the network looking glass that tries to make the internet better.",
-  url: "https://hyperglass.io",
+  url: "https://hyperglass.dev",
   baseUrl: "/",
   favicon: "img/favicon.ico",
   organizationName: "checktheroads",
   projectName: "hyperglass",
   themeConfig: {
     image: "opengraph.jpg",
-    googleAnalytics: {
-      trackingID: googleTrackingId || " ",
-      anonymizeIP: false,
-    },
     algolia: {
       apiKey: algoliaKey || "dev",
       indexName: "hyperglass",
     },
+    prism: {
+      additionalLanguages: ["shell-session", "ini", "nginx", "yaml"],
+      theme: require("./src/prism-dracula"),
+    },
     navbar: {
-      links: [
+      items: [
         { to: "docs/introduction", label: "Docs", position: "left" },
-        { to: "screenshots", label: "Screenshots", position: "left" },
-        { href: "https://demo.hyperglass.io", label: "Demo", position: "left" },
+        {
+          href: "https://demo.hyperglass.dev",
+          label: "Demo",
+          position: "left",
+        },
+        {
+          href: githubURL,
+          position: "right",
+          className: "header-github-link",
+          "aria-label": "GitHub Repository",
+        },
       ],
     },
     footer: {
-      style: "dark",
       links: [
         {
           title: "Docs",
@@ -51,16 +59,12 @@ const docusaurusConfig = {
           title: "Community",
           items: [
             {
+              label: "Slack",
+              href: "https://netdev.chat",
+            },
+            {
               label: "Telegram",
               href: "https://t.me/hyperglasslg",
-            },
-            {
-              label: "Gitter",
-              href: "https://gitter.im/hyperglass",
-            },
-            {
-              label: "Keybase",
-              href: "https://keybase.io/team/hyperglass",
             },
           ],
         },
@@ -89,12 +93,11 @@ const docusaurusConfig = {
           editUrl: githubURL + "/edit/v1.0.0/docs/",
         },
         theme: {
-          customCss: require.resolve("./src/css/custom.css"),
+          customCss: [require.resolve("./src/css/custom.css")],
         },
       },
     ],
   ],
-  plugins: ["@docusaurus/plugin-google-analytics"],
 };
 
 module.exports = docusaurusConfig;

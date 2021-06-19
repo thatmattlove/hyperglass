@@ -37,11 +37,11 @@ from .ssh import SSHConnection
 
 SCRAPLI_DRIVER_MAP = {
     "arista_eos": AsyncEOSDriver,
-    "bird_ssh": AsyncGenericDriver,
+    "bird": AsyncGenericDriver,
     "cisco_ios": AsyncIOSXEDriver,
     "cisco_nxos": AsyncNXOSDriver,
     "cisco_xr": AsyncIOSXRDriver,
-    "frr_ssh": AsyncGenericDriver,
+    "frr": AsyncGenericDriver,
     "juniper": AsyncJunosDriver,
     "tnsr": AsyncGenericDriver,
 }
@@ -49,6 +49,8 @@ SCRAPLI_DRIVER_MAP = {
 driver_global_args = {
     # Per-NOS driver keyword arguments
     "tnsr": {"comms_prompt_pattern": r"\S+\s\S+[\#\>]"},
+    "frr": {"comms_ansi": True},
+    "bird": {"comms_ansi": True},
 }
 
 
@@ -112,7 +114,6 @@ class ScrapliConnection(SSHConnection):
         driver.logger = log.bind(
             logger_name=f"scrapli.{driver.host}:{driver.port}-driver"
         )
-
         try:
             responses = ()
             async with driver as connection:

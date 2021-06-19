@@ -1,7 +1,7 @@
 """Validate branding configuration variables."""
 
 # Standard Library
-from typing import Union, Optional
+from typing import Union, Optional, Sequence
 from pathlib import Path
 
 # Third Party
@@ -18,6 +18,7 @@ from pydantic import (
 from pydantic.color import Color
 
 # Project
+from hyperglass.defaults import DEFAULT_HELP, DEFAULT_TERMS
 from hyperglass.constants import DNS_OVER_HTTPS, FUNC_COLOR_MAP
 
 # Local
@@ -31,6 +32,7 @@ TitleMode = constr(regex=("logo_only|text_only|logo_title|logo_subtitle|all"))
 ColorMode = constr(regex=r"light|dark")
 DOHProvider = constr(regex="|".join(DNS_OVER_HTTPS.keys()))
 Title = constr(max_length=32)
+Side = constr(regex=r"left|right")
 
 
 class Analytics(HyperglassModel):
@@ -64,20 +66,36 @@ class Credit(HyperglassModel):
     enable: StrictBool = True
 
 
-class ExternalLink(HyperglassModel):
-    """Validation model for external link."""
+class Link(HyperglassModel):
+    """Validation model for generic link."""
 
-    enable: StrictBool = True
-    title: StrictStr = "PeeringDB"
-    url: HttpUrl = "https://www.peeringdb.com/asn/{primary_asn}"
+    title: StrictStr
+    url: HttpUrl
+    show_icon: StrictBool = True
+    side: Side = "left"
+    order: StrictInt = 0
 
 
-class HelpMenu(HyperglassModel):
-    """Validation model for generic help menu."""
+class Menu(HyperglassModel):
+    """Validation model for generic menu."""
 
-    enable: StrictBool = True
-    file: Optional[FilePath]
-    title: StrictStr = "Help"
+    title: StrictStr
+    content: StrictStr
+    side: Side = "left"
+    order: StrictInt = 0
+
+    @validator("content")
+    def validate_content(cls, value):
+        """Read content from file if a path is provided."""
+
+        if len(value) < 260:
+            path = Path(value)
+            if path.exists():
+                with path.open("r") as f:
+                    return f.read()
+            else:
+                return value
+        return value
 
 
 class Greeting(HyperglassModel):
@@ -105,14 +123,6 @@ class Logo(HyperglassModel):
     favicon: FilePath = DEFAULT_IMAGES / "hyperglass-icon.svg"
     width: Optional[Union[StrictInt, Percentage]] = "100%"
     height: Optional[Union[StrictInt, Percentage]]
-
-
-class Terms(HyperglassModel):
-    """Validation model for terms & conditions."""
-
-    enable: StrictBool = True
-    file: Optional[FilePath]
-    title: StrictStr = "Terms"
 
 
 class Text(HyperglassModel):
@@ -236,11 +246,15 @@ class Web(HyperglassModel):
 
     credit: Credit = Credit()
     dns_provider: DnsOverHttps = DnsOverHttps()
-    external_link: ExternalLink = ExternalLink()
+    links: Sequence[Link] = [
+        Link(title="PeeringDB", url="https://www.peeringdb.com/asn/{primary_asn}")
+    ]
+    menus: Sequence[Menu] = [
+        Menu(title="Terms", content=DEFAULT_TERMS),
+        Menu(title="Help", content=DEFAULT_HELP),
+    ]
     greeting: Greeting = Greeting()
-    help_menu: HelpMenu = HelpMenu()
     logo: Logo = Logo()
     opengraph: OpenGraph = OpenGraph()
-    terms: Terms = Terms()
     text: Text = Text()
     theme: Theme = Theme()

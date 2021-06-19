@@ -19,11 +19,11 @@ from .mikrotik_switchos import MikrotikSwitchOS
 
 _NOS_MAP = {
     "arista_eos": AristaEOSCommands,
-    "bird_ssh": BIRDCommands,
+    "bird": BIRDCommands,
     "cisco_ios": CiscoIOSCommands,
     "cisco_nxos": CiscoNXOSCommands,
     "cisco_xr": CiscoXRCommands,
-    "frr_ssh": FRRCommands,
+    "frr": FRRCommands,
     "huawei": HuaweiCommands,
     "juniper": JuniperCommands,
     "mikrotik_routeros": MikrotikRouterOS,
@@ -38,11 +38,11 @@ class Commands(HyperglassModelExtra):
     """Base class for command definitions."""
 
     arista_eos: CommandGroup = AristaEOSCommands()
-    bird_ssh: CommandGroup = BIRDCommands()
+    bird: CommandGroup = BIRDCommands()
     cisco_ios: CommandGroup = CiscoIOSCommands()
     cisco_nxos: CommandGroup = CiscoNXOSCommands()
     cisco_xr: CommandGroup = CiscoXRCommands()
-    frr_ssh: CommandGroup = FRRCommands()
+    frr: CommandGroup = FRRCommands()
     huawei: CommandGroup = HuaweiCommands()
     juniper: CommandGroup = JuniperCommands()
     mikrotik_routeros: CommandGroup = MikrotikRouterOS()

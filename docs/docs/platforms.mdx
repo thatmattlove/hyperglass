@@ -5,104 +5,110 @@ sidebar_label: Supported Platforms
 description: Platforms supported by hyperglass
 ---
 
-## HTTP
+import Native from "../src/components/Native";
 
 <div class="table--full-width" />
-
-The following platforms use [hyperglass-agent](agent/installation.mdx) for connection handling. When configuring the `nos` property of a device, use the value in the **Key** column.
-
-:::caution hyperglass agent is being deprecated
-While hyperglass-agent was a cool idea, maintaining the two codebases and protocol sets has proven cumbersome, with very little benefit. As of **v1.0.0-beta.76**, `frr_ssh` and `bird_ssh` are available for use as replacements.
-:::
-
-| Name      | Key    |
-| :-------- | :----- |
-| BIRD      | `bird` |
-| FRRouting | `frr`  |
 
 ## SSH
 
 The following platforms use [Netmiko](https://github.com/ktbyers/netmiko) or [Scrapli](https://github.com/carlmontanari/scrapli) for connection handling. When configuring the `nos` property of a device, use the value in the **Key** column.
 
-| Name                      | Key                   |
-| :------------------------ | :-------------------- |
-| A10                       | `a10`                 |
-| Accedian                  | `accedian`            |
-| Alcatel AOS               | `alcatel_aos`         |
-| Alcatel SROS              | `alcatel_sros`        |
-| Apresia Systems AEOS      | `apresia_aeos`        |
-| Arista vEOS               | `arista_eos`          |
-| Aruba                     | `aruba_os`            |
-| Avaya ERS                 | `avaya_ers`           |
-| Avaya VSP                 | `avaya_vsp`           |
-| BIRD                      | `bird_ssh`            |
-| Calix B6                  | `calix_b6`            |
-| Check Point GAiA          | `checkpoint_gaia`     |
-| Ciena SAOS                | `ciena_saos`          |
-| Cisco ASA                 | `cisco_asa`           |
-| Cisco IOS                 | `cisco_ios`           |
-| Cisco NX-OS               | `cisco_nxos`          |
-| Cisco SG-300              | `cisco_s300`          |
-| Cisco IOS-XE              | `cisco_xe`            |
-| Cisco IOS-XR              | `cisco_xr`            |
-| Citrix Netscaler          | `netscaler`           |
-| CloudGenix ION            | `cloudgenix_ion`      |
-| Coriant                   | `coriant`             |
-| Dell OS6                  | `dell_os6`            |
-| Dell OS9                  | `dell_os9`            |
-| Dell OS10                 | `dell_os10`           |
-| Dell PowerConnect         | `dell_powerconnect`   |
-| Endace                    | `endace`              |
-| Eltex                     | `eltex`               |
-| Eltex ESR                 | `eltex_esr`           |
-| Enterasys                 | `enterasys`           |
-| Extreme                   | `extreme`             |
-| Extreme ERS               | `extreme_ers`         |
-| Extreme EXOS              | `extreme_exos`        |
-| Extreme/Brocade NetIron   | `extreme_netiron`     |
-| Extreme NOS               | `extreme_nos`         |
-| Extreme/Brocade SLX       | `extreme_slx`         |
-| Extreme/Brocade VDX       | `extreme_vdx`         |
-| Extreme VSP               | `extreme_vsp`         |
-| Extreme Wing              | `extreme_wing`        |
-| F5 LTM                    | `f5_ltm`              |
-| F5 TMSH                   | `f5_tmsh`             |
-| F5 Linux                  | `f5_linux`            |
-| Flex VNF                  | `flexvnf`             |
-| Fortinet                  | `fortinet`            |
-| FRRouting                 | `frr_ssh`             |
-| Generic Terminal Server   | `generic_termserver`  |
-| HPE/3COM Comware          | `hp_comware`          |
-| HPE ProCurve              | `hp_procurve`         |
-| Huawei                    | `huawei`              |
-| Huawei VRPv8              | `huawei_vrpv8`        |
-| IPInfusion OcNOS          | `ipinfusion_ocnos`    |
-| Juniper                   | `juniper`             |
-| Juniper JunOS             | `juniper_junos`       |
-| Juniper ScreenOS          | `juniper_screenos`    |
-| Keymile                   | `keymile`             |
-| Keymile NOS               | `keymile_nos`         |
-| Linux                     | `linux`               |
-| Mikrotik RouterOS         | `mikrotik_routeros`   |
-| Mikrotik SwitchOS         | `mikrotik_switchos`   |
-| Mellanox                  | `mellanox`            |
-| Mellanox MLNX-OS          | `mellanox_mlnxos`     |
-| MRV LX                    | `mrv_lx`              |
-| MRV Optiswitch            | `mrv_optiswitch`      |
-| Nokia SROS                | `nokia_sros`          |
-| OneAccess OneOS           | `oneaccess_oneos`     |
-| OVS Linux                 | `ovs_linux`           |
-| Palo Alto Networks PAN-OS | `paloalto_panos`      |
-| Pluribus                  | `pluribus`            |
-| Quanta Mesh               | `quanta_mesh`         |
-| RAD ETX                   | `rad_etx`             |
-| Ruckus/Brocade FastIron   | `ruckus_fastiron`     |
-| Ruijie OS                 | `ruijie_os`           |
-| TNSR                      | `tnsr`                |
-| Ubuiquiti EdgeRouter      | `ubiquiti_edge`       |
-| Ubuiquiti EdgeSwitch      | `ubiquiti_edgeswitch` |
-| Vyatta VyOS               | `vyatta_vyos`         |
-| VyOS                      | `vyos`                |
+Platforms in <Native>green</Native> are natively supported, which means hyperglass has predefined commands built in. Other platforms should also work, you'll just need to [add a custom command profile](commands.mdx).
+
+If needed, for troubleshooting purposes or otherwise, the driver for a given device [can be overridden](adding-devices#all-device-paramters) with the `driver` parameter. Generally, Netmiko is more stable, supports more platforms, but is slower; while Scrapli can be less reliable, supports fewer platforms, but is significantly faster.
+
+| Name                               | Key                   | Default Driver |
+| :--------------------------------- | :-------------------- | :------------- |
+| A10                                | `a10`                 | Netmiko        |
+| Accedian                           | `accedian`            | Netmiko        |
+| Alcatel AOS                        | `alcatel_aos`         | Netmiko        |
+| Alcatel SROS                       | `alcatel_sros`        | Netmiko        |
+| Apresia Systems AEOS               | `apresia_aeos`        | Netmiko        |
+| <Native>Arista vEOS</Native>       | `arista_eos`          | Netmiko        |
+| Aruba                              | `aruba_os`            | Netmiko        |
+| Avaya ERS                          | `avaya_ers`           | Netmiko        |
+| Avaya VSP                          | `avaya_vsp`           | Netmiko        |
+| <Native>BIRD</Native>              | `bird`                | Scrapli        |
+| Calix B6                           | `calix_b6`            | Netmiko        |
+| Check Point GAiA                   | `checkpoint_gaia`     | Netmiko        |
+| Ciena SAOS                         | `ciena_saos`          | Netmiko        |
+| Cisco ASA                          | `cisco_asa`           | Netmiko        |
+| <Native>Cisco IOS</Native>         | `cisco_ios`           | Scrapli        |
+| <Native>Cisco NX-OS</Native>       | `cisco_nxos`          | Scrapli        |
+| Cisco SG-300                       | `cisco_s300`          | Netmiko        |
+| <Native>Cisco IOS-XE</Native>      | `cisco_xe`            | Scrapli        |
+| <Native>Cisco IOS-XR</Native>      | `cisco_xr`            | Scrapli        |
+| Citrix Netscaler                   | `netscaler`           | Netmiko        |
+| CloudGenix ION                     | `cloudgenix_ion`      | Netmiko        |
+| Coriant                            | `coriant`             | Netmiko        |
+| Dell OS6                           | `dell_os6`            | Netmiko        |
+| Dell OS9                           | `dell_os9`            | Netmiko        |
+| Dell OS10                          | `dell_os10`           | Netmiko        |
+| Dell PowerConnect                  | `dell_powerconnect`   | Netmiko        |
+| Endace                             | `endace`              | Netmiko        |
+| Eltex                              | `eltex`               | Netmiko        |
+| Eltex ESR                          | `eltex_esr`           | Netmiko        |
+| Enterasys                          | `enterasys`           | Netmiko        |
+| Extreme                            | `extreme`             | Netmiko        |
+| Extreme ERS                        | `extreme_ers`         | Netmiko        |
+| Extreme EXOS                       | `extreme_exos`        | Netmiko        |
+| Extreme/Brocade NetIron            | `extreme_netiron`     | Netmiko        |
+| Extreme NOS                        | `extreme_nos`         | Netmiko        |
+| Extreme/Brocade SLX                | `extreme_slx`         | Netmiko        |
+| Extreme/Brocade VDX                | `extreme_vdx`         | Netmiko        |
+| Extreme VSP                        | `extreme_vsp`         | Netmiko        |
+| Extreme Wing                       | `extreme_wing`        | Netmiko        |
+| F5 LTM                             | `f5_ltm`              | Netmiko        |
+| F5 TMSH                            | `f5_tmsh`             | Netmiko        |
+| F5 Linux                           | `f5_linux`            | Netmiko        |
+| Flex VNF                           | `flexvnf`             | Netmiko        |
+| Fortinet                           | `fortinet`            | Netmiko        |
+| <Native>FRRouting</Native>         | `frr`                 | Scrapli        |
+| Generic Terminal Server            | `generic_termserver`  | Netmiko        |
+| HPE/3COM Comware                   | `hp_comware`          | Netmiko        |
+| HPE ProCurve                       | `hp_procurve`         | Netmiko        |
+| <Native>Huawei</Native>            | `huawei`              | Netmiko        |
+| Huawei VRPv8                       | `huawei_vrpv8`        | Netmiko        |
+| IPInfusion OcNOS                   | `ipinfusion_ocnos`    | Netmiko        |
+| <Native>Juniper</Native>           | `juniper`             | Scrapli        |
+| <Native>Juniper JunOS</Native>     | `juniper_junos`       | Scrapli        |
+| Juniper ScreenOS                   | `juniper_screenos`    | Netmiko        |
+| Keymile                            | `keymile`             | Netmiko        |
+| Keymile NOS                        | `keymile_nos`         | Netmiko        |
+| Linux                              | `linux`               | Netmiko        |
+| <Native>Mikrotik RouterOS</Native> | `mikrotik_routeros`   | Netmiko        |
+| <Native>Mikrotik SwitchOS</Native> | `mikrotik_switchos`   | Netmiko        |
+| Mellanox                           | `mellanox`            | Netmiko        |
+| Mellanox MLNX-OS                   | `mellanox_mlnxos`     | Netmiko        |
+| MRV LX                             | `mrv_lx`              | Netmiko        |
+| MRV Optiswitch                     | `mrv_optiswitch`      | Netmiko        |
+| <Native>Nokia SROS</Native>        | `nokia_sros`          | Netmiko        |
+| OneAccess OneOS                    | `oneaccess_oneos`     | Netmiko        |
+| OVS Linux                          | `ovs_linux`           | Netmiko        |
+| Palo Alto Networks PAN-OS          | `paloalto_panos`      | Netmiko        |
+| Pluribus                           | `pluribus`            | Netmiko        |
+| Quanta Mesh                        | `quanta_mesh`         | Netmiko        |
+| RAD ETX                            | `rad_etx`             | Netmiko        |
+| Ruckus/Brocade FastIron            | `ruckus_fastiron`     | Netmiko        |
+| Ruijie OS                          | `ruijie_os`           | Netmiko        |
+| <Native>TNSR</Native>              | `tnsr`                | Scrapli        |
+| Ubuiquiti EdgeRouter               | `ubiquiti_edge`       | Netmiko        |
+| Ubuiquiti EdgeSwitch               | `ubiquiti_edgeswitch` | Netmiko        |
+| Vyatta VyOS                        | `vyatta_vyos`         | Netmiko        |
+| <Native>VyOS</Native>              | `vyos`                | Netmiko        |
+
+## HTTP
+
+The following platforms use [hyperglass-agent](agent/installation.mdx) for connection handling. When configuring the `nos` property of a device, use the value in the **Key** column.
+
+:::caution hyperglass agent is being deprecated
+While hyperglass-agent was a cool idea, maintaining the two codebases and protocol sets has proven cumbersome, with very little benefit. As of **v1.0.0**, `frr_legacy` and `bird_legacy` are temporarily available to mimic previous behavior with hyperglass-agent.
+:::
+
+| Name      | Key           |
+| :-------- | :------------ |
+| BIRD      | `bird_legacy` |
+| FRRouting | `frr_legacy`  |
 
 ## Caveats
 

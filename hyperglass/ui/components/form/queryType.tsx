@@ -31,7 +31,9 @@ export const QueryType: React.FC<TQuerySelectField> = (props: TQuerySelectField)
   //   queries,
   //   networks,
   // } = useConfig();
-  const { errors } = useFormContext();
+  const {
+    formState: { errors },
+  } = useFormContext();
   const { selections, availableTypes, queryType } = useLGState();
   const { exportState } = useLGMethods();
 

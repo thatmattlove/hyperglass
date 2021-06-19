@@ -8,7 +8,7 @@ This isn’t an exhaustive list of things that you can’t do. Rather, take it i
 
 This code of conduct applies to all spaces managed by the hyperglass community. This includes mailing lists, the issue tracker, Telegram groups, Gitter communities, and any other forums created by the project team which the community uses for communication. In addition, violations of this code outside these spaces may affect a person's ability to participate within them.
 
-If you believe someone is violating the code of conduct, we ask that you report it by emailing [conduct@hyperglass.io](mailto:conduct@hyperglass.io).
+If you believe someone is violating the code of conduct, we ask that you report it by emailing [matt@hyperglass.dev](mailto:matt@hyperglass.dev).
 
 **Be friendly and patient.** Be welcoming. We strive to be a community that welcomes and supports people of all backgrounds and identities. This includes, but is not limited to members of any race, ethnicity, culture, national origin, color, immigration status, social and economic class, educational level, sex, sexual orientation, gender identity and expression, age, size, family status, political belief, religion, and mental and physical ability.
 

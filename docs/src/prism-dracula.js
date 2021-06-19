@@ -1,6 +1,6 @@
 // @flow
 
-export default {
+module.exports = {
   plain: {
     color: "rgb(241, 250, 140)",
     backgroundColor: "#282A36",
