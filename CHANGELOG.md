@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 # 1.0.1 - 2021-06-17
 
 ### Fixed
+- [#150](https://github.com/checktheroads/hyperglass/issues/150): Fix handling of BIRD AS_PATH/Community targets.
+
+# 1.0.1 - 2021-06-17
+
+### Fixed
 - UI: fix body overflow issue
 
 # 1.0.0 - 2021-05-30
