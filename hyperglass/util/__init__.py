@@ -93,16 +93,33 @@ def set_app_path(required: bool = False) -> Path:
 
     matched_path = None
 
-    config_paths = (Path.home() / "hyperglass", Path("/etc/hyperglass/"))
+    config_paths = ()
+    if os.environ.get("HYPERGLASS_PATH"):
+        config_paths = (Path(os.environ.get("HYPERGLASS_PATH")),)
+
+    config_paths += (
+        Path.home() / "hyperglass",
+        Path("/etc/hyperglass/"),
+    )
 
     # Ensure only one app directory exists to reduce confusion.
-    if all((p.exists() for p in config_paths)):
+    existing_config_paths = list(filter(lambda p: p.exists(), config_paths))
+    if len(existing_config_paths) > 1:
         raise RuntimeError(
-            "Both '{}' and '{}' exist. ".format(*(p.as_posix() for p in config_paths))
+            "Multiple configuration directories exist ({}). ".format(
+                ", ".join(map(lambda p: str(p), existing_config_paths))
+            )
             + "Please choose only one configuration directory and delete the other."
         )
 
-    for path in config_paths:
+    if len(existing_config_paths) == 0:
+        raise RuntimeError(
+            "None of the configuration directories exist ({}) ".format(
+                ", ".join(map(lambda p: str(p), config_paths))
+            )
+        )
+
+    for path in existing_config_paths:
         try:
             if path.exists():
                 tmp = path / "test.tmp"
@@ -124,7 +141,7 @@ to access the following directories:
 {dir}""".format(
                 un=getuser(),
                 uid=os.getuid(),
-                dir="\n".join(["\t - " + str(p) for p in config_paths]),
+                dir="\n".join(["\t - " + str(p) for p in existing_config_paths]),
             )
         )
 
