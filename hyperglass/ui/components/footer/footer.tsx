@@ -77,13 +77,16 @@ export const Footer: React.FC = () => {
           if (item.show_icon) {
             icon.rightIcon = <ExtIcon />;
           }
-          return <FooterLink href={url} title={item.title} {...icon} />;
+          return <FooterLink key={item.title} href={url} title={item.title} {...icon} />;
         } else if (isMenu(item)) {
-          return <FooterButton side="right" content={item.content} title={item.title} />;
+          return (
+            <FooterButton key={item.title} side="right" content={item.content} title={item.title} />
+          );
         }
       })}
       <If c={web.credit.enable}>
         <FooterButton
+          key="credit"
           side="right"
           content={content.credit}
           title={<Icon as={CodeIcon} boxSize={size} />}

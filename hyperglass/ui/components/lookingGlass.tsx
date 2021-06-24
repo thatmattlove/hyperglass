@@ -19,7 +19,7 @@ import {
 } from '~/components';
 import { useConfig } from '~/context';
 import { useStrf, useGreeting, useDevice, useLGState, useLGMethods } from '~/hooks';
-import { isQueryType, isQueryContent, isString, isQueryField } from '~/types';
+import { isQueryType, isQueryContent, isString, isQueryField, TDirective } from '~/types';
 
 import type { TFormData, TDeviceVrf, OnChangeArgs } from '~/types';
 
@@ -52,34 +52,6 @@ export const LookingGlass: React.FC = () => {
   const noQueryLoc = useStrf(messages.no_input, { field: web.text.query_location });
   const noQueryTarget = useStrf(messages.no_input, { field: web.text.query_target });
 
-  const formSchema = vest.create((data: TFormData = {} as TFormData) => {
-    test('query_location', noQueryLoc, () => {
-      enforce(data.query_location).isArrayOf(enforce.isString()).isNotEmpty();
-    });
-    test('query_target', noQueryTarget, () => {
-      enforce(data.query_target).longerThan(1);
-    });
-    test('query_type', noQueryType, () => {
-      enforce(data.query_type).anyOf(
-        enforce.equals('bgp_route'),
-        enforce.equals('bgp_community'),
-        enforce.equals('bgp_aspath'),
-        enforce.equals('ping'),
-        enforce.equals('traceroute'),
-      );
-    });
-    test('query_vrf', 'Query VRF is empty', () => {
-      enforce(data.query_vrf).isString();
-    });
-  });
-
-  const formInstance = useForm<TFormData>({
-    resolver: vestResolver(formSchema),
-    defaultValues: { query_vrf: 'default', query_target: '', query_location: [], query_type: '' },
-  });
-
-  const { handleSubmit, register, setValue, setError, clearErrors } = formInstance;
-
   const {
     availableGroups,
     queryVrf,
@@ -95,7 +67,37 @@ export const LookingGlass: React.FC = () => {
     selections,
   } = useLGState();
 
-  const { resolvedOpen, resetForm } = useLGMethods();
+  const queryTypes = useMemo(() => availableTypes.map(t => t.id.value), [availableTypes.length]);
+
+  const formSchema = vest.create((data: TFormData = {} as TFormData) => {
+    test('query_location', noQueryLoc, () => {
+      enforce(data.query_location).isArrayOf(enforce.isString()).isNotEmpty();
+    });
+    test('query_target', noQueryTarget, () => {
+      enforce(data.query_target).longerThan(1);
+    });
+    test('query_type', noQueryType, () => {
+      enforce(data.query_type).inside(queryTypes);
+    });
+    test('query_group', 'Query Group is empty', () => {
+      enforce(data.query_group).isString();
+    });
+  });
+
+  const formInstance = useForm<TFormData>({
+    resolver: vestResolver(formSchema),
+    defaultValues: {
+      // query_vrf: 'default',
+      query_target: '',
+      query_location: [],
+      query_type: '',
+      query_group: '',
+    },
+  });
+
+  const { handleSubmit, register, setValue, setError, clearErrors } = formInstance;
+
+  const { resolvedOpen, resetForm, getDirective } = useLGMethods();
 
   const isFqdnQuery = useIsFqdn(queryTarget.value, queryType.value);
 
@@ -115,6 +117,13 @@ export const LookingGlass: React.FC = () => {
   }, [queryType.value]);
 
   function submitHandler() {
+    console.table({
+      'Query Location': queryLocation.value,
+      'Query Type': queryType.value,
+      'Query Group': queryGroup.value,
+      'Query Target': queryTarget.value,
+      'Selected Directive': selectedDirective?.name ?? null,
+    });
     /**
      * Before submitting a query, make sure the greeting is acknowledged if required. This should
      * be handled before loading the app, but people be sneaky.
@@ -153,7 +162,7 @@ export const LookingGlass: React.FC = () => {
     const allVrfs = [] as TDeviceVrf[][];
     const locationNames = [] as string[];
     const allGroups = [] as string[][];
-    const allTypes = [] as string[][];
+    const allTypes = [] as TDirective[][];
     const allDevices = [];
 
     queryLocation.set(locations);
@@ -187,7 +196,8 @@ export const LookingGlass: React.FC = () => {
         for (const directive of device.directives) {
           if (directive.groups.includes(group)) {
             // allTypes.add(directive.name);
-            allTypes.push(device.directives.map(d => d.name));
+            allTypes.push(device.directives);
+            // allTypes.push(device.directives.map(d => d.name));
           }
         }
       }
@@ -215,7 +225,7 @@ export const LookingGlass: React.FC = () => {
         message: `${locationNames.join(', ')} have no query types in common.`,
       });
     } else if (intersectingTypes.length === 1) {
-      queryType.set(intersectingTypes[0]);
+      queryType.set(intersectingTypes[0].id);
     }
   }
 
@@ -263,20 +273,13 @@ export const LookingGlass: React.FC = () => {
       // queryGroup.set(e.value);
       handleGroupChange(e.value);
     }
-    console.table({
-      'Query Location': queryLocation.value,
-      'Query Type': queryType.value,
-      'Query Group': queryGroup.value,
-      'Query Target': queryTarget.value,
-      'Selected Directive': selectedDirective?.name ?? null,
-    });
   }
 
   useEffect(() => {
     register('query_location', { required: true });
     register('query_target', { required: true });
     register('query_type', { required: true });
-    register('query_vrf');
+    register('query_group');
   }, [register]);
 
   return (

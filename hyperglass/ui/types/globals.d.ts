@@ -4,6 +4,8 @@ declare global {
   type Dict<T = string> = Record<string, T>;
   type ValueOf<T> = T[keyof T];
 
+  type Nullable<T> = T | null;
+
   type TRPKIStates = 0 | 1 | 2 | 3;
 
   type TResponseLevel = 'success' | 'warning' | 'error' | 'danger';

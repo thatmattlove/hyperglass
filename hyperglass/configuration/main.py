@@ -26,20 +26,13 @@ from hyperglass.constants import (
 from hyperglass.exceptions import ConfigError, ConfigMissing
 from hyperglass.util.files import check_path
 
-# from hyperglass.models.commands import Commands
 from hyperglass.models.commands.generic import Directive
 from hyperglass.models.config.params import Params
-from hyperglass.models.config.devices import Devices, Device
-from hyperglass.configuration.defaults import (
-    CREDIT,
-    DEFAULT_HELP,
-    DEFAULT_TERMS,
-    DEFAULT_DETAILS,
-)
+from hyperglass.models.config.devices import Devices
 
 # Local
 from .markdown import get_markdown
-from .validation import validate_config, validate_nos_commands
+from .validation import validate_config
 
 set_app_path(required=True)
 

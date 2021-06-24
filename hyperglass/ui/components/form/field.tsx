@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Flex, FormControl, FormLabel, FormErrorMessage } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { If } from '~/components';
@@ -13,15 +14,19 @@ export const FormField: React.FC<TField> = (props: TField) => {
   const errorColor = useColorValue('red.500', 'red.300');
   const opacity = useBooleanValue(hiddenLabels, 0, undefined);
 
+  const [error, setError] = useState<Nullable<FieldError>>(null);
+
   const {
     formState: { errors },
   } = useFormContext();
 
-  const error = name in errors && (errors[name] as FieldError);
-
-  if (error !== false) {
-    console.warn(`Error on field '${label}': ${error.message}`);
-  }
+  useEffect(() => {
+    if (name in errors) {
+      console.dir(errors);
+      setError(errors[name]);
+      console.warn(`Error on field '${label}': ${error?.message}`);
+    }
+  }, [error, errors, setError]);
 
   return (
     <FormControl
@@ -29,8 +34,8 @@ export const FormField: React.FC<TField> = (props: TField) => {
       w="100%"
       maxW="100%"
       flexDir="column"
+      isInvalid={error !== null}
       my={{ base: 2, lg: 4 }}
-      isInvalid={error !== false}
       {...rest}
     >
       <FormLabel
@@ -41,7 +46,7 @@ export const FormField: React.FC<TField> = (props: TField) => {
         opacity={opacity}
         alignItems="center"
         justifyContent="space-between"
-        color={error !== false ? errorColor : labelColor}
+        color={error !== null ? errorColor : labelColor}
       >
         {label}
         <If c={typeof labelAddOn !== 'undefined'}>{labelAddOn}</If>
@@ -52,7 +57,7 @@ export const FormField: React.FC<TField> = (props: TField) => {
           {fieldAddOn}
         </Flex>
       </If>
-      <FormErrorMessage opacity={opacity}>{error && error.message}</FormErrorMessage>
+      <FormErrorMessage opacity={opacity}>{error?.message}</FormErrorMessage>
     </FormControl>
   );
 };

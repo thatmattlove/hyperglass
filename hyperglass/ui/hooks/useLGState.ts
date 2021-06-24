@@ -5,6 +5,7 @@ import { all } from '~/util';
 
 import type { State, PluginStateControl, Plugin } from '@hookstate/core';
 import type { TLGState, TLGStateHandlers, TMethodsExtension } from './types';
+import { TDirective } from '~/types';
 
 const MethodsId = Symbol('Methods');
 
@@ -37,6 +38,14 @@ class MethodsInstance {
     }
   }
 
+  public getDirective(state: State<TLGState>, name: string): Nullable<State<TDirective>> {
+    const [directive] = state.availableTypes.filter(t => t.name.value === name);
+    if (typeof directive !== 'undefined') {
+      return directive;
+    }
+    return null;
+  }
+
   /**
    * Determine if the form is ready for submission, e.g. all fields have values and isSubmitting
    * has been set to true. This ultimately controls the UI layout.
@@ -46,7 +55,7 @@ class MethodsInstance {
       state.isSubmitting.value &&
       all(
         ...[
-          state.queryVrf.value !== '',
+          // state.queryVrf.value !== '',
           state.queryType.value !== '',
           state.queryGroup.value !== '',
           state.queryTarget.value !== '',
@@ -122,6 +131,7 @@ function Methods(inst?: State<TLGState>): Plugin | TMethodsExtension {
       resolvedClose: () => instance.resolvedClose(inst),
       getResponse: device => instance.getResponse(inst, device),
       stateExporter: obj => instance.stateExporter(obj),
+      getDirective: name => instance.getDirective(inst, name),
     };
   }
   return {

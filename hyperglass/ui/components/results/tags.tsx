@@ -64,8 +64,8 @@ export const Tags: React.FC = () => {
     queryTypeLabel = queries[queryType.value].display_name;
   }
 
-  const getVrf = useVrf();
-  const vrf = getVrf(queryVrf.value);
+  // const getVrf = useVrf();
+  // const vrf = getVrf(queryVrf.value);
 
   return (
     <Box
@@ -115,7 +115,8 @@ export const Tags: React.FC = () => {
                 <Label
                   bg={vrfBg}
                   label={web.text.query_vrf}
-                  value={vrf.display_name}
+                  // value={vrf.display_name}
+                  value="fix me"
                   fontSize={{ base: 'xs', md: 'sm' }}
                 />
               </motion.div>

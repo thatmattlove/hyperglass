@@ -134,6 +134,7 @@ export interface TDeviceVrf extends TDeviceVrfBase {
 }
 
 interface TDirectiveBase {
+  id: string;
   name: string;
   field_type: 'text' | 'select' | null;
   description: string;

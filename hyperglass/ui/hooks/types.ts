@@ -49,6 +49,7 @@ export interface TMethodsExtension {
   formReady(): boolean;
   resetForm(): void;
   stateExporter<O extends unknown>(o: O): O | null;
+  getDirective(n: string): Nullable<State<TDirective>>;
 }
 
 export type TLGState = {
@@ -65,7 +66,7 @@ export type TLGState = {
   queryLocation: string[];
   availVrfs: TDeviceVrf[];
   availableGroups: string[];
-  availableTypes: string[];
+  availableTypes: TDirective[];
   resolvedIsOpen: boolean;
   selections: TSelections;
   responses: { [d: string]: TQueryResponse };
@@ -79,6 +80,7 @@ export type TLGStateHandlers = {
   formReady(): boolean;
   resetForm(): void;
   stateExporter<O extends unknown>(o: O): O | null;
+  getDirective(n: string): Nullable<State<TDirective>>;
 };
 
 export type UseStrfArgs = { [k: string]: unknown } | string;

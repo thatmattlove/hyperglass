@@ -102,6 +102,7 @@ class Directive(HyperglassModel):
     def frontend(self, params: Params) -> Dict:
 
         value = {
+            "id": self.id,
             "name": self.name,
             "field_type": self.field_type,
             "groups": self.groups,

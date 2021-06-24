@@ -62,5 +62,5 @@ export function isState<S>(a: any): a is State<NonNullable<S>> {
  * Determine if a form field name is a valid form key name.
  */
 export function isQueryField(field: string): field is keyof TFormData {
-  return ['query_location', 'query_type', 'query_vrf', 'query_target'].includes(field);
+  return ['query_location', 'query_type', 'query_group', 'query_target'].includes(field);
 }

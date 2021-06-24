@@ -5,6 +5,7 @@ import json
 import hashlib
 import secrets
 from datetime import datetime
+from typing import Optional
 
 # Third Party
 from pydantic import BaseModel, StrictStr, constr, validator
@@ -22,6 +23,7 @@ from .validators import (
     validate_community_select,
 )
 from ..config.vrf import Vrf
+from ..commands.generic import Directive
 
 
 def get_vrf_object(vrf_name: str) -> Vrf:
@@ -41,12 +43,23 @@ def get_vrf_object(vrf_name: str) -> Vrf:
     raise InputInvalid(params.messages.vrf_not_found, vrf_name=vrf_name)
 
 
+def get_directive(group: str) -> Optional[Directive]:
+    for device in devices.objects:
+        for command in device.commands:
+            if group in command.groups:
+                return command
+    # TODO: Move this to a param
+    # raise InputInvalid("Group {group} not found", group=group)
+    return None
+
+
 class Query(BaseModel):
     """Validation model for input query parameters."""
 
     query_location: StrictStr
     query_type: SupportedQuery
-    query_vrf: StrictStr
+    # query_vrf: StrictStr
+    query_group: StrictStr
     query_target: constr(strip_whitespace=True, min_length=1)
 
     class Config:
@@ -64,7 +77,12 @@ class Query(BaseModel):
                 "description": "Type of Query to Execute",
                 "example": "bgp_route",
             },
-            "query_vrf": {
+            # "query_vrf": {
+            #     "title": params.web.text.query_vrf,
+            #     "description": "Routing Table/VRF",
+            #     "example": "default",
+            # },
+            "query_group": {
                 "title": params.web.text.query_vrf,
                 "description": "Routing Table/VRF",
                 "example": "default",
@@ -88,7 +106,7 @@ class Query(BaseModel):
         """Represent only the query fields."""
         return (
             f"Query(query_location={str(self.query_location)}, "
-            f"query_type={str(self.query_type)}, query_vrf={str(self.query_vrf)}, "
+            f"query_type={str(self.query_type)}, query_group={str(self.query_group)}, "
             f"query_target={str(self.query_target)})"
         )
 
@@ -108,7 +126,7 @@ class Query(BaseModel):
         items = (
             f"query_location={self.query_location}",
             f"query_type={self.query_type}",
-            f"query_vrf={self.query_vrf.name}",
+            f"query_group={self.query_group}",
             f"query_target={str(self.query_target)}",
         )
         return f'Query({", ".join(items)})'
@@ -130,14 +148,14 @@ class Query(BaseModel):
             items = {
                 "query_location": self.device.name,
                 "query_type": self.query.display_name,
-                "query_vrf": self.query_vrf.display_name,
+                "query_group": self.query_group,
                 "query_target": str(self.query_target),
             }
         else:
             items = {
                 "query_location": self.query_location,
                 "query_type": self.query_type,
-                "query_vrf": self.query_vrf._id,
+                "query_group": self.query_group,
                 "query_target": str(self.query_target),
             }
         return items
@@ -177,26 +195,35 @@ class Query(BaseModel):
             )
         return value
 
-    @validator("query_vrf")
-    def validate_query_vrf(cls, value, values):
-        """Ensure query_vrf is defined."""
+    # @validator("query_vrf")
+    # def validate_query_vrf(cls, value, values):
+    #     """Ensure query_vrf is defined."""
 
-        vrf_object = get_vrf_object(value)
-        device = devices[values["query_location"]]
-        device_vrf = None
+    #     vrf_object = get_vrf_object(value)
+    #     device = devices[values["query_location"]]
+    #     device_vrf = None
 
-        for vrf in device.vrfs:
-            if vrf == vrf_object:
-                device_vrf = vrf
-                break
+    #     for vrf in device.vrfs:
+    #         if vrf == vrf_object:
+    #             device_vrf = vrf
+    #             break
 
-        if device_vrf is None:
-            raise InputInvalid(
-                params.messages.vrf_not_associated,
-                vrf_name=vrf_object.display_name,
-                device_name=device.name,
-            )
-        return device_vrf
+    #     if device_vrf is None:
+    #         raise InputInvalid(
+    #             params.messages.vrf_not_associated,
+    #             vrf_name=vrf_object.display_name,
+    #             device_name=device.name,
+    #         )
+    #     return device_vrf
+
+    # @validator("query_group")
+    # def validate_query_group(cls, value, values):
+    #     """Ensure query_vrf is defined."""
+
+    #     obj = get_directive(value)
+    #     if obj is not None:
+    #         ...
+    #     return device_vrf
 
     @validator("query_target")
     def validate_query_target(cls, value, values):

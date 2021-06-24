@@ -14,16 +14,16 @@ import type { TQuerySelectField } from './types';
 //     .map(q => ({ value: q.name, label: q.display_name }));
 // }
 
-function* buildOptions(networks: TNetwork[]): Generator<TSelectOption> {
-  for (const net of networks) {
-    for (const loc of net.locations) {
-      for (const directive of loc.directives) {
-        const { name } = directive;
-        yield { value: name, label: name };
-      }
-    }
-  }
-}
+// function* buildOptions(networks: TNetwork[]): Generator<TSelectOption> {
+//   for (const net of networks) {
+//     for (const loc of net.locations) {
+//       for (const directive of loc.directives) {
+//         const { name } = directive;
+//         yield { value: name, label: name };
+//       }
+//     }
+//   }
+// }
 
 export const QueryType: React.FC<TQuerySelectField> = (props: TQuerySelectField) => {
   const { onChange, label } = props;
@@ -67,7 +67,8 @@ export const QueryType: React.FC<TQuerySelectField> = (props: TQuerySelectField)
       aria-label={label}
       onChange={handleChange}
       value={exportState(selections.queryType.value)}
-      isError={typeof errors.query_type !== 'undefined'}
+      // isError={typeof errors.query_type !== 'undefined'}
+      isError={'query_type' in errors}
     />
   );
 };

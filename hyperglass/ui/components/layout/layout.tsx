@@ -5,9 +5,11 @@ import { Frame } from './frame';
 
 export const Layout: React.FC = () => {
   const { formReady } = useLGMethods();
+  const ready = formReady();
+  console.log('ready', ready);
   return (
     <Frame>
-      {formReady() ? (
+      {ready ? (
         <Results />
       ) : (
         <AnimatePresence>
