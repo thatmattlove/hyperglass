@@ -15,11 +15,11 @@
 
 [![PyPI](https://img.shields.io/pypi/v/hyperglass?style=for-the-badge)](https://pypi.org/project/hyperglass/)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/hyperglass?color=%2340798C&style=for-the-badge)
-[![GitHub Contributors](https://img.shields.io/github/contributors/checktheroads/hyperglass?color=40798C&style=for-the-badge)](https://github.com/checktheroads/hyperglass)
+[![GitHub Contributors](https://img.shields.io/github/contributors/thatmattlove/hyperglass?color=40798C&style=for-the-badge)](https://github.com/thatmattlove/hyperglass)
 
-[![Frontend Tests](https://img.shields.io/github/workflow/status/checktheroads/hyperglass/Frontend%20Testing?label=Frontend%20Tests&style=for-the-badge)](https://github.com/checktheroads/hyperglass/actions?query=workflow%3A%Frontend+Testing%22)
-[![Backend Tests](https://img.shields.io/github/workflow/status/checktheroads/hyperglass/Backend%20Testing?label=Backend%20Tests&style=for-the-badge)](https://github.com/checktheroads/hyperglass/actions?query=workflow%3A%Backend+Testing%22)
-[![Installer Tests](https://img.shields.io/github/workflow/status/checktheroads/hyperglass/Installer%20Testing?label=Installer%20Tests&style=for-the-badge)](https://github.com/checktheroads/hyperglass/actions?query=workflow%3A%Installer+Testing%22)
+[![Frontend Tests](https://img.shields.io/github/workflow/status/thatmattlove/hyperglass/Frontend%20Testing?label=Frontend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions?query=workflow%3A%Frontend+Testing%22)
+[![Backend Tests](https://img.shields.io/github/workflow/status/thatmattlove/hyperglass/Backend%20Testing?label=Backend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions?query=workflow%3A%Backend+Testing%22)
+[![Installer Tests](https://img.shields.io/github/workflow/status/thatmattlove/hyperglass/Installer%20Testing?label=Installer%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions?query=workflow%3A%Installer+Testing%22)
 
 <br/>
 
@@ -27,7 +27,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 
 </div>
 
-### [Changelog](https://github.com/checktheroads/hyperglass/blob/v1.0.0/CHANGELOG.md)
+### [Changelog](https://github.com/thatmattlove/hyperglass/blob/v1.0.0/CHANGELOG.md)
 
 ## Features
 
@@ -56,7 +56,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 - Query multiple devices simultaneously
 - Browser-based DNS-over-HTTPS resolution of FQDN queries
 
-*To request support for a specific platform, please [submit a Github Issue](https://github.com/checktheroads/hyperglass/issues/new) with the **feature** label.*
+*To request support for a specific platform, please [submit a Github Issue](https://github.com/thatmattlove/hyperglass/issues/new) with the **feature** label.*
 
 ### [Get Started →](https://hyperglass.dev/docs/introduction)
 
@@ -83,4 +83,4 @@ hyperglass is built entirely on open-source software. Here are some of the aweso
 - [Pydantic](https://pydantic-docs.helpmanual.io/)
 - [Chakra UI](https://chakra-ui.com/)
 
-[![GitHub](https://img.shields.io/github/license/checktheroads/hyperglass?color=330036&style=for-the-badge)](https://github.com/checktheroads/hyperglass/blob/v1.0.0/LICENSE)
+[![GitHub](https://img.shields.io/github/license/thatmattlove/hyperglass?color=330036&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/blob/v1.0.0/LICENSE)

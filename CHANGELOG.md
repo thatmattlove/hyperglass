@@ -4,10 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-# 1.0.1 - 2021-06-17
+# 1.0.3 - 2021-06-23
+
+_1.0.3 is a cosmetic release to factor in code-level changes related to the repository name change from checktheroads to thatmattlove._
+
+# 1.0.2 - 2021-06-18
 
 ### Fixed
-- [#150](https://github.com/checktheroads/hyperglass/issues/150): Fix handling of BIRD AS_PATH/Community targets.
+- [#150](https://github.com/thatmattlove/hyperglass/issues/150): Fix handling of BIRD AS_PATH/Community targets.
 
 # 1.0.1 - 2021-06-17
 
@@ -21,13 +25,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - The transitionary `frr_ssh` and `bird_ssh` NOS parameters no longer exist — `frr` and `bird` can now be used for SSH-based connectivity. hyperglass-agent users must now use `frr_legacy` and `bird_legacy` until hyperglass-agent is fully deprecated.
 
 ### Fixed
-- [#139](https://github.com/checktheroads/hyperglass/issues/139): Fix an issue where the API cannot be queried by device name.
+- [#139](https://github.com/thatmattlove/hyperglass/issues/139): Fix an issue where the API cannot be queried by device name.
 
 ### Changed
 - Updated UI dependencies
 
 ### Added
-- [#140](https://github.com/checktheroads/hyperglass/issues/140): Genericize links and menus so that multiple links and/or menus can be defined and fully customized.
+- [#140](https://github.com/thatmattlove/hyperglass/issues/140): Genericize links and menus so that multiple links and/or menus can be defined and fully customized.
 
 # 1.0.0-beta.82 - 2021-04-22
 
@@ -35,13 +39,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 **NodeJS 14.15 or later is required**. See [the docs](https://hyperglass.dev/docs/getting-started) for installation instructions.
 
 ### Fixed
-- [#135](https://github.com/checktheroads/hyperglass/issues/135): Fix an issue where Juniper indirect next-hops were empty.
+- [#135](https://github.com/thatmattlove/hyperglass/issues/135): Fix an issue where Juniper indirect next-hops were empty.
 - Fix an issue where Juniper structured AS_PATH or Community queries would appear to fail if one address family (IPv4 or IPv6) had an empty response. For example, if an AS_PATH query for `.* 29414 .*` was made (which only returns IPv4 routes), the query would fail.
 
 ### Changed
 - Updated major Python dependencies (FastAPI, Scrapli, Netmiko, Pydantic, Uvicorn, Gunicorn, etc.)
 - Updated UI dependencies
-- [#128](https://github.com/checktheroads/hyperglass/pull/128): Add `best` to all Juniper BGP Route queries. See [Juniper docs](https://www.juniper.net/documentation/us/en/software/junos/bgp/topics/ref/command/show-route-best.html) for more details.
+- [#128](https://github.com/thatmattlove/hyperglass/pull/128): Add `best` to all Juniper BGP Route queries. See [Juniper docs](https://www.juniper.net/documentation/us/en/software/junos/bgp/topics/ref/command/show-route-best.html) for more details.
 
 ### Added
 - The driver for devices can now be overridden with the `driver` parameter.
@@ -49,17 +53,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 # 1.0.0-beta.81 - 2021-04-10
 
 ### Fixed
-- [#124](https://github.com/checktheroads/hyperglass/issues/124): Fix an issue where networks weren't always sorted alphabetically.
-- [#126](https://github.com/checktheroads/hyperglass/issues/126): Fix rendering of markdown tables.
-- [#132](https://github.com/checktheroads/hyperglass/issues/132): Fix an issue where iBGP routes on Arista devices caused output parsing to fail.
-- [#133](https://github.com/checktheroads/hyperglass/issues/133): Use body styles for background/foreground color, allowing the user to override the `light` and `dark` colors per the docs.
+- [#124](https://github.com/thatmattlove/hyperglass/issues/124): Fix an issue where networks weren't always sorted alphabetically.
+- [#126](https://github.com/thatmattlove/hyperglass/issues/126): Fix rendering of markdown tables.
+- [#132](https://github.com/thatmattlove/hyperglass/issues/132): Fix an issue where iBGP routes on Arista devices caused output parsing to fail.
+- [#133](https://github.com/thatmattlove/hyperglass/issues/133): Use body styles for background/foreground color, allowing the user to override the `light` and `dark` colors per the docs.
 - Fix an issue with select menu list style.
 
 ## 1.0.0-beta.80 - 2021-03-03
 
 ### Fixed
 - Fix an issue where the UI did not properly filter and detect the correct Query VRF when only one was defined.
-- [#121](https://github.com/checktheroads/hyperglass/issues/121): Fix issue with select menu styling in light mode.
+- [#121](https://github.com/thatmattlove/hyperglass/issues/121): Fix issue with select menu styling in light mode.
 
 ## 1.0.0-beta.79 - 2021-02-26
 
@@ -92,14 +96,14 @@ Moving forward, the `name` field is only used to define the name of the VRF **as
 **POTENTIALLY BREAKING CHANGE**: The device `display_name` field is being deprecated, in favor of a single `name` field, which will be displayed to the end user. The `display_name` field still works, but you should migrate away from it as soon as possible.
 
 ### Fixed
-- [#117](https://github.com/checktheroads/hyperglass/issues/117): Fix naming and mapping of the Arista EOS driver. `arista` and `arista_eos` will both work now.
+- [#117](https://github.com/thatmattlove/hyperglass/issues/117): Fix naming and mapping of the Arista EOS driver. `arista` and `arista_eos` will both work now.
 
 ### Changed
 - Removed `display_name` field from device model. The `name` field will be used in the UI. If a `display_name` is defined, it will be used, for backwards compatibility.
 
 ## 1.0.0-beta.76 - 2021-02-06
 
-**NOTICE**: *[hyperglass-agent](https://github.com/checktheroads/hyperglass-agent) will be deprecated soon. Use `frr_ssh` or `bird_ssh` for SSH connectivity in the meantime.*
+**NOTICE**: *[hyperglass-agent](https://github.com/thatmattlove/hyperglass-agent) will be deprecated soon. Use `frr_ssh` or `bird_ssh` for SSH connectivity in the meantime.*
 
 ### Added
 - FRR & BIRD may now be accessed via standard SSH using the `frr_ssh` and `bird_ssh` NOS. [See the docs](https://hyperglass.dev/docs/platforms#caveats) for important caveats.
@@ -124,24 +128,24 @@ Moving forward, the `name` field is only used to define the name of the VRF **as
 - Updated UI dependencies.
 
 ### Fixed
-- [#109](https://github.com/checktheroads/hyperglass/issues/109): Remove the custom error page, because it doesn't work and doesn't really add much.
+- [#109](https://github.com/thatmattlove/hyperglass/issues/109): Remove the custom error page, because it doesn't work and doesn't really add much.
 
 ## 1.0.0-beta.73 - 2021-01-18
 
 ### Added
-- [#106](https://github.com/checktheroads/hyperglass/issues/106): Add built-in support for Nokia SR OS (thanks @paunadeu!).
+- [#106](https://github.com/thatmattlove/hyperglass/issues/106): Add built-in support for Nokia SR OS (thanks @paunadeu!).
 
 ### Changed
-- [#105](https://github.com/checktheroads/hyperglass/issues/105): Check NodeJS version on startup to ensure the minimum supported version is present.
+- [#105](https://github.com/thatmattlove/hyperglass/issues/105): Check NodeJS version on startup to ensure the minimum supported version is present.
 - Update UI dependencies.
 
 ### Fixed
-- [#107](https://github.com/checktheroads/hyperglass/issues/107): Fix footer menu styling so it doesn't overflow the viewport, especially on mobile.
+- [#107](https://github.com/thatmattlove/hyperglass/issues/107): Fix footer menu styling so it doesn't overflow the viewport, especially on mobile.
 
 ## 1.0.0-beta.72 - 2021-01-16
 
 ### Fixed
-- [#104](https://github.com/checktheroads/hyperglass/issues/104): Handle the usage of `juniper_junos` as a NOS. `juniper_junos` will now automatically be mapped to `juniper`.
+- [#104](https://github.com/thatmattlove/hyperglass/issues/104): Handle the usage of `juniper_junos` as a NOS. `juniper_junos` will now automatically be mapped to `juniper`.
 - Fix an issue with dual RP juniper devices and structured output, where output containing `{master}` outside of the XML output was improperly stripped out, causing a parsing failure.
 
 ### Changed
@@ -159,7 +163,7 @@ Moving forward, the `name` field is only used to define the name of the VRF **as
 
 ### Fixed
 
-- [#100](https://github.com/checktheroads/hyperglass/issues/100): Fix result panel bug where incorrect panels would open, or panels would not open at all. Resolved by accessing internal state of the `Accordion />` component via `useAccordionContext()` instead of directly changing the index prop via state.
+- [#100](https://github.com/thatmattlove/hyperglass/issues/100): Fix result panel bug where incorrect panels would open, or panels would not open at all. Resolved by accessing internal state of the `Accordion />` component via `useAccordionContext()` instead of directly changing the index prop via state.
 
 ### Changed
 - Query results now automatically cancel when each result panel unmounts (e.g. when one clicks the back button).
@@ -197,7 +201,7 @@ Moving forward, the `name` field is only used to define the name of the VRF **as
 
 ### Added
 
-- [#72](https://github.com/checktheroads/hyperglass/issues/72): _EXPERIMENTAL_ BGP map support for devices supporting structured output (Juniper Junos, currently).
+- [#72](https://github.com/thatmattlove/hyperglass/issues/72): _EXPERIMENTAL_ BGP map support for devices supporting structured output (Juniper Junos, currently).
 
 ### Fixed
 
@@ -212,7 +216,7 @@ Moving forward, the `name` field is only used to define the name of the VRF **as
 
 ### Added
 
-- [#87](https://github.com/checktheroads/hyperglass/issues/87): [TNSR] Support. To add a TNSR device, use the `tnsr` [NOS key](https://hyperglass.dev/docs/adding-devices#all-device-parameters).
+- [#87](https://github.com/thatmattlove/hyperglass/issues/87): [TNSR] Support. To add a TNSR device, use the `tnsr` [NOS key](https://hyperglass.dev/docs/adding-devices#all-device-parameters).
 
 ### Fixed
 
@@ -236,17 +240,17 @@ When hyperglass starts up, it will check to see if `~/hyperglass` or `/etc/hyper
 
 ### Added
 
-- [#81](https://github.com/checktheroads/hyperglass/issues/81): Add support for SSH key authentication. See [the docs](https://hyperglass.dev/docs/adding-devices#credential) for more details.
+- [#81](https://github.com/thatmattlove/hyperglass/issues/81): Add support for SSH key authentication. See [the docs](https://hyperglass.dev/docs/adding-devices#credential) for more details.
 
 ## 1.0.0-beta.60 - 2020-10-10
 
 ### Fixed
 
-- [#90](https://github.com/checktheroads/hyperglass/issues/90): Fix a typing error that caused ping & traceroute queries to fail for certain devices.
+- [#90](https://github.com/thatmattlove/hyperglass/issues/90): Fix a typing error that caused ping & traceroute queries to fail for certain devices.
 
 ### Added
 
-- [#82](https://github.com/checktheroads/hyperglass/issues/82): Add support for Redis password authentication. Authentication can be configured in the following manner:
+- [#82](https://github.com/thatmattlove/hyperglass/issues/82): Add support for Redis password authentication. Authentication can be configured in the following manner:
 
 ```yaml
 # hyperglass.yaml
@@ -276,7 +280,7 @@ requirepass examplepassword
 
 ### Changed
 
-- [#79](https://github.com/checktheroads/hyperglass/issues/79): Run the UI build on startup & clarify docs.
+- [#79](https://github.com/thatmattlove/hyperglass/issues/79): Run the UI build on startup & clarify docs.
 - Removed all f-strings from log messages.
 - Migrate icon library to [@meronex/icons](https://github.com/meronex/meronex-icons) for better tree-shaking.
 - Improve console (stdout) logging
@@ -284,16 +288,16 @@ requirepass examplepassword
 
 ### Fixed
 
-- [#74](https://github.com/checktheroads/hyperglass/issues/74): Fix UI build failures caused by `.alias.js`.
-- [#75](https://github.com/checktheroads/hyperglass/issues/75): Fix whitespace stripping of query target.
-- [#77](https://github.com/checktheroads/hyperglass/issues/77): Allow dashes in FQDN validation pattern.
-- [#83](https://github.com/checktheroads/hyperglass/issues/83): Fix lack of support for `protocol-nh` field in Juniper XML BGP table.
+- [#74](https://github.com/thatmattlove/hyperglass/issues/74): Fix UI build failures caused by `.alias.js`.
+- [#75](https://github.com/thatmattlove/hyperglass/issues/75): Fix whitespace stripping of query target.
+- [#77](https://github.com/thatmattlove/hyperglass/issues/77): Allow dashes in FQDN validation pattern.
+- [#83](https://github.com/thatmattlove/hyperglass/issues/83): Fix lack of support for `protocol-nh` field in Juniper XML BGP table.
 
 ## 1.0.0-beta.57 - 2020-07-30
 
 ### BREAKING CHANGE
 
-If you use [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent), you must upgrade your version of hyperglass-agent to 0.1.6 or later. If using hyperglass-agent with SSL, this release will require you to re-generate & re-send your SSL certificates to hyperglass:
+If you use [hyperglass-agent](https://github.com/thatmattlove/hyperglass-agent), you must upgrade your version of hyperglass-agent to 0.1.6 or later. If using hyperglass-agent with SSL, this release will require you to re-generate & re-send your SSL certificates to hyperglass:
 
 ```console
 $ hyperglass-agent certificate
@@ -316,13 +320,13 @@ $ hyperglass-agent send-certificate
 
 ### Fixed
 
-- [#56](https://github.com/checktheroads/hyperglass/issues/56): Fix a silent Redis connection error if the Redis server was anything other than `localhost`, preventing hyperglass from starting.
+- [#56](https://github.com/thatmattlove/hyperglass/issues/56): Fix a silent Redis connection error if the Redis server was anything other than `localhost`, preventing hyperglass from starting.
 
 ## 1.0.0-beta.55 - 2020-07-27
 
 ### Changed
 
-- Removed JS favicon build process in favor of native Python implementation ([favicons](https://github/checktheroads/favicons))
+- Removed JS favicon build process in favor of native Python implementation ([favicons](https://github/thatmattlove/favicons))
 
 ## 1.0.0-beta.54 - 2020-07-25
 
@@ -334,7 +338,7 @@ $ hyperglass-agent send-certificate
 
 ### Added
 
-- **BREAKING CHANGE**: [Scrapli](https://github.com/carlmontanari/scrapli) is now used for SSH connectivity to Cisco IOS, Cisco IOS-XE, Cisco IOS-XR, Cisco NX-OS Juniper Junos, and Arista EOS, which should improve the speed at which output is gathered from devices. _As of this release, Cisco IOS/IOS-XE and Juniper Junos have been directly tested and worked without issue. However, if you discover any anomalies with any of these operating systems, please [open an issue](https://github.com/checktheroads/hyperglass/issues)._
+- **BREAKING CHANGE**: [Scrapli](https://github.com/carlmontanari/scrapli) is now used for SSH connectivity to Cisco IOS, Cisco IOS-XE, Cisco IOS-XR, Cisco NX-OS Juniper Junos, and Arista EOS, which should improve the speed at which output is gathered from devices. _As of this release, Cisco IOS/IOS-XE and Juniper Junos have been directly tested and worked without issue. However, if you discover any anomalies with any of these operating systems, please [open an issue](https://github.com/thatmattlove/hyperglass/issues)._
 
 ### Changed
 
@@ -352,23 +356,23 @@ $ hyperglass-agent send-certificate
 
 - API route `/api/info`, which displays general system information such as the name of the organization and version of hyperglass.
 - API docs configuration parameters for the `/api/info` route.
-- [#63](https://github.com/checktheroads/hyperglass/issues/63): Minimum RAM requirements.
+- [#63](https://github.com/thatmattlove/hyperglass/issues/63): Minimum RAM requirements.
 - `hyperglass system-info` CLI command to gather system CPU, Memory, Disk, Python Version, hyperglass Version, & OS info. _Note: this information is only gathered if you run the command, and even then, is printed to the console and not otherwise shared or exported_.
 
 ### Changed
 
 - Updated docs dependencies.
 - Improved YAML alias & anchor docs.
-- [#55](https://github.com/checktheroads/hyperglass/issues/55): Removed YAML alias & anchors from default examples to avoid confusion.
+- [#55](https://github.com/thatmattlove/hyperglass/issues/55): Removed YAML alias & anchors from default examples to avoid confusion.
 
 ### Fixed
 
 - API docs logo URL now displays correctly.
-- [#62](https://github.com/checktheroads/hyperglass/issues/62): Added `epel-release` to CentOS installation instructions.
-- [#59](https://github.com/checktheroads/hyperglass/issues/59): Fixed copy output for Juniper devices on non-table output query types.
+- [#62](https://github.com/thatmattlove/hyperglass/issues/62): Added `epel-release` to CentOS installation instructions.
+- [#59](https://github.com/thatmattlove/hyperglass/issues/59): Fixed copy output for Juniper devices on non-table output query types.
 - [hyperglass-agent #6](https://github.com/hyperglass-agent/issues/6): Fixed hyperglass-agent documentation issues.
 - Improve command customization docs.
-- [#61](https://github.com/checktheroads/hyperglass/issues/61): Fixed copy output for table data. Output is now a bulleted list of parsed data.
+- [#61](https://github.com/thatmattlove/hyperglass/issues/61): Fixed copy output for table data. Output is now a bulleted list of parsed data.
 
 ## 1.0.0-beta.51 - 2020-07-13
 
@@ -379,7 +383,7 @@ $ hyperglass-agent send-certificate
 
 ### Fixed
 
-- [#54](https://github.com/checktheroads/hyperglass/issues/54): A Junos parsing error caused routes with no communities to raise an error.
+- [#54](https://github.com/thatmattlove/hyperglass/issues/54): A Junos parsing error caused routes with no communities to raise an error.
 - Pre-validated config files are no longer logged on startup unless debugging is enabled.
 
 ## 1.0.0-beta.50 - 2020-07-12
@@ -399,7 +403,7 @@ $ hyperglass-agent send-certificate
 
 ### Fixed
 
-- [#54](https://github.com/checktheroads/hyperglass/issues/54): A Junos structured/table output parsing error caused routes with multiple next-hops to raise an error.
+- [#54](https://github.com/thatmattlove/hyperglass/issues/54): A Junos structured/table output parsing error caused routes with multiple next-hops to raise an error.
 - RPKI validation no longer occurs twice (once on serialization of the output, once on validation of the API response).
 
 ## 1.0.0-beta.49 - 2020-07-05
@@ -451,7 +455,7 @@ $ hyperglass-agent send-certificate
 
 ### Added
 
-- Support for hyperglass-agent [0.1.5](https://github.com/checktheroads/hyperglass-agent)
+- Support for hyperglass-agent [0.1.5](https://github.com/thatmattlove/hyperglass-agent)
 
 ## 1.0.0-beta.45 - 2020-06-27
 

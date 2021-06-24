@@ -22,8 +22,8 @@ keywords = ["looking glass", "network automation", "isp", "bgp", "routing"]
 license = "BSD-3-Clause-Clear"
 name = "hyperglass"
 readme = "README.md"
-repository = "https://github.com/checktheroads/hyperglass"
-version = "1.0.2"
+repository = "https://github.com/thatmattlove/hyperglass"
+version = "1.0.3"
 
 [tool.poetry.scripts]
 hyperglass = "hyperglass.console:CLI"

@@ -1,4 +1,4 @@
-const githubURL = "https://github.com/checktheroads/hyperglass";
+const githubURL = "https://github.com/thatmattlove/hyperglass";
 
 const { googleTrackingId, algoliaKey } = process.env;
 
@@ -8,7 +8,7 @@ const docusaurusConfig = {
   url: "https://hyperglass.dev",
   baseUrl: "/",
   favicon: "img/favicon.ico",
-  organizationName: "checktheroads",
+  organizationName: "thatmattlove",
   projectName: "hyperglass",
   themeConfig: {
     image: "opengraph.jpg",
@@ -77,7 +77,7 @@ const docusaurusConfig = {
             },
             {
               label: "Twitter",
-              href: "https://twitter.com/checktheroads",
+              href: "https://twitter.com/thatmattlove",
             },
           ],
         },
