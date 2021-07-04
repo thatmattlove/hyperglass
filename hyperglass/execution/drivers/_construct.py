@@ -41,7 +41,6 @@ class Construct:
 
         # Set AFIs for based on query type
         if self.query_data.query_type in ("bgp_route", "ping", "traceroute"):
-
             # For IP queries, AFIs are enabled (not null/None) VRF -> AFI definitions
             # where the IP version matches the IP version of the target.
             self.afis = [
@@ -52,8 +51,7 @@ class Construct:
                 )
                 if v is not None and self.query_data.query_target.version == v.version
             ]
-
-        with Formatter(self.device.nos, self.query_data.query_type) as formatter:
+        elif self.query_data.query_type in ("bgp_aspath", "bgp_community"):
             # For AS Path/Community queries, AFIs are just enabled VRF -> AFI
             # definitions, no IP version checking is performed (since there is no IP).
             self.afis = [
@@ -64,6 +62,8 @@ class Construct:
                 )
                 if v is not None
             ]
+
+        with Formatter(self.device.nos, self.query_data.query_type) as formatter:
             self.target = formatter(self.query_data.query_target)
 
     def json(self, afi):
