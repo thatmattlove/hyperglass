@@ -285,7 +285,7 @@ yarn_brew() {
 }
 
 python_apt() {
-    apt-get install -y python3.6-dev python3-pip >/dev/null
+    apt-get install -y python3-dev python3-pip >/dev/null
     sleep 1
     python_post $?
 }
