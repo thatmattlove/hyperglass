@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# 1.0.4 - 2021-07-03
+
+### Fixed
+- [#148](https://github.com/thatmattlove/hyperglass/issues/148): Update Debian/Ubuntu Python package name in installer and documentation.
+- [#151](https://github.com/thatmattlove/hyperglass/issues/151): Fix issue with Junos structured output parsing from d1160fe where hyperglass would always query both IPv4 and IPv6 for any query type.
+
+### Changed
+- Improve handling of Junos XML errors. When a Junos device returns an error in the XML output, it will be displayed in the UI.
+- Improve `hyperglass system-info` output. NodeJS version is now included in the output.
+
 # 1.0.3 - 2021-06-23
 
 _1.0.3 is a cosmetic release to factor in code-level changes related to the repository name change from checktheroads to thatmattlove._
