@@ -65,6 +65,11 @@ def parse_juniper(output: Sequence) -> Dict:  # noqa: C901
             log.debug("Initially Parsed Response: \n{}", parsed)
 
             if "rpc-reply" in parsed.keys():
+                if "xnm:error" in parsed["rpc-reply"]:
+                    if "message" in parsed["rpc-reply"]["xnm:error"]:
+                        err = parsed["rpc-reply"]["xnm:error"]["message"]
+                        raise ParsingError('Error from device: "{}"', err)
+
                 parsed_base = parsed["rpc-reply"]["route-information"]
             elif "route-information" in parsed.keys():
                 parsed_base = parsed["route-information"]

@@ -27,8 +27,8 @@ NEEDS_NODE="1"
 NEEDS_YARN="1"
 NEEDS_REDIS="1"
 
-has_cmd () {
-    which $1 > /dev/null
+has_cmd() {
+    which $1 >/dev/null
 
     if [[ $? == 0 ]]; then
         echo "0"
@@ -37,30 +37,30 @@ has_cmd () {
     fi
 }
 
-clean_temp () {
+clean_temp() {
     echo "Cleaning up temporary files..."
     rm -rf /tmp/yarnkey.gpg
     rm -rf /tmp/nodesetup.sh
 }
 
-catch_interrupt () {
+catch_interrupt() {
     echo "Stopping..."
     exit 1
 }
 
-semver () {
+semver() {
     local ver_raw=$(echo "$1" | egrep -o '[0-9]+\.[0-9]+\.[0-9]+')
-    local ver_digits=( ${ver_raw//./ } )
+    local ver_digits=(${ver_raw//./ })
     echo ${ver_digits[@]}
 }
 
-parse_redis_version () {
+parse_redis_version() {
     local one=$(echo "$@" | egrep -o 'v=[0-9]+\.[0-9]+\.[0-9]+')
     local two=$(echo $one | egrep -o '[0-9]+\.[0-9]+\.[0-9]+')
     echo $two
 }
 
-python3_version () {
+python3_version() {
     local ver_digits=($(semver "$(python3 --version)"))
     local major="${ver_digits[0]}"
     local minor="${ver_digits[1]}"
@@ -80,10 +80,10 @@ python3_version () {
     fi
 }
 
-node_version () {
+node_version() {
     local ver_digits=($(semver "$(node --version)"))
     local major="${ver_digits[0]}"
-    
+
     if [[ $major < $MIN_NODE_MAJOR ]]; then
         echo "1"
     elif [[ $major -ge $MIN_NODE_MAJOR ]]; then
@@ -93,7 +93,7 @@ node_version () {
     fi
 }
 
-needs_python () {
+needs_python() {
     local has_python3=$(has_cmd "python3")
     if [[ $has_python3 == 1 ]]; then
         NEEDS_PYTHON="1"
@@ -111,7 +111,7 @@ needs_python () {
     fi
 }
 
-needs_node () {
+needs_node() {
     local has_node=$(has_cmd node)
     if [[ $has_node == 1 ]]; then
         NEEDS_NODE="1"
@@ -129,7 +129,7 @@ needs_node () {
     fi
 }
 
-needs_yarn () {
+needs_yarn() {
     local has_yarn=$(has_cmd yarn)
     if [[ $has_yarn == 1 ]]; then
         NEEDS_YARN="1"
@@ -140,7 +140,7 @@ needs_yarn () {
     fi
 }
 
-needs_redis () {
+needs_redis() {
     local has_redis=$(has_cmd redis-server)
     if [[ $has_redis == 1 ]]; then
         NEEDS_REDIS="1"
@@ -151,11 +151,11 @@ needs_redis () {
     fi
 }
 
-get_platform () {
+get_platform() {
     local use_apt=$(has_cmd apt-get)
     local use_yum=$(has_cmd yum)
     local use_brew=$(has_cmd brew)
-    
+
     if [[ $use_apt == 0 ]]; then
         INSTALLER="apt"
     elif [[ $use_yum == 0 ]]; then
@@ -168,7 +168,7 @@ get_platform () {
     fi
 }
 
-python_post () {
+python_post() {
     if [[ $1 == 0 ]]; then
         local successful=$(needs_python)
         if [[ $successful == 0 ]]; then
@@ -181,7 +181,7 @@ python_post () {
     fi
 }
 
-node_post () {
+node_post() {
     if [[ $1 == 0 ]]; then
         local successful=$(needs_node)
         if [[ $successful == 0 ]]; then
@@ -194,7 +194,7 @@ node_post () {
     fi
 }
 
-yarn_post () {
+yarn_post() {
     if [[ $1 == 0 ]]; then
         local successful=$(needs_yarn)
         if [[ $successful == 0 ]]; then
@@ -207,7 +207,7 @@ yarn_post () {
     fi
 }
 
-redis_post () {
+redis_post() {
     if [[ $1 == 0 ]]; then
         local successful=$(needs_redis)
         if [[ $successful == 0 ]]; then
@@ -220,14 +220,14 @@ redis_post () {
     fi
 }
 
-node_apt_prepare () {
+node_apt_prepare() {
     curl -sL https://deb.nodesource.com/setup_$MIN_NODE_MAJOR.x -o /tmp/nodesetup.sh
     sleep 1
     bash /tmp/nodesetup.sh
     NEEDS_UPDATE="1"
 }
 
-yarn_apt_prepare () {
+yarn_apt_prepare() {
     curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg -o /tmp/yarnkey.gpg
     sleep 1
     apt-key add /tmp/yarnkey.gpg
@@ -235,62 +235,62 @@ yarn_apt_prepare () {
     NEEDS_UPDATE="1"
 }
 
-node_yum_prepare () {
+node_yum_prepare() {
     curl -sL https://rpm.nodesource.com/setup_$MIN_NODE_MAJOR.x -o /tmp/nodesetup.sh
     bash /tmp/nodesetup.sh
     sleep 1
     NEEDS_UPDATE="1"
 }
 
-yarn_yum_prepare () {
+yarn_yum_prepare() {
     curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo
     sleep 1
     NEEDS_UPDATE="1"
 }
 
-node_apt () {
+node_apt() {
     apt-get install -y nodejs
     sleep 1
     node_post $?
 }
 
-node_yum () {
+node_yum() {
     yum -y install gcc-c++ make nodejs
     sleep 1
     node_post $?
 }
 
-node_brew () {
+node_brew() {
     brew install node
     sleep 1
     node_post $?
 }
 
-yarn_apt () {
+yarn_apt() {
     apt-get install -y yarn
     sleep 1
     yarn_post $?
 }
 
-yarn_yum () {
+yarn_yum() {
     yum -y install gcc-c++ make yarn
     sleep 1
     yarn_post $?
 }
 
-yarn_brew () {
+yarn_brew() {
     brew install yarn
     sleep 1
     yarn_post $?
 }
 
-python_apt () {
-    apt-get install -y python3.6-dev python3-pip > /dev/null
+python_apt() {
+    apt-get install -y python3-dev python3-pip >/dev/null
     sleep 1
     python_post $?
 }
 
-python_yum () {
+python_yum() {
     yum install centos-release-scl
     yum install rh-python36
     yum install python3-devel
@@ -299,31 +299,31 @@ python_yum () {
     python_post $?
 }
 
-python_brew () {
+python_brew() {
     brew install python3
     sleep 1
     python_post $?
 }
 
-redis_apt () {
+redis_apt() {
     apt-get install -y redis-server
     sleep 1
     redis_post $?
 }
 
-redis_yum () {
+redis_yum() {
     yum -y install redis
     sleep 1
     redis_post $?
 }
 
-redis_brew () {
+redis_brew() {
     brew install redis
     sleep 1
     redis_post $?
 }
 
-update_repo () {
+update_repo() {
     if [[ $INSTALLER == "apt" ]]; then
         apt-get update
     elif [[ $INSTALLER == "yum" ]]; then
@@ -333,7 +333,7 @@ update_repo () {
     fi
 }
 
-install_python () {
+install_python() {
     if [[ $NEEDS_PYTHON == "1" ]]; then
         echo "[INFO] Installing Python..."
 
@@ -354,10 +354,10 @@ install_python () {
     fi
 }
 
-install_node () {
+install_node() {
     if [[ $NEEDS_NODE == "1" ]]; then
         echo "[INFO] Installing NodeJS..."
-        
+
         if [[ $INSTALLER == "apt" ]]; then
             node_apt
         elif [[ $INSTALLER == "yum" ]]; then
@@ -365,20 +365,20 @@ install_node () {
         elif [[ $INSTALLER == "brew" ]]; then
             node_brew
         fi
-    
+
     elif [[ $NEEDS_NODE == "0" ]]; then
         echo "[INFO] Your system is running NodeJS $(node --version) (Minimum is $MIN_NODE_MAJOR+)."
-    
+
     else
         echo "[ERROR] Unable to determine if your system needs NodeJS."
         exit 1
     fi
 }
 
-install_yarn () {
+install_yarn() {
     if [[ $NEEDS_YARN == "1" ]]; then
         echo "[INFO] Installing Yarn..."
-        
+
         if [[ $INSTALLER == "apt" ]]; then
             yarn_apt
         elif [[ $INSTALLER == "yum" ]]; then
@@ -386,20 +386,20 @@ install_yarn () {
         elif [[ $INSTALLER == "brew" ]]; then
             yarn_brew
         fi
-    
+
     elif [[ $NEEDS_YARN == "0" ]]; then
         echo "[INFO] Your system is running Yarn $(yarn --version) (Minimum is $MIN_YARN_MAJOR+)."
-    
+
     else
         echo "[ERROR] Unable to determine if your system needs Yarn."
         exit 1
     fi
 }
 
-install_redis () {
+install_redis() {
     if [[ $NEEDS_REDIS == "1" ]]; then
         echo "[INFO] Installing Redis..."
-        
+
         if [[ $INSTALLER == "apt" ]]; then
             redis_apt
         elif [[ $INSTALLER == "yum" ]]; then
@@ -407,10 +407,10 @@ install_redis () {
         elif [[ $INSTALLER == "brew" ]]; then
             redis_brew
         fi
-    
+
     elif [[ $NEEDS_REDIS == "0" ]]; then
         echo "[INFO] Your system is running Redis $(parse_redis_version $(redis-server --version)) (Minimum is $MIN_REDIS_MAJOR+)."
-    
+
     else
         echo "[ERROR] Unable to determine if your system needs Redis."
         exit 1
@@ -419,30 +419,30 @@ install_redis () {
 
 # The below script installs locally instead of from PyPI
 #
-install_app () {
+install_app() {
     echo "[INFO] Installing hyperglass..."
 
     curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -o /tmp/get-poetry.py
-    python3 /tmp/get-poetry.py -f -y > /dev/null
+    python3 /tmp/get-poetry.py -f -y >/dev/null
     sleep 1
     source $HOME/.profile
 
     [ -d "/tmp/hyperglass" ] && rm -rf /tmp/hyperglass
     [ -d "/tmp/build" ] && rm -rf /tmp/build
-    
-    git clone --branch v1.0.0 --depth 1 https://github.com/checktheroads/hyperglass.git /tmp/hyperglass
+
+    git clone --branch v1.0.0 --depth 1 https://github.com/thatmattlove/hyperglass.git /tmp/hyperglass
     cd /tmp/hyperglass
     poetry build
     mkdir /tmp/build
-    
+
     # local build_tarball="/tmp/hyperglass/dist/hyperglass-build.tar.gz"
     local build_tarballs=(/tmp/hyperglass/dist/*.tar.gz)
     local build_tarball=${build_tarballs[-1]}
     local build_dir=$(basename $build_tarball .tar.gz)
-    
+
     tar -xvf /tmp/hyperglass/dist/$build_dir.tar.gz -C /tmp/build
     cd /tmp/build/$build_dir
-    pip3 install . > /dev/null
+    pip3 install . >/dev/null
 
     if [[ ! $? == 0 ]]; then
         echo "[ERROR] An error occurred while trying to install hyperglass."

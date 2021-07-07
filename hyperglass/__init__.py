@@ -1,10 +1,10 @@
 """hyperglass is a modern, customizable network looking glass written in Python 3.
 
-https://github.com/checktheroads/hyperglass
+https://github.com/thatmattlove/hyperglass
 
 The Clear BSD License
 
-Copyright (c) 2020 Matthew Love
+Copyright (c) 2021 Matthew Love
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

@@ -41,19 +41,19 @@ routers:
 
 ## All Device Parameters
 
-| Parameter           |  Type   | Description                                                                                                        |
-| :------------------ | :-----: | :----------------------------------------------------------------------------------------------------------------- |
-| <R/> `name`         | String  | Device's user-facing name.                                                                                         |
-| <R/> `address`      | String  | Device management hostname or IP address.                                                                          |
-| <R/> `network`      | String  | [Network Configuration](#network)                                                                                  |
-| <R/> `port`         | Integer | TCP port used to connect to the device. `22` by default.                                                           |
-| <R/> `nos`          | String  | Network Operating System. <MiniNote>Must be a <Link to="platforms">supported platform</Link>.</MiniNote>           |
-| `structured_output` | Boolean | Disabled output parsing to structured data.                                                                        |
-| `driver`            | String  | Override the device driver. Must be 'scrapli' or 'netmiko'.                                                        |
-| <R/>`credential`    |         | [Device Credential Configuration](#credential)                                                                     |
-| <R/>`vrfs`          |         | [Device VRF Configuration](#vrfs)                                                                                  |
-| `proxy`             |         | [SSH Proxy Configuration](#proxy)                                                                                  |
-| `ssl`               |         | [SSL Configuration](#ssl) for devices using [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent). |
+| Parameter           |  Type   | Description                                                                                                       |
+| :------------------ | :-----: | :---------------------------------------------------------------------------------------------------------------- |
+| <R/> `name`         | String  | Device's user-facing name.                                                                                        |
+| <R/> `address`      | String  | Device management hostname or IP address.                                                                         |
+| <R/> `network`      | String  | [Network Configuration](#network)                                                                                 |
+| <R/> `port`         | Integer | TCP port used to connect to the device. `22` by default.                                                          |
+| <R/> `nos`          | String  | Network Operating System. <MiniNote>Must be a <Link to="platforms">supported platform</Link>.</MiniNote>          |
+| `structured_output` | Boolean | Disabled output parsing to structured data.                                                                       |
+| `driver`            | String  | Override the device driver. Must be 'scrapli' or 'netmiko'.                                                       |
+| <R/>`credential`    |         | [Device Credential Configuration](#credential)                                                                    |
+| <R/>`vrfs`          |         | [Device VRF Configuration](#vrfs)                                                                                 |
+| `proxy`             |         | [SSH Proxy Configuration](#proxy)                                                                                 |
+| `ssl`               |         | [SSL Configuration](#ssl) for devices using [hyperglass-agent](https://github.com/thatmattlove/hyperglass-agent). |
 
 ### `network`
 
@@ -84,7 +84,7 @@ Currently, only `linux_ssh` has been tested and validated for use as an SSH prox
 
 While all devices require a credential mapping, the credential values themselves may be used in different ways depending on the device NOS. For SSH devices, the credential is used as a typical SSH username and password.
 
-For HTTP devices (i.e. devices using [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent)), the username is ignored and the password is used as a secret for [JSON Web Token](https://tools.ietf.org/html/rfc7519) encoding/decoding.
+For HTTP devices (i.e. devices using [hyperglass-agent](https://github.com/thatmattlove/hyperglass-agent)), the username is ignored and the password is used as a secret for [JSON Web Token](https://tools.ietf.org/html/rfc7519) encoding/decoding.
 
 | Parameter       | Type   | Description                                                  |
 | :-------------- | :----- | :----------------------------------------------------------- |

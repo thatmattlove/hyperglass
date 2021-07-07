@@ -25,7 +25,7 @@ When [debug](parameters.mdx#global-settings) is set to `true`, the number of wor
 
 ### Memory
 
-Testing shows that hyperglass is extremely memory efficient at runtime. For example, running 4 simulations BGP Route queries, with two devices utilizing [hyperglass-agent](https://github.com/checktheroads/hyperglass-agent), and two devices utilizing SSH, the server increased RAM utilization by about 20MB during execution, and went back down afterwards.
+Testing shows that hyperglass is extremely memory efficient at runtime. For example, running 4 simulations BGP Route queries, with two devices utilizing [hyperglass-agent](https://github.com/thatmattlove/hyperglass-agent), and two devices utilizing SSH, the server increased RAM utilization by about 20MB during execution, and went back down afterwards.
 
 However, at build time, there are some fairly memory-intensive tasks which _will_ time out or cause strange errors without the proper amount of RAM. Testing suggests **2GB of RAM is sufficient**, however **4GB is the ideal minimum amount of RAM**.
 

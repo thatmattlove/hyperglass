@@ -169,7 +169,9 @@ def setup(unattended):
 
     success(
         """Completed hyperglass installation.
-After adding your hyperglass.yaml file, you should run the `hyperglass build-ui` command."""  # noqa: E501
+After adding your {devices} file, you should run the {build_cmd} command.""",  # noqa: E501
+        devices="devices.yaml",
+        build_cmd="hyperglass build-ui",
     )
 
 

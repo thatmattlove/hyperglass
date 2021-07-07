@@ -7,7 +7,7 @@ import math
 import shutil
 import asyncio
 import subprocess
-from typing import Dict, Optional
+from typing import Dict, Tuple, Optional
 from pathlib import Path
 
 # Project
@@ -17,7 +17,7 @@ from hyperglass.log import log
 from .files import copyfiles, check_path
 
 
-def get_node_version() -> int:
+def get_node_version() -> Tuple[int, int, int]:
     """Get the system's NodeJS version."""
     node_path = shutil.which("node")
 
@@ -28,9 +28,7 @@ def get_node_version() -> int:
     # Node returns the version as 'v14.5.0', for example. Remove the v.
     version = raw_version.replace("v", "")
     # Parse the version parts.
-    major, minor, patch = version.split(".")
-
-    return int(major)
+    return tuple((int(v) for v in version.split(".")))
 
 
 def get_ui_build_timeout() -> Optional[int]:
