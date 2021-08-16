@@ -113,6 +113,9 @@ The `tls` directive will tell Caddy to automatically use Let's Encrypt to genera
 
 The following file can be placed at `/etc/nginx/sites-enabled/hyperglass`. It supports IPv6, and will automatically redirect to HTTPS. The highlighted lines should be replaced with your installation's specific variables.
 
+Replace `server_name` with your own.
+Replace `ssl_certificate` and `ssl_certificate_key` with paths to appropriate files.
+
 ```nginx {4,9,10,17,19} title="NGINX"
 server {
   listen 80;
@@ -159,7 +162,10 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header Host $http_host;
     proxy_redirect off;
+    # for ipv6
     proxy_pass http://[::1]:8001;
+    # for ipv4
+    # proxy_pass http://127.0.0.1:8001;
   }
 
 }
