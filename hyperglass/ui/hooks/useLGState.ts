@@ -39,7 +39,7 @@ class MethodsInstance {
   }
 
   public getDirective(state: State<TLGState>, name: string): Nullable<State<TDirective>> {
-    const [directive] = state.availableTypes.filter(t => t.name.value === name);
+    const [directive] = state.availableTypes.filter(t => t.id.value === name);
     if (typeof directive !== 'undefined') {
       return directive;
     }

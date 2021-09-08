@@ -7,7 +7,7 @@
 import re
 
 # Project
-from hyperglass.exceptions import ParsingError
+from hyperglass.exceptions.private import ParsingError
 
 
 def _process_numbers(numbers):

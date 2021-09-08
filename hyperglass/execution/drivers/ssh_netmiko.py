@@ -8,7 +8,7 @@ import math
 from typing import Iterable
 
 # Third Party
-from netmiko import (
+from netmiko import (  # type: ignore
     ConnectHandler,
     NetMikoTimeoutException,
     NetMikoAuthenticationException,
@@ -16,8 +16,8 @@ from netmiko import (
 
 # Project
 from hyperglass.log import log
-from hyperglass.exceptions import AuthError, ScrapeError, DeviceTimeout
 from hyperglass.configuration import params
+from hyperglass.exceptions.public import AuthError, DeviceTimeout, ResponseEmpty
 
 # Local
 from .ssh import SSHConnection
@@ -105,32 +105,12 @@ class NetmikoConnection(SSHConnection):
             nm_connect_direct.disconnect()
 
         except NetMikoTimeoutException as scrape_error:
-            log.error(str(scrape_error))
-            raise DeviceTimeout(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                proxy=None,
-                error=params.messages.request_timeout,
-            )
-        except NetMikoAuthenticationException as auth_error:
-            log.error(
-                "Error authenticating to device {loc}: {e}",
-                loc=self.device.name,
-                e=str(auth_error),
-            )
+            raise DeviceTimeout(error=scrape_error, device=self.device)
 
-            raise AuthError(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                proxy=None,
-                error=params.messages.authentication_error,
-            )
+        except NetMikoAuthenticationException as auth_error:
+            raise AuthError(error=auth_error, device=self.device)
+
         if not responses:
-            raise ScrapeError(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                proxy=None,
-                error=params.messages.no_response,
-            )
+            raise ResponseEmpty(query=self.query_data)
 
         return responses

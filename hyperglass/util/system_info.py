@@ -7,7 +7,7 @@ from typing import Dict, Tuple, Union
 
 # Third Party
 import psutil as _psutil
-from cpuinfo import get_cpu_info as _get_cpu_info
+from cpuinfo import get_cpu_info as _get_cpu_info  # type: ignore
 
 # Project
 from hyperglass.constants import __version__

@@ -23,7 +23,7 @@ license = "BSD-3-Clause-Clear"
 name = "hyperglass"
 readme = "README.md"
 repository = "https://github.com/thatmattlove/hyperglass"
-version = "1.0.4"
+version = "2.0.0-dev"
 
 [tool.poetry.scripts]
 hyperglass = "hyperglass.console:CLI"
@@ -47,14 +47,14 @@ netmiko = "^3.4.0"
 paramiko = "^2.7.2"
 psutil = "^5.7.2"
 py-cpuinfo = "^7.0.0"
-pydantic = "^1.8.1"
-python = ">=3.6.1,<4.0"
+pydantic = "1.8.2"
+python = ">=3.8.1,<4.0"
 redis = "^3.5.3"
-scrapli = {extras = ["asyncssh"], version = "^2021.1.30"}
+scrapli = {version = "2021.07.30", extras = ["asyncssh"]}
+typing-extensions = "^3.7.4"
 uvicorn = {extras = ["standard"], version = "^0.13.4"}
 uvloop = "^0.14.0"
 xmltodict = "^0.12.0"
-typing-extensions = "^3.7.4"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.6.2"
@@ -83,3 +83,14 @@ stackprinter = "^0.2.3"
 
 [tool.black]
 line-length = 88
+
+[tool.pyright]
+exclude = [
+  "**/node_modules",
+  "**/ui",
+  "**/__pycache__",
+]
+include = ["hyperglass"]
+pythonVersion = "3.6"
+reportMissingImports = true
+reportMissingTypeStubs = true

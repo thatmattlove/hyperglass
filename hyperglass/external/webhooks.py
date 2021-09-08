@@ -1,11 +1,11 @@
 """Convenience functions for webhooks."""
 
 # Project
-from hyperglass.exceptions import HyperglassError
 from hyperglass.external._base import BaseExternal
 from hyperglass.external.slack import SlackHook
 from hyperglass.external.generic import GenericHook
 from hyperglass.external.msteams import MSTeams
+from hyperglass.exceptions.private import UnsupportedError
 
 PROVIDER_MAP = {
     "generic": GenericHook,
@@ -23,6 +23,7 @@ class Webhook(BaseExternal):
             provider_class = PROVIDER_MAP[config.provider]
             return provider_class(config)
         except KeyError:
-            raise HyperglassError(
-                f"'{config.provider.title()}' is not yet supported as a webhook target."
+            raise UnsupportedError(
+                message="{p} is not yet supported as a webhook target.",
+                p=config.provider.title(),
             )

@@ -23,7 +23,7 @@ class Connection:
         self.query_data = query_data
         self.query_type = self.query_data.query_type
         self.query_target = self.query_data.query_target
-        self._query = Construct(device=self.device, query_data=self.query_data)
+        self._query = Construct(device=self.device, query=self.query_data)
         self.query = self._query.queries()
 
     async def parsed_response(  # noqa: C901 ("too complex")

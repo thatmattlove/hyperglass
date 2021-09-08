@@ -8,9 +8,9 @@ import logging
 import platform
 
 # Third Party
-from gunicorn.arbiter import Arbiter
-from gunicorn.app.base import BaseApplication
-from gunicorn.glogging import Logger
+from gunicorn.arbiter import Arbiter  # type: ignore
+from gunicorn.app.base import BaseApplication  # type: ignore
+from gunicorn.glogging import Logger  # type: ignore
 
 # Local
 from .log import log, setup_lib_logging

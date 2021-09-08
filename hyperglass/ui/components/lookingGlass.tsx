@@ -19,9 +19,10 @@ import {
 } from '~/components';
 import { useConfig } from '~/context';
 import { useStrf, useGreeting, useDevice, useLGState, useLGMethods } from '~/hooks';
-import { isQueryType, isQueryContent, isString, isQueryField, TDirective } from '~/types';
+import { dedupObjectArray } from '~/util';
+import { isString, isQueryField, TDirective } from '~/types';
 
-import type { TFormData, TDeviceVrf, OnChangeArgs } from '~/types';
+import type { TFormData, OnChangeArgs } from '~/types';
 
 /**
  * Don't set the global flag on this.
@@ -105,16 +106,12 @@ export const LookingGlass: React.FC = () => {
     if (queryType.value === '') {
       return null;
     }
-    for (const loc of queryLocation) {
-      const device = getDevice(loc.value);
-      for (const directive of device.directives) {
-        if (directive.name === queryType.value) {
-          return directive;
-        }
-      }
+    const directive = getDirective(queryType.value);
+    if (directive !== null) {
+      return directive;
     }
     return null;
-  }, [queryType.value]);
+  }, [queryType.value, queryGroup.value]);
 
   function submitHandler() {
     console.table({
@@ -159,7 +156,6 @@ export const LookingGlass: React.FC = () => {
 
   function handleLocChange(locations: string[]): void {
     clearErrors('query_location');
-    const allVrfs = [] as TDeviceVrf[][];
     const locationNames = [] as string[];
     const allGroups = [] as string[][];
     const allTypes = [] as TDirective[][];
@@ -171,7 +167,6 @@ export const LookingGlass: React.FC = () => {
     for (const loc of locations) {
       const device = getDevice(loc);
       locationNames.push(device.name);
-      allVrfs.push(device.vrfs);
       allDevices.push(device);
       const groups = new Set<string>();
       for (const directive of device.directives) {
@@ -231,18 +226,19 @@ export const LookingGlass: React.FC = () => {
 
   function handleGroupChange(group: string): void {
     queryGroup.set(group);
-    const availTypes = new Set<string>();
+    let availTypes = new Array<TDirective>();
     for (const loc of queryLocation) {
       const device = getDevice(loc.value);
       for (const directive of device.directives) {
         if (directive.groups.includes(group)) {
-          availTypes.add(directive.name);
+          availTypes.push(directive);
         }
       }
     }
-    availableTypes.set(Array.from(availTypes));
+    availTypes = dedupObjectArray<TDirective>(availTypes, 'id');
+    availableTypes.set(availTypes);
     if (availableTypes.length === 1) {
-      queryType.set(availableTypes[0].value);
+      queryType.set(availableTypes[0].name.value);
     }
   }
 
@@ -277,7 +273,7 @@ export const LookingGlass: React.FC = () => {
 
   useEffect(() => {
     register('query_location', { required: true });
-    register('query_target', { required: true });
+    // register('query_target', { required: true });
     register('query_type', { required: true });
     register('query_group');
   }, [register]);
@@ -303,9 +299,9 @@ export const LookingGlass: React.FC = () => {
             <QueryLocation onChange={handleChange} label={web.text.query_location} />
           </FormField>
           <If c={availableGroups.length > 1}>
-            <FormField label={web.text.query_vrf} name="query_group">
+            <FormField label={web.text.query_group} name="query_group">
               <QueryGroup
-                label={web.text.query_vrf}
+                label={web.text.query_group}
                 groups={availableGroups.value}
                 onChange={handleChange}
               />
@@ -319,8 +315,8 @@ export const LookingGlass: React.FC = () => {
               label={web.text.query_type}
               labelAddOn={
                 <HelpModal
-                  visible={selectedDirective?.info !== null}
-                  item={selectedDirective?.info ?? null}
+                  visible={selectedDirective?.info.value !== null}
+                  item={selectedDirective?.info.value ?? null}
                   name="query_type"
                 />
               }
@@ -335,7 +331,7 @@ export const LookingGlass: React.FC = () => {
                   name="query_target"
                   register={register}
                   onChange={handleChange}
-                  placeholder={selectedDirective.description}
+                  placeholder={selectedDirective.description.value}
                 />
               </FormField>
             )}

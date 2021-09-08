@@ -3,7 +3,7 @@ max-line-length=88
 count=True
 show-source=False
 statistics=True
-exclude=.git, __pycache__, hyperglass/api/examples/*.py, hyperglass/compat/_sshtunnel.py, test.py
+exclude=.git, hyperglass/ui, __pycache__, hyperglass/api/examples/*.py, hyperglass/compat/_sshtunnel.py, test.py
 filename=*.py
 per-file-ignores=
     hyperglass/main.py:E402

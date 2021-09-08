@@ -31,9 +31,14 @@ class Messages(HyperglassModel):
         description="Displayed when a query type is submitted that is not supported or disabled. The hyperglass UI performs validation of supported query types prior to submitting any requests, so this is primarily relevant to the hyperglass API. `{feature}` may be used to display the disabled feature.",
     )
     invalid_input: StrictStr = Field(
-        "{target} is not a valid {query_type} target.",
+        "{target} is not valid.",
         title="Invalid Input",
-        description="Displayed when a query target's value is invalid in relation to the corresponding query type. `{target}` and `{query_type}` maybe used to display the invalid target and corresponding query type.",
+        description="Displayed when a query target's value is invalid in relation to the corresponding query type. `{target}` may be used to display the invalid target.",
+    )
+    invalid_query: StrictStr = Field(
+        "{target} is not a valid {query_type} target.",
+        title="Invalid Query",
+        description="Displayed when a query target's value is invalid in relation to the corresponding query type. `{target}` and `{query_type}` may be used to display the invalid target and corresponding query type.",
     )
     invalid_field: StrictStr = Field(
         "{input} is an invalid {field}.",
@@ -44,6 +49,11 @@ class Messages(HyperglassModel):
         "Something went wrong.",
         title="General Error",
         description="Displayed when generalized errors occur. Seeing this error message may indicate a bug in hyperglass, as most other errors produced are highly contextual. If you see this in the wild, try enabling [debug mode](/fixme) and review the logs to pinpoint the source of the error.",
+    )
+    not_found: StrictStr = Field(
+        "{type} '{name}' not found.",
+        title="Not Found",
+        description="Displayed when an object property does not exist in the configuration. `{type}` corresponds to a user-friendly name of the object type (for example, 'Device'), `{name}` corresponds to the object name that was not found.",
     )
     request_timeout: StrictStr = Field(
         "Request timed out.",

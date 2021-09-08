@@ -11,7 +11,7 @@ export interface TFormData {
 
 export interface TFormState {
   queryLocation: string[];
-  queryType: TQueryTypes;
+  queryType: string;
   queryVrf: string;
   queryTarget: string;
   queryGroup: string;

@@ -23,24 +23,24 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryRespons
     dimension1: query.queryLocation,
     dimension2: query.queryTarget,
     dimension3: query.queryType,
-    dimension4: query.queryVrf,
+    dimension4: query.queryGroup,
   });
 
   const runQuery: QueryFunction<TQueryResponse, LGQueryKey> = async (
     ctx: QueryFunctionContext<LGQueryKey>,
   ): Promise<TQueryResponse> => {
     const [url, data] = ctx.queryKey;
-    const { queryLocation, queryTarget, queryType, queryVrf } = data;
+    const { queryLocation, queryTarget, queryType, queryGroup } = data;
     const res = await fetchWithTimeout(
       url,
       {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          query_location: queryLocation,
-          query_target: queryTarget,
-          query_type: queryType,
-          query_vrf: queryVrf,
+          queryLocation,
+          queryTarget,
+          queryType,
+          queryGroup,
         }),
         mode: 'cors',
       },

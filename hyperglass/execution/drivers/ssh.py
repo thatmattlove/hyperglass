@@ -5,9 +5,9 @@ from typing import Callable
 
 # Project
 from hyperglass.log import log
-from hyperglass.exceptions import ScrapeError
 from hyperglass.configuration import params
 from hyperglass.compat._sshtunnel import BaseSSHTunnelForwarderError, open_tunnel
+from hyperglass.exceptions.public import ScrapeError
 
 # Local
 from ._common import Connection
@@ -52,11 +52,6 @@ class SSHConnection(Connection):
                     f"Error connecting to device {self.device.name} via "
                     f"proxy {proxy.name}"
                 )
-                raise ScrapeError(
-                    params.messages.connection_error,
-                    device_name=self.device.name,
-                    proxy=proxy.name,
-                    error=str(scrape_proxy_error),
-                )
+                raise ScrapeError(error=scrape_proxy_error, device=self.device)
 
         return opener

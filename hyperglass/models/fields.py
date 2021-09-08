@@ -60,7 +60,7 @@ class AnyUri(str):
 
     @classmethod
     def __get_validators__(cls):
-        """Pydantic custim field method."""
+        """Pydantic custom field method."""
         yield cls.validate
 
     @classmethod
@@ -79,3 +79,35 @@ class AnyUri(str):
     def __repr__(self):
         """Stringify custom field representation."""
         return f"AnyUri({super().__repr__()})"
+
+
+class Action(str):
+    """Custom field type for policy actions."""
+
+    permits = ("permit", "allow", "accept")
+    denies = ("deny", "block", "reject")
+
+    @classmethod
+    def __get_validators__(cls):
+        """Pydantic custom field method."""
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: str):
+        """Ensure action is an allowed value or acceptable alias."""
+        if not isinstance(value, str):
+            raise TypeError("Action type must be a string")
+        value = value.strip().lower()
+
+        if value in cls.permits:
+            return cls("permit")
+        elif value in cls.denies:
+            return cls("deny")
+
+        raise ValueError(
+            "Action must be one of '{}'".format(", ".join((*cls.permits, *cls.denies)))
+        )
+
+    def __repr__(self):
+        """Stringify custom field representation."""
+        return f"Action({super().__repr__()})"

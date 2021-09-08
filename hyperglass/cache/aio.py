@@ -8,13 +8,13 @@ import asyncio
 from typing import Any, Dict
 
 # Third Party
-from aredis import StrictRedis as AsyncRedis
-from aredis.pubsub import PubSub as AsyncPubSub
-from aredis.exceptions import RedisError
+from aredis import StrictRedis as AsyncRedis  # type: ignore
+from aredis.pubsub import PubSub as AsyncPubSub  # type: ignore
+from aredis.exceptions import RedisError  # type: ignore
 
 # Project
 from hyperglass.cache.base import BaseCache
-from hyperglass.exceptions import HyperglassError
+from hyperglass.exceptions.private import DependencyError
 
 
 class AsyncCache(BaseCache):
@@ -50,19 +50,17 @@ class AsyncCache(BaseCache):
                 err_msg = str(err.__context__)
 
             if "auth" in err_msg.lower():
-                raise HyperglassError(
-                    "Authentication to Redis server {server} failed.".format(
-                        server=repr(self)
-                    ),
-                    level="danger",
-                ) from None
+                raise DependencyError(
+                    "Authentication to Redis server {s} failed with message: '{e}'",
+                    s=repr(self, e=err_msg),
+                )
+
             else:
-                raise HyperglassError(
-                    "Unable to connect to Redis server {server}".format(
-                        server=repr(self)
-                    ),
-                    level="danger",
-                ) from None
+                raise DependencyError(
+                    "Unable to connect to Redis server {s} due to error {e}",
+                    s=repr(self),
+                    e=err_msg,
+                )
 
     async def get(self, *args: str) -> Any:
         """Get item(s) from cache."""

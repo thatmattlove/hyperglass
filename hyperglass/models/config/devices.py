@@ -3,7 +3,7 @@
 # Standard Library
 import os
 import re
-from typing import Any, Dict, List, Tuple, Union, Optional, Sequence
+from typing import Any, Dict, List, Tuple, Union, Optional
 from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address
 
@@ -19,66 +19,21 @@ from pydantic import (
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import get_driver, validate_nos, resolve_hostname
+from hyperglass.util import get_driver, get_fmt_keys, validate_nos, resolve_hostname
 from hyperglass.constants import SCRAPE_HELPERS, SUPPORTED_STRUCTURED_OUTPUT
-from hyperglass.exceptions import ConfigError, UnsupportedDevice
+from hyperglass.exceptions.private import ConfigError, UnsupportedDevice
 from hyperglass.models.commands.generic import Directive
-
 
 # Local
 from .ssl import Ssl
-from .vrf import Vrf, Info
 from ..main import HyperglassModel, HyperglassModelExtra
 from .proxy import Proxy
 from ..fields import SupportedDriver
 from .network import Network
 from .credential import Credential
 
-_default_vrf = {
-    "name": "default",
-    "display_name": "Global",
-    "info": Info(),
-    "ipv4": {
-        "source_address": None,
-        "access_list": [
-            {"network": "0.0.0.0/0", "action": "permit", "ge": 0, "le": 32}
-        ],
-    },
-    "ipv6": {
-        "source_address": None,
-        "access_list": [{"network": "::/0", "action": "permit", "ge": 0, "le": 128}],
-    },
-}
 
-
-def find_device_id(values: Dict) -> Tuple[str, Dict]:
-    """Generate device id & handle legacy display_name field."""
-
-    def generate_id(name: str) -> str:
-        scrubbed = re.sub(r"[^A-Za-z0-9\_\-\s]", "", name)
-        return "_".join(scrubbed.split()).lower()
-
-    name = values.pop("name", None)
-
-    if name is None:
-        raise ValueError("name is required.")
-
-    legacy_display_name = values.pop("display_name", None)
-
-    if legacy_display_name is not None:
-        log.warning(
-            "The 'display_name' field is deprecated. Use the 'name' field instead."
-        )
-        device_id = generate_id(legacy_display_name)
-        display_name = legacy_display_name
-    else:
-        device_id = generate_id(name)
-        display_name = name
-
-    return device_id, {"name": display_name, "display_name": None, **values}
-
-
-class Device(HyperglassModel):
+class Device(HyperglassModelExtra):
     """Validation model for per-router config in devices.yaml."""
 
     _id: StrictStr = PrivateAttr()
@@ -91,16 +46,17 @@ class Device(HyperglassModel):
     port: StrictInt = 22
     ssl: Optional[Ssl]
     nos: StrictStr
-    commands: Sequence[Directive]
-    vrfs: List[Vrf] = [_default_vrf]
+    commands: List[Directive]
     structured_output: Optional[StrictBool]
     driver: Optional[SupportedDriver]
+    attrs: Dict[str, str] = {}
 
     def __init__(self, **kwargs) -> None:
         """Set the device ID."""
-        _id, values = find_device_id(kwargs)
+        _id, values = self._generate_id(kwargs)
         super().__init__(**values)
         self._id = _id
+        self._validate_directive_attrs()
 
     def __hash__(self) -> int:
         """Make device object hashable so the object can be deduplicated with set()."""
@@ -119,9 +75,66 @@ class Device(HyperglassModel):
     def _target(self):
         return str(self.address)
 
+    @staticmethod
+    def _generate_id(values: Dict) -> Tuple[str, Dict]:
+        """Generate device id & handle legacy display_name field."""
+
+        def generate_id(name: str) -> str:
+            scrubbed = re.sub(r"[^A-Za-z0-9\_\-\s]", "", name)
+            return "_".join(scrubbed.split()).lower()
+
+        name = values.pop("name", None)
+
+        if name is None:
+            raise ValueError("name is required.")
+
+        legacy_display_name = values.pop("display_name", None)
+
+        if legacy_display_name is not None:
+            log.warning(
+                "The 'display_name' field is deprecated. Use the 'name' field instead."
+            )
+            device_id = generate_id(legacy_display_name)
+            display_name = legacy_display_name
+        else:
+            device_id = generate_id(name)
+            display_name = name
+
+        return device_id, {"name": display_name, "display_name": None, **values}
+
+    def _validate_directive_attrs(self) -> None:
+
+        # Get all commands associated with the device.
+        commands = [
+            command
+            for directive in self.commands
+            for rule in directive.rules
+            for command in rule.commands
+        ]
+
+        # Set of all keys except for built-in key `target`.
+        keys = {
+            key
+            for group in [get_fmt_keys(command) for command in commands]
+            for key in group
+            if key != "target"
+        }
+
+        attrs = {k: v for k, v in self.attrs.items() if k in keys}
+
+        # Verify all keys in associated commands contain values in device's `attrs`.
+        for key in keys:
+            if key not in attrs:
+                raise ConfigError(
+                    "Device '{d}' has a command that references attribute '{a}', but '{a}' is missing from device attributes",
+                    d=self.name,
+                    a=key,
+                )
+
     @validator("address")
     def validate_address(cls, value, values):
         """Ensure a hostname is resolvable."""
+
         if not isinstance(value, (IPv4Address, IPv6Address)):
             if not any(resolve_hostname(value)):
                 raise ConfigError(
@@ -152,15 +165,8 @@ class Device(HyperglassModel):
 
     @validator("ssl")
     def validate_ssl(cls, value, values):
-        """Set default cert file location if undefined.
+        """Set default cert file location if undefined."""
 
-        Arguments:
-            value {object} -- SSL object
-            values {dict} -- Other already-validated fields
-
-        Returns:
-            {object} -- SSL configuration
-        """
         if value is not None:
             if value.enable and value.cert is None:
                 app_path = Path(os.environ["hyperglass_directory"])
@@ -179,7 +185,7 @@ class Device(HyperglassModel):
         if not nos:
             # Ensure nos is defined.
             raise ValueError(
-                f'Device {values["name"]} is missing a `nos` (Network Operating System).'
+                f"Device {values['name']} is missing a 'nos' (Network Operating System) property."
             )
 
         if nos in SCRAPE_HELPERS.keys():
@@ -189,7 +195,7 @@ class Device(HyperglassModel):
         # Verify NOS is supported by hyperglass.
         supported, _ = validate_nos(nos)
         if not supported:
-            raise UnsupportedDevice('"{nos}" is not supported.', nos=nos)
+            raise UnsupportedDevice(nos=nos)
 
         values["nos"] = nos
 
@@ -209,73 +215,6 @@ class Device(HyperglassModel):
 
         return values
 
-    @validator("vrfs", pre=True)
-    def validate_vrfs(cls, value, values):
-        """Validate VRF definitions.
-
-          - Ensures source IP addresses are set for the default VRF
-            (global routing table).
-          - Initializes the default VRF with the DefaultVRF() class so
-            that specific defaults can be set for the global routing
-            table.
-          - If the 'display_name' is not set for a non-default VRF, try
-            to make one that looks pretty based on the 'name'.
-
-        Arguments:
-            value {list} -- List of VRFs
-            values {dict} -- Other already-validated fields
-
-        Raises:
-            ConfigError: Raised if the VRF is missing a source address
-
-        Returns:
-            {list} -- List of valid VRFs
-        """
-        vrfs = []
-        for vrf in value:
-            vrf_default = vrf.get("default", False)
-
-            for afi in ("ipv4", "ipv6"):
-                vrf_afi = vrf.get(afi)
-
-                # If AFI is actually defined (enabled), and if the
-                # source_address field is not set, raise an error
-                if vrf_afi is not None and vrf_afi.get("source_address") is None:
-                    raise ConfigError(
-                        (
-                            "VRF '{vrf}' in router '{router}' is missing a source "
-                            "{afi} address."
-                        ),
-                        vrf=vrf.get("name"),
-                        router=values.get("name"),
-                        afi=afi.replace("ip", "IP"),
-                    )
-
-            # If no display_name is set for a non-default VRF, try
-            # to make one by replacing non-alphanumeric characters
-            # with whitespaces and using str.title() to make each
-            # word look "pretty".
-            if not vrf_default and not isinstance(vrf.get("display_name"), str):
-                new_name = vrf["name"]
-                new_name = re.sub(r"[^a-zA-Z0-9]", " ", new_name)
-                new_name = re.split(" ", new_name)
-                vrf["display_name"] = " ".join([w.title() for w in new_name])
-
-                log.debug(
-                    f'Field "display_name" for VRF "{vrf["name"]}" was not set. '
-                    f"Generated '{vrf['display_name']}'"
-                )
-
-            elif vrf_default and vrf.get("display_name") is None:
-                vrf["display_name"] = "Global"
-
-            # Validate the non-default VRF against the standard
-            # Vrf() class.
-            vrf = Vrf(**vrf)
-
-            vrfs.append(vrf)
-        return vrfs
-
     @validator("driver")
     def validate_driver(cls, value: Optional[str], values: Dict) -> Dict:
         """Set the correct driver and override if supported."""
@@ -287,11 +226,8 @@ class Devices(HyperglassModelExtra):
 
     _ids: List[StrictStr] = []
     hostnames: List[StrictStr] = []
-    vrfs: List[StrictStr] = []
-    vrf_objects: List[Vrf] = []
     objects: List[Device] = []
     all_nos: List[StrictStr] = []
-    default_vrf: Vrf = Vrf(name="default", display_name="Global")
 
     def __init__(self, input_params: List[Dict]) -> None:
         """Import loaded YAML, initialize per-network definitions.
@@ -300,8 +236,6 @@ class Devices(HyperglassModelExtra):
         set attributes for the devices class. Builds lists of common
         attributes for easy access in other modules.
         """
-        vrfs = set()
-        vrf_objects = set()
         all_nos = set()
         objects = set()
         hostnames = set()
@@ -322,38 +256,11 @@ class Devices(HyperglassModelExtra):
             objects.add(device)
             all_nos.add(device.nos)
 
-            for vrf in device.vrfs:
-
-                # For each configured router VRF, add its name and
-                # display_name to a class set (for automatic de-duping).
-                vrfs.add(vrf.name)
-
-                # Add a 'default_vrf' attribute to the devices class
-                # which contains the configured default VRF display name.
-                if vrf.name == "default" and not hasattr(self, "default_vrf"):
-                    init_kwargs["default_vrf"] = Vrf(
-                        name=vrf.name, display_name=vrf.display_name
-                    )
-
-                # Add the native VRF objects to a set (for automatic
-                # de-duping), but exlcude device-specific fields.
-                vrf_objects.add(
-                    vrf.copy(
-                        deep=True,
-                        exclude={
-                            "ipv4": {"source_address"},
-                            "ipv6": {"source_address"},
-                        },
-                    )
-                )
-
         # Convert the de-duplicated sets to a standard list, add lists
         # as class attributes. Sort router list by router name attribute
         init_kwargs["_ids"] = list(_ids)
         init_kwargs["hostnames"] = list(hostnames)
         init_kwargs["all_nos"] = list(all_nos)
-        init_kwargs["vrfs"] = list(vrfs)
-        init_kwargs["vrf_objects"] = list(vrf_objects)
         init_kwargs["objects"] = sorted(objects, key=lambda x: x.name)
 
         super().__init__(**init_kwargs)

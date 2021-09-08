@@ -4,68 +4,56 @@
 import json
 import hashlib
 import secrets
-from datetime import datetime
 from typing import Optional
+from datetime import datetime
 
 # Third Party
 from pydantic import BaseModel, StrictStr, constr, validator
 
 # Project
-from hyperglass.exceptions import InputInvalid
+from hyperglass.log import log
+from hyperglass.util import snake_to_camel
 from hyperglass.configuration import params, devices
+from hyperglass.exceptions.public import (
+    InputInvalid,
+    QueryTypeNotFound,
+    QueryGroupNotFound,
+    QueryLocationNotFound,
+)
+from hyperglass.exceptions.private import InputValidationError
 
 # Local
-from .types import SupportedQuery
-from .validators import (
-    validate_ip,
-    validate_aspath,
-    validate_community_input,
-    validate_community_select,
-)
-from ..config.vrf import Vrf
+from ..config.devices import Device
 from ..commands.generic import Directive
 
+DIRECTIVE_IDS = [
+    directive.id for device in devices.objects for directive in device.commands
+]
 
-def get_vrf_object(vrf_name: str) -> Vrf:
-    """Match VRF object from VRF name."""
-
-    for vrf_obj in devices.vrf_objects:
-        if vrf_name is not None:
-            if vrf_name == vrf_obj._id or vrf_name == vrf_obj.display_name:
-                return vrf_obj
-
-            elif vrf_name == "__hyperglass_default" and vrf_obj.default:
-                return vrf_obj
-        elif vrf_name is None:
-            if vrf_obj.default:
-                return vrf_obj
-
-    raise InputInvalid(params.messages.vrf_not_found, vrf_name=vrf_name)
-
-
-def get_directive(group: str) -> Optional[Directive]:
-    for device in devices.objects:
-        for command in device.commands:
-            if group in command.groups:
-                return command
-    # TODO: Move this to a param
-    # raise InputInvalid("Group {group} not found", group=group)
-    return None
+DIRECTIVE_GROUPS = {
+    group
+    for device in devices.objects
+    for directive in device.commands
+    for group in directive.groups
+}
 
 
 class Query(BaseModel):
     """Validation model for input query parameters."""
 
+    # Device `name` field
     query_location: StrictStr
-    query_type: SupportedQuery
-    # query_vrf: StrictStr
-    query_group: StrictStr
+    # Directive `id` field
+    query_type: StrictStr
+    # Directive `groups` member
+    query_group: Optional[StrictStr]
     query_target: constr(strip_whitespace=True, min_length=1)
 
     class Config:
         """Pydantic model configuration."""
 
         extra = "allow"
+        alias_generator = snake_to_camel
         fields = {
             "query_location": {
                 "title": params.web.text.query_location,
@@ -77,13 +65,8 @@ class Query(BaseModel):
                 "description": "Type of Query to Execute",
                 "example": "bgp_route",
             },
-            # "query_vrf": {
-            #     "title": params.web.text.query_vrf,
-            #     "description": "Routing Table/VRF",
-            #     "example": "default",
-            # },
             "query_group": {
-                "title": params.web.text.query_vrf,
+                "title": params.web.text.query_group,
                 "description": "Routing Table/VRF",
                 "example": "default",
             },
@@ -101,13 +84,17 @@ class Query(BaseModel):
         """Initialize the query with a UTC timestamp at initialization time."""
         super().__init__(**kwargs)
         self.timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        try:
+            self.validate_query_target()
+        except InputValidationError as err:
+            raise InputInvalid(**err.kwargs)
 
     def __repr__(self):
         """Represent only the query fields."""
         return (
-            f"Query(query_location={str(self.query_location)}, "
-            f"query_type={str(self.query_type)}, query_group={str(self.query_group)}, "
-            f"query_target={str(self.query_target)})"
+            f'Query(query_location="{str(self.query_location)}", '
+            f'query_type="{str(self.query_type)}", query_group="{str(self.query_group)}", '
+            f'query_target="{str(self.query_target)}")'
         )
 
     def digest(self):
@@ -119,6 +106,11 @@ class Query(BaseModel):
         return hashlib.sha256(
             secrets.token_bytes(8) + repr(self).encode() + secrets.token_bytes(8)
         ).hexdigest()
+
+    def validate_query_target(self):
+        """Validate a query target after all fields/relationships havebeen initialized."""
+        self.directive.validate_target(self.query_target)
+        log.debug("Validation passed for query {}", repr(self))
 
     @property
     def summary(self):
@@ -132,14 +124,18 @@ class Query(BaseModel):
         return f'Query({", ".join(items)})'
 
     @property
-    def device(self):
+    def device(self) -> Device:
         """Get this query's device object by query_location."""
         return devices[self.query_location]
 
     @property
-    def query(self):
-        """Get this query's configuration object."""
-        return params.queries[self.query_type]
+    def directive(self) -> Directive:
+        """Get this query's directive."""
+
+        for command in self.device.commands:
+            if command.id == self.query_type:
+                return command
+        raise QueryTypeNotFound(query_type=self.query_type)
 
     def export_dict(self, pretty=False):
         """Create dictionary representation of instance."""
@@ -166,18 +162,11 @@ class Query(BaseModel):
 
     @validator("query_type")
     def validate_query_type(cls, value):
-        """Ensure query_type is enabled."""
+        """Ensure a requested query type exists."""
+        if value in DIRECTIVE_IDS:
+            return value
 
-        query = params.queries[value]
-
-        if not query.enable:
-            raise InputInvalid(
-                params.messages.feature_not_enabled,
-                level="warning",
-                feature=query.display_name,
-            )
-
-        return value
+        raise QueryTypeNotFound(name=value)
 
     @validator("query_location")
     def validate_query_location(cls, value):
@@ -187,71 +176,14 @@ class Query(BaseModel):
         valid_hostname = value in devices.hostnames
 
         if not any((valid_id, valid_hostname)):
-            raise InputInvalid(
-                params.messages.invalid_field,
-                level="warning",
-                input=value,
-                field=params.web.text.query_location,
-            )
+            raise QueryLocationNotFound(location=value)
+
         return value
 
-    # @validator("query_vrf")
-    # def validate_query_vrf(cls, value, values):
-    #     """Ensure query_vrf is defined."""
+    @validator("query_group")
+    def validate_query_group(cls, value):
+        """Ensure query_group is defined."""
+        if value in DIRECTIVE_GROUPS:
+            return value
 
-    #     vrf_object = get_vrf_object(value)
-    #     device = devices[values["query_location"]]
-    #     device_vrf = None
-
-    #     for vrf in device.vrfs:
-    #         if vrf == vrf_object:
-    #             device_vrf = vrf
-    #             break
-
-    #     if device_vrf is None:
-    #         raise InputInvalid(
-    #             params.messages.vrf_not_associated,
-    #             vrf_name=vrf_object.display_name,
-    #             device_name=device.name,
-    #         )
-    #     return device_vrf
-
-    # @validator("query_group")
-    # def validate_query_group(cls, value, values):
-    #     """Ensure query_vrf is defined."""
-
-    #     obj = get_directive(value)
-    #     if obj is not None:
-    #         ...
-    #     return device_vrf
-
-    @validator("query_target")
-    def validate_query_target(cls, value, values):
-        """Validate query target value based on query_type."""
-
-        query_type = values["query_type"]
-        value = value.strip()
-
-        # Use relevant function based on query_type.
-        validator_map = {
-            "bgp_aspath": validate_aspath,
-            "bgp_community": validate_community_input,
-            "bgp_route": validate_ip,
-            "ping": validate_ip,
-            "traceroute": validate_ip,
-        }
-        validator_args_map = {
-            "bgp_aspath": (value,),
-            "bgp_community": (value,),
-            "bgp_route": (value, values["query_type"], values["query_vrf"]),
-            "ping": (value, values["query_type"], values["query_vrf"]),
-            "traceroute": (value, values["query_type"], values["query_vrf"]),
-        }
-
-        if params.queries.bgp_community.mode == "select":
-            validator_map["bgp_community"] = validate_community_select
-
-        validate_func = validator_map[query_type]
-        validate_args = validator_args_map[query_type]
-
-        return validate_func(*validate_args)
+        raise QueryGroupNotFound(group=value)

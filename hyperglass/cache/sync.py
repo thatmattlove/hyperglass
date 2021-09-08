@@ -13,7 +13,7 @@ from redis.exceptions import RedisError
 
 # Project
 from hyperglass.cache.base import BaseCache
-from hyperglass.exceptions import HyperglassError
+from hyperglass.exceptions.private import DependencyError
 
 
 class SyncCache(BaseCache):
@@ -49,19 +49,16 @@ class SyncCache(BaseCache):
                 err_msg = str(err.__context__)
 
             if "auth" in err_msg.lower():
-                raise HyperglassError(
-                    "Authentication to Redis server {server} failed.".format(
-                        server=repr(self)
-                    ),
-                    level="danger",
-                ) from None
+                raise DependencyError(
+                    "Authentication to Redis server {s} failed with message: '{e}'",
+                    s=repr(self, e=err_msg),
+                )
             else:
-                raise HyperglassError(
-                    "Unable to connect to Redis server {server}".format(
-                        server=repr(self)
-                    ),
-                    level="danger",
-                ) from None
+                raise DependencyError(
+                    "Unable to connect to Redis server {s} due to error {e}",
+                    s=repr(self),
+                    e=err_msg,
+                )
 
     def get(self, *args: str) -> Any:
         """Get item(s) from cache."""

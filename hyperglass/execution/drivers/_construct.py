@@ -8,27 +8,38 @@ hyperglass API modules.
 # Standard Library
 import re
 import json as _json
-from operator import attrgetter
 
 # Project
 from hyperglass.log import log
+from hyperglass.util import get_fmt_keys
 from hyperglass.constants import TRANSPORT_REST, TARGET_FORMAT_SPACE
-from hyperglass.configuration import commands
+from hyperglass.models.api.query import Query
+from hyperglass.exceptions.public import InputInvalid
+from hyperglass.exceptions.private import ConfigError
+from hyperglass.models.config.devices import Device
+from hyperglass.models.commands.generic import Directive
 
 
 class Construct:
     """Construct SSH commands/REST API parameters from validated query data."""
 
-    def __init__(self, device, query_data):
+    directive: Directive
+    device: Device
+    query: Query
+    transport: str
+    target: str
+
+    def __init__(self, device, query):
         """Initialize command construction."""
         log.debug(
-            "Constructing {} query for '{}'",
-            query_data.query_type,
-            str(query_data.query_target),
+            "Constructing '{}' query for '{}'",
+            query.query_type,
+            str(query.query_target),
         )
+        self.query = query
         self.device = device
-        self.query_data = query_data
-        self.target = self.query_data.query_target
+        self.target = self.query.query_target
+        self.directive = query.directive
 
         # Set transport method based on NOS type
         self.transport = "scrape"
@@ -37,76 +48,55 @@ class Construct:
 
         # Remove slashes from target for required platforms
         if self.device.nos in TARGET_FORMAT_SPACE:
-            self.target = re.sub(r"\/", r" ", str(self.query_data.query_target))
+            self.target = re.sub(r"\/", r" ", str(self.query.query_target))
 
-        # Set AFIs for based on query type
-        if self.query_data.query_type in ("bgp_route", "ping", "traceroute"):
-            # For IP queries, AFIs are enabled (not null/None) VRF -> AFI definitions
-            # where the IP version matches the IP version of the target.
-            self.afis = [
-                v
-                for v in (
-                    self.query_data.query_vrf.ipv4,
-                    self.query_data.query_vrf.ipv6,
-                )
-                if v is not None and self.query_data.query_target.version == v.version
-            ]
-        elif self.query_data.query_type in ("bgp_aspath", "bgp_community"):
-            # For AS Path/Community queries, AFIs are just enabled VRF -> AFI
-            # definitions, no IP version checking is performed (since there is no IP).
-            self.afis = [
-                v
-                for v in (
-                    self.query_data.query_vrf.ipv4,
-                    self.query_data.query_vrf.ipv6,
-                )
-                if v is not None
-            ]
-
-        with Formatter(self.device.nos, self.query_data.query_type) as formatter:
-            self.target = formatter(self.query_data.query_target)
+        with Formatter(self.device.nos, self.query.query_type) as formatter:
+            self.target = formatter(self.query.query_target)
 
     def json(self, afi):
         """Return JSON version of validated query for REST devices."""
-        log.debug("Building JSON query for {q}", q=repr(self.query_data))
+        log.debug("Building JSON query for {q}", q=repr(self.query))
         return _json.dumps(
             {
-                "query_type": self.query_data.query_type,
-                "vrf": self.query_data.query_vrf.name,
+                "query_type": self.query.query_type,
+                "vrf": self.query.query_vrf.name,
                 "afi": afi.protocol,
                 "source": str(afi.source_address),
                 "target": str(self.target),
             }
         )
 
-    def scrape(self, afi):
+    def format(self, command: str) -> str:
         """Return formatted command for 'Scrape' endpoints (SSH)."""
-        if self.device.structured_output:
-            cmd_paths = (
-                self.device.nos,
-                "structured",
-                afi.protocol,
-                self.query_data.query_type,
-            )
-        else:
-            cmd_paths = (self.device.commands, afi.protocol, self.query_data.query_type)
-
-        command = attrgetter(".".join(cmd_paths))(commands)
-        return command.format(
-            target=self.target,
-            source=str(afi.source_address),
-            vrf=self.query_data.query_vrf.name,
-        )
+        keys = get_fmt_keys(command)
+        attrs = {k: v for k, v in self.device.attrs.items() if k in keys}
+        for key in [k for k in keys if k != "target"]:
+            if key not in attrs:
+                raise ConfigError(
+                    (
+                        "Command '{c}' has attribute '{k}', "
+                        "which is missing from device '{d}'"
+                    ),
+                    level="danger",
+                    c=self.directive.name,
+                    k=key,
+                    d=self.device.name,
+                )
+        return command.format(target=self.target, **attrs)
 
     def queries(self):
         """Return queries for each enabled AFI."""
         query = []
 
-        for afi in self.afis:
-            if self.transport == "rest":
-                query.append(self.json(afi=afi))
-            else:
-                query.append(self.scrape(afi=afi))
+        rules = [r for r in self.directive.rules if r._passed is True]
+        if len(rules) < 1:
+            raise InputInvalid(
+                error="No validation rules matched target '{target}'", query=self.query
+            )
+
+        for rule in [r for r in self.directive.rules if r._passed is True]:
+            for command in rule.commands:
+                query.append(self.format(command))
 
         log.debug("Constructed query: {}", query)
         return query

@@ -17,8 +17,8 @@ import httpx
 from hyperglass.log import log
 from hyperglass.util import parse_exception
 from hyperglass.encode import jwt_decode, jwt_encode
-from hyperglass.exceptions import RestError, ResponseEmpty
 from hyperglass.configuration import params
+from hyperglass.exceptions.public import RestError, ResponseEmpty
 
 # Local
 from ._common import Connection
@@ -89,51 +89,29 @@ class AgentConnection(Connection):
                         responses += (decoded,)
 
                     elif raw_response.status_code == 204:
-                        raise ResponseEmpty(
-                            params.messages.no_output, device_name=self.device.name,
-                        )
+                        raise ResponseEmpty(query=self.query_data)
 
                     else:
                         log.error(raw_response.text)
 
         except httpx.exceptions.HTTPError as rest_error:
             msg = parse_exception(rest_error)
-            log.error("Error connecting to device {}: {}", self.device.name, msg)
-            raise RestError(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                error=msg,
-            )
+            raise RestError(error=httpx.exceptions.HTTPError(msg), device=self.device)
+
         except OSError as ose:
-            log.critical(str(ose))
-            raise RestError(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                error="System error",
-            )
+            raise RestError(error=ose, device=self.device)
+
         except CertificateError as cert_error:
-            log.critical(str(cert_error))
             msg = parse_exception(cert_error)
-            raise RestError(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                error=f"{msg}: {cert_error}",
-            )
+            raise RestError(error=CertificateError(cert_error), device=self.device)
 
         if raw_response.status_code != 200:
-            log.error("Response code is {}", raw_response.status_code)
             raise RestError(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                error=params.messages.general,
+                error=ConnectionError(f"Response code {raw_response.status_code}"),
+                device=self.device,
             )
 
         if not responses:
-            log.error("No response from device {}", self.device.name)
-            raise RestError(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                error=params.messages.no_response,
-            )
+            raise ResponseEmpty(query=self.query_data)
 
         return responses

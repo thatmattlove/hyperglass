@@ -4,16 +4,17 @@
 import os
 import sys
 import json
+import string
 import platform
 from queue import Queue
-from typing import Dict, Union, Optional, Generator
+from typing import Dict, Union, Optional, Sequence, Generator
 from asyncio import iscoroutine
 from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address, ip_address
 
 # Third Party
 from loguru._logger import Logger as LoguruLogger
-from netmiko.ssh_dispatcher import CLASS_MAPPER
+from netmiko.ssh_dispatcher import CLASS_MAPPER  # type: ignore
 
 # Project
 from hyperglass.log import log
@@ -62,7 +63,7 @@ async def write_env(variables: Dict) -> str:
 async def clear_redis_cache(db: int, config: Dict) -> bool:
     """Clear the Redis cache."""
     # Third Party
-    import aredis
+    import aredis  # type: ignore
 
     try:
         redis_instance = aredis.StrictRedis(db=db, **config)
@@ -316,3 +317,24 @@ def resolve_hostname(hostname: str) -> Generator:
 
     yield ip4
     yield ip6
+
+
+def snake_to_camel(value: str) -> str:
+    """Convert a string from snake_case to camelCase."""
+    parts = value.split("_")
+    humps = (hump.capitalize() for hump in parts[1:])
+    return "".join((parts[0], *humps))
+
+
+def get_fmt_keys(template: str) -> Sequence[str]:
+    """Get a list of str.format keys.
+
+    For example, string `"The value of {key} is {value}"` returns
+    `["key", "value"]`.
+    """
+    keys = []
+    for block in string.Formatter.parse("", template):
+        key = block[1]
+        if key:
+            keys.append(key)
+    return keys

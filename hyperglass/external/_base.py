@@ -15,7 +15,7 @@ from httpx import StatusCode
 from hyperglass.log import log
 from hyperglass.util import make_repr, parse_exception
 from hyperglass.constants import __version__
-from hyperglass.exceptions import HyperglassError
+from hyperglass.exceptions.private import ExternalError
 
 
 def _prepare_dict(_dict):
@@ -101,7 +101,7 @@ class BaseExternal:
         if exc is not None:
             message = f"{str(message)}: {str(exc)}"
 
-        return HyperglassError(message, str(level), **kwargs)
+        return ExternalError(message=message, level=level, **kwargs)
 
     def _parse_response(self, response):
         if self.parse:

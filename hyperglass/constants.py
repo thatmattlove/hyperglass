@@ -4,14 +4,14 @@
 from datetime import datetime
 
 __name__ = "hyperglass"
-__version__ = "1.0.4"
+__version__ = "2.0.0-dev"
 __author__ = "Matt Love"
 __copyright__ = f"Copyright {datetime.now().year} Matthew Love"
 __license__ = "BSD 3-Clause Clear License"
 
 METADATA = (__name__, __version__, __author__, __copyright__, __license__)
 
-MIN_PYTHON_VERSION = (3, 6)
+MIN_PYTHON_VERSION = (3, 8)
 
 MIN_NODE_VERSION = 14
 
@@ -81,7 +81,8 @@ DRIVER_MAP = {
     "cisco_xe": "scrapli",
     "cisco_xr": "scrapli",
     "cisco_nxos": "scrapli",
-    "juniper": "scrapli",
+    # TODO: Troubleshoot Juniper with Scrapli, broken after upgrading to 2021.7.30.
+    # "juniper": "scrapli", # noqa: E800
     "tnsr": "scrapli",
     "frr": "scrapli",
     "frr_legacy": "hyperglass_agent",

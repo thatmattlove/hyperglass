@@ -1,17 +1,29 @@
+import { useMemo } from 'react';
 import { Box, Stack, useToken } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Label } from '~/components';
 import { useConfig, useBreakpointValue } from '~/context';
-import { useLGState, useVrf } from '~/hooks';
-import { isQueryType } from '~/types';
+import { useLGState, useLGMethods } from '~/hooks';
 
 import type { Transition } from 'framer-motion';
 
 const transition = { duration: 0.3, delay: 0.5 } as Transition;
 
 export const Tags: React.FC = () => {
-  const { queries, web } = useConfig();
-  const { queryLocation, queryTarget, queryType, queryVrf } = useLGState();
+  const { web } = useConfig();
+  const { queryLocation, queryTarget, queryType, queryGroup } = useLGState();
+  const { getDirective } = useLGMethods();
+
+  const selectedDirective = useMemo(() => {
+    if (queryType.value === '') {
+      return null;
+    }
+    const directive = getDirective(queryType.value);
+    if (directive !== null) {
+      return directive;
+    }
+    return null;
+  }, [queryType.value, queryGroup.value]);
 
   const targetBg = useToken('colors', 'teal.600');
   const queryBg = useToken('colors', 'cyan.500');
@@ -59,14 +71,6 @@ export const Tags: React.FC = () => {
     xl: { opacity: 0, x: '100%' },
   });
 
-  let queryTypeLabel = '';
-  if (isQueryType(queryType.value)) {
-    queryTypeLabel = queries[queryType.value].display_name;
-  }
-
-  // const getVrf = useVrf();
-  // const vrf = getVrf(queryVrf.value);
-
   return (
     <Box
       p={0}
@@ -90,7 +94,7 @@ export const Tags: React.FC = () => {
                   bg={queryBg}
                   label={web.text.query_type}
                   fontSize={{ base: 'xs', md: 'sm' }}
-                  value={queryTypeLabel}
+                  value={selectedDirective?.value.name ?? 'None'}
                 />
               </motion.div>
               <motion.div
@@ -114,9 +118,8 @@ export const Tags: React.FC = () => {
               >
                 <Label
                   bg={vrfBg}
-                  label={web.text.query_vrf}
-                  // value={vrf.display_name}
-                  value="fix me"
+                  label={web.text.query_group}
+                  value={queryGroup.value}
                   fontSize={{ base: 'xs', md: 'sm' }}
                 />
               </motion.div>

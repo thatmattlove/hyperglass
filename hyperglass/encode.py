@@ -6,18 +6,12 @@ import datetime
 # Third Party
 import jwt
 
-# Project
-from hyperglass.exceptions import RestError
-
 
 async def jwt_decode(payload: str, secret: str) -> str:
     """Decode & validate an encoded JSON Web Token (JWT)."""
-    try:
-        decoded = jwt.decode(payload, secret, algorithm="HS256")
-        decoded = decoded["payload"]
-        return decoded
-    except (KeyError, jwt.PyJWTError) as exp:
-        raise RestError(str(exp)) from None
+    decoded = jwt.decode(payload, secret, algorithm="HS256")
+    decoded = decoded["payload"]
+    return decoded
 
 
 async def jwt_encode(payload: str, secret: str, duration: int) -> str:

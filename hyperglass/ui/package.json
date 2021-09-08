@@ -11,9 +11,6 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "format": "prettier -c .",
-    "clean": "rimraf --no-glob ./.next ./out",
-    "check:es:export": "es-check es5 './out/**/*.js' -v",
-    "check:es:build": "es-check es5 './.next/static/**/*.js' -v",
     "build": "next build && next export -o ../hyperglass/static/ui"
   },
   "browserslist": "> 0.25%, not dead",

@@ -99,3 +99,17 @@ export async function fetchWithTimeout(
   }, timeout);
   return await fetch(uri, config);
 }
+
+export function dedupObjectArray<E extends Record<string, unknown>, P extends keyof E = keyof E>(
+  arr: E[],
+  property: P,
+): E[] {
+  return arr.reduce((acc: E[], current: E) => {
+    const x = acc.find(item => item[property] === current[property]);
+    if (!x) {
+      return acc.concat([current]);
+    } else {
+      return acc;
+    }
+  }, []);
+}

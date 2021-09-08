@@ -5,7 +5,7 @@ https://github.com/carlmontanari/scrapli
 
 # Standard Library
 import math
-from typing import Sequence
+from typing import Tuple
 
 # Third Party
 from scrapli.driver import AsyncGenericDriver
@@ -24,13 +24,14 @@ from scrapli.driver.core import (
 
 # Project
 from hyperglass.log import log
-from hyperglass.exceptions import (
+from hyperglass.configuration import params
+from hyperglass.exceptions.public import (
     AuthError,
     ScrapeError,
     DeviceTimeout,
-    UnsupportedDevice,
+    ResponseEmpty,
 )
-from hyperglass.configuration import params
+from hyperglass.exceptions.private import UnsupportedDevice
 
 # Local
 from .ssh import SSHConnection
@@ -64,7 +65,7 @@ def _map_driver(nos: str) -> AsyncGenericDriver:
 class ScrapliConnection(SSHConnection):
     """Handle a device connection via Scrapli."""
 
-    async def collect(self, host: str = None, port: int = None) -> Sequence:
+    async def collect(self, host: str = None, port: int = None) -> Tuple[str, ...]:
         """Connect directly to a device.
 
         Directly connects to the router via Netmiko library, returns the
@@ -124,37 +125,15 @@ class ScrapliConnection(SSHConnection):
                     log.debug(f'Raw response for command "{query}":\n{raw.result}')
 
         except ScrapliTimeout as err:
-            log.error(err)
-            raise DeviceTimeout(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                error=params.messages.request_timeout,
-            )
-        except ScrapliAuthenticationFailed as err:
-            log.error(
-                "Error authenticating to device {loc}: {e}",
-                loc=self.device.name,
-                e=str(err),
-            )
+            raise DeviceTimeout(error=err, device=self.device)
 
-            raise AuthError(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                error=params.messages.authentication_error,
-            )
+        except ScrapliAuthenticationFailed as err:
+            raise AuthError(error=err, device=self.device)
+
         except ScrapliException as err:
-            log.error(err)
-            raise ScrapeError(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                error=params.messages.no_response,
-            )
+            raise ScrapeError(error=err, device=self.device)
 
         if not responses:
-            raise ScrapeError(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                error=params.messages.no_response,
-            )
+            raise ResponseEmpty(query=self.query_data)
 
         return responses

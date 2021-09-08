@@ -1,14 +1,6 @@
 import type { State } from '@hookstate/core';
 import type * as ReactGA from 'react-ga';
-import type {
-  TDevice,
-  Families,
-  TFormQuery,
-  TDeviceVrf,
-  TQueryTypes,
-  TSelectOption,
-  TDirective,
-} from '~/types';
+import type { TDevice, Families, TFormQuery, TDeviceVrf, TSelectOption, TDirective } from '~/types';
 
 export type LGQueryKey = [string, TFormQuery];
 export type DNSQueryKey = [string, { target: string | null; family: 4 | 6 }];

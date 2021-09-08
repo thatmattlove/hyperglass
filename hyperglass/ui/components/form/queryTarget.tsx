@@ -2,19 +2,23 @@ import { useMemo } from 'react';
 import { Input, Text } from '@chakra-ui/react';
 import { components } from 'react-select';
 import { If, Select } from '~/components';
-import { useConfig, useColorValue } from '~/context';
-import { useLGState } from '~/hooks';
+import { useColorValue } from '~/context';
+import { useLGState, useDirective } from '~/hooks';
+import { isSelectDirective } from '~/types';
 
 import type { OptionProps } from 'react-select';
-import type { TBGPCommunity, TSelectOption } from '~/types';
+import type { TSelectOption, TDirective } from '~/types';
 import type { TQueryTarget } from './types';
 
-function buildOptions(communities: TBGPCommunity[]): TSelectOption[] {
-  return communities.map(c => ({
-    value: c.community,
-    label: c.display_name,
-    description: c.description,
-  }));
+function buildOptions(directive: Nullable<TDirective>): TSelectOption[] {
+  if (directive !== null && isSelectDirective(directive)) {
+    return directive.options.map(o => ({
+      value: o.value,
+      label: o.name,
+      description: o.description,
+    }));
+  }
+  return [];
 }
 
 const Option = (props: OptionProps<Dict, false>) => {
@@ -38,11 +42,10 @@ export const QueryTarget: React.FC<TQueryTarget> = (props: TQueryTarget) => {
   const border = useColorValue('gray.100', 'whiteAlpha.50');
   const placeholderColor = useColorValue('gray.600', 'whiteAlpha.700');
 
-  const { queryType, queryTarget, displayTarget } = useLGState();
+  const { queryTarget, displayTarget } = useLGState();
+  const directive = useDirective();
 
-  const { queries } = useConfig();
-
-  const options = useMemo(() => buildOptions(queries.bgp_community.communities), []);
+  const options = useMemo(() => buildOptions(directive), [directive, buildOptions]);
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>): void {
     displayTarget.set(e.target.value);
@@ -58,8 +61,8 @@ export const QueryTarget: React.FC<TQueryTarget> = (props: TQueryTarget) => {
 
   return (
     <>
-      <input {...register} hidden readOnly value={queryTarget.value} />
-      <If c={queryType.value === 'bgp_community' && queries.bgp_community.mode === 'select'}>
+      <input {...register('query_target')} hidden readOnly value={queryTarget.value} />
+      <If c={directive !== null && isSelectDirective(directive)}>
         <Select
           size="lg"
           name={name}
@@ -69,7 +72,7 @@ export const QueryTarget: React.FC<TQueryTarget> = (props: TQueryTarget) => {
           onChange={handleSelectChange}
         />
       </If>
-      <If c={!(queryType.value === 'bgp_community' && queries.bgp_community.mode === 'select')}>
+      <If c={directive === null || !isSelectDirective(directive)}>
         <Input
           bg={bg}
           size="lg"

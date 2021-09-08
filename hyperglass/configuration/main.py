@@ -3,11 +3,12 @@
 # Standard Library
 import os
 import json
-from typing import Dict, List, Sequence, Generator
+from typing import Dict, List, Generator
 from pathlib import Path
 
 # Third Party
 import yaml
+from pydantic import ValidationError
 
 # Project
 from hyperglass.log import (
@@ -17,18 +18,13 @@ from hyperglass.log import (
     enable_syslog_logging,
 )
 from hyperglass.util import set_app_path, set_cache_env, current_log_level
-from hyperglass.defaults import CREDIT, DEFAULT_DETAILS
-from hyperglass.constants import (
-    SUPPORTED_QUERY_TYPES,
-    PARSED_RESPONSE_FIELDS,
-    __version__,
-)
-from hyperglass.exceptions import ConfigError, ConfigMissing
+from hyperglass.defaults import CREDIT
+from hyperglass.constants import PARSED_RESPONSE_FIELDS, __version__
 from hyperglass.util.files import check_path
-
-from hyperglass.models.commands.generic import Directive
+from hyperglass.exceptions.private import ConfigError, ConfigMissing
 from hyperglass.models.config.params import Params
 from hyperglass.models.config.devices import Devices
+from hyperglass.models.commands.generic import Directive
 
 # Local
 from .markdown import get_markdown
@@ -84,10 +80,9 @@ def _config_required(config_path: Path) -> Dict:
             config = yaml.safe_load(cf)
 
     except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
-        raise ConfigError(str(yaml_error))
+        raise ConfigError(message="Error reading YAML file: '{e}'", e=yaml_error)
 
     if config is None:
-        log.critical("{} appears to be empty", str(config_path))
         raise ConfigMissing(missing_item=config_path.name)
 
     return config
@@ -106,20 +101,25 @@ def _config_optional(config_path: Path) -> Dict:
                 config = yaml.safe_load(cf) or {}
 
         except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
-            raise ConfigError(error_msg=str(yaml_error))
+            raise ConfigError(message="Error reading YAML file: '{e}'", e=yaml_error)
 
     return config
 
 
-def _get_commands(data: Dict) -> Sequence[Directive]:
+def _get_commands(data: Dict) -> List[Directive]:
     commands = []
     for name, command in data.items():
-        commands.append(Directive(id=name, **command))
+        try:
+            commands.append(Directive(id=name, **command))
+        except ValidationError as err:
+            raise ConfigError(
+                message="Validation error in command '{c}': '{e}'", c=name, e=err
+            ) from err
     return commands
 
 
 def _device_commands(
-    device: Dict, directives: Sequence[Directive]
+    device: Dict, directives: List[Directive]
 ) -> Generator[Directive, None, None]:
     device_commands = device.get("commands", [])
     for directive in directives:
@@ -127,7 +127,7 @@ def _device_commands(
             yield directive
 
 
-def _get_devices(data: Sequence[Dict], directives: Sequence[Directive]) -> Devices:
+def _get_devices(data: List[Dict], directives: List[Directive]) -> Devices:
     for device in data:
         device_commands = list(_device_commands(device, directives))
         device["commands"] = device_commands
@@ -141,7 +141,7 @@ set_log_level(logger=log, debug=user_config.get("debug", True))
 
 # Map imported user configuration to expected schema.
 log.debug("Unvalidated configuration from {}: {}", CONFIG_MAIN, user_config)
-params = validate_config(config=user_config, importer=Params)
+params: Params = validate_config(config=user_config, importer=Params)
 
 # Re-evaluate debug state after config is validated
 log_level = current_log_level(log)
@@ -159,11 +159,7 @@ commands = _get_commands(_user_commands)
 # Map imported user devices to expected schema.
 _user_devices = _config_required(CONFIG_DEVICES)
 log.debug("Unvalidated devices from {}: {}", CONFIG_DEVICES, _user_devices)
-# devices = validate_config(config=_user_devices.get("routers", []), importer=Devices)
-devices = _get_devices(_user_devices.get("routers", []), commands)
-
-# Validate commands are both supported and properly mapped.
-# validate_nos_commands(devices.all_nos, commands)
+devices: Devices = _get_devices(_user_devices.get("routers", []), commands)
 
 # Set cache configurations to environment variables, so they can be
 # used without importing this module (Gunicorn, etc).
@@ -223,22 +219,12 @@ def _build_networks() -> List[Dict]:
                         "name": device.name,
                         "network": device.network.display_name,
                         "directives": [c.frontend(params) for c in device.commands],
-                        "vrfs": [
-                            {
-                                "_id": vrf._id,
-                                "display_name": vrf.display_name,
-                                "default": vrf.default,
-                                "ipv4": True if vrf.ipv4 else False,  # noqa: IF100
-                                "ipv6": True if vrf.ipv6 else False,  # noqa: IF100
-                            }
-                            for vrf in device.vrfs
-                        ],
                     }
                 )
         networks.append(network_def)
 
     if not networks:
-        raise ConfigError(error_msg="Unable to build network to device mapping")
+        raise ConfigError(message="Unable to build network to device mapping")
     return networks
 
 
@@ -247,51 +233,12 @@ content_params = json.loads(
 )
 
 
-def _build_vrf_help() -> Dict:
-    """Build a dict of vrfs as keys, help content as values."""
-    all_help = {}
-    for vrf in devices.vrf_objects:
-
-        vrf_help = {}
-        for command in SUPPORTED_QUERY_TYPES:
-            cmd = getattr(vrf.info, command)
-            if cmd.enable:
-                help_params = {**content_params, **cmd.params.dict()}
-
-                if help_params["title"] is None:
-                    command_params = getattr(params.queries, command)
-                    help_params[
-                        "title"
-                    ] = f"{vrf.display_name}: {command_params.display_name}"
-
-                md = get_markdown(
-                    config_path=cmd,
-                    default=DEFAULT_DETAILS[command],
-                    params=help_params,
-                )
-
-                vrf_help.update(
-                    {
-                        command: {
-                            "content": md,
-                            "enable": cmd.enable,
-                            "params": help_params,
-                        }
-                    }
-                )
-
-        all_help.update({vrf._id: vrf_help})
-
-    return all_help
-
-
 content_greeting = get_markdown(
     config_path=params.web.greeting,
     default="",
     params={"title": params.web.greeting.title},
 )
 
-content_vrf = _build_vrf_help()
 
 content_credit = CREDIT.format(version=__version__)
 
@@ -323,11 +270,7 @@ _frontend_params.update(
         "queries": {**params.queries.map, "list": params.queries.list},
         "networks": networks,
         "parsed_data_fields": PARSED_RESPONSE_FIELDS,
-        "content": {
-            "credit": content_credit,
-            "vrf": content_vrf,
-            "greeting": content_greeting,
-        },
+        "content": {"credit": content_credit, "greeting": content_greeting},
     }
 )
 frontend_params = _frontend_params

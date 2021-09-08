@@ -16,8 +16,6 @@ export interface IConfigMessages {
   connection_error: string;
   authentication_error: string;
   no_response: string;
-  vrf_not_associated: string;
-  vrf_not_found: string;
   no_output: string;
   parsing_error: string;
 }
@@ -35,7 +33,7 @@ export interface IConfigWebText {
   query_location: string;
   query_type: string;
   query_target: string;
-  query_vrf: string;
+  query_group: string;
   fqdn_tooltip: string;
   fqdn_message: string;
   fqdn_error: string;
@@ -133,40 +131,35 @@ export interface TDeviceVrf extends TDeviceVrfBase {
   ipv6: boolean;
 }
 
-interface TDirectiveBase {
+type TDirectiveBase = {
   id: string;
   name: string;
   field_type: 'text' | 'select' | null;
   description: string;
   groups: string[];
   info: TQueryContent | null;
-}
+};
 
-interface TDirectiveOption {
+export type TDirectiveOption = {
   name: string;
   value: string;
-}
+  description: string | null;
+};
 
-interface TDirectiveSelect extends TDirectiveBase {
+export type TDirectiveSelect = TDirectiveBase & {
   options: TDirectiveOption[];
-}
+};
 
 export type TDirective = TDirectiveBase | TDirectiveSelect;
 
-interface TDeviceBase {
+export interface TDevice {
   _id: string;
   name: string;
   network: string;
   directives: TDirective[];
 }
 
-export interface TDevice extends TDeviceBase {
-  vrfs: TDeviceVrf[];
-}
-
-export interface TNetworkLocation extends TDeviceBase {
-  vrfs: TDeviceVrf[];
-}
+export interface TNetworkLocation extends TDevice {}
 
 export interface TNetwork {
   display_name: string;
@@ -190,15 +183,6 @@ export interface TQueryContent {
 export interface IConfigContent {
   credit: string;
   greeting: string;
-  vrf: {
-    [k: string]: {
-      bgp_route: TQueryContent;
-      bgp_community: TQueryContent;
-      bgp_aspath: TQueryContent;
-      ping: TQueryContent;
-      traceroute: TQueryContent;
-    };
-  };
 }
 
 export interface IConfig {
@@ -218,7 +202,6 @@ export interface IConfig {
   queries: TConfigQueries;
   devices: TDevice[];
   networks: TNetwork[];
-  vrfs: TDeviceVrfBase[];
   parsed_data_fields: TParsedDataField[];
   content: IConfigContent;
 }

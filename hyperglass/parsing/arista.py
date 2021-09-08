@@ -9,7 +9,7 @@ from pydantic import ValidationError
 
 # Project
 from hyperglass.log import log
-from hyperglass.exceptions import ParsingError
+from hyperglass.exceptions.private import ParsingError
 from hyperglass.models.parsing.arista_eos import AristaRoute
 
 

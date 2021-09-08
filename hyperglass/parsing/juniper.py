@@ -5,12 +5,12 @@ import re
 from typing import Dict, List, Sequence, Generator
 
 # Third Party
-import xmltodict
+import xmltodict  # type:ignore
 from pydantic import ValidationError
 
 # Project
 from hyperglass.log import log
-from hyperglass.exceptions import ParsingError
+from hyperglass.exceptions.private import ParsingError
 from hyperglass.models.parsing.juniper import JuniperRoute
 
 REMOVE_PATTERNS = (

@@ -134,7 +134,7 @@ class Text(HyperglassModel):
     query_location: StrictStr = "Location"
     query_type: StrictStr = "Query Type"
     query_target: StrictStr = "Target"
-    query_vrf: StrictStr = "Routing Table"
+    query_group: StrictStr = "Routing Table"
     fqdn_tooltip: StrictStr = "Use {protocol}"  # Formatted by Javascript
     fqdn_message: StrictStr = "Your browser has resolved {fqdn} to"  # Formatted by Javascript
     fqdn_error: StrictStr = "Unable to resolve {fqdn}"  # Formatted by Javascript

@@ -9,11 +9,10 @@ from typing import Dict, List, Union, Callable
 from pydantic import ValidationError
 
 # Project
-from hyperglass.log import log
 from hyperglass.models import HyperglassModel
 from hyperglass.constants import TRANSPORT_REST, SUPPORTED_STRUCTURED_OUTPUT
-from hyperglass.exceptions import ConfigError, ConfigInvalid
 from hyperglass.models.commands import Commands
+from hyperglass.exceptions.private import ConfigError, ConfigInvalid
 
 
 def validate_nos_commands(all_nos: List[str], commands: Commands) -> bool:
@@ -44,7 +43,6 @@ def validate_config(config: Union[Dict, List], importer: Callable) -> Hyperglass
         elif isinstance(config, List):
             validated = importer(config)
     except ValidationError as err:
-        log.error(str(err))
-        raise ConfigInvalid(err.errors()) from None
+        raise ConfigInvalid(errors=err.errors()) from None
 
     return validated

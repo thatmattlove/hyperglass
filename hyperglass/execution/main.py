@@ -12,9 +12,9 @@ from typing import Any, Dict, Union, Callable, Sequence
 
 # Project
 from hyperglass.log import log
-from hyperglass.exceptions import DeviceTimeout, ResponseEmpty
 from hyperglass.models.api import Query
 from hyperglass.configuration import params
+from hyperglass.exceptions.public import DeviceTimeout, ResponseEmpty
 
 # Local
 from .drivers import Connection, AgentConnection, NetmikoConnection, ScrapliConnection
@@ -52,16 +52,9 @@ async def execute(query: Query) -> Union[str, Sequence[Dict]]:
     mapped_driver = map_driver(query.device.driver)
     driver = mapped_driver(query.device, query)
 
-    timeout_args = {
-        "unformatted_msg": params.messages.connection_error,
-        "device_name": query.device.name,
-        "error": params.messages.request_timeout,
-    }
-
-    if query.device.proxy:
-        timeout_args["proxy"] = query.device.proxy.name
-
-    signal.signal(signal.SIGALRM, handle_timeout(**timeout_args))
+    signal.signal(
+        signal.SIGALRM, handle_timeout(error=TimeoutError(), device=query.device)
+    )
     signal.alarm(params.request_timeout - 1)
 
     if query.device.proxy:
@@ -79,16 +72,13 @@ async def execute(query: Query) -> Union[str, Sequence[Dict]]:
         # If the output is a string (not structured) and is empty,
         # produce an error.
         if output == "" or output == "\n":
-            raise ResponseEmpty(
-                params.messages.no_output, device_name=query.device.name
-            )
+            raise ResponseEmpty(query=query)
+
     elif isinstance(output, Dict):
         # If the output an empty dict, responses have data, produce an
         # error.
         if not output:
-            raise ResponseEmpty(
-                params.messages.no_output, device_name=query.device.name
-            )
+            raise ResponseEmpty(query=query)
 
     log.debug("Output for query: {}:\n{}", query.json(), repr(output))
     signal.alarm(0)

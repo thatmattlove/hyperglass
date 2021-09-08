@@ -9,7 +9,7 @@ from pydantic import StrictInt, StrictStr, validator
 
 # Project
 from hyperglass.util import resolve_hostname
-from hyperglass.exceptions import ConfigError, UnsupportedDevice
+from hyperglass.exceptions.private import ConfigError, UnsupportedDevice
 
 # Local
 from ..main import HyperglassModel
@@ -32,6 +32,7 @@ class Proxy(HyperglassModel):
     @validator("address")
     def validate_address(cls, value, values):
         """Ensure a hostname is resolvable."""
+
         if not isinstance(value, (IPv4Address, IPv6Address)):
             if not any(resolve_hostname(value)):
                 raise ConfigError(
@@ -43,16 +44,12 @@ class Proxy(HyperglassModel):
 
     @validator("nos")
     def supported_nos(cls, value, values):
-        """Verify NOS is supported by hyperglass.
+        """Verify NOS is supported by hyperglass."""
 
-        Raises:
-            UnsupportedDevice: Raised if NOS is not supported.
-
-        Returns:
-            {str} -- Valid NOS name
-        """
         if not value == "linux_ssh":
             raise UnsupportedDevice(
-                f"Proxy '{values['name']}' uses NOS '{value}', which is currently unsupported."
+                "Proxy '{p}' uses NOS '{n}', which is currently unsupported.",
+                p=values["name"],
+                n=value,
             )
         return value

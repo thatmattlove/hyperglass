@@ -2,7 +2,7 @@
 
 # Standard Library
 import re
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Union, Literal, Optional
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
 
 # Third Party
@@ -17,7 +17,6 @@ from pydantic import (
     validator,
     root_validator,
 )
-from typing_extensions import Literal
 
 # Project
 from hyperglass.log import log

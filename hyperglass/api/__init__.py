@@ -263,7 +263,7 @@ app.mount("/", StaticFiles(directory=UI_DIR, html=True), name="ui")
 def start(**kwargs):
     """Start the web server with Uvicorn ASGI."""
     # Third Party
-    import uvicorn
+    import uvicorn  # type: ignore
 
     try:
         uvicorn.run("hyperglass.api:app", **ASGI_PARAMS, **kwargs)

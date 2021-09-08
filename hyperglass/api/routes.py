@@ -69,6 +69,7 @@ async def send_webhook(query_data: Query, request: Request, timestamp: datetime)
         )
 
 
+@log.catch
 async def query(query_data: Query, request: Request, background_tasks: BackgroundTasks):
     """Ingest request data pass it to the backend application to perform the query."""
 
