@@ -102,8 +102,14 @@ export function useTableToString(
       return result;
     } catch (err) {
       console.error(err);
-      return `An error occurred while parsing the output: '${err.message}'`;
+      let error = String(err);
+      if (err instanceof Error) {
+        error = err.message;
+      }
+      return `An error occurred while parsing the output: '${error}'`;
     }
   }
-  return useCallback(() => doFormat(target, data), deps);
+  const formatCallback = useCallback(doFormat, [target, data, doFormat]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useCallback(() => formatCallback(target, data), [target, data, formatCallback, ...deps]);
 }

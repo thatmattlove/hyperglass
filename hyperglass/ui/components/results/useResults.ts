@@ -82,7 +82,7 @@ export function useResults(initial: TUseResults['locations']): UseResultsReturn 
     if (resultsState.firstOpen.value === null && resultsState.locations.keys.length === 0) {
       resultsState.set({ firstOpen: null, locations: initial });
     }
-  }, []);
+  }, [initial]);
 
   const results = useState(resultsState);
   results.attach(Methods as () => Plugin);
@@ -94,7 +94,7 @@ export function useResults(initial: TUseResults['locations']): UseResultsReturn 
     return () => {
       results.set(initialState);
     };
-  }, []);
+  }, [results]);
 
   return { results, ...methods };
 }

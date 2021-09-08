@@ -30,7 +30,7 @@ const Index: React.FC<TIndex> = (props: TIndex) => {
 };
 
 export const getStaticProps: GetStaticProps<TIndex> = async () => {
-  const faviconConfig = (process.env._HYPERGLASS_FAVICONS_ as unknown) as Favicon[];
+  const faviconConfig = process.env._HYPERGLASS_FAVICONS_ as unknown as Favicon[];
   const favicons = faviconConfig.map(icon => {
     const { image_format, dimensions, prefix } = icon;
     let { rel } = icon;

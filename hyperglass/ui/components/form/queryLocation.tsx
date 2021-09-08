@@ -33,7 +33,7 @@ export const QueryLocation: React.FC<TQuerySelectField> = (props: TQuerySelectFi
   const { selections } = useLGState();
   const { exportState } = useLGMethods();
 
-  const options = useMemo(() => buildOptions(networks), [networks.length]);
+  const options = useMemo(() => buildOptions(networks), [networks]);
 
   function handleChange(e: TSelectOption | TSelectOption[]): void {
     if (e === null) {

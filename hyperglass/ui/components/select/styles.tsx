@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useMemo } from 'react';
 import { useToken } from '@chakra-ui/react';
 import { mergeWith } from '@chakra-ui/utils';
@@ -114,13 +115,10 @@ export const useOptionStyle = (base: TStyles, state: TOption): TStyles => {
     fontSize,
   };
 
-  return useMemo(() => mergeWith({}, base, styles), [
-    isOpen,
-    colorMode,
-    isFocused,
-    isDisabled,
-    isSelected,
-  ]);
+  return useMemo(
+    () => mergeWith({}, base, styles),
+    [isOpen, colorMode, isFocused, isDisabled, isSelected],
+  );
 };
 
 export const useIndicatorSeparatorStyle = (base: TStyles): TStyles => {

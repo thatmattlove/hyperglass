@@ -48,7 +48,7 @@ function hasNode<C>(p: any): p is C & MDProps {
 function clean<P extends ChakraProps>(props: P): P {
   if (hasNode<P>(props)) {
     const { node, ...rest } = props;
-    const r = (rest as unknown) as P;
+    const r = rest as unknown as P;
     return r;
   }
   return props;

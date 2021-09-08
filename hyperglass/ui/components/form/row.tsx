@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react';
 
-import { FlexProps } from '@chakra-ui/react';
+import type { FlexProps } from '@chakra-ui/react';
 
 export const FormRow: React.FC<FlexProps> = (props: FlexProps) => {
   return (

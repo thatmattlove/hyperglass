@@ -27,7 +27,7 @@ const App: NextApp<TApp> = (props: GetInitialPropsReturn<TApp>) => {
 
   useEffect(() => {
     router.events.on('routeChangeComplete', trackPage);
-  }, []);
+  }, [router.events, trackPage]);
 
   return (
     <>
@@ -52,7 +52,7 @@ const App: NextApp<TApp> = (props: GetInitialPropsReturn<TApp>) => {
 };
 
 App.getInitialProps = async function getInitialProps() {
-  const config = (process.env._HYPERGLASS_CONFIG_ as unknown) as IConfig;
+  const config = process.env._HYPERGLASS_CONFIG_ as unknown as IConfig;
   return { appProps: { config } };
 };
 

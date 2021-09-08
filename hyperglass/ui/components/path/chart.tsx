@@ -1,7 +1,5 @@
 import { Box, Flex, SkeletonText, Badge, VStack } from '@chakra-ui/react';
-import ReactFlow from 'react-flow-renderer';
-import { Background, ReactFlowProvider } from 'react-flow-renderer';
-import { Handle, Position } from 'react-flow-renderer';
+import ReactFlow, { Background, ReactFlowProvider, Handle, Position } from 'react-flow-renderer';
 import { useConfig, useColorValue, useColorToken } from '~/context';
 import { useASNDetail } from '~/hooks';
 import { Controls } from './controls';

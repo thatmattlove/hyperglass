@@ -10,11 +10,11 @@ import type { TUseDevice } from './types';
 export function useDevice(): TUseDevice {
   const { networks } = useConfig();
 
-  const devices = useMemo(() => networks.map(n => n.locations).flat(), []);
+  const devices = useMemo(() => networks.map(n => n.locations).flat(), [networks]);
 
   function getDevice(id: string): TDevice {
     return devices.filter(dev => dev._id === id)[0];
   }
 
-  return useCallback(getDevice, []);
+  return useCallback(getDevice, [devices]);
 }

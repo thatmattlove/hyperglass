@@ -1,5 +1,6 @@
 import { Select } from '@chakra-ui/react';
-import { SelectProps } from '@chakra-ui/react';
+
+import type { SelectProps } from '@chakra-ui/react';
 
 export const TableSelectShow: React.FC<SelectProps> = (props: SelectProps) => {
   const { value, ...rest } = props;

@@ -175,6 +175,7 @@ export function useLGState(): State<TLGState> {
 export function useLGMethods(): TLGStateHandlers {
   const state = useLGState();
   state.attach(Methods);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const exporter = useCallback(Methods(state).stateExporter, [isEqual]);
   return {
     exportState(s) {

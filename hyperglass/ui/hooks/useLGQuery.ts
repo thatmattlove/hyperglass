@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { useConfig } from '~/context';
 import { useGoogleAnalytics } from './useGoogleAnalytics';
@@ -13,7 +13,7 @@ import type { LGQueryKey } from './types';
  */
 export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryResponse> {
   const { request_timeout, cache } = useConfig();
-  const controller = new AbortController();
+  const controller = useMemo(() => new AbortController(), []);
 
   const { trackEvent } = useGoogleAnalytics();
 
@@ -59,7 +59,7 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryRespons
     () => () => {
       controller.abort();
     },
-    [],
+    [controller],
   );
 
   return useQuery<TQueryResponse, Response | TQueryResponse | Error, TQueryResponse, LGQueryKey>({

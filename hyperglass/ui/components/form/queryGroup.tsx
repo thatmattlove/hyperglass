@@ -12,7 +12,8 @@ export const QueryGroup: React.FC<TQueryGroup> = (props: TQueryGroup) => {
 
   const options = useMemo<TSelectOption[]>(
     () => availableGroups.map(g => ({ label: g.value, value: g.value })),
-    [availableGroups.length, queryLocation.length],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [availableGroups, queryLocation],
   );
 
   function handleChange(e: TSelectOption | TSelectOption[]): void {

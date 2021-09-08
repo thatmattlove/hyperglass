@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { Button, chakra, Stack, Text, VStack } from '@chakra-ui/react';
 import { useConfig, useColorValue } from '~/context';
@@ -26,6 +26,7 @@ function findAnswer(data: DnsOverHttps.Response | undefined): string {
 
 export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget) => {
   const { setTarget, errorClose } = props;
+  const strF = useStrf();
   const { web } = useConfig();
   const { displayTarget, isSubmitting, families, queryTarget } = useLGState();
 
@@ -35,21 +36,25 @@ export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget
   const query4 = Array.from(families.value).includes(4);
   const query6 = Array.from(families.value).includes(6);
 
-  const tooltip4 = useStrf(web.text.fqdn_tooltip, { protocol: 'IPv4' });
-  const tooltip6 = useStrf(web.text.fqdn_tooltip, { protocol: 'IPv6' });
+  const tooltip4 = strF(web.text.fqdn_tooltip, { protocol: 'IPv4' });
+  const tooltip6 = strF(web.text.fqdn_tooltip, { protocol: 'IPv6' });
 
   const [messageStart, messageEnd] = web.text.fqdn_message.split('{fqdn}');
   const [errorStart, errorEnd] = web.text.fqdn_error.split('{fqdn}');
 
-  const { data: data4, isLoading: isLoading4, isError: isError4, error: error4 } = useDNSQuery(
-    displayTarget.value,
-    4,
-  );
+  const {
+    data: data4,
+    isLoading: isLoading4,
+    isError: isError4,
+    error: error4,
+  } = useDNSQuery(displayTarget.value, 4);
 
-  const { data: data6, isLoading: isLoading6, isError: isError6, error: error6 } = useDNSQuery(
-    displayTarget.value,
-    6,
-  );
+  const {
+    data: data6,
+    isLoading: isLoading6,
+    isError: isError6,
+    error: error6,
+  } = useDNSQuery(displayTarget.value, 6);
 
   isError4 && console.error(error4);
   isError6 && console.error(error6);
@@ -57,9 +62,11 @@ export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget
   const answer4 = useMemo(() => findAnswer(data4), [data4]);
   const answer6 = useMemo(() => findAnswer(data6), [data6]);
 
-  function handleOverride(value: string): void {
-    setTarget({ field: 'query_target', value });
-  }
+  const handleOverride = useCallback(
+    (value: string): void => setTarget({ field: 'query_target', value }),
+    [setTarget],
+  );
+
   function selectTarget(value: string): void {
     queryTarget.set(value);
     isSubmitting.set(true);
@@ -73,7 +80,7 @@ export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget
     } else if (query4 && data4?.Answer) {
       handleOverride(findAnswer(data4));
     }
-  }, [data4, data6]);
+  }, [data4, data6, handleOverride, query4, query6]);
 
   return (
     <VStack w="100%" spacing={4} justify="center">

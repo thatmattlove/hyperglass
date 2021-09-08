@@ -55,5 +55,6 @@ export function useTitleSize(title: string, defaultSize: Sizes, deps: unknown[] 
   return useMemo(() => {
     getSize(title.length);
     return realSize;
-  }, [title, isMobile, ...deps]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, isMobile, realSize, ...deps]);
 }

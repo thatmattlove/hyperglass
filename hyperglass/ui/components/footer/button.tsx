@@ -24,8 +24,9 @@ export const FooterButton: React.FC<TFooterButton> = (props: TFooterButton) => {
   const { content, title, side, ...rest } = props;
 
   const config = useConfig();
-  const fmt = useMemo(() => getConfigFmt(config), []);
-  const fmtContent = useStrf(content, fmt);
+  const strF = useStrf();
+  const fmt = useMemo(() => getConfigFmt(config), [config]);
+  const fmtContent = useMemo(() => strF(content, fmt), [fmt, content, strF]);
 
   const placement = side === 'left' ? 'top' : side === 'right' ? 'top-end' : undefined;
   const bg = useColorValue('white', 'gray.900');

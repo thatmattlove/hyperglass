@@ -31,11 +31,10 @@ export const Select: React.FC<TSelectBase> = (props: TSelectBase) => {
 
   const { colorMode } = useColorMode();
 
-  const selectContext = useMemo<TSelectContext>(() => ({ colorMode, isOpen, isError }), [
-    colorMode,
-    isError,
-    isOpen,
-  ]);
+  const selectContext = useMemo<TSelectContext>(
+    () => ({ colorMode, isOpen, isError }),
+    [colorMode, isError, isOpen],
+  );
 
   const defaultOnChange = (changed: TSelectOption | TSelectOption[]) => {
     if (!Array.isArray(changed)) {

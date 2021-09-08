@@ -34,5 +34,5 @@ export function useOpposingColor(color: string, options?: TOpposingOptions): str
     } else {
       return options?.light ?? 'white';
     }
-  }, [color]);
+  }, [isBlack, options?.dark, options?.light]);
 }

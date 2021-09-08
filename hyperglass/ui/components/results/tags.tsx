@@ -23,7 +23,8 @@ export const Tags: React.FC = () => {
       return directive;
     }
     return null;
-  }, [queryType.value, queryGroup.value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryType.value, queryGroup.value, getDirective]);
 
   const targetBg = useToken('colors', 'teal.600');
   const queryBg = useToken('colors', 'cyan.500');

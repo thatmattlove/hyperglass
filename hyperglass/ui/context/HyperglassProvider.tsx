@@ -18,7 +18,7 @@ const queryClient = new QueryClient();
 
 export const HyperglassProvider: React.FC<THyperglassProvider> = (props: THyperglassProvider) => {
   const { config, children } = props;
-  const value = useMemo(() => config, []);
+  const value = useMemo(() => config, [config]);
   const userTheme = value && makeTheme(value.web.theme, value.web.theme.default_color_mode);
   const theme = value ? userTheme : defaultTheme;
   return (

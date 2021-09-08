@@ -23,8 +23,9 @@ export const ResultHeader: React.FC<TResultHeader> = (props: TResultHeader) => {
   const defaultStatus = useColorValue('success.500', 'success.300');
 
   const { web } = useConfig();
-  const text = useStrf(web.text.complete_time, { seconds: runtime }, [runtime]);
-  const label = useMemo(() => runtimeText(runtime, text), [runtime]);
+  const strF = useStrf();
+  const text = strF(web.text.complete_time, { seconds: runtime });
+  const label = useMemo(() => runtimeText(runtime, text), [runtime, text]);
 
   const color = useOpposingColor(isError ? warning : defaultStatus);
 

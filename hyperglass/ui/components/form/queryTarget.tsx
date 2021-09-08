@@ -45,7 +45,7 @@ export const QueryTarget: React.FC<TQueryTarget> = (props: TQueryTarget) => {
   const { queryTarget, displayTarget } = useLGState();
   const directive = useDirective();
 
-  const options = useMemo(() => buildOptions(directive), [directive, buildOptions]);
+  const options = useMemo(() => buildOptions(directive), [directive]);
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>): void {
     displayTarget.set(e.target.value);

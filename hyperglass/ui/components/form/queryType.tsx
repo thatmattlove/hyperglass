@@ -16,7 +16,7 @@ export const QueryType: React.FC<TQuerySelectField> = (props: TQuerySelectField)
 
   const options = useMemo(
     () => availableTypes.map(t => ({ label: t.name.value, value: t.id.value })),
-    [availableTypes.length],
+    [availableTypes],
   );
 
   function handleChange(e: TSelectOption | TSelectOption[]): void {

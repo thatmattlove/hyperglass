@@ -16,5 +16,6 @@ export function useDirective(): Nullable<TDirective> {
       return directive.value;
     }
     return null;
-  }, [queryType.value, queryGroup.value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryType.value, queryGroup.value, getDirective]);
 }

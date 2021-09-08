@@ -11,9 +11,6 @@ module.exports = {
     _HYPERGLASS_CONFIG_: config._HYPERGLASS_CONFIG_,
     _HYPERGLASS_FAVICONS_: config._HYPERGLASS_FAVICONS_,
   },
-  future: {
-    webpack5: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },

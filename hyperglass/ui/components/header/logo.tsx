@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Image, Skeleton } from '@chakra-ui/react';
-import { useColorValue, useConfig, useColorMode } from '~/context';
+import { useColorValue, useConfig } from '~/context';
 
 import type { TLogo } from './types';
 
@@ -10,7 +10,6 @@ import type { TLogo } from './types';
 function useLogo(): [string, () => void] {
   const { web } = useConfig();
   const { dark_format, light_format } = web.logo;
-  const { colorMode } = useColorMode();
 
   const src = useColorValue(`/images/dark${dark_format}`, `/images/light${light_format}`);
 
@@ -22,16 +21,14 @@ function useLogo(): [string, () => void] {
 
   const [fallback, setSource] = useState<string | null>(null);
 
-  /**
-   * If the user image cannot be loaded, log an error to the console and set the fallback image.
-   */
-  function setFallback() {
+  // If the user image cannot be loaded, log an error to the console and set the fallback image.
+  const setFallback = useCallback(() => {
     console.warn(`Error loading image from '${src}'`);
     setSource(fallbackSrc);
-  }
+  }, [fallbackSrc, src]);
 
   // Only return the fallback image if it's been set.
-  return useMemo(() => [fallback ?? src, setFallback], [colorMode]);
+  return useMemo(() => [fallback ?? src, setFallback], [fallback, setFallback, src]);
 }
 
 export const Logo: React.FC<TLogo> = (props: TLogo) => {

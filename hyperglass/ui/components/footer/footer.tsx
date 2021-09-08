@@ -36,7 +36,9 @@ export const Footer: React.FC = () => {
 
   const isMobile = useMobile();
 
-  const [left, right] = useMemo(() => buildItems(web.links, web.menus), []);
+  const [left, right] = useMemo(() => buildItems(web.links, web.menus), [web.links, web.menus]);
+
+  const strF = useStrf();
 
   return (
     <HStack
@@ -55,7 +57,7 @@ export const Footer: React.FC = () => {
     >
       {left.map(item => {
         if (isLink(item)) {
-          const url = useStrf(item.url, { primary_asn }) ?? '/';
+          const url = strF(item.url, { primary_asn }, '/');
           const icon: Partial<ButtonProps & LinkProps> = {};
 
           if (item.show_icon) {
@@ -71,7 +73,7 @@ export const Footer: React.FC = () => {
       {!isMobile && <Flex p={0} flex="1 0 auto" maxWidth="100%" mr="auto" />}
       {right.map(item => {
         if (isLink(item)) {
-          const url = useStrf(item.url, { primary_asn }) ?? '/';
+          const url = strF(item.url, { primary_asn }, '/');
           const icon: Partial<ButtonProps & LinkProps> = {};
 
           if (item.show_icon) {

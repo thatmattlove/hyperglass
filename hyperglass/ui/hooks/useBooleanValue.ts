@@ -14,5 +14,5 @@ export function useBooleanValue<T extends unknown, F extends unknown>(
     } else {
       return ifFalse;
     }
-  }, [status]);
+  }, [status, ifTrue, ifFalse]);
 }

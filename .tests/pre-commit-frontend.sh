@@ -2,33 +2,26 @@
 
 UI_DIR="$(pwd)/hyperglass/ui"
 
-check_typescript () {
-    cd $UI_DIR
-    node_modules/.bin/tsc --noEmit
+check_typescript() {
+    yarn --cwd $UI_DIR typecheck
 }
 
-check_eslint () {
-    cd $UI_DIR
-    node_modules/.bin/eslint . --ext .ts --ext .tsx
+check_eslint() {
+    yarn --cwd $UI_DIR lint
 }
 
-check_prettier () {
-    cd $UI_DIR
-    node_modules/.bin/prettier -c .
+check_prettier() {
+    yarn --cwd $UI_DIR prettier -c .
 }
 
-for arg in "$@"
-do
-    if [ "$arg" == "--typescript" ]
-    then
+for arg in "$@"; do
+    if [ "$arg" == "--typescript" ]; then
         check_typescript
         exit $?
-    elif [ "$arg" == "--eslint" ]
-    then
+    elif [ "$arg" == "--eslint" ]; then
         check_eslint
         exit $?
-    elif [ "$arg" == "--prettier" ]
-    then
+    elif [ "$arg" == "--prettier" ]; then
         check_prettier
         exit $?
     else

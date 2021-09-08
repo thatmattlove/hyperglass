@@ -26,7 +26,7 @@ export const FormField: React.FC<TField> = (props: TField) => {
       setError(errors[name]);
       console.warn(`Error on field '${label}': ${error?.message}`);
     }
-  }, [error, errors, setError]);
+  }, [error, errors, label, name, setError]);
 
   return (
     <FormControl

@@ -39,7 +39,7 @@ export const Greeting: React.FC<TGreeting> = (props: TGreeting) => {
     if (!greetingAck.value && web.greeting.enable) {
       isOpen.set(true);
     }
-  }, []);
+  }, [greetingAck.value, isOpen, web.greeting.enable]);
   return (
     <Modal
       size="lg"

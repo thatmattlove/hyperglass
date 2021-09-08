@@ -48,10 +48,11 @@ export const LookingGlass: React.FC = () => {
 
   const { ack, greetingReady } = useGreeting();
   const getDevice = useDevice();
+  const strF = useStrf();
 
-  const noQueryType = useStrf(messages.no_input, { field: web.text.query_type });
-  const noQueryLoc = useStrf(messages.no_input, { field: web.text.query_location });
-  const noQueryTarget = useStrf(messages.no_input, { field: web.text.query_target });
+  const noQueryType = strF(messages.no_input, { field: web.text.query_type });
+  const noQueryLoc = strF(messages.no_input, { field: web.text.query_location });
+  const noQueryTarget = strF(messages.no_input, { field: web.text.query_target });
 
   const {
     availableGroups,
@@ -68,7 +69,7 @@ export const LookingGlass: React.FC = () => {
     selections,
   } = useLGState();
 
-  const queryTypes = useMemo(() => availableTypes.map(t => t.id.value), [availableTypes.length]);
+  const queryTypes = useMemo(() => availableTypes.map(t => t.id.value), [availableTypes]);
 
   const formSchema = vest.create((data: TFormData = {} as TFormData) => {
     test('query_location', noQueryLoc, () => {
@@ -111,7 +112,8 @@ export const LookingGlass: React.FC = () => {
       return directive;
     }
     return null;
-  }, [queryType.value, queryGroup.value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryType.value, queryGroup.value, getDirective]);
 
   function submitHandler() {
     console.table({

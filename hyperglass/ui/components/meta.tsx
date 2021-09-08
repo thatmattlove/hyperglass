@@ -31,14 +31,14 @@ export const Meta: React.FC = () => {
   } = useConfig();
 
   const siteName = `${title} - ${description}`;
-  const primaryFont = useMemo(() => googleFontUrl(fonts.body), []);
-  const monoFont = useMemo(() => googleFontUrl(fonts.mono), []);
+  const primaryFont = useMemo(() => googleFontUrl(fonts.body), [fonts.body]);
+  const monoFont = useMemo(() => googleFontUrl(fonts.mono), [fonts.mono]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && location === '/') {
       setLocation(window.location.href);
     }
-  }, []);
+  }, [location]);
 
   return (
     <Head>

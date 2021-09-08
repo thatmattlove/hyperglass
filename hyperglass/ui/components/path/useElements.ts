@@ -11,7 +11,7 @@ const NODE_HEIGHT = 48;
 export function useElements(base: BasePath, data: TStructuredResponse): FlowElement[] {
   return useMemo(() => {
     return [...buildElements(base, data)];
-  }, [data.routes.length]);
+  }, [base, data]);
 }
 
 /**

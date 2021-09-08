@@ -52,7 +52,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
 
   const { responses } = useLGState();
 
-  const { data, error, isError, isLoading, refetch, isFetching, isFetchedAfterMount } = useLGQuery({
+  const { data, error, isError, isLoading, refetch, isFetchedAfterMount } = useLGQuery({
     queryLocation,
     queryTarget,
     queryType,
@@ -60,17 +60,13 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
     queryGroup,
   });
 
-  const isCached = useMemo(() => data?.cached || !isFetchedAfterMount, [
-    data,
-    isLoading,
-    isFetching,
-  ]);
+  const isCached = useMemo(() => data?.cached || !isFetchedAfterMount, [data, isFetchedAfterMount]);
 
   if (typeof data !== 'undefined') {
     responses.merge({ [device._id]: data });
   }
-
-  const cacheLabel = useStrf(web.text.cache_icon, { time: data?.timestamp }, [data?.timestamp]);
+  const strF = useStrf();
+  const cacheLabel = strF(web.text.cache_icon, { time: data?.timestamp });
 
   const errorKeywords = useMemo(() => {
     let kw = [] as string[];
@@ -95,7 +91,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
     } else {
       return messages.general;
     }
-  }, [isError, error, data]);
+  }, [error, data, messages.general, messages.request_timeout]);
 
   isError && console.error(error);
 
@@ -114,7 +110,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
       e = statusMap[idx];
     }
     return e;
-  }, [isError, isLoading, data]);
+  }, [error]);
 
   const tableComponent = useMemo<boolean>(() => {
     let result = false;
@@ -145,7 +141,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
         setIndex([index]);
       }
     }
-  }, [data, isError]);
+  }, [data, index, indices, isLoading, isError, setIndex]);
 
   return (
     <AnimatedAccordionItem
@@ -165,7 +161,6 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
         <AccordionHeaderWrapper>
           <AccordionButton py={2} w="unset" _hover={{}} _focus={{}} flex="1 0 auto">
             <ResultHeader
-              // isError={isLGOutputOrError(data)}
               isError={isError}
               loading={isLoading}
               errorMsg={errorMsg}
