@@ -28,6 +28,7 @@ from hyperglass.models.commands.generic import Directive
 from .ssl import Ssl
 from ..main import HyperglassModel, HyperglassModelExtra
 from .proxy import Proxy
+from .params import Params
 from ..fields import SupportedDriver
 from .network import Network
 from .credential import Credential
@@ -274,3 +275,23 @@ class Devices(HyperglassModelExtra):
                 return device
 
         raise AttributeError(f"No device named '{accessor}'")
+
+    def networks(self, params: Params) -> List[Dict[str, Any]]:
+        """Group devices by network."""
+        names = {device.network.display_name for device in self.objects}
+        return [
+            {
+                "display_name": name,
+                "locations": [
+                    {
+                        "id": device._id,
+                        "name": device.name,
+                        "network": device.network.display_name,
+                        "directives": [c.frontend(params) for c in device.commands],
+                    }
+                    for device in self.objects
+                    if device.network.display_name in names
+                ],
+            }
+            for name in names
+        ]

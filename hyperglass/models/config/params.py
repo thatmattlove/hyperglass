@@ -1,19 +1,11 @@
 """Configuration validation entry point."""
 
 # Standard Library
-from typing import List, Union, Optional
+from typing import Any, Dict, List, Union, Literal, Optional
 from ipaddress import ip_address
 
 # Third Party
-from pydantic import (
-    Field,
-    StrictInt,
-    StrictStr,
-    StrictBool,
-    IPvAnyAddress,
-    constr,
-    validator,
-)
+from pydantic import Field, StrictInt, StrictStr, StrictBool, IPvAnyAddress, validator
 
 # Local
 from .web import Web
@@ -26,13 +18,12 @@ from .queries import Queries
 from .messages import Messages
 from .structured import Structured
 
-Localhost = constr(regex=r"localhost")
+Localhost = Literal["localhost"]
 
 
-class Params(HyperglassModel):
-    """Validation model for all configuration variables."""
+class ParamsPublic(HyperglassModel):
+    """Public configuration parameters."""
 
-    # Top Level Params
     debug: StrictBool = Field(
         False,
         title="Debug",
@@ -43,10 +34,10 @@ class Params(HyperglassModel):
         title="Developer Mode",
         description='Enable developer mode. If enabled, the hyperglass backend (Python) and frontend (React/Javascript) applications are "unlinked", so that React tools can be used for front end development. A `<Debugger />` convenience component is also displayed in the UI for easier UI development.',
     )
-    fake_output: StrictBool = Field(
-        False,
-        title="Fake Output",
-        description="If enabled, the hyperglass backend will return static fake output for development/testing purposes.",
+    request_timeout: StrictInt = Field(
+        90,
+        title="Request Timeout",
+        description="Global timeout in seconds for all requests. The frontend application (UI) uses this field's exact value when submitting queries. The backend application uses this field's value, minus one second, for its own timeout handling. This is to ensure a contextual timeout error is presented to the end user in the event of a backend application timeout.",
     )
     primary_asn: Union[StrictInt, StrictStr] = Field(
         "65001",
@@ -58,6 +49,7 @@ class Params(HyperglassModel):
         title="Organization Name",
         description="Your organization's name. This field is used in the UI & API documentation to set fields such as `<meta/>` HTML tags for SEO and the terms & conditions footer component.",
     )
+    google_analytics: Optional[StrictStr]
     site_title: StrictStr = Field(
         "hyperglass",
         title="Site Title",
@@ -90,10 +82,17 @@ class Params(HyperglassModel):
         title="Site Keywords",
         description='Keywords pertaining to your hyperglass site. This field is used to generate `<meta name="keywords"/>` HTML tags, which helps tremendously with SEO.',
     )
-    request_timeout: StrictInt = Field(
-        90,
-        title="Request Timeout",
-        description="Global timeout in seconds for all requests. The frontend application (UI) uses this field's exact value when submitting queries. The backend application uses this field's value, minus one second, for its own timeout handling. This is to ensure a contextual timeout error is presented to the end user in the event of a backend application timeout.",
+
+
+class Params(ParamsPublic, HyperglassModel):
+    """Validation model for all configuration variables."""
+
+    # Top Level Params
+
+    fake_output: StrictBool = Field(
+        False,
+        title="Fake Output",
+        description="If enabled, the hyperglass backend will return static fake output for development/testing purposes.",
     )
     listen_address: Optional[Union[IPvAnyAddress, Localhost]] = Field(
         None,
@@ -115,7 +114,6 @@ class Params(HyperglassModel):
         title="Netmiko Delay Factor",
         description="Override the netmiko global delay factor.",
     )
-    google_analytics: Optional[StrictStr]
 
     # Sub Level Params
     cache: Cache = Cache()
@@ -183,3 +181,29 @@ class Params(HyperglassModel):
         if not isinstance(value, str):
             value = str(value)
         return value
+
+    def content_params(self) -> Dict[str, Any]:
+        """Export content-specific parameters."""
+        return self.dict(
+            include={"primary_asn", "org_name", "site_title", "site_description"}
+        )
+
+    def frontend(self) -> Dict[str, Any]:
+        """Export UI-specific parameters."""
+
+        return self.dict(
+            include={
+                "cache": {"show_text", "timeout"},
+                "debug": ...,
+                "developer_mode": ...,
+                "primary_asn": ...,
+                "request_timeout": ...,
+                "org_name": ...,
+                "google_analytics": ...,
+                "site_title": ...,
+                "site_description": ...,
+                "site_keywords": ...,
+                "web": ...,
+                "messages": ...,
+            }
+        )

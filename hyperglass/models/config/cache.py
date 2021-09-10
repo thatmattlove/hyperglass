@@ -10,15 +10,20 @@ from pydantic import SecretStr, StrictInt, StrictStr, StrictBool, IPvAnyAddress
 from ..main import HyperglassModel
 
 
-class Cache(HyperglassModel):
+class CachePublic(HyperglassModel):
+    """Public cache parameters."""
+
+    timeout: StrictInt = 120
+    show_text: StrictBool = True
+
+
+class Cache(CachePublic):
     """Validation model for params.cache."""
 
     host: Union[IPvAnyAddress, StrictStr] = "localhost"
     port: StrictInt = 6379
     database: StrictInt = 1
     password: Optional[SecretStr]
-    timeout: StrictInt = 120
-    show_text: StrictBool = True
 
     class Config:
         """Pydantic model configuration."""

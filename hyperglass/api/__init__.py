@@ -18,6 +18,7 @@ from starlette.middleware.cors import CORSMiddleware
 from hyperglass.log import log
 from hyperglass.util import cpu_count
 from hyperglass.constants import TRANSPORT_REST, __version__
+from hyperglass.models.ui import UIParameters
 from hyperglass.api.events import on_startup, on_shutdown
 from hyperglass.api.routes import (
     docs,
@@ -25,8 +26,8 @@ from hyperglass.api.routes import (
     query,
     queries,
     routers,
-    communities,
     ui_props,
+    communities,
     import_certificate,
 )
 from hyperglass.exceptions import HyperglassError
@@ -246,6 +247,8 @@ app.add_api_route(
     endpoint=ui_props,
     methods=["GET", "OPTIONS"],
     response_class=JSONResponse,
+    response_model=UIParameters,
+    response_model_by_alias=True,
 )
 
 # Enable certificate import route only if a device using

@@ -2,12 +2,13 @@
 
 # Standard Library
 import re
+from typing import Type, TypeVar
 
 # Third Party
 from pydantic import HttpUrl, BaseModel
 
-_WEBHOOK_TITLE = "hyperglass received a valid query with the following data"
-_ICON_URL = "https://res.cloudinary.com/hyperglass/image/upload/v1593192484/icon.png"
+# Project
+from hyperglass.util import snake_to_camel
 
 
 def clean_name(_name: str) -> str:
@@ -22,11 +23,14 @@ def clean_name(_name: str) -> str:
     return _scrubbed.lower()
 
 
+AsUIModel = TypeVar("AsUIModel", bound="BaseModel")
+
+
 class HyperglassModel(BaseModel):
     """Base model for all hyperglass configuration models."""
 
     class Config:
-        """Default Pydantic configuration.
+        """Pydantic model configuration.
 
         See https://pydantic-docs.helpmanual.io/usage/model_config
         """
@@ -38,40 +42,28 @@ class HyperglassModel(BaseModel):
         json_encoders = {HttpUrl: lambda v: str(v)}
 
     def export_json(self, *args, **kwargs):
-        """Return instance as JSON.
+        """Return instance as JSON."""
 
-        Returns:
-            {str} -- Stringified JSON.
-        """
+        export_kwargs = {"by_alias": True, "exclude_unset": False}
 
-        export_kwargs = {
-            "by_alias": True,
-            "exclude_unset": False,
-            **kwargs,
-        }
+        for key in export_kwargs.keys():
+            export_kwargs.pop(key, None)
 
-        return self.json(*args, **export_kwargs)
+        return self.json(*args, **export_kwargs, **kwargs)
 
     def export_dict(self, *args, **kwargs):
-        """Return instance as dictionary.
+        """Return instance as dictionary."""
 
-        Returns:
-            {dict} -- Python dictionary.
-        """
-        export_kwargs = {
-            "by_alias": True,
-            "exclude_unset": False,
-            **kwargs,
-        }
+        export_kwargs = {"by_alias": True, "exclude_unset": False}
 
-        return self.dict(*args, **export_kwargs)
+        for key in export_kwargs.keys():
+            export_kwargs.pop(key, None)
+
+        return self.dict(*args, **export_kwargs, **kwargs)
 
     def export_yaml(self, *args, **kwargs):
-        """Return instance as YAML.
+        """Return instance as YAML."""
 
-        Returns:
-            {str} -- Stringified YAML.
-        """
         # Standard Library
         import json
 
@@ -91,9 +83,22 @@ class HyperglassModel(BaseModel):
 class HyperglassModelExtra(HyperglassModel):
     """Model for hyperglass configuration models with dynamic fields."""
 
-    pass
-
     class Config:
-        """Default pydantic configuration."""
+        """Pydantic model configuration."""
 
         extra = "allow"
+
+
+class HyperglassUIModel(HyperglassModel):
+    """Base class for UI configuration parameters."""
+
+    class Config:
+        """Pydantic model configuration."""
+
+        alias_generator = snake_to_camel
+        allow_population_by_field_name = True
+
+
+def as_ui_model(name: str, model: Type[AsUIModel]) -> Type[AsUIModel]:
+    """Override a model's configuration to confirm to a UI model."""
+    return type(name, (model, HyperglassUIModel), {})

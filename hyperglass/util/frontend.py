@@ -12,6 +12,7 @@ from pathlib import Path
 
 # Project
 from hyperglass.log import log
+from hyperglass.models.ui import UIParameters
 
 # Local
 from .files import copyfiles, check_path
@@ -221,7 +222,7 @@ def generate_opengraph(
     return True
 
 
-def migrate_images(app_path: Path, params: dict):
+def migrate_images(app_path: Path, params: UIParameters):
     """Migrate images from source code to install directory."""
     images_dir = app_path / "static" / "images"
     favicon_dir = images_dir / "favicons"
@@ -230,7 +231,7 @@ def migrate_images(app_path: Path, params: dict):
     dst_files = ()
 
     for image in ("light", "dark", "favicon"):
-        src = Path(params["web"]["logo"][image])
+        src: Path = getattr(params.web.logo, image)
         dst = images_dir / f"{image + src.suffix}"
         src_files += (src,)
         dst_files += (dst,)
@@ -241,7 +242,7 @@ async def build_frontend(  # noqa: C901
     dev_mode: bool,
     dev_url: str,
     prod_url: str,
-    params: Dict,
+    params: UIParameters,
     app_path: Path,
     force: bool = False,
     timeout: int = 180,
@@ -259,18 +260,6 @@ async def build_frontend(  # noqa: C901
 
     After the build is successful, the temporary file is automatically
     closed during garbage collection.
-
-    Arguments:
-        dev_mode {bool} -- Development Mode
-        dev_url {str} -- Development Mode URL
-        prod_url {str} -- Production Mode URL
-        params {dict} -- Frontend Config paramters
-
-    Raises:
-        RuntimeError: Raised if errors occur during build process.
-
-    Returns:
-        {bool} -- True if successful
     """
     # Standard Library
     import hashlib
@@ -326,7 +315,7 @@ async def build_frontend(  # noqa: C901
         if not favicon_dir.exists():
             favicon_dir.mkdir()
         async with Favicons(
-            source=params["web"]["logo"]["favicon"],
+            source=params.web.logo.favicon,
             output_directory=favicon_dir,
             base_url="/images/favicons/",
         ) as favicons:
@@ -334,7 +323,7 @@ async def build_frontend(  # noqa: C901
             log.debug("Generated {} favicons", favicons.completed)
             env_vars["hyperglass"].update({"favicons": favicons.formats()})
         build_data = {
-            "params": params,
+            "params": params.export_dict(),
             "version": __version__,
             "package_json": package_json,
         }
@@ -379,11 +368,11 @@ async def build_frontend(  # noqa: C901
         migrate_images(app_path, params)
 
         generate_opengraph(
-            Path(params["web"]["opengraph"]["image"]),
+            params.web.opengraph.image,
             1200,
             630,
             images_dir,
-            params["web"]["theme"]["colors"]["black"],
+            params.web.theme.colors.black,
         )
 
     except Exception as err:

@@ -2,7 +2,6 @@
 
 # Standard Library
 import os
-import json
 from typing import Dict, List, Generator
 from pathlib import Path
 
@@ -20,6 +19,7 @@ from hyperglass.log import (
 from hyperglass.util import set_app_path, set_cache_env, current_log_level
 from hyperglass.defaults import CREDIT
 from hyperglass.constants import PARSED_RESPONSE_FIELDS, __version__
+from hyperglass.models.ui import UIParameters
 from hyperglass.util.files import check_path
 from hyperglass.exceptions.private import ConfigError, ConfigMissing
 from hyperglass.models.config.params import Params
@@ -204,35 +204,6 @@ except KeyError:
     pass
 
 
-def _build_networks() -> List[Dict]:
-    """Build filtered JSON Structure of networks & devices for Jinja templates."""
-    networks = []
-    _networks = list(set({device.network.display_name for device in devices.objects}))
-
-    for _network in _networks:
-        network_def = {"display_name": _network, "locations": []}
-        for device in devices.objects:
-            if device.network.display_name == _network:
-                network_def["locations"].append(
-                    {
-                        "_id": device._id,
-                        "name": device.name,
-                        "network": device.network.display_name,
-                        "directives": [c.frontend(params) for c in device.commands],
-                    }
-                )
-        networks.append(network_def)
-
-    if not networks:
-        raise ConfigError(message="Unable to build network to device mapping")
-    return networks
-
-
-content_params = json.loads(
-    params.json(include={"primary_asn", "org_name", "site_title", "site_description"})
-)
-
-
 content_greeting = get_markdown(
     config_path=params.web.greeting,
     default="",
@@ -242,38 +213,17 @@ content_greeting = get_markdown(
 
 content_credit = CREDIT.format(version=__version__)
 
-networks = _build_networks()
+_ui_params = params.frontend()
+_ui_params["web"]["logo"]["light_format"] = params.web.logo.light.suffix
+_ui_params["web"]["logo"]["dark_format"] = params.web.logo.dark.suffix
 
-_include_fields = {
-    "cache": {"show_text", "timeout"},
-    "debug": ...,
-    "developer_mode": ...,
-    "primary_asn": ...,
-    "request_timeout": ...,
-    "org_name": ...,
-    "google_analytics": ...,
-    "site_title": ...,
-    "site_description": ...,
-    "site_keywords": ...,
-    "web": ...,
-    "messages": ...,
-}
-_frontend_params = params.dict(include=_include_fields)
-
-
-_frontend_params["web"]["logo"]["light_format"] = params.web.logo.light.suffix
-_frontend_params["web"]["logo"]["dark_format"] = params.web.logo.dark.suffix
-
-_frontend_params.update(
-    {
-        "hyperglass_version": __version__,
-        "queries": {**params.queries.map, "list": params.queries.list},
-        "networks": networks,
-        "parsed_data_fields": PARSED_RESPONSE_FIELDS,
-        "content": {"credit": content_credit, "greeting": content_greeting},
-    }
+ui_params = UIParameters(
+    **_ui_params,
+    version=__version__,
+    networks=devices.networks(params),
+    parsed_data_fields=PARSED_RESPONSE_FIELDS,
+    content={"credit": content_credit, "greeting": content_greeting},
 )
-frontend_params = _frontend_params
 
 URL_DEV = f"http://localhost:{str(params.listen_port)}/"
 URL_PROD = "/api/"

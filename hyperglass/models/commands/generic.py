@@ -2,7 +2,6 @@
 
 # Standard Library
 import re
-import json
 from typing import Dict, List, Union, Literal, Optional
 from ipaddress import IPv4Network, IPv6Network, ip_network
 
@@ -267,20 +266,10 @@ class Directive(HyperglassModel):
         }
 
         if self.info is not None:
-            content_params = json.loads(
-                params.json(
-                    include={
-                        "primary_asn",
-                        "org_name",
-                        "site_title",
-                        "site_description",
-                    }
-                )
-            )
             with self.info.open() as md:
                 value["info"] = {
                     "enable": True,
-                    "params": content_params,
+                    "params": params.content_params(),
                     "content": md.read(),
                 }
 

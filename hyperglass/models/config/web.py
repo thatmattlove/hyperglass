@@ -125,6 +125,13 @@ class Logo(HyperglassModel):
     height: Optional[Union[StrictInt, Percentage]]
 
 
+class LogoPublic(Logo):
+    """Public logo configuration."""
+
+    light_format: StrictStr
+    dark_format: StrictStr
+
+
 class Text(HyperglassModel):
     """Validation model for params.branding.text."""
 
@@ -258,3 +265,9 @@ class Web(HyperglassModel):
     opengraph: OpenGraph = OpenGraph()
     text: Text = Text()
     theme: Theme = Theme()
+
+
+class WebPublic(Web):
+    """Public web configuration."""
+
+    logo: LogoPublic

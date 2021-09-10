@@ -41,7 +41,7 @@ from .configuration import (
     CONFIG_PATH,
     REDIS_CONFIG,
     params,
-    frontend_params,
+    ui_params,
 )
 from .util.frontend import build_frontend
 
@@ -85,7 +85,7 @@ async def build_ui() -> bool:
         dev_mode=params.developer_mode,
         dev_url=URL_DEV,
         prod_url=URL_PROD,
-        params=frontend_params,
+        params=ui_params,
         app_path=CONFIG_PATH,
     )
     return True
