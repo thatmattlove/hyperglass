@@ -93,6 +93,8 @@ reportMissingImports = true
 reportMissingTypeStubs = true
 
 [tool.taskipy.tasks]
+lint = {cmd = "flake8 hyperglass", help = "Run Flake8"}
+sort = {cmd = "isort hyperglass", help = "Run iSort"}
 start = {cmd = "uvicorn hyperglass.api:app", help = "Start hyperglass via Uvicorn"}
 start-direct = {cmd = "python3 -m hyperglass.console start", help = "Start hyperglass via hyperglass.console.CLI"}
 ui-build = {cmd = "python3 -m hyperglass.console build-ui", help = "Run a UI Build"}
