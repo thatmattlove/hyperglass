@@ -80,17 +80,24 @@ mccabe = "^0.6.1"
 pep8-naming = "^0.9.1"
 pre-commit = "^1.21.0"
 stackprinter = "^0.2.3"
+taskipy = "^1.8.2"
 
 [tool.black]
 line-length = 88
 
 [tool.pyright]
-exclude = [
-  "**/node_modules",
-  "**/ui",
-  "**/__pycache__",
-]
+exclude = ["**/node_modules", "**/ui", "**/__pycache__"]
 include = ["hyperglass"]
 pythonVersion = "3.6"
 reportMissingImports = true
 reportMissingTypeStubs = true
+
+[tool.taskipy.tasks]
+start = {cmd = "uvicorn hyperglass.api:app", help = "Start hyperglass via Uvicorn"}
+start-direct = {cmd = "python3 -m hyperglass.console start", help = "Start hyperglass via hyperglass.console.CLI"}
+ui-build = {cmd = "python3 -m hyperglass.console build-ui", help = "Run a UI Build"}
+ui-dev = {cmd = "yarn --cwd ./hyperglass/ui/ dev", help = "Start the Next.JS dev server"}
+ui-format = {cmd = "yarn --cwd ./hyperglass/ui/ format", help = "Run Prettier"}
+ui-lint = {cmd = "yarn --cwd ./hyperglass/ui/ lint", help = "Run ESLint"}
+ui-typecheck = {cmd = "yarn --cwd ./hyperglass/ui/ typecheck", help = "Run TypeScript Check"}
+upgrade = {cmd = "python3 version.py", help = "Upgrade hyperglass version"}

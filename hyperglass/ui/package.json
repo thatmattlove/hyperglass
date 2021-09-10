@@ -1,6 +1,6 @@
 {
+  "version": "2.0.0-dev",
   "name": "ui",
-  "version": "1.0.0",
   "description": "UI for hyperglass, the modern network looking glass",
   "author": "Matt Love",
   "license": "BSD-3-Clause-Clear",
