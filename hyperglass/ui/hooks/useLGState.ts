@@ -96,7 +96,13 @@ class MethodsInstance {
     try {
       result = JSON.parse(JSON.stringify(obj));
     } catch (err) {
-      console.error(err.message);
+      let error;
+      if (err instanceof Error) {
+        error = err.message;
+      } else {
+        error = String(err);
+      }
+      console.error(error);
     }
     return result;
   }

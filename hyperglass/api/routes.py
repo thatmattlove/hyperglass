@@ -20,7 +20,7 @@ from hyperglass.api.tasks import process_headers, import_public_key
 from hyperglass.constants import __version__
 from hyperglass.exceptions import HyperglassError
 from hyperglass.models.api import Query, EncodedRequest
-from hyperglass.configuration import REDIS_CONFIG, params, devices
+from hyperglass.configuration import REDIS_CONFIG, params, devices, frontend_params
 from hyperglass.execution.main import execute
 
 # Local
@@ -264,4 +264,9 @@ async def info():
     }
 
 
-endpoints = [query, docs, routers, info]
+async def ui_props():
+    """Serve UI configration."""
+    return frontend_params
+
+
+endpoints = [query, docs, routers, info, ui_props]

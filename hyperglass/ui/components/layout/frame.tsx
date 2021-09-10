@@ -1,17 +1,20 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
 import { Flex } from '@chakra-ui/react';
 import { isSafari } from 'react-device-detect';
 import { If, Debugger, Greeting, Footer, Header } from '~/components';
 import { useConfig } from '~/context';
-import { useLGState, useLGMethods } from '~/hooks';
+import { useLGState, useLGMethods, useGoogleAnalytics } from '~/hooks';
 import { ResetButton } from './resetButton';
 
 import type { TFrame } from './types';
 
-export const Frame: React.FC<TFrame> = (props: TFrame) => {
-  const { developer_mode } = useConfig();
+export const Frame = (props: TFrame): JSX.Element => {
+  const router = useRouter();
+  const { developer_mode, google_analytics } = useConfig();
   const { isSubmitting } = useLGState();
   const { resetForm } = useLGMethods();
+  const { initialize, trackPage } = useGoogleAnalytics();
 
   const containerRef = useRef<HTMLDivElement>({} as HTMLDivElement);
 
@@ -20,6 +23,15 @@ export const Frame: React.FC<TFrame> = (props: TFrame) => {
     isSubmitting.set(false);
     resetForm();
   }
+
+  useEffect(() => {
+    initialize(google_analytics, developer_mode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    trackPage(router.pathname);
+  }, [router.pathname, trackPage]);
 
   return (
     <>

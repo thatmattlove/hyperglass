@@ -26,6 +26,7 @@ from hyperglass.api.routes import (
     queries,
     routers,
     communities,
+    ui_props,
     import_certificate,
 )
 from hyperglass.exceptions import HyperglassError
@@ -172,7 +173,7 @@ def _custom_openapi():
 
 CORS_ORIGINS = params.cors_origins.copy()
 if params.developer_mode:
-    CORS_ORIGINS.append(URL_DEV)
+    CORS_ORIGINS = [*CORS_ORIGINS, URL_DEV, "http://localhost:3000"]
 
 # CORS Configuration
 app.add_middleware(
@@ -237,6 +238,13 @@ app.add_api_route(
     },
     response_model=QueryResponse,
     tags=[params.docs.query.title],
+    response_class=JSONResponse,
+)
+
+app.add_api_route(
+    path="/ui/props/",
+    endpoint=ui_props,
+    methods=["GET", "OPTIONS"],
     response_class=JSONResponse,
 )
 

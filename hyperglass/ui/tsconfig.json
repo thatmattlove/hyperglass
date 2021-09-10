@@ -35,7 +35,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "types/globals.d.ts",
+    "types/*.d.ts",
     "next.config.js",
     "nextdev.js"
   ]

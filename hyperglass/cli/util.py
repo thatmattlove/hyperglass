@@ -65,7 +65,7 @@ def build_ui(timeout: int) -> None:
     """Create a new UI build."""
     try:
         # Project
-        from hyperglass.configuration import CONFIG_PATH, params, frontend_params
+        from hyperglass.configuration import CONFIG_PATH, params
         from hyperglass.util.frontend import build_frontend
         from hyperglass.compat._asyncio import aiorun
     except ImportError as e:
@@ -84,7 +84,7 @@ def build_ui(timeout: int) -> None:
                 dev_mode=params.developer_mode,
                 dev_url=f"http://localhost:{str(params.listen_port)}/",
                 prod_url="/api/",
-                params=frontend_params,
+                params=params.export_dict(),
                 force=True,
                 app_path=CONFIG_PATH,
             )

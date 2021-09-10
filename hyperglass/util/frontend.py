@@ -245,6 +245,7 @@ async def build_frontend(  # noqa: C901
     app_path: Path,
     force: bool = False,
     timeout: int = 180,
+    full: bool = False,
 ) -> bool:
     """Perform full frontend UI build process.
 
@@ -273,32 +274,35 @@ async def build_frontend(  # noqa: C901
     """
     # Standard Library
     import hashlib
-    import tempfile
 
     # Third Party
-    from favicons import Favicons
+    from favicons import Favicons  # type:ignore
 
     # Project
     from hyperglass.constants import __version__
 
+    log.info("Starting UI build")
+
+    # Create temporary file. json file extension is added for easy
+    # webpack JSON parsing.
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
 
     package_json = await read_package_json()
 
     env_vars = {
-        "_HYPERGLASS_CONFIG_": params,
-        "_HYPERGLASS_VERSION_": __version__,
-        "_HYPERGLASS_PACKAGE_JSON_": package_json,
-        "_HYPERGLASS_APP_PATH_": str(app_path),
+        "hyperglass": {"version": __version__},
+        "env": {},
     }
 
     # Set NextJS production/development mode and base URL based on
     # developer_mode setting.
     if dev_mode:
-        env_vars.update({"NODE_ENV": "development", "_HYPERGLASS_URL_": dev_url})
+        env_vars["env"].update({"NODE_ENV": "development"})
+        env_vars["hyperglass"].update({"url": dev_url})
 
     else:
-        env_vars.update({"NODE_ENV": "production", "_HYPERGLASS_URL_": prod_url})
+        env_vars["env"].update({"NODE_ENV": "production"})
+        env_vars["hyperglass"].update({"url": prod_url})
 
     # Check if hyperglass/ui/node_modules has been initialized. If not,
     # initialize it.
@@ -328,64 +332,49 @@ async def build_frontend(  # noqa: C901
         ) as favicons:
             await favicons.generate()
             log.debug("Generated {} favicons", favicons.completed)
-            env_vars.update({"_HYPERGLASS_FAVICONS_": favicons.formats()})
-
-        env_json = json.dumps(env_vars, default=str)
-
+            env_vars["hyperglass"].update({"favicons": favicons.formats()})
+        build_data = {
+            "params": params,
+            "version": __version__,
+            "package_json": package_json,
+        }
+        build_json = json.dumps(build_data, default=str)
         # Create SHA256 hash from all parameters passed to UI, use as
         # build identifier.
-        build_id = hashlib.sha256(env_json.encode()).hexdigest()
+        build_id = hashlib.sha256(build_json.encode()).hexdigest()
 
         # Read hard-coded environment file from last build. If build ID
         # matches this build's ID, don't run a new build.
         if env_file.exists() and not force:
-
             with env_file.open("r") as ef:
                 ef_id = json.load(ef).get("buildId", "empty")
-
-                log.debug("Previous Build ID: {id}", id=ef_id)
+                log.debug("Previous Build ID: {}", ef_id)
 
             if ef_id == build_id:
-
                 log.debug(
                     "UI parameters unchanged since last build, skipping UI build..."
                 )
-
                 return True
 
-        # Create temporary file. json file extension is added for easy
-        # webpack JSON parsing.
-        temp_file = tempfile.NamedTemporaryFile(
-            mode="w+", prefix="hyperglass_", suffix=".json", delete=not dev_mode
-        )
+        env_vars["buildId"] = build_id
 
-        log.info("Starting UI build...")
-        log.debug(
-            f"Created temporary UI config file: '{temp_file.name}' for build {build_id}"
-        )
+        env_file.write_text(json.dumps(env_vars, default=str))
+        log.debug("Wrote UI environment file '{}'", str(env_file))
 
-        with Path(temp_file.name).open("w+") as temp:
-            temp.write(env_json)
+        # Initiate Next.JS export process.
+        if any((not dev_mode, force, full)):
+            initialize_result = await node_initial(timeout, dev_mode)
+            build_result = await build_ui(app_path=app_path)
 
-            # Write "permanent" file (hard-coded named) for Node to read.
-            env_file.write_text(
-                json.dumps({"configFile": temp_file.name, "buildId": build_id})
-            )
+            if initialize_result:
+                log.debug(initialize_result)
+            elif initialize_result == "":
+                log.debug("Re-initialized node_modules")
 
-            # While temporary file is still open, initiate UI build process.
-            if not dev_mode or force:
-                initialize_result = await node_initial(timeout, dev_mode)
-                build_result = await build_ui(app_path=app_path)
-
-                if initialize_result:
-                    log.debug(initialize_result)
-                elif initialize_result == "":
-                    log.debug("Re-initialized node_modules")
-
-                if build_result:
-                    log.success("Completed UI build")
-            elif dev_mode and not force:
-                log.debug("Running in developer mode, did not build new UI files")
+            if build_result:
+                log.success("Completed UI build")
+        elif dev_mode and not force:
+            log.debug("Running in developer mode, did not build new UI files")
 
         migrate_images(app_path, params)
 

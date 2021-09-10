@@ -1,33 +1,16 @@
-import { useEffect } from 'react';
 import Head from 'next/head';
-import { HyperglassProvider } from '~/context';
-import { useGoogleAnalytics } from '~/hooks';
-import { IConfig } from '~/types';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
-import type { AppProps, AppInitialProps, AppContext } from 'next/app';
+import type { AppProps } from 'next/app';
 
 if (process.env.NODE_ENV === 'development') {
   require('@hookstate/devtools');
 }
 
-type TApp = { config: IConfig };
+const queryClient = new QueryClient();
 
-type GetInitialPropsReturn<IP> = AppProps & AppInitialProps & { appProps: IP };
-
-type NextApp<IP> = React.FC<GetInitialPropsReturn<IP>> & {
-  getInitialProps(c?: AppContext): Promise<{ appProps: IP }>;
-};
-
-const App: NextApp<TApp> = (props: GetInitialPropsReturn<TApp>) => {
-  const { Component, pageProps, appProps, router } = props;
-  const { config } = appProps;
-  const { initialize, trackPage } = useGoogleAnalytics();
-
-  initialize(config.google_analytics, config.developer_mode);
-
-  useEffect(() => {
-    router.events.on('routeChangeComplete', trackPage);
-  }, [router.events, trackPage]);
+const App = (props: AppProps): JSX.Element => {
+  const { Component, pageProps } = props;
 
   return (
     <>
@@ -44,16 +27,11 @@ const App: NextApp<TApp> = (props: GetInitialPropsReturn<TApp>) => {
           content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0"
         />
       </Head>
-      <HyperglassProvider config={config}>
+      <QueryClientProvider client={queryClient}>
         <Component {...pageProps} />
-      </HyperglassProvider>
+      </QueryClientProvider>
     </>
   );
-};
-
-App.getInitialProps = async function getInitialProps() {
-  const config = process.env._HYPERGLASS_CONFIG_ as unknown as IConfig;
-  return { appProps: { config } };
 };
 
 export default App;

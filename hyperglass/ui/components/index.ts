@@ -9,6 +9,7 @@ export * from './header';
 export * from './help';
 export * from './label';
 export * from './layout';
+export * from './loadError';
 export * from './loading';
 export * from './lookingGlass';
 export * from './markdown';

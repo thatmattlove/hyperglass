@@ -65,4 +65,13 @@ declare global {
     Omit<MotionProps, keyof T> & { transition?: MotionProps['transition'] };
 
   type MeronexIcon = import('@meronex/icons').IconBaseProps;
+
+  type RequiredProps<T> = { [P in keyof T]-?: Exclude<T[P], undefined> };
+
+  declare namespace NodeJS {
+    export interface ProcessEnv {
+      hyperglass: { favicons: import('./config').Favicon[]; version: string };
+      buildId: string;
+    }
+  }
 }

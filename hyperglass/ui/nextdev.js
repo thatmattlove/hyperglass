@@ -2,20 +2,22 @@
 const express = require('express');
 const proxyMiddleware = require('http-proxy-middleware');
 const next = require('next');
-const envVars = require('/tmp/hyperglass.env.json');
-const { configFile } = envVars;
-const config = require(String(configFile));
+const config = require('/tmp/hyperglass.env.json');
 
-const { NODE_ENV: env, _HYPERGLASS_URL_: envUrl } = config;
+const {
+  env: { NODE_ENV },
+  hyperglass: { url },
+} = config;
 
 const devProxy = {
-  '/api/query/': { target: envUrl + 'api/query/', pathRewrite: { '^/api/query/': '' } },
-  '/images': { target: envUrl + 'images', pathRewrite: { '^/images': '' } },
-  '/custom': { target: envUrl + 'custom', pathRewrite: { '^/custom': '' } },
+  '/api/query/': { target: url + 'api/query/', pathRewrite: { '^/api/query/': '' } },
+  '/ui/props/': { target: url + 'ui/props/', pathRewrite: { '^/ui/props/': '' } },
+  '/images': { target: url + 'images', pathRewrite: { '^/images': '' } },
+  '/custom': { target: url + 'custom', pathRewrite: { '^/custom': '' } },
 };
 
 const port = parseInt(process.env.PORT, 10) || 3000;
-const dev = env !== 'production';
+const dev = NODE_ENV !== 'production';
 const app = next({
   dir: '.', // base directory where everything is, could move to src later
   dev,
@@ -43,7 +45,7 @@ app
       if (err) {
         throw err;
       }
-      console.log(`> Ready on port ${port} [${env}]`);
+      console.log(`> Ready on port ${port} [${NODE_ENV}]`);
     });
   })
   .catch(err => {
