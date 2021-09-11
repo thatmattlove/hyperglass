@@ -103,6 +103,14 @@ class Device(HyperglassModel, extra="allow"):
 
         return device_id, {"name": display_name, "display_name": None, **values}
 
+    def export_api(self) -> Dict[str, Any]:
+        """Export API-facing device fields."""
+        return {
+            "id": self._id,
+            "name": self.name,
+            "network": self.network.display_name,
+        }
+
     @property
     def directive_commands(self) -> List[str]:
         """Get all commands associated with the device."""
@@ -277,6 +285,10 @@ class Devices(HyperglassModel, extra="allow"):
                 return device
 
         raise AttributeError(f"No device named '{accessor}'")
+
+    def export_api(self) -> List[Dict[str, Any]]:
+        """Export API-facing device fields."""
+        return [d.export_api() for d in self.objects]
 
     def networks(self, params: Params) -> List[Dict[str, Any]]:
         """Group devices by network."""

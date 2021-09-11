@@ -18,21 +18,12 @@ from fastapi.middleware.gzip import GZipMiddleware
 # Project
 from hyperglass.log import log
 from hyperglass.util import cpu_count
-from hyperglass.constants import TRANSPORT_REST, __version__
+from hyperglass.constants import __version__
 from hyperglass.models.ui import UIParameters
 from hyperglass.api.events import on_startup, on_shutdown
-from hyperglass.api.routes import (
-    docs,
-    info,
-    query,
-    queries,
-    routers,
-    ui_props,
-    communities,
-    import_certificate,
-)
+from hyperglass.api.routes import docs, info, query, router, queries, routers, ui_props
 from hyperglass.exceptions import HyperglassError
-from hyperglass.configuration import URL_DEV, STATIC_PATH, params, devices
+from hyperglass.configuration import URL_DEV, STATIC_PATH, params
 from hyperglass.api.error_handlers import (
     app_handler,
     http_handler,
@@ -211,12 +202,14 @@ app.add_api_route(
 )
 
 app.add_api_route(
-    path="/api/communities",
-    endpoint=communities,
+    path="/api/devices/{id}",
+    endpoint=router,
     methods=["GET"],
-    response_model=List[CommunityResponse],
-    summary=params.docs.communities.summary,
-    tags=[params.docs.communities.title],
+    response_model=RoutersResponse,
+    response_class=JSONResponse,
+    summary=params.docs.devices.summary,
+    description=params.docs.devices.description,
+    tags=[params.docs.devices.title],
 )
 
 app.add_api_route(
@@ -255,15 +248,6 @@ app.add_api_route(
     response_model_by_alias=True,
 )
 
-# Enable certificate import route only if a device using
-# hyperglass-agent is defined.
-if [n for n in devices.all_nos if n in TRANSPORT_REST]:
-    app.add_api_route(
-        path="/api/import-agent-certificate/",
-        endpoint=import_certificate,
-        methods=["POST"],
-        include_in_schema=False,
-    )
 
 if params.docs.enable:
     app.add_api_route(path=params.docs.uri, endpoint=docs, include_in_schema=False)

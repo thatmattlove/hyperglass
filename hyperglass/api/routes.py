@@ -14,12 +14,11 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 # Project
 from hyperglass.log import log
 from hyperglass.cache import AsyncCache
-from hyperglass.encode import jwt_decode
 from hyperglass.external import Webhook, bgptools
-from hyperglass.api.tasks import process_headers, import_public_key
+from hyperglass.api.tasks import process_headers
 from hyperglass.constants import __version__
 from hyperglass.exceptions import HyperglassError
-from hyperglass.models.api import Query, EncodedRequest
+from hyperglass.models.api import Query
 from hyperglass.configuration import REDIS_CONFIG, params, devices, ui_params
 from hyperglass.execution.main import execute
 
@@ -30,15 +29,7 @@ APP_PATH = os.environ["hyperglass_directory"]
 
 
 async def send_webhook(query_data: Query, request: Request, timestamp: datetime):
-    """If webhooks are enabled, get request info and send a webhook.
-
-    Args:
-        query_data (Query): Valid query
-        request (Request): Starlette/FastAPI request
-
-    Returns:
-        int: Returns 1 regardless of result
-    """
+    """If webhooks are enabled, get request info and send a webhook."""
     try:
         if params.logging.http is not None:
             headers = await process_headers(headers=request.headers)
@@ -173,47 +164,6 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
     }
 
 
-async def import_certificate(encoded_request: EncodedRequest):
-    """Import a certificate from hyperglass-agent."""
-
-    # Try to match the requested device name with configured devices
-    log.debug(
-        "Attempting certificate import for device '{}'", devices[encoded_request.device]
-    )
-    try:
-        matched_device = devices[encoded_request.device]
-    except AttributeError:
-        raise HTTPException(
-            detail=f"Device {str(encoded_request.device)} not found", status_code=404
-        )
-
-    try:
-        # Decode JSON Web Token
-        decoded_request = await jwt_decode(
-            payload=encoded_request.encoded,
-            secret=matched_device.credential.password.get_secret_value(),
-        )
-    except HyperglassError as decode_error:
-        raise HTTPException(detail=str(decode_error), status_code=400)
-
-    try:
-        # Write certificate to file
-        import_public_key(
-            app_path=APP_PATH,
-            device_name=matched_device._id,
-            keystring=decoded_request,
-        )
-    except RuntimeError as err:
-        raise HyperglassError(str(err), level="danger")
-
-    log.info("Added public key for {}", encoded_request.device)
-    return {
-        "output": f"Added public key for {encoded_request.device}",
-        "level": "success",
-        "keywords": [encoded_request.device],
-    }
-
-
 async def docs():
     """Serve custom docs."""
     if params.docs.enable:
@@ -226,27 +176,14 @@ async def docs():
         raise HTTPException(detail="Not found", status_code=404)
 
 
+async def router(id: str):
+    """Get a device's API-facing attributes."""
+    return devices[id].export_api()
+
+
 async def routers():
     """Serve list of configured routers and attributes."""
-    return [
-        d.dict(
-            include={
-                "name": ...,
-                "network": ...,
-                "display_name": ...,
-                "vrfs": {-1: {"name", "display_name"}},
-            }
-        )
-        for d in devices.objects
-    ]
-
-
-async def communities():
-    """Serve list of configured communities if mode is select."""
-    if params.queries.bgp_community.mode != "select":
-        raise HTTPException(detail="BGP community mode is not select", status_code=404)
-
-    return [c.export_dict() for c in params.queries.bgp_community.communities]
+    return devices.export_api()
 
 
 async def queries():
@@ -260,7 +197,7 @@ async def info():
         "name": params.site_title,
         "organization": params.org_name,
         "primary_asn": int(params.primary_asn),
-        "version": f"hyperglass {__version__}",
+        "version": __version__,
     }
 
 

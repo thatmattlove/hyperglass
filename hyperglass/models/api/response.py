@@ -178,16 +178,24 @@ class Network(BaseModel):
 class RoutersResponse(BaseModel):
     """Response model for /api/devices list items."""
 
+    id: StrictStr
     name: StrictStr
-    network: Network
-    vrfs: List[Vrf]
+    network: StrictStr
 
     class Config:
         """Pydantic model configuration."""
 
         title = "Device"
-        description = "Per-device attributes"
-        schema_extra = {"examples": [{"name": "router01-nyc01", "location": "nyc01"}]}
+        description = "Device attributes"
+        schema_extra = {
+            "examples": [
+                {
+                    "id": "nyc_router_1",
+                    "name": "NYC Router 1",
+                    "network": "New York City, NY",
+                }
+            ]
+        }
 
 
 class CommunityResponse(BaseModel):
