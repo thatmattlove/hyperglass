@@ -1,7 +1,7 @@
 import type { NodeProps } from 'react-flow-renderer';
 
 export interface TChart {
-  data: TStructuredResponse;
+  data: StructuredResponse;
 }
 
 export interface TPath {

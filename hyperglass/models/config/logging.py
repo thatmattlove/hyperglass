@@ -24,7 +24,7 @@ from pydantic import (
 from hyperglass.constants import __version__
 
 # Local
-from ..main import HyperglassModel, HyperglassModelExtra
+from ..main import HyperglassModel
 
 HttpAuthMode = constr(regex=r"(basic|api_key)")
 HttpProvider = constr(regex=r"(msteams|slack|generic)")
@@ -55,7 +55,7 @@ class HttpAuth(HyperglassModel):
         return (self.username, self.password.get_secret_value())
 
 
-class Http(HyperglassModelExtra):
+class Http(HyperglassModel, extra="allow"):
     """HTTP logging parameters."""
 
     enable: StrictBool = True

@@ -9,9 +9,9 @@ import type { TLogo } from './types';
  */
 function useLogo(): [string, () => void] {
   const { web } = useConfig();
-  const { dark_format, light_format } = web.logo;
+  const { darkFormat, lightFormat } = web.logo;
 
-  const src = useColorValue(`/images/dark${dark_format}`, `/images/light${light_format}`);
+  const src = useColorValue(`/images/dark${darkFormat}`, `/images/light${lightFormat}`);
 
   // Use the hyperglass logo if the user's logo can't be loaded for whatever reason.
   const fallbackSrc = useColorValue(

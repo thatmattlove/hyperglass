@@ -11,7 +11,7 @@ import type { TFrame } from './types';
 
 export const Frame = (props: TFrame): JSX.Element => {
   const router = useRouter();
-  const { developer_mode, google_analytics } = useConfig();
+  const { developerMode, googleAnalytics } = useConfig();
   const { isSubmitting } = useLGState();
   const { resetForm } = useLGMethods();
   const { initialize, trackPage } = useGoogleAnalytics();
@@ -25,7 +25,7 @@ export const Frame = (props: TFrame): JSX.Element => {
   }
 
   useEffect(() => {
-    initialize(google_analytics, developer_mode);
+    initialize(googleAnalytics, developerMode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -62,10 +62,10 @@ export const Frame = (props: TFrame): JSX.Element => {
           {...props}
         />
         <Footer />
-        <If c={developer_mode}>
+        <If c={developerMode}>
           <Debugger />
         </If>
-        <ResetButton developerMode={developer_mode} resetForm={handleReset} />
+        <ResetButton developerMode={developerMode} resetForm={handleReset} />
       </Flex>
       <Greeting />
     </>

@@ -42,9 +42,9 @@ export interface TRPKIState {
 
 export interface TCell {
   data: TCellRender;
-  rawData: TStructuredResponse;
+  rawData: StructuredResponse;
 }
 
 export interface TBGPTable extends Omit<FlexProps, 'children'> {
-  children: TStructuredResponse;
+  children: StructuredResponse;
 }

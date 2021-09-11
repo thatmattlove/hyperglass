@@ -5,7 +5,7 @@ import { all } from '~/util';
 
 import type { State, PluginStateControl, Plugin } from '@hookstate/core';
 import type { TLGState, TLGStateHandlers, TMethodsExtension } from './types';
-import { TDirective } from '~/types';
+import type { Directive } from '~/types';
 
 const MethodsId = Symbol('Methods');
 
@@ -30,7 +30,7 @@ class MethodsInstance {
   /**
    * Find a response based on the device ID.
    */
-  public getResponse(state: State<TLGState>, device: string): TQueryResponse | null {
+  public getResponse(state: State<TLGState>, device: string): QueryResponse | null {
     if (device in state.responses) {
       return state.responses[device].value;
     } else {
@@ -38,7 +38,7 @@ class MethodsInstance {
     }
   }
 
-  public getDirective(state: State<TLGState>, name: string): Nullable<State<TDirective>> {
+  public getDirective(state: State<TLGState>, name: string): Nullable<State<Directive>> {
     const [directive] = state.availableTypes.filter(t => t.id.value === name);
     if (typeof directive !== 'undefined') {
       return directive;
@@ -55,7 +55,6 @@ class MethodsInstance {
       state.isSubmitting.value &&
       all(
         ...[
-          // state.queryVrf.value !== '',
           state.queryType.value !== '',
           state.queryGroup.value !== '',
           state.queryTarget.value !== '',
@@ -70,7 +69,6 @@ class MethodsInstance {
    */
   public resetForm(state: State<TLGState>) {
     state.merge({
-      queryVrf: '',
       families: [],
       queryType: '',
       queryGroup: '',
@@ -81,10 +79,9 @@ class MethodsInstance {
       btnLoading: false,
       isSubmitting: false,
       resolvedIsOpen: false,
-      availVrfs: [],
       availableGroups: [],
       availableTypes: [],
-      selections: { queryLocation: [], queryType: null, queryVrf: null, queryGroup: null },
+      selections: { queryLocation: [], queryType: null, queryGroup: null },
     });
   }
 
@@ -150,7 +147,7 @@ function Methods(inst?: State<TLGState>): Plugin | TMethodsExtension {
 }
 
 const LGState = createState<TLGState>({
-  selections: { queryLocation: [], queryType: null, queryVrf: null, queryGroup: null },
+  selections: { queryLocation: [], queryType: null, queryGroup: null },
   resolvedIsOpen: false,
   isSubmitting: false,
   availableGroups: [],
@@ -162,9 +159,7 @@ const LGState = createState<TLGState>({
   queryTarget: '',
   queryGroup: '',
   queryType: '',
-  availVrfs: [],
   responses: {},
-  queryVrf: '',
   families: [],
 });
 

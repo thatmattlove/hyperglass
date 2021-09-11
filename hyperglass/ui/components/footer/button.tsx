@@ -4,13 +4,13 @@ import { Markdown } from '~/components';
 import { useColorValue, useBreakpointValue, useConfig } from '~/context';
 import { useOpposingColor, useStrf } from '~/hooks';
 
-import type { IConfig } from '~/types';
+import type { Config } from '~/types';
 import type { TFooterButton } from './types';
 
 /**
  * Filter the configuration object based on values that are strings for formatting.
  */
-function getConfigFmt(config: IConfig): Record<string, string> {
+function getConfigFmt(config: Config): Record<string, string> {
   const fmt = {} as Record<string, string>;
   for (const [k, v] of Object.entries(config)) {
     if (typeof v === 'string') {

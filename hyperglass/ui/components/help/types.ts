@@ -1,8 +1,8 @@
 import type { ModalContentProps } from '@chakra-ui/react';
-import type { TQueryContent, TQueryFields } from '~/types';
+import type { QueryContent } from '~/types';
 
 export interface THelpModal extends ModalContentProps {
-  item: TQueryContent | null;
-  name: TQueryFields;
+  item: QueryContent | null;
+  name: string;
   visible: boolean;
 }

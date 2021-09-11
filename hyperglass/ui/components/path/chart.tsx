@@ -9,11 +9,11 @@ import type { TChart, TNode, TNodeData } from './types';
 
 export const Chart: React.FC<TChart> = (props: TChart) => {
   const { data } = props;
-  const { primary_asn, org_name } = useConfig();
+  const { primaryAsn, orgName } = useConfig();
 
   const dots = useColorToken('colors', 'blackAlpha.500', 'whiteAlpha.400');
 
-  const elements = useElements({ asn: primary_asn, name: org_name }, data);
+  const elements = useElements({ asn: primaryAsn, name: orgName }, data);
 
   return (
     <ReactFlowProvider>

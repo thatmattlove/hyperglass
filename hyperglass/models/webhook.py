@@ -11,7 +11,7 @@ from pydantic import StrictStr, root_validator
 from hyperglass.log import log
 
 # Local
-from .main import HyperglassModel, HyperglassModelExtra
+from .main import HyperglassModel
 
 _WEBHOOK_TITLE = "hyperglass received a valid query with the following data"
 _ICON_URL = "https://res.cloudinary.com/hyperglass/image/upload/v1593192484/icon.png"
@@ -39,7 +39,7 @@ class WebhookHeaders(HyperglassModel):
         }
 
 
-class WebhookNetwork(HyperglassModelExtra):
+class WebhookNetwork(HyperglassModel, extra="allow"):
     """Webhook data model."""
 
     prefix: StrictStr = "Unknown"

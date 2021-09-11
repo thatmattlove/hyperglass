@@ -1,7 +1,7 @@
 import type { State } from '@hookstate/core';
-import type { TFormData, TStringTableData, TQueryResponseString } from './data';
+import type { FormData, TStringTableData, TQueryResponseString } from './data';
 import type { TSelectOption } from './common';
-import type { TQueryContent, TDirectiveSelect, TDirective } from './config';
+import type { QueryContent, DirectiveSelect, Directive } from './config';
 
 export function isString(a: unknown): a is string {
   return typeof a === 'string';
@@ -27,7 +27,7 @@ export function isStringOutput(data: unknown): data is TQueryResponseString {
   );
 }
 
-export function isQueryContent(content: unknown): content is TQueryContent {
+export function isQueryContent(content: unknown): content is QueryContent {
   return isObject(content) && 'content' in content;
 }
 
@@ -52,13 +52,13 @@ export function isState<S>(a: unknown): a is State<NonNullable<S>> {
 /**
  * Determine if a form field name is a valid form key name.
  */
-export function isQueryField(field: string): field is keyof TFormData {
-  return ['query_location', 'query_type', 'query_group', 'query_target'].includes(field);
+export function isQueryField(field: string): field is keyof FormData {
+  return ['queryLocation', 'queryType', 'queryGroup', 'queryTarget'].includes(field);
 }
 
 /**
  * Determine if a directive is a select directive.
  */
-export function isSelectDirective(directive: TDirective): directive is TDirectiveSelect {
-  return directive.field_type === 'select';
+export function isSelectDirective(directive: Directive): directive is DirectiveSelect {
+  return directive.fieldType === 'select';
 }

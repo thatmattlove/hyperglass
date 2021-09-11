@@ -1,30 +1,21 @@
 export type TQueryTypes = '' | TValidQueryTypes;
 export type TValidQueryTypes = 'bgp_route' | 'bgp_community' | 'bgp_aspath' | 'ping' | 'traceroute';
 
-export interface TFormData {
-  query_location: string[];
-  query_type: TQueryTypes;
-  query_vrf: string;
-  query_target: string;
-  query_group: string;
-}
-
-export interface TFormState {
+export interface FormData {
   queryLocation: string[];
   queryType: string;
-  queryVrf: string;
   queryTarget: string;
   queryGroup: string;
 }
 
-export interface TFormQuery extends Omit<TFormState, 'queryLocation'> {
+export interface TFormQuery extends Omit<FormData, 'queryLocation'> {
   queryLocation: string;
 }
 
-export interface TStringTableData extends Omit<TQueryResponse, 'output'> {
-  output: TStructuredResponse;
+export interface TStringTableData extends Omit<QueryResponse, 'output'> {
+  output: StructuredResponse;
 }
 
-export interface TQueryResponseString extends Omit<TQueryResponse, 'output'> {
+export interface TQueryResponseString extends Omit<QueryResponse, 'output'> {
   output: string;
 }

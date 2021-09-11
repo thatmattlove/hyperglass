@@ -1,6 +1,6 @@
 import { isObject } from '~/types';
 
-import type { IConfig, FaviconComponent } from '~/types';
+import type { Config, FaviconComponent } from '~/types';
 
 export class ConfigLoadError extends Error {
   public url: string = '/ui/props/';
@@ -23,7 +23,7 @@ export class ConfigLoadError extends Error {
   }
 }
 
-export async function getHyperglassConfig(): Promise<IConfig> {
+export async function getHyperglassConfig(): Promise<Config> {
   let mode: RequestInit['mode'];
 
   if (process.env.NODE_ENV === 'production') {
@@ -40,7 +40,7 @@ export async function getHyperglassConfig(): Promise<IConfig> {
       throw response;
     }
     if (isObject(data)) {
-      return data as IConfig;
+      return data as Config;
     }
   } catch (error) {
     if (error instanceof TypeError) {

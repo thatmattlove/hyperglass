@@ -5,7 +5,7 @@ from .frr import FRRCommands
 from .bird import BIRDCommands
 from .tnsr import TNSRCommands
 from .vyos import VyosCommands
-from ..main import HyperglassModelExtra
+from ..main import HyperglassModel
 from .common import CommandGroup
 from .huawei import HuaweiCommands
 from .juniper import JuniperCommands
@@ -34,7 +34,7 @@ _NOS_MAP = {
 }
 
 
-class Commands(HyperglassModelExtra):
+class Commands(HyperglassModel, extra="allow", validate_all=False):
     """Base class for command definitions."""
 
     arista_eos: CommandGroup = AristaEOSCommands()
@@ -69,8 +69,3 @@ class Commands(HyperglassModelExtra):
             nos_cmds = nos_cmd_set(**cmds)
             setattr(obj, nos, nos_cmds)
         return obj
-
-    class Config:
-        """Override pydantic config."""
-
-        validate_all = False

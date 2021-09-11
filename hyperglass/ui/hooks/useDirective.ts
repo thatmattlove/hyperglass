@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import { useLGMethods, useLGState } from './useLGState';
 
-import type { TDirective } from '~/types';
+import type { Directive } from '~/types';
 
-export function useDirective(): Nullable<TDirective> {
+export function useDirective(): Nullable<Directive> {
   const { queryType, queryGroup } = useLGState();
   const { getDirective } = useLGMethods();
 
-  return useMemo((): Nullable<TDirective> => {
+  return useMemo((): Nullable<Directive> => {
     if (queryType.value === '') {
       return null;
     }

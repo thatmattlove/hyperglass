@@ -2,51 +2,55 @@
 
 # Standard Library
 import re
-from typing import Type, TypeVar
+from pathlib import Path
 
 # Third Party
-from pydantic import HttpUrl, BaseModel
+from pydantic import HttpUrl, BaseModel, BaseConfig
 
 # Project
+from hyperglass.log import log
 from hyperglass.util import snake_to_camel
-
-
-def clean_name(_name: str) -> str:
-    """Remove unsupported characters from field names.
-
-    Converts any "desirable" seperators to underscore, then removes all
-    characters that are unsupported in Python class variable names.
-    Also removes leading numbers underscores.
-    """
-    _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", _name)
-    _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
-    return _scrubbed.lower()
-
-
-AsUIModel = TypeVar("AsUIModel", bound="BaseModel")
 
 
 class HyperglassModel(BaseModel):
     """Base model for all hyperglass configuration models."""
 
-    class Config:
-        """Pydantic model configuration.
-
-        See https://pydantic-docs.helpmanual.io/usage/model_config
-        """
+    class Config(BaseConfig):
+        """Pydantic model configuration."""
 
         validate_all = True
         extra = "forbid"
         validate_assignment = True
-        alias_generator = clean_name
-        json_encoders = {HttpUrl: lambda v: str(v)}
+        allow_population_by_field_name = True
+        json_encoders = {HttpUrl: lambda v: str(v), Path: str}
+
+        @classmethod
+        def alias_generator(cls: "HyperglassModel", field: str) -> str:
+            """Remove unsupported characters from field names.
+
+            Converts any "desirable" seperators to underscore, then removes all
+            characters that are unsupported in Python class variable names.
+            Also removes leading numbers underscores.
+            """
+            _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", field)
+            _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
+            snake_field = _scrubbed.lower()
+            if snake_field != field:
+                log.debug(
+                    "Model field '{}.{}' was converted from {} to {}",
+                    cls.__module__,
+                    snake_field,
+                    repr(field),
+                    repr(snake_field),
+                )
+            return snake_to_camel(snake_field)
 
     def export_json(self, *args, **kwargs):
         """Return instance as JSON."""
 
-        export_kwargs = {"by_alias": True, "exclude_unset": False}
+        export_kwargs = {"by_alias": False, "exclude_unset": False}
 
-        for key in export_kwargs.keys():
+        for key in kwargs.keys():
             export_kwargs.pop(key, None)
 
         return self.json(*args, **export_kwargs, **kwargs)
@@ -54,9 +58,9 @@ class HyperglassModel(BaseModel):
     def export_dict(self, *args, **kwargs):
         """Return instance as dictionary."""
 
-        export_kwargs = {"by_alias": True, "exclude_unset": False}
+        export_kwargs = {"by_alias": False, "exclude_unset": False}
 
-        for key in export_kwargs.keys():
+        for key in kwargs.keys():
             export_kwargs.pop(key, None)
 
         return self.dict(*args, **export_kwargs, **kwargs)
@@ -71,34 +75,10 @@ class HyperglassModel(BaseModel):
         import yaml
 
         export_kwargs = {
-            "by_alias": kwargs.pop("by_alias", True),
-            "exclude_unset": kwargs.pop("by_alias", False),
+            "by_alias": kwargs.pop("by_alias", False),
+            "exclude_unset": kwargs.pop("exclude_unset", False),
         }
 
         return yaml.safe_dump(
             json.loads(self.export_json(**export_kwargs)), *args, **kwargs
         )
-
-
-class HyperglassModelExtra(HyperglassModel):
-    """Model for hyperglass configuration models with dynamic fields."""
-
-    class Config:
-        """Pydantic model configuration."""
-
-        extra = "allow"
-
-
-class HyperglassUIModel(HyperglassModel):
-    """Base class for UI configuration parameters."""
-
-    class Config:
-        """Pydantic model configuration."""
-
-        alias_generator = snake_to_camel
-        allow_population_by_field_name = True
-
-
-def as_ui_model(name: str, model: Type[AsUIModel]) -> Type[AsUIModel]:
-    """Override a model's configuration to confirm to a UI model."""
-    return type(name, (model, HyperglassUIModel), {})

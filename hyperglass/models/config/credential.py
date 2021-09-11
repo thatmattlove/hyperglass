@@ -7,12 +7,12 @@ from typing import Optional
 from pydantic import FilePath, SecretStr, StrictStr, constr, root_validator
 
 # Local
-from ..main import HyperglassModelExtra
+from ..main import HyperglassModel
 
 Methods = constr(regex=r"(password|unencrypted_key|encrypted_key)")
 
 
-class Credential(HyperglassModelExtra):
+class Credential(HyperglassModel, extra="allow"):
     """Model for per-credential config in devices.yaml."""
 
     username: StrictStr

@@ -59,7 +59,7 @@ export function useDNSQuery(
   }
 
   return useQuery<DnsOverHttps.Response, unknown, DnsOverHttps.Response, DNSQueryKey>({
-    queryKey: [web.dns_provider.url, { target, family }],
+    queryKey: [web.dnsProvider.url, { target, family }],
     queryFn: query,
     cacheTime: cache.timeout * 1000,
   });

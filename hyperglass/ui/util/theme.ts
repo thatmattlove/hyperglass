@@ -3,7 +3,7 @@ import { mode } from '@chakra-ui/theme-tools';
 import { generateFontFamily, generatePalette } from 'palette-by-numbers';
 
 import type { ChakraTheme } from '@chakra-ui/react';
-import type { IConfigTheme, Theme } from '~/types';
+import type { ThemeConfig, Theme } from '~/types';
 
 function importFonts(userFonts: Theme.Fonts): ChakraTheme['fonts'] {
   const { body: userBody, mono: userMono } = userFonts;
@@ -15,9 +15,9 @@ function importFonts(userFonts: Theme.Fonts): ChakraTheme['fonts'] {
   };
 }
 
-function importColors(userColors: IConfigTheme['colors']): Theme.Colors {
+function importColors(userColors: ThemeConfig['colors']): Theme.Colors {
   const generatedColors = {} as Theme.Colors;
-  for (const [k, v] of Object.entries(userColors)) {
+  for (const [k, v] of Object.entries<string>(userColors)) {
     generatedColors[k] = generatePalette(v);
   }
 
@@ -54,7 +54,7 @@ function importColors(userColors: IConfigTheme['colors']): Theme.Colors {
 }
 
 export function makeTheme(
-  userTheme: IConfigTheme,
+  userTheme: ThemeConfig,
   defaultColorMode: 'dark' | 'light' | null,
 ): Theme.Full {
   const fonts = importFonts(userTheme.fonts);

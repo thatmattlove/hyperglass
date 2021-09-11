@@ -106,7 +106,7 @@ const All: React.FC = () => (
 export const Title: React.FC<TTitle> = (props: TTitle) => {
   const { fontSize, ...rest } = props;
   const { web } = useConfig();
-  const titleMode = web.text.title_mode;
+  const { titleMode } = web.text;
 
   const { isSubmitting } = useLGState();
   const { resetForm } = useLGMethods();

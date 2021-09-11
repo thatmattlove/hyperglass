@@ -93,7 +93,7 @@ export const Tags: React.FC = () => {
               >
                 <Label
                   bg={queryBg}
-                  label={web.text.query_type}
+                  label={web.text.queryType}
                   fontSize={{ base: 'xs', md: 'sm' }}
                   value={selectedDirective?.value.name ?? 'None'}
                 />
@@ -107,7 +107,7 @@ export const Tags: React.FC = () => {
                 <Label
                   bg={targetBg}
                   value={queryTarget.value}
-                  label={web.text.query_target}
+                  label={web.text.queryTarget}
                   fontSize={{ base: 'xs', md: 'sm' }}
                 />
               </motion.div>
@@ -119,7 +119,7 @@ export const Tags: React.FC = () => {
               >
                 <Label
                   bg={vrfBg}
-                  label={web.text.query_group}
+                  label={web.text.queryGroup}
                   value={queryGroup.value}
                   fontSize={{ base: 'xs', md: 'sm' }}
                 />

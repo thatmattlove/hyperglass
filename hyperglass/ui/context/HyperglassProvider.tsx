@@ -9,17 +9,17 @@ import {
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { makeTheme, defaultTheme } from '~/util';
 
-import type { IConfig, Theme } from '~/types';
+import type { Config, Theme } from '~/types';
 import type { THyperglassProvider } from './types';
 
-const HyperglassContext = createContext<IConfig>(Object());
+const HyperglassContext = createContext<Config>(Object());
 
 const queryClient = new QueryClient();
 
 export const HyperglassProvider: React.FC<THyperglassProvider> = (props: THyperglassProvider) => {
   const { config, children } = props;
   const value = useMemo(() => config, [config]);
-  const userTheme = value && makeTheme(value.web.theme, value.web.theme.default_color_mode);
+  const userTheme = value && makeTheme(value.web.theme, value.web.theme.defaultColorMode);
   const theme = value ? userTheme : defaultTheme;
   return (
     <ChakraProvider theme={theme}>
@@ -33,7 +33,7 @@ export const HyperglassProvider: React.FC<THyperglassProvider> = (props: THyperg
 /**
  * Get the current configuration.
  */
-export const useConfig = (): IConfig => useContext(HyperglassContext);
+export const useConfig = (): Config => useContext(HyperglassContext);
 
 /**
  * Get the current theme object.

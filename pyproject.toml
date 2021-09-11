@@ -93,6 +93,7 @@ reportMissingImports = true
 reportMissingTypeStubs = true
 
 [tool.taskipy.tasks]
+check = {cmd = "task lint && task ui-lint", help = "Run all lint checks"}
 lint = {cmd = "flake8 hyperglass", help = "Run Flake8"}
 sort = {cmd = "isort hyperglass", help = "Run iSort"}
 start = {cmd = "uvicorn hyperglass.api:app", help = "Start hyperglass via Uvicorn"}
@@ -103,3 +104,4 @@ ui-format = {cmd = "yarn --cwd ./hyperglass/ui/ format", help = "Run Prettier"}
 ui-lint = {cmd = "yarn --cwd ./hyperglass/ui/ lint", help = "Run ESLint"}
 ui-typecheck = {cmd = "yarn --cwd ./hyperglass/ui/ typecheck", help = "Run TypeScript Check"}
 upgrade = {cmd = "python3 version.py", help = "Upgrade hyperglass version"}
+yarn = {cmd = "yarn --cwd ./hyperglass/ui/", help = "Run a yarn command from the UI directory"}

@@ -10,12 +10,12 @@ import { FooterLink } from './link';
 import { isLink, isMenu } from './types';
 
 import type { ButtonProps, LinkProps } from '@chakra-ui/react';
-import type { TLink, TMenu } from '~/types';
+import type { Link, Menu } from '~/types';
 
 const CodeIcon = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiCode));
 const ExtIcon = dynamic<MeronexIcon>(() => import('@meronex/icons/go').then(i => i.GoLinkExternal));
 
-function buildItems(links: TLink[], menus: TMenu[]): [(TLink | TMenu)[], (TLink | TMenu)[]] {
+function buildItems(links: Link[], menus: Menu[]): [(Link | Menu)[], (Link | Menu)[]] {
   const leftLinks = links.filter(link => link.side === 'left');
   const leftMenus = menus.filter(menu => menu.side === 'left');
   const rightLinks = links.filter(link => link.side === 'right');
@@ -27,7 +27,7 @@ function buildItems(links: TLink[], menus: TMenu[]): [(TLink | TMenu)[], (TLink 
 }
 
 export const Footer: React.FC = () => {
-  const { web, content, primary_asn } = useConfig();
+  const { web, content, primaryAsn } = useConfig();
 
   const footerBg = useColorValue('blackAlpha.50', 'whiteAlpha.100');
   const footerColor = useColorValue('black', 'white');
@@ -57,10 +57,10 @@ export const Footer: React.FC = () => {
     >
       {left.map(item => {
         if (isLink(item)) {
-          const url = strF(item.url, { primary_asn }, '/');
+          const url = strF(item.url, { primaryAsn }, '/');
           const icon: Partial<ButtonProps & LinkProps> = {};
 
-          if (item.show_icon) {
+          if (item.showIcon) {
             icon.rightIcon = <ExtIcon />;
           }
           return <FooterLink key={item.title} href={url} title={item.title} {...icon} />;
@@ -73,10 +73,10 @@ export const Footer: React.FC = () => {
       {!isMobile && <Flex p={0} flex="1 0 auto" maxWidth="100%" mr="auto" />}
       {right.map(item => {
         if (isLink(item)) {
-          const url = strF(item.url, { primary_asn }, '/');
+          const url = strF(item.url, { primaryAsn }, '/');
           const icon: Partial<ButtonProps & LinkProps> = {};
 
-          if (item.show_icon) {
+          if (item.showIcon) {
             icon.rightIcon = <ExtIcon />;
           }
           return <FooterLink key={item.title} href={url} title={item.title} {...icon} />;

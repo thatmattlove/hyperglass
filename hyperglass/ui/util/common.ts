@@ -74,6 +74,18 @@ export function arrangeIntoTree<P extends unknown>(paths: P[][]): PathPart[] {
 }
 
 /**
+ * Strictly typed version of `Object.entries()`.
+ */
+export function entries<O, K extends keyof O = keyof O>(obj: O): [K, O[K]][] {
+  const _entries = [] as [K, O[K]][];
+  const keys = Object.keys(obj) as K[];
+  for (const key of keys) {
+    _entries.push([key, obj[key]]);
+  }
+  return _entries;
+}
+
+/**
  * Fetch Wrapper that incorporates a timeout via a passed AbortController instance.
  *
  * Adapted from: https://lowmess.com/blog/fetch-with-timeout

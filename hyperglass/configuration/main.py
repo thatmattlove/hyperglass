@@ -141,7 +141,7 @@ set_log_level(logger=log, debug=user_config.get("debug", True))
 
 # Map imported user configuration to expected schema.
 log.debug("Unvalidated configuration from {}: {}", CONFIG_MAIN, user_config)
-params: Params = validate_config(config=user_config, importer=Params)
+params = validate_config(config=user_config, importer=Params)
 
 # Re-evaluate debug state after config is validated
 log_level = current_log_level(log)

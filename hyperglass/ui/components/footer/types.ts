@@ -1,5 +1,5 @@
 import type { ButtonProps, LinkProps, MenuListProps } from '@chakra-ui/react';
-import type { TLink, TMenu } from '~/types';
+import type { Link, Menu } from '~/types';
 
 type TFooterSide = 'left' | 'right';
 
@@ -17,10 +17,10 @@ export interface TColorModeToggle extends ButtonProps {
   size?: string;
 }
 
-export function isLink(item: TLink | TMenu): item is TLink {
+export function isLink(item: Link | Menu): item is Link {
   return 'url' in item;
 }
 
-export function isMenu(item: TLink | TMenu): item is TMenu {
+export function isMenu(item: Link | Menu): item is Menu {
   return 'content' in item;
 }

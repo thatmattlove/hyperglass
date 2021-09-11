@@ -20,9 +20,9 @@ import {
 import { useConfig } from '~/context';
 import { useStrf, useGreeting, useDevice, useLGState, useLGMethods } from '~/hooks';
 import { dedupObjectArray } from '~/util';
-import { isString, isQueryField, TDirective } from '~/types';
+import { isString, isQueryField, Directive } from '~/types';
 
-import type { TFormData, OnChangeArgs } from '~/types';
+import type { FormData, OnChangeArgs } from '~/types';
 
 /**
  * Don't set the global flag on this.
@@ -50,13 +50,12 @@ export const LookingGlass: React.FC = () => {
   const getDevice = useDevice();
   const strF = useStrf();
 
-  const noQueryType = strF(messages.no_input, { field: web.text.query_type });
-  const noQueryLoc = strF(messages.no_input, { field: web.text.query_location });
-  const noQueryTarget = strF(messages.no_input, { field: web.text.query_target });
+  const noQueryType = strF(messages.noInput, { field: web.text.queryType });
+  const noQueryLoc = strF(messages.noInput, { field: web.text.queryLocation });
+  const noQueryTarget = strF(messages.noInput, { field: web.text.queryTarget });
 
   const {
     availableGroups,
-    queryVrf,
     queryType,
     directive,
     availableTypes,
@@ -71,29 +70,28 @@ export const LookingGlass: React.FC = () => {
 
   const queryTypes = useMemo(() => availableTypes.map(t => t.id.value), [availableTypes]);
 
-  const formSchema = vest.create((data: TFormData = {} as TFormData) => {
-    test('query_location', noQueryLoc, () => {
-      enforce(data.query_location).isArrayOf(enforce.isString()).isNotEmpty();
+  const formSchema = vest.create((data: FormData = {} as FormData) => {
+    test('queryLocation', noQueryLoc, () => {
+      enforce(data.queryLocation).isArrayOf(enforce.isString()).isNotEmpty();
     });
-    test('query_target', noQueryTarget, () => {
-      enforce(data.query_target).longerThan(1);
+    test('queryTarget', noQueryTarget, () => {
+      enforce(data.queryTarget).longerThan(1);
     });
-    test('query_type', noQueryType, () => {
-      enforce(data.query_type).inside(queryTypes);
+    test('queryType', noQueryType, () => {
+      enforce(data.queryType).inside(queryTypes);
     });
-    test('query_group', 'Query Group is empty', () => {
-      enforce(data.query_group).isString();
+    test('queryGroup', 'Query Group is empty', () => {
+      enforce(data.queryGroup).isString();
     });
   });
 
-  const formInstance = useForm<TFormData>({
+  const formInstance = useForm<FormData>({
     resolver: vestResolver(formSchema),
     defaultValues: {
-      // query_vrf: 'default',
-      query_target: '',
-      query_location: [],
-      query_type: '',
-      query_group: '',
+      queryTarget: '',
+      queryLocation: [],
+      queryType: '',
+      queryGroup: '',
     },
   });
 
@@ -157,10 +155,10 @@ export const LookingGlass: React.FC = () => {
   }
 
   function handleLocChange(locations: string[]): void {
-    clearErrors('query_location');
+    clearErrors('queryLocation');
     const locationNames = [] as string[];
     const allGroups = [] as string[][];
-    const allTypes = [] as TDirective[][];
+    const allTypes = [] as Directive[][];
     const allDevices = [];
 
     queryLocation.set(locations);
@@ -207,18 +205,17 @@ export const LookingGlass: React.FC = () => {
 
     // If there is more than one location selected, but there are no intersecting VRFs, show an error.
     if (locations.length > 1 && intersecting.length === 0) {
-      setError('query_location', {
+      setError('queryLocation', {
         // message: `${locationNames.join(', ')} have no VRFs in common.`,
         message: `${locationNames.join(', ')} have no groups in common.`,
       });
     }
     // If there is only one intersecting VRF, set it as the form value so the user doesn't have to.
     else if (intersecting.length === 1) {
-      // queryVrf.set(intersecting[0]._id);
       queryGroup.set(intersecting[0]);
     }
     if (availableGroups.length > 1 && intersectingTypes.length === 0) {
-      setError('query_location', {
+      setError('queryLocation', {
         message: `${locationNames.join(', ')} have no query types in common.`,
       });
     } else if (intersectingTypes.length === 1) {
@@ -228,7 +225,7 @@ export const LookingGlass: React.FC = () => {
 
   function handleGroupChange(group: string): void {
     queryGroup.set(group);
-    let availTypes = new Array<TDirective>();
+    let availTypes = new Array<Directive>();
     for (const loc of queryLocation) {
       const device = getDevice(loc.value);
       for (const directive of device.directives) {
@@ -237,7 +234,7 @@ export const LookingGlass: React.FC = () => {
         }
       }
     }
-    availTypes = dedupObjectArray<TDirective>(availTypes, 'id');
+    availTypes = dedupObjectArray<Directive>(availTypes, 'id');
     availableTypes.set(availTypes);
     if (availableTypes.length === 1) {
       queryType.set(availableTypes[0].name.value);
@@ -252,9 +249,9 @@ export const LookingGlass: React.FC = () => {
       throw new Error(`Field '${e.field}' is not a valid form field.`);
     }
 
-    if (e.field === 'query_location' && Array.isArray(e.value)) {
+    if (e.field === 'queryLocation' && Array.isArray(e.value)) {
       handleLocChange(e.value);
-    } else if (e.field === 'query_type' && isString(e.value)) {
+    } else if (e.field === 'queryType' && isString(e.value)) {
       queryType.set(e.value);
       if (queryTarget.value !== '') {
         // Reset queryTarget as well, so that, for example, selecting BGP Community, and selecting
@@ -263,21 +260,19 @@ export const LookingGlass: React.FC = () => {
         queryTarget.set('');
         displayTarget.set('');
       }
-    } else if (e.field === 'query_vrf' && isString(e.value)) {
-      queryVrf.set(e.value);
-    } else if (e.field === 'query_target' && isString(e.value)) {
+    } else if (e.field === 'queryTarget' && isString(e.value)) {
       queryTarget.set(e.value);
-    } else if (e.field === 'query_group' && isString(e.value)) {
+    } else if (e.field === 'queryGroup' && isString(e.value)) {
       // queryGroup.set(e.value);
       handleGroupChange(e.value);
     }
   }
 
   useEffect(() => {
-    register('query_location', { required: true });
-    // register('query_target', { required: true });
-    register('query_type', { required: true });
-    register('query_group');
+    register('queryLocation', { required: true });
+    // register('queryTarget', { required: true });
+    register('queryType', { required: true });
+    register('queryGroup');
   }, [register]);
 
   return (
@@ -297,13 +292,13 @@ export const LookingGlass: React.FC = () => {
         onSubmit={handleSubmit(submitHandler)}
       >
         <FormRow>
-          <FormField name="query_location" label={web.text.query_location}>
-            <QueryLocation onChange={handleChange} label={web.text.query_location} />
+          <FormField name="queryLocation" label={web.text.queryLocation}>
+            <QueryLocation onChange={handleChange} label={web.text.queryLocation} />
           </FormField>
           <If c={availableGroups.length > 1}>
-            <FormField label={web.text.query_group} name="query_group">
+            <FormField label={web.text.queryGroup} name="queryGroup">
               <QueryGroup
-                label={web.text.query_group}
+                label={web.text.queryGroup}
                 groups={availableGroups.value}
                 onChange={handleChange}
               />
@@ -313,24 +308,24 @@ export const LookingGlass: React.FC = () => {
         <FormRow>
           <SlideFade offsetX={-100} in={availableTypes.length > 1} unmountOnExit>
             <FormField
-              name="query_type"
-              label={web.text.query_type}
+              name="queryType"
+              label={web.text.queryType}
               labelAddOn={
                 <HelpModal
                   visible={selectedDirective?.info.value !== null}
                   item={selectedDirective?.info.value ?? null}
-                  name="query_type"
+                  name="queryType"
                 />
               }
             >
-              <QueryType onChange={handleChange} label={web.text.query_type} />
+              <QueryType onChange={handleChange} label={web.text.queryType} />
             </FormField>
           </SlideFade>
           <SlideFade offsetX={100} in={selectedDirective !== null} unmountOnExit>
             {selectedDirective !== null && (
-              <FormField name="query_target" label={web.text.query_target}>
+              <FormField name="queryTarget" label={web.text.queryTarget}>
                 <QueryTarget
-                  name="query_target"
+                  name="queryTarget"
                   register={register}
                   onChange={handleChange}
                   placeholder={selectedDirective.description.value}

@@ -22,7 +22,7 @@ from pydantic import (
 from hyperglass.log import log
 
 # Local
-from ..main import HyperglassModel, HyperglassModelExtra
+from ..main import HyperglassModel
 
 ACLAction = constr(regex=r"permit|deny")
 AddressFamily = Union[Literal[4], Literal[6]]
@@ -125,7 +125,7 @@ class AccessList6(HyperglassModel):
         return value
 
 
-class InfoConfigParams(HyperglassModelExtra):
+class InfoConfigParams(HyperglassModel, extra="allow"):
     """Validation model for per-help params."""
 
     title: Optional[StrictStr]
@@ -197,7 +197,7 @@ class Info(HyperglassModel):
         }
 
 
-class DeviceVrf4(HyperglassModelExtra):
+class DeviceVrf4(HyperglassModel, extra="allow"):
     """Validation model for IPv4 AFI definitions."""
 
     source_address: IPv4Address
@@ -205,7 +205,7 @@ class DeviceVrf4(HyperglassModelExtra):
     force_cidr: StrictBool = True
 
 
-class DeviceVrf6(HyperglassModelExtra):
+class DeviceVrf6(HyperglassModel, extra="allow"):
     """Validation model for IPv6 AFI definitions."""
 
     source_address: IPv6Address

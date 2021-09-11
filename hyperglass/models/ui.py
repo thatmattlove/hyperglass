@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple, Union, Literal, Optional
 from pydantic import StrictStr, StrictBool
 
 # Local
-from .main import HyperglassUIModel, as_ui_model
+from .main import HyperglassModel
 from .config.web import WebPublic
 from .config.cache import CachePublic
 from .config.params import ParamsPublic
@@ -16,12 +16,8 @@ from .config.messages import Messages
 Alignment = Union[Literal["left"], Literal["center"], Literal["right"], None]
 StructuredDataField = Tuple[str, str, Alignment]
 
-CacheUI = as_ui_model("CacheUI", CachePublic)
-WebUI = as_ui_model("WebUI", WebPublic)
-MessagesUI = as_ui_model("MessagesUI", Messages)
 
-
-class UIDirectiveInfo(HyperglassUIModel):
+class UIDirectiveInfo(HyperglassModel):
     """UI: Directive Info."""
 
     enable: StrictBool
@@ -29,7 +25,7 @@ class UIDirectiveInfo(HyperglassUIModel):
     content: StrictStr
 
 
-class UIDirective(HyperglassUIModel):
+class UIDirective(HyperglassModel):
     """UI: Directive."""
 
     id: StrictStr
@@ -41,7 +37,7 @@ class UIDirective(HyperglassUIModel):
     options: Optional[List[Dict[str, Any]]]
 
 
-class UILocation(HyperglassUIModel):
+class UILocation(HyperglassModel):
     """UI: Location (Device)."""
 
     id: StrictStr
@@ -50,26 +46,26 @@ class UILocation(HyperglassUIModel):
     directives: List[UIDirective] = []
 
 
-class UINetwork(HyperglassUIModel):
+class UINetwork(HyperglassModel):
     """UI: Network."""
 
     display_name: StrictStr
     locations: List[UILocation] = []
 
 
-class UIContent(HyperglassUIModel):
+class UIContent(HyperglassModel):
     """UI: Content."""
 
     credit: StrictStr
     greeting: StrictStr
 
 
-class UIParameters(HyperglassUIModel, ParamsPublic):
+class UIParameters(ParamsPublic, HyperglassModel):
     """UI Configuration Parameters."""
 
-    cache: CacheUI
-    web: WebUI
-    messages: MessagesUI
+    cache: CachePublic
+    web: WebPublic
+    messages: Messages
     version: StrictStr
     networks: List[UINetwork] = []
     parsed_data_fields: Tuple[StructuredDataField, ...]

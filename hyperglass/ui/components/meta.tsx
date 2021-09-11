@@ -10,9 +10,9 @@ export const Meta: React.FC = () => {
   const [location, setLocation] = useState('/');
 
   const {
-    site_title: title = 'hyperglass',
-    site_description: description = 'Network Looking Glass',
-    site_keywords: keywords = [
+    siteTitle: title = 'hyperglass',
+    siteDescription: description = 'Network Looking Glass',
+    siteKeywords: keywords = [
       'hyperglass',
       'looking glass',
       'lg',
@@ -53,7 +53,7 @@ export const Meta: React.FC = () => {
       <meta property="og:image:alt" content={siteName} />
       <meta name="og:description" content={description} />
       <meta name="keywords" content={keywords.join(', ')} />
-      <meta name="hg-version" content={config.hyperglass_version} />
+      <meta name="hg-version" content={config.version} />
     </Head>
   );
 };

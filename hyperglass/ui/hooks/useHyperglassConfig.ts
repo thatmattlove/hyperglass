@@ -4,9 +4,9 @@ import { getHyperglassConfig } from '~/util';
 
 import type { UseQueryResult } from 'react-query';
 import type { ConfigLoadError } from '~/util';
-import type { IConfig } from '~/types';
+import type { Config } from '~/types';
 
-type UseHyperglassConfig = UseQueryResult<IConfig, ConfigLoadError> & {
+type UseHyperglassConfig = UseQueryResult<Config, ConfigLoadError> & {
   /**
    * Initial configuration load has failed.
    */
@@ -37,7 +37,7 @@ export function useHyperglassConfig(): UseHyperglassConfig {
   // will be displayed, which will also show the loading state.
   const [initFailed, setInitFailed] = useState<boolean>(false);
 
-  const query = useQuery<IConfig, ConfigLoadError>({
+  const query = useQuery<Config, ConfigLoadError>({
     queryKey: 'hyperglass-ui-config',
     queryFn: getHyperglassConfig,
     refetchOnWindowFocus: false,

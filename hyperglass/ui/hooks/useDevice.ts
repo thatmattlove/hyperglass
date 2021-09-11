@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useConfig } from '~/context';
 
-import type { TDevice } from '~/types';
+import type { Device } from '~/types';
 import type { TUseDevice } from './types';
 
 /**
@@ -12,8 +12,8 @@ export function useDevice(): TUseDevice {
 
   const devices = useMemo(() => networks.map(n => n.locations).flat(), [networks]);
 
-  function getDevice(id: string): TDevice {
-    return devices.filter(dev => dev._id === id)[0];
+  function getDevice(id: string): Device {
+    return devices.filter(dev => dev.id === id)[0];
   }
 
   return useCallback(getDevice, [devices]);

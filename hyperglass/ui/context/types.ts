@@ -1,14 +1,14 @@
 import type { State } from '@hookstate/core';
-import type { IConfig, TFormData } from '~/types';
+import type { Config, FormData } from '~/types';
 
 export interface THyperglassProvider {
-  config: IConfig;
+  config: Config;
   children: React.ReactNode;
 }
 
 export interface TGlobalState {
   isSubmitting: boolean;
-  formData: TFormData;
+  formData: FormData;
 }
 
 export interface TUseGlobalState {

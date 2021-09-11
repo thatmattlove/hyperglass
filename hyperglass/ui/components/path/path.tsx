@@ -21,7 +21,7 @@ export const Path: React.FC<TPath> = (props: TPath) => {
   const { getResponse } = useLGMethods();
   const { isOpen, onClose, onOpen } = useDisclosure();
   const response = getResponse(device);
-  const output = response?.output as TStructuredResponse;
+  const output = response?.output as StructuredResponse;
   const bg = useColorValue('light.50', 'dark.900');
   const centered = useBreakpointValue({ base: false, lg: true }) ?? true;
   return (

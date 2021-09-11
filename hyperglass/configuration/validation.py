@@ -3,38 +3,20 @@
 Some validations need to occur across multiple config files.
 """
 # Standard Library
-from typing import Dict, List, Union, Callable
+from typing import Any, Dict, List, Union, TypeVar
 
 # Third Party
 from pydantic import ValidationError
 
 # Project
-from hyperglass.models import HyperglassModel
-from hyperglass.constants import TRANSPORT_REST, SUPPORTED_STRUCTURED_OUTPUT
-from hyperglass.models.commands import Commands
-from hyperglass.exceptions.private import ConfigError, ConfigInvalid
+from hyperglass.exceptions.private import ConfigInvalid
+
+Importer = TypeVar("Importer")
 
 
-def validate_nos_commands(all_nos: List[str], commands: Commands) -> bool:
-    """Ensure defined devices have associated commands."""
-    custom_commands = commands.dict().keys()
-
-    for nos in all_nos:
-        valid = False
-        if nos in (*SUPPORTED_STRUCTURED_OUTPUT, *TRANSPORT_REST, *custom_commands):
-            valid = True
-
-        if not valid:
-            raise ConfigError(
-                '"{nos}" is used on a device, '
-                + 'but no command profile for "{nos}" is defined.',
-                nos=nos,
-            )
-
-    return True
-
-
-def validate_config(config: Union[Dict, List], importer: Callable) -> HyperglassModel:
+def validate_config(
+    config: Union[Dict[str, Any], List[Any]], importer: Importer
+) -> Importer:
     """Validate a config dict against a model."""
     validated = None
     try:

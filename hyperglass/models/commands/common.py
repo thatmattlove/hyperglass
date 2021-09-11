@@ -4,7 +4,7 @@
 from pydantic import StrictStr
 
 # Local
-from ..main import HyperglassModel, HyperglassModelExtra
+from ..main import HyperglassModel
 
 
 class CommandSet(HyperglassModel):
@@ -17,7 +17,7 @@ class CommandSet(HyperglassModel):
     traceroute: StrictStr
 
 
-class CommandGroup(HyperglassModelExtra):
+class CommandGroup(HyperglassModel, extra="allow"):
     """Validation model for all commands."""
 
     ipv4_default: CommandSet

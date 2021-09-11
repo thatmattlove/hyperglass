@@ -115,7 +115,7 @@ export const Communities: React.FC<TCommunities> = (props: TCommunities) => {
   return (
     <>
       <If c={communities.length === 0}>
-        <Tooltip placement="right" hasArrow label={web.text.no_communities}>
+        <Tooltip placement="right" hasArrow label={web.text.noCommunities}>
           <Link>
             <Icon as={Question} />
           </Link>
@@ -166,10 +166,10 @@ const _RPKIState: React.ForwardRefRenderFunction<HTMLDivElement, TRPKIState> = (
   const icon = [NotAllowed, Check, Warning, Question];
 
   const text = [
-    web.text.rpki_invalid,
-    web.text.rpki_valid,
-    web.text.rpki_unknown,
-    web.text.rpki_unverified,
+    web.text.rpkiInvalid,
+    web.text.rpkiValid,
+    web.text.rpkiUnknown,
+    web.text.rpkiUnverified,
   ];
 
   return (

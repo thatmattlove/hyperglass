@@ -1,6 +1,6 @@
 import type { State } from '@hookstate/core';
 import type * as ReactGA from 'react-ga';
-import type { TDevice, Families, TFormQuery, TDeviceVrf, TSelectOption, TDirective } from '~/types';
+import type { Device, Families, TFormQuery, TSelectOption, Directive } from '~/types';
 
 export type LGQueryKey = [string, TFormQuery];
 export type DNSQueryKey = [string, { target: string | null; family: 4 | 6 }];
@@ -23,56 +23,50 @@ export type TUseDevice = (
    * Device's ID, e.g. the device.name field.
    */
   deviceId: string,
-) => TDevice;
-
-export type TUseVrf = (vrfId: string) => TDeviceVrf;
+) => Device;
 
 export interface TSelections {
   queryLocation: TSelectOption[] | [];
   queryType: TSelectOption | null;
-  queryVrf: TSelectOption | null;
   queryGroup: TSelectOption | null;
 }
 
 export interface TMethodsExtension {
-  getResponse(d: string): TQueryResponse | null;
+  getResponse(d: string): QueryResponse | null;
   resolvedClose(): void;
   resolvedOpen(): void;
   formReady(): boolean;
   resetForm(): void;
   stateExporter<O extends unknown>(o: O): O | null;
-  getDirective(n: string): Nullable<State<TDirective>>;
+  getDirective(n: string): Nullable<State<Directive>>;
 }
 
 export type TLGState = {
-  queryVrf: string;
   queryGroup: string;
   families: Families;
   queryTarget: string;
   btnLoading: boolean;
   isSubmitting: boolean;
   displayTarget: string;
-  directive: TDirective | null;
-  // queryType: TQueryTypes;
+  directive: Directive | null;
   queryType: string;
   queryLocation: string[];
-  availVrfs: TDeviceVrf[];
   availableGroups: string[];
-  availableTypes: TDirective[];
+  availableTypes: Directive[];
   resolvedIsOpen: boolean;
   selections: TSelections;
-  responses: { [d: string]: TQueryResponse };
+  responses: { [d: string]: QueryResponse };
 };
 
 export type TLGStateHandlers = {
   exportState<S extends unknown | null>(s: S): S | null;
-  getResponse(d: string): TQueryResponse | null;
+  getResponse(d: string): QueryResponse | null;
   resolvedClose(): void;
   resolvedOpen(): void;
   formReady(): boolean;
   resetForm(): void;
   stateExporter<O extends unknown>(o: O): O | null;
-  getDirective(n: string): Nullable<State<TDirective>>;
+  getDirective(n: string): Nullable<State<Directive>>;
 };
 
 export type UseStrfArgs = { [k: string]: unknown } | string;
@@ -89,7 +83,7 @@ export type TTableToStringFormatted = {
   active: (v: boolean) => string;
   as_path: (v: number[]) => string;
   communities: (v: string[]) => string;
-  rpki_state: (v: number, n: TRPKIStates) => string;
+  rpki_state: (v: number, n: RPKIState) => string;
 };
 
 export type GAEffect = (ga: typeof ReactGA) => void;

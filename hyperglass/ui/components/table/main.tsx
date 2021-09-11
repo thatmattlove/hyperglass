@@ -71,11 +71,11 @@ export const Table: React.FC<TTable> = (props: TTable) => {
     defaultColumn,
     data,
     initialState: { hiddenColumns },
-  } as TableOptions<TRoute>;
+  } as TableOptions<Route>;
 
-  const plugins = [useSortBy, usePagination] as PluginHook<TRoute>[];
+  const plugins = [useSortBy, usePagination] as PluginHook<Route>[];
 
-  const instance = useTable<TRoute>(options, ...plugins);
+  const instance = useTable<Route>(options, ...plugins);
 
   const {
     page,

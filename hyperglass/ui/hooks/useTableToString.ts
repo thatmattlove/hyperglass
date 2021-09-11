@@ -42,17 +42,17 @@ function formatTime(val: number): string {
  */
 export function useTableToString(
   target: string,
-  data: TQueryResponse | undefined,
+  data: QueryResponse | undefined,
   ...deps: unknown[]
 ): () => string {
-  const { web, parsed_data_fields, messages } = useConfig();
+  const { web, parsedDataFields, messages } = useConfig();
 
   function formatRpkiState(val: number): string {
     const rpkiStates = [
-      web.text.rpki_invalid,
-      web.text.rpki_valid,
-      web.text.rpki_unknown,
-      web.text.rpki_unverified,
+      web.text.rpkiInvalid,
+      web.text.rpkiValid,
+      web.text.rpkiUnknown,
+      web.text.rpkiUnverified,
     ];
     return rpkiStates[val];
   }
@@ -69,7 +69,7 @@ export function useTableToString(
     return key in tableFormatMap;
   }
 
-  function getFmtFunc(accessor: keyof TRoute): TTableToStringFormatter {
+  function getFmtFunc(accessor: keyof Route): TTableToStringFormatter {
     if (isFormatted(accessor)) {
       return tableFormatMap[accessor];
     } else {
@@ -77,13 +77,13 @@ export function useTableToString(
     }
   }
 
-  function doFormat(target: string, data: TQueryResponse | undefined): string {
-    let result = messages.no_output;
+  function doFormat(target: string, data: QueryResponse | undefined): string {
+    let result = messages.noOutput;
     try {
       if (typeof data !== 'undefined' && isStructuredOutput(data)) {
         const tableStringParts = [`Routes For: ${target}`, `Timestamp: ${data.timestamp} UTC`];
         for (const route of data.output.routes) {
-          for (const field of parsed_data_fields) {
+          for (const field of parsedDataFields) {
             const [header, accessor, align] = field;
             if (align !== null) {
               let value = route[accessor];

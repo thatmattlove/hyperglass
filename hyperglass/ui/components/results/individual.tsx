@@ -39,7 +39,7 @@ const AccordionHeaderWrapper = chakra('div', {
 });
 
 const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props: TResult, ref) => {
-  const { index, device, queryVrf, queryType, queryTarget, queryLocation, queryGroup } = props;
+  const { index, device, queryType, queryTarget, queryLocation, queryGroup } = props;
 
   const { web, cache, messages } = useConfig();
   const { index: indices, setIndex } = useAccordionContext();
@@ -56,17 +56,16 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
     queryLocation,
     queryTarget,
     queryType,
-    queryVrf,
     queryGroup,
   });
 
   const isCached = useMemo(() => data?.cached || !isFetchedAfterMount, [data, isFetchedAfterMount]);
 
   if (typeof data !== 'undefined') {
-    responses.merge({ [device._id]: data });
+    responses.merge({ [device.id]: data });
   }
   const strF = useStrf();
-  const cacheLabel = strF(web.text.cache_icon, { time: data?.timestamp });
+  const cacheLabel = strF(web.text.cacheIcon, { time: data?.timestamp });
 
   const errorKeywords = useMemo(() => {
     let kw = [] as string[];
@@ -85,13 +84,13 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
     } else if (isFetchError(error)) {
       return startCase(error.statusText);
     } else if (isStackError(error) && error.message.toLowerCase().startsWith('timeout')) {
-      return messages.request_timeout;
+      return messages.requestTimeout;
     } else if (isStackError(error)) {
       return startCase(error.message);
     } else {
       return messages.general;
     }
-  }, [error, data, messages.general, messages.request_timeout]);
+  }, [error, data, messages.general, messages.requestTimeout]);
 
   isError && console.error(error);
 
@@ -101,12 +100,12 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
       warning: 'warning',
       error: 'warning',
       danger: 'error',
-    } as { [k in TResponseLevel]: 'success' | 'warning' | 'error' };
+    } as { [K in ResponseLevel]: 'success' | 'warning' | 'error' };
 
     let e: TErrorLevels = 'error';
 
     if (isLGError(error)) {
-      const idx = error.level as TResponseLevel;
+      const idx = error.level as ResponseLevel;
       e = statusMap[idx];
     }
     return e;
@@ -146,7 +145,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
   return (
     <AnimatedAccordionItem
       ref={ref}
-      id={device._id}
+      id={device.id}
       isDisabled={isLoading}
       exit={{ opacity: 0, y: 300 }}
       animate={{ opacity: 1, y: 0 }}
@@ -171,7 +170,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
           </AccordionButton>
           <HStack py={2} spacing={1}>
             {isStructuredOutput(data) && data.level === 'success' && tableComponent && (
-              <Path device={device._id} />
+              <Path device={device.id} />
             )}
             <CopyButton copyValue={copyValue} isDisabled={isLoading} />
             <RequeryButton requery={refetch} isDisabled={isLoading} />
@@ -230,9 +229,9 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
               flex="1 0 auto"
               justifyContent={{ base: 'flex-start', lg: 'flex-end' }}
             >
-              <If c={cache.show_text && !isError && isCached}>
+              <If c={cache.showText && !isError && isCached}>
                 <If c={!isMobile}>
-                  <Countdown timeout={cache.timeout} text={web.text.cache_prefix} />
+                  <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
                 </If>
                 <Tooltip hasArrow label={cacheLabel} placement="top">
                   <Box>
@@ -240,7 +239,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
                   </Box>
                 </Tooltip>
                 <If c={isMobile}>
-                  <Countdown timeout={cache.timeout} text={web.text.cache_prefix} />
+                  <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
                 </If>
               </If>
             </HStack>

@@ -6,11 +6,11 @@ declare global {
 
   type Nullable<T> = T | null;
 
-  type TRPKIStates = 0 | 1 | 2 | 3;
+  type RPKIState = 0 | 1 | 2 | 3;
 
-  type TResponseLevel = 'success' | 'warning' | 'error' | 'danger';
+  type ResponseLevel = 'success' | 'warning' | 'error' | 'danger';
 
-  interface IRoute {
+  type Route = {
     prefix: string;
     active: boolean;
     age: number;
@@ -23,40 +23,26 @@ declare global {
     source_as: number;
     source_rid: string;
     peer_rid: string;
-    rpki_state: TRPKIStates;
-  }
-
-  type TRoute = {
-    prefix: string;
-    active: boolean;
-    age: number;
-    weight: number;
-    med: number;
-    local_preference: number;
-    as_path: number[];
-    communities: string[];
-    next_hop: string;
-    source_as: number;
-    source_rid: string;
-    peer_rid: string;
-    rpki_state: TRPKIStates;
+    rpki_state: RPKIState;
   };
-  type TRouteField = { [k in keyof TRoute]: ValueOf<TRoute> };
 
-  type TStructuredResponse = {
+  type RouteField = { [K in keyof Route]: Route[K] };
+
+  type StructuredResponse = {
     vrf: string;
     count: number;
-    routes: TRoute[];
+    routes: Route[];
     winning_weight: 'high' | 'low';
   };
-  type TQueryResponse = {
+
+  type QueryResponse = {
     random: string;
     cached: boolean;
     runtime: number;
-    level: TResponseLevel;
+    level: ResponseLevel;
     timestamp: string;
     keywords: string[];
-    output: string | TStructuredResponse;
+    output: string | StructuredResponse;
     format: 'text/plain' | 'application/json';
   };
   type ReactRef<T = HTMLElement> = MutableRefObject<T>;

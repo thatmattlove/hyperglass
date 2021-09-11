@@ -1,7 +1,7 @@
 import type { State } from '@hookstate/core';
 import type { ButtonProps } from '@chakra-ui/react';
 import type { UseQueryResult } from 'react-query';
-import type { TDevice } from '~/types';
+import type { Device } from '~/types';
 
 export interface TResultHeader {
   title: string;
@@ -19,8 +19,7 @@ export interface TFormattedError {
 
 export interface TResult {
   index: number;
-  device: TDevice;
-  queryVrf: string;
+  device: Device;
   queryGroup: string;
   queryTarget: string;
   queryLocation: string;
@@ -34,7 +33,7 @@ export interface TCopyButton extends ButtonProps {
 }
 
 export interface TRequeryButton extends ButtonProps {
-  requery: UseQueryResult<TQueryResponse>['refetch'];
+  requery: UseQueryResult<QueryResponse>['refetch'];
 }
 
 export type TUseResults = {

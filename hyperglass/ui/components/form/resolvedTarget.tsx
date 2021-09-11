@@ -36,11 +36,11 @@ export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget
   const query4 = Array.from(families.value).includes(4);
   const query6 = Array.from(families.value).includes(6);
 
-  const tooltip4 = strF(web.text.fqdn_tooltip, { protocol: 'IPv4' });
-  const tooltip6 = strF(web.text.fqdn_tooltip, { protocol: 'IPv6' });
+  const tooltip4 = strF(web.text.fqdnTooltip, { protocol: 'IPv4' });
+  const tooltip6 = strF(web.text.fqdnTooltip, { protocol: 'IPv6' });
 
-  const [messageStart, messageEnd] = web.text.fqdn_message.split('{fqdn}');
-  const [errorStart, errorEnd] = web.text.fqdn_error.split('{fqdn}');
+  const [messageStart, messageEnd] = web.text.fqdnMessage.split('{fqdn}');
+  const [errorStart, errorEnd] = web.text.fqdnError.split('{fqdn}');
 
   const {
     data: data4,
@@ -63,7 +63,7 @@ export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget
   const answer6 = useMemo(() => findAnswer(data6), [data6]);
 
   const handleOverride = useCallback(
-    (value: string): void => setTarget({ field: 'query_target', value }),
+    (value: string): void => setTarget({ field: 'queryTarget', value }),
     [setTarget],
   );
 
@@ -137,7 +137,7 @@ export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget
               onClick={errorClose}
               leftIcon={<LeftArrow />}
             >
-              {web.text.fqdn_error_button}
+              {web.text.fqdnErrorButton}
             </Button>
           </>
         )}

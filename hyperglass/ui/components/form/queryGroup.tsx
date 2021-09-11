@@ -24,13 +24,13 @@ export const QueryGroup: React.FC<TQueryGroup> = (props: TQueryGroup) => {
     } else {
       selections.queryGroup.set(null);
     }
-    onChange({ field: 'query_group', value });
+    onChange({ field: 'queryGroup', value });
   }
 
   return (
     <Select
       size="lg"
-      name="query_group"
+      name="queryGroup"
       options={options}
       aria-label={label}
       onChange={handleChange}

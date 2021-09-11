@@ -3,14 +3,14 @@ import type { BoxProps, IconButtonProps } from '@chakra-ui/react';
 import type { Theme, TColumn, TCellRender } from '~/types';
 
 export interface TTable {
-  data: TRoute[];
+  data: Route[];
   striped?: boolean;
   columns: TColumn[];
   heading?: React.ReactNode;
   bordersVertical?: boolean;
   bordersHorizontal?: boolean;
   Cell?: React.FC<TCellRender>;
-  rowHighlightProp?: keyof IRoute;
+  rowHighlightProp?: keyof Route;
   rowHighlightBg?: Theme.ColorNames;
 }
 

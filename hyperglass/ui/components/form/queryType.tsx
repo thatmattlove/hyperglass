@@ -28,18 +28,18 @@ export const QueryType: React.FC<TQuerySelectField> = (props: TQuerySelectField)
       selections.queryType.set(null);
       queryType.set('');
     }
-    onChange({ field: 'query_type', value });
+    onChange({ field: 'queryType', value });
   }
 
   return (
     <Select
       size="lg"
-      name="query_type"
+      name="queryType"
       options={options}
       aria-label={label}
       onChange={handleChange}
       value={exportState(selections.queryType.value)}
-      isError={'query_type' in errors}
+      isError={'queryType' in errors}
     />
   );
 };

@@ -24,7 +24,7 @@ export const ResultHeader: React.FC<TResultHeader> = (props: TResultHeader) => {
 
   const { web } = useConfig();
   const strF = useStrf();
-  const text = strF(web.text.complete_time, { seconds: runtime });
+  const text = strF(web.text.completeTime, { seconds: runtime });
   const label = useMemo(() => runtimeText(runtime, text), [runtime, text]);
 
   const color = useOpposingColor(isError ? warning : defaultStatus);

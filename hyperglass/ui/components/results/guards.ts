@@ -9,13 +9,13 @@ export function isFetchError(error: any): error is Response {
   return typeof error !== 'undefined' && error !== null && 'statusText' in error;
 }
 
-export function isLGError(error: any): error is TQueryResponse {
+export function isLGError(error: any): error is QueryResponse {
   return typeof error !== 'undefined' && error !== null && 'output' in error;
 }
 
 /**
  * Returns true if the response is an LG error, false if not.
  */
-export function isLGOutputOrError(data: any): data is TQueryResponse {
+export function isLGOutputOrError(data: any): data is QueryResponse {
   return typeof data !== 'undefined' && data !== null && data?.level !== 'success';
 }

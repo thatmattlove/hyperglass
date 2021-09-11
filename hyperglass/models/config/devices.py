@@ -26,7 +26,7 @@ from hyperglass.models.commands.generic import Directive
 
 # Local
 from .ssl import Ssl
-from ..main import HyperglassModel, HyperglassModelExtra
+from ..main import HyperglassModel
 from .proxy import Proxy
 from .params import Params
 from ..fields import SupportedDriver
@@ -34,7 +34,7 @@ from .network import Network
 from .credential import Credential
 
 
-class Device(HyperglassModelExtra):
+class Device(HyperglassModel, extra="allow"):
     """Validation model for per-router config in devices.yaml."""
 
     _id: StrictStr = PrivateAttr()
@@ -222,7 +222,7 @@ class Device(HyperglassModelExtra):
         return get_driver(values["nos"], value)
 
 
-class Devices(HyperglassModelExtra):
+class Devices(HyperglassModel, extra="allow"):
     """Validation model for device configurations."""
 
     _ids: List[StrictStr] = []
@@ -290,7 +290,7 @@ class Devices(HyperglassModelExtra):
                         "directives": [c.frontend(params) for c in device.commands],
                     }
                     for device in self.objects
-                    if device.network.display_name in names
+                    if device.network.display_name == name
                 ],
             }
             for name in names

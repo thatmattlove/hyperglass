@@ -8,7 +8,7 @@ import type { BasePath } from './types';
 const NODE_WIDTH = 200;
 const NODE_HEIGHT = 48;
 
-export function useElements(base: BasePath, data: TStructuredResponse): FlowElement[] {
+export function useElements(base: BasePath, data: StructuredResponse): FlowElement[] {
   return useMemo(() => {
     return [...buildElements(base, data)];
   }, [base, data]);
@@ -18,7 +18,7 @@ export function useElements(base: BasePath, data: TStructuredResponse): FlowElem
  * Calculate the positions for each AS Path.
  * @see https://github.com/MrBlenny/react-flow-chart/issues/61
  */
-function* buildElements(base: BasePath, data: TStructuredResponse): Generator<FlowElement> {
+function* buildElements(base: BasePath, data: StructuredResponse): Generator<FlowElement> {
   const { routes } = data;
   // Eliminate empty AS paths & deduplicate non-empty AS paths. Length should be same as count minus empty paths.
   const asPaths = routes.filter(r => r.as_path.length !== 0).map(r => [...new Set(r.as_path)]);

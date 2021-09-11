@@ -191,7 +191,7 @@ class Params(ParamsPublic, HyperglassModel):
     def frontend(self) -> Dict[str, Any]:
         """Export UI-specific parameters."""
 
-        return self.dict(
+        return self.export_dict(
             include={
                 "cache": {"show_text", "timeout"},
                 "debug": ...,

@@ -11,8 +11,8 @@ import type { LGQueryKey } from './types';
 /**
  * Custom hook handle submission of a query to the hyperglass backend.
  */
-export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryResponse> {
-  const { request_timeout, cache } = useConfig();
+export function useLGQuery(query: TFormQuery): QueryObserverResult<QueryResponse> {
+  const { requestTimeout, cache } = useConfig();
   const controller = useMemo(() => new AbortController(), []);
 
   const { trackEvent } = useGoogleAnalytics();
@@ -26,9 +26,9 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryRespons
     dimension4: query.queryGroup,
   });
 
-  const runQuery: QueryFunction<TQueryResponse, LGQueryKey> = async (
+  const runQuery: QueryFunction<QueryResponse, LGQueryKey> = async (
     ctx: QueryFunctionContext<LGQueryKey>,
-  ): Promise<TQueryResponse> => {
+  ): Promise<QueryResponse> => {
     const [url, data] = ctx.queryKey;
     const { queryLocation, queryTarget, queryType, queryGroup } = data;
     const res = await fetchWithTimeout(
@@ -44,7 +44,7 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryRespons
         }),
         mode: 'cors',
       },
-      request_timeout * 1000,
+      requestTimeout * 1000,
       controller,
     );
     try {
@@ -62,7 +62,7 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<TQueryRespons
     [controller],
   );
 
-  return useQuery<TQueryResponse, Response | TQueryResponse | Error, TQueryResponse, LGQueryKey>({
+  return useQuery<QueryResponse, Response | QueryResponse | Error, QueryResponse, LGQueryKey>({
     queryKey: ['/api/query/', query],
     queryFn: runQuery,
     // Invalidate react-query's cache just shy of the configured cache timeout.

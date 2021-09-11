@@ -7,10 +7,10 @@ import { useLGState, useDirective } from '~/hooks';
 import { isSelectDirective } from '~/types';
 
 import type { OptionProps } from 'react-select';
-import type { TSelectOption, TDirective } from '~/types';
+import type { TSelectOption, Directive } from '~/types';
 import type { TQueryTarget } from './types';
 
-function buildOptions(directive: Nullable<TDirective>): TSelectOption[] {
+function buildOptions(directive: Nullable<Directive>): TSelectOption[] {
   if (directive !== null && isSelectDirective(directive)) {
     return directive.options.map(o => ({
       value: o.value,
@@ -61,7 +61,7 @@ export const QueryTarget: React.FC<TQueryTarget> = (props: TQueryTarget) => {
 
   return (
     <>
-      <input {...register('query_target')} hidden readOnly value={queryTarget.value} />
+      <input {...register('queryTarget')} hidden readOnly value={queryTarget.value} />
       <If c={directive !== null && isSelectDirective(directive)}>
         <Select
           size="lg"
@@ -82,7 +82,7 @@ export const QueryTarget: React.FC<TQueryTarget> = (props: TQueryTarget) => {
           aria-label={placeholder}
           placeholder={placeholder}
           value={displayTarget.value}
-          name="query_target_display"
+          name="queryTargetDisplay"
           onChange={handleInputChange}
           _placeholder={{ color: placeholderColor }}
         />

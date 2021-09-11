@@ -1,10 +1,13 @@
 import type { Theme } from './theme';
+import type { CamelCasedPropertiesDeep, CamelCasedProperties } from 'type-fest';
 
-export type TQueryFields = 'query_type' | 'query_target' | 'query_location' | 'query_vrf';
+// export type QueryFields = 'query_type' | 'query_target' | 'query_location' | 'query_vrf';
 
-type TSide = 'left' | 'right';
+type Side = 'left' | 'right';
 
-export interface IConfigMessages {
+export type ParsedDataField = [string, keyof Route, 'left' | 'right' | 'center' | null];
+
+interface _Messages {
   no_input: string;
   acl_denied: string;
   acl_not_allowed: string;
@@ -20,13 +23,13 @@ export interface IConfigMessages {
   parsing_error: string;
 }
 
-export interface IConfigTheme {
-  colors: { [k: string]: string };
+interface _ThemeConfig {
+  colors: Record<string, string>;
   default_color_mode: 'light' | 'dark' | null;
   fonts: Theme.Fonts;
 }
 
-export interface IConfigWebText {
+interface _Text {
   title_mode: string;
   title: string;
   subtitle: string;
@@ -48,145 +51,150 @@ export interface IConfigWebText {
   no_communities: string;
 }
 
-export interface TConfigGreeting {
+interface _Greeting {
   enable: boolean;
   title: string;
   button: string;
   required: boolean;
 }
 
-export interface TConfigWebLogo {
+interface _Logo {
   width: string;
   height: string | null;
   light_format: string;
   dark_format: string;
 }
 
-export interface TLink {
+interface _Link {
   title: string;
   url: string;
   show_icon: boolean;
-  side: TSide;
+  side: Side;
   order: number;
 }
 
-export interface TMenu {
+interface _Menu {
   title: string;
   content: string;
-  side: TSide;
+  side: Side;
   order: number;
 }
 
-export interface IConfigWeb {
-  credit: { enable: boolean };
-  dns_provider: { name: string; url: string };
-  links: TLink[];
-  menus: TMenu[];
-  greeting: TConfigGreeting;
-  help_menu: { enable: boolean; title: string };
-  logo: TConfigWebLogo;
-  terms: { enable: boolean; title: string };
-  text: IConfigWebText;
-  theme: IConfigTheme;
-}
-
-export interface TQuery {
-  name: string;
+interface _Credit {
   enable: boolean;
-  display_name: string;
 }
 
-export interface TBGPCommunity {
-  community: string;
-  display_name: string;
-  description: string;
+interface _Web {
+  credit: _Credit;
+  dns_provider: { name: string; url: string };
+  links: _Link[];
+  menus: _Menu[];
+  greeting: _Greeting;
+  help_menu: { enable: boolean; title: string };
+  logo: _Logo;
+  terms: { enable: boolean; title: string };
+  text: _Text;
+  theme: _ThemeConfig;
 }
 
-export interface IQueryBGPRoute extends TQuery {}
-export interface IQueryBGPASPath extends TQuery {}
-export interface IQueryPing extends TQuery {}
-export interface IQueryTraceroute extends TQuery {}
-export interface IQueryBGPCommunity extends TQuery {
-  mode: 'input' | 'select';
-  communities: TBGPCommunity[];
-}
+// export interface Query {
+//   name: string;
+//   enable: boolean;
+//   display_name: string;
+// }
 
-export interface TConfigQueries {
-  bgp_route: IQueryBGPRoute;
-  bgp_community: IQueryBGPCommunity;
-  bgp_aspath: IQueryBGPASPath;
-  ping: IQueryPing;
-  traceroute: IQueryTraceroute;
-  list: TQuery[];
-}
+// export interface BGPCommunity {
+//   community: string;
+//   display_name: string;
+//   description: string;
+// }
 
-interface TDeviceVrfBase {
-  _id: string;
-  display_name: string;
-  default: boolean;
-}
+// export interface QueryBGPRoute extends Query {}
+// export interface QueryBGPASPath extends Query {}
+// export interface QueryPing extends Query {}
+// export interface QueryTraceroute extends Query {}
+// export interface QueryBGPCommunity extends Query {
+//   mode: 'input' | 'select';
+//   communities: BGPCommunity[];
+// }
 
-export interface TDeviceVrf extends TDeviceVrfBase {
-  ipv4: boolean;
-  ipv6: boolean;
-}
+// export interface Queries {
+//   bgp_route: QueryBGPRoute;
+//   bgp_community: QueryBGPCommunity;
+//   bgp_aspath: QueryBGPASPath;
+//   ping: QueryPing;
+//   traceroute: QueryTraceroute;
+//   list: Query[];
+// }
 
-type TDirectiveBase = {
+type _DirectiveBase = {
   id: string;
   name: string;
   field_type: 'text' | 'select' | null;
   description: string;
   groups: string[];
-  info: TQueryContent | null;
+  info: _QueryContent | null;
 };
 
-export type TDirectiveOption = {
+type _DirectiveOption = {
   name: string;
   value: string;
   description: string | null;
 };
 
-export type TDirectiveSelect = TDirectiveBase & {
-  options: TDirectiveOption[];
+type _DirectiveSelect = _DirectiveBase & {
+  options: _DirectiveOption[];
 };
 
-export type TDirective = TDirectiveBase | TDirectiveSelect;
+type _Directive = _DirectiveBase | _DirectiveSelect;
 
-export interface TDevice {
-  _id: string;
+interface _Device {
+  id: string;
   name: string;
   network: string;
-  directives: TDirective[];
+  directives: _Directive[];
 }
 
-export interface TNetworkLocation extends TDevice {}
-
-export interface TNetwork {
+interface _Network {
   display_name: string;
-  locations: TDevice[];
+  locations: _Device[];
 }
 
-export type TParsedDataField = [string, keyof TRoute, 'left' | 'right' | 'center' | null];
-
-export interface TQueryContent {
+interface _QueryContent {
   content: string;
   enable: boolean;
   params: {
-    primary_asn: IConfig['primary_asn'];
-    org_name: IConfig['org_name'];
-    site_title: IConfig['site_title'];
+    primary_asn: _Config['primary_asn'];
+    org_name: _Config['org_name'];
+    site_title: _Config['site_title'];
     title: string;
     [k: string]: string;
   };
 }
 
-export interface IConfigContent {
+interface _Content {
   credit: string;
   greeting: string;
 }
 
-export interface IConfig {
-  cache: { show_text: boolean; timeout: number };
+interface _Cache {
+  show_text: boolean;
+  timeout: number;
+}
+
+type _Config = _ConfigDeep & _ConfigShallow;
+
+interface _ConfigDeep {
+  cache: _Cache;
+  web: _Web;
+  messages: _Messages;
+  // queries: Queries;
+  devices: _Device[];
+  networks: _Network[];
+  content: _Content;
+}
+
+interface _ConfigShallow {
   debug: boolean;
   developer_mode: boolean;
   primary_asn: string;
@@ -196,14 +204,8 @@ export interface IConfig {
   site_title: string;
   site_keywords: string[];
   site_description: string;
-  web: IConfigWeb;
-  messages: IConfigMessages;
-  hyperglass_version: string;
-  queries: TConfigQueries;
-  devices: TDevice[];
-  networks: TNetwork[];
-  parsed_data_fields: TParsedDataField[];
-  content: IConfigContent;
+  version: string;
+  parsed_data_fields: ParsedDataField[];
 }
 
 export interface Favicon {
@@ -218,3 +220,19 @@ export interface FaviconComponent {
   href: string;
   type: string;
 }
+
+export type Config = CamelCasedPropertiesDeep<_ConfigDeep> & CamelCasedProperties<_ConfigShallow>;
+export type ThemeConfig = CamelCasedProperties<_ThemeConfig>;
+export type Content = CamelCasedProperties<_Content>;
+export type QueryContent = CamelCasedPropertiesDeep<_QueryContent>;
+export type Network = CamelCasedPropertiesDeep<_Network>;
+export type Device = CamelCasedPropertiesDeep<_Device>;
+export type Directive = CamelCasedPropertiesDeep<_Directive>;
+export type DirectiveSelect = CamelCasedPropertiesDeep<_DirectiveSelect>;
+export type DirectiveOption = CamelCasedPropertiesDeep<_DirectiveOption>;
+export type Text = CamelCasedProperties<_Text>;
+export type Web = CamelCasedPropertiesDeep<_Web>;
+export type Greeting = CamelCasedProperties<_Greeting>;
+export type Logo = CamelCasedProperties<_Logo>;
+export type Link = CamelCasedProperties<_Link>;
+export type Menu = CamelCasedProperties<_Menu>;
