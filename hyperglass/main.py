@@ -14,6 +14,7 @@ from gunicorn.glogging import Logger  # type: ignore
 
 # Local
 from .log import log, setup_lib_logging
+from .plugins import init_plugins
 from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
 from .util.frontend import get_node_version
 
@@ -120,15 +121,10 @@ def on_starting(server: Arbiter):
     required = ".".join((str(v) for v in MIN_PYTHON_VERSION))
     log.info("Python {} detected ({} required)", python_version, required)
 
-    async def runner():
-        # Standard Library
-        from asyncio import gather
-
-        await gather(build_ui(), cache_config())
-
     check_redis_instance()
     aiorun(build_ui())
     cache_config()
+    init_plugins()
 
     log.success(
         "Started hyperglass {v} on http://{h}:{p} with {w} workers",

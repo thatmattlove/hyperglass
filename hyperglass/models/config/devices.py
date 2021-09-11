@@ -103,20 +103,22 @@ class Device(HyperglassModel, extra="allow"):
 
         return device_id, {"name": display_name, "display_name": None, **values}
 
-    def _validate_directive_attrs(self) -> None:
-
-        # Get all commands associated with the device.
-        commands = [
+    @property
+    def directive_commands(self) -> List[str]:
+        """Get all commands associated with the device."""
+        return [
             command
             for directive in self.commands
             for rule in directive.rules
             for command in rule.commands
         ]
 
+    def _validate_directive_attrs(self) -> None:
+
         # Set of all keys except for built-in key `target`.
         keys = {
             key
-            for group in [get_fmt_keys(command) for command in commands]
+            for group in [get_fmt_keys(command) for command in self.directive_commands]
             for key in group
             if key != "target"
         }
