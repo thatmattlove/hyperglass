@@ -7,12 +7,13 @@ from pathlib import Path
 
 # Third Party
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from fastapi.exceptions import ValidationError, RequestValidationError
-from starlette.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.openapi.utils import get_openapi
-from starlette.staticfiles import StaticFiles
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 # Project
 from hyperglass.log import log
@@ -183,6 +184,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# GZIP Middleware
+app.add_middleware(GZipMiddleware)
 
 app.add_api_route(
     path="/api/info",
