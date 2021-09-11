@@ -2,11 +2,14 @@
 
 # Local
 from .main import init_plugins
+from ._input import InputPlugin
 from ._output import OutputPlugin
-from ._register import register_output_plugin
+from ._manager import InputPluginManager, OutputPluginManager
 
 __all__ = (
-    "OutputPlugin",
-    "register_output_plugin",
     "init_plugins",
+    "InputPlugin",
+    "InputPluginManager",
+    "OutputPlugin",
+    "OutputPluginManager",
 )

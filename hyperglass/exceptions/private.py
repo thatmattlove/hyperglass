@@ -92,3 +92,7 @@ class ParsingError(PrivateHyperglassError):
 
 class DependencyError(PrivateHyperglassError):
     """Raised when a dependency is missing, not running, or on the wrong version."""
+
+
+class PluginError(PrivateHyperglassError):
+    """Raised when a plugin error occurs."""

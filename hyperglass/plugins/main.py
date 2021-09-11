@@ -5,8 +5,9 @@ from inspect import isclass
 
 # Local
 from . import _builtin
+from ._input import InputPlugin
 from ._output import OutputPlugin
-from ._register import register_output_plugin
+from ._manager import InputPluginManager, OutputPluginManager
 
 
 def init_plugins() -> None:
@@ -15,4 +16,9 @@ def init_plugins() -> None:
         plugin = getattr(_builtin, name)
         if isclass(plugin):
             if issubclass(plugin, OutputPlugin):
-                register_output_plugin(plugin)
+                manager = OutputPluginManager()
+            elif issubclass(plugin, InputPlugin):
+                manager = InputPluginManager()
+            else:
+                continue
+            manager.register(plugin)
