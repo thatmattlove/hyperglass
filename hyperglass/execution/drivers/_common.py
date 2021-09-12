@@ -5,6 +5,7 @@ from typing import Dict, Union, Sequence
 
 # Project
 from hyperglass.log import log
+from hyperglass.plugins import OutputPluginManager
 from hyperglass.models.api import Query
 from hyperglass.parsing.nos import scrape_parsers, structured_parsers
 from hyperglass.parsing.common import parsers
@@ -25,6 +26,7 @@ class Connection:
         self.query_target = self.query_data.query_target
         self._query = Construct(device=self.device, query=self.query_data)
         self.query = self._query.queries()
+        self.plugin_manager = OutputPluginManager()
 
     async def parsed_response(  # noqa: C901 ("too complex")
         self, output: Sequence[str]

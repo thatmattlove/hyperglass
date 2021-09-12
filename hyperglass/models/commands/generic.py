@@ -1,8 +1,10 @@
 """Generic command models."""
 
 # Standard Library
+import os
 import re
 from typing import Dict, List, Union, Literal, Optional
+from pathlib import Path
 from ipaddress import IPv4Network, IPv6Network, ip_network
 
 # Third Party
@@ -230,6 +232,7 @@ class Directive(HyperglassModel):
     rules: List[Rules]
     field: Union[Text, Select, None]
     info: Optional[FilePath]
+    plugins: List[StrictStr] = []
     groups: List[
         StrictStr
     ] = []  # TODO: Flesh this out. Replace VRFs, but use same logic in React to filter available commands for multi-device queries.
@@ -252,6 +255,21 @@ class Directive(HyperglassModel):
         elif self.field.is_text or self.field.is_ip:
             return "text"
         return None
+
+    @validator("plugins")
+    def validate_plugins(cls: "Directive", plugins: List[str]) -> List[str]:
+        """Validate and register configured plugins."""
+        plugin_dir = Path(os.environ["hyperglass_directory"]) / "plugins"
+        if plugin_dir.exists():
+            # Path objects whose file names match configured file names, should work
+            # whether or not file extension is specified.
+            matching_plugins = (
+                f
+                for f in plugin_dir.iterdir()
+                if f.name.split(".")[0] in (p.split(".")[0] for p in plugins)
+            )
+            return [str(f) for f in matching_plugins]
+        return []
 
     def frontend(self, params: Params) -> Dict:
         """Prepare a representation of the directive for the UI."""

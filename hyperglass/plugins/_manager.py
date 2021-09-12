@@ -8,6 +8,7 @@ from typing import List, Generic, TypeVar, Callable, Generator
 from inspect import isclass
 
 # Project
+from hyperglass.log import log
 from hyperglass.cache import SyncCache
 from hyperglass.configuration import REDIS_CONFIG, params
 from hyperglass.exceptions.private import PluginError
@@ -110,20 +111,30 @@ class PluginManager(Generic[PluginT]):
     def register(self: "PluginManager", plugin: PluginT) -> None:
         """Add a plugin to currently active plugins."""
         # Create a set of plugins so duplicate plugins are not mistakenly added.
-        if isclass(plugin):
+        try:
             if issubclass(plugin, HyperglassPlugin):
+                instance = plugin()
                 plugins = {
                     # Create a base64 representation of a picked plugin.
                     codecs.encode(pickle.dumps(p), "base64").decode()
                     # Merge current plugins with the new plugin.
-                    for p in [*self._get_plugins(), plugin()]
+                    for p in [*self._get_plugins(), instance]
                 }
                 # Add plugins from cache.
                 self._cache.set(
                     f"hyperglass.plugins.{self._type}", json.dumps(list(plugins))
                 )
+                log.success("Registered plugin '{}'", instance.name)
                 return
-        raise PluginError("Plugin '{}' is not a valid hyperglass plugin", repr(plugin))
+        except TypeError:
+            raise PluginError(
+                "Plugin '{p}' has not defined a required method. "
+                "Please consult the hyperglass documentation.",
+                p=repr(plugin),
+            )
+        raise PluginError(
+            "Plugin '{p}' is not a valid hyperglass plugin", p=repr(plugin)
+        )
 
 
 class InputPluginManager(PluginManager[InputPlugin], type="input"):

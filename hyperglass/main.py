@@ -6,17 +6,25 @@ import math
 import shutil
 import logging
 import platform
+from typing import TYPE_CHECKING
+from pathlib import Path
 
 # Third Party
-from gunicorn.arbiter import Arbiter  # type: ignore
 from gunicorn.app.base import BaseApplication  # type: ignore
 from gunicorn.glogging import Logger  # type: ignore
 
 # Local
 from .log import log, setup_lib_logging
-from .plugins import init_plugins
+from .plugins import InputPluginManager, OutputPluginManager, register_plugin
 from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
 from .util.frontend import get_node_version
+
+if TYPE_CHECKING:
+    # Third Party
+    from gunicorn.arbiter import Arbiter  # type: ignore
+
+    # Local
+    from .models.config.devices import Devices
 
 # Ensure the Python version meets the minimum requirements.
 pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
@@ -42,6 +50,7 @@ from .configuration import (
     CONFIG_PATH,
     REDIS_CONFIG,
     params,
+    devices,
     ui_params,
 )
 from .util.frontend import build_frontend
@@ -112,7 +121,28 @@ def cache_config() -> bool:
     return True
 
 
-def on_starting(server: Arbiter):
+def register_all_plugins(devices: "Devices") -> None:
+    """Validate and register configured plugins."""
+
+    for plugin_file in {
+        Path(p)
+        for p in (p for d in devices.objects for c in d.commands for p in c.plugins)
+    }:
+        failures = register_plugin(plugin_file)
+        for failure in failures:
+            log.warning(
+                "Plugin '{}' is not a valid hyperglass plugin, and was not registered",
+                failure,
+            )
+
+
+def unregister_all_plugins() -> None:
+    """Unregister all plugins."""
+    for manager in (InputPluginManager, OutputPluginManager):
+        manager().reset()
+
+
+def on_starting(server: "Arbiter"):
     """Gunicorn pre-start tasks."""
 
     setup_lib_logging()
@@ -124,7 +154,7 @@ def on_starting(server: Arbiter):
     check_redis_instance()
     aiorun(build_ui())
     cache_config()
-    init_plugins()
+    register_all_plugins(devices)
 
     log.success(
         "Started hyperglass {v} on http://{h}:{p} with {w} workers",
@@ -135,7 +165,7 @@ def on_starting(server: Arbiter):
     )
 
 
-def on_exit(server: Arbiter):
+def on_exit(server: "Arbiter"):
     """Gunicorn shutdown tasks."""
 
     log.critical("Stopping hyperglass {}", __version__)
@@ -145,6 +175,7 @@ def on_exit(server: Arbiter):
             await clear_cache()
 
     aiorun(runner())
+    unregister_all_plugins()
 
 
 class HyperglassWSGI(BaseApplication):

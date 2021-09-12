@@ -1,16 +1,20 @@
 """Remove anything before the command if found in output."""
 
-# Project
-from hyperglass.models.config.devices import Device
+# Standard Library
+from typing import TYPE_CHECKING
 
 # Local
 from .._output import OutputPlugin
+
+if TYPE_CHECKING:
+    # Project
+    from hyperglass.models.config.devices import Device
 
 
 class RemoveCommand(OutputPlugin):
     """Remove anything before the command if found in output."""
 
-    def process(self, device_output: str, device: Device) -> str:
+    def process(self, device_output: str, device: "Device") -> str:
         """Remove anything before the command if found in output."""
         output = device_output.strip().split("\n")
 
