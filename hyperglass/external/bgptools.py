@@ -31,9 +31,7 @@ def parse_whois(output: str, targets: List[str]) -> Dict[str, str]:
     def lines(raw):
         """Generate clean string values for each column."""
         for r in (r for r in raw.split("\n") if r):
-            fields = (
-                re.sub(r"(\n|\r)", "", field).strip(" ") for field in r.split("|")
-            )
+            fields = (re.sub(r"(\n|\r)", "", field).strip(" ") for field in r.split("|"))
             yield fields
 
     data = {}

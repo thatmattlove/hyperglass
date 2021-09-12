@@ -80,9 +80,7 @@ class AgentConnection(Connection):
                     )
                     log.debug("Encoded JWT: {}", encoded_query)
 
-                    raw_response = await http_client.post(
-                        endpoint, json={"encoded": encoded_query}
-                    )
+                    raw_response = await http_client.post(endpoint, json={"encoded": encoded_query})
                     log.debug("HTTP status code: {}", raw_response.status_code)
 
                     raw = raw_response.text

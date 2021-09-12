@@ -124,9 +124,7 @@ class PublicHyperglassError(HyperglassError):
             kwargs["error"] = error
         self._message = self._safe_format(self._message_template, **kwargs)
         self._keywords = list(kwargs.values())
-        super().__init__(
-            message=self._message, level=self._level, keywords=self._keywords
-        )
+        super().__init__(message=self._message, level=self._level, keywords=self._keywords)
 
     def handle_error(self, error: Any) -> None:
         """Add details to the error template, if provided."""
@@ -156,6 +154,4 @@ class PrivateHyperglassError(HyperglassError):
             kwargs["error"] = error
         self._message = self._safe_format(message, **kwargs)
         self._keywords = list(kwargs.values())
-        super().__init__(
-            message=self._message, level=self._level, keywords=self._keywords
-        )
+        super().__init__(message=self._message, level=self._level, keywords=self._keywords)

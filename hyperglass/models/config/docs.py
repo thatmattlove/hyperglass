@@ -23,9 +23,7 @@ class EndpointConfig(HyperglassModel):
         description="Displayed inside each API endpoint section.",
     )
     summary: StrictStr = Field(
-        ...,
-        title="Endpoint Summary",
-        description="Displayed beside the API endpoint URI.",
+        ..., title="Endpoint Summary", description="Displayed beside the API endpoint URI.",
     )
 
 
@@ -41,9 +39,7 @@ class Docs(HyperglassModel):
         description="OpenAPI UI library to use for the hyperglass API docs. Currently, the options are [Swagger UI](/fixme) and [Redoc](/fixme).",
     )
     base_url: HttpUrl = Field(
-        "https://lg.example.net",
-        title="Base URL",
-        description="Base URL used in request samples.",
+        "https://lg.example.net", title="Base URL", description="Base URL used in request samples.",
     )
     uri: AnyUri = Field(
         "/api/docs",

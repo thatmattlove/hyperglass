@@ -110,9 +110,7 @@ class FRRRoute(_FRRBase):
                 }
             )
 
-        serialized = ParsedRoutes(
-            vrf=vrf, count=len(routes), routes=routes, winning_weight="high",
-        )
+        serialized = ParsedRoutes(vrf=vrf, count=len(routes), routes=routes, winning_weight="high",)
 
         log.info("Serialized FRR response: {}", serialized)
         return serialized

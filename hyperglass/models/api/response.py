@@ -26,20 +26,14 @@ class QueryError(BaseModel):
         """Pydantic model configuration."""
 
         title = "Query Error"
-        description = (
-            "Response received when there is an error executing the requested query."
-        )
+        description = "Response received when there is an error executing the requested query."
         fields = {
             "output": {
                 "title": "Output",
                 "description": "Error Details",
                 "example": "192.0.2.1/32 is not allowed.",
             },
-            "level": {
-                "title": "Level",
-                "description": "Error Severity",
-                "example": "danger",
-            },
+            "level": {"title": "Level", "description": "Error Severity", "example": "danger"},
             "keywords": {
                 "title": "Keywords",
                 "description": "Relevant keyword values contained in the `output` field, which can be used for formatting.",
@@ -189,11 +183,7 @@ class RoutersResponse(BaseModel):
         description = "Device attributes"
         schema_extra = {
             "examples": [
-                {
-                    "id": "nyc_router_1",
-                    "name": "NYC Router 1",
-                    "network": "New York City, NY",
-                }
+                {"id": "nyc_router_1", "name": "NYC Router 1", "network": "New York City, NY"}
             ]
         }
 
@@ -217,11 +207,11 @@ class SupportedQueryResponse(BaseModel):
         """Pydantic model configuration."""
 
         title = "Query Type"
-        description = "If enabled is `true`, the `name` field may be used to specify the query type."
+        description = (
+            "If enabled is `true`, the `name` field may be used to specify the query type."
+        )
         schema_extra = {
-            "examples": [
-                {"name": "bgp_route", "display_name": "BGP Route", "enable": True}
-            ]
+            "examples": [{"name": "bgp_route", "display_name": "BGP Route", "enable": True}]
         }
 
 

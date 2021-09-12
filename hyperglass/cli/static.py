@@ -122,6 +122,4 @@ class Message:
 
     def __repr__(self):
         """Stringify the instance character for representation."""
-        return "Message(msg={m}, kw={k}, emoji={e})".format(
-            m=self.msg, k=self.kw, e=self.emoji
-        )
+        return "Message(msg={m}, kw={k}, emoji={e})".format(m=self.msg, k=self.kw, e=self.emoji)

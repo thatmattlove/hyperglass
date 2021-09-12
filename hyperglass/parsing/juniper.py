@@ -58,9 +58,7 @@ def parse_juniper(output: Sequence) -> Dict:  # noqa: C901
         cleaned = clean_xml_output(response)
 
         try:
-            parsed = xmltodict.parse(
-                cleaned, force_list=("rt", "rt-entry", "community")
-            )
+            parsed = xmltodict.parse(cleaned, force_list=("rt", "rt-entry", "community"))
 
             log.debug("Initially Parsed Response: \n{}", parsed)
 

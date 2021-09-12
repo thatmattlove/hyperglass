@@ -79,6 +79,4 @@ class HyperglassModel(BaseModel):
             "exclude_unset": kwargs.pop("exclude_unset", False),
         }
 
-        return yaml.safe_dump(
-            json.loads(self.export_json(**export_kwargs)), *args, **kwargs
-        )
+        return yaml.safe_dump(json.loads(self.export_json(**export_kwargs)), *args, **kwargs)

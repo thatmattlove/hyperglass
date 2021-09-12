@@ -10,9 +10,7 @@ from ._common import ErrorLevel, PrivateHyperglassError
 class ExternalError(PrivateHyperglassError):
     """Raised when an error during a connection to an external service occurs."""
 
-    def __init__(
-        self, message: str, level: ErrorLevel, **kwargs: Dict[str, Any]
-    ) -> None:
+    def __init__(self, message: str, level: ErrorLevel, **kwargs: Dict[str, Any]) -> None:
         """Set level according to level argument."""
         self._level = level
         super().__init__(message, **kwargs)
@@ -31,9 +29,7 @@ class UnsupportedDevice(PrivateHyperglassError):
 
         drivers = ("", *[*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()].sort())
         driver_list = "\n  - ".join(drivers)
-        super().__init__(
-            message=f"'{nos}' is not supported. Must be one of:{driver_list}"
-        )
+        super().__init__(message=f"'{nos}' is not supported. Must be one of:{driver_list}")
 
 
 class InputValidationError(PrivateHyperglassError):

@@ -110,9 +110,7 @@ class Params(ParamsPublic, HyperglassModel):
         description="Allowed CORS hosts. By default, no CORS hosts are allowed.",
     )
     netmiko_delay_factor: IntFloat = Field(
-        0.1,
-        title="Netmiko Delay Factor",
-        description="Override the netmiko global delay factor.",
+        0.1, title="Netmiko Delay Factor", description="Override the netmiko global delay factor.",
     )
 
     # Sub Level Params
@@ -184,9 +182,7 @@ class Params(ParamsPublic, HyperglassModel):
 
     def content_params(self) -> Dict[str, Any]:
         """Export content-specific parameters."""
-        return self.dict(
-            include={"primary_asn", "org_name", "site_title", "site_description"}
-        )
+        return self.dict(include={"primary_asn", "org_name", "site_title", "site_description"})
 
     def frontend(self) -> Dict[str, Any]:
         """Export UI-specific parameters."""

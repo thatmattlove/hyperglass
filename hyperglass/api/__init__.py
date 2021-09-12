@@ -113,9 +113,7 @@ def _custom_openapi():
         description=params.docs.description,
         routes=app.routes,
     )
-    openapi_schema["info"]["x-logo"] = {
-        "url": "/images/light" + params.web.logo.light.suffix
-    }
+    openapi_schema["info"]["x-logo"] = {"url": "/images/light" + params.web.logo.light.suffix}
 
     query_samples = []
     queries_samples = []
@@ -123,38 +121,26 @@ def _custom_openapi():
 
     with EXAMPLE_QUERY_CURL.open("r") as e:
         example = e.read()
-        query_samples.append(
-            {"lang": "cURL", "source": example % str(params.docs.base_url)}
-        )
+        query_samples.append({"lang": "cURL", "source": example % str(params.docs.base_url)})
 
     with EXAMPLE_QUERY_PY.open("r") as e:
         example = e.read()
-        query_samples.append(
-            {"lang": "Python", "source": example % str(params.docs.base_url)}
-        )
+        query_samples.append({"lang": "Python", "source": example % str(params.docs.base_url)})
 
     with EXAMPLE_DEVICES_CURL.open("r") as e:
         example = e.read()
-        queries_samples.append(
-            {"lang": "cURL", "source": example % str(params.docs.base_url)}
-        )
+        queries_samples.append({"lang": "cURL", "source": example % str(params.docs.base_url)})
     with EXAMPLE_DEVICES_PY.open("r") as e:
         example = e.read()
-        queries_samples.append(
-            {"lang": "Python", "source": example % str(params.docs.base_url)}
-        )
+        queries_samples.append({"lang": "Python", "source": example % str(params.docs.base_url)})
 
     with EXAMPLE_QUERIES_CURL.open("r") as e:
         example = e.read()
-        devices_samples.append(
-            {"lang": "cURL", "source": example % str(params.docs.base_url)}
-        )
+        devices_samples.append({"lang": "cURL", "source": example % str(params.docs.base_url)})
 
     with EXAMPLE_QUERIES_PY.open("r") as e:
         example = e.read()
-        devices_samples.append(
-            {"lang": "Python", "source": example % str(params.docs.base_url)}
-        )
+        devices_samples.append({"lang": "Python", "source": example % str(params.docs.base_url)})
 
     openapi_schema["paths"]["/api/query/"]["post"]["x-code-samples"] = query_samples
     openapi_schema["paths"]["/api/devices"]["get"]["x-code-samples"] = devices_samples

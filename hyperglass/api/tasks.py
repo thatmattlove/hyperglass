@@ -8,9 +8,7 @@ from pathlib import Path
 from httpx import Headers
 
 
-def import_public_key(
-    app_path: Union[Path, str], device_name: str, keystring: str
-) -> bool:
+def import_public_key(app_path: Union[Path, str], device_name: str, keystring: str) -> bool:
     """Import a public key for hyperglass-agent."""
     if not isinstance(app_path, Path):
         app_path = Path(app_path)

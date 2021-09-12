@@ -25,10 +25,7 @@ class HyperglassError(Exception):
     """hyperglass base exception."""
 
     def __init__(
-        self,
-        message: str = "",
-        level: str = "warning",
-        keywords: Optional[List[str]] = None,
+        self, message: str = "", level: str = "warning", keywords: Optional[List[str]] = None,
     ) -> None:
         """Initialize the hyperglass base exception class."""
         self._message = message
@@ -87,16 +84,12 @@ class _UnformattedHyperglassError(HyperglassError):
 
     _level = "warning"
 
-    def __init__(
-        self, unformatted_msg: str = "", level: Optional[str] = None, **kwargs
-    ) -> None:
+    def __init__(self, unformatted_msg: str = "", level: Optional[str] = None, **kwargs) -> None:
         """Format error message with keyword arguments."""
         self._message = unformatted_msg.format(**kwargs)
         self._level = level or self._level
         self._keywords = list(kwargs.values())
-        super().__init__(
-            message=self._message, level=self._level, keywords=self._keywords
-        )
+        super().__init__(message=self._message, level=self._level, keywords=self._keywords)
 
 
 class _PredefinedHyperglassError(HyperglassError):
@@ -107,9 +100,7 @@ class _PredefinedHyperglassError(HyperglassError):
         self._fmt_msg = self._message.format(**kwargs)
         self._level = level or self._level
         self._keywords = list(kwargs.values())
-        super().__init__(
-            message=self._fmt_msg, level=self._level, keywords=self._keywords
-        )
+        super().__init__(message=self._fmt_msg, level=self._level, keywords=self._keywords)
 
 
 class ConfigInvalid(HyperglassError):

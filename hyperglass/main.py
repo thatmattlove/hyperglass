@@ -125,14 +125,12 @@ def register_all_plugins(devices: "Devices") -> None:
     """Validate and register configured plugins."""
 
     for plugin_file in {
-        Path(p)
-        for p in (p for d in devices.objects for c in d.commands for p in c.plugins)
+        Path(p) for p in (p for d in devices.objects for c in d.commands for p in c.plugins)
     }:
         failures = register_plugin(plugin_file)
         for failure in failures:
             log.warning(
-                "Plugin '{}' is not a valid hyperglass plugin, and was not registered",
-                failure,
+                "Plugin '{}' is not a valid hyperglass plugin, and was not registered", failure,
             )
 
 

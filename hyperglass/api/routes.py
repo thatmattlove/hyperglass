@@ -55,9 +55,7 @@ async def send_webhook(query_data: Query, request: Request, timestamp: datetime)
                     }
                 )
     except Exception as err:
-        log.error(
-            "Error sending webhook to {}: {}", params.logging.http.provider, str(err)
-        )
+        log.error("Error sending webhook to {}: {}", params.logging.http.provider, str(err))
 
 
 @log.catch
@@ -106,9 +104,7 @@ async def query(query_data: Query, request: Request, background_tasks: Backgroun
 
     elif not cache_response:
         log.debug("No existing cache entry for query {}", cache_key)
-        log.debug(
-            "Created new cache key {} entry for query {}", cache_key, query_data.summary
-        )
+        log.debug("Created new cache key {} entry for query {}", cache_key, query_data.summary)
 
         timestamp = query_data.timestamp
 

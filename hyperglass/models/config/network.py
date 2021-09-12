@@ -11,9 +11,7 @@ class Network(HyperglassModel):
     """Validation Model for per-network/asn config in devices.yaml."""
 
     name: StrictStr = Field(
-        ...,
-        title="Network Name",
-        description="Internal name of the device's primary network.",
+        ..., title="Network Name", description="Internal name of the device's primary network.",
     )
     display_name: StrictStr = Field(
         ...,

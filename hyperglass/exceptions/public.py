@@ -33,9 +33,7 @@ class AuthError(
         super().__init__(error=str(error), device=device.name, proxy=device.proxy)
 
 
-class RestError(
-    PublicHyperglassError, template=params.messages.connection_error, level="danger"
-):
+class RestError(PublicHyperglassError, template=params.messages.connection_error, level="danger"):
     """Raised upon a rest API client error."""
 
     def __init__(self, error: BaseException, *, device: Device):
@@ -86,9 +84,7 @@ class QueryLocationNotFound(NotFound):
 
     def __init__(self, location: Any, **kwargs: Dict[str, Any]) -> None:
         """Initialize a NotFound error for a query location."""
-        super().__init__(
-            type=params.web.text.query_location, name=str(location), **kwargs
-        )
+        super().__init__(type=params.web.text.query_location, name=str(location), **kwargs)
 
 
 class QueryTypeNotFound(NotFound):
@@ -96,9 +92,7 @@ class QueryTypeNotFound(NotFound):
 
     def __init__(self, query_type: Any, **kwargs: Dict[str, Any]) -> None:
         """Initialize a NotFound error for a query type."""
-        super().__init__(
-            type=params.web.text.query_type, name=str(query_type), **kwargs
-        )
+        super().__init__(type=params.web.text.query_type, name=str(query_type), **kwargs)
 
 
 class QueryGroupNotFound(NotFound):

@@ -41,9 +41,7 @@ def rpki_state(prefix, asn):
             log.error(str(err))
             state = 3
 
-    msg = "RPKI Validation State for {} via AS{} is {}".format(
-        prefix, asn, RPKI_NAME_MAP[state]
-    )
+    msg = "RPKI Validation State for {} via AS{} is {}".format(prefix, asn, RPKI_NAME_MAP[state])
     if cached is not None:
         msg += " [CACHED]"
 

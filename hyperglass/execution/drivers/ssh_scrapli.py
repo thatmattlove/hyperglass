@@ -98,9 +98,7 @@ class ScrapliConnection(SSHConnection):
 
         if self.device.credential._method == "password":
             # Use password auth if no key is defined.
-            driver_kwargs[
-                "auth_password"
-            ] = self.device.credential.password.get_secret_value()
+            driver_kwargs["auth_password"] = self.device.credential.password.get_secret_value()
         else:
             # Otherwise, use key auth.
             driver_kwargs["auth_private_key"] = self.device.credential.key.as_posix()
@@ -112,9 +110,7 @@ class ScrapliConnection(SSHConnection):
                 ] = self.device.credential.password.get_secret_value()
 
         driver = driver(**driver_kwargs)
-        driver.logger = log.bind(
-            logger_name=f"scrapli.{driver.host}:{driver.port}-driver"
-        )
+        driver.logger = log.bind(logger_name=f"scrapli.{driver.host}:{driver.port}-driver")
         try:
             responses = ()
             async with driver as connection:

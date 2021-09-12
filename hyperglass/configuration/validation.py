@@ -14,9 +14,7 @@ from hyperglass.exceptions.private import ConfigInvalid
 Importer = TypeVar("Importer")
 
 
-def validate_config(
-    config: Union[Dict[str, Any], List[Any]], importer: Importer
-) -> Importer:
+def validate_config(config: Union[Dict[str, Any], List[Any]], importer: Importer) -> Importer:
     """Validate a config dict against a model."""
     validated = None
     try:

@@ -22,9 +22,7 @@ def get_node_version() -> Tuple[int, int, int]:
     """Get the system's NodeJS version."""
     node_path = shutil.which("node")
 
-    raw_version = subprocess.check_output(  # noqa: S603
-        [node_path, "--version"]
-    ).decode()
+    raw_version = subprocess.check_output([node_path, "--version"]).decode()  # noqa: S603
 
     # Node returns the version as 'v14.5.0', for example. Remove the v.
     version = raw_version.replace("v", "")
@@ -162,11 +160,7 @@ async def build_ui(app_path):
 
 
 def generate_opengraph(
-    image_path: Path,
-    max_width: int,
-    max_height: int,
-    target_path: Path,
-    background_color: str,
+    image_path: Path, max_width: int, max_height: int, target_path: Path, background_color: str,
 ):
     """Generate an OpenGraph compliant image."""
     # Third Party
@@ -340,9 +334,7 @@ async def build_frontend(  # noqa: C901
                 log.debug("Previous Build ID: {}", ef_id)
 
             if ef_id == build_id:
-                log.debug(
-                    "UI parameters unchanged since last build, skipping UI build..."
-                )
+                log.debug("UI parameters unchanged since last build, skipping UI build...")
                 return True
 
         env_vars["buildId"] = build_id
@@ -368,11 +360,7 @@ async def build_frontend(  # noqa: C901
         migrate_images(app_path, params)
 
         generate_opengraph(
-            params.web.opengraph.image,
-            1200,
-            630,
-            images_dir,
-            params.web.theme.colors.black,
+            params.web.opengraph.image, 1200, 630, images_dir, params.web.theme.colors.black,
         )
 
     except Exception as err:

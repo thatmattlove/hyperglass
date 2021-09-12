@@ -52,18 +52,14 @@ def _print_version(ctx, param, value):
     help=cmd_help(E.NUMBERS, "hyperglass version", supports_color),
 )
 @help_option(
-    "-h",
-    "--help",
-    help=cmd_help(E.FOLDED_HANDS, "Show this help message", supports_color),
+    "-h", "--help", help=cmd_help(E.FOLDED_HANDS, "Show this help message", supports_color),
 )
 def hg():
     """Initialize Click Command Group."""
     pass
 
 
-@hg.command(
-    "build-ui", help=cmd_help(E.BUTTERFLY, "Create a new UI build", supports_color)
-)
+@hg.command("build-ui", help=cmd_help(E.BUTTERFLY, "Create a new UI build", supports_color))
 @option("-t", "--timeout", required=False, default=180, help="Timeout in seconds")
 def build_frontend(timeout):
     """Create a new UI build."""
@@ -131,9 +127,7 @@ def start(build, direct, workers):  # noqa: C901
     cls=HelpColorsCommand,
     help_options_custom_colors=random_colors("-l"),
 )
-@option(
-    "-l", "--length", "length", default=32, help="Number of characters [default: 32]"
-)
+@option("-l", "--length", "length", default=32, help="Number of characters [default: 32]")
 def generate_secret(length):
     """Generate secret for hyperglass-agent.
 
@@ -177,9 +171,7 @@ After adding your {devices} file, you should run the {build_cmd} command.""",  #
 
 @hg.command(
     "system-info",
-    help=cmd_help(
-        E.THERMOMETER, "  Get system information for a bug report", supports_color
-    ),
+    help=cmd_help(E.THERMOMETER, "  Get system information for a bug report", supports_color),
     cls=HelpColorsCommand,
 )
 def get_system_info():

@@ -118,9 +118,7 @@ def _get_commands(data: Dict) -> List[Directive]:
     return commands
 
 
-def _device_commands(
-    device: Dict, directives: List[Directive]
-) -> Generator[Directive, None, None]:
+def _device_commands(device: Dict, directives: List[Directive]) -> Generator[Directive, None, None]:
     device_commands = device.get("commands", [])
     for directive in directives:
         if directive.id in device_commands:
@@ -176,9 +174,7 @@ enable_file_logging(
 # Set up syslog logging if enabled.
 if params.logging.syslog is not None and params.logging.syslog.enable:
     enable_syslog_logging(
-        logger=log,
-        syslog_host=params.logging.syslog.host,
-        syslog_port=params.logging.syslog.port,
+        logger=log, syslog_host=params.logging.syslog.host, syslog_port=params.logging.syslog.port,
     )
 
 if params.logging.http is not None and params.logging.http.enable:
@@ -196,18 +192,14 @@ try:
     # If keywords are unmodified (default), add the org name &
     # site_title.
     if Params().site_keywords == params.site_keywords:
-        params.site_keywords = sorted(
-            {*params.site_keywords, params.org_name, params.site_title}
-        )
+        params.site_keywords = sorted({*params.site_keywords, params.org_name, params.site_title})
 
 except KeyError:
     pass
 
 
 content_greeting = get_markdown(
-    config_path=params.web.greeting,
-    default="",
-    params={"title": params.web.greeting.title},
+    config_path=params.web.greeting, default="", params={"title": params.web.greeting.title},
 )
 
 

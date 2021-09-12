@@ -71,9 +71,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 
     except ValueError:
         raise InputInvalid(
-            params.messages.invalid_input,
-            target=value,
-            query_type=query_type_params.display_name,
+            params.messages.invalid_input, target=value, query_type=query_type_params.display_name,
         )
 
     # Test the valid IP address to determine if it is:
@@ -83,9 +81,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
     # ...and returns an error if so.
     if valid_ip.is_reserved or valid_ip.is_unspecified or valid_ip.is_loopback:
         raise InputInvalid(
-            params.messages.invalid_input,
-            target=value,
-            query_type=query_type_params.display_name,
+            params.messages.invalid_input, target=value, query_type=query_type_params.display_name,
         )
 
     ip_version = valid_ip.version
@@ -105,9 +101,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
                 pass
 
             if ace.action == "permit":
-                log.debug(
-                    "{t} is allowed by access-list {a}", t=str(valid_ip), a=repr(ace)
-                )
+                log.debug("{t} is allowed by access-list {a}", t=str(valid_ip), a=repr(ace))
                 break
             elif ace.action == "deny":
                 raise InputNotAllowed(
@@ -125,10 +119,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
             new_ip = valid_ip.network_address
 
             log.debug(
-                "Converted '{o}' to '{n}' for '{q}' query",
-                o=valid_ip,
-                n=new_ip,
-                q=query_type,
+                "Converted '{o}' to '{n}' for '{q}' query", o=valid_ip, n=new_ip, q=query_type,
             )
 
             valid_ip = new_ip
@@ -137,11 +128,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
         #   - Query type is bgp_route
         #   - force_cidr option is enabled
         #   - Query target is not a private address/network
-        elif (
-            query_type in ("bgp_route",)
-            and vrf_afi.force_cidr
-            and not valid_ip.is_private
-        ):
+        elif query_type in ("bgp_route",) and vrf_afi.force_cidr and not valid_ip.is_private:
             log.debug("Getting containing prefix for {q}", q=str(valid_ip))
 
             ip_str = str(valid_ip.network_address)
@@ -150,9 +137,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 
             if containing_prefix is None:
                 log.error(
-                    "Unable to find containing prefix for {}. Got: {}",
-                    str(valid_ip),
-                    network_info,
+                    "Unable to find containing prefix for {}. Got: {}", str(valid_ip), network_info,
                 )
                 raise InputInvalid("{q} does not have a containing prefix", q=ip_str)
 
@@ -163,13 +148,9 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 
             except ValueError as err:
                 log.error(
-                    "Unable to find containing prefix for {q}. Error: {e}",
-                    q=str(valid_ip),
-                    e=err,
+                    "Unable to find containing prefix for {q}. Error: {e}", q=str(valid_ip), e=err,
                 )
-                raise InputInvalid(
-                    "{q} does does not have a containing prefix", q=valid_ip
-                )
+                raise InputInvalid("{q} does does not have a containing prefix", q=valid_ip)
 
         # For a host query with bgp_route query type and force_cidr
         # disabled, convert the host query to a single IP address.

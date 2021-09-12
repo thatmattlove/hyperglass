@@ -56,12 +56,7 @@ class HelpColorsFormatter(click.HelpFormatter):
     """
 
     def __init__(
-        self,
-        headers_color=None,
-        options_color=None,
-        options_custom_colors=None,
-        *args,
-        **kwargs
+        self, headers_color=None, options_color=None, options_custom_colors=None, *args, **kwargs
     ):
         """Initialize help formatter.
 
@@ -98,9 +93,7 @@ class HelpColorsFormatter(click.HelpFormatter):
 
     def write_dl(self, rows, **kwargs):
         """Write Options section."""
-        colorized_rows = [
-            (click.style(row[0], **self._pick_color(row[0])), row[1]) for row in rows
-        ]
+        colorized_rows = [(click.style(row[0], **self._pick_color(row[0])), row[1]) for row in rows]
         super().write_dl(colorized_rows, **kwargs)
 
 

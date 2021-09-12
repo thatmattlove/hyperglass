@@ -92,9 +92,7 @@ class Device(HyperglassModel, extra="allow"):
         legacy_display_name = values.pop("display_name", None)
 
         if legacy_display_name is not None:
-            log.warning(
-                "The 'display_name' field is deprecated. Use the 'name' field instead."
-            )
+            log.warning("The 'display_name' field is deprecated. Use the 'name' field instead.")
             device_id = generate_id(legacy_display_name)
             display_name = legacy_display_name
         else:

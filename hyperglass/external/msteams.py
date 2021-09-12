@@ -12,9 +12,7 @@ class MSTeams(BaseExternal, name="MSTeams"):
     def __init__(self, config):
         """Initialize external base class with Microsoft Teams connection details."""
 
-        super().__init__(
-            base_url="https://outlook.office.com", config=config, parse=False
-        )
+        super().__init__(base_url="https://outlook.office.com", config=config, parse=False)
 
     async def send(self, query):
         """Send an incoming webhook to Microsoft Teams."""

@@ -108,11 +108,7 @@ def enable_file_logging(logger, log_directory, log_format, log_max_size):
             lf.write(f'\n\n{"".join(log_break)}\n\n')
 
     logger.add(
-        log_file,
-        format=_FMT,
-        rotation=log_max_size,
-        serialize=structured,
-        enqueue=True,
+        log_file, format=_FMT, rotation=log_max_size, serialize=structured, enqueue=True,
     )
 
     logger.debug("Logging to {} enabled", str(log_file))
@@ -127,9 +123,7 @@ def enable_syslog_logging(logger, syslog_host, syslog_port):
     from logging.handlers import SysLogHandler
 
     logger.add(
-        SysLogHandler(address=(str(syslog_host), syslog_port)),
-        format=_FMT_BASIC,
-        enqueue=True,
+        SysLogHandler(address=(str(syslog_host), syslog_port)), format=_FMT_BASIC, enqueue=True,
     )
     logger.debug(
         "Logging to syslog target {}:{} enabled", str(syslog_host), str(syslog_port),

@@ -11,9 +11,7 @@ from threading import Thread
 from hyperglass.log import log
 
 
-async def move_files(  # noqa: C901
-    src: Path, dst: Path, files: Iterable[Path]
-) -> Tuple[str]:
+async def move_files(src: Path, dst: Path, files: Iterable[Path]) -> Tuple[str]:  # noqa: C901
     """Move iterable of files from source to destination.
 
     Arguments:
@@ -133,9 +131,7 @@ def copyfiles(src_files: Iterable[Path], dst_files: Iterable[Path]):
     return True
 
 
-def check_path(
-    path: Union[Path, str], mode: str = "r", create: bool = False
-) -> Optional[Path]:
+def check_path(path: Union[Path, str], mode: str = "r", create: bool = False) -> Optional[Path]:
     """Verify if a path exists and is accessible."""
 
     result = None

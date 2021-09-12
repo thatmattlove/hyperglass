@@ -36,9 +36,7 @@ class SSHConnection(Connection):
             }
             if proxy.credential._method == "password":
                 # Use password auth if no key is defined.
-                tunnel_kwargs[
-                    "ssh_password"
-                ] = proxy.credential.password.get_secret_value()
+                tunnel_kwargs["ssh_password"] = proxy.credential.password.get_secret_value()
             else:
                 # Otherwise, use key auth.
                 tunnel_kwargs["ssh_pkey"] = proxy.credential.key.as_posix()
@@ -53,8 +51,7 @@ class SSHConnection(Connection):
 
             except BaseSSHTunnelForwarderError as scrape_proxy_error:
                 log.error(
-                    f"Error connecting to device {self.device.name} via "
-                    f"proxy {proxy.name}"
+                    f"Error connecting to device {self.device.name} via " f"proxy {proxy.name}"
                 )
                 raise ScrapeError(error=scrape_proxy_error, device=self.device)
 

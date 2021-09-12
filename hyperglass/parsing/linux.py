@@ -50,9 +50,7 @@ def parse_linux_ping(output):
 
             _bytes, seq, ttl, rtt = _process_numbers(bytes_seq_ttl_rtt)
 
-            reply_stats.append(
-                {"bytes": _bytes, "sequence": seq, "ttl": ttl, "rtt": rtt}
-            )
+            reply_stats.append({"bytes": _bytes, "sequence": seq, "ttl": ttl, "rtt": rtt})
 
         stats = [l for l in _stats.splitlines() if l]
 

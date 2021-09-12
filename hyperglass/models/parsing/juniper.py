@@ -83,9 +83,7 @@ class JuniperRouteTableEntry(_JuniperBase):
 
         _path_attr = values.get("bgp-path-attributes", {})
         _path_attr_agg = _path_attr.get("attr-aggregator", {}).get("attr-value", {})
-        values["as-path"] = _path_attr.get("attr-as-path-effective", {}).get(
-            "attr-value", ""
-        )
+        values["as-path"] = _path_attr.get("attr-as-path-effective", {}).get("attr-value", "")
         values["source-as"] = _path_attr_agg.get("aggr-as-number", 0)
         values["source-rid"] = _path_attr_agg.get("aggr-router-id", "")
         values["peer-rid"] = values["peer-id"]
@@ -171,9 +169,7 @@ class JuniperRoute(_JuniperBase):
         count = 0
         for table in self.rt:
             count += table.rt_entry_count
-            prefix = "/".join(
-                str(i) for i in (table.rt_destination, table.rt_prefix_length)
-            )
+            prefix = "/".join(str(i) for i in (table.rt_destination, table.rt_prefix_length))
             for route in table.rt_entry:
                 routes.append(
                     {
@@ -193,9 +189,7 @@ class JuniperRoute(_JuniperBase):
                     }
                 )
 
-        serialized = ParsedRoutes(
-            vrf=vrf, count=count, routes=routes, winning_weight="low",
-        )
+        serialized = ParsedRoutes(vrf=vrf, count=count, routes=routes, winning_weight="low",)
 
         log.debug("Serialized Juniper response: {}", serialized)
         return serialized

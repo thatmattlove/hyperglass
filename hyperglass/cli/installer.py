@@ -20,9 +20,7 @@ IGNORED_FILES = [".DS_Store"]
 
 INSTALL_PATHS = [
     inquirer.List(
-        "install_path",
-        message="Choose a directory for hyperglass",
-        choices=[USER_PATH, ROOT_PATH],
+        "install_path", message="Choose a directory for hyperglass", choices=[USER_PATH, ROOT_PATH],
     )
 ]
 
@@ -104,9 +102,7 @@ class Installer:
 
             if not compare_post.left_list == compare_post.right_list:
                 error(
-                    "Files in {a} do not match files in {b}",
-                    a=str(ASSET_DIR),
-                    b=str(target_dir),
+                    "Files in {a} do not match files in {b}", a=str(ASSET_DIR), b=str(target_dir),
                 )
                 return False
 

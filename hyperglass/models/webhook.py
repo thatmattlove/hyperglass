@@ -75,8 +75,7 @@ class Webhook(HyperglassModel):
             return f"`{str(value)}`"
 
         header_data = [
-            {"name": k, "value": code(v)}
-            for k, v in self.headers.dict(by_alias=True).items()
+            {"name": k, "value": code(v)} for k, v in self.headers.dict(by_alias=True).items()
         ]
         time_fmt = self.timestamp.strftime("%Y %m %d %H:%M:%S")
         payload = {
@@ -131,39 +130,21 @@ class Webhook(HyperglassModel):
             header_data.append(field)
 
         query_data = [
-            {
-                "type": "mrkdwn",
-                "text": make_field("Query Location", self.query_location),
-            },
-            {
-                "type": "mrkdwn",
-                "text": make_field("Query Target", self.query_target, code=True),
-            },
+            {"type": "mrkdwn", "text": make_field("Query Location", self.query_location)},
+            {"type": "mrkdwn", "text": make_field("Query Target", self.query_target, code=True)},
             {"type": "mrkdwn", "text": make_field("Query Type", self.query_type)},
             {"type": "mrkdwn", "text": make_field("Query VRF", self.query_vrf)},
         ]
 
         source_data = [
-            {
-                "type": "mrkdwn",
-                "text": make_field("Source IP", self.source, code=True),
-            },
+            {"type": "mrkdwn", "text": make_field("Source IP", self.source, code=True)},
             {
                 "type": "mrkdwn",
                 "text": make_field("Source Prefix", self.network.prefix, code=True),
             },
-            {
-                "type": "mrkdwn",
-                "text": make_field("Source ASN", self.network.asn, code=True),
-            },
-            {
-                "type": "mrkdwn",
-                "text": make_field("Source Country", self.network.country),
-            },
-            {
-                "type": "mrkdwn",
-                "text": make_field("Source Organization", self.network.org),
-            },
+            {"type": "mrkdwn", "text": make_field("Source ASN", self.network.asn, code=True)},
+            {"type": "mrkdwn", "text": make_field("Source Country", self.network.country)},
+            {"type": "mrkdwn", "text": make_field("Source Organization", self.network.org)},
         ]
 
         time_fmt = self.timestamp.strftime("%Y %m %d %H:%M:%S")
@@ -171,20 +152,14 @@ class Webhook(HyperglassModel):
         payload = {
             "text": _WEBHOOK_TITLE,
             "blocks": [
-                {
-                    "type": "section",
-                    "text": {"type": "mrkdwn", "text": f"*{time_fmt} UTC*"},
-                },
+                {"type": "section", "text": {"type": "mrkdwn", "text": f"*{time_fmt} UTC*"}},
                 {"type": "section", "fields": query_data},
                 {"type": "divider"},
                 {"type": "section", "fields": source_data},
                 {"type": "divider"},
                 {
                     "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": "*Headers*\n" + "\n".join(header_data),
-                    },
+                    "text": {"type": "mrkdwn", "text": "*Headers*\n" + "\n".join(header_data)},
                 },
             ],
         }

@@ -32,9 +32,7 @@ class Construct:
     def __init__(self, device, query):
         """Initialize command construction."""
         log.debug(
-            "Constructing '{}' query for '{}'",
-            query.query_type,
-            str(query.query_target),
+            "Constructing '{}' query for '{}'", query.query_type, str(query.query_target),
         )
         self.query = query
         self.device = device
@@ -73,10 +71,7 @@ class Construct:
         for key in [k for k in keys if k != "target"]:
             if key not in attrs:
                 raise ConfigError(
-                    (
-                        "Command '{c}' has attribute '{k}', "
-                        "which is missing from device '{d}'"
-                    ),
+                    ("Command '{c}' has attribute '{k}', " "which is missing from device '{d}'"),
                     level="danger",
                     c=self.directive.name,
                     k=key,

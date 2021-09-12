@@ -78,9 +78,7 @@ class NetmikoConnection(SSHConnection):
 
         if self.device.credential._method == "password":
             # Use password auth if no key is defined.
-            driver_kwargs[
-                "password"
-            ] = self.device.credential.password.get_secret_value()
+            driver_kwargs["password"] = self.device.credential.password.get_secret_value()
         else:
             # Otherwise, use key auth.
             driver_kwargs["use_keys"] = True
@@ -88,9 +86,7 @@ class NetmikoConnection(SSHConnection):
             if self.device.credential._method == "encrypted_key":
                 # If the key is encrypted, use the password field as the
                 # private key password.
-                driver_kwargs[
-                    "passphrase"
-                ] = self.device.credential.password.get_secret_value()
+                driver_kwargs["passphrase"] = self.device.credential.password.get_secret_value()
 
         try:
             nm_connect_direct = ConnectHandler(**driver_kwargs)

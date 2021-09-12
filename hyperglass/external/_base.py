@@ -140,9 +140,7 @@ class BaseExternal:
 
         except gaierror as err:
             # Raised if the target isn't listening on the port
-            raise self._exception(
-                f"{self.name} appears to be unreachable", err
-            ) from None
+            raise self._exception(f"{self.name} appears to be unreachable", err) from None
 
         return True
 
@@ -157,21 +155,13 @@ class BaseExternal:
 
         supported_methods = ("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH")
 
-        (
-            method,
-            endpoint,
-            item,
-            headers,
-            params,
-            data,
-            timeout,
-            response_required,
-        ) = itemgetter(*kwargs.keys())(kwargs)
+        (method, endpoint, item, headers, params, data, timeout, response_required,) = itemgetter(
+            *kwargs.keys()
+        )(kwargs)
 
         if method.upper() not in supported_methods:
             raise self._exception(
-                f'Method must be one of {", ".join(supported_methods)}. '
-                f"Got: {str(method)}"
+                f'Method must be one of {", ".join(supported_methods)}. ' f"Got: {str(method)}"
             )
 
         endpoint = "/".join(
@@ -209,9 +199,7 @@ class BaseExternal:
                 try:
                     timeout = int(timeout)
                 except TypeError:
-                    raise self._exception(
-                        f"Timeout must be an int, got: {str(timeout)}"
-                    )
+                    raise self._exception(f"Timeout must be an int, got: {str(timeout)}")
             request["timeout"] = timeout
 
         log.debug("Constructed request parameters {}", request)

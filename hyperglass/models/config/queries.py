@@ -39,9 +39,7 @@ class BgpCommunityPattern(HyperglassModel):
         """Pydantic model configuration."""
 
         title = "Pattern"
-        description = (
-            "Regular expression patterns used to validate BGP Community queries."
-        )
+        description = "Regular expression patterns used to validate BGP Community queries."
 
 
 class BgpAsPathPattern(HyperglassModel):
@@ -67,9 +65,7 @@ class BgpAsPathPattern(HyperglassModel):
         """Pydantic model configuration."""
 
         title = "Pattern"
-        description = (
-            "Regular expression patterns used to validate BGP AS Path queries."
-        )
+        description = "Regular expression patterns used to validate BGP AS Path queries."
 
 
 class Community(HyperglassModel):
@@ -84,9 +80,7 @@ class BgpCommunity(HyperglassModel):
     """Validation model for bgp_community configuration."""
 
     enable: StrictBool = Field(
-        True,
-        title="Enable",
-        description="Enable or disable the BGP Community query type.",
+        True, title="Enable", description="Enable or disable the BGP Community query type.",
     )
     display_name: StrictStr = Field(
         "BGP Community",
@@ -115,9 +109,7 @@ class BgpAsPath(HyperglassModel):
     """Validation model for bgp_aspath configuration."""
 
     enable: StrictBool = Field(
-        True,
-        title="Enable",
-        description="Enable or disable the BGP AS Path query type.",
+        True, title="Enable", description="Enable or disable the BGP AS Path query type.",
     )
     display_name: StrictStr = Field(
         "BGP AS Path",
@@ -168,9 +160,7 @@ class Queries(HyperglassModel):
             query_obj = getattr(self, query)
             _map[query] = {
                 "name": query,
-                **query_obj.export_dict(
-                    include={"display_name", "enable", "mode", "communities"}
-                ),
+                **query_obj.export_dict(include={"display_name", "enable", "mode", "communities"}),
             }
         return _map
 
@@ -185,11 +175,7 @@ class Queries(HyperglassModel):
         for query in SUPPORTED_QUERY_TYPES:
             query_obj = getattr(self, query)
             _list.append(
-                {
-                    "name": query,
-                    "display_name": query_obj.display_name,
-                    "enable": query_obj.enable,
-                }
+                {"name": query, "display_name": query_obj.display_name, "enable": query_obj.enable}
             )
         return _list
 

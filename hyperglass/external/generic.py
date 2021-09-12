@@ -12,9 +12,7 @@ class GenericHook(BaseExternal, name="Generic"):
     def __init__(self, config):
         """Initialize external base class with http connection details."""
 
-        super().__init__(
-            base_url=f"{config.host.scheme}://{config.host.host}", config=config
-        )
+        super().__init__(base_url=f"{config.host.scheme}://{config.host.host}", config=config)
 
     async def send(self, query):
         """Send an incoming webhook to http endpoint."""

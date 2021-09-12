@@ -26,9 +26,7 @@ from hyperglass.exceptions.private import InputValidationError
 from ..config.devices import Device
 from ..commands.generic import Directive
 
-DIRECTIVE_IDS = [
-    directive.id for device in devices.objects for directive in device.commands
-]
+DIRECTIVE_IDS = [directive.id for device in devices.objects for directive in device.commands]
 
 DIRECTIVE_GROUPS = {
     group
@@ -76,9 +74,7 @@ class Query(BaseModel):
                 "example": "1.1.1.0/24",
             },
         }
-        schema_extra = {
-            "x-code-samples": [{"lang": "Python", "source": "print('stuff')"}]
-        }
+        schema_extra = {"x-code-samples": [{"lang": "Python", "source": "print('stuff')"}]}
 
     def __init__(self, **kwargs):
         """Initialize the query with a UTC timestamp at initialization time."""

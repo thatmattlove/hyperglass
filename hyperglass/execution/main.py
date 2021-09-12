@@ -8,7 +8,7 @@ hyperglass-frr API calls, returns the output back to the front end.
 
 # Standard Library
 import signal
-from typing import Any, Dict, Union, Callable, Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Union, Callable, Sequence
 
 # Project
 from hyperglass.log import log

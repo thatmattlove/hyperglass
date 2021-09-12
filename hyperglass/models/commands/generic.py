@@ -292,8 +292,6 @@ class Directive(HyperglassModel):
                 }
 
         if self.field.is_select:
-            value["options"] = [
-                o.export_dict() for o in self.field.options if o is not None
-            ]
+            value["options"] = [o.export_dict() for o in self.field.options if o is not None]
 
         return value

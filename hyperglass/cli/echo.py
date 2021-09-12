@@ -96,9 +96,7 @@ def success(text, *args, **kwargs):
     Returns:
         {str} -- Success output
     """
-    return _base_formatter(
-        _state="success", _text=text, _callback=echo, *args, **kwargs
-    )
+    return _base_formatter(_state="success", _text=text, _callback=echo, *args, **kwargs)
 
 
 def warning(text, *args, **kwargs):
@@ -111,9 +109,7 @@ def warning(text, *args, **kwargs):
     Returns:
         {str} -- Warning output
     """
-    return _base_formatter(
-        _state="warning", _text=text, _callback=echo, *args, **kwargs
-    )
+    return _base_formatter(_state="warning", _text=text, _callback=echo, *args, **kwargs)
 
 
 def label(text, *args, **kwargs):
