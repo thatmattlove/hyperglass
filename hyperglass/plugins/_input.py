@@ -1,8 +1,7 @@
 """Input validation plugins."""
 
 # Standard Library
-from abc import abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 # Local
 from ._base import HyperglassPlugin
@@ -11,11 +10,12 @@ if TYPE_CHECKING:
     # Project
     from hyperglass.models.api.query import Query
 
+InputPluginReturn = Union[None, bool]
+
 
 class InputPlugin(HyperglassPlugin):
     """Plugin to validate user input prior to running commands."""
 
-    @abstractmethod
-    def process(self, device_output: str, query: "Query") -> str:
+    def validate(self, query: "Query") -> InputPluginReturn:
         """Validate input from hyperglass UI/API."""
-        pass
+        return None

@@ -83,7 +83,7 @@ stackprinter = "^0.2.3"
 taskipy = "^1.8.2"
 
 [tool.black]
-line-length = 88
+line-length = 100
 
 [tool.pyright]
 exclude = ["**/node_modules", "**/ui", "**/__pycache__"]
@@ -96,8 +96,8 @@ reportMissingTypeStubs = true
 check = {cmd = "task lint && task ui-lint", help = "Run all lint checks"}
 lint = {cmd = "flake8 hyperglass", help = "Run Flake8"}
 sort = {cmd = "isort hyperglass", help = "Run iSort"}
-start = {cmd = "uvicorn hyperglass.api:app", help = "Start hyperglass via Uvicorn"}
-start-direct = {cmd = "python3 -m hyperglass.console start", help = "Start hyperglass via hyperglass.console.CLI"}
+start = {cmd = "python3 -m hyperglass.console start", help = "Start hyperglass"}
+start-asgi = {cmd = "uvicorn hyperglass.api:app", help = "Start hyperglass via Uvicorn"}
 ui-build = {cmd = "python3 -m hyperglass.console build-ui", help = "Run a UI Build"}
 ui-dev = {cmd = "yarn --cwd ./hyperglass/ui/ dev", help = "Start the Next.JS dev server"}
 ui-format = {cmd = "yarn --cwd ./hyperglass/ui/ format", help = "Run Prettier"}

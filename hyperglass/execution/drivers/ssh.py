@@ -1,7 +1,7 @@
 """Common Classes or Utilities for SSH Drivers."""
 
 # Standard Library
-from typing import Callable
+from typing import TYPE_CHECKING
 
 # Project
 from hyperglass.log import log
@@ -12,11 +12,15 @@ from hyperglass.exceptions.public import ScrapeError
 # Local
 from ._common import Connection
 
+if TYPE_CHECKING:
+    # Project
+    from hyperglass.compat._sshtunnel import SSHTunnelForwarder
+
 
 class SSHConnection(Connection):
     """Base class for SSH drivers."""
 
-    def setup_proxy(self) -> Callable:
+    def setup_proxy(self) -> "SSHTunnelForwarder":
         """Return a preconfigured sshtunnel.SSHTunnelForwarder instance."""
 
         proxy = self.device.proxy

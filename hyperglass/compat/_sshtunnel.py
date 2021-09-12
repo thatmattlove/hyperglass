@@ -762,7 +762,7 @@ class SSHTunnelForwarder:
         gateway_timeout=None,
         *args,
         **kwargs,  # for backwards compatibility
-    ):
+    ) -> None:
         self.logger = logger or log
         self.ssh_host_key = ssh_host_key
         self.set_keepalive = set_keepalive
@@ -1181,7 +1181,7 @@ class SSHTunnelForwarder:
 
         return ssh_pkey
 
-    def _check_tunnel(self, _srv):
+    def _check_tunnel(self, _srv) -> None:
         """Check if tunnel is already established."""
         if self.skip_tunnel_checkup:
             self.tunnel_is_up[_srv.local_address] = True
@@ -1216,7 +1216,7 @@ class SSHTunnelForwarder:
         finally:
             s.close()
 
-    def check_tunnels(self):
+    def check_tunnels(self) -> None:
         """Check that if all tunnels are established and populates.
         
         :attr:`.tunnel_is_up`
@@ -1224,7 +1224,7 @@ class SSHTunnelForwarder:
         for _srv in self._server_list:
             self._check_tunnel(_srv)
 
-    def start(self):
+    def start(self) -> None:
         """Start the SSH tunnels."""
         if self.is_alive:
             self.logger.warning("Already started!")
@@ -1251,7 +1251,7 @@ class SSHTunnelForwarder:
                 "An error occurred while opening tunnels.",
             )
 
-    def stop(self):
+    def stop(self) -> None:
         """Shut the tunnel down.
 
         .. note:: This **had** to be handled with care before ``0.1.0``:
@@ -1278,16 +1278,16 @@ class SSHTunnelForwarder:
         self._server_list = []  # reset server list
         self.tunnel_is_up = {}  # reset tunnel status
 
-    def close(self):
+    def close(self) -> None:
         """Stop the an active tunnel, alias to :meth:`.stop`."""
         self.stop()
 
-    def restart(self):
+    def restart(self) -> None:
         """Restart connection to the gateway and tunnels."""
         self.stop()
         self.start()
 
-    def _connect_to_gateway(self):
+    def _connect_to_gateway(self) -> None:
         """Open connection to SSH gateway.
 
         - First try with all keys loaded from an SSH agent (if allowed)
@@ -1330,7 +1330,7 @@ class SSHTunnelForwarder:
 
         self.logger.error("Could not open connection to gateway")
 
-    def _serve_forever_wrapper(self, _srv, poll_interval=0.1):
+    def _serve_forever_wrapper(self, _srv, poll_interval=0.1) -> None:
         """Wrapper for the server created for a SSH forward."""
         self.logger.info(
             "Opening tunnel: {0} <> {1}".format(
@@ -1345,7 +1345,7 @@ class SSHTunnelForwarder:
             )
         )
 
-    def _stop_transport(self):
+    def _stop_transport(self) -> None:
         """Close the underlying transport when nothing more is needed."""
 
         try:
@@ -1444,13 +1444,13 @@ class SSHTunnelForwarder:
         )
 
     @property
-    def is_active(self):
+    def is_active(self) -> bool:
         """ Return True if the underlying SSH transport is up """
         if "_transport" in self.__dict__ and self._transport.is_active():
             return True
         return False
 
-    def _check_is_started(self):
+    def _check_is_started(self) -> None:
         if not self.is_active:  # underlying transport not alive
             msg = "Server is not started. Please .start() first!"
             raise BaseSSHTunnelForwarderError(msg)
@@ -1458,7 +1458,7 @@ class SSHTunnelForwarder:
             msg = "Tunnels are not started. Please .start() first!"
             raise HandlerSSHTunnelForwarderError(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
         credentials = {
             "password": self.ssh_password,
             "pkeys": [
@@ -1507,21 +1507,21 @@ class SSHTunnelForwarder:
             self._remote_binds,
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
-    def __enter__(self):
+    def __enter__(self) -> "SSHTunnelForwarder":
         try:
             self.start()
             return self
         except KeyboardInterrupt:
             self.__exit__()
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
         self._stop_transport()
 
 
-def open_tunnel(*args, **kwargs):
+def open_tunnel(*args, **kwargs) -> "SSHTunnelForwarder":
     """Open an SSH Tunnel, wrapper for :class:`SSHTunnelForwarder`.
 
     Arguments:

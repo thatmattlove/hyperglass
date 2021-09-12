@@ -1,7 +1,8 @@
 """Base Connection Class."""
 
 # Standard Library
-from typing import Dict, Union, Sequence
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Dict, Union, Sequence
 
 # Project
 from hyperglass.log import log
@@ -14,8 +15,12 @@ from hyperglass.models.config.devices import Device
 # Local
 from ._construct import Construct
 
+if TYPE_CHECKING:
+    # Project
+    from hyperglass.compat._sshtunnel import SSHTunnelForwarder
 
-class Connection:
+
+class Connection(ABC):
     """Base transport driver class."""
 
     def __init__(self, device: Device, query_data: Query) -> None:
@@ -27,6 +32,11 @@ class Connection:
         self._query = Construct(device=self.device, query=self.query_data)
         self.query = self._query.queries()
         self.plugin_manager = OutputPluginManager()
+
+    @abstractmethod
+    def setup_proxy(self: "Connection") -> "SSHTunnelForwarder":
+        """Return a preconfigured sshtunnel.SSHTunnelForwarder instance."""
+        pass
 
     async def parsed_response(  # noqa: C901 ("too complex")
         self, output: Sequence[str]

@@ -8,19 +8,22 @@ hyperglass-frr API calls, returns the output back to the front end.
 
 # Standard Library
 import signal
-from typing import Any, Dict, Union, Callable, Sequence
+from typing import Any, Dict, Union, Callable, Sequence, TYPE_CHECKING
 
 # Project
 from hyperglass.log import log
-from hyperglass.models.api import Query
 from hyperglass.configuration import params
 from hyperglass.exceptions.public import DeviceTimeout, ResponseEmpty
 
+if TYPE_CHECKING:
+    from hyperglass.models.api import Query
+    from .drivers import Connection
+
 # Local
-from .drivers import Connection, AgentConnection, NetmikoConnection, ScrapliConnection
+from .drivers import AgentConnection, NetmikoConnection, ScrapliConnection
 
 
-def map_driver(driver_name: str) -> Connection:
+def map_driver(driver_name: str) -> "Connection":
     """Get the correct driver class based on the driver name."""
 
     if driver_name == "scrapli":
@@ -41,7 +44,7 @@ def handle_timeout(**exc_args: Any) -> Callable:
     return handler
 
 
-async def execute(query: Query) -> Union[str, Sequence[Dict]]:
+async def execute(query: "Query") -> Union[str, Sequence[Dict]]:
     """Initiate query validation and execution."""
 
     output = params.messages.general
@@ -50,19 +53,15 @@ async def execute(query: Query) -> Union[str, Sequence[Dict]]:
     log.debug("Matched device config: {}", query.device)
 
     mapped_driver = map_driver(query.device.driver)
-    driver = mapped_driver(query.device, query)
+    driver: "Connection" = mapped_driver(query.device, query)
 
-    signal.signal(
-        signal.SIGALRM, handle_timeout(error=TimeoutError(), device=query.device)
-    )
+    signal.signal(signal.SIGALRM, handle_timeout(error=TimeoutError(), device=query.device))
     signal.alarm(params.request_timeout - 1)
 
     if query.device.proxy:
         proxy = driver.setup_proxy()
         with proxy() as tunnel:
-            response = await driver.collect(
-                tunnel.local_bind_host, tunnel.local_bind_port
-            )
+            response = await driver.collect(tunnel.local_bind_host, tunnel.local_bind_port)
     else:
         response = await driver.collect()
 

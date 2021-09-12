@@ -4,7 +4,7 @@
 import json
 import codecs
 import pickle
-from typing import List, Generic, TypeVar, Callable, Generator
+from typing import TYPE_CHECKING, List, Generic, TypeVar, Callable, Generator
 from inspect import isclass
 
 # Project
@@ -15,8 +15,13 @@ from hyperglass.exceptions.private import PluginError
 
 # Local
 from ._base import PluginType, HyperglassPlugin
-from ._input import InputPlugin
-from ._output import OutputPlugin
+from ._input import InputPlugin, InputPluginReturn
+from ._output import OutputPlugin, OutputPluginReturn
+
+if TYPE_CHECKING:
+    # Project
+    from hyperglass.models.api.query import Query
+    from hyperglass.models.config.devices import Device
 
 PluginT = TypeVar("PluginT")
 
@@ -38,9 +43,7 @@ class PluginManager(Generic[PluginT]):
         """Set this plugin manager's type on subclass initialization."""
         _type = kwargs.get("type", None) or cls._type
         if _type is None:
-            raise PluginError(
-                "Plugin '{}' is missing a 'type', keyword argument", repr(cls)
-            )
+            raise PluginError("Plugin '{}' is missing a 'type', keyword argument", repr(cls))
         cls._type = _type
         return super().__init_subclass__()
 
@@ -60,12 +63,7 @@ class PluginManager(Generic[PluginT]):
     def _get_plugins(self: "PluginManager") -> List[PluginT]:
         """Retrieve plugins from cache."""
         cached = self._cache.get(self._cache_key)
-        return list(
-            {
-                pickle.loads(codecs.decode(plugin.encode(), "base64"))
-                for plugin in cached
-            }
-        )
+        return list({pickle.loads(codecs.decode(plugin.encode(), "base64")) for plugin in cached})
 
     def _clear_plugins(self: "PluginManager") -> None:
         """Remove all plugins."""
@@ -73,8 +71,17 @@ class PluginManager(Generic[PluginT]):
 
     @property
     def plugins(self: "PluginManager") -> List[PluginT]:
-        """Get all plugins."""
-        return self._get_plugins()
+        """Get all plugins, with built-in plugins last."""
+        return sorted(
+            self.plugins,
+            key=lambda p: -1 if p.__hyperglass_builtin__ else 1,  # flake8: noqa IF100
+            reverse=True,
+        )
+
+    @property
+    def name(self: PluginT) -> str:
+        """Get this plugin manager's name."""
+        return self.__class__.__name__
 
     def methods(self: "PluginManager", name: str) -> Generator[Callable, None, None]:
         """Get methods of all registered plugins matching `name`."""
@@ -83,6 +90,10 @@ class PluginManager(Generic[PluginT]):
                 method = getattr(plugin, name)
                 if callable(method):
                     yield method
+
+    def execute(self, *args, **kwargs) -> None:
+        """Gather all plugins and execute in order."""
+        raise NotImplementedError(f"Plugin Manager '{self.name}' is missing an 'execute()' method.")
 
     def reset(self: "PluginManager") -> None:
         """Remove all plugins."""
@@ -102,9 +113,7 @@ class PluginManager(Generic[PluginT]):
                     if p != plugin
                 }
                 # Add plugins from cache.
-                self._cache.set(
-                    f"hyperglass.plugins.{self._type}", json.dumps(list(plugins))
-                )
+                self._cache.set(f"hyperglass.plugins.{self._type}", json.dumps(list(plugins)))
                 return
         raise PluginError("Plugin '{}' is not a valid hyperglass plugin", repr(plugin))
 
@@ -121,9 +130,7 @@ class PluginManager(Generic[PluginT]):
                     for p in [*self._get_plugins(), instance]
                 }
                 # Add plugins from cache.
-                self._cache.set(
-                    f"hyperglass.plugins.{self._type}", json.dumps(list(plugins))
-                )
+                self._cache.set(f"hyperglass.plugins.{self._type}", json.dumps(list(plugins)))
                 log.success("Registered plugin '{}'", instance.name)
                 return
         except TypeError:
@@ -132,14 +139,37 @@ class PluginManager(Generic[PluginT]):
                 "Please consult the hyperglass documentation.",
                 p=repr(plugin),
             )
-        raise PluginError(
-            "Plugin '{p}' is not a valid hyperglass plugin", p=repr(plugin)
-        )
+        raise PluginError("Plugin '{p}' is not a valid hyperglass plugin", p=repr(plugin))
 
 
 class InputPluginManager(PluginManager[InputPlugin], type="input"):
     """Manage Input Validation Plugins."""
 
+    def execute(self: "InputPluginManager", query: "Query") -> InputPluginReturn:
+        """Execute all input validation plugins.
+
+        If any plugin returns `False`, execution is halted.
+        """
+        result = None
+        for plugin in self.plugins:
+            if result is False:
+                return result
+            result = plugin.validate(query)
+        return result
+
 
 class OutputPluginManager(PluginManager[OutputPlugin], type="output"):
     """Manage Output Processing Plugins."""
+
+    def execute(self: "OutputPluginManager", output: str, device: "Device") -> OutputPluginReturn:
+        """Execute all output parsing plugins.
+
+        The result of each plugin is passed to the next plugin.
+        """
+        result = output
+        for plugin in self.plugins:
+            if result is False:
+                return result
+            # Pass the result of each plugin to the next plugin.
+            result = plugin.process(result, device)
+        return result

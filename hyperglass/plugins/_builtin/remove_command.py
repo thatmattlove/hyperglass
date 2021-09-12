@@ -3,6 +3,9 @@
 # Standard Library
 from typing import TYPE_CHECKING
 
+# Third Party
+from pydantic import PrivateAttr
+
 # Local
 from .._output import OutputPlugin
 
@@ -13,6 +16,8 @@ if TYPE_CHECKING:
 
 class RemoveCommand(OutputPlugin):
     """Remove anything before the command if found in output."""
+
+    __hyperglass_builtin__: bool = PrivateAttr(True)
 
     def process(self, device_output: str, device: "Device") -> str:
         """Remove anything before the command if found in output."""

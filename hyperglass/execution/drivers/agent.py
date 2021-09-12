@@ -8,7 +8,7 @@ hyperglass-frr API calls, returns the output back to the front end.
 
 # Standard Library
 from ssl import CertificateError
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
 # Third Party
 import httpx
@@ -23,9 +23,17 @@ from hyperglass.exceptions.public import RestError, ResponseEmpty
 # Local
 from ._common import Connection
 
+if TYPE_CHECKING:
+    # Project
+    from hyperglass.compat._sshtunnel import SSHTunnelForwarder
+
 
 class AgentConnection(Connection):
     """Connect to target device via hyperglass-agent."""
+
+    def setup_proxy(self: "Connection") -> "SSHTunnelForwarder":
+        """Return a preconfigured sshtunnel.SSHTunnelForwarder instance."""
+        raise NotImplementedError("AgentConnection does not implement an SSH proxy.")
 
     async def collect(self) -> Iterable:  # noqa: C901
         """Connect to a device running hyperglass-agent via HTTP."""

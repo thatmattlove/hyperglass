@@ -6,8 +6,7 @@ import sys
 import json
 import string
 import platform
-from queue import Queue
-from typing import Dict, Union, Optional, Sequence, Generator
+from typing import Any, Dict, Union, Optional, Sequence, Generator
 from asyncio import iscoroutine
 from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address, ip_address
@@ -144,10 +143,7 @@ def format_listen_address(listen_address: Union[IPv4Address, IPv6Address, str]) 
             log.error(err)
             pass
 
-    if (
-        isinstance(listen_address, (IPv4Address, IPv6Address))
-        and listen_address.version == 6
-    ):
+    if isinstance(listen_address, (IPv4Address, IPv6Address)) and listen_address.version == 6:
         fmt = f"[{str(listen_address)}]"
 
     return fmt
@@ -159,9 +155,7 @@ def split_on_uppercase(s):
     From: https://stackoverflow.com/a/40382663
     """
     string_length = len(s)
-    is_lower_around = (
-        lambda: s[i - 1].islower() or string_length > (i + 1) and s[i + 1].islower()
-    )
+    is_lower_around = lambda: s[i - 1].islower() or string_length > (i + 1) and s[i + 1].islower()
 
     start = 0
     parts = []
@@ -225,9 +219,7 @@ def get_cache_env():
     db = os.environ.get("HYPERGLASS_CACHE_DB")
     for i in (host, port, db):
         if i is None:
-            raise LookupError(
-                "Unable to find cache configuration in environment variables"
-            )
+            raise LookupError("Unable to find cache configuration in environment variables")
     return host, port, db
 
 

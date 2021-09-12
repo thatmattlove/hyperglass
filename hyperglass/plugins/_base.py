@@ -2,18 +2,20 @@
 
 # Standard Library
 from abc import ABC
-from typing import Any, Union, Literal
+from typing import Any, Union, Literal, TypeVar
 from inspect import Signature
 
 # Third Party
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
 
 PluginType = Union[Literal["output"], Literal["input"]]
+SupportedMethod = TypeVar("SupportedMethod")
 
 
 class HyperglassPlugin(BaseModel, ABC):
     """Plugin to interact with device command output."""
 
+    __hyperglass_builtin__: bool = PrivateAttr(False)
     name: str
 
     @property
@@ -21,11 +23,13 @@ class HyperglassPlugin(BaseModel, ABC):
         """Get this instance's class signature."""
         return self.__class__.__signature__
 
-    def __eq__(self, other: "HyperglassPlugin"):
+    def __eq__(self, other: "HyperglassPlugin") -> bool:
         """Other plugin is equal to this plugin."""
-        return other and self._signature == other._signature
+        if hasattr(other, "_signature"):
+            return other and self._signature == other._signature
+        return False
 
-    def __ne__(self, other: "HyperglassPlugin"):
+    def __ne__(self, other: "HyperglassPlugin") -> bool:
         """Other plugin is not equal to this plugin."""
         return not self.__eq__(other)
 
