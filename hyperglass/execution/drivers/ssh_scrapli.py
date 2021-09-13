@@ -55,10 +55,10 @@ driver_global_args = {
 }
 
 
-def _map_driver(nos: str) -> AsyncGenericDriver:
-    driver = SCRAPLI_DRIVER_MAP.get(nos)
+def _map_driver(_type: str) -> AsyncGenericDriver:
+    driver = SCRAPLI_DRIVER_MAP.get(_type)
     if driver is None:
-        raise UnsupportedDevice("{nos} is not supported by scrapli.", nos=nos)
+        raise UnsupportedDevice(_type)
     return driver
 
 
@@ -71,7 +71,7 @@ class ScrapliConnection(SSHConnection):
         Directly connects to the router via Netmiko library, returns the
         command output.
         """
-        driver = _map_driver(self.device.nos)
+        driver = _map_driver(self.device.type)
 
         if host is not None:
             log.debug(
@@ -83,7 +83,7 @@ class ScrapliConnection(SSHConnection):
         else:
             log.debug("Connecting directly to {}", self.device.name)
 
-        global_args = driver_global_args.get(self.device.nos, {})
+        global_args = driver_global_args.get(self.device.type, {})
 
         driver_kwargs = {
             "host": host or self.device._target,

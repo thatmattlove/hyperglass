@@ -22,14 +22,14 @@ from hyperglass.exceptions.public import AuthError, DeviceTimeout, ResponseEmpty
 # Local
 from .ssh import SSHConnection
 
-netmiko_nos_globals = {
+netmiko_device_globals = {
     # Netmiko doesn't currently handle Mikrotik echo verification well,
     # see ktbyers/netmiko#1600
     "mikrotik_routeros": {"global_cmd_verify": False},
     "mikrotik_switchos": {"global_cmd_verify": False},
 }
 
-netmiko_nos_send_args = {
+netmiko_device_send_args = {
     # Netmiko doesn't currently handle the Mikrotik prompt properly, see
     # ktbyers/netmiko#1956
     "mikrotik_routeros": {"expect_string": r"\S+\s\>\s$"},
@@ -56,14 +56,14 @@ class NetmikoConnection(SSHConnection):
         else:
             log.debug("Connecting directly to {}", self.device.name)
 
-        global_args = netmiko_nos_globals.get(self.device.nos, {})
+        global_args = netmiko_device_globals.get(self.device.type, {})
 
-        send_args = netmiko_nos_send_args.get(self.device.nos, {})
+        send_args = netmiko_device_send_args.get(self.device.type, {})
 
         driver_kwargs = {
             "host": host or self.device._target,
             "port": port or self.device.port,
-            "device_type": self.device.nos,
+            "device_type": self.device.type,
             "username": self.device.credential.username,
             "global_delay_factor": params.netmiko_delay_factor,
             "timeout": math.floor(params.request_timeout * 1.25),
@@ -71,7 +71,7 @@ class NetmikoConnection(SSHConnection):
             **global_args,
         }
 
-        if "_telnet" in self.device.nos:
+        if "_telnet" in self.device.type:
             # Telnet devices with a low delay factor (default) tend to
             # throw login errors.
             driver_kwargs["global_delay_factor"] = 2

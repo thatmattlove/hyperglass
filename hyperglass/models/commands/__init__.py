@@ -17,7 +17,7 @@ from .nokia_sros import NokiaSROSCommands
 from .mikrotik_routeros import MikrotikRouterOS
 from .mikrotik_switchos import MikrotikSwitchOS
 
-_NOS_MAP = {
+_DEVICE_TYPE_MAP = {
     "arista_eos": AristaEOSCommands,
     "bird": BIRDCommands,
     "cisco_ios": CiscoIOSCommands,
@@ -53,19 +53,10 @@ class Commands(HyperglassModel, extra="allow", validate_all=False):
 
     @classmethod
     def import_params(cls, **input_params):
-        """Import loaded YAML, initialize per-command definitions.
-
-        Dynamically set attributes for the command class.
-
-        Arguments:
-            input_params {dict} -- Unvalidated command definitions
-
-        Returns:
-            {object} -- Validated commands object
-        """
+        """Import loaded YAML, initialize per-command definitions."""
         obj = Commands()
-        for nos, cmds in input_params.items():
-            nos_cmd_set = _NOS_MAP.get(nos, CommandGroup)
-            nos_cmds = nos_cmd_set(**cmds)
-            setattr(obj, nos, nos_cmds)
+        for device_type, cmds in input_params.items():
+            cmd_set = _DEVICE_TYPE_MAP.get(device_type, CommandGroup)
+            cmds = cmd_set(**cmds)
+            setattr(obj, device_type, cmds)
         return obj

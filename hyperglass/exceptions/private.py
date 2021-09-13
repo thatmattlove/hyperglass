@@ -19,8 +19,8 @@ class ExternalError(PrivateHyperglassError):
 class UnsupportedDevice(PrivateHyperglassError):
     """Raised when an input NOS is not in the supported NOS list."""
 
-    def __init__(self, nos: str) -> None:
-        """Show the unsupported NOS and a list of supported drivers."""
+    def __init__(self, device_type: str) -> None:
+        """Show the unsupported device type and a list of supported drivers."""
         # Third Party
         from netmiko.ssh_dispatcher import CLASS_MAPPER  # type: ignore
 
@@ -29,7 +29,7 @@ class UnsupportedDevice(PrivateHyperglassError):
 
         drivers = ("", *[*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()].sort())
         driver_list = "\n  - ".join(drivers)
-        super().__init__(message=f"'{nos}' is not supported. Must be one of:{driver_list}")
+        super().__init__(message=f"'{device_type}' is not supported. Must be one of:{driver_list}")
 
 
 class InputValidationError(PrivateHyperglassError):

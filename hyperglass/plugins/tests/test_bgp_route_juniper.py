@@ -28,7 +28,7 @@ def _tester(sample: str):
         address="127.0.0.1",
         network={"name": "Test Network", "display_name": "Test Network"},
         credential={"username": "", "password": ""},
-        nos="juniper",
+        type="juniper",
         structured_output=True,
         commands=[{"id": "test", "name": "Test", "rules": []}],
     )

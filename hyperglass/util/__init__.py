@@ -31,7 +31,7 @@ from netmiko.ssh_dispatcher import CLASS_MAPPER  # type: ignore
 from hyperglass.log import log
 from hyperglass.constants import DRIVER_MAP
 
-ALL_NOS = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
+ALL_DEVICE_TYPES = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
 ALL_DRIVERS = {*DRIVER_MAP.values(), "netmiko"}
 
 DeepConvert = TypeVar("DeepConvert", bound=Dict[str, Any])
@@ -260,24 +260,24 @@ def make_repr(_class):
     return f'{_class.__name__}({", ".join(_process_attrs(dir(_class)))})'
 
 
-def validate_nos(nos):
-    """Validate device NOS is supported."""
+def validate_device_type(_type: str) -> Tuple[bool, Union[None, str]]:
+    """Validate device type is supported."""
 
     result = (False, None)
 
-    if nos in ALL_NOS:
-        result = (True, DRIVER_MAP.get(nos, "netmiko"))
+    if _type in ALL_DEVICE_TYPES:
+        result = (True, DRIVER_MAP.get(_type, "netmiko"))
 
     return result
 
 
-def get_driver(nos: str, driver: Optional[str]) -> str:
+def get_driver(_type: str, driver: Optional[str]) -> str:
     """Determine the appropriate driver for a device."""
 
     if driver is None:
         # If no driver is set, use the driver map with netmiko as
         # fallback.
-        return DRIVER_MAP.get(nos, "netmiko")
+        return DRIVER_MAP.get(_type, "netmiko")
     elif driver in ALL_DRIVERS:
         # If a driver is set and it is valid, allow it.
         return driver

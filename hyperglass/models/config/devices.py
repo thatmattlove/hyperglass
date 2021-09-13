@@ -8,11 +8,11 @@ from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
-from pydantic import StrictInt, StrictStr, StrictBool, validator, root_validator
+from pydantic import StrictInt, StrictStr, StrictBool, validator, root_validator, Field
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import get_driver, get_fmt_keys, validate_nos, resolve_hostname
+from hyperglass.util import get_driver, get_fmt_keys, validate_device_type, resolve_hostname
 from hyperglass.constants import SCRAPE_HELPERS, SUPPORTED_STRUCTURED_OUTPUT
 from hyperglass.exceptions.private import ConfigError, UnsupportedDevice
 from hyperglass.models.commands.generic import Directive
@@ -39,7 +39,7 @@ class Device(HyperglassModelWithId, extra="allow"):
     display_name: Optional[StrictStr]
     port: StrictInt = 22
     ssl: Optional[Ssl]
-    nos: StrictStr
+    type: StrictStr = Field(..., alias="nos")
     commands: List[Directive]
     structured_output: Optional[StrictBool]
     driver: Optional[SupportedDriver]
@@ -132,20 +132,34 @@ class Device(HyperglassModelWithId, extra="allow"):
                 )
         return value
 
+    @validator("type", pre=True, always=True)
+    def validate_type(cls: "Device", value: Any, values: Dict[str, Any]) -> str:
+        """Validate device type."""
+        legacy = values.pop("nos", None)
+        if legacy is not None and value is None:
+            log.warning(
+                "The 'nos' field on device '{}' has been deprecated and will be removed in a future release. Use the 'type' field moving forward.",
+                values.get("name", values.get("display_name", "Unknown")),
+            )
+            return legacy
+        if value is not None:
+            return value
+        raise ValueError("type is missing")
+
     @validator("structured_output", pre=True, always=True)
     def validate_structured_output(cls, value: bool, values: Dict) -> bool:
         """Validate structured output is supported on the device & set a default."""
 
         if value is True:
-            if values["nos"] not in SUPPORTED_STRUCTURED_OUTPUT:
+            if values["type"] not in SUPPORTED_STRUCTURED_OUTPUT:
                 raise ConfigError(
                     "The 'structured_output' field is set to 'true' on device '{d}' with "
                     + "NOS '{n}', which does not support structured output",
                     d=values["name"],
-                    n=values["nos"],
+                    n=values["type"],
                 )
             return value
-        elif value is None and values["nos"] in SUPPORTED_STRUCTURED_OUTPUT:
+        elif value is None and values["type"] in SUPPORTED_STRUCTURED_OUTPUT:
             value = True
         else:
             value = False
@@ -166,32 +180,32 @@ class Device(HyperglassModelWithId, extra="allow"):
         return value
 
     @root_validator(pre=True)
-    def validate_nos_commands(cls, values: Dict) -> Dict:
-        """Validate & rewrite NOS, set default commands."""
+    def validate_device_commands(cls, values: Dict) -> Dict:
+        """Validate & rewrite device type, set default commands."""
 
-        nos = values.get("nos", "")
-        if not nos:
-            # Ensure nos is defined.
+        _type = values.get("type", values.get("nos"))
+        if not _type:
+            # Ensure device type is defined.
             raise ValueError(
-                f"Device {values['name']} is missing a 'nos' (Network Operating System) property."
+                f"Device {values['name']} is missing a 'type' (Network Operating System) property."
             )
 
-        if nos in SCRAPE_HELPERS.keys():
+        if _type in SCRAPE_HELPERS.keys():
             # Rewrite NOS to helper value if needed.
-            nos = SCRAPE_HELPERS[nos]
+            _type = SCRAPE_HELPERS[_type]
 
-        # Verify NOS is supported by hyperglass.
-        supported, _ = validate_nos(nos)
+        # Verify device type is supported by hyperglass.
+        supported, _ = validate_device_type(_type)
         if not supported:
-            raise UnsupportedDevice(nos=nos)
+            raise UnsupportedDevice(_type)
 
-        values["nos"] = nos
+        values["type"] = _type
 
         commands = values.get("commands")
 
         if commands is None:
             # If no commands are defined, set commands to the NOS.
-            inferred = values["nos"]
+            inferred = values["type"]
 
             # If the _telnet prefix is added, remove it from the command
             # profile so the commands are the same regardless of
@@ -206,7 +220,7 @@ class Device(HyperglassModelWithId, extra="allow"):
     @validator("driver")
     def validate_driver(cls, value: Optional[str], values: Dict) -> Dict:
         """Set the correct driver and override if supported."""
-        return get_driver(values["nos"], value)
+        return get_driver(values["type"], value)
 
 
 class Devices(HyperglassModel, extra="allow"):
@@ -215,7 +229,6 @@ class Devices(HyperglassModel, extra="allow"):
     ids: List[StrictStr] = []
     hostnames: List[StrictStr] = []
     objects: List[Device] = []
-    all_nos: List[StrictStr] = []
 
     def __init__(self, input_params: List[Dict]) -> None:
         """Import loaded YAML, initialize per-network definitions.
@@ -224,7 +237,6 @@ class Devices(HyperglassModel, extra="allow"):
         set attributes for the devices class. Builds lists of common
         attributes for easy access in other modules.
         """
-        all_nos = set()
         objects = set()
         hostnames = set()
         ids = set()
@@ -242,13 +254,11 @@ class Devices(HyperglassModel, extra="allow"):
             hostnames.add(device.name)
             ids.add(device.id)
             objects.add(device)
-            all_nos.add(device.nos)
 
         # Convert the de-duplicated sets to a standard list, add lists
         # as class attributes. Sort router list by router name attribute
         init_kwargs["ids"] = list(ids)
         init_kwargs["hostnames"] = list(hostnames)
-        init_kwargs["all_nos"] = list(all_nos)
         init_kwargs["objects"] = sorted(objects, key=lambda x: x.name)
 
         super().__init__(**init_kwargs)

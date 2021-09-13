@@ -41,14 +41,14 @@ class Construct:
 
         # Set transport method based on NOS type
         self.transport = "scrape"
-        if self.device.nos in TRANSPORT_REST:
+        if self.device.type in TRANSPORT_REST:
             self.transport = "rest"
 
         # Remove slashes from target for required platforms
-        if self.device.nos in TARGET_FORMAT_SPACE:
+        if self.device.type in TARGET_FORMAT_SPACE:
             self.target = re.sub(r"\/", r" ", str(self.query.query_target))
 
-        with Formatter(self.device.nos, self.query.query_type) as formatter:
+        with Formatter(self.device.type, self.query.query_type) as formatter:
             self.target = formatter(self.query.query_target)
 
     def json(self, afi):
@@ -100,9 +100,9 @@ class Construct:
 class Formatter:
     """Modify query target based on the device's NOS requirements and the query type."""
 
-    def __init__(self, nos: str, query_type: str) -> None:
+    def __init__(self, device_type: str, query_type: str) -> None:
         """Initialize target formatting."""
-        self.nos = nos
+        self.device_type = device_type
         self.query_type = query_type
 
     def __enter__(self):
@@ -116,10 +116,10 @@ class Formatter:
         pass
 
     def _get_formatter(self):
-        if self.nos in ("juniper", "juniper_junos"):
+        if self.device_type in ("juniper", "juniper_junos"):
             if self.query_type == "bgp_aspath":
                 return self._juniper_bgp_aspath
-        if self.nos in ("bird", "bird_ssh"):
+        if self.device_type in ("bird", "bird_ssh"):
             if self.query_type == "bgp_aspath":
                 return self._bird_bgp_aspath
             elif self.query_type == "bgp_community":
