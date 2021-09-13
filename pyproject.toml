@@ -79,6 +79,7 @@ isort = "^5.5.3"
 mccabe = "^0.6.1"
 pep8-naming = "^0.9.1"
 pre-commit = "^1.21.0"
+pytest = "^6.2.5"
 stackprinter = "^0.2.3"
 taskipy = "^1.8.2"
 
@@ -98,6 +99,7 @@ lint = {cmd = "flake8 hyperglass", help = "Run Flake8"}
 sort = {cmd = "isort hyperglass", help = "Run iSort"}
 start = {cmd = "python3 -m hyperglass.console start", help = "Start hyperglass"}
 start-asgi = {cmd = "uvicorn hyperglass.api:app", help = "Start hyperglass via Uvicorn"}
+test = {cmd = "pytest hyperglass", help = "Run hyperglass tests"}
 ui-build = {cmd = "python3 -m hyperglass.console build-ui", help = "Run a UI Build"}
 ui-dev = {cmd = "yarn --cwd ./hyperglass/ui/ dev", help = "Start the Next.JS dev server"}
 ui-format = {cmd = "yarn --cwd ./hyperglass/ui/ format", help = "Run Prettier"}
