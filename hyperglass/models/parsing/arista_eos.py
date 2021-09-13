@@ -6,10 +6,10 @@ from datetime import datetime
 
 # Project
 from hyperglass.log import log
+from hyperglass.models.data import BGPRouteTable
 
 # Local
 from ..main import HyperglassModel
-from .serialized import ParsedRoutes
 
 RPKI_STATE_MAP = {
     "invalid": 0,
@@ -157,7 +157,7 @@ class AristaRoute(_AristaBase):
                     }
                 )
 
-        serialized = ParsedRoutes(
+        serialized = BGPRouteTable(
             vrf=self.vrf, count=count, routes=routes, winning_weight=WINNING_WEIGHT,
         )
 

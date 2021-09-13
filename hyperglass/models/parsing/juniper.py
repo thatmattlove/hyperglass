@@ -1,17 +1,19 @@
 """Data Models for Parsing Juniper XML Response."""
 
 # Standard Library
-from typing import Dict, List
+from typing import Any, Dict, List
 
 # Third Party
-from pydantic import StrictInt, StrictStr, StrictBool, validator, root_validator
+from pydantic import validator, root_validator
+from pydantic.types import StrictInt, StrictStr, StrictBool
 
 # Project
 from hyperglass.log import log
+from hyperglass.util import deep_convert_keys
+from hyperglass.models.data.bgp_route import BGPRouteTable
 
 # Local
 from ..main import HyperglassModel
-from .serialized import ParsedRoutes
 
 RPKI_STATE_MAP = {
     "invalid": 0,
@@ -21,17 +23,19 @@ RPKI_STATE_MAP = {
 }
 
 
-def _alias_generator(field):
-    return field.replace("_", "-")
+class JuniperBase(HyperglassModel, extra="ignore"):
+    """Base Juniper model."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        """Convert all `-` keys to `_`.
+
+        Default camelCase alias generator will still be used.
+        """
+        rebuilt = deep_convert_keys(kwargs, lambda k: k.replace("-", "_"))
+        super().__init__(**rebuilt)
 
 
-class _JuniperBase(HyperglassModel):
-    class Config:
-        alias_generator = _alias_generator
-        extra = "ignore"
-
-
-class JuniperRouteTableEntry(_JuniperBase):
+class JuniperRouteTableEntry(JuniperBase):
     """Parse Juniper rt-entry data."""
 
     active_tag: StrictBool
@@ -59,8 +63,8 @@ class JuniperRouteTableEntry(_JuniperBase):
             nh = values.pop("nh")
 
         # Handle Juniper's 'Indirect' Next Hop Type
-        if "protocol-nh" in values:
-            nh = values.pop("protocol-nh")
+        if "protocol_nh" in values:
+            nh = values.pop("protocol_nh")
 
         # Force the next hops to be a list
         if isinstance(nh, Dict):
@@ -72,21 +76,21 @@ class JuniperRouteTableEntry(_JuniperBase):
         # Extract the 'to:' value from the next-hop
         selected_next_hop = ""
         for hop in next_hops:
-            if "selected-next-hop" in hop:
+            if "selected_next_hop" in hop:
                 selected_next_hop = hop.get("to", "")
                 break
             elif hop.get("to") is not None:
                 selected_next_hop = hop["to"]
                 break
 
-        values["next-hop"] = selected_next_hop
+        values["next_hop"] = selected_next_hop
 
-        _path_attr = values.get("bgp-path-attributes", {})
-        _path_attr_agg = _path_attr.get("attr-aggregator", {}).get("attr-value", {})
-        values["as-path"] = _path_attr.get("attr-as-path-effective", {}).get("attr-value", "")
-        values["source-as"] = _path_attr_agg.get("aggr-as-number", 0)
-        values["source-rid"] = _path_attr_agg.get("aggr-router-id", "")
-        values["peer-rid"] = values["peer-id"]
+        _path_attr = values.get("bgp_path_attributes", {})
+        _path_attr_agg = _path_attr.get("attr_aggregator", {}).get("attr_value", {})
+        values["as_path"] = _path_attr.get("attr_as_path_effective", {}).get("attr_value", "")
+        values["source_as"] = _path_attr_agg.get("aggr_as_number", 0)
+        values["source_rid"] = _path_attr_agg.get("aggr_router_id", "")
+        values["peer_rid"] = values.get("peer_id", "")
 
         return values
 
@@ -132,7 +136,7 @@ class JuniperRouteTableEntry(_JuniperBase):
         return flat
 
 
-class JuniperRouteTable(_JuniperBase):
+class JuniperRouteTable(JuniperBase):
     """Validation model for Juniper rt data."""
 
     rt_destination: StrictStr
@@ -147,7 +151,7 @@ class JuniperRouteTable(_JuniperBase):
         return int(value.get("#text"))
 
 
-class JuniperRoute(_JuniperBase):
+class JuniperBGPTable(JuniperBase):
     """Validation model for route-table data."""
 
     table_name: StrictStr
@@ -157,7 +161,7 @@ class JuniperRoute(_JuniperBase):
     hidden_route_count: int
     rt: List[JuniperRouteTable]
 
-    def serialize(self):
+    def bgp_table(self: "JuniperBGPTable") -> "BGPRouteTable":
         """Convert the Juniper-specific fields to standard parsed data model."""
         vrf_parts = self.table_name.split(".")
         if len(vrf_parts) == 2:
@@ -189,7 +193,7 @@ class JuniperRoute(_JuniperBase):
                     }
                 )
 
-        serialized = ParsedRoutes(vrf=vrf, count=count, routes=routes, winning_weight="low",)
+        serialized = BGPRouteTable(vrf=vrf, count=count, routes=routes, winning_weight="low")
 
-        log.debug("Serialized Juniper response: {}", serialized)
+        log.debug("Serialized Juniper response: {}", repr(serialized))
         return serialized

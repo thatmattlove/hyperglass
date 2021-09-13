@@ -2,11 +2,11 @@
 
 # Standard Library
 import re
-from typing import List
+from typing import List, Literal
 from ipaddress import ip_network
 
 # Third Party
-from pydantic import StrictInt, StrictStr, StrictBool, constr, validator
+from pydantic import StrictInt, StrictStr, StrictBool, validator
 
 # Project
 from hyperglass.configuration import params
@@ -15,11 +15,11 @@ from hyperglass.external.rpki import rpki_state
 # Local
 from ..main import HyperglassModel
 
-WinningWeight = constr(regex=r"(low|high)")
+WinningWeight = Literal["low", "high"]
 
 
-class ParsedRouteEntry(HyperglassModel):
-    """Per-Route Response Model."""
+class BGPRoute(HyperglassModel):
+    """Post-parsed BGP route."""
 
     prefix: StrictStr
     active: StrictBool
@@ -100,10 +100,22 @@ class ParsedRouteEntry(HyperglassModel):
             return value
 
 
-class ParsedRoutes(HyperglassModel):
-    """Parsed Response Model."""
+class BGPRouteTable(HyperglassModel):
+    """Post-parsed BGP route table."""
 
     vrf: StrictStr
     count: StrictInt = 0
-    routes: List[ParsedRouteEntry]
+    routes: List[BGPRoute]
     winning_weight: WinningWeight
+
+    def __init__(self, **kwargs):
+        """Sort routes by prefix after validation."""
+        super().__init__(**kwargs)
+        self.routes = sorted(self.routes, key=lambda r: r.prefix)
+
+    def __add__(self: "BGPRouteTable", other: "BGPRouteTable") -> "BGPRouteTable":
+        """Merge another BGP table instance with this instance."""
+        if isinstance(other, BGPRouteTable):
+            self.routes = sorted([*self.routes, *other.routes], key=lambda r: r.prefix)
+            self.count = len(self.routes)
+        return self

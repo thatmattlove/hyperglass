@@ -9,10 +9,10 @@ from pydantic import StrictInt, StrictStr, StrictBool, constr, root_validator
 
 # Project
 from hyperglass.log import log
+from hyperglass.models.data import BGPRouteTable
 
 # Local
 from ..main import HyperglassModel
-from .serialized import ParsedRoutes
 
 FRRPeerType = constr(regex=r"(internal|external)")
 
@@ -110,7 +110,9 @@ class FRRRoute(_FRRBase):
                 }
             )
 
-        serialized = ParsedRoutes(vrf=vrf, count=len(routes), routes=routes, winning_weight="high",)
+        serialized = BGPRouteTable(
+            vrf=vrf, count=len(routes), routes=routes, winning_weight="high",
+        )
 
         log.info("Serialized FRR response: {}", serialized)
         return serialized
