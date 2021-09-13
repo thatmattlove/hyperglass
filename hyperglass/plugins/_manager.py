@@ -16,7 +16,7 @@ from hyperglass.exceptions.private import PluginError
 # Local
 from ._base import PluginType, HyperglassPlugin
 from ._input import InputPlugin, InputPluginReturn
-from ._output import OutputPlugin, OutputPluginReturn
+from ._output import OutputType, OutputPlugin
 
 if TYPE_CHECKING:
     # Project
@@ -168,8 +168,8 @@ class OutputPluginManager(PluginManager[OutputPlugin], type="output"):
     """Manage Output Processing Plugins."""
 
     def execute(
-        self: "OutputPluginManager", *, directive: "Directive", output: str, device: "Device"
-    ) -> OutputPluginReturn:
+        self: "OutputPluginManager", *, directive: "Directive", output: OutputType, device: "Device"
+    ) -> OutputType:
         """Execute all output parsing plugins.
 
         The result of each plugin is passed to the next plugin.
