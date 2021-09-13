@@ -80,3 +80,25 @@ class HyperglassModel(BaseModel):
         }
 
         return yaml.safe_dump(json.loads(self.export_json(**export_kwargs)), *args, **kwargs)
+
+
+class HyperglassModelWithId(HyperglassModel):
+    """hyperglass model that is unique by its `id` field."""
+
+    id: str
+
+    def __eq__(self: "HyperglassModelWithId", other: "HyperglassModelWithId") -> bool:
+        """Other model is equal to this model."""
+        if not isinstance(other, self.__class__):
+            return False
+        if hasattr(other, "id"):
+            return other and self.id == other.id
+        return False
+
+    def __ne__(self: "HyperglassModelWithId", other: "HyperglassModelWithId") -> bool:
+        """Other model is not equal to this model."""
+        return not self.__eq__(other)
+
+    def __hash__(self: "HyperglassModelWithId") -> int:
+        """Create a hashed representation of this model's name."""
+        return hash(self.id)

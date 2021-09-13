@@ -168,7 +168,7 @@ class Query(BaseModel):
     def validate_query_location(cls, value):
         """Ensure query_location is defined."""
 
-        valid_id = value in devices._ids
+        valid_id = value in devices.ids
         valid_hostname = value in devices.hostnames
 
         if not any((valid_id, valid_hostname)):

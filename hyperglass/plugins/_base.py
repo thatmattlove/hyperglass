@@ -2,7 +2,7 @@
 
 # Standard Library
 from abc import ABC
-from typing import Any, Union, Literal, TypeVar
+from typing import Any, Union, Literal, TypeVar, Sequence
 from inspect import Signature
 
 # Third Party
@@ -52,3 +52,9 @@ class HyperglassPlugin(BaseModel, ABC):
         """Initialize plugin instance."""
         name = kwargs.pop("name", None) or self.__class__.__name__
         super().__init__(name=name, **kwargs)
+
+
+class DirectivePlugin(HyperglassPlugin):
+    """Plugin associated with directives."""
+
+    directives: Sequence[str] = ()

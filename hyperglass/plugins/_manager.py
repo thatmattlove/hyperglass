@@ -4,7 +4,7 @@
 import json
 import codecs
 import pickle
-from typing import TYPE_CHECKING, List, Generic, TypeVar, Callable, Generator
+from typing import TYPE_CHECKING, Any, List, Generic, TypeVar, Callable, Generator
 from inspect import isclass
 
 # Project
@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     # Project
     from hyperglass.models.api.query import Query
     from hyperglass.models.config.devices import Device
+    from hyperglass.models.commands.generic import Directive
 
 PluginT = TypeVar("PluginT")
 
@@ -73,7 +74,7 @@ class PluginManager(Generic[PluginT]):
     def plugins(self: "PluginManager") -> List[PluginT]:
         """Get all plugins, with built-in plugins last."""
         return sorted(
-            self.plugins,
+            self._get_plugins(),
             key=lambda p: -1 if p.__hyperglass_builtin__ else 1,  # flake8: noqa IF100
             reverse=True,
         )
@@ -117,12 +118,12 @@ class PluginManager(Generic[PluginT]):
                 return
         raise PluginError("Plugin '{}' is not a valid hyperglass plugin", repr(plugin))
 
-    def register(self: "PluginManager", plugin: PluginT) -> None:
+    def register(self: "PluginManager", plugin: PluginT, *args: Any, **kwargs: Any) -> None:
         """Add a plugin to currently active plugins."""
         # Create a set of plugins so duplicate plugins are not mistakenly added.
         try:
             if issubclass(plugin, HyperglassPlugin):
-                instance = plugin()
+                instance = plugin(*args, **kwargs)
                 plugins = {
                     # Create a base64 representation of a picked plugin.
                     codecs.encode(pickle.dumps(p), "base64").decode()
@@ -131,7 +132,10 @@ class PluginManager(Generic[PluginT]):
                 }
                 # Add plugins from cache.
                 self._cache.set(f"hyperglass.plugins.{self._type}", json.dumps(list(plugins)))
-                log.success("Registered plugin '{}'", instance.name)
+                if instance.__hyperglass_builtin__ is True:
+                    log.debug("Registered built-in plugin '{}'", instance.name)
+                else:
+                    log.success("Registered plugin '{}'", instance.name)
                 return
         except TypeError:
             raise PluginError(
@@ -145,13 +149,15 @@ class PluginManager(Generic[PluginT]):
 class InputPluginManager(PluginManager[InputPlugin], type="input"):
     """Manage Input Validation Plugins."""
 
-    def execute(self: "InputPluginManager", query: "Query") -> InputPluginReturn:
+    def execute(
+        self: "InputPluginManager", *, directive: "Directive", query: "Query"
+    ) -> InputPluginReturn:
         """Execute all input validation plugins.
 
         If any plugin returns `False`, execution is halted.
         """
         result = None
-        for plugin in self.plugins:
+        for plugin in (plugin for plugin in self.plugins if directive.id in plugin.directives):
             if result is False:
                 return result
             result = plugin.validate(query)
@@ -161,13 +167,15 @@ class InputPluginManager(PluginManager[InputPlugin], type="input"):
 class OutputPluginManager(PluginManager[OutputPlugin], type="output"):
     """Manage Output Processing Plugins."""
 
-    def execute(self: "OutputPluginManager", output: str, device: "Device") -> OutputPluginReturn:
+    def execute(
+        self: "OutputPluginManager", *, directive: "Directive", output: str, device: "Device"
+    ) -> OutputPluginReturn:
         """Execute all output parsing plugins.
 
         The result of each plugin is passed to the next plugin.
         """
         result = output
-        for plugin in self.plugins:
+        for plugin in (plugin for plugin in self.plugins if directive.id in plugin.directives):
             if result is False:
                 return result
             # Pass the result of each plugin to the next plugin.

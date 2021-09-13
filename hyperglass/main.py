@@ -7,7 +7,6 @@ import shutil
 import logging
 import platform
 from typing import TYPE_CHECKING
-from pathlib import Path
 
 # Third Party
 from gunicorn.app.base import BaseApplication  # type: ignore
@@ -124,10 +123,8 @@ def cache_config() -> bool:
 def register_all_plugins(devices: "Devices") -> None:
     """Validate and register configured plugins."""
 
-    for plugin_file in {
-        Path(p) for p in (p for d in devices.objects for c in d.commands for p in c.plugins)
-    }:
-        failures = register_plugin(plugin_file)
+    for plugin_file, directives in devices.directive_plugins().items():
+        failures = register_plugin(plugin_file, directives=directives)
         for failure in failures:
             log.warning(
                 "Plugin '{}' is not a valid hyperglass plugin, and was not registered", failure,
@@ -203,11 +200,9 @@ class HyperglassWSGI(BaseApplication):
 
 def start(**kwargs):
     """Start hyperglass via gunicorn."""
-    # Project
-    from hyperglass.api import app
 
     HyperglassWSGI(
-        app=app,
+        app="hyperglass.api:app",
         options={
             "worker_class": "uvicorn.workers.UvicornWorker",
             "preload": True,

@@ -3,19 +3,12 @@
 # Standard Library
 import os
 import re
-from typing import Any, Dict, List, Tuple, Union, Optional
+from typing import Any, Set, Dict, List, Tuple, Union, Optional
 from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
-from pydantic import (
-    StrictInt,
-    StrictStr,
-    StrictBool,
-    PrivateAttr,
-    validator,
-    root_validator,
-)
+from pydantic import StrictInt, StrictStr, StrictBool, validator, root_validator
 
 # Project
 from hyperglass.log import log
@@ -26,7 +19,7 @@ from hyperglass.models.commands.generic import Directive
 
 # Local
 from .ssl import Ssl
-from ..main import HyperglassModel
+from ..main import HyperglassModel, HyperglassModelWithId
 from .proxy import Proxy
 from .params import Params
 from ..fields import SupportedDriver
@@ -34,10 +27,10 @@ from .network import Network
 from .credential import Credential
 
 
-class Device(HyperglassModel, extra="allow"):
+class Device(HyperglassModelWithId, extra="allow"):
     """Validation model for per-router config in devices.yaml."""
 
-    _id: StrictStr = PrivateAttr()
+    id: StrictStr
     name: StrictStr
     address: Union[IPv4Address, IPv6Address, StrictStr]
     network: Network
@@ -55,22 +48,8 @@ class Device(HyperglassModel, extra="allow"):
     def __init__(self, **kwargs) -> None:
         """Set the device ID."""
         _id, values = self._generate_id(kwargs)
-        super().__init__(**values)
-        self._id = _id
+        super().__init__(id=_id, **values)
         self._validate_directive_attrs()
-
-    def __hash__(self) -> int:
-        """Make device object hashable so the object can be deduplicated with set()."""
-        return hash((self.name,))
-
-    def __eq__(self, other: Any) -> bool:
-        """Make device object comparable so the object can be deduplicated with set()."""
-        result = False
-
-        if isinstance(other, HyperglassModel):
-            result = self.name == other.name
-
-        return result
 
     @property
     def _target(self):
@@ -104,7 +83,7 @@ class Device(HyperglassModel, extra="allow"):
     def export_api(self) -> Dict[str, Any]:
         """Export API-facing device fields."""
         return {
-            "id": self._id,
+            "id": self.id,
             "name": self.name,
             "network": self.network.display_name,
         }
@@ -233,7 +212,7 @@ class Device(HyperglassModel, extra="allow"):
 class Devices(HyperglassModel, extra="allow"):
     """Validation model for device configurations."""
 
-    _ids: List[StrictStr] = []
+    ids: List[StrictStr] = []
     hostnames: List[StrictStr] = []
     objects: List[Device] = []
     all_nos: List[StrictStr] = []
@@ -248,7 +227,7 @@ class Devices(HyperglassModel, extra="allow"):
         all_nos = set()
         objects = set()
         hostnames = set()
-        _ids = set()
+        ids = set()
 
         init_kwargs = {}
 
@@ -261,13 +240,13 @@ class Devices(HyperglassModel, extra="allow"):
             # list with `devices.hostnames`, same for all router
             # classes, for when iteration over all routers is required.
             hostnames.add(device.name)
-            _ids.add(device._id)
+            ids.add(device.id)
             objects.add(device)
             all_nos.add(device.nos)
 
         # Convert the de-duplicated sets to a standard list, add lists
         # as class attributes. Sort router list by router name attribute
-        init_kwargs["_ids"] = list(_ids)
+        init_kwargs["ids"] = list(ids)
         init_kwargs["hostnames"] = list(hostnames)
         init_kwargs["all_nos"] = list(all_nos)
         init_kwargs["objects"] = sorted(objects, key=lambda x: x.name)
@@ -277,7 +256,7 @@ class Devices(HyperglassModel, extra="allow"):
     def __getitem__(self, accessor: str) -> Device:
         """Get a device by its name."""
         for device in self.objects:
-            if device._id == accessor:
+            if device.id == accessor:
                 return device
             elif device.name == accessor:
                 return device
@@ -296,7 +275,7 @@ class Devices(HyperglassModel, extra="allow"):
                 "display_name": name,
                 "locations": [
                     {
-                        "id": device._id,
+                        "id": device.id,
                         "name": device.name,
                         "network": device.network.display_name,
                         "directives": [c.frontend(params) for c in device.commands],
@@ -307,3 +286,20 @@ class Devices(HyperglassModel, extra="allow"):
             }
             for name in names
         ]
+
+    def directive_plugins(self) -> Dict[Path, Tuple[StrictStr]]:
+        """Get a mapping of plugin paths to associated directive IDs."""
+        result: Dict[Path, Set[StrictStr]] = {}
+        # Unique set of all directives.
+        directives = {directive for device in self.objects for directive in device.commands}
+        # Unique set of all plugin file names.
+        plugin_names = {plugin for directive in directives for plugin in directive.plugins}
+
+        for directive in directives:
+            # Convert each plugin file name to a `Path` object.
+            for plugin in (Path(p) for p in directive.plugins if p in plugin_names):
+                if plugin not in result:
+                    result[plugin] = set()
+                result[plugin].add(directive.id)
+        # Convert the directive set to a tuple.
+        return {k: tuple(v) for k, v in result.items()}

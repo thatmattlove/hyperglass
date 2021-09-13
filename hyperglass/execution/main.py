@@ -55,7 +55,10 @@ async def execute(query: "Query") -> Union[str, Sequence[Dict]]:
     mapped_driver = map_driver(query.device.driver)
     driver: "Connection" = mapped_driver(query.device, query)
 
-    signal.signal(signal.SIGALRM, handle_timeout(error=TimeoutError(), device=query.device))
+    signal.signal(
+        signal.SIGALRM,
+        handle_timeout(error=TimeoutError("Connection timed out"), device=query.device),
+    )
     signal.alarm(params.request_timeout - 1)
 
     if query.device.proxy:

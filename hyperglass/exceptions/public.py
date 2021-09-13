@@ -1,7 +1,7 @@
 """User-facing/Public exceptions."""
 
 # Standard Library
-from typing import Any, Dict, Optional, ForwardRef
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 # Project
 from hyperglass.configuration import params
@@ -9,8 +9,10 @@ from hyperglass.configuration import params
 # Local
 from ._common import PublicHyperglassError
 
-Query = ForwardRef("Query")
-Device = ForwardRef("Device")
+if TYPE_CHECKING:
+    # Project
+    from hyperglass.models.api.query import Query
+    from hyperglass.models.config.devices import Device
 
 
 class ScrapeError(
@@ -18,7 +20,7 @@ class ScrapeError(
 ):
     """Raised when an SSH driver error occurs."""
 
-    def __init__(self, error: BaseException, *, device: Device):
+    def __init__(self, *, error: BaseException, device: "Device"):
         """Initialize parent error."""
         super().__init__(error=str(error), device=device.name, proxy=device.proxy)
 
@@ -28,7 +30,7 @@ class AuthError(
 ):
     """Raised when authentication to a device fails."""
 
-    def __init__(self, error: BaseException, *, device: Device):
+    def __init__(self, *, error: BaseException, device: "Device"):
         """Initialize parent error."""
         super().__init__(error=str(error), device=device.name, proxy=device.proxy)
 
@@ -36,7 +38,7 @@ class AuthError(
 class RestError(PublicHyperglassError, template=params.messages.connection_error, level="danger"):
     """Raised upon a rest API client error."""
 
-    def __init__(self, error: BaseException, *, device: Device):
+    def __init__(self, *, error: BaseException, device: "Device"):
         """Initialize parent error."""
         super().__init__(error=str(error), device=device.name)
 
@@ -46,7 +48,7 @@ class DeviceTimeout(
 ):
     """Raised when the connection to a device times out."""
 
-    def __init__(self, error: BaseException, *, device: Device):
+    def __init__(self, *, error: BaseException, device: "Device"):
         """Initialize parent error."""
         super().__init__(error=str(error), device=device.name, proxy=device.proxy)
 
@@ -55,7 +57,7 @@ class InvalidQuery(PublicHyperglassError, template=params.messages.invalid_query
     """Raised when input validation fails."""
 
     def __init__(
-        self, error: Optional[str] = None, *, query: "Query", **kwargs: Dict[str, Any]
+        self, *, error: Optional[str] = None, query: "Query", **kwargs: Dict[str, Any]
     ) -> None:
         """Initialize parent error."""
 
@@ -107,7 +109,7 @@ class InputInvalid(PublicHyperglassError, template=params.messages.invalid_input
     """Raised when input validation fails."""
 
     def __init__(
-        self, error: Optional[Any] = None, *, target: str, **kwargs: Dict[str, Any]
+        self, *, error: Optional[Any] = None, target: str, **kwargs: Dict[str, Any]
     ) -> None:
         """Initialize parent error."""
 
@@ -123,7 +125,7 @@ class InputNotAllowed(PublicHyperglassError, template=params.messages.acl_not_al
     """Raised when input validation fails due to a configured check."""
 
     def __init__(
-        self, error: Optional[str] = None, *, query: Query, **kwargs: Dict[str, Any]
+        self, *, error: Optional[str] = None, query: "Query", **kwargs: Dict[str, Any]
     ) -> None:
         """Initialize parent error."""
 
@@ -143,7 +145,7 @@ class ResponseEmpty(PublicHyperglassError, template=params.messages.no_output):
     """Raised when hyperglass can connect to the device but the response is empty."""
 
     def __init__(
-        self, error: Optional[str] = None, *, query: Query, **kwargs: Dict[str, Any]
+        self, *, error: Optional[str] = None, query: "Query", **kwargs: Dict[str, Any]
     ) -> None:
         """Initialize parent error."""
 

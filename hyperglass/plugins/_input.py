@@ -4,7 +4,7 @@
 from typing import TYPE_CHECKING, Union
 
 # Local
-from ._base import HyperglassPlugin
+from ._base import DirectivePlugin
 
 if TYPE_CHECKING:
     # Project
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 InputPluginReturn = Union[None, bool]
 
 
-class InputPlugin(HyperglassPlugin):
+class InputPlugin(DirectivePlugin):
     """Plugin to validate user input prior to running commands."""
 
     def validate(self, query: "Query") -> InputPluginReturn:

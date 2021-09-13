@@ -120,7 +120,7 @@ class PublicHyperglassError(HyperglassError):
         """Format error message with keyword arguments."""
         if "error" in kwargs:
             error = kwargs.pop("error")
-            error = self._safe_format(error, **kwargs)
+            error = self._safe_format(str(error), **kwargs)
             kwargs["error"] = error
         self._message = self._safe_format(self._message_template, **kwargs)
         self._keywords = list(kwargs.values())
@@ -150,7 +150,7 @@ class PrivateHyperglassError(HyperglassError):
         """Format error message with keyword arguments."""
         if "error" in kwargs:
             error = kwargs.pop("error")
-            error = self._safe_format(error, **kwargs)
+            error = self._safe_format(str(error), **kwargs)
             kwargs["error"] = error
         self._message = self._safe_format(message, **kwargs)
         self._keywords = list(kwargs.values())

@@ -23,7 +23,7 @@ def _is_class(module: Any, obj: object) -> bool:
     return isclass(obj) and obj.__module__ == module.__name__
 
 
-def _register_from_module(module: Any) -> Tuple[str, ...]:
+def _register_from_module(module: Any, **kwargs: Any) -> Tuple[str, ...]:
     """Register defined classes from the module."""
     failures = ()
     defs = getmembers(module, lambda o: _is_class(module, o))
@@ -35,7 +35,7 @@ def _register_from_module(module: Any) -> Tuple[str, ...]:
         else:
             failures += (name,)
             continue
-        manager.register(plugin)
+        manager.register(plugin, **kwargs)
         return failures
     return failures
 
@@ -57,10 +57,10 @@ def init_plugins() -> None:
     _register_from_module(_builtin)
 
 
-def register_plugin(plugin_file: Path) -> Tuple[str, ...]:
+def register_plugin(plugin_file: Path, **kwargs) -> Tuple[str, ...]:
     """Register an external plugin by file path."""
     if plugin_file.exists():
         module = _module_from_file(plugin_file)
-        results = _register_from_module(module)
+        results = _register_from_module(module, **kwargs)
         return results
     raise FileNotFoundError(str(plugin_file))

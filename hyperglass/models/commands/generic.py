@@ -23,7 +23,7 @@ from hyperglass.log import log
 from hyperglass.exceptions.private import InputValidationError
 
 # Local
-from ..main import HyperglassModel
+from ..main import HyperglassModel, HyperglassModelWithId
 from ..fields import Action
 from ..config.params import Params
 
@@ -224,7 +224,7 @@ class RuleWithoutValidation(Rule):
 Rules = Union[RuleWithIPv4, RuleWithIPv6, RuleWithPattern, RuleWithoutValidation]
 
 
-class Directive(HyperglassModel):
+class Directive(HyperglassModelWithId):
     """A directive contains commands that can be run on a device, as long as defined rules are met."""
 
     id: StrictStr
