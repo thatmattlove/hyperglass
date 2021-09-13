@@ -37,7 +37,7 @@ class Connection(ABC):
         """Return a preconfigured sshtunnel.SSHTunnelForwarder instance."""
         pass
 
-    async def response(self, output: Sequence[str]) -> Union[OutputDataModel, str]:
+    async def response(self, output: Sequence[str]) -> Union["OutputDataModel", str]:
         """Send output through common parsers."""
 
         log.debug("Pre-parsed responses:\n{}", output)

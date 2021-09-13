@@ -45,7 +45,7 @@ def handle_timeout(**exc_args: Any) -> Callable:
     return handler
 
 
-async def execute(query: "Query") -> Union[OutputDataModel, str]:
+async def execute(query: "Query") -> Union["OutputDataModel", str]:
     """Initiate query validation and execution."""
 
     output = params.messages.general

@@ -54,7 +54,19 @@ class HyperglassPlugin(BaseModel, ABC):
         super().__init__(name=name, **kwargs)
 
 
-class DirectivePlugin(HyperglassPlugin):
-    """Plugin associated with directives."""
+class DirectivePlugin(BaseModel):
+    """Plugin associated with directives.
+
+    Should always be subclassed with `HyperglassPlugin`.
+    """
 
     directives: Sequence[str] = ()
+
+
+class DeviceTypePlugin(BaseModel):
+    """Plugin associated with specific device types.
+
+    Should always be subclassed with `HyperglassPlugin`.
+    """
+
+    device_types: Sequence[str] = ()
