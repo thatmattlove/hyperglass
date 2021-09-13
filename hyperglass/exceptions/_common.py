@@ -4,6 +4,9 @@
 import json as _json
 from typing import Any, Dict, List, Union, Literal, Optional
 
+# Third Party
+from pydantic import ValidationError
+
 # Project
 from hyperglass.log import log
 from hyperglass.util import get_fmt_keys
@@ -141,6 +144,14 @@ class PrivateHyperglassError(HyperglassError):
 
     _level = "warning"
 
+    def _parse_validation_error(self, err: ValidationError) -> str:
+        errors = err.errors()
+        parsed = {
+            k: ", ".join(str(loc) for t in errors for loc in t["loc"] if t["type"] == k)
+            for k in {e["type"] for e in errors}
+        }
+        return ", ".join([f"{k} ({v})" for k, v in parsed.items()])
+
     def __init_subclass__(cls, *, level: Optional[ErrorLevel] = None) -> None:
         """Override error attributes from subclass."""
         if level is not None:
@@ -152,6 +163,10 @@ class PrivateHyperglassError(HyperglassError):
             error = kwargs.pop("error")
             error = self._safe_format(str(error), **kwargs)
             kwargs["error"] = error
+
+        if isinstance(message, ValidationError):
+            message = self._parse_validation_error(message)
+
         self._message = self._safe_format(message, **kwargs)
         self._keywords = list(kwargs.values())
         super().__init__(message=self._message, level=self._level, keywords=self._keywords)
