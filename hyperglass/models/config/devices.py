@@ -136,19 +136,19 @@ class Device(HyperglassModelWithId, extra="allow"):
     def validate_structured_output(cls, value: bool, values: Dict) -> bool:
         """Validate structured output is supported on the device & set a default."""
 
-        if value is True and values["nos"] not in SUPPORTED_STRUCTURED_OUTPUT:
-            raise ConfigError(
-                "The 'structured_output' field is set to 'true' on device '{d}' with "
-                + "NOS '{n}', which does not support structured output",
-                d=values["name"],
-                n=values["nos"],
-            )
-
+        if value is True:
+            if values["nos"] not in SUPPORTED_STRUCTURED_OUTPUT:
+                raise ConfigError(
+                    "The 'structured_output' field is set to 'true' on device '{d}' with "
+                    + "NOS '{n}', which does not support structured output",
+                    d=values["name"],
+                    n=values["nos"],
+                )
+            return value
         elif value is None and values["nos"] in SUPPORTED_STRUCTURED_OUTPUT:
             value = True
         else:
             value = False
-
         return value
 
     @validator("ssl")
