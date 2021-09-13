@@ -8,7 +8,7 @@ hyperglass-frr API calls, returns the output back to the front end.
 
 # Standard Library
 import signal
-from typing import TYPE_CHECKING, Any, Dict, Union, Callable, Sequence
+from typing import TYPE_CHECKING, Any, Dict, Union, Callable
 
 # Project
 from hyperglass.log import log
@@ -18,6 +18,7 @@ from hyperglass.exceptions.public import DeviceTimeout, ResponseEmpty
 if TYPE_CHECKING:
     from hyperglass.models.api import Query
     from .drivers import Connection
+    from hyperglass.models.data import OutputDataModel
 
 # Local
 from .drivers import AgentConnection, NetmikoConnection, ScrapliConnection
@@ -44,7 +45,7 @@ def handle_timeout(**exc_args: Any) -> Callable:
     return handler
 
 
-async def execute(query: "Query") -> Union[str, Sequence[Dict]]:
+async def execute(query: "Query") -> Union[OutputDataModel, str]:
     """Initiate query validation and execution."""
 
     output = params.messages.general
@@ -68,7 +69,7 @@ async def execute(query: "Query") -> Union[str, Sequence[Dict]]:
     else:
         response = await driver.collect()
 
-    output = await driver.parsed_response(response)
+    output = await driver.response(response)
 
     if isinstance(output, str):
         # If the output is a string (not structured) and is empty,

@@ -2,7 +2,7 @@
 
 # Standard Library
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Dict, Union, Sequence
+from typing import TYPE_CHECKING, Union, Sequence
 
 # Project
 from hyperglass.log import log
@@ -14,6 +14,7 @@ from ._construct import Construct
 if TYPE_CHECKING:
     # Project
     from hyperglass.models.api import Query
+    from hyperglass.models.data import OutputDataModel
     from hyperglass.compat._sshtunnel import SSHTunnelForwarder
     from hyperglass.models.config.devices import Device
 
@@ -36,7 +37,7 @@ class Connection(ABC):
         """Return a preconfigured sshtunnel.SSHTunnelForwarder instance."""
         pass
 
-    async def parsed_response(self, output: Sequence[str]) -> Union[str, Sequence[Dict]]:
+    async def response(self, output: Sequence[str]) -> Union[OutputDataModel, str]:
         """Send output through common parsers."""
 
         log.debug("Pre-parsed responses:\n{}", output)
