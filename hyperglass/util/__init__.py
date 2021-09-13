@@ -6,7 +6,19 @@ import sys
 import json
 import string
 import platform
-from typing import Any, Dict, Union, Optional, Sequence, Generator
+from typing import (
+    Any,
+    Dict,
+    List,
+    Type,
+    Tuple,
+    Union,
+    TypeVar,
+    Callable,
+    Optional,
+    Sequence,
+    Generator,
+)
 from asyncio import iscoroutine
 from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address, ip_address
@@ -21,6 +33,8 @@ from hyperglass.constants import DRIVER_MAP
 
 ALL_NOS = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
 ALL_DRIVERS = {*DRIVER_MAP.values(), "netmiko"}
+
+DeepConvert = TypeVar("DeepConvert", bound=Dict[str, Any])
 
 
 def cpu_count(multiplier: int = 0) -> int:
@@ -325,8 +339,27 @@ def get_fmt_keys(template: str) -> Sequence[str]:
     `["key", "value"]`.
     """
     keys = []
-    for block in string.Formatter.parse("", template):
+    for block in (b for b in string.Formatter.parse("", template) if isinstance(template, str)):
         key = block[1]
         if key:
             keys.append(key)
     return keys
+
+
+def deep_convert_keys(_dict: Type[DeepConvert], predicate: Callable[[str], str]) -> DeepConvert:
+    """Convert all dictionary keys and nested dictionary keys."""
+    converted = {}
+
+    def get_value(value: Any):
+        if isinstance(value, Dict):
+            return {predicate(k): get_value(v) for k, v in value.items()}
+        elif isinstance(value, List):
+            return [get_value(v) for v in value]
+        elif isinstance(value, Tuple):
+            return tuple(get_value(v) for v in value)
+        return value
+
+    for key, value in _dict.items():
+        converted[predicate(key)] = get_value(value)
+
+    return converted
