@@ -92,7 +92,7 @@ class Http(HyperglassModel, extra="allow"):
             else:
                 dumped["auth"] = self.authentication.basic()
 
-        self._obscured_params = base64.encodestring(str(dumped).encode())
+        self._obscured_params = base64.encodebytes(str(dumped).encode())
 
     def decoded(self):
         """Decode connection details."""
