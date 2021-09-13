@@ -16,6 +16,8 @@ per-file-ignores=
     # Disable unused import warning for modules
     hyperglass/*/__init__.py:F401
     hyperglass/models/*/__init__.py:F401
+    # Disable assertion and docstring checks on tests.
+    hyperglass/**/test_*.py:S101,D103
 ignore=W503,C0330,R504,D202,S403,S301,S404,E731
 select=B, BLK, C, D, E, F, I, II, N, P, PIE, S, R, W
 disable-noqa=False
