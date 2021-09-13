@@ -8,23 +8,29 @@ from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
-from pydantic import StrictInt, StrictStr, StrictBool, validator, root_validator, Field
+from pydantic import StrictInt, StrictStr, StrictBool, validator, root_validator
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import get_driver, get_fmt_keys, validate_device_type, resolve_hostname
+from hyperglass.util import (
+    get_driver,
+    get_fmt_keys,
+    resolve_hostname,
+    validate_device_type,
+)
 from hyperglass.constants import SCRAPE_HELPERS, SUPPORTED_STRUCTURED_OUTPUT
 from hyperglass.exceptions.private import ConfigError, UnsupportedDevice
-from hyperglass.models.commands.generic import Directive
 
 # Local
 from .ssl import Ssl
 from ..main import HyperglassModel, HyperglassModelWithId
+from ..util import check_legacy_fields
 from .proxy import Proxy
 from .params import Params
 from ..fields import SupportedDriver
 from .network import Network
 from .credential import Credential
+from ..commands.generic import Directive
 
 
 class Device(HyperglassModelWithId, extra="allow"):
@@ -39,7 +45,7 @@ class Device(HyperglassModelWithId, extra="allow"):
     display_name: Optional[StrictStr]
     port: StrictInt = 22
     ssl: Optional[Ssl]
-    type: StrictStr = Field(..., alias="nos")
+    type: StrictStr
     commands: List[Directive]
     structured_output: Optional[StrictBool]
     driver: Optional[SupportedDriver]
@@ -47,6 +53,7 @@ class Device(HyperglassModelWithId, extra="allow"):
 
     def __init__(self, **kwargs) -> None:
         """Set the device ID."""
+        kwargs = check_legacy_fields("Device", **kwargs)
         _id, values = self._generate_id(kwargs)
         super().__init__(id=_id, **values)
         self._validate_directive_attrs()
@@ -98,6 +105,18 @@ class Device(HyperglassModelWithId, extra="allow"):
             for command in rule.commands
         ]
 
+    @property
+    def directive_ids(self) -> List[str]:
+        """Get all directive IDs associated with the device."""
+        return [directive.id for directive in self.commands]
+
+    def has_directives(self, *directive_ids: str) -> bool:
+        """Determine if a directive is used on this device."""
+        for directive_id in directive_ids:
+            if directive_id in self.directive_ids:
+                return True
+        return False
+
     def _validate_directive_attrs(self) -> None:
 
         # Set of all keys except for built-in key `target`.
@@ -131,20 +150,6 @@ class Device(HyperglassModelWithId, extra="allow"):
                     a=value,
                 )
         return value
-
-    @validator("type", pre=True, always=True)
-    def validate_type(cls: "Device", value: Any, values: Dict[str, Any]) -> str:
-        """Validate device type."""
-        legacy = values.pop("nos", None)
-        if legacy is not None and value is None:
-            log.warning(
-                "The 'nos' field on device '{}' has been deprecated and will be removed in a future release. Use the 'type' field moving forward.",
-                values.get("name", values.get("display_name", "Unknown")),
-            )
-            return legacy
-        if value is not None:
-            return value
-        raise ValueError("type is missing")
 
     @validator("structured_output", pre=True, always=True)
     def validate_structured_output(cls, value: bool, values: Dict) -> bool:
@@ -183,8 +188,8 @@ class Device(HyperglassModelWithId, extra="allow"):
     def validate_device_commands(cls, values: Dict) -> Dict:
         """Validate & rewrite device type, set default commands."""
 
-        _type = values.get("type", values.get("nos"))
-        if not _type:
+        _type = values.get("type")
+        if _type is None:
             # Ensure device type is defined.
             raise ValueError(
                 f"Device {values['name']} is missing a 'type' (Network Operating System) property."
