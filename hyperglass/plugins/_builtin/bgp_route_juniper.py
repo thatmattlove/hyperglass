@@ -120,9 +120,23 @@ class BGPRoutePluginJuniper(OutputPlugin):
     """Coerce a Juniper route table in XML format to a standard BGP Table structure."""
 
     __hyperglass_builtin__: bool = PrivateAttr(True)
+    device_types: Sequence[str] = ("juniper",)
+    directives: Sequence[str] = (
+        "__hyperglass_juniper_bgp_route__",
+        "__hyperglass_juniper_bgp_aspath__",
+        "__hyperglass_juniper_bgp_community__",
+    )
 
     def process(self, output: "OutputType", device: "Device") -> "OutputType":
         """Parse Juniper response if data is a string (and is therefore unparsed)."""
-        if isinstance(output, (list, tuple)) and device.structured_output:
+        should_process = all(
+            (
+                isinstance(output, (list, tuple)),
+                device.type in self.device_types,
+                device.structured_output is True,
+                device.has_directives(*self.directives),
+            )
+        )
+        if should_process:
             return parse_juniper(output)
         return output

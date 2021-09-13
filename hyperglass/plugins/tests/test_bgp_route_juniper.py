@@ -33,6 +33,9 @@ def _tester(sample: str):
         commands=[{"id": "test", "name": "Test", "rules": []}],
     )
 
+    # Override has_directives method for testing.
+    device.has_directives = lambda *x: True
+
     result = plugin.process((sample,), device)
     assert isinstance(result, BGPRouteTable), "Invalid parsed result"
     assert hasattr(result, "count"), "BGP Table missing count"
