@@ -43,11 +43,22 @@ def setup_lib_logging() -> None:
         _loguru_logger.bind(logger_name=name)
 
 
+def _log_patcher(record):
+    """Patch for exception handling in logger.
+
+    See: https://github.com/Delgan/loguru/issues/504
+    """
+    exception = record["exception"]
+    if exception is not None:
+        fixed = Exception(str(exception.value))
+        record["exception"] = exception._replace(value=fixed)
+
+
 def base_logger(level: str = "INFO"):
     """Initialize hyperglass logging instance."""
     _loguru_logger.remove()
     _loguru_logger.add(sys.stdout, format=_FMT, level=level, enqueue=True)
-    _loguru_logger.configure(levels=_LOG_LEVELS)
+    _loguru_logger.configure(levels=_LOG_LEVELS, patcher=_log_patcher)
     return _loguru_logger
 
 
