@@ -1,13 +1,16 @@
 """Remove anything before the command if found in output."""
 
 # Standard Library
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 # Third Party
 from pydantic import PrivateAttr
 
+# Project
+from hyperglass.util.typing import is_type
+
 # Local
-from .._output import OutputPlugin
+from .._output import OutputType, OutputPlugin
 
 if TYPE_CHECKING:
     # Project
@@ -19,14 +22,21 @@ class RemoveCommand(OutputPlugin):
 
     __hyperglass_builtin__: bool = PrivateAttr(True)
 
-    def process(self, device_output: str, device: "Device") -> str:
+    def process(self, device_output: OutputType, device: "Device") -> Sequence[str]:
         """Remove anything before the command if found in output."""
-        output = device_output.strip().split("\n")
 
-        for command in device.directive_commands:
-            for line in output:
-                if command in line:
-                    idx = output.index(line) + 1
-                    output = output[idx:]
+        def _remove_command(output_in: str) -> str:
+            output_out = device_output.strip().split("\n")
 
-        return "\n".join(output)
+            for command in device.directive_commands:
+                for line in output_out:
+                    if command in line:
+                        idx = output_out.index(line) + 1
+                        output_out = output_out[idx:]
+
+            return "\n".join(output_out)
+
+        if is_type(device_output, str):
+            return tuple(_remove_command(o) for o in device_output)
+
+        return device_output
