@@ -14,7 +14,12 @@ from gunicorn.glogging import Logger  # type: ignore
 
 # Local
 from .log import log, setup_lib_logging
-from .plugins import InputPluginManager, OutputPluginManager, register_plugin
+from .plugins import (
+    InputPluginManager,
+    OutputPluginManager,
+    register_plugin,
+    init_builtin_plugins,
+)
 from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
 from .util.frontend import get_node_version
 
@@ -123,6 +128,10 @@ def cache_config() -> bool:
 def register_all_plugins(devices: "Devices") -> None:
     """Validate and register configured plugins."""
 
+    # Register built-in plugins.
+    init_builtin_plugins()
+
+    # Register external plugins.
     for plugin_file, directives in devices.directive_plugins().items():
         failures = register_plugin(plugin_file, directives=directives)
         for failure in failures:

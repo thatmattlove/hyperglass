@@ -20,7 +20,14 @@ _PLUGIN_GLOBALS = {"InputPlugin": InputPlugin, "OutputPlugin": OutputPlugin, "lo
 
 
 def _is_class(module: Any, obj: object) -> bool:
-    return isclass(obj) and obj.__module__ == module.__name__
+    if isclass(obj):
+        # Get the object's containing module name.
+        obj_module_name: str = getattr(obj, "__module__", "")
+        # Get the module's name.
+        module_name: str = getattr(module, "__name__", None)
+        # Only validate objects that are members of the module.
+        return module_name in obj_module_name
+    return False
 
 
 def _register_from_module(module: Any, **kwargs: Any) -> Tuple[str, ...]:
@@ -52,7 +59,7 @@ def _module_from_file(file: Path) -> Any:
     return module
 
 
-def init_plugins() -> None:
+def init_builtin_plugins() -> None:
     """Initialize all built-in plugins."""
     _register_from_module(_builtin)
 

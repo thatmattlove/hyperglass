@@ -1,13 +1,13 @@
 """hyperglass Plugins."""
 
 # Local
-from .main import init_plugins, register_plugin
+from .main import register_plugin, init_builtin_plugins
 from ._input import InputPlugin, InputPluginReturn
 from ._output import OutputType, OutputPlugin
 from ._manager import InputPluginManager, OutputPluginManager
 
 __all__ = (
-    "init_plugins",
+    "init_builtin_plugins",
     "InputPlugin",
     "InputPluginManager",
     "InputPluginReturn",
