@@ -5,3 +5,10 @@ from .agent import AgentConnection
 from ._common import Connection
 from .ssh_netmiko import NetmikoConnection
 from .ssh_scrapli import ScrapliConnection
+
+__all__ = (
+    "AgentConnection",
+    "Connection",
+    "NetmikoConnection",
+    "ScrapliConnection",
+)

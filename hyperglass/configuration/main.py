@@ -10,13 +10,8 @@ import yaml
 from pydantic import ValidationError
 
 # Project
-from hyperglass.log import (
-    log,
-    set_log_level,
-    enable_file_logging,
-    enable_syslog_logging,
-)
-from hyperglass.util import set_app_path, set_cache_env, current_log_level
+from hyperglass.log import log, enable_file_logging, enable_syslog_logging
+from hyperglass.util import set_app_path, set_cache_env
 from hyperglass.defaults import CREDIT
 from hyperglass.constants import PARSED_RESPONSE_FIELDS, __version__
 from hyperglass.models.ui import UIParameters
@@ -135,19 +130,10 @@ def _get_devices(data: List[Dict], directives: List[Directive]) -> Devices:
 user_config = _config_optional(CONFIG_MAIN)
 
 # Read raw debug value from config to enable debugging quickly.
-set_log_level(logger=log, debug=user_config.get("debug", True))
 
 # Map imported user configuration to expected schema.
 log.debug("Unvalidated configuration from {}: {}", CONFIG_MAIN, user_config)
 params = validate_config(config=user_config, importer=Params)
-
-# Re-evaluate debug state after config is validated
-log_level = current_log_level(log)
-
-if params.debug and log_level != "debug":
-    set_log_level(logger=log, debug=True)
-elif not params.debug and log_level == "debug":
-    set_log_level(logger=log, debug=False)
 
 # Map imported user commands to expected schema.
 _user_commands = _config_optional(CONFIG_COMMANDS)

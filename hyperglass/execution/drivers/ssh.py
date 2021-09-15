@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 # Project
 from hyperglass.log import log
-from hyperglass.configuration import params
+from hyperglass.state import use_state
 from hyperglass.compat._sshtunnel import BaseSSHTunnelForwarderError, open_tunnel
 from hyperglass.exceptions.public import ScrapeError
 
@@ -24,6 +24,7 @@ class SSHConnection(Connection):
         """Return a preconfigured sshtunnel.SSHTunnelForwarder instance."""
 
         proxy = self.device.proxy
+        state = use_state()
 
         def opener():
             """Set up an SSH tunnel according to a device's configuration."""
@@ -32,7 +33,7 @@ class SSHConnection(Connection):
                 "remote_bind_address": (self.device._target, self.device.port),
                 "local_bind_address": ("localhost", 0),
                 "skip_tunnel_checkup": False,
-                "gateway_timeout": params.request_timeout - 2,
+                "gateway_timeout": state.params.request_timeout - 2,
             }
             if proxy.credential._method == "password":
                 # Use password auth if no key is defined.

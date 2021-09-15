@@ -3,7 +3,7 @@
 # Standard Library
 import re
 import json
-from typing import Any, Optional
+import typing as t
 
 # Third Party
 from pydantic import SecretStr
@@ -12,30 +12,35 @@ from pydantic import SecretStr
 class BaseCache:
     """Redis cache handler."""
 
+    CONFIG_KEY: str = "hyperglass.config"
+    DEVICES_KEY: str = "hyperglass.devices"
+
     def __init__(
         self,
+        *,
         db: int,
         host: str = "localhost",
         port: int = 6379,
-        password: Optional[SecretStr] = None,
-        decode_responses: bool = True,
-        **kwargs: Any,
+        password: t.Optional[SecretStr] = None,
+        decode_responses: bool = False,
+        **kwargs: t.Any,
     ) -> None:
         """Initialize Redis connection."""
-        self.db: int = db
-        self.host: str = str(host)
-        self.port: int = port
-        self.password: Optional[SecretStr] = password
-        self.decode_responses: bool = decode_responses
-        self.redis_args: dict = kwargs
+        self.db = db
+        self.host = str(host)
+        self.port = port
+        self.password = password
+        self.decode_responses = decode_responses
+        self.redis_args = kwargs
 
     def __repr__(self) -> str:
         """Represent class state."""
-        return "HyperglassCache(db={}, host={}, port={}, password={})".format(
+
+        return "HyperglassCache(db={!s}, host={}, port={!s}, password={})".format(
             self.db, self.host, self.port, self.password
         )
 
-    def parse_types(self, value: str) -> Any:
+    def parse_types(self, value: str) -> t.Any:
         """Parse a string to standard python types."""
 
         def parse_string(str_value: str):
@@ -56,11 +61,11 @@ class BaseCache:
             value = parse_string(value)
         elif isinstance(value, bytes):
             value = parse_string(value.decode("utf-8"))
-        elif isinstance(value, list):
+        elif isinstance(value, t.List):
             value = [parse_string(i) for i in value]
-        elif isinstance(value, tuple):
+        elif isinstance(value, t.Tuple):
             value = tuple(parse_string(i) for i in value)
-        elif isinstance(value, dict):
+        elif isinstance(value, t.Dict):
             value = {k: self.parse_types(v) for k, v in value.items()}
 
         return value

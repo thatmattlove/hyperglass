@@ -1,15 +1,13 @@
 """API Events."""
 
 # Project
-from hyperglass.cache import AsyncCache
-from hyperglass.configuration import REDIS_CONFIG, params
+from hyperglass.state import use_state
 
 
-async def check_redis() -> bool:
+def check_redis() -> bool:
     """Ensure Redis is running before starting server."""
-    cache = AsyncCache(db=params.cache.database, **REDIS_CONFIG)
-    await cache.test()
-    return True
+    state = use_state()
+    return state._redis.ping()
 
 
 on_startup = (check_redis,)

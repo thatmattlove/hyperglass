@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Dict, Union, Callable
 
 # Project
 from hyperglass.log import log
-from hyperglass.configuration import params
+from hyperglass.state import use_state
 from hyperglass.exceptions.public import DeviceTimeout, ResponseEmpty
 
 if TYPE_CHECKING:
@@ -47,8 +47,8 @@ def handle_timeout(**exc_args: Any) -> Callable:
 
 async def execute(query: "Query") -> Union["OutputDataModel", str]:
     """Initiate query validation and execution."""
-
-    output = params.messages.general
+    state = use_state()
+    output = state.params.messages.general
 
     log.debug("Received query for {}", query.json())
     log.debug("Matched device config: {}", query.device)
@@ -60,7 +60,7 @@ async def execute(query: "Query") -> Union["OutputDataModel", str]:
         signal.SIGALRM,
         handle_timeout(error=TimeoutError("Connection timed out"), device=query.device),
     )
-    signal.alarm(params.request_timeout - 1)
+    signal.alarm(state.params.request_timeout - 1)
 
     if query.device.proxy:
         proxy = driver.setup_proxy()

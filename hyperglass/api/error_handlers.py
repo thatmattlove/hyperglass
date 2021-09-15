@@ -4,18 +4,21 @@
 from starlette.responses import JSONResponse
 
 # Project
-from hyperglass.configuration import params
+from hyperglass.state import use_state
 
 
 async def default_handler(request, exc):
     """Handle uncaught errors."""
+    state = use_state()
     return JSONResponse(
-        {"output": params.messages.general, "level": "danger", "keywords": []}, status_code=500,
+        {"output": state.params.messages.general, "level": "danger", "keywords": []},
+        status_code=500,
     )
 
 
 async def http_handler(request, exc):
     """Handle web server errors."""
+
     return JSONResponse(
         {"output": exc.detail, "level": "danger", "keywords": []}, status_code=exc.status_code,
     )

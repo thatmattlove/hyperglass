@@ -47,7 +47,7 @@ netmiko = "^3.4.0"
 paramiko = "^2.7.2"
 psutil = "^5.7.2"
 py-cpuinfo = "^7.0.0"
-pydantic = "1.8.2"
+pydantic = {extras = ["dotenv"], version = "^1.8.2"}
 python = ">=3.8.1,<4.0"
 redis = "^3.5.3"
 scrapli = {version = "2021.07.30", extras = ["asyncssh"]}
@@ -55,6 +55,7 @@ typing-extensions = "^3.7.4"
 uvicorn = {extras = ["standard"], version = "^0.13.4"}
 uvloop = "^0.14.0"
 xmltodict = "^0.12.0"
+aioredis = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.6.2"
@@ -97,7 +98,7 @@ reportMissingTypeStubs = true
 check = {cmd = "task lint && task ui-lint", help = "Run all lint checks"}
 lint = {cmd = "flake8 hyperglass", help = "Run Flake8"}
 sort = {cmd = "isort hyperglass", help = "Run iSort"}
-start = {cmd = "python3 -m hyperglass.console start", help = "Start hyperglass"}
+start = {cmd = "python3 -m hyperglass.main", help = "Start hyperglass"}
 start-asgi = {cmd = "uvicorn hyperglass.api:app", help = "Start hyperglass via Uvicorn"}
 test = {cmd = "pytest hyperglass", help = "Run hyperglass tests"}
 ui-build = {cmd = "python3 -m hyperglass.console build-ui", help = "Run a UI Build"}

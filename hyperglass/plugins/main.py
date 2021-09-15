@@ -34,6 +34,7 @@ def _register_from_module(module: Any, **kwargs: Any) -> Tuple[str, ...]:
     """Register defined classes from the module."""
     failures = ()
     defs = getmembers(module, lambda o: _is_class(module, o))
+    sys.modules[module.__name__] = module
     for name, plugin in defs:
         if issubclass(plugin, OutputPlugin):
             manager = OutputPluginManager()
@@ -55,7 +56,6 @@ def _module_from_file(file: Path) -> Any:
     for k, v in _PLUGIN_GLOBALS.items():
         setattr(module, k, v)
     spec.loader.exec_module(module)
-    sys.modules[module.__name__] = module
     return module
 
 

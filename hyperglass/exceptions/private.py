@@ -92,3 +92,7 @@ class DependencyError(PrivateHyperglassError):
 
 class PluginError(PrivateHyperglassError):
     """Raised when a plugin error occurs."""
+
+
+class StateError(PrivateHyperglassError):
+    """Raised when an error occurs while fetching state from Redis."""

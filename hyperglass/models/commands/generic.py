@@ -3,7 +3,7 @@
 # Standard Library
 import os
 import re
-from typing import Dict, List, Union, Literal, Optional
+import typing as t
 from pathlib import Path
 from ipaddress import IPv4Network, IPv6Network, ip_network
 
@@ -25,15 +25,18 @@ from hyperglass.exceptions.private import InputValidationError
 # Local
 from ..main import HyperglassModel, HyperglassModelWithId
 from ..fields import Action
-from ..config.params import Params
+
+if t.TYPE_CHECKING:
+    # Local
+    from ..config.params import Params
 
 IPv4PrefixLength = conint(ge=0, le=32)
 IPv6PrefixLength = conint(ge=0, le=128)
-IPNetwork = Union[IPv4Network, IPv6Network]
-StringOrArray = Union[StrictStr, List[StrictStr]]
-Condition = Union[IPv4Network, IPv6Network, StrictStr]
-RuleValidation = Union[Literal["ipv4", "ipv6", "pattern"], None]
-PassedValidation = Union[bool, None]
+IPNetwork = t.Union[IPv4Network, IPv6Network]
+StringOrArray = t.Union[StrictStr, t.List[StrictStr]]
+Condition = t.Union[IPv4Network, IPv6Network, StrictStr]
+RuleValidation = t.Union[t.Literal["ipv4", "ipv6", "pattern"], None]
+PassedValidation = t.Union[bool, None]
 
 
 class Input(HyperglassModel):
@@ -57,14 +60,14 @@ class Text(Input):
     """Text/input field model."""
 
     _type: PrivateAttr = PrivateAttr("text")
-    validation: Optional[StrictStr]
+    validation: t.Optional[StrictStr]
 
 
 class Option(HyperglassModel):
     """Select option model."""
 
-    name: Optional[StrictStr]
-    description: Optional[StrictStr]
+    name: t.Optional[StrictStr]
+    description: t.Optional[StrictStr]
     value: StrictStr
 
 
@@ -72,7 +75,7 @@ class Select(Input):
     """Select field model."""
 
     _type: PrivateAttr = PrivateAttr("select")
-    options: List[Option]
+    options: t.List[Option]
 
 
 class Rule(HyperglassModel, allow_population_by_field_name=True):
@@ -82,10 +85,10 @@ class Rule(HyperglassModel, allow_population_by_field_name=True):
     _passed: PassedValidation = PrivateAttr(None)
     condition: Condition
     action: Action = Action("permit")
-    commands: List[str] = Field([], alias="command")
+    commands: t.List[str] = Field([], alias="command")
 
     @validator("commands", pre=True, allow_reuse=True)
-    def validate_commands(cls, value: Union[str, List[str]]) -> List[str]:
+    def validate_commands(cls, value: t.Union[str, t.List[str]]) -> t.List[str]:
         """Ensure commands is a list."""
         if isinstance(value, str):
             return [value]
@@ -215,13 +218,13 @@ class RuleWithoutValidation(Rule):
     _validation: RuleValidation = PrivateAttr(None)
     condition: None
 
-    def validate_target(self, target: str) -> Literal[True]:
+    def validate_target(self, target: str) -> t.Literal[True]:
         """Don't validate a target. Always returns `True`."""
         self._passed = True
         return True
 
 
-Rules = Union[RuleWithIPv4, RuleWithIPv6, RuleWithPattern, RuleWithoutValidation]
+Rules = t.Union[RuleWithIPv4, RuleWithIPv6, RuleWithPattern, RuleWithoutValidation]
 
 
 class Directive(HyperglassModelWithId):
@@ -229,11 +232,12 @@ class Directive(HyperglassModelWithId):
 
     id: StrictStr
     name: StrictStr
-    rules: List[Rules]
-    field: Union[Text, Select, None]
-    info: Optional[FilePath]
-    plugins: List[StrictStr] = []
-    groups: List[
+    rules: t.List[Rules]
+    field: t.Union[Text, Select, None]
+    info: t.Optional[FilePath]
+    plugins: t.List[StrictStr] = []
+    disable_builtins: StrictBool = False
+    groups: t.List[
         StrictStr
     ] = []  # TODO: Flesh this out. Replace VRFs, but use same logic in React to filter available commands for multi-device queries.
 
@@ -247,7 +251,7 @@ class Directive(HyperglassModelWithId):
         raise InputValidationError(error="No matched validation rules", target=target)
 
     @property
-    def field_type(self) -> Literal["text", "select", None]:
+    def field_type(self) -> t.Literal["text", "select", None]:
         """Get the linked field type."""
 
         if self.field.is_select:
@@ -257,7 +261,7 @@ class Directive(HyperglassModelWithId):
         return None
 
     @validator("plugins")
-    def validate_plugins(cls: "Directive", plugins: List[str]) -> List[str]:
+    def validate_plugins(cls: "Directive", plugins: t.List[str]) -> t.List[str]:
         """Validate and register configured plugins."""
         plugin_dir = Path(os.environ["hyperglass_directory"]) / "plugins"
         if plugin_dir.exists():
@@ -271,7 +275,7 @@ class Directive(HyperglassModelWithId):
             return [str(f) for f in matching_plugins]
         return []
 
-    def frontend(self, params: Params) -> Dict:
+    def frontend(self: "Directive", params: "Params") -> t.Dict[str, t.Any]:
         """Prepare a representation of the directive for the UI."""
 
         value = {

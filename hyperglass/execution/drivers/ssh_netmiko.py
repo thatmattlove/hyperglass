@@ -16,7 +16,7 @@ from netmiko import (  # type: ignore
 
 # Project
 from hyperglass.log import log
-from hyperglass.configuration import params
+from hyperglass.state import state
 from hyperglass.exceptions.public import AuthError, DeviceTimeout, ResponseEmpty
 
 # Local
@@ -65,9 +65,9 @@ class NetmikoConnection(SSHConnection):
             "port": port or self.device.port,
             "device_type": self.device.type,
             "username": self.device.credential.username,
-            "global_delay_factor": params.netmiko_delay_factor,
-            "timeout": math.floor(params.request_timeout * 1.25),
-            "session_timeout": math.ceil(params.request_timeout - 1),
+            "global_delay_factor": state.params.netmiko_delay_factor,
+            "timeout": math.floor(state.params.request_timeout * 1.25),
+            "session_timeout": math.ceil(state.params.request_timeout - 1),
             **global_args,
         }
 

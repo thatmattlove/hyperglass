@@ -146,23 +146,6 @@ to access the following directories:
     return matched_path
 
 
-def format_listen_address(listen_address: Union[IPv4Address, IPv6Address, str]) -> str:
-    """Format a listen_address. Wraps IPv6 address in brackets."""
-    fmt = str(listen_address)
-
-    if isinstance(listen_address, str):
-        try:
-            listen_address = ip_address(listen_address)
-        except ValueError as err:
-            log.error(err)
-            pass
-
-    if isinstance(listen_address, (IPv4Address, IPv6Address)) and listen_address.version == 6:
-        fmt = f"[{str(listen_address)}]"
-
-    return fmt
-
-
 def split_on_uppercase(s):
     """Split characters by uppercase letters.
 
@@ -363,3 +346,10 @@ def deep_convert_keys(_dict: Type[DeepConvert], predicate: Callable[[str], str])
         converted[predicate(key)] = get_value(value)
 
     return converted
+
+
+def at_least(minimum: int, value: int,) -> int:
+    """Get a number value that is at least a specified minimum."""
+    if value < minimum:
+        return minimum
+    return value

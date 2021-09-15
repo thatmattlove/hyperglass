@@ -4,25 +4,49 @@
 import json
 import time
 import pickle
+import typing as t
 import asyncio
-from typing import Any, Dict
 
 # Third Party
 from aredis import StrictRedis as AsyncRedis  # type: ignore
-from aredis.pubsub import PubSub as AsyncPubSub  # type: ignore
+from pydantic import SecretStr
 from aredis.exceptions import RedisError  # type: ignore
 
 # Project
 from hyperglass.cache.base import BaseCache
 from hyperglass.exceptions.private import DependencyError
 
+if t.TYPE_CHECKING:
+    # Third Party
+    from aredis.pubsub import PubSub as AsyncPubSub  # type: ignore
+
+    # Project
+    from hyperglass.models.config.params import Params
+    from hyperglass.models.config.devices import Devices
+
 
 class AsyncCache(BaseCache):
     """Asynchronous Redis cache handler."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        *,
+        db: int,
+        host: str = "localhost",
+        port: int = 6379,
+        password: t.Optional[SecretStr] = None,
+        decode_responses: bool = False,
+        **kwargs: t.Any,
+    ):
         """Initialize Redis connection."""
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            db=db,
+            host=host,
+            port=port,
+            password=password,
+            decode_responses=decode_responses,
+            **kwargs,
+        )
 
         password = self.password
         if password is not None:
@@ -62,7 +86,7 @@ class AsyncCache(BaseCache):
                     e=err_msg,
                 )
 
-    async def get(self, *args: str) -> Any:
+    async def get(self, *args: str) -> t.Any:
         """Get item(s) from cache."""
         if len(args) == 1:
             raw = await self.instance.get(args[0])
@@ -70,7 +94,7 @@ class AsyncCache(BaseCache):
             raw = await self.instance.mget(args)
         return self.parse_types(raw)
 
-    async def get_dict(self, key: str, field: str = "") -> Any:
+    async def get_dict(self, key: str, field: str = "") -> t.Any:
         """Get hash map (dict) item(s)."""
         if not field:
             raw = await self.instance.hgetall(key)
@@ -87,7 +111,7 @@ class AsyncCache(BaseCache):
         """Set hash map (dict) values."""
         success = False
 
-        if isinstance(value, Dict):
+        if isinstance(value, t.Dict):
             value = json.dumps(value)
         else:
             value = str(value)
@@ -99,7 +123,7 @@ class AsyncCache(BaseCache):
 
         return success
 
-    async def wait(self, pubsub: AsyncPubSub, timeout: int = 30, **kwargs) -> Any:
+    async def wait(self, pubsub: "AsyncPubSub", timeout: int = 30, **kwargs) -> t.Any:
         """Wait for pub/sub messages & return posted message."""
         now = time.time()
         timeout = now + timeout
@@ -117,7 +141,7 @@ class AsyncCache(BaseCache):
 
         return None
 
-    async def pubsub(self) -> AsyncPubSub:
+    async def pubsub(self) -> "AsyncPubSub":
         """Provide an aredis.pubsub.Pubsub instance."""
         return self.instance.pubsub()
 
@@ -139,8 +163,20 @@ class AsyncCache(BaseCache):
         for key in keys:
             await self.instance.expire(key, seconds)
 
-    async def get_config(self) -> Dict:
-        """Get picked config object from cache."""
+    async def get_params(self: "AsyncCache") -> "Params":
+        """Get Params object from the cache."""
+        params = await self.instance.get(self.CONFIG_KEY)
+        return pickle.loads(params)
 
-        pickled = await self.instance.get("HYPERGLASS_CONFIG")
-        return pickle.loads(pickled)
+    async def get_devices(self: "AsyncCache") -> "Devices":
+        """Get Devices object from the cache."""
+        devices = await self.instance.get(self.DEVICES_KEY)
+        return pickle.loads(devices)
+
+    async def set_config(self: "AsyncCache", config: "Params") -> None:
+        """Add a params instance to the cache."""
+        await self.instance.set(self.CONFIG_KEY, pickle.dumps(config))
+
+    async def set_devices(self: "AsyncCache", devices: "Devices") -> None:
+        """Add a devices instance to the cache."""
+        await self.instance.set(self.DEVICES_KEY, pickle.dumps(devices))

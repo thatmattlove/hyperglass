@@ -22,8 +22,9 @@ from hyperglass.constants import __version__
 from hyperglass.models.ui import UIParameters
 from hyperglass.api.events import on_startup, on_shutdown
 from hyperglass.api.routes import docs, info, query, router, queries, routers, ui_props
+from hyperglass.state import use_state
 from hyperglass.exceptions import HyperglassError
-from hyperglass.configuration import URL_DEV, STATIC_PATH, params
+from hyperglass.configuration import URL_DEV, STATIC_PATH
 from hyperglass.api.error_handlers import (
     app_handler,
     http_handler,
@@ -38,6 +39,8 @@ from hyperglass.models.api.response import (
     CommunityResponse,
     SupportedQueryResponse,
 )
+
+STATE = use_state()
 
 WORKING_DIR = Path(__file__).parent
 EXAMPLES_DIR = WORKING_DIR / "examples"
@@ -54,18 +57,18 @@ EXAMPLE_QUERIES_CURL = EXAMPLES_DIR / "queries.sh"
 EXAMPLE_QUERY_CURL = EXAMPLES_DIR / "query.sh"
 
 ASGI_PARAMS = {
-    "host": str(params.listen_address),
-    "port": params.listen_port,
-    "debug": params.debug,
+    "host": str(STATE.settings.host),
+    "port": STATE.settings.port,
+    "debug": STATE.settings.debug,
     "workers": cpu_count(2),
 }
 DOCS_PARAMS = {}
-if params.docs.enable:
-    DOCS_PARAMS.update({"openapi_url": params.docs.openapi_uri})
-    if params.docs.mode == "redoc":
-        DOCS_PARAMS.update({"docs_url": None, "redoc_url": params.docs.uri})
-    elif params.docs.mode == "swagger":
-        DOCS_PARAMS.update({"docs_url": params.docs.uri, "redoc_url": None})
+if STATE.params.docs.enable:
+    DOCS_PARAMS.update({"openapi_url": STATE.params.docs.openapi_uri})
+    if STATE.params.docs.mode == "redoc":
+        DOCS_PARAMS.update({"docs_url": None, "redoc_url": STATE.params.docs.uri})
+    elif STATE.params.docs.mode == "swagger":
+        DOCS_PARAMS.update({"docs_url": STATE.params.docs.uri, "redoc_url": None})
 
 for directory in (UI_DIR, IMAGES_DIR):
     if not directory.exists():
@@ -74,9 +77,9 @@ for directory in (UI_DIR, IMAGES_DIR):
 
 # Main App Definition
 app = FastAPI(
-    debug=params.debug,
-    title=params.site_title,
-    description=params.site_description,
+    debug=STATE.settings.debug,
+    title=STATE.params.site_title,
+    description=STATE.params.site_description,
     version=__version__,
     default_response_class=JSONResponse,
     **DOCS_PARAMS,
@@ -108,12 +111,12 @@ app.add_exception_handler(Exception, default_handler)
 def _custom_openapi():
     """Generate custom OpenAPI config."""
     openapi_schema = get_openapi(
-        title=params.docs.title.format(site_title=params.site_title),
+        title=STATE.params.docs.title.format(site_title=STATE.params.site_title),
         version=__version__,
-        description=params.docs.description,
+        description=STATE.params.docs.description,
         routes=app.routes,
     )
-    openapi_schema["info"]["x-logo"] = {"url": "/images/light" + params.web.logo.light.suffix}
+    openapi_schema["info"]["x-logo"] = {"url": "/images/light" + STATE.params.web.logo.light.suffix}
 
     query_samples = []
     queries_samples = []
@@ -121,26 +124,36 @@ def _custom_openapi():
 
     with EXAMPLE_QUERY_CURL.open("r") as e:
         example = e.read()
-        query_samples.append({"lang": "cURL", "source": example % str(params.docs.base_url)})
+        query_samples.append({"lang": "cURL", "source": example % str(STATE.params.docs.base_url)})
 
     with EXAMPLE_QUERY_PY.open("r") as e:
         example = e.read()
-        query_samples.append({"lang": "Python", "source": example % str(params.docs.base_url)})
+        query_samples.append(
+            {"lang": "Python", "source": example % str(STATE.params.docs.base_url)}
+        )
 
     with EXAMPLE_DEVICES_CURL.open("r") as e:
         example = e.read()
-        queries_samples.append({"lang": "cURL", "source": example % str(params.docs.base_url)})
+        queries_samples.append(
+            {"lang": "cURL", "source": example % str(STATE.params.docs.base_url)}
+        )
     with EXAMPLE_DEVICES_PY.open("r") as e:
         example = e.read()
-        queries_samples.append({"lang": "Python", "source": example % str(params.docs.base_url)})
+        queries_samples.append(
+            {"lang": "Python", "source": example % str(STATE.params.docs.base_url)}
+        )
 
     with EXAMPLE_QUERIES_CURL.open("r") as e:
         example = e.read()
-        devices_samples.append({"lang": "cURL", "source": example % str(params.docs.base_url)})
+        devices_samples.append(
+            {"lang": "cURL", "source": example % str(STATE.params.docs.base_url)}
+        )
 
     with EXAMPLE_QUERIES_PY.open("r") as e:
         example = e.read()
-        devices_samples.append({"lang": "Python", "source": example % str(params.docs.base_url)})
+        devices_samples.append(
+            {"lang": "Python", "source": example % str(STATE.params.docs.base_url)}
+        )
 
     openapi_schema["paths"]["/api/query/"]["post"]["x-code-samples"] = query_samples
     openapi_schema["paths"]["/api/devices"]["get"]["x-code-samples"] = devices_samples
@@ -150,8 +163,8 @@ def _custom_openapi():
     return app.openapi_schema
 
 
-CORS_ORIGINS = params.cors_origins.copy()
-if params.developer_mode:
+CORS_ORIGINS = STATE.params.cors_origins.copy()
+if STATE.settings.dev_mode:
     CORS_ORIGINS = [*CORS_ORIGINS, URL_DEV, "http://localhost:3000"]
 
 # CORS Configuration
@@ -171,9 +184,9 @@ app.add_api_route(
     methods=["GET"],
     response_model=InfoResponse,
     response_class=JSONResponse,
-    summary=params.docs.info.summary,
-    description=params.docs.info.description,
-    tags=[params.docs.info.title],
+    summary=STATE.params.docs.info.summary,
+    description=STATE.params.docs.info.description,
+    tags=[STATE.params.docs.info.title],
 )
 
 app.add_api_route(
@@ -182,9 +195,9 @@ app.add_api_route(
     methods=["GET"],
     response_model=List[RoutersResponse],
     response_class=JSONResponse,
-    summary=params.docs.devices.summary,
-    description=params.docs.devices.description,
-    tags=[params.docs.devices.title],
+    summary=STATE.params.docs.devices.summary,
+    description=STATE.params.docs.devices.description,
+    tags=[STATE.params.docs.devices.title],
 )
 
 app.add_api_route(
@@ -193,9 +206,9 @@ app.add_api_route(
     methods=["GET"],
     response_model=RoutersResponse,
     response_class=JSONResponse,
-    summary=params.docs.devices.summary,
-    description=params.docs.devices.description,
-    tags=[params.docs.devices.title],
+    summary=STATE.params.docs.devices.summary,
+    description=STATE.params.docs.devices.description,
+    tags=[STATE.params.docs.devices.title],
 )
 
 app.add_api_route(
@@ -204,24 +217,24 @@ app.add_api_route(
     methods=["GET"],
     response_class=JSONResponse,
     response_model=List[SupportedQueryResponse],
-    summary=params.docs.queries.summary,
-    description=params.docs.queries.description,
-    tags=[params.docs.queries.title],
+    summary=STATE.params.docs.queries.summary,
+    description=STATE.params.docs.queries.description,
+    tags=[STATE.params.docs.queries.title],
 )
 
 app.add_api_route(
     path="/api/query/",
     endpoint=query,
     methods=["POST"],
-    summary=params.docs.query.summary,
-    description=params.docs.query.description,
+    summary=STATE.params.docs.query.summary,
+    description=STATE.params.docs.query.description,
     responses={
         400: {"model": QueryError, "description": "Request Content Error"},
         422: {"model": QueryError, "description": "Request Format Error"},
         500: {"model": QueryError, "description": "Server Error"},
     },
     response_model=QueryResponse,
-    tags=[params.docs.query.title],
+    tags=[STATE.params.docs.query.title],
     response_class=JSONResponse,
 )
 
@@ -235,8 +248,8 @@ app.add_api_route(
 )
 
 
-if params.docs.enable:
-    app.add_api_route(path=params.docs.uri, endpoint=docs, include_in_schema=False)
+if STATE.params.docs.enable:
+    app.add_api_route(path=STATE.params.docs.uri, endpoint=docs, include_in_schema=False)
     app.openapi = _custom_openapi
     log.debug("API Docs config: {}", app.openapi())
 

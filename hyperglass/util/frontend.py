@@ -5,20 +5,23 @@ import os
 import json
 import math
 import shutil
+import typing as t
 import asyncio
 import subprocess
-from typing import Dict, Tuple, Optional
 from pathlib import Path
 
 # Project
 from hyperglass.log import log
-from hyperglass.models.ui import UIParameters
 
 # Local
 from .files import copyfiles, check_path
 
+if t.TYPE_CHECKING:
+    # Project
+    from hyperglass.models.ui import UIParameters
 
-def get_node_version() -> Tuple[int, int, int]:
+
+def get_node_version() -> t.Tuple[int, int, int]:
     """Get the system's NodeJS version."""
     node_path = shutil.which("node")
 
@@ -30,7 +33,7 @@ def get_node_version() -> Tuple[int, int, int]:
     return tuple((int(v) for v in version.split(".")))
 
 
-def get_ui_build_timeout() -> Optional[int]:
+def get_ui_build_timeout() -> t.Optional[int]:
     """Read the UI build timeout from environment variables or set a default."""
     timeout = None
 
@@ -60,7 +63,7 @@ async def check_node_modules() -> bool:
     return valid
 
 
-async def read_package_json() -> Dict:
+async def read_package_json() -> t.Dict[str, t.Any]:
     """Import package.json as a python dict."""
 
     package_json_file = Path(__file__).parent.parent / "ui" / "package.json"
@@ -114,7 +117,7 @@ async def node_initial(timeout: int = 180, dev_mode: bool = False) -> str:
     return "\n".join(all_messages)
 
 
-async def build_ui(app_path):
+async def build_ui(app_path: Path):
     """Execute `next build` & `next export` from UI directory.
 
     Raises:
@@ -216,7 +219,7 @@ def generate_opengraph(
     return True
 
 
-def migrate_images(app_path: Path, params: UIParameters):
+def migrate_images(app_path: Path, params: "UIParameters"):
     """Migrate images from source code to install directory."""
     images_dir = app_path / "static" / "images"
     favicon_dir = images_dir / "favicons"
@@ -236,7 +239,7 @@ async def build_frontend(  # noqa: C901
     dev_mode: bool,
     dev_url: str,
     prod_url: str,
-    params: UIParameters,
+    params: "UIParameters",
     app_path: Path,
     force: bool = False,
     timeout: int = 180,
@@ -263,8 +266,6 @@ async def build_frontend(  # noqa: C901
 
     # Project
     from hyperglass.constants import __version__
-
-    log.info("Starting UI build")
 
     # Create temporary file. json file extension is added for easy
     # webpack JSON parsing.
@@ -344,6 +345,7 @@ async def build_frontend(  # noqa: C901
 
         # Initiate Next.JS export process.
         if any((not dev_mode, force, full)):
+            log.info("Starting UI build")
             initialize_result = await node_initial(timeout, dev_mode)
             build_result = await build_ui(app_path=app_path)
 

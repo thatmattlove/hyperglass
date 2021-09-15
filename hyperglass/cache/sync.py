@@ -4,24 +4,48 @@
 import json
 import time
 import pickle
-from typing import Any, Dict
+import typing as t
 
 # Third Party
 from redis import Redis as SyncRedis
-from redis.client import PubSub as SyncPubsSub
+from pydantic import SecretStr
 from redis.exceptions import RedisError
 
 # Project
 from hyperglass.cache.base import BaseCache
 from hyperglass.exceptions.private import DependencyError
 
+if t.TYPE_CHECKING:
+    # Third Party
+    from redis.client import PubSub as SyncPubsSub
+
+    # Project
+    from hyperglass.models.config.params import Params
+    from hyperglass.models.config.devices import Devices
+
 
 class SyncCache(BaseCache):
     """Synchronous Redis cache handler."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        *,
+        db: int,
+        host: str = "localhost",
+        port: int = 6379,
+        password: t.Optional[SecretStr] = None,
+        decode_responses: bool = False,
+        **kwargs: t.Any,
+    ):
         """Initialize Redis connection."""
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            db=db,
+            host=host,
+            port=port,
+            password=password,
+            decode_responses=decode_responses,
+            **kwargs,
+        )
 
         password = self.password
         if password is not None:
@@ -60,15 +84,25 @@ class SyncCache(BaseCache):
                     e=err_msg,
                 )
 
-    def get(self, *args: str) -> Any:
+    def get(self, *args: str, decode: bool = True) -> t.Any:
         """Get item(s) from cache."""
         if len(args) == 1:
             raw = self.instance.get(args[0])
         else:
             raw = self.instance.mget(args)
+        if decode and isinstance(raw, bytes):
+            raw = raw.decode()
+
         return self.parse_types(raw)
 
-    def get_dict(self, key: str, field: str = "") -> Any:
+    GetObj = t.TypeVar("GetObj")
+
+    def get_object(self, name: str, _type: t.Type[GetObj] = t.Any) -> GetObj:
+        raw = self.instance.get(name)
+        obj: _type = pickle.loads(raw)
+        return obj
+
+    def get_dict(self, key: str, field: str = "", *, decode: bool = True) -> t.Any:
         """Get hash map (dict) item(s)."""
         if not field:
             raw = self.instance.hgetall(key)
@@ -85,7 +119,7 @@ class SyncCache(BaseCache):
         """Set hash map (dict) values."""
         success = False
 
-        if isinstance(value, Dict):
+        if isinstance(value, t.Dict):
             value = json.dumps(value)
         else:
             value = str(value)
@@ -97,7 +131,7 @@ class SyncCache(BaseCache):
 
         return success
 
-    def wait(self, pubsub: SyncPubsSub, timeout: int = 30, **kwargs) -> Any:
+    def wait(self, pubsub: "SyncPubsSub", timeout: int = 30, **kwargs) -> t.Any:
         """Wait for pub/sub messages & return posted message."""
         now = time.time()
         timeout = now + timeout
@@ -115,7 +149,7 @@ class SyncCache(BaseCache):
 
         return None
 
-    def pubsub(self) -> SyncPubsSub:
+    def pubsub(self) -> "SyncPubsSub":
         """Provide a redis.client.Pubsub instance."""
         return self.instance.pubsub()
 
@@ -137,8 +171,20 @@ class SyncCache(BaseCache):
         for key in keys:
             self.instance.expire(key, seconds)
 
-    def get_config(self) -> Dict:
-        """Get picked config object from cache."""
+    def get_params(self) -> "Params":
+        """Get Params object from the cache."""
+        return self.get_object(self.CONFIG_KEY, "Params")
+        # return pickle.loads(self.get(self.CONFIG_KEY, decode=False, parse=False))
 
-        pickled = self.instance.get("HYPERGLASS_CONFIG")
-        return pickle.loads(pickled)
+    def get_devices(self) -> "Devices":
+        """Get Devices object from the cache."""
+        return self.get_object(self.DEVICES_KEY, "Devices")
+        # return pickle.loads(self.get(self.DEVICES_KEY, decode=False, parse=False))
+
+    def set_config(self: "SyncCache", config: "Params") -> None:
+        """Add a params instance to the cache."""
+        self.instance.set(self.CONFIG_KEY, pickle.dumps(config))
+
+    def set_devices(self: "SyncCache", devices: "Devices") -> None:
+        """Add a devices instance to the cache."""
+        self.instance.set(self.DEVICES_KEY, pickle.dumps(devices))

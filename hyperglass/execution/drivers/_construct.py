@@ -8,28 +8,32 @@ hyperglass API modules.
 # Standard Library
 import re
 import json as _json
+import typing as t
 
 # Project
 from hyperglass.log import log
 from hyperglass.util import get_fmt_keys
 from hyperglass.constants import TRANSPORT_REST, TARGET_FORMAT_SPACE
-from hyperglass.models.api.query import Query
 from hyperglass.exceptions.public import InputInvalid
 from hyperglass.exceptions.private import ConfigError
-from hyperglass.models.config.devices import Device
-from hyperglass.models.commands.generic import Directive
+
+if t.TYPE_CHECKING:
+    # Project
+    from hyperglass.models.api.query import Query
+    from hyperglass.models.config.devices import Device
+    from hyperglass.models.commands.generic import Directive
 
 
 class Construct:
     """Construct SSH commands/REST API parameters from validated query data."""
 
-    directive: Directive
-    device: Device
-    query: Query
+    directive: "Directive"
+    device: "Device"
+    query: "Query"
     transport: str
     target: str
 
-    def __init__(self, device, query):
+    def __init__(self, device: "Device", query: "Query"):
         """Initialize command construction."""
         log.debug(
             "Constructing '{}' query for '{}'", query.query_type, str(query.query_target),
