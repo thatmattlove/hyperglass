@@ -5,7 +5,7 @@
 import typing
 
 # Local
-from ..typing import is_type
+from ..typing import is_type, is_series
 
 
 class EmptyTestClass:
@@ -64,3 +64,14 @@ def test_is_type():
         result = is_type(value, _type)
         if result is not expected:
             raise AssertionError(f"Got `{value}`, expected `{str(_type)}`")
+
+
+def test_is_series():
+    checks = (
+        ((1, 2, 3), True),
+        ([1, 2, 3], True),
+        ("1,2,3", False),
+        ({1, 2, 3}, True),
+    )
+    for value, expected in checks:
+        assert is_series(value) is expected

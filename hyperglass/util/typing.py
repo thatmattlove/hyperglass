@@ -25,3 +25,10 @@ def is_type(value: typing.Any, *types: typing.Any) -> bool:
             return isinstance(value, type(_type))
         return isinstance(value, origin)
     return False
+
+
+def is_series(value: typing.Any) -> bool:
+    """Determine if a value is a `hyperglass.types.Series`, i.e. non-string `typing.Sequence`."""
+    if isinstance(value, (typing.MutableSequence, typing.Tuple, typing.Set)):
+        return True
+    return False
