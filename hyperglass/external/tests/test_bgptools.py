@@ -16,13 +16,19 @@ WHOIS_OUTPUT = """AS    | IP      | BGP Prefix | CC | Registry | Allocated  | AS
 # Ignore asyncio deprecation warning about loop
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_network_info():
-    addr = "192.0.2.1"
-    info = asyncio.run(network_info(addr))
-    assert isinstance(info, dict)
-    assert "192.0.2.1" in info, "Address missing"
-    assert "asn" in info[addr], "ASN missing"
-    assert info[addr]["asn"] == "0", "Unexpected ASN"
-    assert info[addr]["rir"] == "Unknown", "Unexpected RIR"
+
+    checks = (
+        ("192.0.2.1", {"asn": "None", "rir": "Private Address"}),
+        ("127.0.0.1", {"asn": "None", "rir": "Loopback Address"}),
+        ("fe80:dead:beef::1", {"asn": "None", "rir": "Link Local Address"}),
+        ("2001:db8::1", {"asn": "None", "rir": "Private Address"}),
+        ("1.1.1.1", {"asn": "13335", "rir": "ARIN"}),
+    )
+    for addr, fields in checks:
+        info = asyncio.run(network_info(addr))
+        assert addr in info
+        for key, expected in fields.items():
+            assert info[addr][key] == expected
 
 
 # Ignore asyncio deprecation warning about loop
