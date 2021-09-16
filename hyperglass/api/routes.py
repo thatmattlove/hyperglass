@@ -119,7 +119,7 @@ async def query(
         log.debug("Query {} exists in cache", cache_key)
 
         # If a cached response exists, reset the expiration time.
-        cache.expire(cache_key, seconds=state.params.cache.timeout)
+        cache.expire(cache_key, expire_in=state.params.cache.timeout)
 
         cached = True
         runtime = 0
@@ -154,14 +154,14 @@ async def query(
             raw_output = str(cache_output)
         cache.set_map_item(cache_key, "output", raw_output)
         cache.set_map_item(cache_key, "timestamp", timestamp)
-        cache.expire(cache_key, seconds=state.params.cache.timeout)
+        cache.expire(cache_key, expire_in=state.params.cache.timeout)
 
         log.debug("Added cache entry for query: {}", cache_key)
 
         runtime = int(round(elapsedtime, 0))
 
     # If it does, return the cached entry
-    cache_response = cache.get_dict(cache_key, "output")
+    cache_response = cache.get_map(cache_key, "output")
     response_format = "text/plain"
 
     if json_output:
