@@ -19,6 +19,7 @@ per-file-ignores=
     # Disable assertion and docstring checks on tests.
     hyperglass/**/test_*.py:S101,D103
     hyperglass/api/*.py:B008
+    hyperglass/state/hooks.py:F811
 ignore=W503,C0330,R504,D202,S403,S301,S404,E731,D402
 select=B, BLK, C, D, E, F, I, II, N, P, PIE, S, R, W
 disable-noqa=False

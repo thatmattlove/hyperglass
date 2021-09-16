@@ -5,7 +5,7 @@
 from pathlib import Path
 
 # Third Party
-import py
+import pytest
 
 # Project
 from hyperglass.log import log
@@ -14,6 +14,11 @@ from hyperglass.models.data.bgp_route import BGPRouteTable
 
 # Local
 from .._builtin.bgp_route_juniper import BGPRoutePluginJuniper
+
+DEPENDS_KWARGS = {
+    "depends": ["hyperglass/external/tests/test_rpki.py::test_rpki"],
+    "scope": "session",
+}
 
 DIRECT = Path(__file__).parent.parent.parent.parent / ".samples" / "juniper_route_direct.xml"
 INDIRECT = Path(__file__).parent.parent.parent.parent / ".samples" / "juniper_route_indirect.xml"
@@ -42,18 +47,21 @@ def _tester(sample: str):
     assert result.count > 0, "BGP Table count is 0"
 
 
+@pytest.mark.dependency(**DEPENDS_KWARGS)
 def test_juniper_bgp_route_direct():
     with DIRECT.open("r") as file:
         sample = file.read()
     return _tester(sample)
 
 
+@pytest.mark.dependency(**DEPENDS_KWARGS)
 def test_juniper_bgp_route_indirect():
     with INDIRECT.open("r") as file:
         sample = file.read()
     return _tester(sample)
 
 
+@pytest.mark.dependency(**DEPENDS_KWARGS)
 def test_juniper_bgp_route_aspath():
     with AS_PATH.open("r") as file:
         sample = file.read()

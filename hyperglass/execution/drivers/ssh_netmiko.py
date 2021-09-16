@@ -46,7 +46,7 @@ class NetmikoConnection(SSHConnection):
         Directly connects to the router via Netmiko library, returns the
         command output.
         """
-        state = use_state()
+        params = use_state("params")
         if host is not None:
             log.debug(
                 "Connecting to {} via proxy {} [{}]",
@@ -66,9 +66,9 @@ class NetmikoConnection(SSHConnection):
             "port": port or self.device.port,
             "device_type": self.device.type,
             "username": self.device.credential.username,
-            "global_delay_factor": state.params.netmiko_delay_factor,
-            "timeout": math.floor(state.params.request_timeout * 1.25),
-            "session_timeout": math.ceil(state.params.request_timeout - 1),
+            "global_delay_factor": params.netmiko_delay_factor,
+            "timeout": math.floor(params.request_timeout * 1.25),
+            "session_timeout": math.ceil(params.request_timeout - 1),
             **global_args,
         }
 

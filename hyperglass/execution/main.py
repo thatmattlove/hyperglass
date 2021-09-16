@@ -47,10 +47,10 @@ def handle_timeout(**exc_args: Any) -> Callable:
 
 async def execute(query: "Query") -> Union["OutputDataModel", str]:
     """Initiate query validation and execution."""
-    state = use_state()
-    output = state.params.messages.general
+    params = use_state("params")
+    output = params.messages.general
 
-    log.debug("Received query for {}", query.json())
+    log.debug("Received query {}", query.json())
     log.debug("Matched device config: {}", query.device)
 
     mapped_driver = map_driver(query.device.driver)
@@ -60,7 +60,7 @@ async def execute(query: "Query") -> Union["OutputDataModel", str]:
         signal.SIGALRM,
         handle_timeout(error=TimeoutError("Connection timed out"), device=query.device),
     )
-    signal.alarm(state.params.request_timeout - 1)
+    signal.alarm(params.request_timeout - 1)
 
     if query.device.proxy:
         proxy = driver.setup_proxy()

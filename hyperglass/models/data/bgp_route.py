@@ -44,7 +44,7 @@ class BGPRoute(HyperglassModel):
             deny: only deny matches
         """
 
-        (structured := use_state().params.structured)
+        (structured := use_state("params").structured)
 
         def _permit(comm):
             """Only allow matching patterns."""
@@ -73,7 +73,7 @@ class BGPRoute(HyperglassModel):
     def validate_rpki_state(cls, value, values):
         """If external RPKI validation is enabled, get validation state."""
 
-        (structured := use_state().params.structured)
+        (structured := use_state("params").structured)
 
         if structured.rpki.mode == "router":
             # If router validation is enabled, return the value as-is.

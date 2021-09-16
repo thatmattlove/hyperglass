@@ -6,7 +6,7 @@ from inspect import isclass
 
 # Project
 from hyperglass.log import log
-from hyperglass.state.redis import use_state
+from hyperglass.state import use_state
 from hyperglass.exceptions.private import PluginError
 
 # Local
@@ -16,7 +16,7 @@ from ._output import OutputType, OutputPlugin
 
 if t.TYPE_CHECKING:
     # Project
-    from hyperglass.state.redis import HyperglassState
+    from hyperglass.state import HyperglassState
     from hyperglass.models.api.query import Query
     from hyperglass.models.config.devices import Device
     from hyperglass.models.commands.generic import Directive

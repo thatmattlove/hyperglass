@@ -38,11 +38,11 @@ class AgentConnection(Connection):
     async def collect(self) -> Iterable:  # noqa: C901
         """Connect to a device running hyperglass-agent via HTTP."""
         log.debug("Query parameters: {}", self.query)
-        state = use_state()
+        params = use_state("params")
 
         client_params = {
             "headers": {"Content-Type": "application/json"},
-            "timeout": state.params.request_timeout,
+            "timeout": params.request_timeout,
         }
         if self.device.ssl is not None and self.device.ssl.enable:
             with self.device.ssl.cert.open("r") as file:
@@ -77,7 +77,7 @@ class AgentConnection(Connection):
                     encoded_query = await jwt_encode(
                         payload=query,
                         secret=self.device.credential.password.get_secret_value(),
-                        duration=state.params.request_timeout,
+                        duration=params.request_timeout,
                     )
                     log.debug("Encoded JWT: {}", encoded_query)
 

@@ -26,8 +26,8 @@ class QueryError(BaseModel):
     def validate_output(cls: "QueryError", value):
         """If no output is specified, use a customizable generic message."""
         if value is None:
-            state = use_state()
-            return state.params.messages.general
+            (messages := use_state("params").messages)
+            return messages.general
         return value
 
     class Config:

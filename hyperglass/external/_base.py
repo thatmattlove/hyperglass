@@ -4,7 +4,9 @@
 import re
 import json as _json
 import socket
+import typing as t
 from json import JSONDecodeError
+from types import TracebackType
 from socket import gaierror
 
 # Third Party
@@ -86,10 +88,15 @@ class BaseExternal:
         else:
             raise self._exception(f"Unable to create session to {self.name}")
 
-    def __exit__(self, exc_type=None, exc_value=None, traceback=None):
+    def __exit__(
+        self,
+        exc_type: t.Optional[t.Type[BaseException]] = None,
+        exc_value: t.Optional[BaseException] = None,
+        exc_traceback: t.Optional[TracebackType] = None,
+    ):
         """Close connection on exit."""
         if exc_type is not None:
-            log.error(traceback)
+            log.error(str(exc_value))
         self._session.close()
 
     def __repr__(self):
@@ -232,7 +239,7 @@ class BaseExternal:
             response = await self._asession.request(**request)
 
             if response.status_code not in range(200, 300):
-                status = StatusCode(response.status_code)
+                status = httpx.codes(response.status_code)
                 error = self._parse_response(response)
                 raise self._exception(
                     f'{status.name.replace("_", " ")}: {error}', level="danger"

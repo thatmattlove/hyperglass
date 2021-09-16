@@ -1,133 +1,123 @@
-"""hyperglass global state."""
+"""Interact with redis for state management."""
 
 # Standard Library
-import codecs
 import pickle
 import typing as t
-from functools import lru_cache
-
-# Third Party
-from redis import Redis, ConnectionPool
+from typing import overload
+from datetime import datetime, timedelta
 
 # Project
-from hyperglass.configuration import params, devices, ui_params
 from hyperglass.exceptions.private import StateError
 
-# Local
-from ..settings import Settings
-
 if t.TYPE_CHECKING:
-    # Project
-    from hyperglass.models.ui import UIParameters
-    from hyperglass.models.system import HyperglassSystem
-    from hyperglass.plugins._base import HyperglassPlugin
-    from hyperglass.models.config.params import Params
-    from hyperglass.models.config.devices import Devices
-
-PluginT = t.TypeVar("PluginT", bound="HyperglassPlugin")
+    # Third Party
+    from redis import Redis
 
 
-class HyperglassState:
-    """Global State Manager.
+class RedisManager:
+    """Convenience wrapper for managing a redis session."""
 
-    Maintains configuration objects in Redis cache and accesses them as needed.
-    """
+    instance: "Redis"
+    namespace: str
 
-    settings: "HyperglassSystem"
-    redis: Redis
-    _connection_pool: ConnectionPool
-    _namespace: str = "hyperglass.state"
-
-    def __init__(self, *, settings: "HyperglassSystem") -> None:
+    def __init__(self, instance: "Redis", namespace: str) -> None:
         """Set up Redis connection and add configuration objects."""
+        self.instance = instance
+        self.namespace = namespace
 
-        self.settings = settings
-        self._connection_pool = ConnectionPool.from_url(**self.settings.redis_connection_pool)
-        self.redis = Redis(connection_pool=self._connection_pool)
+    def __repr__(self) -> str:
+        """Alias repr to Redis instance's repr."""
+        return repr(self.instance)
 
-        # Add configuration objects.
-        self.set_object("params", params)
-        self.set_object("devices", devices)
-        self.set_object("ui_params", ui_params)
-
-        # Ensure plugins are empty.
-        self.reset_plugins("output")
-        self.reset_plugins("input")
-
-    def key(self, *keys: str) -> str:
+    def _key_join(self, *keys: str) -> str:
         """Format keys with state namespace."""
-        return ".".join((*self._namespace.split("."), *keys))
+        key_in_parts = (k for key in keys for k in key.split("."))
+        key_parts = list(dict.fromkeys((*self.namespace.split("."), *key_in_parts)))
+        return ".".join(key_parts)
 
-    def get_object(self, name: str, raise_if_none: bool = False) -> t.Any:
-        """Get an object (class instance) from the cache."""
-        value = self.redis.get(name)
+    def key(self, key: t.Union[str, t.Sequence[str]]) -> str:
+        """Format keys with state namespace."""
+        if isinstance(key, (t.List, t.Tuple, t.Generator)):
+            return self._key_join(*key)
+        return self._key_join(key)
+
+    def check(self) -> bool:
+        """Ensure the redis instance is running and reachable."""
+        result = self.instance.ping()
+        if result is False:
+            raise RuntimeError(
+                "Redis instance {!r} is not running or reachable".format(self.instance)
+            )
+        return result
+
+    def delete(self, key: t.Union[str, t.Sequence[str]]) -> None:
+        """Delete a key and value from the cache."""
+        self.instance.delete(self.key(key))
+
+    def expire(
+        self,
+        key: t.Union[str, t.Sequence[str]],
+        *,
+        expire_in: t.Optional[t.Union[timedelta, int]] = None,
+        expire_at: t.Optional[t.Union[datetime, int]] = None,
+    ) -> None:
+        """Expire a cache key, either at a time, or in a number of seconds.
+
+        If no at or in time is specified, the key is deleted.
+        """
+        key = self.key(key)
+        if isinstance(expire_at, (datetime, int)):
+            self.instance.expireat(key, expire_at)
+            return
+        if isinstance(expire_in, (timedelta, int)):
+            self.instance.expire(key, expire_in)
+            return
+        self.instance.delete(key)
+
+    def get(
+        self,
+        key: t.Union[str, t.Sequence[str]],
+        *,
+        raise_if_none: bool = False,
+        value_if_none: t.Any = None,
+    ) -> t.Union[None, t.Any]:
+        """Get and decode a value from the cache."""
+        name = self.key(key)
+        value: t.Optional[bytes] = self.instance.get(name)
+        if isinstance(value, bytes):
+            return pickle.loads(value)
+        if raise_if_none is True:
+            raise StateError("'{key}' ('{name}') does not exist in Redis store", key=key, name=name)
+        if value_if_none is not None:
+            return value_if_none
+        return None
+
+    def set(self, key: t.Union[str, t.Sequence[str]], value: t.Any) -> None:
+        """Add an object to the cache."""
+        name = self.key(key)
+        self.instance.set(name, pickle.dumps(value))
+
+    @overload
+    def get_map(self, key: str, item: str) -> t.Any:
+        """Get a single value from a Redis hash map (dict)."""
+
+    @overload
+    def get_map(self, key: str, item=None) -> t.Any:
+        """Get a single value from a Redis hash map (dict)."""
+
+    def get_map(self, key: str, item: t.Optional[str] = None) -> t.Any:
+        """Get a Redis hash map or hash map value."""
+        name = self.key(key)
+        if isinstance(item, str):
+            value = self.instance.hget(name, item)
+        else:
+            value = self.instance.hgetall(name)
 
         if isinstance(value, bytes):
             return pickle.loads(value)
-        elif isinstance(value, str):
-            return pickle.loads(value.encode())
-        if raise_if_none is True:
-            raise StateError("'{key}' does not exist in Redis store", key=name)
         return None
 
-    def set_object(self, name: str, obj: t.Any) -> None:
-        """Add an object (class instance) to the cache."""
-        value = pickle.dumps(obj)
-        self.redis.set(self.key(name), value)
-
-    def add_plugin(self, _type: str, plugin: "HyperglassPlugin") -> None:
-        """Add a plugin to its list by type."""
-        current = self.plugins(_type)
-        plugins = {
-            # Create a base64 representation of a picked plugin.
-            codecs.encode(pickle.dumps(p), "base64").decode()
-            # Merge current plugins with the new plugin.
-            for p in [*current, plugin]
-        }
-        self.set_object(self.key("plugins", _type), list(plugins))
-
-    def remove_plugin(self, _type: str, plugin: "HyperglassPlugin") -> None:
-        """Remove a plugin from its list by type."""
-        current = self.plugins(_type)
-        plugins = {
-            # Create a base64 representation of a picked plugin.
-            codecs.encode(pickle.dumps(p), "base64").decode()
-            # Merge current plugins with the new plugin.
-            for p in current
-            if p != plugin
-        }
-        self.set_object(self.key("plugins", _type), list(plugins))
-
-    def reset_plugins(self, _type: str) -> None:
-        """Remove all plugins of `_type`."""
-        self.set_object(self.key("plugins", _type), [])
-
-    def clear(self) -> None:
-        """Delete all cache keys."""
-        self.redis.flushdb(asynchronous=True)
-
-    @property
-    def params(self) -> "Params":
-        """Get hyperglass configuration parameters (`hyperglass.yaml`)."""
-        return self.get_object(self.key("params"), raise_if_none=True)
-
-    @property
-    def devices(self) -> "Devices":
-        """Get hyperglass devices (`devices.yaml`)."""
-        return self.get_object(self.key("devices"), raise_if_none=True)
-
-    @property
-    def ui_params(self) -> "UIParameters":
-        """UI parameters, built from params."""
-        return self.get_object(self.key("ui_params"), raise_if_none=True)
-
-    def plugins(self, _type: str) -> t.List[PluginT]:
-        """Get plugins by type."""
-        current = self.get_object(self.key("plugins", _type), raise_if_none=False) or []
-        return list({pickle.loads(codecs.decode(plugin.encode(), "base64")) for plugin in current})
-
-
-@lru_cache(maxsize=None)
-def use_state() -> "HyperglassState":
-    """Access hyperglass global state."""
-    return HyperglassState(settings=Settings)
+    def set_map_item(self, key: str, item: str, value: t.Any) -> None:
+        """Add a value to a hash map (dict)."""
+        name = self.key(key)
+        self.instance.hset(name, item, pickle.dumps(value))

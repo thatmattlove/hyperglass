@@ -81,6 +81,7 @@ pre-commit = "^1.21.0"
 pytest = "^6.2.5"
 stackprinter = "^0.2.3"
 taskipy = "^1.8.2"
+pytest-dependency = "^0.5.1"
 
 [tool.black]
 line-length = 100

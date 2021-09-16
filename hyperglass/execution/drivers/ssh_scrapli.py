@@ -71,7 +71,7 @@ class ScrapliConnection(SSHConnection):
         Directly connects to the router via Netmiko library, returns the
         command output.
         """
-        state = use_state()
+        params = use_state("params")
         driver = _map_driver(self.device.type)
 
         if host is not None:
@@ -90,7 +90,7 @@ class ScrapliConnection(SSHConnection):
             "host": host or self.device._target,
             "port": port or self.device.port,
             "auth_username": self.device.credential.username,
-            "timeout_ops": math.floor(state.params.request_timeout * 1.25),
+            "timeout_ops": math.floor(params.request_timeout * 1.25),
             "transport": "asyncssh",
             "auth_strict_key": False,
             "ssh_known_hosts_file": False,

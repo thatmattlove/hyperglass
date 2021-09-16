@@ -14,9 +14,8 @@ if TYPE_CHECKING:
     from hyperglass.models.api.query import Query
     from hyperglass.models.config.devices import Device
 
-_state = use_state()
-MESSAGES = _state.params.messages
-TEXT = _state.params.web.text
+(MESSAGES := use_state("params").messages)
+(TEXT := use_state("params").web.text)
 
 
 class ScrapeError(

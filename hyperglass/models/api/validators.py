@@ -46,7 +46,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
     Returns:
         Union[IPv4Address, IPv6Address] -- Validated IP address object
     """
-    (params := use_state().params)
+    params = use_state("params")
     query_type_params = getattr(params.queries, query_type)
     try:
 
@@ -149,7 +149,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 def validate_community_input(value):
     """Validate input communities against configured or default regex pattern."""
 
-    (params := use_state().params)
+    params = use_state("params")
 
     # RFC4360: Extended Communities (New Format)
     if re.match(params.queries.bgp_community.pattern.extended_as, value):
@@ -174,7 +174,7 @@ def validate_community_input(value):
 
 def validate_community_select(value):
     """Validate selected community against configured communities."""
-    (params := use_state().params)
+    params = use_state("params")
     communities = tuple(c.community for c in params.queries.bgp_community.communities)
     if value not in communities:
         raise InputInvalid(
@@ -187,7 +187,7 @@ def validate_community_select(value):
 
 def validate_aspath(value):
     """Validate input AS_PATH against configured or default regext pattern."""
-    (params := use_state().params)
+    params = use_state("params")
     mode = params.queries.bgp_aspath.pattern.mode
     pattern = getattr(params.queries.bgp_aspath.pattern, mode)
 
