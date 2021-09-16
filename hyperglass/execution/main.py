@@ -50,8 +50,8 @@ async def execute(query: "Query") -> Union["OutputDataModel", str]:
     params = use_state("params")
     output = params.messages.general
 
-    log.debug("Received query {}", query.export_dict())
-    log.debug("Matched device config: {!s}", query.device)
+    log.debug("Received query {!r}", query)
+    log.debug("Matched device config: {!r}", query.device)
 
     mapped_driver = map_driver(query.device.driver)
     driver: "Connection" = mapped_driver(query.device, query)
@@ -83,7 +83,7 @@ async def execute(query: "Query") -> Union["OutputDataModel", str]:
         if not output:
             raise ResponseEmpty(query=query)
 
-    log.debug("Output for query: {}:\n{}", query.json(), repr(output))
+    log.debug("Output for query {!r}:\n{!r}", query, output)
     signal.alarm(0)
 
     return output

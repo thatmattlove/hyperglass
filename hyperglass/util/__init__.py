@@ -17,6 +17,7 @@ from netmiko.ssh_dispatcher import CLASS_MAPPER  # type: ignore
 
 # Project
 from hyperglass.log import log
+from hyperglass.types import Series
 from hyperglass.constants import DRIVER_MAP
 
 ALL_DEVICE_TYPES = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
@@ -203,6 +204,20 @@ def make_repr(_class):
                     yield f"{attr}={str(attr_val)}"
 
     return f'{_class.__name__}({", ".join(_process_attrs(dir(_class)))})'
+
+
+def repr_from_attrs(obj: object, attrs: Series[str]) -> str:
+    """Generate a `__repr__()` value from a specific set of attribute names.
+
+    Useful for complex models/objects where `__repr__()` should only display specific fields.
+    """
+    # Check the object to ensure each attribute actually exists, and deduplicate
+    attr_names = {a for a in attrs if hasattr(obj, a)}
+    # Dict representation of attr name to obj value (e.g. `obj.attr`), if the value has a
+    # `__repr__` method.
+    attr_values = {f: v for f in attr_names if hasattr((v := getattr(obj, f)), "__repr__")}
+    pairs = (f"{k}={v!r}" for k, v in attr_values.items())
+    return f"{obj.__class__.__name__}({','.join(pairs)})"
 
 
 def validate_device_type(_type: str) -> t.Tuple[bool, t.Union[None, str]]:

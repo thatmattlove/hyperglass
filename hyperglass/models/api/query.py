@@ -12,7 +12,7 @@ from pydantic import BaseModel, StrictStr, constr, validator
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import snake_to_camel
+from hyperglass.util import snake_to_camel, repr_from_attrs
 from hyperglass.state import use_state
 from hyperglass.exceptions.public import (
     InputInvalid,
@@ -24,7 +24,6 @@ from hyperglass.exceptions.private import InputValidationError
 
 # Local
 from ..config.devices import Device
-from ..commands.generic import Directive
 
 (TEXT := use_state("params").web.text)
 
@@ -75,6 +74,12 @@ class Query(BaseModel):
         self.timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
         state = use_state()
         self._state = state
+        for command in self.device.commands:
+            if command.id == self.query_type:
+                self.directive = command
+                break
+            else:
+                raise QueryTypeNotFound(query_type=self.query_type)
         try:
             self.validate_query_target()
         except InputValidationError as err:
@@ -82,11 +87,11 @@ class Query(BaseModel):
 
     def __repr__(self):
         """Represent only the query fields."""
-        return (
-            f'Query(query_location="{str(self.query_location)}", '
-            f'query_type="{str(self.query_type)}", query_group="{str(self.query_group)}", '
-            f'query_target="{str(self.query_target)}")'
-        )
+        return repr_from_attrs(self, self.__config__.fields.keys())
+
+    def __str__(self) -> str:
+        """Alias __str__ to __repr__."""
+        return repr(self)
 
     def digest(self):
         """Create SHA256 hash digest of model representation."""
@@ -101,7 +106,7 @@ class Query(BaseModel):
     def validate_query_target(self):
         """Validate a query target after all fields/relationships havebeen initialized."""
         self.directive.validate_target(self.query_target)
-        log.debug("Validation passed for query {}", repr(self))
+        log.debug("Validation passed for query {!r}", self)
 
     @property
     def summary(self):
@@ -110,7 +115,7 @@ class Query(BaseModel):
             f"query_location={self.query_location}",
             f"query_type={self.query_type}",
             f"query_group={self.query_group}",
-            f"query_target={str(self.query_target)}",
+            f"query_target={self.query_target!s}",
         )
         return f'Query({", ".join(items)})'
 
@@ -118,15 +123,6 @@ class Query(BaseModel):
     def device(self) -> Device:
         """Get this query's device object by query_location."""
         return self._state.devices[self.query_location]
-
-    @property
-    def directive(self) -> Directive:
-        """Get this query's directive."""
-
-        for command in self.device.commands:
-            if command.id == self.query_type:
-                return command
-        raise QueryTypeNotFound(query_type=self.query_type)
 
     def export_dict(self, pretty=False):
         """Create dictionary representation of instance."""

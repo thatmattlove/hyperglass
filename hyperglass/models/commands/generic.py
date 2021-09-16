@@ -223,7 +223,7 @@ class RuleWithoutValidation(Rule):
         return True
 
 
-Rules = t.Union[RuleWithIPv4, RuleWithIPv6, RuleWithPattern, RuleWithoutValidation]
+RuleType = t.Union[RuleWithIPv4, RuleWithIPv6, RuleWithPattern, RuleWithoutValidation]
 
 
 class Directive(HyperglassModelWithId):
@@ -231,7 +231,7 @@ class Directive(HyperglassModelWithId):
 
     id: StrictStr
     name: StrictStr
-    rules: t.List[Rules]
+    rules: t.List[RuleType]
     field: t.Union[Text, Select, None]
     info: t.Optional[FilePath]
     plugins: t.List[StrictStr] = []

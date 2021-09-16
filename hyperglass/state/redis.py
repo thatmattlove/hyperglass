@@ -29,6 +29,10 @@ class RedisManager:
         """Alias repr to Redis instance's repr."""
         return repr(self.instance)
 
+    def __str__(self) -> str:
+        """String-friendly redis manager."""
+        return repr(self)
+
     def _key_join(self, *keys: str) -> str:
         """Format keys with state namespace."""
         key_in_parts = (k for key in keys for k in key.split("."))

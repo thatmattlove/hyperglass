@@ -7,6 +7,7 @@ import typing as t
 from redis import Redis, ConnectionPool
 
 # Project
+from hyperglass.util import repr_from_attrs
 from hyperglass.configuration import params, devices, ui_params
 
 # Local
@@ -39,6 +40,14 @@ class StateManager:
         self.redis.set("params", params)
         self.redis.set("devices", devices)
         self.redis.set("ui_params", ui_params)
+
+    def __repr__(self) -> str:
+        """Represent state manager by name and namespace."""
+        return repr_from_attrs(self, ("redis", "namespace"))
+
+    def __str__(self) -> str:
+        """Represent state manager by __repr__."""
+        return repr(self)
 
     @classmethod
     def properties(cls: "StateManager") -> t.Tuple[str, ...]:

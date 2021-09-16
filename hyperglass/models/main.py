@@ -9,7 +9,8 @@ from pydantic import HttpUrl, BaseModel, BaseConfig
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import snake_to_camel
+from hyperglass.util import snake_to_camel, repr_from_attrs
+from hyperglass.types import Series
 
 
 class HyperglassModel(BaseModel):
@@ -44,6 +45,10 @@ class HyperglassModel(BaseModel):
                     repr(snake_field),
                 )
             return snake_to_camel(snake_field)
+
+    def _repr_from_attrs(self, attrs: Series[str]) -> str:
+        """Alias to `hyperglass.util:repr_from_attrs` in the context of this model."""
+        return repr_from_attrs(self, attrs)
 
     def export_json(self, *args, **kwargs):
         """Return instance as JSON."""
