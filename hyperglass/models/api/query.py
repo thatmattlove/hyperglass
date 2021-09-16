@@ -13,7 +13,7 @@ from pydantic import BaseModel, StrictStr, constr, validator
 # Project
 from hyperglass.log import log
 from hyperglass.util import snake_to_camel
-from hyperglass.configuration import params, devices
+from hyperglass.state import use_state
 from hyperglass.exceptions.public import (
     InputInvalid,
     QueryTypeNotFound,
@@ -26,14 +26,7 @@ from hyperglass.exceptions.private import InputValidationError
 from ..config.devices import Device
 from ..commands.generic import Directive
 
-DIRECTIVE_IDS = [directive.id for device in devices.objects for directive in device.commands]
-
-DIRECTIVE_GROUPS = {
-    group
-    for device in devices.objects
-    for directive in device.commands
-    for group in directive.groups
-}
+(TEXT := use_state().params.web.text)
 
 
 class Query(BaseModel):
@@ -54,22 +47,22 @@ class Query(BaseModel):
         alias_generator = snake_to_camel
         fields = {
             "query_location": {
-                "title": params.web.text.query_location,
+                "title": TEXT.query_location,
                 "description": "Router/Location Name",
                 "example": "router01",
             },
             "query_type": {
-                "title": params.web.text.query_type,
+                "title": TEXT.query_type,
                 "description": "Type of Query to Execute",
                 "example": "bgp_route",
             },
             "query_group": {
-                "title": params.web.text.query_group,
+                "title": TEXT.query_group,
                 "description": "Routing Table/VRF",
                 "example": "default",
             },
             "query_target": {
-                "title": params.web.text.query_target,
+                "title": TEXT.query_target,
                 "description": "IP Address, Community, or AS Path",
                 "example": "1.1.1.0/24",
             },
@@ -80,6 +73,8 @@ class Query(BaseModel):
         """Initialize the query with a UTC timestamp at initialization time."""
         super().__init__(**kwargs)
         self.timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        state = use_state()
+        self.state = state
         try:
             self.validate_query_target()
         except InputValidationError as err:
@@ -122,7 +117,7 @@ class Query(BaseModel):
     @property
     def device(self) -> Device:
         """Get this query's device object by query_location."""
-        return devices[self.query_location]
+        return self.state.devices[self.query_location]
 
     @property
     def directive(self) -> Directive:
@@ -159,7 +154,11 @@ class Query(BaseModel):
     @validator("query_type")
     def validate_query_type(cls, value):
         """Ensure a requested query type exists."""
-        if value in DIRECTIVE_IDS:
+        (devices := use_state().devices)
+        directive_ids = [
+            directive.id for device in devices.objects for directive in device.commands
+        ]
+        if value in directive_ids:
             return value
 
         raise QueryTypeNotFound(name=value)
@@ -168,6 +167,7 @@ class Query(BaseModel):
     def validate_query_location(cls, value):
         """Ensure query_location is defined."""
 
+        (devices := use_state().devices)
         valid_id = value in devices.ids
         valid_hostname = value in devices.hostnames
 
@@ -179,7 +179,14 @@ class Query(BaseModel):
     @validator("query_group")
     def validate_query_group(cls, value):
         """Ensure query_group is defined."""
-        if value in DIRECTIVE_GROUPS:
+        (devices := use_state().devices)
+        groups = {
+            group
+            for device in devices.objects
+            for directive in device.commands
+            for group in directive.groups
+        }
+        if value in groups:
             return value
 
         raise QueryGroupNotFound(group=value)

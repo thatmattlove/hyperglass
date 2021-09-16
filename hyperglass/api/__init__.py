@@ -18,13 +18,12 @@ from fastapi.middleware.gzip import GZipMiddleware
 # Project
 from hyperglass.log import log
 from hyperglass.util import cpu_count
+from hyperglass.state import use_state
 from hyperglass.constants import __version__
 from hyperglass.models.ui import UIParameters
 from hyperglass.api.events import on_startup, on_shutdown
 from hyperglass.api.routes import docs, info, query, router, queries, routers, ui_props
-from hyperglass.state import use_state
 from hyperglass.exceptions import HyperglassError
-from hyperglass.configuration import URL_DEV, STATIC_PATH
 from hyperglass.api.error_handlers import (
     app_handler,
     http_handler,
@@ -45,9 +44,9 @@ STATE = use_state()
 WORKING_DIR = Path(__file__).parent
 EXAMPLES_DIR = WORKING_DIR / "examples"
 
-UI_DIR = STATIC_PATH / "ui"
-CUSTOM_DIR = STATIC_PATH / "custom"
-IMAGES_DIR = STATIC_PATH / "images"
+UI_DIR = STATE.settings.static_path / "ui"
+CUSTOM_DIR = STATE.settings.static_path / "custom"
+IMAGES_DIR = STATE.settings.static_path / "images"
 
 EXAMPLE_DEVICES_PY = EXAMPLES_DIR / "devices.py"
 EXAMPLE_QUERIES_PY = EXAMPLES_DIR / "queries.py"
@@ -165,7 +164,7 @@ def _custom_openapi():
 
 CORS_ORIGINS = STATE.params.cors_origins.copy()
 if STATE.settings.dev_mode:
-    CORS_ORIGINS = [*CORS_ORIGINS, URL_DEV, "http://localhost:3000"]
+    CORS_ORIGINS = [*CORS_ORIGINS, STATE.settings.dev_url, "http://localhost:3000"]
 
 # CORS Configuration
 app.add_middleware(
@@ -256,14 +255,3 @@ if STATE.params.docs.enable:
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 app.mount("/custom", StaticFiles(directory=CUSTOM_DIR), name="custom")
 app.mount("/", StaticFiles(directory=UI_DIR, html=True), name="ui")
-
-
-def start(**kwargs):
-    """Start the web server with Uvicorn ASGI."""
-    # Third Party
-    import uvicorn  # type: ignore
-
-    try:
-        uvicorn.run("hyperglass.api:app", **ASGI_PARAMS, **kwargs)
-    except KeyboardInterrupt:
-        sys.exit(0)

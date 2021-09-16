@@ -2,6 +2,7 @@
 
 # Standard Library
 import os
+import asyncio
 from pathlib import Path
 
 # Third Party
@@ -65,28 +66,29 @@ def build_ui(timeout: int) -> None:
     """Create a new UI build."""
     try:
         # Project
-        from hyperglass.configuration import CONFIG_PATH, params
+        from hyperglass.state import use_state
         from hyperglass.util.frontend import build_frontend
-        from hyperglass.compat._asyncio import aiorun
     except ImportError as e:
         error("Error importing UI builder: {e}", e=e)
 
+    state = use_state()
+
     status("Starting new UI build with a {t} second timeout...", t=timeout)
 
-    if params.developer_mode:
+    if state.params.developer_mode:
         dev_mode = "development"
     else:
         dev_mode = "production"
 
     try:
-        build_success = aiorun(
+        build_success = asyncio.run(
             build_frontend(
-                dev_mode=params.developer_mode,
-                dev_url=f"http://localhost:{str(params.listen_port)}/",
+                dev_mode=state.settings.dev_mode,
+                dev_url=f"http://localhost:{state.settings.port!s}/",
                 prod_url="/api/",
-                params=params.export_dict(),
+                params=state.ui_params,
                 force=True,
-                app_path=CONFIG_PATH,
+                app_path=state.settings.app_path,
             )
         )
         if build_success:

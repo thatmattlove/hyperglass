@@ -35,7 +35,6 @@ import sys
 import queue
 import socket
 import getpass
-import logging
 import argparse
 import warnings
 import threading
@@ -48,12 +47,6 @@ import paramiko
 
 # Project
 from hyperglass.log import log
-from hyperglass.configuration import params
-
-if params.debug:
-    logging.getLogger("paramiko").setLevel(logging.DEBUG)
-
-log.bind(logger_name="paramiko")
 
 TUNNEL_TIMEOUT = 1.0  #: Timeout (seconds) for tunnel connection
 _DAEMON = False  #: Use daemon threads in connections

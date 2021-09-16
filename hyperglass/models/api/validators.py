@@ -6,21 +6,13 @@ from ipaddress import ip_network
 
 # Project
 from hyperglass.log import log
+from hyperglass.state import use_state
 from hyperglass.exceptions import InputInvalid, InputNotAllowed
-from hyperglass.configuration import params
 from hyperglass.external.bgptools import network_info_sync
 
 
 def _member_of(target, network):
-    """Check if IP address belongs to network.
-
-    Arguments:
-        target {object} -- Target IPv4/IPv6 address
-        network {object} -- ACL network
-
-    Returns:
-        {bool} -- True if target is a member of network, False if not
-    """
+    """Check if IP address belongs to network."""
     log.debug("Checking membership of {} for {}", target, network)
 
     membership = False
@@ -34,16 +26,7 @@ def _member_of(target, network):
 
 
 def _prefix_range(target, ge, le):
-    """Verify if target prefix length is within ge/le threshold.
-
-    Arguments:
-        target {IPv4Network|IPv6Network} -- Valid IPv4/IPv6 Network
-        ge {int} -- Greater than
-        le {int} -- Less than
-
-    Returns:
-        {bool} -- True if target in range; False if not
-    """
+    """Verify if target prefix length is within ge/le threshold."""
     matched = False
     if target.prefixlen <= le and target.prefixlen >= ge:
         matched = True
@@ -63,6 +46,7 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
     Returns:
         Union[IPv4Address, IPv6Address] -- Validated IP address object
     """
+    (params := use_state().params)
     query_type_params = getattr(params.queries, query_type)
     try:
 
@@ -165,6 +149,8 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 def validate_community_input(value):
     """Validate input communities against configured or default regex pattern."""
 
+    (params := use_state().params)
+
     # RFC4360: Extended Communities (New Format)
     if re.match(params.queries.bgp_community.pattern.extended_as, value):
         pass
@@ -188,7 +174,7 @@ def validate_community_input(value):
 
 def validate_community_select(value):
     """Validate selected community against configured communities."""
-
+    (params := use_state().params)
     communities = tuple(c.community for c in params.queries.bgp_community.communities)
     if value not in communities:
         raise InputInvalid(
@@ -201,7 +187,7 @@ def validate_community_select(value):
 
 def validate_aspath(value):
     """Validate input AS_PATH against configured or default regext pattern."""
-
+    (params := use_state().params)
     mode = params.queries.bgp_aspath.pattern.mode
     pattern = getattr(params.queries.bgp_aspath.pattern, mode)
 

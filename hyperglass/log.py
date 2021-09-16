@@ -3,11 +3,13 @@
 # Standard Library
 import os
 import sys
+import typing as t
 import logging
 from datetime import datetime
 
 # Third Party
 from loguru import logger as _loguru_logger
+from gunicorn.glogging import Logger  # type: ignore
 
 _FMT = (
     "<lvl><b>[{level}]</b> {time:YYYYMMDD} {time:HH:mm:ss} <lw>|</lw> {name}<lw>:</lw>"
@@ -26,9 +28,58 @@ _LOG_LEVELS = [
 ]
 
 
-def setup_lib_logging() -> None:
-    """Override the logging handlers for dependency libraries."""
-    for name in (
+class LibIntercentHandler(logging.Handler):
+    """Custom log handler for integrating third party library logging with hyperglass's logger."""
+
+    def emit(self, record):
+        """Emit log record.
+
+        See: https://github.com/Delgan/loguru (Readme)
+        """
+        # Get corresponding Loguru level if it exists
+        try:
+            level = _loguru_logger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
+
+        # Find caller from where originated the logged message
+        frame, depth = logging.currentframe(), 2
+        while frame.f_code.co_filename == logging.__file__:
+            frame = frame.f_back
+            depth += 1
+
+        _loguru_logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+
+
+class GunicornLogger(Logger):
+    """Custom logger to direct Gunicorn/Uvicorn logs to Loguru.
+
+    See: https://pawamoy.github.io/posts/unify-logging-for-a-gunicorn-uvicorn-app/
+    """
+
+    def setup(self, cfg: t.Any) -> None:
+        """Override Gunicorn setup."""
+        handler = logging.NullHandler()
+        self.error_logger = logging.getLogger("gunicorn.error")
+        self.error_logger.addHandler(handler)
+        self.access_logger = logging.getLogger("gunicorn.access")
+        self.access_logger.addHandler(handler)
+        self.error_logger.setLevel(cfg.loglevel)
+        self.access_logger.setLevel(cfg.loglevel)
+
+
+def setup_lib_logging(log_level: str) -> None:
+    """Override the logging handlers for dependency libraries.
+
+    See: https://pawamoy.github.io/posts/unify-logging-for-a-gunicorn-uvicorn-app/
+    """
+
+    intercept_handler = LibIntercentHandler()
+    logging.root.setLevel(log_level)
+
+    seen = set()
+    for name in [
+        *logging.root.manager.loggerDict.keys(),
         "gunicorn",
         "gunicorn.access",
         "gunicorn.error",
@@ -37,10 +88,15 @@ def setup_lib_logging() -> None:
         "uvicorn.error",
         "uvicorn.asgi",
         "netmiko",
+        "paramiko",
         "scrapli",
         "httpx",
-    ):
-        _loguru_logger.bind(logger_name=name)
+    ]:
+        if name not in seen:
+            seen.add(name.split(".")[0])
+            logging.getLogger(name).handlers = [intercept_handler]
+
+    _loguru_logger.configure(handlers=[{"sink": sys.stdout, "format": _FMT}])
 
 
 def _log_patcher(record):

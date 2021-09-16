@@ -4,10 +4,10 @@
 from typing import Dict, List, Union, Optional
 
 # Third Party
-from pydantic import BaseModel, StrictInt, StrictStr, StrictBool, constr
+from pydantic import BaseModel, StrictInt, StrictStr, StrictBool, constr, validator
 
 # Project
-from hyperglass.configuration import params
+from hyperglass.state import use_state
 
 ErrorName = constr(regex=r"(success|warning|error|danger)")
 ResponseLevel = constr(regex=r"success")
@@ -17,10 +17,18 @@ ResponseFormat = constr(regex=r"(application\/json|text\/plain)")
 class QueryError(BaseModel):
     """Query response model."""
 
-    output: StrictStr = params.messages.general
+    output: StrictStr
     level: ErrorName = "danger"
     id: Optional[StrictStr]
     keywords: List[StrictStr] = []
+
+    @validator("output")
+    def validate_output(cls: "QueryError", value):
+        """If no output is specified, use a customizable generic message."""
+        if value is None:
+            state = use_state()
+            return state.params.messages.general
+        return value
 
     class Config:
         """Pydantic model configuration."""

@@ -12,8 +12,7 @@ from typing import Dict, List
 
 # Project
 from hyperglass.log import log
-from hyperglass.cache import SyncCache, AsyncCache
-from hyperglass.configuration import REDIS_CONFIG, params
+from hyperglass.state import use_state
 
 DEFAULT_KEYS = ("asn", "ip", "prefix", "country", "rir", "allocated", "org")
 
@@ -120,13 +119,13 @@ async def network_info(*targets: str) -> Dict[str, Dict[str, str]]:
     """Get ASN, Containing Prefix, and other info about an internet resource."""
 
     targets = [str(t) for t in targets]
-    cache = AsyncCache(db=params.cache.database, **REDIS_CONFIG)
+    (cache := use_state().redis)
 
     # Set default data structure.
     data = {t: {k: "" for k in DEFAULT_KEYS} for t in targets}
 
     # Get all cached bgp.tools data.
-    cached = await cache.get_dict(CACHE_KEY)
+    cached = cache.hgetall(CACHE_KEY)
 
     # Try to use cached data for each of the items in the list of
     # resources.
@@ -150,7 +149,7 @@ async def network_info(*targets: str) -> Dict[str, Dict[str, str]]:
 
                 # Cache the response
                 for t in targets:
-                    await cache.set_dict(CACHE_KEY, t, data[t])
+                    cache.hset(CACHE_KEY, t, data[t])
                     log.debug("Cached network info for {}", t)
 
     except Exception as err:
@@ -163,13 +162,13 @@ def network_info_sync(*targets: str) -> Dict[str, Dict[str, str]]:
     """Get ASN, Containing Prefix, and other info about an internet resource."""
 
     targets = [str(t) for t in targets]
-    cache = SyncCache(db=params.cache.database, **REDIS_CONFIG)
+    (cache := use_state().redis)
 
     # Set default data structure.
     data = {t: {k: "" for k in DEFAULT_KEYS} for t in targets}
 
     # Get all cached bgp.tools data.
-    cached = cache.get_dict(CACHE_KEY)
+    cached = cache.hgetall(CACHE_KEY)
 
     # Try to use cached data for each of the items in the list of
     # resources.
@@ -193,7 +192,7 @@ def network_info_sync(*targets: str) -> Dict[str, Dict[str, str]]:
 
                 # Cache the response
                 for t in targets:
-                    cache.set_dict(CACHE_KEY, t, data[t])
+                    cache.hset(CACHE_KEY, t, data[t])
                     log.debug("Cached network info for {}", t)
 
     except Exception as err:

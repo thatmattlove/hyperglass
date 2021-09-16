@@ -1,7 +1,6 @@
 """Import configuration files and returns default values if undefined."""
 
 # Standard Library
-import os
 from typing import Dict, List, Generator
 from pathlib import Path
 
@@ -11,8 +10,9 @@ from pydantic import ValidationError
 
 # Project
 from hyperglass.log import log, enable_file_logging, enable_syslog_logging
-from hyperglass.util import set_app_path, set_cache_env
+from hyperglass.util import set_cache_env
 from hyperglass.defaults import CREDIT
+from hyperglass.settings import Settings
 from hyperglass.constants import PARSED_RESPONSE_FIELDS, __version__
 from hyperglass.models.ui import UIParameters
 from hyperglass.util.files import check_path
@@ -25,10 +25,8 @@ from hyperglass.models.commands.generic import Directive
 from .markdown import get_markdown
 from .validation import validate_config
 
-set_app_path(required=True)
-
-CONFIG_PATH = Path(os.environ["hyperglass_directory"])
-log.info("Configuration directory: {d}", d=str(CONFIG_PATH))
+CONFIG_PATH = Settings.app_path
+log.info("Configuration directory: {d!s}", d=CONFIG_PATH)
 
 # Project Directories
 WORKING_DIR = Path(__file__).resolve().parent
@@ -63,8 +61,6 @@ def _check_config_files(directory: Path):
 
     return files
 
-
-STATIC_PATH = CONFIG_PATH / "static"
 
 CONFIG_MAIN, CONFIG_DEVICES, CONFIG_COMMANDS = _check_config_files(CONFIG_PATH)
 
@@ -203,12 +199,4 @@ ui_params = UIParameters(
     content={"credit": content_credit, "greeting": content_greeting},
 )
 
-URL_DEV = f"http://localhost:{str(params.listen_port)}/"
 URL_PROD = "/api/"
-
-REDIS_CONFIG = {
-    "host": str(params.cache.host),
-    "port": params.cache.port,
-    "decode_responses": True,
-    "password": params.cache.password,
-}

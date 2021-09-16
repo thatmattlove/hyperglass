@@ -1,7 +1,6 @@
 """Validate router configuration variables."""
 
 # Standard Library
-import os
 import re
 from typing import Any, Set, Dict, List, Tuple, Union, Optional
 from pathlib import Path
@@ -18,6 +17,7 @@ from hyperglass.util import (
     resolve_hostname,
     validate_device_type,
 )
+from hyperglass.settings import Settings
 from hyperglass.constants import SCRAPE_HELPERS, SUPPORTED_STRUCTURED_OUTPUT
 from hyperglass.exceptions.private import ConfigError, UnsupportedDevice
 
@@ -176,8 +176,7 @@ class Device(HyperglassModelWithId, extra="allow"):
 
         if value is not None:
             if value.enable and value.cert is None:
-                app_path = Path(os.environ["hyperglass_directory"])
-                cert_file = app_path / "certs" / f'{values["name"]}.pem'
+                cert_file = Settings.app_path / "certs" / f'{values["name"]}.pem'
                 if not cert_file.exists():
                     log.warning("No certificate found for device {d}", d=values["name"])
                     cert_file.touch()

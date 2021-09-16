@@ -1,3 +1,5 @@
+"""Access hyperglass global system settings."""
+
 # Standard Library
 import typing as t
 

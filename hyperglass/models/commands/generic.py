@@ -1,10 +1,8 @@
 """Generic command models."""
 
 # Standard Library
-import os
 import re
 import typing as t
-from pathlib import Path
 from ipaddress import IPv4Network, IPv6Network, ip_network
 
 # Third Party
@@ -20,6 +18,7 @@ from pydantic import (
 
 # Project
 from hyperglass.log import log
+from hyperglass.settings import Settings
 from hyperglass.exceptions.private import InputValidationError
 
 # Local
@@ -263,7 +262,8 @@ class Directive(HyperglassModelWithId):
     @validator("plugins")
     def validate_plugins(cls: "Directive", plugins: t.List[str]) -> t.List[str]:
         """Validate and register configured plugins."""
-        plugin_dir = Path(os.environ["hyperglass_directory"]) / "plugins"
+        plugin_dir = Settings.app_path / "plugins"
+
         if plugin_dir.exists():
             # Path objects whose file names match configured file names, should work
             # whether or not file extension is specified.

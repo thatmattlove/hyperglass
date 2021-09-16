@@ -3,38 +3,39 @@
 # Standard Library
 import json
 import time
-import typing as t
 from datetime import datetime
 
 # Third Party
-from fastapi import HTTPException, BackgroundTasks
+from fastapi import Depends, HTTPException, BackgroundTasks
 from starlette.requests import Request
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 
 # Project
 from hyperglass.log import log
-from hyperglass.state import use_state
+from hyperglass.state import HyperglassState, use_state
 from hyperglass.external import Webhook, bgptools
 from hyperglass.api.tasks import process_headers
 from hyperglass.constants import __version__
 from hyperglass.exceptions import HyperglassError
+from hyperglass.models.api import Query
 from hyperglass.execution.main import execute
 
 # Local
 from .fake_output import fake_output
 
-if t.TYPE_CHECKING:
-    # Project
-    from hyperglass.models.api import Query
+
+def get_state():
+    """Get hyperglass state as a FastAPI dependency."""
+    return use_state()
 
 
-STATE = use_state()
-
-
-async def send_webhook(query_data: "Query", request: Request, timestamp: datetime):
+async def send_webhook(
+    query_data: Query, request: Request, timestamp: datetime,
+):
     """If webhooks are enabled, get request info and send a webhook."""
+    state = use_state()
     try:
-        if STATE.params.logging.http is not None:
+        if state.params.logging.http is not None:
             headers = await process_headers(headers=request.headers)
 
             if headers.get("x-real-ip") is not None:
@@ -46,7 +47,7 @@ async def send_webhook(query_data: "Query", request: Request, timestamp: datetim
 
             network_info = await bgptools.network_info(host)
 
-            async with Webhook(STATE.params.logging.http) as hook:
+            async with Webhook(state.params.logging.http) as hook:
 
                 await hook.send(
                     query={
@@ -58,27 +59,28 @@ async def send_webhook(query_data: "Query", request: Request, timestamp: datetim
                     }
                 )
     except Exception as err:
-        log.error("Error sending webhook to {}: {}", STATE.params.logging.http.provider, str(err))
+        log.error("Error sending webhook to {}: {}", state.params.logging.http.provider, str(err))
 
 
-async def query(query_data: "Query", request: Request, background_tasks: BackgroundTasks):
+async def query(
+    query_data: Query,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    state: "HyperglassState" = Depends(get_state),
+):
     """Ingest request data pass it to the backend application to perform the query."""
 
     timestamp = datetime.utcnow()
     background_tasks.add_task(send_webhook, query_data, request, timestamp)
 
     # Initialize cache
-    cache = STATE.redis
+    cache = state.redis
     log.debug("Initialized cache {}", repr(cache))
 
     # Use hashed query_data string as key for for k/v cache store so
     # each command output value is unique.
     cache_key = f"hyperglass.query.{query_data.digest()}"
 
-    # Define cache entry expiry time
-    cache_timeout = STATE.params.cache.timeout
-
-    log.debug("Cache Timeout: {}", cache_timeout)
     log.info("Starting query execution for query {}", query_data.summary)
 
     cache_response = cache.get_dict(cache_key, "output")
@@ -98,7 +100,7 @@ async def query(query_data: "Query", request: Request, background_tasks: Backgro
         log.debug("Query {} exists in cache", cache_key)
 
         # If a cached response exists, reset the expiration time.
-        cache.expire(cache_key, seconds=cache_timeout)
+        cache.expire(cache_key, seconds=state.params.cache.timeout)
 
         cached = True
         runtime = 0
@@ -112,7 +114,7 @@ async def query(query_data: "Query", request: Request, background_tasks: Backgro
 
         starttime = time.time()
 
-        if STATE.params.fake_output:
+        if state.params.fake_output:
             # Return fake, static data for development purposes, if enabled.
             cache_output = await fake_output(json_output)
         else:
@@ -124,7 +126,7 @@ async def query(query_data: "Query", request: Request, background_tasks: Backgro
         log.debug("Query {} took {} seconds to run.", cache_key, elapsedtime)
 
         if cache_output is None:
-            raise HyperglassError(message=STATE.params.messages.general, alert="danger")
+            raise HyperglassError(message=state.params.messages.general, alert="danger")
 
         # Create a cache entry
         if json_output:
@@ -133,7 +135,7 @@ async def query(query_data: "Query", request: Request, background_tasks: Backgro
             raw_output = str(cache_output)
         cache.set_dict(cache_key, "output", raw_output)
         cache.set_dict(cache_key, "timestamp", timestamp)
-        cache.expire(cache_key, seconds=cache_timeout)
+        cache.expire(cache_key, seconds=state.params.cache.timeout)
 
         log.debug("Added cache entry for query: {}", cache_key)
 
@@ -162,46 +164,46 @@ async def query(query_data: "Query", request: Request, background_tasks: Backgro
     }
 
 
-async def docs():
+async def docs(state: "HyperglassState" = Depends(get_state)):
     """Serve custom docs."""
-    if STATE.params.docs.enable:
+    if state.params.docs.enable:
         docs_func_map = {"swagger": get_swagger_ui_html, "redoc": get_redoc_html}
-        docs_func = docs_func_map[STATE.params.docs.mode]
+        docs_func = docs_func_map[state.params.docs.mode]
         return docs_func(
-            openapi_url=STATE.params.docs.openapi_url, title=STATE.params.site_title + " - API Docs"
+            openapi_url=state.params.docs.openapi_url, title=state.params.site_title + " - API Docs"
         )
     else:
         raise HTTPException(detail="Not found", status_code=404)
 
 
-async def router(id: str):
+async def router(id: str, state: "HyperglassState" = Depends(get_state)):
     """Get a device's API-facing attributes."""
-    return STATE.devices[id].export_api()
+    return state.devices[id].export_api()
 
 
-async def routers():
+async def routers(state: "HyperglassState" = Depends(get_state)):
     """Serve list of configured routers and attributes."""
-    return STATE.devices.export_api()
+    return state.devices.export_api()
 
 
-async def queries():
+async def queries(state: "HyperglassState" = Depends(get_state)):
     """Serve list of enabled query types."""
-    return STATE.params.queries.list
+    return state.params.queries.list
 
 
-async def info():
+async def info(state: "HyperglassState" = Depends(get_state)):
     """Serve general information about this instance of hyperglass."""
     return {
-        "name": STATE.params.site_title,
-        "organization": STATE.params.org_name,
-        "primary_asn": int(STATE.params.primary_asn),
+        "name": state.params.site_title,
+        "organization": state.params.org_name,
+        "primary_asn": int(state.params.primary_asn),
         "version": __version__,
     }
 
 
-async def ui_props():
+async def ui_props(state: "HyperglassState" = Depends(get_state)):
     """Serve UI configration."""
-    return STATE.ui_params
+    return state.ui_params
 
 
 endpoints = [query, docs, routers, info, ui_props]

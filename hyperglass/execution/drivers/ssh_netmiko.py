@@ -16,7 +16,7 @@ from netmiko import (  # type: ignore
 
 # Project
 from hyperglass.log import log
-from hyperglass.state import state
+from hyperglass.state import use_state
 from hyperglass.exceptions.public import AuthError, DeviceTimeout, ResponseEmpty
 
 # Local
@@ -46,6 +46,7 @@ class NetmikoConnection(SSHConnection):
         Directly connects to the router via Netmiko library, returns the
         command output.
         """
+        state = use_state()
         if host is not None:
             log.debug(
                 "Connecting to {} via proxy {} [{}]",

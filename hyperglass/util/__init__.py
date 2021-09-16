@@ -5,20 +5,8 @@ import os
 import sys
 import json
 import string
+import typing as t
 import platform
-from typing import (
-    Any,
-    Dict,
-    List,
-    Type,
-    Tuple,
-    Union,
-    TypeVar,
-    Callable,
-    Optional,
-    Sequence,
-    Generator,
-)
 from asyncio import iscoroutine
 from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address, ip_address
@@ -34,7 +22,7 @@ from hyperglass.constants import DRIVER_MAP
 ALL_DEVICE_TYPES = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
 ALL_DRIVERS = {*DRIVER_MAP.values(), "netmiko"}
 
-DeepConvert = TypeVar("DeepConvert", bound=Dict[str, Any])
+DeepConvert = t.TypeVar("DeepConvert", bound=t.Dict[str, t.Any])
 
 
 def cpu_count(multiplier: int = 0) -> int:
@@ -59,7 +47,7 @@ def check_python() -> str:
     return platform.python_version()
 
 
-async def write_env(variables: Dict) -> str:
+async def write_env(variables: t.Dict) -> str:
     """Write environment variables to temporary JSON file."""
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
     env_vars = json.dumps(variables)
@@ -71,32 +59,6 @@ async def write_env(variables: Dict) -> str:
         raise RuntimeError(str(e))
 
     return f"Wrote {env_vars} to {str(env_file)}"
-
-
-async def clear_redis_cache(db: int, config: Dict) -> bool:
-    """Clear the Redis cache."""
-    # Third Party
-    import aredis  # type: ignore
-
-    try:
-        redis_instance = aredis.StrictRedis(db=db, **config)
-        await redis_instance.flushdb()
-    except Exception as e:
-        raise RuntimeError(f"Error clearing cache: {str(e)}") from None
-    return True
-
-
-def sync_clear_redis_cache() -> None:
-    """Clear the Redis cache."""
-    # Project
-    from hyperglass.cache import SyncCache
-    from hyperglass.configuration import REDIS_CONFIG, params
-
-    try:
-        cache = SyncCache(db=params.cache.database, **REDIS_CONFIG)
-        cache.clear()
-    except BaseException as err:
-        raise RuntimeError from err
 
 
 def set_app_path(required: bool = False) -> Path:
@@ -243,7 +205,7 @@ def make_repr(_class):
     return f'{_class.__name__}({", ".join(_process_attrs(dir(_class)))})'
 
 
-def validate_device_type(_type: str) -> Tuple[bool, Union[None, str]]:
+def validate_device_type(_type: str) -> t.Tuple[bool, t.Union[None, str]]:
     """Validate device type is supported."""
 
     result = (False, None)
@@ -254,7 +216,7 @@ def validate_device_type(_type: str) -> Tuple[bool, Union[None, str]]:
     return result
 
 
-def get_driver(_type: str, driver: Optional[str]) -> str:
+def get_driver(_type: str, driver: t.Optional[str]) -> str:
     """Determine the appropriate driver for a device."""
 
     if driver is None:
@@ -284,7 +246,7 @@ def current_log_level(logger: LoguruLogger) -> str:
     return current_level
 
 
-def resolve_hostname(hostname: str) -> Generator:
+def resolve_hostname(hostname: str) -> t.Generator[t.Union[IPv4Address, IPv6Address], None, None]:
     """Resolve a hostname via DNS/hostfile."""
     # Standard Library
     from socket import gaierror, getaddrinfo
@@ -315,7 +277,7 @@ def snake_to_camel(value: str) -> str:
     return "".join((parts[0], *humps))
 
 
-def get_fmt_keys(template: str) -> Sequence[str]:
+def get_fmt_keys(template: str) -> t.List[str]:
     """Get a list of str.format keys.
 
     For example, string `"The value of {key} is {value}"` returns
@@ -329,16 +291,16 @@ def get_fmt_keys(template: str) -> Sequence[str]:
     return keys
 
 
-def deep_convert_keys(_dict: Type[DeepConvert], predicate: Callable[[str], str]) -> DeepConvert:
+def deep_convert_keys(_dict: t.Type[DeepConvert], predicate: t.Callable[[str], str]) -> DeepConvert:
     """Convert all dictionary keys and nested dictionary keys."""
     converted = {}
 
-    def get_value(value: Any):
-        if isinstance(value, Dict):
+    def get_value(value: t.Any):
+        if isinstance(value, t.Dict):
             return {predicate(k): get_value(v) for k, v in value.items()}
-        elif isinstance(value, List):
+        elif isinstance(value, t.List):
             return [get_value(v) for v in value]
-        elif isinstance(value, Tuple):
+        elif isinstance(value, t.Tuple):
             return tuple(get_value(v) for v in value)
         return value
 

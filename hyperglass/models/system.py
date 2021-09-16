@@ -2,6 +2,7 @@
 
 # Standard Library
 import typing as t
+from pathlib import Path
 from ipaddress import ip_address
 
 # Third Party
@@ -114,3 +115,17 @@ class HyperglassSystem(BaseSettings):
     def redis_connection_pool(self: "HyperglassSystem") -> t.Dict[str, t.Any]:
         """Get Redis ConnectionPool keyword arguments."""
         return {"url": str(self.redis_dsn), "max_connections": at_least(8, cpu_count(2))}
+
+    @property
+    def dev_url(self: "HyperglassSystem") -> str:
+        """Get the hyperglass URL for when dev_mode is enabled."""
+        return f"http://localhost:{self.port!s}/"
+
+    def prod_url(self: "HyperglassSystem") -> str:
+        """Get the UI-facing hyperglass URL/path."""
+        return "/api/"
+
+    @property
+    def static_path(self: "HyperglassSystem") -> Path:
+        """Get static asset path."""
+        return Path(self.app_path / "static")

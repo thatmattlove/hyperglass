@@ -9,7 +9,7 @@ from ipaddress import ip_network
 from pydantic import StrictInt, StrictStr, StrictBool, validator
 
 # Project
-from hyperglass.configuration import params
+from hyperglass.state import use_state
 from hyperglass.external.rpki import rpki_state
 
 # Local
@@ -44,10 +44,12 @@ class BGPRoute(HyperglassModel):
             deny: only deny matches
         """
 
+        (structured := use_state().params.structured)
+
         def _permit(comm):
             """Only allow matching patterns."""
             valid = False
-            for pattern in params.structured.communities.items:
+            for pattern in structured.communities.items:
                 if re.match(pattern, comm):
                     valid = True
                     break
@@ -56,14 +58,14 @@ class BGPRoute(HyperglassModel):
         def _deny(comm):
             """Allow any except matching patterns."""
             valid = True
-            for pattern in params.structured.communities.items:
+            for pattern in structured.communities.items:
                 if re.match(pattern, comm):
                     valid = False
                     break
             return valid
 
         func_map = {"permit": _permit, "deny": _deny}
-        func = func_map[params.structured.communities.mode]
+        func = func_map[structured.communities.mode]
 
         return [c for c in value if func(c)]
 
@@ -71,11 +73,13 @@ class BGPRoute(HyperglassModel):
     def validate_rpki_state(cls, value, values):
         """If external RPKI validation is enabled, get validation state."""
 
-        if params.structured.rpki.mode == "router":
+        (structured := use_state().params.structured)
+
+        if structured.rpki.mode == "router":
             # If router validation is enabled, return the value as-is.
             return value
 
-        elif params.structured.rpki.mode == "external":
+        elif structured.rpki.mode == "external":
             # If external validation is enabled, validate the prefix
             # & asn with Cloudflare's RPKI API.
             as_path = values["as_path"]

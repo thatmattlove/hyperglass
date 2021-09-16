@@ -190,10 +190,11 @@ def get_system_info():
 def clear_cache():
     """Clear the Redis Cache."""
     # Project
-    from hyperglass.util import sync_clear_redis_cache
+    from hyperglass.state import use_state
 
+    state = use_state()
     try:
-        sync_clear_redis_cache()
+        state.clear()
         success("Cleared Redis Cache")
-    except RuntimeError as err:
+    except Exception as err:
         error(str(err))
