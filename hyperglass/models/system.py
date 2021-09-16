@@ -121,6 +121,7 @@ class HyperglassSystem(BaseSettings):
         """Get the hyperglass URL for when dev_mode is enabled."""
         return f"http://localhost:{self.port!s}/"
 
+    @property
     def prod_url(self: "HyperglassSystem") -> str:
         """Get the UI-facing hyperglass URL/path."""
         return "/api/"
