@@ -90,7 +90,8 @@ class Construct:
         rules = [r for r in self.directive.rules if r._passed is True]
         if len(rules) < 1:
             raise InputInvalid(
-                error="No validation rules matched target '{target}'", query=self.query
+                error="No validation rules matched target '{target}'",
+                target=self.query.query_target,
             )
 
         for rule in [r for r in self.directive.rules if r._passed is True]:

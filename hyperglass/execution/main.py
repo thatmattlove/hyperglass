@@ -50,8 +50,8 @@ async def execute(query: "Query") -> Union["OutputDataModel", str]:
     params = use_state("params")
     output = params.messages.general
 
-    log.debug("Received query {}", query.json())
-    log.debug("Matched device config: {}", query.device)
+    log.debug("Received query {}", query.export_dict())
+    log.debug("Matched device config: {!s}", query.device)
 
     mapped_driver = map_driver(query.device.driver)
     driver: "Connection" = mapped_driver(query.device, query)

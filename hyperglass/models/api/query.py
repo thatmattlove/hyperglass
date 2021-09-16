@@ -74,7 +74,7 @@ class Query(BaseModel):
         super().__init__(**kwargs)
         self.timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
         state = use_state()
-        self.state = state
+        self._state = state
         try:
             self.validate_query_target()
         except InputValidationError as err:
@@ -117,7 +117,7 @@ class Query(BaseModel):
     @property
     def device(self) -> Device:
         """Get this query's device object by query_location."""
-        return self.state.devices[self.query_location]
+        return self._state.devices[self.query_location]
 
     @property
     def directive(self) -> Directive:
