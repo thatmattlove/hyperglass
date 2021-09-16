@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, Dict, Union, Callable
 # Project
 from hyperglass.log import log
 from hyperglass.state import use_state
+from hyperglass.util.typing import is_series
 from hyperglass.exceptions.public import DeviceTimeout, ResponseEmpty
 
 if TYPE_CHECKING:
@@ -71,7 +72,12 @@ async def execute(query: "Query") -> Union["OutputDataModel", str]:
 
     output = await driver.response(response)
 
-    if isinstance(output, str):
+    if is_series(output):
+        if len(output) == 0:
+            raise ResponseEmpty(query=query)
+        output = "\n\n".join(output)
+
+    elif isinstance(output, str):
         # If the output is a string (not structured) and is empty,
         # produce an error.
         if output == "" or output == "\n":

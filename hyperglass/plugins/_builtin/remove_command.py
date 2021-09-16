@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Sequence
 from pydantic import PrivateAttr
 
 # Project
-from hyperglass.util.typing import is_type
+from hyperglass.util.typing import is_series
 
 # Local
 from .._output import OutputType, OutputPlugin
@@ -36,7 +36,7 @@ class RemoveCommand(OutputPlugin):
 
             return "\n".join(output_out)
 
-        if is_type(device_output, str):
+        if is_series(device_output):
             return tuple(_remove_command(o) for o in device_output)
 
         return device_output

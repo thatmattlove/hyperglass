@@ -1,17 +1,18 @@
 """Base Connection Class."""
 
 # Standard Library
+import typing as t
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Union, Sequence
 
 # Project
 from hyperglass.log import log
+from hyperglass.types import Series
 from hyperglass.plugins import OutputPluginManager
 
 # Local
 from ._construct import Construct
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     # Project
     from hyperglass.models.api import Query
     from hyperglass.models.data import OutputDataModel
@@ -37,7 +38,7 @@ class Connection(ABC):
         """Return a preconfigured sshtunnel.SSHTunnelForwarder instance."""
         pass
 
-    async def response(self, output: Sequence[str]) -> Union["OutputDataModel", str]:
+    async def response(self, output: Series[str]) -> t.Union["OutputDataModel", str]:
         """Send output through common parsers."""
 
         log.debug("Pre-parsed responses:\n{}", output)
@@ -47,7 +48,7 @@ class Connection(ABC):
         )
 
         if response is None:
-            response = "\n\n".join(output)
+            response = ()
 
         log.debug("Post-parsed responses:\n{}", response)
         return response
