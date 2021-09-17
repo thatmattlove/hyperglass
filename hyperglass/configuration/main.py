@@ -10,7 +10,6 @@ from pydantic import ValidationError
 
 # Project
 from hyperglass.log import log, enable_file_logging, enable_syslog_logging
-from hyperglass.util import set_cache_env
 from hyperglass.defaults import CREDIT
 from hyperglass.settings import Settings
 from hyperglass.constants import PARSED_RESPONSE_FIELDS, __version__
@@ -33,7 +32,7 @@ WORKING_DIR = Path(__file__).resolve().parent
 CONFIG_FILES = (
     ("hyperglass.yaml", False),
     ("devices.yaml", True),
-    ("commands.yaml", False),
+    ("directives.yaml", False),
 )
 
 
@@ -62,7 +61,7 @@ def _check_config_files(directory: Path):
     return files
 
 
-CONFIG_MAIN, CONFIG_DEVICES, CONFIG_COMMANDS = _check_config_files(CONFIG_PATH)
+CONFIG_MAIN, CONFIG_DEVICES, CONFIG_DIRECTIVES = _check_config_files(CONFIG_PATH)
 
 
 def _config_required(config_path: Path) -> Dict:
@@ -97,29 +96,30 @@ def _config_optional(config_path: Path) -> Dict:
     return config
 
 
-def _get_commands(data: Dict) -> List[Directive]:
-    commands = []
-    for name, command in data.items():
+def _get_directives(data: Dict) -> List[Directive]:
+    directives = []
+    for name, directive in data.items():
         try:
-            commands.append(Directive(id=name, **command))
+            directives.append(Directive(id=name, **directive))
         except ValidationError as err:
             raise ConfigError(
-                message="Validation error in command '{c}': '{e}'", c=name, e=err
+                message="Validation error in directive '{d}': '{e}'", d=name, e=err
             ) from err
-    return commands
+    return directives
 
 
-def _device_commands(device: Dict, directives: List[Directive]) -> Generator[Directive, None, None]:
-    device_commands = device.get("commands", [])
+def _device_directives(
+    device: Dict, directives: List[Directive]
+) -> Generator[Directive, None, None]:
     for directive in directives:
-        if directive.id in device_commands:
+        if directive.id in device.get("directives", []):
             yield directive
 
 
 def _get_devices(data: List[Dict], directives: List[Directive]) -> Devices:
     for device in data:
-        device_commands = list(_device_commands(device, directives))
-        device["commands"] = device_commands
+        directives = list(_device_directives(device, directives))
+        device["directives"] = directives
     return Devices(data)
 
 
@@ -131,19 +131,16 @@ user_config = _config_optional(CONFIG_MAIN)
 log.debug("Unvalidated configuration from {}: {}", CONFIG_MAIN, user_config)
 params = validate_config(config=user_config, importer=Params)
 
-# Map imported user commands to expected schema.
-_user_commands = _config_optional(CONFIG_COMMANDS)
-log.debug("Unvalidated commands from {}: {}", CONFIG_COMMANDS, _user_commands)
-commands = _get_commands(_user_commands)
+# Map imported user directives to expected schema.
+_user_directives = _config_optional(CONFIG_DIRECTIVES)
+log.debug("Unvalidated directives from {!s}: {}", CONFIG_DIRECTIVES, _user_directives)
+directives = _get_directives(_user_directives)
 
 # Map imported user devices to expected schema.
 _user_devices = _config_required(CONFIG_DEVICES)
 log.debug("Unvalidated devices from {}: {}", CONFIG_DEVICES, _user_devices)
-devices: Devices = _get_devices(_user_devices.get("routers", []), commands)
+devices = _get_devices(_user_devices.get("devices", _user_devices.get("routers", [])), directives)
 
-# Set cache configurations to environment variables, so they can be
-# used without importing this module (Gunicorn, etc).
-set_cache_env(db=params.cache.database, host=params.cache.host, port=params.cache.port)
 
 # Set up file logging once configuration parameters are initialized.
 enable_file_logging(
@@ -198,5 +195,3 @@ ui_params = UIParameters(
     parsed_data_fields=PARSED_RESPONSE_FIELDS,
     content={"credit": content_credit, "greeting": content_greeting},
 )
-
-URL_PROD = "/api/"

@@ -46,7 +46,7 @@ class Device(HyperglassModelWithId, extra="allow"):
     port: StrictInt = 22
     ssl: Optional[Ssl]
     platform: StrictStr
-    commands: List[Directive]
+    directives: List[Directive]
     structured_output: Optional[StrictBool]
     driver: Optional[SupportedDriver]
     attrs: Dict[str, str] = {}
@@ -96,11 +96,15 @@ class Device(HyperglassModelWithId, extra="allow"):
         }
 
     @property
+    def directive_builtins(self) -> List[str]:
+        ...
+
+    @property
     def directive_commands(self) -> List[str]:
         """Get all commands associated with the device."""
         return [
             command
-            for directive in self.commands
+            for directive in self.directives
             for rule in directive.rules
             for command in rule.commands
         ]
@@ -108,7 +112,7 @@ class Device(HyperglassModelWithId, extra="allow"):
     @property
     def directive_ids(self) -> List[str]:
         """Get all directive IDs associated with the device."""
-        return [directive.id for directive in self.commands]
+        return [directive.id for directive in self.directives]
 
     def has_directives(self, *directive_ids: str) -> bool:
         """Determine if a directive is used on this device."""
@@ -184,8 +188,8 @@ class Device(HyperglassModelWithId, extra="allow"):
         return value
 
     @root_validator(pre=True)
-    def validate_device_commands(cls, values: Dict) -> Dict:
-        """Validate & rewrite device platform, set default commands."""
+    def validate_device(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate & rewrite device platform, set default directives."""
 
         platform = values.get("platform")
         if platform is None:
@@ -206,10 +210,11 @@ class Device(HyperglassModelWithId, extra="allow"):
 
         values["platform"] = platform
 
-        commands = values.get("commands")
+        directives = values.get("directives")
 
-        if commands is None:
-            # If no commands are defined, set commands to the NOS.
+        if directives is None:
+            # TODO: This should be different now, and could be removed after there's a way to associate default directives
+            # If no directive are defined, set directive to the NOS.
             inferred = values["platform"]
 
             # If the _telnet prefix is added, remove it from the command
@@ -218,7 +223,7 @@ class Device(HyperglassModelWithId, extra="allow"):
             if "_telnet" in inferred:
                 inferred = inferred.replace("_telnet", "")
 
-            values["commands"] = [inferred]
+            values["directives"] = [inferred]
 
         return values
 
@@ -293,7 +298,7 @@ class Devices(HyperglassModel, extra="allow"):
                         "id": device.id,
                         "name": device.name,
                         "network": device.network.display_name,
-                        "directives": [c.frontend(params) for c in device.commands],
+                        "directives": [d.frontend(params) for d in device.directives],
                     }
                     for device in self.objects
                     if device.network.display_name == name
@@ -306,7 +311,7 @@ class Devices(HyperglassModel, extra="allow"):
         """Get a mapping of plugin paths to associated directive IDs."""
         result: Dict[Path, Set[StrictStr]] = {}
         # Unique set of all directives.
-        directives = {directive for device in self.objects for directive in device.commands}
+        directives = {directive for device in self.objects for directive in device.directives}
         # Unique set of all plugin file names.
         plugin_names = {plugin for directive in directives for plugin in directive.plugins}
 

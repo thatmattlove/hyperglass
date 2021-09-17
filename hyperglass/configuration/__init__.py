@@ -1,11 +1,11 @@
 """hyperglass Configuration."""
 
 # Local
-from .main import params, devices, commands, ui_params
+from .main import params, devices, directives, ui_params
 
 __all__ = (
     "params",
     "devices",
-    "commands",
+    "directives",
     "ui_params",
 )
