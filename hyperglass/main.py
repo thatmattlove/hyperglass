@@ -80,7 +80,7 @@ def unregister_all_plugins() -> None:
         manager().reset()
 
 
-def on_starting(server: "Arbiter"):
+def on_starting(server: "Arbiter") -> None:
     """Gunicorn pre-start tasks."""
 
     python_version = platform.python_version()
@@ -103,7 +103,7 @@ def on_starting(server: "Arbiter"):
     )
 
 
-def on_exit(server: "Arbiter"):
+def on_exit(*_: t.Any) -> None:
     """Gunicorn shutdown tasks."""
 
     log.critical("Stopping hyperglass {}", __version__)
@@ -118,13 +118,13 @@ def on_exit(server: "Arbiter"):
 class HyperglassWSGI(BaseApplication):
     """Custom gunicorn app."""
 
-    def __init__(self, app, options):
+    def __init__(self: "HyperglassWSGI", app: str, options: t.Dict[str, t.Any]):
         """Initialize custom WSGI."""
         self.application = app
         self.options = options or {}
         super().__init__()
 
-    def load_config(self):
+    def load_config(self: "HyperglassWSGI"):
         """Load gunicorn config."""
         config = {
             key: value
@@ -135,23 +135,13 @@ class HyperglassWSGI(BaseApplication):
         for key, value in config.items():
             self.cfg.set(key.lower(), value)
 
-    def load(self):
+    def load(self: "HyperglassWSGI"):
         """Load gunicorn app."""
         return self.application
 
 
-def start(**kwargs):
+def start(*, log_level: str, workers: int, **kwargs) -> None:
     """Start hyperglass via gunicorn."""
-
-    set_log_level(log, Settings.debug)
-
-    log.debug("System settings: {!r}", Settings)
-
-    workers, log_level = 1, "DEBUG"
-    if Settings.debug is False:
-        workers, log_level = cpu_count(2), "WARNING"
-
-    setup_lib_logging(log_level)
 
     HyperglassWSGI(
         app="hyperglass.api:app",
@@ -175,7 +165,18 @@ def start(**kwargs):
 
 if __name__ == "__main__":
     try:
-        start()
+        set_log_level(log, Settings.debug)
+
+        log.debug("System settings: {!r}", Settings)
+
+        workers, log_level = 1, "DEBUG"
+
+        if Settings.debug is False:
+            workers, log_level = cpu_count(2), "WARNING"
+
+        setup_lib_logging(log_level)
+
+        start(log_level=log_level, workers=workers)
     except Exception as error:
         # Handle app exceptions.
         if not Settings.dev_mode:
