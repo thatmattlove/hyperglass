@@ -5,6 +5,9 @@ import codecs
 import pickle
 import typing as t
 
+# Project
+from hyperglass.configuration import params, devices, ui_params, directives
+
 # Local
 from .manager import StateManager
 
@@ -13,6 +16,7 @@ if t.TYPE_CHECKING:
     from hyperglass.models.ui import UIParameters
     from hyperglass.models.system import HyperglassSystem
     from hyperglass.plugins._base import HyperglassPlugin
+    from hyperglass.models.directive import Directive, Directives
     from hyperglass.models.config.params import Params
     from hyperglass.models.config.devices import Devices
 
@@ -26,6 +30,13 @@ class HyperglassState(StateManager):
     def __init__(self, *, settings: "HyperglassSystem") -> None:
         """Initialize state store and reset plugins."""
         super().__init__(settings=settings)
+
+        # Add configuration objects.
+        self.redis.set("params", params)
+        self.redis.set("devices", devices)
+        self.redis.set("ui_params", ui_params)
+        self.redis.set("directives", directives)
+
         # Ensure plugins are empty.
         self.reset_plugins("output")
         self.reset_plugins("input")
@@ -57,6 +68,12 @@ class HyperglassState(StateManager):
         """Remove all plugins of `_type`."""
         self.redis.set(("plugins", _type), [])
 
+    def add_directive(self, *directives: t.Union["Directive", t.Dict[str, t.Any]]) -> None:
+        """Add a directive."""
+        current = self.directives
+        current.add(*directives, unique_by="id")
+        self.redis.set("directives", current)
+
     def clear(self) -> None:
         """Delete all cache keys."""
         self.redis.instance.flushdb(asynchronous=True)
@@ -75,6 +92,11 @@ class HyperglassState(StateManager):
     def ui_params(self) -> "UIParameters":
         """UI parameters, built from params."""
         return self.redis.get("ui_params", raise_if_none=True)
+
+    @property
+    def directives(self) -> "Directives":
+        """All directives."""
+        return self.redis.get("directives", raise_if_none=True)
 
     def plugins(self, _type: str) -> t.List[PluginT]:
         """Get plugins by type."""

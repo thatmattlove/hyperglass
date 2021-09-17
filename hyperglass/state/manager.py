@@ -8,7 +8,6 @@ from redis import Redis, ConnectionPool
 
 # Project
 from hyperglass.util import repr_from_attrs
-from hyperglass.configuration import params, devices, ui_params
 
 # Local
 from .redis import RedisManager
@@ -35,11 +34,6 @@ class StateManager:
         connection_pool = ConnectionPool.from_url(**self.settings.redis_connection_pool)
         redis = Redis(connection_pool=connection_pool)
         self.redis = RedisManager(instance=redis, namespace=self._namespace)
-
-        # Add configuration objects.
-        self.redis.set("params", params)
-        self.redis.set("devices", devices)
-        self.redis.set("ui_params", ui_params)
 
     def __repr__(self) -> str:
         """Represent state manager by name and namespace."""

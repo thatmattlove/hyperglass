@@ -14,6 +14,7 @@ from ..settings import Settings
 if t.TYPE_CHECKING:
     # Project
     from hyperglass.models.ui import UIParameters
+    from hyperglass.models.directive import Directives
     from hyperglass.models.config.params import Params
     from hyperglass.models.config.devices import Devices
 
@@ -56,6 +57,11 @@ def use_state(attr: t.Literal["ui_params"]) -> "UIParameters":
 @t.overload
 def use_state(attr: t.Literal["cache", "redis"]) -> "RedisManager":
     """Directly access hyperglass Redis cache manager."""
+
+
+@t.overload
+def use_state(attr: t.Literal["directives"]) -> "Directives":
+    """Access all hyperglass directives."""
 
 
 @t.overload

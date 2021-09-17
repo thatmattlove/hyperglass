@@ -122,9 +122,9 @@ class BGPRoutePluginJuniper(OutputPlugin):
     __hyperglass_builtin__: bool = PrivateAttr(True)
     platforms: Sequence[str] = ("juniper",)
     directives: Sequence[str] = (
-        "__hyperglass_juniper_bgp_route__",
-        "__hyperglass_juniper_bgp_aspath__",
-        "__hyperglass_juniper_bgp_community__",
+        "__hyperglass_juniper_bgp_route_table__",
+        "__hyperglass_juniper_bgp_aspath_table__",
+        "__hyperglass_juniper_bgp_community_table__",
     )
 
     def process(self, output: "OutputType", device: "Device") -> "OutputType":

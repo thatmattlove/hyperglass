@@ -214,7 +214,16 @@ class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
                 for o in (*self, *to_add)
                 if getattr(o, unique_by) == v
             }
-            self.__root__ = list(unique_by_objects.values())
+            new: t.List[MultiModelT] = list(unique_by_objects.values())
+
         else:
-            self.__root__ = [*self.__root__, *to_add]
+            new: t.List[MultiModelT] = [*self.__root__, *to_add]
+        self.__root__ = new
         self._count = len(self.__root__)
+        for item in new:
+            log.debug(
+                "Added {} '{!s}' to {}",
+                item.__class__.__name__,
+                getattr(item, self.accessor),
+                self.__class__.__name__,
+            )

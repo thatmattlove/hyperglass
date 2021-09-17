@@ -21,6 +21,7 @@ from .plugins import (
 )
 from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
 from .util.frontend import get_node_version
+from .defaults.directives import register_builtin_directives
 
 if t.TYPE_CHECKING:
     # Local
@@ -87,6 +88,8 @@ def on_starting(server: "Arbiter"):
     log.debug("Python {} detected ({} required)", python_version, required)
 
     state = use_state()
+
+    register_builtin_directives()
 
     register_all_plugins(state.devices)
 
