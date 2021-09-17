@@ -315,10 +315,10 @@ class NativeDirective(Directive):
 DirectiveT = t.Union[NativeDirective, Directive]
 
 
-class Directives(HyperglassMultiModel[DirectiveT]):
+class Directives(HyperglassMultiModel[Directive]):
     """Collection of directives."""
 
-    def __init__(self, *items: t.Dict[str, t.Any]) -> None:
+    def __init__(self, *items: t.Union[DirectiveT, t.Dict[str, t.Any]]) -> None:
         """Initialize base class and validate objects."""
         super().__init__(*items, model=Directive, accessor="id")
 
