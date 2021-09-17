@@ -29,7 +29,7 @@ from .proxy import Proxy
 from .params import Params
 from ..fields import SupportedDriver
 from .network import Network
-from ..directive import Directive
+from ..directive import Directives
 from .credential import Credential
 
 
@@ -46,7 +46,7 @@ class Device(HyperglassModelWithId, extra="allow"):
     port: StrictInt = 22
     ssl: Optional[Ssl]
     platform: StrictStr
-    directives: List[Directive]
+    directives: Directives
     structured_output: Optional[StrictBool]
     driver: Optional[SupportedDriver]
     attrs: Dict[str, str] = {}

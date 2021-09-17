@@ -18,11 +18,12 @@ from pydantic import (
 
 # Project
 from hyperglass.log import log
+from hyperglass.types import Series
 from hyperglass.settings import Settings
 from hyperglass.exceptions.private import InputValidationError
 
 # Local
-from .main import HyperglassModel, HyperglassModelWithId
+from .main import HyperglassModel, HyperglassMultiModel, HyperglassModelWithId
 from .fields import Action
 
 if t.TYPE_CHECKING:
@@ -229,6 +230,8 @@ RuleType = t.Union[RuleWithIPv4, RuleWithIPv6, RuleWithPattern, RuleWithoutValid
 class Directive(HyperglassModelWithId):
     """A directive contains commands that can be run on a device, as long as defined rules are met."""
 
+    __hyperglass_builtin__: t.ClassVar[bool] = False
+
     id: StrictStr
     name: StrictStr
     rules: t.List[RuleType]
@@ -236,6 +239,7 @@ class Directive(HyperglassModelWithId):
     info: t.Optional[FilePath]
     plugins: t.List[StrictStr] = []
     disable_builtins: StrictBool = False
+    table_output: StrictBool = False
     groups: t.List[
         StrictStr
     ] = []  # TODO: Flesh this out. Replace VRFs, but use same logic in React to filter available commands for multi-device queries.
@@ -299,3 +303,29 @@ class Directive(HyperglassModelWithId):
             value["options"] = [o.export_dict() for o in self.field.options if o is not None]
 
         return value
+
+
+class NativeDirective(Directive):
+    """Natively-supported directive."""
+
+    __hyperglass_builtin__: t.ClassVar[bool] = True
+    platforms: Series[str] = []
+
+
+DirectiveT = t.Union[NativeDirective, Directive]
+
+
+class Directives(HyperglassMultiModel[DirectiveT]):
+    """Collection of directives."""
+
+    def __init__(self, *items: t.Dict[str, t.Any]) -> None:
+        """Initialize base class and validate objects."""
+        super().__init__(*items, model=Directive, accessor="id")
+
+    def ids(self) -> t.Tuple[str]:
+        """Get all directive IDs."""
+        return tuple(directive.id for directive in self)
+
+    def filter_by_ids(self, *ids) -> "Directives":
+        """Filter directives by directive IDs."""
+        return Directives(*[directive for directive in self if directive.id in ids])

@@ -206,7 +206,7 @@ def make_repr(_class):
     return f'{_class.__name__}({", ".join(_process_attrs(dir(_class)))})'
 
 
-def repr_from_attrs(obj: object, attrs: Series[str]) -> str:
+def repr_from_attrs(obj: object, attrs: Series[str], strip: t.Optional[str] = None) -> str:
     """Generate a `__repr__()` value from a specific set of attribute names.
 
     Useful for complex models/objects where `__repr__()` should only display specific fields.
@@ -215,7 +215,11 @@ def repr_from_attrs(obj: object, attrs: Series[str]) -> str:
     attr_names = {a for a in attrs if hasattr(obj, a)}
     # Dict representation of attr name to obj value (e.g. `obj.attr`), if the value has a
     # `__repr__` method.
-    attr_values = {f: v for f in attr_names if hasattr((v := getattr(obj, f)), "__repr__")}
+    attr_values = {
+        f if strip is None else f.strip(strip): v  # noqa: IF100
+        for f in attr_names
+        if hasattr((v := getattr(obj, f)), "__repr__")
+    }
     pairs = (f"{k}={v!r}" for k, v in attr_values.items())
     return f"{obj.__class__.__name__}({','.join(pairs)})"
 

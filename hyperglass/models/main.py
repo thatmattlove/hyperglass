@@ -2,15 +2,19 @@
 
 # Standard Library
 import re
+import typing as t
 from pathlib import Path
 
 # Third Party
-from pydantic import HttpUrl, BaseModel, BaseConfig
+from pydantic import HttpUrl, BaseModel, BaseConfig, PrivateAttr
+from pydantic.generics import GenericModel
 
 # Project
 from hyperglass.log import log
 from hyperglass.util import snake_to_camel, repr_from_attrs
 from hyperglass.types import Series
+
+MultiModelT = t.TypeVar("MultiModelT", bound=BaseModel)
 
 
 class HyperglassModel(BaseModel):
@@ -107,3 +111,110 @@ class HyperglassModelWithId(HyperglassModel):
     def __hash__(self: "HyperglassModelWithId") -> int:
         """Create a hashed representation of this model's name."""
         return hash(self.id)
+
+
+class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
+    """Extension of HyperglassModel for managing multiple models as a list."""
+
+    __root__: t.List[MultiModelT] = []
+    _accessor: str = PrivateAttr()
+    _model: MultiModelT = PrivateAttr()
+    _count: int = PrivateAttr()
+
+    class Config(BaseConfig):
+        """Pydantic model configuration."""
+
+        validate_all = True
+        extra = "forbid"
+        validate_assignment = True
+
+    def __init__(self, *items: t.Dict[str, t.Any], model: MultiModelT, accessor: str) -> None:
+        """Validate items."""
+        items = self._valid_items(*items, model=model, accessor=accessor)
+        super().__init__(__root__=items)
+        self._count = len(items)
+        self._accessor = accessor
+        self._model = model
+
+    def __iter__(self) -> t.Iterator[MultiModelT]:
+        """Iterate items."""
+        return iter(self.__root__)
+
+    def __getitem__(self, value: t.Union[int, str]) -> MultiModelT:
+        """Get an item by accessor value."""
+        if not isinstance(value, (str, int)):
+            raise TypeError(
+                "Value of {}.{!s} should be a string or integer. Got {!r} ({!s})".format(
+                    self.__class__.__name__, self.accessor, value, type(value)
+                )
+            )
+        if isinstance(value, int):
+            return self.__root__[value]
+
+        for item in self:
+            if hasattr(item, self.accessor) and getattr(item, self.accessor) == value:
+                return item
+        raise IndexError(
+            "No match found for {!s}.{!s}={!r}".format(
+                self.model.__class__.__name__, self.accessor, value
+            ),
+        )
+
+    def __repr__(self) -> str:
+        """Represent model."""
+        return repr_from_attrs(self, ["_count", "_accessor"], strip="_")
+
+    @property
+    def accessor(self) -> str:
+        """Access item accessor."""
+        return self._accessor
+
+    @property
+    def model(self) -> MultiModelT:
+        """Access item model class."""
+        return self._model
+
+    @property
+    def count(self) -> int:
+        """Access item count."""
+        return self._count
+
+    @staticmethod
+    def _valid_items(
+        *to_validate: t.List[t.Union[MultiModelT, t.Dict[str, t.Any]]],
+        model: MultiModelT,
+        accessor: str
+    ) -> t.List[MultiModelT]:
+        items = [
+            item
+            for item in to_validate
+            if any(
+                (
+                    (isinstance(item, dict) and accessor in item),
+                    (isinstance(item, model) and hasattr(item, accessor)),
+                ),
+            )
+        ]
+
+        for index, item in enumerate(items):
+            if isinstance(item, dict):
+                items[index] = model(**item)
+        return items
+
+    def add(self, *items, unique_by: t.Optional[str] = None) -> None:
+        """Add an item to the model."""
+        to_add = self._valid_items(*items, model=self.model, accessor=self.accessor)
+        if unique_by is not None:
+            unique_by_values = {
+                getattr(obj, unique_by) for obj in (*self, *to_add) if hasattr(obj, unique_by)
+            }
+            unique_by_objects = {
+                v: o
+                for v in unique_by_values
+                for o in (*self, *to_add)
+                if getattr(o, unique_by) == v
+            }
+            self.__root__ = list(unique_by_objects.values())
+        else:
+            self.__root__ = [*self.__root__, *to_add]
+        self._count = len(self.__root__)

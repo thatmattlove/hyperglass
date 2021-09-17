@@ -1,7 +1,7 @@
 """Import configuration files and returns default values if undefined."""
 
 # Standard Library
-from typing import Dict, List, Generator
+import typing as t
 from pathlib import Path
 
 # Third Party
@@ -15,7 +15,7 @@ from hyperglass.settings import Settings
 from hyperglass.constants import PARSED_RESPONSE_FIELDS, __version__
 from hyperglass.models.ui import UIParameters
 from hyperglass.util.files import check_path
-from hyperglass.models.directive import Directive
+from hyperglass.models.directive import Directive, Directives
 from hyperglass.exceptions.private import ConfigError, ConfigMissing
 from hyperglass.models.config.params import Params
 from hyperglass.models.config.devices import Devices
@@ -64,7 +64,7 @@ def _check_config_files(directory: Path):
 CONFIG_MAIN, CONFIG_DEVICES, CONFIG_DIRECTIVES = _check_config_files(CONFIG_PATH)
 
 
-def _config_required(config_path: Path) -> Dict:
+def _config_required(config_path: Path) -> t.Dict[str, t.Any]:
     try:
         with config_path.open("r") as cf:
             config = yaml.safe_load(cf)
@@ -78,7 +78,7 @@ def _config_required(config_path: Path) -> Dict:
     return config
 
 
-def _config_optional(config_path: Path) -> Dict:
+def _config_optional(config_path: Path) -> t.Dict[str, t.Any]:
 
     config = {}
 
@@ -96,30 +96,21 @@ def _config_optional(config_path: Path) -> Dict:
     return config
 
 
-def _get_directives(data: Dict) -> List[Directive]:
-    directives = []
+def _get_directives(data: t.Dict[str, t.Any]) -> "Directives":
+    directives = ()
     for name, directive in data.items():
         try:
-            directives.append(Directive(id=name, **directive))
+            directives += (Directive(id=name, **directive),)
         except ValidationError as err:
             raise ConfigError(
                 message="Validation error in directive '{d}': '{e}'", d=name, e=err
             ) from err
-    return directives
+    return Directives(*directives)
 
 
-def _device_directives(
-    device: Dict, directives: List[Directive]
-) -> Generator[Directive, None, None]:
-    for directive in directives:
-        if directive.id in device.get("directives", []):
-            yield directive
-
-
-def _get_devices(data: List[Dict], directives: List[Directive]) -> Devices:
+def _get_devices(data: t.List[t.Dict[str, t.Any]], directives: "Directives") -> Devices:
     for device in data:
-        directives = list(_device_directives(device, directives))
-        device["directives"] = directives
+        device["directives"] = directives.filter_by_ids(*device.get("directives", ()))
     return Devices(data)
 
 
