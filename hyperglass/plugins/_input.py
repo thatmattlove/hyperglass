@@ -1,20 +1,22 @@
 """Input validation plugins."""
 
 # Standard Library
-from typing import TYPE_CHECKING, Union
+import typing as t
 
 # Local
 from ._base import DirectivePlugin
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     # Project
     from hyperglass.models.api.query import Query
 
-InputPluginReturn = Union[None, bool]
+InputPluginReturn = t.Union[None, bool]
 
 
 class InputPlugin(DirectivePlugin):
     """Plugin to validate user input prior to running commands."""
+
+    failure_reason: t.Optional[str] = None
 
     def validate(self, query: "Query") -> InputPluginReturn:
         """Validate input from hyperglass UI/API."""
