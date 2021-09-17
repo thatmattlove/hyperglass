@@ -8,7 +8,7 @@ from hyperglass.log import log
 from hyperglass.types import Series
 
 # Local
-from ._base import DirectivePlugin, PlatformPlugin, HyperglassPlugin
+from ._base import PlatformPlugin, DirectivePlugin, HyperglassPlugin
 
 if TYPE_CHECKING:
     # Project

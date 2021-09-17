@@ -33,9 +33,9 @@ def _tester(sample: str):
         address="127.0.0.1",
         network={"name": "Test Network", "display_name": "Test Network"},
         credential={"username": "", "password": ""},
-        type="juniper",
+        platform="juniper",
         structured_output=True,
-        commands=[{"id": "test", "name": "Test", "rules": []}],
+        directives=[{"id": "test", "name": "Test", "rules": []}],
     )
 
     # Override has_directives method for testing.
