@@ -22,12 +22,12 @@ from hyperglass.settings import Settings
 from hyperglass.exceptions.private import InputValidationError
 
 # Local
-from ..main import HyperglassModel, HyperglassModelWithId
-from ..fields import Action
+from .main import HyperglassModel, HyperglassModelWithId
+from .fields import Action
 
 if t.TYPE_CHECKING:
     # Local
-    from ..config.params import Params
+    from .config.params import Params
 
 IPv4PrefixLength = conint(ge=0, le=32)
 IPv6PrefixLength = conint(ge=0, le=128)

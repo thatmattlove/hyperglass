@@ -18,8 +18,8 @@ if t.TYPE_CHECKING:
     # Project
     from hyperglass.state import HyperglassState
     from hyperglass.models.api.query import Query
+    from hyperglass.models.directive import Directive
     from hyperglass.models.config.devices import Device
-    from hyperglass.models.commands.generic import Directive
 
 PluginT = t.TypeVar("PluginT", bound=HyperglassPlugin)
 

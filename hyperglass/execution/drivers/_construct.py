@@ -20,8 +20,8 @@ from hyperglass.exceptions.private import ConfigError
 if t.TYPE_CHECKING:
     # Project
     from hyperglass.models.api.query import Query
+    from hyperglass.models.directive import Directive
     from hyperglass.models.config.devices import Device
-    from hyperglass.models.commands.generic import Directive
 
 
 class Construct:

@@ -16,10 +16,10 @@ from hyperglass.settings import Settings
 from hyperglass.constants import PARSED_RESPONSE_FIELDS, __version__
 from hyperglass.models.ui import UIParameters
 from hyperglass.util.files import check_path
+from hyperglass.models.directive import Directive
 from hyperglass.exceptions.private import ConfigError, ConfigMissing
 from hyperglass.models.config.params import Params
 from hyperglass.models.config.devices import Devices
-from hyperglass.models.commands.generic import Directive
 
 # Local
 from .markdown import get_markdown

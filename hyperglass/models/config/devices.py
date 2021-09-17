@@ -29,8 +29,8 @@ from .proxy import Proxy
 from .params import Params
 from ..fields import SupportedDriver
 from .network import Network
+from ..directive import Directive
 from .credential import Credential
-from ..commands.generic import Directive
 
 
 class Device(HyperglassModelWithId, extra="allow"):
