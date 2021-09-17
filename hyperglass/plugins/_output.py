@@ -8,7 +8,7 @@ from hyperglass.log import log
 from hyperglass.types import Series
 
 # Local
-from ._base import DirectivePlugin, DeviceTypePlugin, HyperglassPlugin
+from ._base import DirectivePlugin, PlatformPlugin, HyperglassPlugin
 
 if TYPE_CHECKING:
     # Project
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 OutputType = Union["OutputDataModel", Series[str]]
 
 
-class OutputPlugin(HyperglassPlugin, DirectivePlugin, DeviceTypePlugin):
+class OutputPlugin(HyperglassPlugin, DirectivePlugin, PlatformPlugin):
     """Plugin to interact with device command output."""
 
     def process(self, output: OutputType, device: "Device") -> OutputType:

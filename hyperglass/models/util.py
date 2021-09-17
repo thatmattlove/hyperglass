@@ -7,8 +7,8 @@ from typing import Any, Dict, Tuple
 from hyperglass.log import log
 
 LEGACY_FIELDS: Dict[str, Tuple[Tuple[str, str], ...]] = {
-    "Device": (("nos", "type"),),
-    "Proxy": (("nos", "type"),),
+    "Device": (("nos", "platform"),),
+    "Proxy": (("nos", "platform"),),
 }
 
 

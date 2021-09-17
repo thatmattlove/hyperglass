@@ -24,7 +24,7 @@ class Proxy(HyperglassModel):
     address: Union[IPv4Address, IPv6Address, StrictStr]
     port: StrictInt = 22
     credential: Credential
-    type: StrictStr = "linux_ssh"
+    platform: StrictStr = "linux_ssh"
 
     def __init__(self: "Proxy", **kwargs: Any) -> None:
         """Check for legacy fields."""
@@ -48,13 +48,13 @@ class Proxy(HyperglassModel):
                 )
         return value
 
-    @validator("type", pre=True, always=True)
+    @validator("platform", pre=True, always=True)
     def validate_type(cls: "Proxy", value: Any, values: Dict[str, Any]) -> str:
         """Validate device type."""
 
         if value != "linux_ssh":
             raise UnsupportedDevice(
-                "Proxy '{p}' uses type '{t}', which is currently unsupported.",
+                "Proxy '{p}' uses platform '{t}', which is currently unsupported.",
                 p=values["name"],
                 t=value,
             )

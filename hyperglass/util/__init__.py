@@ -220,7 +220,7 @@ def repr_from_attrs(obj: object, attrs: Series[str]) -> str:
     return f"{obj.__class__.__name__}({','.join(pairs)})"
 
 
-def validate_device_type(_type: str) -> t.Tuple[bool, t.Union[None, str]]:
+def validate_platform(_type: str) -> t.Tuple[bool, t.Union[None, str]]:
     """Validate device type is supported."""
 
     result = (False, None)

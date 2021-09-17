@@ -55,8 +55,8 @@ class Commands(HyperglassModel, extra="allow", validate_all=False):
     def import_params(cls, **input_params):
         """Import loaded YAML, initialize per-command definitions."""
         obj = Commands()
-        for device_type, cmds in input_params.items():
-            cmd_set = _DEVICE_TYPE_MAP.get(device_type, CommandGroup)
+        for platform, cmds in input_params.items():
+            cmd_set = _DEVICE_TYPE_MAP.get(platform, CommandGroup)
             cmds = cmd_set(**cmds)
-            setattr(obj, device_type, cmds)
+            setattr(obj, platform, cmds)
         return obj

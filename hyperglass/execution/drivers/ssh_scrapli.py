@@ -72,7 +72,7 @@ class ScrapliConnection(SSHConnection):
         command output.
         """
         params = use_state("params")
-        driver = _map_driver(self.device.type)
+        driver = _map_driver(self.device.platform)
 
         if host is not None:
             log.debug(
@@ -84,7 +84,7 @@ class ScrapliConnection(SSHConnection):
         else:
             log.debug("Connecting directly to {}", self.device.name)
 
-        global_args = driver_global_args.get(self.device.type, {})
+        global_args = driver_global_args.get(self.device.platform, {})
 
         driver_kwargs = {
             "host": host or self.device._target,

@@ -120,7 +120,7 @@ class BGPRoutePluginJuniper(OutputPlugin):
     """Coerce a Juniper route table in XML format to a standard BGP Table structure."""
 
     __hyperglass_builtin__: bool = PrivateAttr(True)
-    device_types: Sequence[str] = ("juniper",)
+    platforms: Sequence[str] = ("juniper",)
     directives: Sequence[str] = (
         "__hyperglass_juniper_bgp_route__",
         "__hyperglass_juniper_bgp_aspath__",
@@ -132,7 +132,7 @@ class BGPRoutePluginJuniper(OutputPlugin):
         should_process = all(
             (
                 isinstance(output, (list, tuple)),
-                device.type in self.device_types,
+                device.platform in self.platforms,
                 device.structured_output is True,
                 device.has_directives(*self.directives),
             )

@@ -15,7 +15,7 @@ from hyperglass.util import (
     get_driver,
     get_fmt_keys,
     resolve_hostname,
-    validate_device_type,
+    validate_platform,
 )
 from hyperglass.settings import Settings
 from hyperglass.constants import SCRAPE_HELPERS, SUPPORTED_STRUCTURED_OUTPUT
@@ -45,7 +45,7 @@ class Device(HyperglassModelWithId, extra="allow"):
     display_name: Optional[StrictStr]
     port: StrictInt = 22
     ssl: Optional[Ssl]
-    type: StrictStr
+    platform: StrictStr
     commands: List[Directive]
     structured_output: Optional[StrictBool]
     driver: Optional[SupportedDriver]
@@ -156,15 +156,15 @@ class Device(HyperglassModelWithId, extra="allow"):
         """Validate structured output is supported on the device & set a default."""
 
         if value is True:
-            if values["type"] not in SUPPORTED_STRUCTURED_OUTPUT:
+            if values["platform"] not in SUPPORTED_STRUCTURED_OUTPUT:
                 raise ConfigError(
                     "The 'structured_output' field is set to 'true' on device '{d}' with "
-                    + "NOS '{n}', which does not support structured output",
+                    + "platform '{p}', which does not support structured output",
                     d=values["name"],
-                    n=values["type"],
+                    p=values["platform"],
                 )
             return value
-        elif value is None and values["type"] in SUPPORTED_STRUCTURED_OUTPUT:
+        elif value is None and values["platform"] in SUPPORTED_STRUCTURED_OUTPUT:
             value = True
         else:
             value = False
@@ -185,31 +185,32 @@ class Device(HyperglassModelWithId, extra="allow"):
 
     @root_validator(pre=True)
     def validate_device_commands(cls, values: Dict) -> Dict:
-        """Validate & rewrite device type, set default commands."""
+        """Validate & rewrite device platform, set default commands."""
 
-        _type = values.get("type")
-        if _type is None:
-            # Ensure device type is defined.
-            raise ValueError(
-                f"Device {values['name']} is missing a 'type' (Network Operating System) property."
+        platform = values.get("platform")
+        if platform is None:
+            # Ensure device platform is defined.
+            raise ConfigError(
+                "Device '{device}' is missing a 'platform' (Network Operating System) property",
+                device={values["name"]},
             )
 
-        if _type in SCRAPE_HELPERS.keys():
+        if platform in SCRAPE_HELPERS.keys():
             # Rewrite NOS to helper value if needed.
-            _type = SCRAPE_HELPERS[_type]
+            platform = SCRAPE_HELPERS[platform]
 
-        # Verify device type is supported by hyperglass.
-        supported, _ = validate_device_type(_type)
+        # Verify device platform is supported by hyperglass.
+        supported, _ = validate_platform(platform)
         if not supported:
-            raise UnsupportedDevice(_type)
+            raise UnsupportedDevice(platform)
 
-        values["type"] = _type
+        values["platform"] = platform
 
         commands = values.get("commands")
 
         if commands is None:
             # If no commands are defined, set commands to the NOS.
-            inferred = values["type"]
+            inferred = values["platform"]
 
             # If the _telnet prefix is added, remove it from the command
             # profile so the commands are the same regardless of
@@ -224,7 +225,7 @@ class Device(HyperglassModelWithId, extra="allow"):
     @validator("driver")
     def validate_driver(cls, value: Optional[str], values: Dict) -> Dict:
         """Set the correct driver and override if supported."""
-        return get_driver(values["type"], value)
+        return get_driver(values["platform"], value)
 
 
 class Devices(HyperglassModel, extra="allow"):

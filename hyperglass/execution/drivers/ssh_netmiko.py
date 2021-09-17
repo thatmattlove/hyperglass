@@ -57,14 +57,14 @@ class NetmikoConnection(SSHConnection):
         else:
             log.debug("Connecting directly to {}", self.device.name)
 
-        global_args = netmiko_device_globals.get(self.device.type, {})
+        global_args = netmiko_device_globals.get(self.device.platform, {})
 
-        send_args = netmiko_device_send_args.get(self.device.type, {})
+        send_args = netmiko_device_send_args.get(self.device.platform, {})
 
         driver_kwargs = {
             "host": host or self.device._target,
             "port": port or self.device.port,
-            "device_type": self.device.type,
+            "device_type": self.device.platform,
             "username": self.device.credential.username,
             "global_delay_factor": params.netmiko_delay_factor,
             "timeout": math.floor(params.request_timeout * 1.25),
@@ -72,7 +72,7 @@ class NetmikoConnection(SSHConnection):
             **global_args,
         }
 
-        if "_telnet" in self.device.type:
+        if "_telnet" in self.device.platform:
             # Telnet devices with a low delay factor (default) tend to
             # throw login errors.
             driver_kwargs["global_delay_factor"] = 2

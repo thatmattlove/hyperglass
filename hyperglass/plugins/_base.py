@@ -63,10 +63,10 @@ class DirectivePlugin(BaseModel):
     directives: Sequence[str] = ()
 
 
-class DeviceTypePlugin(BaseModel):
-    """Plugin associated with specific device types.
+class PlatformPlugin(BaseModel):
+    """Plugin associated with specific device platform.
 
     Should always be subclassed with `HyperglassPlugin`.
     """
 
-    device_types: Sequence[str] = ()
+    platforms: Sequence[str] = ()
