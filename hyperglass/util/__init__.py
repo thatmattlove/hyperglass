@@ -334,3 +334,31 @@ def at_least(minimum: int, value: int,) -> int:
     if value < minimum:
         return minimum
     return value
+
+
+def compare_dicts(dict_a: t.Dict[t.Any, t.Any], dict_b: t.Dict[t.Any, t.Any]) -> bool:
+    """Determine if two dictationaries are (mostly) equal."""
+    if isinstance(dict_a, t.Dict) and isinstance(dict_b, t.Dict):
+        dict_a_keys, dict_a_values = set(dict_a.keys()), set(dict_a.values())
+        dict_b_keys, dict_b_values = set(dict_b.keys()), set(dict_b.values())
+        return all((dict_a_keys == dict_b_keys, dict_a_values == dict_b_values))
+    return False
+
+
+def compare_init(obj_a: object, obj_b: object) -> bool:
+    """Compare the `__init__` annoations of two objects."""
+
+    def _check_obj(obj: object):
+        """Ensure `__annotations__` exists on the `__init__` method."""
+        if hasattr(obj, "__init__") and isinstance(getattr(obj, "__init__", None), t.Callable):
+            if hasattr(obj.__init__, "__annotations__") and isinstance(
+                getattr(obj.__init__, "__annotations__", None), t.Dict
+            ):
+                return True
+        return False
+
+    if all((_check_obj(obj_a), _check_obj(obj_b))):
+        obj_a.__init__.__annotations__.pop("self", None)
+        obj_b.__init__.__annotations__.pop("self", None)
+        return compare_dicts(obj_a.__init__.__annotations__, obj_b.__init__.__annotations__)
+    return False
