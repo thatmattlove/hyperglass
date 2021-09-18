@@ -19,7 +19,6 @@ if t.TYPE_CHECKING:
     from hyperglass.state import HyperglassState
     from hyperglass.models.api.query import Query
     from hyperglass.models.directive import Directive
-    from hyperglass.models.config.devices import Device
 
 PluginT = t.TypeVar("PluginT", bound=HyperglassPlugin)
 
@@ -148,17 +147,17 @@ class InputPluginManager(PluginManager[InputPlugin], type="input"):
 class OutputPluginManager(PluginManager[OutputPlugin], type="output"):
     """Manage Output Processing Plugins."""
 
-    def execute(
-        self: "OutputPluginManager", *, directive: "Directive", output: OutputType, device: "Device"
-    ) -> OutputType:
+    def execute(self: "OutputPluginManager", *, output: OutputType, query: "Query") -> OutputType:
         """Execute all output parsing plugins.
 
         The result of each plugin is passed to the next plugin.
         """
         result = output
-        for plugin in (plugin for plugin in self.plugins if directive.id in plugin.directives):
+        for plugin in (
+            plugin for plugin in self.plugins if query.directive.id in plugin.directives
+        ):
             if result is False:
                 return result
             # Pass the result of each plugin to the next plugin.
-            result = plugin.process(result, device)
+            result = plugin.process(output=result, query=query)
         return result

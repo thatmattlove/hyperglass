@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
     # Project
     from hyperglass.models.data import OutputDataModel
-    from hyperglass.models.config.devices import Device
+    from hyperglass.models.api.query import Query
 
     # Local
     from .._output import OutputType
@@ -127,14 +127,14 @@ class BGPRoutePluginJuniper(OutputPlugin):
         "__hyperglass_juniper_bgp_community_table__",
     )
 
-    def process(self, output: "OutputType", device: "Device") -> "OutputType":
+    def process(self, *, output: "OutputType", query: "Query") -> "OutputType":
         """Parse Juniper response if data is a string (and is therefore unparsed)."""
         should_process = all(
             (
                 isinstance(output, (list, tuple)),
-                device.platform in self.platforms,
-                device.structured_output is True,
-                device.has_directives(*self.directives),
+                query.device.platform in self.platforms,
+                query.device.structured_output is True,
+                query.device.has_directives(*self.directives),
             )
         )
         if should_process:

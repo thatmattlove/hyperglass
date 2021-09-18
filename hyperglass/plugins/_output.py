@@ -13,7 +13,7 @@ from ._base import PlatformPlugin, DirectivePlugin, HyperglassPlugin
 if TYPE_CHECKING:
     # Project
     from hyperglass.models.data import OutputDataModel
-    from hyperglass.models.config.devices import Device
+    from hyperglass.models.api.query import Query
 
 OutputType = Union["OutputDataModel", Series[str]]
 
@@ -21,7 +21,7 @@ OutputType = Union["OutputDataModel", Series[str]]
 class OutputPlugin(HyperglassPlugin, DirectivePlugin, PlatformPlugin):
     """Plugin to interact with device command output."""
 
-    def process(self, output: OutputType, device: "Device") -> OutputType:
+    def process(self, *, output: OutputType, query: "Query") -> OutputType:
         """Process or manipulate output from a device."""
         log.warning("Output plugin '{}' has not implemented a 'process()' method", self.name)
         return output

@@ -14,7 +14,7 @@ from .._output import OutputType, OutputPlugin
 
 if TYPE_CHECKING:
     # Project
-    from hyperglass.models.config.devices import Device
+    from hyperglass.models.api.query import Query
 
 
 class RemoveCommand(OutputPlugin):
@@ -22,13 +22,13 @@ class RemoveCommand(OutputPlugin):
 
     __hyperglass_builtin__: bool = PrivateAttr(True)
 
-    def process(self, device_output: OutputType, device: "Device") -> Sequence[str]:
+    def process(self, *, output: OutputType, query: "Query") -> Sequence[str]:
         """Remove anything before the command if found in output."""
 
         def _remove_command(output_in: str) -> str:
-            output_out = device_output.strip().split("\n")
+            output_out = output_in.strip().split("\n")
 
-            for command in device.directive_commands:
+            for command in query.device.directive_commands:
                 for line in output_out:
                     if command in line:
                         idx = output_out.index(line) + 1
@@ -36,7 +36,7 @@ class RemoveCommand(OutputPlugin):
 
             return "\n".join(output_out)
 
-        if is_series(device_output):
-            return tuple(_remove_command(o) for o in device_output)
+        if is_series(output):
+            return tuple(_remove_command(o) for o in output)
 
-        return device_output
+        return output

@@ -43,9 +43,7 @@ class Connection(ABC):
 
         log.debug("Pre-parsed responses:\n{}", output)
 
-        response = self.plugin_manager.execute(
-            directive=self.query_data.directive, output=output, device=self.device
-        )
+        response = self.plugin_manager.execute(output=output, query=self.query_data)
 
         if response is None:
             response = ()
