@@ -115,12 +115,14 @@ class HyperglassModelWithId(HyperglassModel):
         return hash(self.id)
 
 
-class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
+class MultiModel(GenericModel, t.Generic[MultiModelT]):
     """Extension of HyperglassModel for managing multiple models as a list."""
 
+    model: t.ClassVar[MultiModelT]
+    unique_by: t.ClassVar[str]
+    model_name: t.ClassVar[str] = "MultiModel"
+
     __root__: t.List[MultiModelT] = []
-    _accessor: str = PrivateAttr()
-    _model: MultiModelT = PrivateAttr()
     _count: int = PrivateAttr()
 
     class Config(BaseConfig):
@@ -130,41 +132,48 @@ class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
         extra = "forbid"
         validate_assignment = True
 
-    def __init__(
-        self, *items: t.Union[MultiModelT, t.Dict[str, t.Any]], model: MultiModelT, accessor: str
-    ) -> None:
+    def __init__(self, *items: t.Union[MultiModelT, t.Dict[str, t.Any]]) -> None:
         """Validate items."""
-        self._accessor = accessor
-        self._model = model
+        for cls_var in ("model", "unique_by"):
+            if getattr(self, cls_var, None) is None:
+                raise AttributeError(f"MultiModel is missing class variable '{cls_var}'")
         valid = self._valid_items(*items)
         super().__init__(__root__=valid)
         self._count = len(self.__root__)
 
+    def __init_subclass__(cls, **kw: t.Any) -> None:
+        """Add class variables from keyword arguments."""
+        model = kw.pop("model", None)
+        cls.model = model
+        cls.unique_by = kw.pop("unique_by", None)
+        cls.model_name = getattr(model, "__name__", "MultiModel")
+        super().__init_subclass__()
+
     def __repr__(self) -> str:
         """Represent model."""
-        return repr_from_attrs(self, ["_count", "_accessor"], strip="_")
+        return repr_from_attrs(self, ["_count", "unique_by", "model_name"], strip="_")
 
     def __iter__(self) -> t.Iterator[MultiModelT]:
         """Iterate items."""
         return iter(self.__root__)
 
     def __getitem__(self, value: t.Union[int, str]) -> MultiModelT:
-        """Get an item by accessor value."""
+        """Get an item by its `unique_by` property."""
         if not isinstance(value, (str, int)):
             raise TypeError(
                 "Value of {}.{!s} should be a string or integer. Got {!r} ({!s})".format(
-                    self.__class__.__name__, self.accessor, value, type(value)
+                    self.__class__.__name__, self.unique_by, value, type(value)
                 )
             )
         if isinstance(value, int):
             return self.__root__[value]
 
         for item in self:
-            if hasattr(item, self.accessor) and getattr(item, self.accessor) == value:
+            if hasattr(item, self.unique_by) and getattr(item, self.unique_by) == value:
                 return item
         raise IndexError(
             "No match found for {!s}.{!s}={!r}".format(
-                self.model.__class__.__name__, self.accessor, value
+                self.model.__class__.__name__, self.unique_by, value
             ),
         )
 
@@ -183,29 +192,37 @@ class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
         )
         if not valid:
             raise TypeError(f"Cannot add {other!r} to {self.__class__.__name__}")
-        merged = self._merge_with(*other, unique_by=self.accessor)
+        merged = self._merge_with(*other, unique_by=self.unique_by)
 
         if compare_init(self.__class__, other.__class__):
-            return self.__class__(*merged, model=self.model, accessor=self.accessor)
+            return self.__class__(*merged)
         raise TypeError(
             f"{self.__class__.__name__} and {other.__class__.__name__} have different `__init__` "
-            "signatures. You probably need to override `HyperglassMultiModel.__add__`"
+            "signatures. You probably need to override `MultiModel.__add__`"
         )
 
-    @property
-    def accessor(self) -> str:
-        """Access item accessor."""
-        return self._accessor
+    def __len__(self) -> int:
+        """Get number of items."""
+        return len(self.__root__)
 
     @property
-    def model(self) -> MultiModelT:
-        """Access item model class."""
-        return self._model
+    def ids(self) -> t.Tuple[t.Any, ...]:
+        """Get values of all items by `unique_by` property."""
+        return tuple(sorted(getattr(item, self.unique_by) for item in self))
 
     @property
     def count(self) -> int:
         """Access item count."""
         return self._count
+
+    @classmethod
+    def create(cls, name: str, *, model: MultiModelT, unique_by: str) -> "MultiModel":
+        """Create a MultiModel."""
+        new = type(name, (cls,), cls.__dict__)
+        new.model = model
+        new.unique_by = unique_by
+        new.model_name = getattr(model, "__name__", "MultiModel")
+        return new
 
     def _valid_items(
         self, *to_validate: t.List[t.Union[MultiModelT, t.Dict[str, t.Any]]]
@@ -215,8 +232,8 @@ class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
             for item in to_validate
             if any(
                 (
-                    (isinstance(item, self.model) and hasattr(item, self.accessor)),
-                    (isinstance(item, t.Dict) and self.accessor in item),
+                    (isinstance(item, self.model) and hasattr(item, self.unique_by)),
+                    (isinstance(item, t.Dict) and self.unique_by in item),
                 ),
             )
         ]
@@ -224,23 +241,6 @@ class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
             if isinstance(item, t.Dict):
                 items[index] = self.model(**item)
         return items
-
-    def matching(self, *accessors: str) -> MultiModelT:
-        """Get a new instance containing partial matches from `accessors`."""
-
-        def matches(*searches: str) -> t.Generator[MultiModelT, None, None]:
-            """Get any matching items by accessor value.
-
-            For example, if `accessors` is `('one', 'two')`, and `Model.<accessor>` is `'one'`,
-            `Model` is yielded.
-            """
-            for search in searches:
-                pattern = re.compile(fr".*{search}.*", re.IGNORECASE)
-                for item in self:
-                    if pattern.match(getattr(item, self.accessor)):
-                        yield item
-
-        return self.__class__(*matches(*accessors))
 
     def _merge_with(self, *items, unique_by: t.Optional[str] = None) -> Series[MultiModelT]:
         to_add = self._valid_items(*items)
@@ -257,6 +257,29 @@ class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
             return tuple(unique_by_objects.values())
         return (*self.__root__, *to_add)
 
+    def filter(self, *properties: str) -> MultiModelT:
+        """Get only items with `unique_by` properties matching values in `properties`."""
+        return self.__class__(
+            *(item for item in self if getattr(item, self.unique_by, None) in properties)
+        )
+
+    def matching(self, *unique: str) -> MultiModelT:
+        """Get a new instance containing partial matches from `accessors`."""
+
+        def matches(*searches: str) -> t.Generator[MultiModelT, None, None]:
+            """Get any matching items by unique_by property.
+
+            For example, if `unique` is `('one', 'two')`, and `Model.<unique_by>` is `'one'`,
+            `Model` is yielded.
+            """
+            for search in searches:
+                pattern = re.compile(fr".*{search}.*", re.IGNORECASE)
+                for item in self:
+                    if pattern.match(getattr(item, self.unique_by)):
+                        yield item
+
+        return self.__class__(*matches(*unique))
+
     def add(self, *items, unique_by: t.Optional[str] = None) -> None:
         """Add an item to the model."""
         new = self._merge_with(*items, unique_by=unique_by)
@@ -266,6 +289,6 @@ class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
             log.debug(
                 "Added {} '{!s}' to {}",
                 item.__class__.__name__,
-                getattr(item, self.accessor),
+                getattr(item, self.unique_by),
                 self.__class__.__name__,
             )

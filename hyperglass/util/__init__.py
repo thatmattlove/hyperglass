@@ -221,7 +221,7 @@ def repr_from_attrs(obj: object, attrs: Series[str], strip: t.Optional[str] = No
         if hasattr((v := getattr(obj, f)), "__repr__")
     }
     pairs = (f"{k}={v!r}" for k, v in attr_values.items())
-    return f"{obj.__class__.__name__}({','.join(pairs)})"
+    return f"{obj.__class__.__name__}({', '.join(pairs)})"
 
 
 def validate_platform(_type: str) -> t.Tuple[bool, t.Union[None, str]]:

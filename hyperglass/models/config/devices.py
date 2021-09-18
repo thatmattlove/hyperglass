@@ -234,7 +234,7 @@ class Device(HyperglassModelWithId, extra="allow"):
             if isinstance(statement, str) and not statement.startswith("__")
         ]
         # Directives matching provided IDs.
-        device_directives = directives.filter_by_ids(*directive_ids)
+        device_directives = directives.filter(*directive_ids)
         # Matching built-in directives for this device's platform.
         builtins = directives.device_builtins(platform=platform)
 
