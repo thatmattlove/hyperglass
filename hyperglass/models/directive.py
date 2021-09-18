@@ -305,14 +305,14 @@ class Directive(HyperglassModelWithId):
         return value
 
 
-class NativeDirective(Directive):
+class BuiltinDirective(Directive):
     """Natively-supported directive."""
 
     __hyperglass_builtin__: t.ClassVar[bool] = True
     platforms: Series[str] = []
 
 
-DirectiveT = t.Union[NativeDirective, Directive]
+DirectiveT = t.Union[BuiltinDirective, Directive]
 
 
 class Directives(HyperglassMultiModel[Directive]):
@@ -322,10 +322,35 @@ class Directives(HyperglassMultiModel[Directive]):
         """Initialize base class and validate objects."""
         super().__init__(*items, model=Directive, accessor="id")
 
+    def __add__(self, other: "Directives") -> "Directives":
+        """Create a new `Directives` instance by merging this instance with another."""
+        valid = all(
+            (
+                isinstance(other, self.__class__),
+                hasattr(other, "model"),
+                getattr(other, "model", None) == self.model,
+            ),
+        )
+        if not valid:
+            raise TypeError(f"Cannot add {other!r} to {self.__class__.__name__}")
+        merged = self._merge_with(*other, unique_by=self.accessor)
+        return Directives(*merged)
+
     def ids(self) -> t.Tuple[str]:
         """Get all directive IDs."""
-        return tuple(directive.id for directive in self)
+        return tuple(sorted(directive.id for directive in self))
 
-    def filter_by_ids(self, *ids) -> "Directives":
+    def filter_by_ids(self, *ids: str) -> "Directives":
         """Filter directives by directive IDs."""
-        return Directives(*[directive for directive in self if directive.id in ids])
+        return Directives(*(directive for directive in self if directive.id in ids))
+
+    def device_builtins(self, *, platform: str):
+        """Get builtin directives for a device."""
+        return Directives(
+            *(
+                directive
+                for directive in self
+                if directive.__hyperglass_builtin__ is True
+                and platform in getattr(directive, "platforms", ())
+            )
+        )

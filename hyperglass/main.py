@@ -21,7 +21,6 @@ from .plugins import (
 )
 from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
 from .util.frontend import get_node_version
-from .defaults.directives import register_builtin_directives
 
 if t.TYPE_CHECKING:
     # Local
@@ -43,6 +42,7 @@ if node_major != MIN_NODE_VERSION:
 from .util import cpu_count
 from .state import use_state
 from .settings import Settings
+from .configuration import init_user_config
 from .util.frontend import build_frontend
 
 
@@ -89,8 +89,6 @@ def on_starting(server: "Arbiter") -> None:
 
     state = use_state()
 
-    register_builtin_directives()
-
     register_all_plugins(state.devices)
 
     asyncio.run(build_ui())
@@ -103,7 +101,7 @@ def on_starting(server: "Arbiter") -> None:
     )
 
 
-def on_exit(*_: t.Any) -> None:
+def on_exit(_: t.Any) -> None:
     """Gunicorn shutdown tasks."""
 
     log.critical("Stopping hyperglass {}", __version__)
@@ -165,6 +163,7 @@ def start(*, log_level: str, workers: int, **kwargs) -> None:
 
 if __name__ == "__main__":
     try:
+        init_user_config()
         set_log_level(log, Settings.debug)
 
         log.debug("System settings: {!r}", Settings)

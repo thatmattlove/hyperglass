@@ -1,7 +1,7 @@
 """Default Juniper Directives."""
 
 # Project
-from hyperglass.models.directive import Rule, Text, NativeDirective
+from hyperglass.models.directive import Rule, Text, BuiltinDirective
 
 __all__ = (
     "JuniperBGPRoute",
@@ -14,7 +14,7 @@ __all__ = (
     "JuniperBGPCommunityTable",
 )
 
-JuniperBGPRoute = NativeDirective(
+JuniperBGPRoute = BuiltinDirective(
     id="__hyperglass_juniper_bgp_route__",
     name="BGP Route",
     rules=[
@@ -33,7 +33,7 @@ JuniperBGPRoute = NativeDirective(
     platforms=["juniper"],
 )
 
-JuniperBGPASPath = NativeDirective(
+JuniperBGPASPath = BuiltinDirective(
     id="__hyperglass_juniper_bgp_aspath__",
     name="BGP AS Path",
     rules=[
@@ -50,7 +50,7 @@ JuniperBGPASPath = NativeDirective(
     platforms=["juniper"],
 )
 
-JuniperBGPCommunity = NativeDirective(
+JuniperBGPCommunity = BuiltinDirective(
     id="__hyperglass_juniper_bgp_community__",
     name="BGP Community",
     rules=[
@@ -68,7 +68,7 @@ JuniperBGPCommunity = NativeDirective(
 )
 
 
-JuniperPing = NativeDirective(
+JuniperPing = BuiltinDirective(
     id="__hyperglass_juniper_ping__",
     name="Ping",
     rules=[
@@ -87,7 +87,7 @@ JuniperPing = NativeDirective(
     platforms=["juniper"],
 )
 
-JuniperTraceroute = NativeDirective(
+JuniperTraceroute = BuiltinDirective(
     id="__hyperglass_juniper_traceroute__",
     name="Traceroute",
     rules=[
@@ -108,7 +108,7 @@ JuniperTraceroute = NativeDirective(
 
 # Table Output Directives
 
-JuniperBGPRouteTable = NativeDirective(
+JuniperBGPRouteTable = BuiltinDirective(
     id="__hyperglass_juniper_bgp_route_table__",
     name="BGP Route",
     rules=[
@@ -128,7 +128,7 @@ JuniperBGPRouteTable = NativeDirective(
     platforms=["juniper"],
 )
 
-JuniperBGPASPathTable = NativeDirective(
+JuniperBGPASPathTable = BuiltinDirective(
     id="__hyperglass_juniper_bgp_aspath_table__",
     name="BGP AS Path",
     rules=[
@@ -146,7 +146,7 @@ JuniperBGPASPathTable = NativeDirective(
     platforms=["juniper"],
 )
 
-JuniperBGPCommunityTable = NativeDirective(
+JuniperBGPCommunityTable = BuiltinDirective(
     id="__hyperglass_juniper_bgp_community_table__",
     name="BGP Community",
     rules=[

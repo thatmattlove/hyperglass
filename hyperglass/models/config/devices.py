@@ -17,6 +17,7 @@ from hyperglass.util import (
     resolve_hostname,
     validate_platform,
 )
+from hyperglass.state import use_state
 from hyperglass.settings import Settings
 from hyperglass.constants import SCRAPE_HELPERS, SUPPORTED_STRUCTURED_OUTPUT
 from hyperglass.exceptions.private import ConfigError, UnsupportedDevice
@@ -31,6 +32,12 @@ from ..fields import SupportedDriver
 from .network import Network
 from ..directive import Directives
 from .credential import Credential
+
+
+class DirectiveOptions(HyperglassModel, extra="ignore"):
+    """Per-device directive options."""
+
+    builtins: Union[StrictBool, List[StrictStr]] = True
 
 
 class Device(HyperglassModelWithId, extra="allow"):
@@ -94,10 +101,6 @@ class Device(HyperglassModelWithId, extra="allow"):
             "name": self.name,
             "network": self.network.display_name,
         }
-
-    @property
-    def directive_builtins(self) -> List[str]:
-        ...
 
     @property
     def directive_commands(self) -> List[str]:
@@ -189,7 +192,7 @@ class Device(HyperglassModelWithId, extra="allow"):
 
     @root_validator(pre=True)
     def validate_device(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate & rewrite device platform, set default directives."""
+        """Validate & rewrite device platform, set default `directives`."""
 
         platform = values.get("platform")
         if platform is None:
@@ -210,21 +213,39 @@ class Device(HyperglassModelWithId, extra="allow"):
 
         values["platform"] = platform
 
-        directives = values.get("directives")
+        directives = use_state("directives")
 
-        if directives is None:
-            # TODO: This should be different now, and could be removed after there's a way to associate default directives
-            # If no directive are defined, set directive to the NOS.
-            inferred = values["platform"]
+        directive_ids = values.get("directives", [])
 
-            # If the _telnet prefix is added, remove it from the command
-            # profile so the commands are the same regardless of
-            # protocol.
-            if "_telnet" in inferred:
-                inferred = inferred.replace("_telnet", "")
+        # Directive options
+        directive_options = DirectiveOptions(
+            **{
+                k: v
+                for statement in directive_ids
+                if isinstance(statement, Dict)
+                for k, v in statement.items()
+            }
+        )
 
-            values["directives"] = [inferred]
+        # String directive IDs, excluding builtins and options.
+        directive_ids = [
+            statement
+            for statement in directive_ids
+            if isinstance(statement, str) and not statement.startswith("__")
+        ]
+        # Directives matching provided IDs.
+        device_directives = directives.filter_by_ids(*directive_ids)
+        # Matching built-in directives for this device's platform.
+        builtins = directives.device_builtins(platform=platform)
 
+        if directive_options.builtins is True:
+            # Add all builtins.
+            device_directives += builtins
+        elif isinstance(directive_options.builtins, List):
+            # If the user provides a list of builtin directives to include, add only those.
+            device_directives += builtins.matching(*directive_options.builtins)
+
+        values["directives"] = device_directives
         return values
 
     @validator("driver")

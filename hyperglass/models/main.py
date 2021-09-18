@@ -1,6 +1,8 @@
 """Data models used throughout hyperglass."""
 
 # Standard Library
+
+# Standard Library
 import re
 import typing as t
 from pathlib import Path
@@ -11,7 +13,7 @@ from pydantic.generics import GenericModel
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import snake_to_camel, repr_from_attrs
+from hyperglass.util import compare_init, snake_to_camel, repr_from_attrs
 from hyperglass.types import Series
 
 MultiModelT = t.TypeVar("MultiModelT", bound=BaseModel)
@@ -138,6 +140,10 @@ class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
         super().__init__(__root__=valid)
         self._count = len(self.__root__)
 
+    def __repr__(self) -> str:
+        """Represent model."""
+        return repr_from_attrs(self, ["_count", "_accessor"], strip="_")
+
     def __iter__(self) -> t.Iterator[MultiModelT]:
         """Iterate items."""
         return iter(self.__root__)
@@ -162,9 +168,29 @@ class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
             ),
         )
 
-    def __repr__(self) -> str:
-        """Represent model."""
-        return repr_from_attrs(self, ["_count", "_accessor"], strip="_")
+    def __add__(self, other: MultiModelT) -> MultiModelT:
+        """Merge another MultiModel with this one.
+
+        Note: If you're subclassing `HyperglassMultiModel` and overriding `__init__`, you need to
+        override this too.
+        """
+        valid = all(
+            (
+                isinstance(other, self.__class__),
+                hasattr(other, "model"),
+                getattr(other, "model", None) == self.model,
+            ),
+        )
+        if not valid:
+            raise TypeError(f"Cannot add {other!r} to {self.__class__.__name__}")
+        merged = self._merge_with(*other, unique_by=self.accessor)
+
+        if compare_init(self.__class__, other.__class__):
+            return self.__class__(*merged, model=self.model, accessor=self.accessor)
+        raise TypeError(
+            f"{self.__class__.__name__} and {other.__class__.__name__} have different `__init__` "
+            "signatures. You probably need to override `HyperglassMultiModel.__add__`"
+        )
 
     @property
     def accessor(self) -> str:
@@ -199,8 +225,24 @@ class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
                 items[index] = self.model(**item)
         return items
 
-    def add(self, *items, unique_by: t.Optional[str] = None) -> None:
-        """Add an item to the model."""
+    def matching(self, *accessors: str) -> MultiModelT:
+        """Get a new instance containing partial matches from `accessors`."""
+
+        def matches(*searches: str) -> t.Generator[MultiModelT, None, None]:
+            """Get any matching items by accessor value.
+
+            For example, if `accessors` is `('one', 'two')`, and `Model.<accessor>` is `'one'`,
+            `Model` is yielded.
+            """
+            for search in searches:
+                pattern = re.compile(fr".*{search}.*", re.IGNORECASE)
+                for item in self:
+                    if pattern.match(getattr(item, self.accessor)):
+                        yield item
+
+        return self.__class__(*matches(*accessors))
+
+    def _merge_with(self, *items, unique_by: t.Optional[str] = None) -> Series[MultiModelT]:
         to_add = self._valid_items(*items)
         if unique_by is not None:
             unique_by_values = {
@@ -212,10 +254,12 @@ class HyperglassMultiModel(GenericModel, t.Generic[MultiModelT]):
                 for o in (*self, *to_add)
                 if getattr(o, unique_by) == v
             }
-            new: t.List[MultiModelT] = list(unique_by_objects.values())
+            return tuple(unique_by_objects.values())
+        return (*self.__root__, *to_add)
 
-        else:
-            new: t.List[MultiModelT] = [*self.__root__, *to_add]
+    def add(self, *items, unique_by: t.Optional[str] = None) -> None:
+        """Add an item to the model."""
+        new = self._merge_with(*items, unique_by=unique_by)
         self.__root__ = new
         self._count = len(self.__root__)
         for item in new:

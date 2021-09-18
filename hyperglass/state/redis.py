@@ -3,15 +3,18 @@
 # Standard Library
 import pickle
 import typing as t
+from types import TracebackType
 from typing import overload
 from datetime import datetime, timedelta
 
 # Project
+from hyperglass.log import log
 from hyperglass.exceptions.private import StateError
 
 if t.TYPE_CHECKING:
     # Third Party
     from redis import Redis
+    from redis.client import Pipeline
 
 
 class RedisManager:
@@ -125,3 +128,57 @@ class RedisManager:
         """Add a value to a hash map (dict)."""
         name = self.key(key)
         self.instance.hset(name, item, pickle.dumps(value))
+
+    def pipeline(self):
+        """Enter a Redis Pipeline, but expose all the custom interaction methods."""
+        # Copy the base RedisManager and remove the pipeline method (this method).
+        ctx = type(
+            "RedisManagerExcludePipeline",
+            (RedisManager,),
+            {k: v for k, v in self.__dict__.items() if k != "pipeline"},
+        )
+
+        def nested_pipeline(*_, **__) -> None:
+            """Ensure pipeline is never called from within pipeline."""
+            raise AttributeError("Cannot access pipeline from pipeline")
+
+        class RedisManagerPipeline(ctx):
+            """Copy of RedisManager, but uses `Redis.pipeline` as the `instance`."""
+
+            parent: "Redis"
+            instance: "Pipeline"
+            pipeline: t.Any = nested_pipeline
+
+            def __init__(
+                pipeline_self,  # noqa: N805 Avoid `self` namespace conflict
+                *,
+                parent: "Redis",
+                instance: "Pipeline",
+                namespace: str,
+            ) -> None:
+                pipeline_self.parent = parent
+                super().__init__(instance=instance, namespace=namespace)
+
+            def __enter__(
+                pipeline_self: "RedisManagerPipeline",  # noqa: N805 Avoid `self` namespace conflict
+            ) -> "RedisManagerPipeline":
+                return pipeline_self
+
+            def __exit__(
+                pipeline_self: "RedisManagerPipeline",  # noqa: N805 Avoid `self` namespace conflict
+                exc_type: t.Optional[t.Type[BaseException]] = None,
+                exc_value: t.Optional[BaseException] = None,
+                _: t.Optional[TracebackType] = None,
+            ) -> None:
+                pipeline_self.instance.execute()
+                if exc_type is not None:
+                    log.error(
+                        "Error in pipeline {!r} from parent instance {!r}:\n{!s}",
+                        pipeline_self,
+                        pipeline_self.parent,
+                        exc_value,
+                    )
+
+        return RedisManagerPipeline(
+            parent=self.instance, instance=self.instance.pipeline(), namespace=self.namespace,
+        )

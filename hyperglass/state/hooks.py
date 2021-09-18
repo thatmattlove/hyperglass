@@ -33,7 +33,7 @@ def _use_state(attr: t.Optional[str] = None) -> "HyperglassState":
     if attr is None:
         return HyperglassState(settings=Settings)
     if attr in ("cache", "redis"):
-        return HyperglassState(settings=Settings).redis
+        return HyperglassState(settings=Settings).cache
     if attr in HyperglassState.properties():
         return getattr(HyperglassState(settings=Settings), attr)
     raise StateError("'{attr}' does not exist on HyperglassState", attr=attr)

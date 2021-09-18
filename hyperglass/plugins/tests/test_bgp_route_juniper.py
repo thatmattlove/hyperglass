@@ -35,7 +35,8 @@ def _tester(sample: str):
         credential={"username": "", "password": ""},
         platform="juniper",
         structured_output=True,
-        directives=[{"id": "test", "name": "Test", "rules": []}],
+        directives=[],
+        attrs={"source4": "192.0.2.1", "source6": "2001:db8::1"},
     )
 
     # Override has_directives method for testing.

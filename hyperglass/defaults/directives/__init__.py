@@ -7,13 +7,13 @@ from pathlib import Path
 
 # Project
 from hyperglass.log import log
-from hyperglass.state import use_state
+from hyperglass.models.directive import Directives
 
 
-def register_builtin_directives() -> None:
+def init_builtin_directives() -> "Directives":
     """Find all directives and register them with global state manager."""
     directives_dir = Path(__file__).parent
-    state = use_state()
+    directives = ()
     for _, name, __ in pkgutil.iter_modules([directives_dir]):
         module = importlib.import_module(f"hyperglass.defaults.directives.{name}")
 
@@ -22,4 +22,5 @@ def register_builtin_directives() -> None:
             log.warning("Module '{!s}' is missing an '__all__' export", module)
 
         exports = (getattr(module, p) for p in module.__all__ if hasattr(module, p))
-        state.add_directive(*exports)
+        directives += (*exports,)
+    return Directives(*directives)
