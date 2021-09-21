@@ -17,35 +17,22 @@ import type { TGreeting } from './types';
 
 export const Greeting: React.FC<TGreeting> = (props: TGreeting) => {
   const { web, content } = useConfig();
-  const { ack: greetingAck, isOpen, close } = useGreeting();
+  const { isAck, isOpen, open, ack } = useGreeting();
 
   const bg = useColorValue('white', 'gray.800');
   const color = useOpposingColor(bg);
 
-  function handleClose(ack: boolean = false): void {
-    if (web.greeting.required && !greetingAck.value && !ack) {
-      greetingAck.set(false);
-    } else if (web.greeting.required && !greetingAck.value && ack) {
-      greetingAck.set(true);
-      close();
-    } else if (web.greeting.required && greetingAck.value) {
-      close();
-    } else if (!web.greeting.required) {
-      greetingAck.set(true);
-      close();
-    }
-  }
   useEffect(() => {
-    if (!greetingAck.value && web.greeting.enable) {
-      isOpen.set(true);
+    if (!isAck && web.greeting.enable) {
+      open();
     }
-  }, [greetingAck.value, isOpen, web.greeting.enable]);
+  }, [isAck, open, web.greeting.enable]);
   return (
     <Modal
       size="lg"
       isCentered
-      onClose={handleClose}
-      isOpen={isOpen.value}
+      onClose={() => ack(false)}
+      isOpen={isOpen}
       motionPreset="slideInBottom"
       closeOnEsc={web.greeting.required}
       closeOnOverlayClick={web.greeting.required}
@@ -67,7 +54,7 @@ export const Greeting: React.FC<TGreeting> = (props: TGreeting) => {
           <Markdown content={content.greeting} />
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="primary" onClick={() => handleClose(true)}>
+          <Button colorScheme="primary" onClick={() => ack(true)}>
             {web.greeting.button}
           </Button>
         </ModalFooter>

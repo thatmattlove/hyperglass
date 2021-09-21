@@ -1,6 +1,4 @@
-import type { State } from '@hookstate/core';
 import type { FormData, TStringTableData, TQueryResponseString } from './data';
-import type { TSelectOption } from './common';
 import type { QueryContent, DirectiveSelect, Directive } from './config';
 
 export function isString(a: unknown): a is string {
@@ -29,24 +27,6 @@ export function isStringOutput(data: unknown): data is TQueryResponseString {
 
 export function isQueryContent(content: unknown): content is QueryContent {
   return isObject(content) && 'content' in content;
-}
-
-/**
- * Determine if an object is a Select option.
- */
-export function isSelectOption(a: unknown): a is NonNullable<TSelectOption> {
-  return isObject(a) && 'label' in a && 'value' in a;
-}
-
-/**
- * Determine if an object is a HookState Proxy.
- */
-export function isState<S>(a: unknown): a is State<NonNullable<S>> {
-  if (isObject(a) && 'get' in a && 'set' in a && 'promised' in a) {
-    const obj = a as { get: never; set: never; promised: never };
-    return typeof obj.get === 'function' && typeof obj.set === 'function';
-  }
-  return false;
 }
 
 /**

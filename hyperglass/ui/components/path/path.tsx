@@ -9,7 +9,7 @@ import {
   ModalCloseButton,
 } from '@chakra-ui/react';
 import { useColorValue, useBreakpointValue } from '~/context';
-import { useLGState, useLGMethods } from '~/hooks';
+import { useFormState } from '~/hooks';
 import { PathButton } from './button';
 import { Chart } from './chart';
 
@@ -17,8 +17,8 @@ import type { TPath } from './types';
 
 export const Path: React.FC<TPath> = (props: TPath) => {
   const { device } = props;
-  const { displayTarget } = useLGState();
-  const { getResponse } = useLGMethods();
+  const displayTarget = useFormState(s => s.target.display);
+  const getResponse = useFormState(s => s.response);
   const { isOpen, onClose, onOpen } = useDisclosure();
   const response = getResponse(device);
   const output = response?.output as StructuredResponse;
@@ -35,7 +35,7 @@ export const Path: React.FC<TPath> = (props: TPath) => {
           maxH={{ base: '80%', lg: '60%' }}
           maxW={{ base: '100%', lg: '80%' }}
         >
-          <ModalHeader>{`Path to ${displayTarget.value}`}</ModalHeader>
+          <ModalHeader>{`Path to ${displayTarget}`}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             {response !== null ? <Chart data={output} /> : <Skeleton w="500px" h="300px" />}

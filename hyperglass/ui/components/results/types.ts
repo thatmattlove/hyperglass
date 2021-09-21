@@ -1,7 +1,5 @@
-import type { State } from '@hookstate/core';
 import type { ButtonProps } from '@chakra-ui/react';
 import type { UseQueryResult } from 'react-query';
-import type { Device } from '~/types';
 
 export interface TResultHeader {
   title: string;
@@ -17,13 +15,9 @@ export interface TFormattedError {
   message: string;
 }
 
-export interface TResult {
+export interface ResultProps {
   index: number;
-  device: Device;
-  queryGroup: string;
-  queryTarget: string;
   queryLocation: string;
-  queryType: string;
 }
 
 export type TErrorLevels = 'success' | 'warning' | 'error';
@@ -35,18 +29,3 @@ export interface TCopyButton extends ButtonProps {
 export interface TRequeryButton extends ButtonProps {
   requery: UseQueryResult<QueryResponse>['refetch'];
 }
-
-export type TUseResults = {
-  firstOpen: number | null;
-  locations: { [k: string]: { complete: boolean; open: boolean; index: number } };
-};
-
-export type TUseResultsMethods = {
-  toggle(loc: string): void;
-  setComplete(loc: string): void;
-  getOpen(): number[];
-};
-
-export type UseResultsReturn = {
-  results: State<TUseResults>;
-} & TUseResultsMethods;

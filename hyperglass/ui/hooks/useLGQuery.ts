@@ -6,12 +6,15 @@ import { fetchWithTimeout } from '~/util';
 
 import type { QueryFunction, QueryFunctionContext, QueryObserverResult } from 'react-query';
 import type { TFormQuery } from '~/types';
-import type { LGQueryKey } from './types';
+import type { LGQueryKey, LGQueryOptions } from './types';
 
 /**
  * Custom hook handle submission of a query to the hyperglass backend.
  */
-export function useLGQuery(query: TFormQuery): QueryObserverResult<QueryResponse> {
+export function useLGQuery(
+  query: TFormQuery,
+  options: LGQueryOptions = {} as LGQueryOptions,
+): QueryObserverResult<QueryResponse> {
   const { requestTimeout, cache } = useConfig();
   const controller = useMemo(() => new AbortController(), []);
 
@@ -23,14 +26,13 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<QueryResponse
     dimension1: query.queryLocation,
     dimension2: query.queryTarget,
     dimension3: query.queryType,
-    dimension4: query.queryGroup,
   });
 
   const runQuery: QueryFunction<QueryResponse, LGQueryKey> = async (
     ctx: QueryFunctionContext<LGQueryKey>,
   ): Promise<QueryResponse> => {
     const [url, data] = ctx.queryKey;
-    const { queryLocation, queryTarget, queryType, queryGroup } = data;
+    const { queryLocation, queryTarget, queryType } = data;
     const res = await fetchWithTimeout(
       url,
       {
@@ -40,7 +42,6 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<QueryResponse
           queryLocation,
           queryTarget,
           queryType,
-          queryGroup,
         }),
         mode: 'cors',
       },
@@ -73,5 +74,6 @@ export function useLGQuery(query: TFormQuery): QueryObserverResult<QueryResponse
     refetchInterval: false,
     // Don't refetch on component remount.
     refetchOnMount: false,
+    ...options,
   });
 }

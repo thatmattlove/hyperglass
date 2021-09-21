@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { Button, chakra, Stack, Text, VStack } from '@chakra-ui/react';
 import { useConfig, useColorValue } from '~/context';
-import { useStrf, useLGState, useDNSQuery } from '~/hooks';
+import { useStrf, useDNSQuery, useFormState } from '~/hooks';
+
+import type { DnsOverHttps } from '~/types';
+import type { ResolvedTargetProps } from './types';
 
 const RightArrow = chakra(
   dynamic<MeronexIcon>(() => import('@meronex/icons/fa').then(i => i.FaArrowCircleRight)),
@@ -11,9 +14,6 @@ const RightArrow = chakra(
 const LeftArrow = chakra(
   dynamic<MeronexIcon>(() => import('@meronex/icons/fa').then(i => i.FaArrowCircleLeft)),
 );
-
-import type { DnsOverHttps } from '~/types';
-import type { TResolvedTarget } from './types';
 
 function findAnswer(data: DnsOverHttps.Response | undefined): string {
   let answer = '';
@@ -24,17 +24,17 @@ function findAnswer(data: DnsOverHttps.Response | undefined): string {
   return answer;
 }
 
-export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget) => {
-  const { setTarget, errorClose } = props;
+export const ResolvedTarget = (props: ResolvedTargetProps): JSX.Element => {
+  const { errorClose } = props;
   const strF = useStrf();
   const { web } = useConfig();
-  const { displayTarget, isSubmitting, families, queryTarget } = useLGState();
+
+  const setStatus = useFormState(s => s.setStatus);
+  const displayTarget = useFormState(s => s.target.display);
+  const setFormValue = useFormState(s => s.setFormValue);
 
   const color = useColorValue('secondary.500', 'secondary.300');
   const errorColor = useColorValue('red.500', 'red.300');
-
-  const query4 = Array.from(families.value).includes(4);
-  const query6 = Array.from(families.value).includes(6);
 
   const tooltip4 = strF(web.text.fqdnTooltip, { protocol: 'IPv4' });
   const tooltip6 = strF(web.text.fqdnTooltip, { protocol: 'IPv6' });
@@ -47,14 +47,14 @@ export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget
     isLoading: isLoading4,
     isError: isError4,
     error: error4,
-  } = useDNSQuery(displayTarget.value, 4);
+  } = useDNSQuery(displayTarget, 4);
 
   const {
     data: data6,
     isLoading: isLoading6,
     isError: isError6,
     error: error6,
-  } = useDNSQuery(displayTarget.value, 6);
+  } = useDNSQuery(displayTarget, 6);
 
   isError4 && console.error(error4);
   isError6 && console.error(error6);
@@ -62,39 +62,38 @@ export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget
   const answer4 = useMemo(() => findAnswer(data4), [data4]);
   const answer6 = useMemo(() => findAnswer(data6), [data6]);
 
-  const handleOverride = useCallback(
-    (value: string): void => setTarget({ field: 'queryTarget', value }),
-    [setTarget],
-  );
-
   function selectTarget(value: string): void {
-    queryTarget.set(value);
-    isSubmitting.set(true);
+    setFormValue('queryTarget', value);
+    setStatus('results');
   }
 
-  useEffect(() => {
-    if (query6 && data6?.Answer) {
-      handleOverride(findAnswer(data6));
-    } else if (query4 && data4?.Answer && !query6 && !data6?.Answer) {
-      handleOverride(findAnswer(data4));
-    } else if (query4 && data4?.Answer) {
-      handleOverride(findAnswer(data4));
-    }
-  }, [data4, data6, handleOverride, query4, query6]);
+  const hasAnswer = useMemo(
+    () => (!isError4 || !isError6) && (answer4 !== '' || answer6 !== ''),
+    [answer4, answer6, isError4, isError6],
+  );
+  const showA = useMemo(
+    () => !isLoading4 && !isError4 && answer4 !== '',
+    [isLoading4, isError4, answer4],
+  );
+
+  const showAAAA = useMemo(
+    () => !isLoading6 && !isError6 && answer6 !== '',
+    [isLoading6, isError6, answer6],
+  );
 
   return (
     <VStack w="100%" spacing={4} justify="center">
-      {(answer4 || answer6) && (
+      {hasAnswer && (
         <Text fontSize="sm" textAlign="center">
           {messageStart}
           <Text as="span" fontSize="sm" fontWeight="bold" color={color}>
-            {`${displayTarget.value}`.toLowerCase()}
+            {`${displayTarget}`.toLowerCase()}
           </Text>
           {messageEnd}
         </Text>
       )}
       <Stack spacing={2}>
-        {!isLoading4 && !isError4 && query4 && answer4 && (
+        {showA && (
           <Button
             size="sm"
             fontSize="xs"
@@ -108,7 +107,7 @@ export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget
             {answer4}
           </Button>
         )}
-        {!isLoading6 && !isError6 && query6 && answer6 && (
+        {showAAAA && (
           <Button
             size="sm"
             fontSize="xs"
@@ -122,18 +121,19 @@ export const ResolvedTarget: React.FC<TResolvedTarget> = (props: TResolvedTarget
             {answer6}
           </Button>
         )}
-        {!answer4 && !answer6 && (
+        {!hasAnswer && (
           <>
             <Text fontSize="sm" textAlign="center" color={errorColor}>
               {errorStart}
               <Text as="span" fontSize="sm" fontWeight="bold">
-                {`${displayTarget.value}`.toLowerCase()}
+                {`${displayTarget}`.toLowerCase()}
               </Text>
               {errorEnd}
             </Text>
             <Button
               colorScheme="red"
               variant="outline"
+              size="sm"
               onClick={errorClose}
               leftIcon={<LeftArrow />}
             >

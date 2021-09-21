@@ -741,6 +741,13 @@
   dependencies:
     "@chakra-ui/utils" "1.8.0"
 
+"@choc-ui/chakra-autocomplete@^4.5.10":
+  version "4.5.10"
+  resolved "https://registry.yarnpkg.com/@choc-ui/chakra-autocomplete/-/chakra-autocomplete-4.5.10.tgz#0d98043c001e9aef26f7400201a2fda24cb301c3"
+  integrity sha512-nxEdtV2x5pzU0gOkN4inNVeRRxTjrY0JJ40MYWEAgL6mFM8AogzVSU2X/l8uutEIVz0P+hu60/96Vhu10eNxOA==
+  dependencies:
+    react-nanny "^2.9.0"
+
 "@emotion/babel-plugin@^11.3.0":
   version "11.3.0"
   resolved "https://registry.yarnpkg.com/@emotion/babel-plugin/-/babel-plugin-11.3.0.tgz#3a16850ba04d8d9651f07f3fb674b3436a4fb9d7"
@@ -945,24 +952,6 @@
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/@hookform/resolvers/-/resolvers-2.5.1.tgz#09f2228c9061c350819881dc11e4f65af90c5a1a"
   integrity sha512-dNChuOJ7ker2ZALGhXO6KjeycwnBGcSslGsREgqTDSiBOgbEysupfGTJKzQsb0sXpNhrZLCGvQcT+qPmCdBEMw==
-
-"@hookstate/core@^3.0.7":
-  version "3.0.7"
-  resolved "https://registry.yarnpkg.com/@hookstate/core/-/core-3.0.7.tgz#aa91c3ca93771abda4a9729302c088d35bb7abaa"
-  integrity sha512-9aOGwD4tezrXJ7AkiPg0MJ8d9TiRCusf537zPOV4vOJmNn/tyMDMDxd1T4OlqKvNurVTzs9BEIMOuq5OduV7/w==
-
-"@hookstate/devtools@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@hookstate/devtools/-/devtools-3.0.0.tgz#9b289503112f0f95221d0c86e602ada7793bbd3a"
-  integrity sha512-jXI9e+4+dr0FbdtHhQPa0/SmRwLM7twMU0Qf87AgM3DqqFDV9dRPD56jPXaTh8xD1Bt2R72TmGmqdkDhdKG8AQ==
-  dependencies:
-    redux "4.0.5"
-    redux-devtools-extension "2.13.8"
-
-"@hookstate/persistence@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@hookstate/persistence/-/persistence-3.0.0.tgz#973b30d3a3bb1b29f4f59b1afe0d914e71a23882"
-  integrity sha512-xiN22IW0Wjw/uTV1OEUpTtqB8DAJyRobYR3+iv1TyMf72o98KpaZqQrLPvXkfrjlZac5s052BypjpkttX/Cmhw==
 
 "@humanwhocodes/config-array@^0.5.0":
   version "0.5.0"
@@ -3649,6 +3638,11 @@ ipaddr.js@1.9.1:
   resolved "https://registry.yarnpkg.com/ipaddr.js/-/ipaddr.js-1.9.1.tgz#bff38543eeb8984825079ff3a2a8e6cbd46781b3"
   integrity sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==
 
+irregular-plurals@^3.2.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/irregular-plurals/-/irregular-plurals-3.3.0.tgz#67d0715d4361a60d9fd9ee80af3881c631a31ee2"
+  integrity sha512-MVBLKUTangM3EfRPFROhmWQQKRDsrgI83J8GS3jXy+OwYqiR2/aoWndYQ5416jLE3uaGgLH7ncme3X9y09gZ3g==
+
 is-alphabetical@^1.0.0:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/is-alphabetical/-/is-alphabetical-1.0.4.tgz#9e7d6b94916be22153745d184c298cbf986a686d"
@@ -4844,6 +4838,13 @@ platform@1.3.6:
   resolved "https://registry.yarnpkg.com/platform/-/platform-1.3.6.tgz#48b4ce983164b209c2d45a107adb31f473a6e7a7"
   integrity sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg==
 
+plur@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/plur/-/plur-4.0.0.tgz#729aedb08f452645fe8c58ef115bf16b0a73ef84"
+  integrity sha512-4UGewrYgqDFw9vV6zNV+ADmPAUAfJPKtGvb/VdpQAx25X5f3xXdGdyOEVFwkl8Hl/tl7+xbeHqSEM+D5/TirUg==
+  dependencies:
+    irregular-plurals "^3.2.0"
+
 pnp-webpack-plugin@1.6.4:
   version "1.6.4"
   resolved "https://registry.yarnpkg.com/pnp-webpack-plugin/-/pnp-webpack-plugin-1.6.4.tgz#c9711ac4dc48a685dabafc86f8b6dd9f8df84149"
@@ -5158,6 +5159,11 @@ react-markdown@^5.0.3:
     unist-util-visit "^2.0.0"
     xtend "^4.0.1"
 
+react-nanny@^2.9.0:
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/react-nanny/-/react-nanny-2.10.0.tgz#50543fbbdd4daebb925b9603dae219da7ab7cd93"
+  integrity sha512-MmrcxrVQT5cimC0ZUYy7ZRl+t9P5hWM7E2LkFWSrWPj0C5MOlXfz4Oeauu3hImIyvoa0SunpLh22Go0L71xAbA==
+
 react-query@^3.16.0:
   version "3.16.0"
   resolved "https://registry.yarnpkg.com/react-query/-/react-query-3.16.0.tgz#8de1556aabb3d200d0f8eeb74ce2b0b3dd0a0a51"
@@ -5298,19 +5304,6 @@ readdirp@~3.5.0:
   integrity sha512-cMhu7c/8rdhkHXWsY+osBhfSy0JikwpHK/5+imo+LpeasTF8ouErHrlYkwT0++njiyuDvc7OFY5T3ukvZ8qmFQ==
   dependencies:
     picomatch "^2.2.1"
-
-redux-devtools-extension@2.13.8:
-  version "2.13.8"
-  resolved "https://registry.yarnpkg.com/redux-devtools-extension/-/redux-devtools-extension-2.13.8.tgz#37b982688626e5e4993ff87220c9bbb7cd2d96e1"
-  integrity sha512-8qlpooP2QqPtZHQZRhx3x3OP5skEV1py/zUdMY28WNAocbafxdG2tRD1MWE7sp8obGMNYuLWanhhQ7EQvT1FBg==
-
-redux@4.0.5:
-  version "4.0.5"
-  resolved "https://registry.yarnpkg.com/redux/-/redux-4.0.5.tgz#4db5de5816e17891de8a80c424232d06f051d93f"
-  integrity sha512-VSz1uMAH24DM6MF72vcojpYPtrTUu3ByVWfPL1nPfVRb5mZVTve5GnNCUV53QM/BZ66xfWrm0CTWoM+Xlz8V1w==
-  dependencies:
-    loose-envify "^1.4.0"
-    symbol-observable "^1.2.0"
 
 redux@^4.0.0, redux@^4.1.0:
   version "4.1.0"
@@ -5841,11 +5834,6 @@ supports-color@^8.0.0:
   dependencies:
     has-flag "^4.0.0"
 
-symbol-observable@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
-  integrity sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ==
-
 table@^6.0.9:
   version "6.7.1"
   resolved "https://registry.yarnpkg.com/table/-/table-6.7.1.tgz#ee05592b7143831a8c94f3cee6aae4c1ccef33e2"
@@ -6353,6 +6341,11 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
+
+zustand@^3.5.10:
+  version "3.5.10"
+  resolved "https://registry.yarnpkg.com/zustand/-/zustand-3.5.10.tgz#d2622efd64530ffda285ee5b13ff645b68ab0faf"
+  integrity sha512-upluvSRWrlCiExu2UbkuMIPJ9AigyjRFoO7O9eUossIj7rPPq7pcJ0NKk6t2P7KF80tg/UdPX6/pNKOSbs9DEg==
 
 zwitch@^1.0.0:
   version "1.0.5"

@@ -3,10 +3,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 
 import type { AppProps } from 'next/app';
 
-if (process.env.NODE_ENV === 'development') {
-  require('@hookstate/devtools');
-}
-
 const queryClient = new QueryClient();
 
 const App = (props: AppProps): JSX.Element => {

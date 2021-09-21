@@ -1,14 +1,13 @@
 import { AnimatePresence } from 'framer-motion';
 import { LookingGlass, Results } from '~/components';
-import { useLGMethods } from '~/hooks';
+import { useView } from '~/hooks';
 import { Frame } from './frame';
 
-export const Layout: React.FC = () => {
-  const { formReady } = useLGMethods();
-  const ready = formReady();
+export const Layout = (): JSX.Element => {
+  const view = useView();
   return (
     <Frame>
-      {ready ? (
+      {view === 'results' ? (
         <Results />
       ) : (
         <AnimatePresence>

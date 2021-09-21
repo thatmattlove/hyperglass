@@ -5,7 +5,6 @@ export interface FormData {
   queryLocation: string[];
   queryType: string;
   queryTarget: string;
-  queryGroup: string;
 }
 
 export interface TFormQuery extends Omit<FormData, 'queryLocation'> {

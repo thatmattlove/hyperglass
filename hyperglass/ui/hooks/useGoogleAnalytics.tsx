@@ -1,23 +1,37 @@
+import create from 'zustand';
 import { useCallback } from 'react';
-import { createState, useState } from '@hookstate/core';
 import * as ReactGA from 'react-ga';
 
 import type { GAEffect, GAReturn } from './types';
 
-const enabledState = createState<boolean>(false);
+interface EnabledState {
+  enabled: boolean;
+  enable(): void;
+  disable(): void;
+}
+
+const useEnabled = create<EnabledState>(set => ({
+  enabled: false,
+  enable() {
+    set({ enabled: true });
+  },
+  disable() {
+    set({ enabled: false });
+  },
+}));
 
 export function useGoogleAnalytics(): GAReturn {
-  const enabled = useState<boolean>(enabledState);
+  const { enabled, enable } = useEnabled(({ enable, enabled }) => ({ enable, enabled }));
 
   const runEffect = useCallback(
     (effect: GAEffect): void => {
-      if (typeof window !== 'undefined' && enabled.value) {
+      if (typeof window !== 'undefined' && enabled) {
         if (typeof effect === 'function') {
           effect(ReactGA);
         }
       }
     },
-    [enabled.value],
+    [enabled],
   );
 
   const trackEvent = useCallback(
@@ -77,7 +91,7 @@ export function useGoogleAnalytics(): GAReturn {
         return;
       }
 
-      enabled.set(true);
+      enable();
 
       const initializeOpts = { titleCase: false } as ReactGA.InitializeOptions;
 
@@ -89,7 +103,7 @@ export function useGoogleAnalytics(): GAReturn {
         ga.initialize(trackingId, initializeOpts);
       });
     },
-    [runEffect, enabled],
+    [runEffect, enable],
   );
 
   return { trackEvent, trackModal, trackPage, initialize, ga: ReactGA };

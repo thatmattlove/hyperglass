@@ -1,21 +1,18 @@
 import { useMemo } from 'react';
-import { useLGMethods, useLGState } from './useLGState';
+import { useFormState } from './useFormState';
 
 import type { Directive } from '~/types';
 
 export function useDirective(): Nullable<Directive> {
-  const { queryType, queryGroup } = useLGState();
-  const { getDirective } = useLGMethods();
+  const { getDirective, form } = useFormState(({ getDirective, form }) => ({ getDirective, form }));
 
   return useMemo((): Nullable<Directive> => {
-    if (queryType.value === '') {
+    if (form.queryType === '') {
       return null;
     }
-    const directive = getDirective(queryType.value);
-    if (directive !== null) {
-      return directive.value;
-    }
-    return null;
+    const directive = getDirective();
+    return directive;
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryType.value, queryGroup.value, getDirective]);
+  }, [form.queryType, getDirective]);
 }

@@ -1,22 +1,33 @@
-import type { State } from '@hookstate/core';
+import type { UseQueryOptions } from 'react-query';
 import type * as ReactGA from 'react-ga';
-import type { Device, Families, TFormQuery, TSelectOption, Directive } from '~/types';
+import type { Device, TFormQuery } from '~/types';
 
 export type LGQueryKey = [string, TFormQuery];
 export type DNSQueryKey = [string, { target: string | null; family: 4 | 6 }];
+
+export type LGQueryOptions = Omit<
+  UseQueryOptions<QueryResponse, Response | QueryResponse | Error, QueryResponse, LGQueryKey>,
+  | 'queryKey'
+  | 'queryFn'
+  | 'cacheTime'
+  | 'refetchOnWindowFocus'
+  | 'refetchInterval'
+  | 'refetchOnMount'
+>;
 
 export interface TOpposingOptions {
   light?: string;
   dark?: string;
 }
 
-export type TUseGreetingReturn = {
-  ack: State<boolean>;
-  isOpen: State<boolean>;
+export interface UseGreeting {
+  isAck: boolean;
+  isOpen: boolean;
+  greetingReady: boolean;
+  ack(value: boolean): void;
   open(): void;
   close(): void;
-  greetingReady(): boolean;
-};
+}
 
 export type TUseDevice = (
   /**
@@ -24,50 +35,6 @@ export type TUseDevice = (
    */
   deviceId: string,
 ) => Device;
-
-export interface TSelections {
-  queryLocation: TSelectOption[] | [];
-  queryType: TSelectOption | null;
-  queryGroup: TSelectOption | null;
-}
-
-export interface TMethodsExtension {
-  getResponse(d: string): QueryResponse | null;
-  resolvedClose(): void;
-  resolvedOpen(): void;
-  formReady(): boolean;
-  resetForm(): void;
-  stateExporter<O extends unknown>(o: O): O | null;
-  getDirective(n: string): Nullable<State<Directive>>;
-}
-
-export type TLGState = {
-  queryGroup: string;
-  families: Families;
-  queryTarget: string;
-  btnLoading: boolean;
-  isSubmitting: boolean;
-  displayTarget: string;
-  directive: Directive | null;
-  queryType: string;
-  queryLocation: string[];
-  availableGroups: string[];
-  availableTypes: Directive[];
-  resolvedIsOpen: boolean;
-  selections: TSelections;
-  responses: { [d: string]: QueryResponse };
-};
-
-export type TLGStateHandlers = {
-  exportState<S extends unknown | null>(s: S): S | null;
-  getResponse(d: string): QueryResponse | null;
-  resolvedClose(): void;
-  resolvedOpen(): void;
-  formReady(): boolean;
-  resetForm(): void;
-  stateExporter<O extends unknown>(o: O): O | null;
-  getDirective(n: string): Nullable<State<Directive>>;
-};
 
 export type UseStrfArgs = { [k: string]: unknown } | string;
 

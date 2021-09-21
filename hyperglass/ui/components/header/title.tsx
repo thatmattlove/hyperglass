@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { isSafari } from 'react-device-detect';
 import { If } from '~/components';
 import { useConfig, useMobile } from '~/context';
-import { useBooleanValue, useLGState, useLGMethods } from '~/hooks';
+import { useBooleanValue, useFormState } from '~/hooks';
 import { SubtitleOnly } from './subtitleOnly';
 import { TitleOnly } from './titleOnly';
 import { Logo } from './logo';
@@ -16,12 +16,12 @@ const AnimatedVStack = motion(VStack);
  * Title wrapper for mobile devices, breakpoints sm & md.
  */
 const MWrapper: React.FC<TMWrapper> = (props: TMWrapper) => {
-  const { isSubmitting } = useLGState();
+  const status = useFormState(s => s.status);
   return (
     <AnimatedVStack
       layout
       spacing={1}
-      alignItems={isSubmitting.value ? 'center' : 'flex-start'}
+      alignItems={status === 'results' ? 'center' : 'flex-start'}
       {...props}
     />
   );
@@ -31,15 +31,15 @@ const MWrapper: React.FC<TMWrapper> = (props: TMWrapper) => {
  * Title wrapper for desktop devices, breakpoints lg & xl.
  */
 const DWrapper: React.FC<TDWrapper> = (props: TDWrapper) => {
-  const { isSubmitting } = useLGState();
+  const status = useFormState(s => s.status);
   return (
     <AnimatedVStack
       spacing={1}
       initial="main"
       alignItems="center"
-      animate={isSubmitting.value ? 'submitting' : 'main'}
+      animate={status}
       transition={{ damping: 15, type: 'spring', stiffness: 100 }}
-      variants={{ submitting: { scale: 0.5 }, main: { scale: 1 } }}
+      variants={{ results: { scale: 0.5 }, form: { scale: 1 } }}
       {...props}
     />
   );
@@ -108,15 +108,12 @@ export const Title: React.FC<TTitle> = (props: TTitle) => {
   const { web } = useConfig();
   const { titleMode } = web.text;
 
-  const { isSubmitting } = useLGState();
-  const { resetForm } = useLGMethods();
+  const { status, reset } = useFormState(({ status, reset }) => ({
+    status,
+    reset,
+  }));
 
-  const titleHeight = useBooleanValue(isSubmitting.value, undefined, { md: '20vh' });
-
-  function handleClick(): void {
-    isSubmitting.set(false);
-    resetForm();
-  }
+  const titleHeight = useBooleanValue(status === 'results', undefined, { md: '20vh' });
 
   return (
     <Flex
@@ -132,7 +129,7 @@ export const Title: React.FC<TTitle> = (props: TTitle) => {
         div up to the parent's max-width. The fix is to hard-code a flex-basis width.
        */
       flexBasis={{ base: '100%', lg: isSafari ? '33%' : '100%' }}
-      mt={[null, isSubmitting.value ? null : 'auto']}
+      mt={{ md: status === 'results' ? undefined : 'auto' }}
       {...rest}
     >
       <Button
@@ -140,7 +137,7 @@ export const Title: React.FC<TTitle> = (props: TTitle) => {
         variant="link"
         flexWrap="wrap"
         flexDir="column"
-        onClick={handleClick}
+        onClick={() => reset()}
         _focus={{ boxShadow: 'none' }}
         _hover={{ textDecoration: 'none' }}
       >

@@ -125,3 +125,53 @@ export function dedupObjectArray<E extends Record<string, unknown>, P extends ke
     }
   }, []);
 }
+
+interface AndJoinOptions {
+  /**
+   * Separator for last item.
+   *
+   * @default '&'
+   */
+  separator?: string;
+
+  /**
+   * Use the oxford comma.
+   *
+   * @default true
+   */
+  oxfordComma?: boolean;
+
+  /**
+   * Wrap each item in a character.
+   *
+   * @default ''
+   */
+  wrap?: string;
+}
+
+/**
+ * Create a natural list of values from an array of strings
+ * @param values
+ * @param options
+ * @returns
+ */
+export function andJoin(values: string[], options?: AndJoinOptions): string {
+  let mergedOptions = { separator: '&', oxfordComma: true, wrap: '' } as Required<AndJoinOptions>;
+  if (typeof options === 'object' && options !== null) {
+    mergedOptions = { ...mergedOptions, ...options };
+  }
+  const { separator, oxfordComma, wrap } = mergedOptions;
+  const parts = values.filter(v => typeof v === 'string');
+  const lastElement = parts.pop();
+  if (typeof lastElement === 'undefined') {
+    return '';
+  }
+  const last = [wrap, lastElement, wrap].join('');
+  if (parts.length > 0) {
+    const main = parts.map(p => [wrap, p, wrap].join('')).join(', ');
+    const comma = oxfordComma && parts.length > 2 ? ',' : '';
+    const result = `${main}${comma} ${separator} ${last}`;
+    return result.trim();
+  }
+  return last;
+}

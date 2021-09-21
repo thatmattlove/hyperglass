@@ -2,6 +2,7 @@ import { createContext, useContext, useMemo } from 'react';
 import ReactSelect from 'react-select';
 import { chakra, useDisclosure } from '@chakra-ui/react';
 import { useColorMode } from '~/context';
+import { Option } from './option';
 import {
   useRSTheme,
   useMenuStyle,
@@ -17,16 +18,16 @@ import {
   useIndicatorSeparatorStyle,
 } from './styles';
 
-import type { TSelectOption } from '~/types';
+import type { SingleOption } from '~/types';
 import type { TSelectBase, TSelectContext, TReactSelectChakra } from './types';
 
-const SelectContext = createContext<TSelectContext>(Object());
+const SelectContext = createContext<TSelectContext>({} as TSelectContext);
 export const useSelectContext = (): TSelectContext => useContext(SelectContext);
 
 const ReactSelectChakra = chakra<typeof ReactSelect, TReactSelectChakra>(ReactSelect);
 
 export const Select: React.FC<TSelectBase> = (props: TSelectBase) => {
-  const { options, multi, onSelect, isError = false, ...rest } = props;
+  const { options, multi, onSelect, isError = false, components, ...rest } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { colorMode } = useColorMode();
@@ -36,7 +37,7 @@ export const Select: React.FC<TSelectBase> = (props: TSelectBase) => {
     [colorMode, isError, isOpen],
   );
 
-  const defaultOnChange = (changed: TSelectOption | TSelectOption[]) => {
+  const defaultOnChange = (changed: SingleOption | SingleOption[]) => {
     if (!Array.isArray(changed)) {
       changed = [changed];
     }
@@ -61,6 +62,7 @@ export const Select: React.FC<TSelectBase> = (props: TSelectBase) => {
         options={options}
         isMulti={multi}
         theme={rsTheme}
+        components={{ Option, ...components }}
         styles={{
           menuPortal,
           multiValue,

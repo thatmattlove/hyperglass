@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Flex, ScaleFade } from '@chakra-ui/react';
 import { AnimatedDiv } from '~/components';
 import { useBreakpointValue } from '~/context';
-import { useBooleanValue, useLGState } from '~/hooks';
+import { useBooleanValue, useFormState } from '~/hooks';
 import { Title } from './title';
 
 import type { THeader } from './types';
@@ -10,12 +10,12 @@ import type { THeader } from './types';
 export const Header: React.FC<THeader> = (props: THeader) => {
   const { resetForm, ...rest } = props;
 
-  const { isSubmitting } = useLGState();
+  const status = useFormState(s => s.status);
 
   const titleRef = useRef({} as HTMLDivElement);
 
   const titleWidth = useBooleanValue(
-    isSubmitting.value,
+    status === 'results',
     { base: '75%', lg: '50%' },
     { base: '75%', lg: '75%' },
   );
@@ -33,7 +33,7 @@ export const Header: React.FC<THeader> = (props: THeader) => {
           maxW={titleWidth}
           // This is here for the logo
           justifyContent={justify}
-          mx={{ base: isSubmitting.value ? 'auto' : 0, lg: 'auto' }}
+          mx={{ base: status === 'results' ? 'auto' : 0, lg: 'auto' }}
         >
           <Title />
         </AnimatedDiv>

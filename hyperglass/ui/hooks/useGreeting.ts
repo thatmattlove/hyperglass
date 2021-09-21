@@ -1,45 +1,54 @@
-import { createState, useState } from '@hookstate/core';
-import { Persistence } from '@hookstate/persistence';
+import create from 'zustand';
+import { persist } from 'zustand/middleware';
 import { useConfig } from '~/context';
+import { withDev } from '~/util';
 
-import type { TUseGreetingReturn } from './types';
+import type { StateSelector, EqualityChecker } from 'zustand';
+import type { UseGreeting } from './types';
 
-const ackState = createState<boolean>(false);
-const openState = createState<boolean>(false);
-
-/**
- * Hook to manage the greeting, a.k.a. the popup at config path web.greeting.
- */
-export function useGreeting(): TUseGreetingReturn {
-  const ack = useState<boolean>(ackState);
-  const isOpen = useState<boolean>(openState);
-  const { web } = useConfig();
-
-  if (typeof window !== 'undefined') {
-    ack.attach(Persistence('hyperglass-greeting'));
+export function useGreeting(): UseGreeting;
+export function useGreeting<U extends ValueOf<UseGreeting>>(
+  selector: StateSelector<UseGreeting, U>,
+  equalityFn?: EqualityChecker<U>,
+): U;
+export function useGreeting<U extends Partial<UseGreeting>>(
+  selector: StateSelector<UseGreeting, U>,
+  equalityFn?: EqualityChecker<U>,
+): U;
+export function useGreeting<U extends UseGreeting>(
+  selector?: StateSelector<UseGreeting, U>,
+  equalityFn?: EqualityChecker<U>,
+): U {
+  const {
+    web: {
+      greeting: { required },
+    },
+  } = useConfig();
+  const storeFn = create<UseGreeting>(
+    persist(
+      withDev<UseGreeting>(
+        set => ({
+          isOpen: false,
+          isAck: false,
+          greetingReady: false,
+          ack(isAck: boolean): void {
+            const greetingReady = isAck ? true : !required ? true : false;
+            set(() => ({ isAck, greetingReady, isOpen: false }));
+          },
+          open(): void {
+            set(() => ({ isOpen: true }));
+          },
+          close(): void {
+            set(() => ({ isOpen: false }));
+          },
+        }),
+        'useGreeting',
+      ),
+      { name: 'hyperglass-greeting' },
+    ),
+  );
+  if (typeof selector === 'function') {
+    return storeFn<U>(selector, equalityFn);
   }
-
-  function open() {
-    return isOpen.set(true);
-  }
-  function close() {
-    return isOpen.set(false);
-  }
-
-  function greetingReady(): boolean {
-    if (ack.get()) {
-      // If the acknowledgement is already set, no further evaluation is needed.
-      return true;
-    } else if (!web.greeting.required && !ack.get()) {
-      // If the acknowledgement is not set, but is also not required, then pass.
-      return true;
-    } else if (web.greeting.required && !ack.get()) {
-      // If the acknowledgement is not set, but is required, then fail.
-      return false;
-    } else {
-      return false;
-    }
-  }
-
-  return { ack, isOpen, greetingReady, open, close };
+  return storeFn() as U;
 }

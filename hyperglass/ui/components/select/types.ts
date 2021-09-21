@@ -14,13 +14,13 @@ import type {
   Styles as RSStyles,
 } from 'react-select';
 import type { BoxProps } from '@chakra-ui/react';
-import type { Theme, TSelectOption, TSelectOptionMulti, TSelectOptionGroup } from '~/types';
+import type { Theme, SingleOption, OptionGroup } from '~/types';
 
 export interface TSelectState {
   [k: string]: string[];
 }
 
-export type TOptions = Array<TSelectOptionGroup | TSelectOption>;
+export type TOptions = Array<SingleOption | OptionGroup>;
 
 export type TReactSelectChakra = Omit<IReactSelect, 'isMulti' | 'onSelect' | 'onChange'> &
   Omit<BoxProps, 'onChange' | 'onSelect'>;
@@ -31,8 +31,8 @@ export interface TSelectBase extends TReactSelectChakra {
   isError?: boolean;
   options: TOptions;
   required?: boolean;
-  onSelect?: (s: TSelectOption[]) => void;
-  onChange?: (c: TSelectOption | TSelectOptionMulti) => void;
+  onSelect?: (s: SingleOption[]) => void;
+  onChange?: (c: SingleOption | SingleOption[]) => void;
   colorScheme?: Theme.ColorNames;
 }
 

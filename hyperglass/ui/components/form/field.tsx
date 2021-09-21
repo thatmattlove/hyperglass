@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { Flex, FormControl, FormLabel, FormErrorMessage } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { If } from '~/components';
@@ -6,6 +6,7 @@ import { useColorValue } from '~/context';
 import { useBooleanValue } from '~/hooks';
 
 import type { FieldError } from 'react-hook-form';
+import type { FormData } from '~/types';
 import type { TField } from './types';
 
 export const FormField: React.FC<TField> = (props: TField) => {
@@ -14,19 +15,17 @@ export const FormField: React.FC<TField> = (props: TField) => {
   const errorColor = useColorValue('red.500', 'red.300');
   const opacity = useBooleanValue(hiddenLabels, 0, undefined);
 
-  const [error, setError] = useState<Nullable<FieldError>>(null);
+  const { formState } = useFormContext<FormData>();
 
-  const {
-    formState: { errors },
-  } = useFormContext();
-
-  useEffect(() => {
-    if (name in errors) {
-      console.dir(errors);
-      setError(errors[name]);
-      console.warn(`Error on field '${label}': ${error?.message}`);
+  const error = useMemo<FieldError | null>(() => {
+    if (name in formState.errors) {
+      console.group(`Error on field '${label}'`);
+      console.warn(formState.errors[name as keyof FormData]);
+      console.groupEnd();
+      return formState.errors[name as keyof FormData] as FieldError;
     }
-  }, [error, errors, label, name, setError]);
+    return null;
+  }, [formState, label, name]);
 
   return (
     <FormControl

@@ -1,23 +1,24 @@
-import { forwardRef, useEffect, useMemo } from 'react';
+import { forwardRef, memo, useEffect, useMemo } from 'react';
 import {
   Box,
   Flex,
-  chakra,
   Icon,
   Alert,
+  chakra,
   HStack,
   Tooltip,
   AccordionItem,
   AccordionPanel,
-  useAccordionContext,
   AccordionButton,
+  useAccordionContext,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { BsLightningFill } from '@meronex/icons/bs';
 import { startCase } from 'lodash';
+import isEqual from 'react-fast-compare';
 import { BGPTable, Countdown, TextOutput, If, Path } from '~/components';
 import { useColorValue, useConfig, useMobile } from '~/context';
-import { useStrf, useLGQuery, useLGState, useTableToString } from '~/hooks';
+import { useStrf, useLGQuery, useTableToString, useFormState, useDevice } from '~/hooks';
 import { isStructuredOutput, isStringOutput } from '~/types';
 import { isStackError, isFetchError, isLGError, isLGOutputOrError } from './guards';
 import { RequeryButton } from './requeryButton';
@@ -25,7 +26,7 @@ import { CopyButton } from './copyButton';
 import { FormattedError } from './error';
 import { ResultHeader } from './header';
 
-import type { TResult, TErrorLevels } from './types';
+import type { ResultProps, TErrorLevels } from './types';
 
 const AnimatedAccordionItem = motion(AccordionItem);
 
@@ -38,11 +39,15 @@ const AccordionHeaderWrapper = chakra('div', {
   },
 });
 
-const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props: TResult, ref) => {
-  const { index, device, queryType, queryTarget, queryLocation, queryGroup } = props;
-
+const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
+  props: ResultProps,
+  ref,
+) => {
+  const { index, queryLocation } = props;
   const { web, cache, messages } = useConfig();
   const { index: indices, setIndex } = useAccordionContext();
+  const getDevice = useDevice();
+  const device = getDevice(queryLocation);
 
   const isMobile = useMobile();
   const color = useColorValue('black', 'white');
@@ -50,20 +55,26 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
   const scrollbarHover = useColorValue('blackAlpha.400', 'whiteAlpha.400');
   const scrollbarBg = useColorValue('blackAlpha.50', 'whiteAlpha.50');
 
-  const { responses } = useLGState();
+  const addResponse = useFormState(s => s.addResponse);
+  const form = useFormState(s => s.form);
 
-  const { data, error, isError, isLoading, refetch, isFetchedAfterMount } = useLGQuery({
-    queryLocation,
-    queryTarget,
-    queryType,
-    queryGroup,
-  });
-
+  const { data, error, isError, isLoading, refetch, isFetchedAfterMount } = useLGQuery(
+    {
+      queryLocation,
+      queryTarget: form.queryTarget,
+      queryType: form.queryType,
+    },
+    {
+      onSuccess(data) {
+        addResponse(device.id, data);
+      },
+      onError(error) {
+        console.error(error);
+      },
+    },
+  );
   const isCached = useMemo(() => data?.cached || !isFetchedAfterMount, [data, isFetchedAfterMount]);
 
-  if (typeof data !== 'undefined') {
-    responses.merge({ [device.id]: data });
-  }
   const strF = useStrf();
   const cacheLabel = strF(web.text.cacheIcon, { time: data?.timestamp });
 
@@ -92,8 +103,6 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
     }
   }, [error, data, messages.general, messages.requestTimeout]);
 
-  isError && console.error(error);
-
   const errorLevel = useMemo<TErrorLevels>(() => {
     const statusMap = {
       success: 'success',
@@ -113,15 +122,15 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
 
   const tableComponent = useMemo<boolean>(() => {
     let result = false;
-    if (typeof queryType.match(/^bgp_\w+$/) !== null && data?.format === 'application/json') {
+    if (data?.format === 'application/json') {
       result = true;
     }
     return result;
-  }, [queryType, data?.format]);
+  }, [data?.format]);
 
   let copyValue = data?.output as string;
 
-  const formatData = useTableToString(queryTarget, data, [data?.format]);
+  const formatData = useTableToString(form.queryTarget, data, [data?.format]);
 
   if (data?.format === 'application/json') {
     copyValue = formatData();
@@ -141,7 +150,6 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
       }
     }
   }, [data, index, indices, isLoading, isError, setIndex]);
-
   return (
     <AnimatedAccordionItem
       ref={ref}
@@ -250,4 +258,4 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
   );
 };
 
-export const Result = forwardRef<HTMLDivElement, TResult>(_Result);
+export const Result = memo(forwardRef<HTMLDivElement, ResultProps>(_Result), isEqual);

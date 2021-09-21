@@ -1,6 +1,6 @@
 import type { FormControlProps } from '@chakra-ui/react';
 import type { UseFormRegister } from 'react-hook-form';
-import type { OnChangeArgs, FormData } from '~/types';
+import type { OnChangeArgs, FormData, SingleOption } from '~/types';
 
 export interface TField extends FormControlProps {
   name: string;
@@ -17,10 +17,6 @@ export interface TQuerySelectField {
   label: string;
 }
 
-export interface TQueryGroup extends TQuerySelectField {
-  groups: string[];
-}
-
 export interface TQueryTarget {
   name: string;
   placeholder: string;
@@ -28,7 +24,13 @@ export interface TQueryTarget {
   onChange(e: OnChangeArgs): void;
 }
 
-export interface TResolvedTarget {
-  setTarget(e: OnChangeArgs): void;
+export interface ResolvedTargetProps {
   errorClose(): void;
+}
+
+export interface LocationCardProps {
+  option: SingleOption;
+  defaultChecked: boolean;
+  onChange(a: 'add' | 'remove', v: SingleOption): void;
+  hasError: boolean;
 }

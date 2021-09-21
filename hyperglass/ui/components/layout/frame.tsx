@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { Flex } from '@chakra-ui/react';
 import { isSafari } from 'react-device-detect';
 import { If, Debugger, Greeting, Footer, Header } from '~/components';
 import { useConfig } from '~/context';
-import { useLGState, useLGMethods, useGoogleAnalytics } from '~/hooks';
+import { useGoogleAnalytics, useFormState } from '~/hooks';
 import { ResetButton } from './resetButton';
 
 import type { TFrame } from './types';
@@ -12,16 +12,18 @@ import type { TFrame } from './types';
 export const Frame = (props: TFrame): JSX.Element => {
   const router = useRouter();
   const { developerMode, googleAnalytics } = useConfig();
-  const { isSubmitting } = useLGState();
-  const { resetForm } = useLGMethods();
+  const { setStatus, reset } = useFormState(
+    useCallback(({ setStatus, reset }) => ({ setStatus, reset }), []),
+  );
+
   const { initialize, trackPage } = useGoogleAnalytics();
 
   const containerRef = useRef<HTMLDivElement>({} as HTMLDivElement);
 
   function handleReset(): void {
     containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    isSubmitting.set(false);
-    resetForm();
+    setStatus('form');
+    reset();
   }
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export const Frame = (props: TFrame): JSX.Element => {
          */
         minHeight={isSafari ? '-webkit-fill-available' : '100vh'}
       >
-        <Header resetForm={handleReset} />
+        <Header resetForm={() => handleReset()} />
         <Flex
           px={4}
           py={0}

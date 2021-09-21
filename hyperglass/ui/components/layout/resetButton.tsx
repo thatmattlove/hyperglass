@@ -3,20 +3,20 @@ import { Flex, Icon, IconButton } from '@chakra-ui/react';
 import { AnimatePresence } from 'framer-motion';
 import { AnimatedDiv } from '~/components';
 import { useColorValue } from '~/context';
-import { useLGState, useOpposingColor } from '~/hooks';
+import { useOpposingColor, useFormState } from '~/hooks';
 
 import type { TResetButton } from './types';
 
 const LeftArrow = dynamic<MeronexIcon>(() => import('@meronex/icons/fa').then(i => i.FaAngleLeft));
 
-export const ResetButton: React.FC<TResetButton> = (props: TResetButton) => {
+export const ResetButton = (props: TResetButton): JSX.Element => {
   const { developerMode, resetForm, ...rest } = props;
-  const { isSubmitting } = useLGState();
+  const status = useFormState(s => s.status);
   const bg = useColorValue('primary.500', 'primary.300');
   const color = useOpposingColor(bg);
   return (
     <AnimatePresence>
-      {isSubmitting.value && (
+      {status === 'results' && (
         <AnimatedDiv
           bg={bg}
           left={0}

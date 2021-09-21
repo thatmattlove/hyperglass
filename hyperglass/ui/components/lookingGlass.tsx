@@ -1,14 +1,11 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import isEqual from 'react-fast-compare';
 import { Flex, ScaleFade, SlideFade } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { intersectionWith } from 'lodash';
-import isEqual from 'react-fast-compare';
 import { vestResolver } from '@hookform/resolvers/vest';
 import vest, { test, enforce } from 'vest';
 import {
-  If,
   FormRow,
-  QueryGroup,
   FormField,
   HelpModal,
   QueryType,
@@ -18,8 +15,7 @@ import {
   QueryLocation,
 } from '~/components';
 import { useConfig } from '~/context';
-import { useStrf, useGreeting, useDevice, useLGState, useLGMethods } from '~/hooks';
-import { dedupObjectArray } from '~/util';
+import { useStrf, useGreeting, useDevice, useFormState } from '~/hooks';
 import { isString, isQueryField, Directive } from '~/types';
 
 import type { FormData, OnChangeArgs } from '~/types';
@@ -36,39 +32,32 @@ const fqdnPattern = new RegExp(
   /^(?!:\/\/)([a-zA-Z0-9-]+\.)?[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z-]{2,6}?$/im,
 );
 
-function useIsFqdn(target: string, _type: string) {
-  return useCallback(
-    (): boolean => ['bgp_route', 'ping', 'traceroute'].includes(_type) && fqdnPattern.test(target),
-    [target, _type],
-  );
-}
-
-export const LookingGlass: React.FC = () => {
+export const LookingGlass = (): JSX.Element => {
   const { web, messages } = useConfig();
 
-  const { ack, greetingReady } = useGreeting();
+  const greetingReady = useGreeting(s => s.greetingReady);
+
   const getDevice = useDevice();
   const strF = useStrf();
+  const setLoading = useFormState(s => s.setLoading);
+  const setStatus = useFormState(s => s.setStatus);
+  const locationChange = useFormState(s => s.locationChange);
+  const setTarget = useFormState(s => s.setTarget);
+  const setFormValue = useFormState(s => s.setFormValue);
+  const { form, filtered } = useFormState(
+    useCallback(({ form, filtered }) => ({ form, filtered }), []),
+    isEqual,
+  );
+
+  const getDirective = useFormState(useCallback(s => s.getDirective, []));
+  const resolvedOpen = useFormState(useCallback(s => s.resolvedOpen, []));
+  const resetForm = useFormState(useCallback(s => s.reset, []));
 
   const noQueryType = strF(messages.noInput, { field: web.text.queryType });
   const noQueryLoc = strF(messages.noInput, { field: web.text.queryLocation });
   const noQueryTarget = strF(messages.noInput, { field: web.text.queryTarget });
 
-  const {
-    availableGroups,
-    queryType,
-    directive,
-    availableTypes,
-    btnLoading,
-    queryGroup,
-    queryTarget,
-    isSubmitting,
-    queryLocation,
-    displayTarget,
-    selections,
-  } = useLGState();
-
-  const queryTypes = useMemo(() => availableTypes.map(t => t.id.value), [availableTypes]);
+  const queryTypes = useMemo(() => filtered.types.map(t => t.id), [filtered.types]);
 
   const formSchema = vest.create((data: FormData = {} as FormData) => {
     test('queryLocation', noQueryLoc, () => {
@@ -80,9 +69,6 @@ export const LookingGlass: React.FC = () => {
     test('queryType', noQueryType, () => {
       enforce(data.queryType).inside(queryTypes);
     });
-    test('queryGroup', 'Query Group is empty', () => {
-      enforce(data.queryGroup).isString();
-    });
   });
 
   const formInstance = useForm<FormData>({
@@ -91,155 +77,65 @@ export const LookingGlass: React.FC = () => {
       queryTarget: '',
       queryLocation: [],
       queryType: '',
-      queryGroup: '',
     },
   });
 
   const { handleSubmit, register, setValue, setError, clearErrors } = formInstance;
 
-  const { resolvedOpen, resetForm, getDirective } = useLGMethods();
+  // const isFqdnQuery = useIsFqdn(form.queryTarget, form.queryType);
+  const isFqdnQuery = useCallback(
+    (target: string, fieldType: Directive['fieldType'] | null): boolean =>
+      fieldType === 'text' && fqdnPattern.test(target),
+    [],
+  );
 
-  const isFqdnQuery = useIsFqdn(queryTarget.value, queryType.value);
-
-  const selectedDirective = useMemo(() => {
-    if (queryType.value === '') {
-      return null;
-    }
-    const directive = getDirective(queryType.value);
-    if (directive !== null) {
-      return directive;
-    }
-    return null;
+  const directive = useMemo<Directive | null>(
+    () => getDirective(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryType.value, queryGroup.value, getDirective]);
+    [form.queryType, form.queryLocation, getDirective],
+  );
 
-  function submitHandler() {
+  function submitHandler(): void {
     console.table({
-      'Query Location': queryLocation.value,
-      'Query Type': queryType.value,
-      'Query Group': queryGroup.value,
-      'Query Target': queryTarget.value,
-      'Selected Directive': selectedDirective?.name ?? null,
+      'Query Location': form.queryLocation.toString(),
+      'Query Type': form.queryType,
+      'Query Target': form.queryTarget,
+      'Selected Directive': directive?.name ?? null,
     });
-    /**
-     * Before submitting a query, make sure the greeting is acknowledged if required. This should
-     * be handled before loading the app, but people be sneaky.
-     */
-    if (!greetingReady()) {
+    // Before submitting a query, make sure the greeting is acknowledged if required. This should
+    // be handled before loading the app, but people be sneaky.
+
+    if (!greetingReady) {
       resetForm();
       location.reload();
+      return;
     }
 
     // Determine if queryTarget is an FQDN.
-    const isFqdn = isFqdnQuery();
+    const isFqdn = isFqdnQuery(form.queryTarget, directive?.fieldType ?? null);
 
-    if (greetingReady() && !isFqdn) {
-      return isSubmitting.set(true);
+    if (greetingReady && !isFqdn) {
+      return setStatus('results');
     }
 
-    if (greetingReady() && isFqdn) {
-      btnLoading.set(true);
+    if (greetingReady && isFqdn) {
+      setLoading(true);
       return resolvedOpen();
     } else {
       console.group('%cSomething went wrong', 'color:red;');
       console.table({
         'Greeting Required': web.greeting.required,
-        'Greeting Ready': greetingReady(),
-        'Greeting Acknowledged': ack.value,
-        'Query Target': queryTarget.value,
-        'Query Type': queryType.value,
+        'Greeting Ready': greetingReady,
+        'Query Target': form.queryTarget,
+        'Query Type': form.queryType,
         'Is FQDN': isFqdn,
       });
       console.groupEnd();
     }
   }
 
-  function handleLocChange(locations: string[]): void {
-    clearErrors('queryLocation');
-    const locationNames = [] as string[];
-    const allGroups = [] as string[][];
-    const allTypes = [] as Directive[][];
-    const allDevices = [];
-
-    queryLocation.set(locations);
-
-    // Create an array of each device's VRFs.
-    for (const loc of locations) {
-      const device = getDevice(loc);
-      locationNames.push(device.name);
-      allDevices.push(device);
-      const groups = new Set<string>();
-      for (const directive of device.directives) {
-        for (const group of directive.groups) {
-          groups.add(group);
-        }
-      }
-      allGroups.push(Array.from(groups));
-    }
-
-    const intersecting = intersectionWith(...allGroups, isEqual);
-
-    if (!intersecting.includes(queryGroup.value)) {
-      queryGroup.set('');
-      queryType.set('');
-      directive.set(null);
-      selections.merge({ queryGroup: null, queryType: null });
-    }
-
-    for (const group of intersecting) {
-      for (const device of allDevices) {
-        for (const directive of device.directives) {
-          if (directive.groups.includes(group)) {
-            // allTypes.add(directive.name);
-            allTypes.push(device.directives);
-            // allTypes.push(device.directives.map(d => d.name));
-          }
-        }
-      }
-    }
-
-    const intersectingTypes = intersectionWith(...allTypes, isEqual);
-
-    availableGroups.set(intersecting);
-    availableTypes.set(intersectingTypes);
-
-    // If there is more than one location selected, but there are no intersecting VRFs, show an error.
-    if (locations.length > 1 && intersecting.length === 0) {
-      setError('queryLocation', {
-        // message: `${locationNames.join(', ')} have no VRFs in common.`,
-        message: `${locationNames.join(', ')} have no groups in common.`,
-      });
-    }
-    // If there is only one intersecting VRF, set it as the form value so the user doesn't have to.
-    else if (intersecting.length === 1) {
-      queryGroup.set(intersecting[0]);
-    }
-    if (availableGroups.length > 1 && intersectingTypes.length === 0) {
-      setError('queryLocation', {
-        message: `${locationNames.join(', ')} have no query types in common.`,
-      });
-    } else if (intersectingTypes.length === 1) {
-      queryType.set(intersectingTypes[0].id);
-    }
-  }
-
-  function handleGroupChange(group: string): void {
-    queryGroup.set(group);
-    let availTypes = new Array<Directive>();
-    for (const loc of queryLocation) {
-      const device = getDevice(loc.value);
-      for (const directive of device.directives) {
-        if (directive.groups.includes(group)) {
-          availTypes.push(directive);
-        }
-      }
-    }
-    availTypes = dedupObjectArray<Directive>(availTypes, 'id');
-    availableTypes.set(availTypes);
-    if (availableTypes.length === 1) {
-      queryType.set(availableTypes[0].name.value);
-    }
-  }
+  const handleLocChange = (locations: string[]) =>
+    locationChange(locations, { setError, clearErrors, getDevice, text: web.text });
 
   function handleChange(e: OnChangeArgs): void {
     // Signal the field & value to react-hook-form.
@@ -252,27 +148,23 @@ export const LookingGlass: React.FC = () => {
     if (e.field === 'queryLocation' && Array.isArray(e.value)) {
       handleLocChange(e.value);
     } else if (e.field === 'queryType' && isString(e.value)) {
-      queryType.set(e.value);
-      if (queryTarget.value !== '') {
+      setValue('queryType', e.value);
+      setFormValue('queryType', e.value);
+      if (form.queryTarget !== '') {
         // Reset queryTarget as well, so that, for example, selecting BGP Community, and selecting
         // a community, then changing the queryType to BGP Route doesn't preserve the selected
         // community as the queryTarget.
-        queryTarget.set('');
-        displayTarget.set('');
+        setFormValue('queryTarget', '');
+        setTarget({ display: '' });
       }
     } else if (e.field === 'queryTarget' && isString(e.value)) {
-      queryTarget.set(e.value);
-    } else if (e.field === 'queryGroup' && isString(e.value)) {
-      // queryGroup.set(e.value);
-      handleGroupChange(e.value);
+      setFormValue('queryTarget', e.value);
     }
   }
 
   useEffect(() => {
     register('queryLocation', { required: true });
-    // register('queryTarget', { required: true });
     register('queryType', { required: true });
-    register('queryGroup');
   }, [register]);
 
   return (
@@ -295,25 +187,16 @@ export const LookingGlass: React.FC = () => {
           <FormField name="queryLocation" label={web.text.queryLocation}>
             <QueryLocation onChange={handleChange} label={web.text.queryLocation} />
           </FormField>
-          <If c={availableGroups.length > 1}>
-            <FormField label={web.text.queryGroup} name="queryGroup">
-              <QueryGroup
-                label={web.text.queryGroup}
-                groups={availableGroups.value}
-                onChange={handleChange}
-              />
-            </FormField>
-          </If>
         </FormRow>
         <FormRow>
-          <SlideFade offsetX={-100} in={availableTypes.length > 1} unmountOnExit>
+          <SlideFade offsetY={100} in={filtered.types.length > 0} unmountOnExit>
             <FormField
               name="queryType"
               label={web.text.queryType}
               labelAddOn={
                 <HelpModal
-                  visible={selectedDirective?.info.value !== null}
-                  item={selectedDirective?.info.value ?? null}
+                  visible={directive?.info !== null}
+                  item={directive?.info ?? null}
                   name="queryType"
                 />
               }
@@ -321,14 +204,14 @@ export const LookingGlass: React.FC = () => {
               <QueryType onChange={handleChange} label={web.text.queryType} />
             </FormField>
           </SlideFade>
-          <SlideFade offsetX={100} in={selectedDirective !== null} unmountOnExit>
-            {selectedDirective !== null && (
+          <SlideFade offsetX={100} in={directive !== null} unmountOnExit>
+            {directive !== null && (
               <FormField name="queryTarget" label={web.text.queryTarget}>
                 <QueryTarget
                   name="queryTarget"
                   register={register}
                   onChange={handleChange}
-                  placeholder={selectedDirective.description.value}
+                  placeholder={directive.description}
                 />
               </FormField>
             )}
@@ -344,8 +227,8 @@ export const LookingGlass: React.FC = () => {
             flexDir="column"
             mr={{ base: 0, lg: 2 }}
           >
-            <ScaleFade initialScale={0.5} in={queryTarget.value !== ''}>
-              <SubmitButton handleChange={handleChange} />
+            <ScaleFade initialScale={0.5} in={form.queryTarget !== ''}>
+              <SubmitButton />
             </ScaleFade>
           </Flex>
         </FormRow>
