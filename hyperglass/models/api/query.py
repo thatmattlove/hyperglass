@@ -17,7 +17,6 @@ from hyperglass.state import use_state
 from hyperglass.exceptions.public import (
     InputInvalid,
     QueryTypeNotFound,
-    QueryGroupNotFound,
     QueryLocationNotFound,
 )
 from hyperglass.exceptions.private import InputValidationError
@@ -36,7 +35,7 @@ class Query(BaseModel):
     # Directive `id` field
     query_type: StrictStr
     # Directive `groups` member
-    query_group: Optional[StrictStr]
+    query_group: Optional[StrictStr] = None
     query_target: constr(strip_whitespace=True, min_length=1)
 
     class Config:
@@ -74,12 +73,10 @@ class Query(BaseModel):
         self.timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
         state = use_state()
         self._state = state
-        for command in self.device.commands:
-            if command.id == self.query_type:
-                self.directive = command
-                break
-            else:
-                raise QueryTypeNotFound(query_type=self.query_type)
+        query_directives = self.device.directives.matching(self.query_type)
+        if len(query_directives) < 1:
+            raise QueryTypeNotFound(query_type=self.query_type)
+        self.directive = query_directives[0]
         try:
             self.validate_query_target()
         except InputValidationError as err:
@@ -151,10 +148,7 @@ class Query(BaseModel):
     def validate_query_type(cls, value):
         """Ensure a requested query type exists."""
         devices = use_state("devices")
-        directive_ids = [
-            directive.id for device in devices.objects for directive in device.commands
-        ]
-        if value in directive_ids:
+        if any((device.has_directives(value) for device in devices.objects)):
             return value
 
         raise QueryTypeNotFound(name=value)
@@ -171,18 +165,3 @@ class Query(BaseModel):
             raise QueryLocationNotFound(location=value)
 
         return value
-
-    @validator("query_group")
-    def validate_query_group(cls, value):
-        """Ensure query_group is defined."""
-        devices = use_state("devices")
-        groups = {
-            group
-            for device in devices.objects
-            for directive in device.commands
-            for group in directive.groups
-        }
-        if value in groups:
-            return value
-
-        raise QueryGroupNotFound(group=value)

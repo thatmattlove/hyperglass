@@ -250,7 +250,6 @@ app.add_api_route(
 if STATE.params.docs.enable:
     app.add_api_route(path=STATE.params.docs.uri, endpoint=docs, include_in_schema=False)
     app.openapi = _custom_openapi
-    log.debug("API Docs config: {}", app.openapi())
 
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 app.mount("/custom", StaticFiles(directory=CUSTOM_DIR), name="custom")

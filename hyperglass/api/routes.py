@@ -1,7 +1,6 @@
 """API Routes."""
 
 # Standard Library
-import json
 import time
 import typing as t
 from datetime import datetime
@@ -20,6 +19,8 @@ from hyperglass.constants import __version__
 from hyperglass.models.ui import UIParameters
 from hyperglass.exceptions import HyperglassError
 from hyperglass.models.api import Query
+from hyperglass.models.data import OutputDataModel
+from hyperglass.util.typing import is_type
 from hyperglass.execution.main import execute
 from hyperglass.models.config.params import Params
 from hyperglass.models.config.devices import Devices
@@ -103,20 +104,11 @@ async def query(
     log.info("Starting query execution for query {}", query_data.summary)
 
     cache_response = cache.get_map(cache_key, "output")
-
     json_output = False
-
-    if query_data.device.structured_output and query_data.query_type in (
-        "bgp_route",
-        "bgp_community",
-        "bgp_aspath",
-    ):
-        json_output = True
-
     cached = False
     runtime = 65535
     if cache_response:
-        log.debug("Query {} exists in cache", cache_key)
+        log.debug("Query {!r} exists in cache", query_data)
 
         # If a cached response exists, reset the expiration time.
         cache.expire(cache_key, expire_in=state.params.cache.timeout)
@@ -126,8 +118,7 @@ async def query(
         timestamp = cache.get_map(cache_key, "timestamp")
 
     elif not cache_response:
-        log.debug("No existing cache entry for query {}", cache_key)
-        log.debug("Created new cache key {} entry for query {}", cache_key, query_data.summary)
+        log.debug("Created new cache entry {} entry for query {!r}", cache_key, query_data)
 
         timestamp = query_data.timestamp
 
@@ -135,40 +126,43 @@ async def query(
 
         if state.params.fake_output:
             # Return fake, static data for development purposes, if enabled.
-            cache_output = await fake_output(json_output)
+            output = await fake_output(True)
         else:
             # Pass request to execution module
-            cache_output = await execute(query_data)
+            output = await execute(query_data)
 
         endtime = time.time()
         elapsedtime = round(endtime - starttime, 4)
-        log.debug("Query {} took {} seconds to run.", cache_key, elapsedtime)
+        log.debug("{!r} took {} seconds to run", query_data, elapsedtime)
 
-        if cache_output is None:
+        if output is None:
             raise HyperglassError(message=state.params.messages.general, alert="danger")
 
-        # Create a cache entry
+        json_output = is_type(output, OutputDataModel)
+
         if json_output:
-            raw_output = json.dumps(cache_output)
+            raw_output = output.export_dict()
         else:
-            raw_output = str(cache_output)
+            raw_output = str(output)
+
         cache.set_map_item(cache_key, "output", raw_output)
         cache.set_map_item(cache_key, "timestamp", timestamp)
         cache.expire(cache_key, expire_in=state.params.cache.timeout)
 
-        log.debug("Added cache entry for query: {}", cache_key)
+        log.debug("Added cache entry for query {!r}", query_data)
 
         runtime = int(round(elapsedtime, 0))
 
     # If it does, return the cached entry
     cache_response = cache.get_map(cache_key, "output")
+
+    json_output = is_type(cache_response, t.Dict)
     response_format = "text/plain"
 
     if json_output:
         response_format = "application/json"
 
-    log.debug("Cache match for {}:\n{}", cache_key, cache_response)
-    log.success("Completed query execution for query {}", query_data.summary)
+    log.success("Completed query execution for query {!r}", query_data)
 
     return {
         "output": cache_response,

@@ -89,7 +89,6 @@ async def execute(query: "Query") -> Union["OutputDataModel", str]:
         if not output:
             raise ResponseEmpty(query=query)
 
-    log.debug("Output for query {!r}:\n{!r}", query, output)
     signal.alarm(0)
 
     return output

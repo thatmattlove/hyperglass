@@ -23,7 +23,7 @@ from hyperglass.settings import Settings
 from hyperglass.exceptions.private import InputValidationError
 
 # Local
-from .main import MultiModel, HyperglassModel, HyperglassModelWithId
+from .main import MultiModel, HyperglassModel, HyperglassUniqueModel
 from .fields import Action
 
 if t.TYPE_CHECKING:
@@ -227,7 +227,7 @@ class RuleWithoutValidation(Rule):
 RuleType = t.Union[RuleWithIPv4, RuleWithIPv6, RuleWithPattern, RuleWithoutValidation]
 
 
-class Directive(HyperglassModelWithId):
+class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
     """A directive contains commands that can be run on a device, as long as defined rules are met."""
 
     __hyperglass_builtin__: t.ClassVar[bool] = False
@@ -239,10 +239,8 @@ class Directive(HyperglassModelWithId):
     info: t.Optional[FilePath]
     plugins: t.List[StrictStr] = []
     disable_builtins: StrictBool = False
-    table_output: StrictBool = False
-    groups: t.List[
-        StrictStr
-    ] = []  # TODO: Flesh this out. Replace VRFs, but use same logic in React to filter available commands for multi-device queries.
+    table_output: t.Optional[StrictStr]
+    groups: t.List[StrictStr] = []
 
     def validate_target(self, target: str) -> bool:
         """Validate a target against all configured rules."""
@@ -305,7 +303,7 @@ class Directive(HyperglassModelWithId):
         return value
 
 
-class BuiltinDirective(Directive):
+class BuiltinDirective(Directive, unique_by=("id", "table_output", "platforms")):
     """Natively-supported directive."""
 
     __hyperglass_builtin__: t.ClassVar[bool] = True
@@ -318,13 +316,21 @@ DirectiveT = t.Union[BuiltinDirective, Directive]
 class Directives(MultiModel[Directive], model=Directive, unique_by="id"):
     """Collection of directives."""
 
-    def device_builtins(self, *, platform: str):
+    def device_builtins(self, *, platform: str, table_output: bool):
         """Get builtin directives for a device."""
+
         return Directives(
             *(
-                directive
+                self.table_if_available(directive) if table_output else directive  # noqa: IF100 GFY
                 for directive in self
                 if directive.__hyperglass_builtin__ is True
                 and platform in getattr(directive, "platforms", ())
             )
         )
+
+    def table_if_available(self, directive: "Directive") -> "Directive":
+        """Get the table-output variant of a directive if it exists."""
+        for _directive in self:
+            if _directive.id == directive.table_output:
+                return _directive
+        return directive

@@ -5,7 +5,6 @@ import typing as t
 from abc import ABC, abstractmethod
 
 # Project
-from hyperglass.log import log
 from hyperglass.types import Series
 from hyperglass.plugins import OutputPluginManager
 
@@ -41,12 +40,9 @@ class Connection(ABC):
     async def response(self, output: Series[str]) -> t.Union["OutputDataModel", str]:
         """Send output through common parsers."""
 
-        log.debug("Pre-parsed responses:\n{}", output)
-
         response = self.plugin_manager.execute(output=output, query=self.query_data)
 
         if response is None:
             response = ()
 
-        log.debug("Post-parsed responses:\n{}", response)
         return response

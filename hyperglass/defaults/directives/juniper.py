@@ -21,15 +21,16 @@ JuniperBGPRoute = BuiltinDirective(
         Rule(
             condition="0.0.0.0/0",
             action="permit",
-            command="show route protocol table inet.0 {target} detail",
+            command="show route protocol bgp table inet.0 {target} detail",
         ),
         Rule(
             condition="::/0",
             action="permit",
-            command="show route protocol table inet6.0 {target} detail",
+            command="show route protocol bgp table inet6.0 {target} detail",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
+    table_output="__hyperglass_juniper_bgp_route_table__",
     platforms=["juniper"],
 )
 
@@ -41,12 +42,13 @@ JuniperBGPASPath = BuiltinDirective(
             condition="*",
             action="permit",
             commands=[
-                'show route protocol table inet.0 aspath-regex "{target}"',
-                'show route protocol table inet6.0 aspath-regex "{target}"',
+                'show route protocol bgp table inet.0 aspath-regex "{target}"',
+                'show route protocol bgp table inet6.0 aspath-regex "{target}"',
             ],
         )
     ],
     field=Text(description="AS Path Regular Expression"),
+    table_output="__hyperglass_juniper_bgp_aspath_table__",
     platforms=["juniper"],
 )
 
@@ -58,12 +60,13 @@ JuniperBGPCommunity = BuiltinDirective(
             condition="*",
             action="permit",
             commands=[
-                'show route protocol table inet.0 community "{target}" detail',
-                'show route protocol table inet6.0 community "{target}" detail',
+                'show route protocol bgp table inet.0 community "{target}" detail',
+                'show route protocol bgp table inet6.0 community "{target}" detail',
             ],
         )
     ],
-    field=Text(description="AS Path Regular Expression"),
+    field=Text(description="BGP Community String"),
+    table_output="__hyperglass_juniper_bgp_community_table__",
     platforms=["juniper"],
 )
 
@@ -124,7 +127,6 @@ JuniperBGPRouteTable = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    table_output=True,
     platforms=["juniper"],
 )
 
@@ -142,7 +144,6 @@ JuniperBGPASPathTable = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    table_output=True,
     platforms=["juniper"],
 )
 
@@ -159,7 +160,6 @@ JuniperBGPCommunityTable = BuiltinDirective(
             ],
         )
     ],
-    field=Text(description="AS Path Regular Expression"),
-    table_output=True,
+    field=Text(description="BGP Community String"),
     platforms=["juniper"],
 )

@@ -4,7 +4,7 @@
 from pydantic import BaseModel
 
 # Local
-from ..main import HyperglassMultiModel
+from ..main import MultiModel
 
 
 class Item(BaseModel):
@@ -32,7 +32,7 @@ ITEMS_3 = [
 
 
 def test_multi_model():
-    model = HyperglassMultiModel(*ITEMS_1, model=Item, accessor="id")
+    model = MultiModel(*ITEMS_1, model=Item, accessor="id")
     assert model.count == 3
     assert len([o for o in model]) == model.count  # noqa: C416 (Iteration testing)
     assert model["item1"].name == "Item One"

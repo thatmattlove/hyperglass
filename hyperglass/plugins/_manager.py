@@ -50,14 +50,13 @@ class PluginManager(t.Generic[PluginT]):
 
     def __next__(self: "PluginManager") -> PluginT:
         """Plugin manager iteration."""
-        if self._index <= len(self.plugins):
-            result = self.plugins[self._index - 1]
+        if self._index <= len(self.plugins()):
+            result = self.plugins()[self._index - 1]
             self._index += 1
             return result
         self._index = 0
         raise StopIteration
 
-    @property
     def plugins(self: "PluginManager", builtins: bool = True) -> t.List[PluginT]:
         """Get all plugins, with built-in plugins last."""
         plugins = self._state.plugins(self._type)
@@ -81,7 +80,7 @@ class PluginManager(t.Generic[PluginT]):
 
     def methods(self: "PluginManager", name: str) -> t.Generator[t.Callable, None, None]:
         """Get methods of all registered plugins matching `name`."""
-        for plugin in self.plugins:
+        for plugin in self.plugins():
             if hasattr(plugin, name):
                 method = getattr(plugin, name)
                 if callable(method):
@@ -137,7 +136,7 @@ class InputPluginManager(PluginManager[InputPlugin], type="input"):
         If any plugin returns `False`, execution is halted.
         """
         result = None
-        for plugin in (plugin for plugin in self.plugins if directive.id in plugin.directives):
+        for plugin in (plugin for plugin in self.plugins() if directive.id in plugin.directives):
             if result is False:
                 return result
             result = plugin.validate(query)
@@ -154,10 +153,14 @@ class OutputPluginManager(PluginManager[OutputPlugin], type="output"):
         """
         result = output
         for plugin in (
-            plugin for plugin in self.plugins if query.directive.id in plugin.directives
+            plugin
+            for plugin in self.plugins()
+            if query.directive.id in plugin.directives and query.device.platform in plugin.platforms
         ):
+            log.debug("Output Plugin {!r} starting with\n{!r}", plugin.name, result)
+            result = plugin.process(output=result, query=query)
+            log.debug("Output Plugin {!r} completed with\n{!r}", plugin.name, result)
             if result is False:
                 return result
             # Pass the result of each plugin to the next plugin.
-            result = plugin.process(output=result, query=query)
         return result

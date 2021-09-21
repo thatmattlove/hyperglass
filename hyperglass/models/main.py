@@ -4,6 +4,7 @@
 
 # Standard Library
 import re
+import json
 import typing as t
 from pathlib import Path
 
@@ -91,6 +92,34 @@ class HyperglassModel(BaseModel):
         }
 
         return yaml.safe_dump(json.loads(self.export_json(**export_kwargs)), *args, **kwargs)
+
+
+class HyperglassUniqueModel(HyperglassModel):
+    """hyperglass model that is unique by its `id` field."""
+
+    _unique_fields: t.ClassVar[Series[str]] = ()
+
+    def __init_subclass__(cls, *, unique_by: Series[str], **kw: t.Any) -> None:
+        """Assign unique fields to class."""
+        cls._unique_fields = tuple(unique_by)
+        return super().__init_subclass__(**kw)
+
+    def __eq__(self: "HyperglassUniqueModel", other: "HyperglassUniqueModel") -> bool:
+        """Other model is equal to this model."""
+        if not isinstance(other, self.__class__):
+            return False
+        if hash(self) == hash(other):
+            return True
+        return False
+
+    def __ne__(self: "HyperglassUniqueModel", other: "HyperglassUniqueModel") -> bool:
+        """Other model is not equal to this model."""
+        return not self.__eq__(other)
+
+    def __hash__(self: "HyperglassUniqueModel") -> int:
+        """Create a hashed representation of this model's name."""
+        fields = dict(zip(self._unique_fields, (getattr(self, f) for f in self._unique_fields)))
+        return hash(json.dumps(fields))
 
 
 class HyperglassModelWithId(HyperglassModel):

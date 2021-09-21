@@ -7,7 +7,7 @@ from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
-from pydantic import StrictInt, StrictStr, StrictBool, validator, root_validator
+from pydantic import StrictInt, StrictStr, StrictBool, validator
 
 # Project
 from hyperglass.log import log
@@ -53,8 +53,8 @@ class Device(HyperglassModelWithId, extra="allow"):
     port: StrictInt = 22
     ssl: Optional[Ssl]
     platform: StrictStr
-    directives: Directives
     structured_output: Optional[StrictBool]
+    directives: Directives = Directives()
     driver: Optional[SupportedDriver]
     attrs: Dict[str, str] = {}
 
@@ -190,32 +190,35 @@ class Device(HyperglassModelWithId, extra="allow"):
                 value.cert = cert_file
         return value
 
-    @root_validator(pre=True)
-    def validate_device(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    @validator("platform", pre=True, always=True)
+    def validate_platform(cls: "Device", value: Any, values: Dict[str, Any]) -> str:
         """Validate & rewrite device platform, set default `directives`."""
 
-        platform = values.get("platform")
-        if platform is None:
+        if value is None:
             # Ensure device platform is defined.
             raise ConfigError(
                 "Device '{device}' is missing a 'platform' (Network Operating System) property",
                 device={values["name"]},
             )
 
-        if platform in SCRAPE_HELPERS.keys():
-            # Rewrite NOS to helper value if needed.
-            platform = SCRAPE_HELPERS[platform]
+        if value in SCRAPE_HELPERS.keys():
+            # Rewrite platform to helper value if needed.
+            value = SCRAPE_HELPERS[value]
 
         # Verify device platform is supported by hyperglass.
-        supported, _ = validate_platform(platform)
+        supported, _ = validate_platform(value)
         if not supported:
-            raise UnsupportedDevice(platform)
+            raise UnsupportedDevice(value)
+        return value
 
-        values["platform"] = platform
-
+    @validator("directives", pre=True, always=True)
+    def validate_directives(cls: "Device", value, values) -> "Directives":
+        """Associate directive IDs to loaded directive objects."""
         directives = use_state("directives")
 
-        directive_ids = values.get("directives", [])
+        directive_ids = value or []
+        structured_output = values.get("structured_output", False)
+        platform = values.get("platform")
 
         # Directive options
         directive_options = DirectiveOptions(
@@ -236,7 +239,7 @@ class Device(HyperglassModelWithId, extra="allow"):
         # Directives matching provided IDs.
         device_directives = directives.filter(*directive_ids)
         # Matching built-in directives for this device's platform.
-        builtins = directives.device_builtins(platform=platform)
+        builtins = directives.device_builtins(platform=platform, table_output=structured_output)
 
         if directive_options.builtins is True:
             # Add all builtins.
@@ -245,8 +248,7 @@ class Device(HyperglassModelWithId, extra="allow"):
             # If the user provides a list of builtin directives to include, add only those.
             device_directives += builtins.matching(*directive_options.builtins)
 
-        values["directives"] = device_directives
-        return values
+        return device_directives
 
     @validator("driver")
     def validate_driver(cls, value: Optional[str], values: Dict) -> Dict:
