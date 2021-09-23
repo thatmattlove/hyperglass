@@ -2,6 +2,10 @@
 
 # Standard Library
 from typing import Any, Dict, List
+from pathlib import Path
+
+# Project
+from hyperglass.constants import CONFIG_EXTENSIONS
 
 # Local
 from ._common import ErrorLevel, PrivateHyperglassError
@@ -63,15 +67,28 @@ class ConfigInvalid(PrivateHyperglassError):
 class ConfigMissing(PrivateHyperglassError):
     """Raised when a required config file or item is missing or undefined."""
 
-    def __init__(self, missing_item: Any) -> None:
-        """Show the missing configuration item."""
-        super().__init__(
+    def __init__(self, file_name: str, *, app_path: Path) -> None:
+        """Customize error message."""
+        message = " ".join(
             (
-                "{item} is missing or undefined and is required to start hyperglass. "
-                "Please consult the installation documentation."
-            ),
-            item=missing_item,
+                file_name.capitalize(),
+                "file is missing in",
+                f"'{app_path!s}', and is required to start hyperglass.",
+                "Supported file names are:",
+                ", ".join(f"'{file_name}.{e}'" for e in CONFIG_EXTENSIONS),
+                ". Please consult the installation documentation.",
+            )
         )
+        super().__init__(message)
+
+
+class ConfigLoaderMissing(PrivateHyperglassError):
+    """Raised when a configuration file is using a file extension that requires a missing loader."""
+
+    def __init__(self, path: Path, /) -> None:
+        """Customize error message."""
+        message = "'{path}' requires a {loader} loader, but it is not installed"
+        super().__init__(message=message, path=path, loader=path.suffix.strip("."))
 
 
 class ConfigError(PrivateHyperglassError):

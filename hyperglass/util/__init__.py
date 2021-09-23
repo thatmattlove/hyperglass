@@ -362,3 +362,24 @@ def compare_init(obj_a: object, obj_b: object) -> bool:
         obj_b.__init__.__annotations__.pop("self", None)
         return compare_dicts(obj_a.__init__.__annotations__, obj_b.__init__.__annotations__)
     return False
+
+
+def run_coroutine_in_new_thread(coroutine: t.Coroutine) -> t.Any:
+    """Run an async function in a separate thread and get the result."""
+    # Standard Library
+    import asyncio
+    import threading
+
+    class Resolver(threading.Thread):
+        def __init__(self, coro: t.Coroutine) -> None:
+            self.result: t.Any = None
+            self.coro: t.Coroutine = coro
+            super().__init__()
+
+        def run(self):
+            self.result = asyncio.run(self.coro())
+
+    thread = Resolver(coroutine)
+    thread.start()
+    thread.join()
+    return thread.result

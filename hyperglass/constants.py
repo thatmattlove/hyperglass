@@ -21,6 +21,8 @@ TARGET_JUNIPER_ASPATH = ("juniper", "juniper_junos")
 
 SUPPORTED_STRUCTURED_OUTPUT = ("juniper", "arista_eos")
 
+CONFIG_EXTENSIONS = ("py", "yaml", "yml", "json", "toml")
+
 STATUS_CODE_MAP = {"warning": 400, "error": 400, "danger": 500}
 
 DNS_OVER_HTTPS = {

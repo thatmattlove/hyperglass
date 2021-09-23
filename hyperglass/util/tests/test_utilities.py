@@ -1,7 +1,9 @@
 """Test generic utilities."""
+# Standard Library
+import asyncio
 
 # Local
-from .. import compare_init, compare_dicts
+from .. import compare_init, compare_dicts, run_coroutine_in_new_thread
 
 
 def test_compare_dicts():
@@ -53,3 +55,15 @@ def test_compare_init():
     )
     for a, b, expected in checks:
         assert compare_init(a, b) is expected
+
+
+def test_run_coroutine_in_new_thread():
+    async def sleeper():
+        await asyncio.sleep(5)
+
+    async def test():
+        return True
+
+    asyncio.run(sleeper())
+    result = run_coroutine_in_new_thread(test)
+    assert result is True

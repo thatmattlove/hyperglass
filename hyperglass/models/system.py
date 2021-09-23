@@ -29,6 +29,8 @@ class HyperglassSettings(BaseSettings):
 
         env_prefix = "hyperglass_"
 
+    config_file_names: t.ClassVar[t.Tuple[str, ...]] = ("config", "devices", "directives")
+
     debug: bool = False
     dev_mode: bool = False
     app_path: DirectoryPath
