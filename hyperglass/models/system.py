@@ -21,7 +21,7 @@ from hyperglass.util import at_least, cpu_count
 ListenHost = t.Union[None, IPvAnyAddress, t.Literal["localhost"]]
 
 
-class HyperglassSystem(BaseSettings):
+class HyperglassSettings(BaseSettings):
     """hyperglass system settings, required to start hyperglass."""
 
     class Config:
@@ -41,7 +41,7 @@ class HyperglassSystem(BaseSettings):
 
     @validator("host", pre=True, always=True)
     def validate_host(
-        cls: "HyperglassSystem", value: t.Any, values: t.Dict[str, t.Any]
+        cls: "HyperglassSettings", value: t.Any, values: t.Dict[str, t.Any]
     ) -> IPvAnyAddress:
         """Set default host based on debug mode."""
 
@@ -65,7 +65,7 @@ class HyperglassSystem(BaseSettings):
 
     @validator("redis_dsn", always=True)
     def validate_redis_dsn(
-        cls: "HyperglassSystem", value: t.Any, values: t.Dict[str, t.Any]
+        cls: "HyperglassSettings", value: t.Any, values: t.Dict[str, t.Any]
     ) -> RedisDsn:
         """Construct a Redis DSN if none is provided."""
         if value is None:
@@ -78,28 +78,28 @@ class HyperglassSystem(BaseSettings):
             return dsn
         return value
 
-    def bind(self: "HyperglassSystem") -> str:
+    def bind(self: "HyperglassSettings") -> str:
         """Format a listen_address. Wraps IPv6 address in brackets."""
         if self.host.version == 6:
             return f"[{self.host!s}]:{self.port!s}"
         return f"{self.host!s}:{self.port!s}"
 
     @property
-    def log_level(self: "HyperglassSystem") -> str:
+    def log_level(self: "HyperglassSettings") -> str:
         """Get log level as string, inferred from debug mode."""
         if self.debug:
             return "DEBUG"
         return "WARNING"
 
     @property
-    def workers(self: "HyperglassSystem") -> int:
+    def workers(self: "HyperglassSettings") -> int:
         """Get worker count, inferred from debug mode."""
         if self.debug:
             return 1
         return cpu_count(2)
 
     @property
-    def redis(self: "HyperglassSystem") -> t.Dict[str, t.Union[None, int, str]]:
+    def redis(self: "HyperglassSettings") -> t.Dict[str, t.Union[None, int, str]]:
         """Get redis parameters as a dict for convenient connection setups."""
         password = None
         if self.redis_password is not None:
@@ -112,21 +112,21 @@ class HyperglassSystem(BaseSettings):
         }
 
     @property
-    def redis_connection_pool(self: "HyperglassSystem") -> t.Dict[str, t.Any]:
+    def redis_connection_pool(self: "HyperglassSettings") -> t.Dict[str, t.Any]:
         """Get Redis ConnectionPool keyword arguments."""
         return {"url": str(self.redis_dsn), "max_connections": at_least(8, cpu_count(2))}
 
     @property
-    def dev_url(self: "HyperglassSystem") -> str:
+    def dev_url(self: "HyperglassSettings") -> str:
         """Get the hyperglass URL for when dev_mode is enabled."""
         return f"http://localhost:{self.port!s}/"
 
     @property
-    def prod_url(self: "HyperglassSystem") -> str:
+    def prod_url(self: "HyperglassSettings") -> str:
         """Get the UI-facing hyperglass URL/path."""
         return "/api/"
 
     @property
-    def static_path(self: "HyperglassSystem") -> Path:
+    def static_path(self: "HyperglassSettings") -> Path:
         """Get static asset path."""
         return Path(self.app_path / "static")

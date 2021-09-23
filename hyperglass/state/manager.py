@@ -14,7 +14,7 @@ from .redis import RedisManager
 
 if t.TYPE_CHECKING:
     # Project
-    from hyperglass.models.system import HyperglassSystem
+    from hyperglass.models.system import HyperglassSettings
 
 
 class StateManager:
@@ -23,11 +23,11 @@ class StateManager:
     Maintains configuration objects in Redis cache and accesses them as needed.
     """
 
-    settings: "HyperglassSystem"
+    settings: "HyperglassSettings"
     redis: RedisManager
     _namespace: str = "hyperglass.state"
 
-    def __init__(self, *, settings: "HyperglassSystem") -> None:
+    def __init__(self, *, settings: "HyperglassSettings") -> None:
         """Set up Redis connection and add configuration objects."""
 
         self.settings = settings

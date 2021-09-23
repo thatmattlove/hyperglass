@@ -5,15 +5,15 @@ import typing as t
 
 if t.TYPE_CHECKING:
     # Local
-    from .models.system import HyperglassSystem
+    from .models.system import HyperglassSettings
 
 
-def _system_settings() -> "HyperglassSystem":
+def _system_settings() -> "HyperglassSettings":
     """Get system settings from local environment."""
     # Local
-    from .models.system import HyperglassSystem
+    from .models.system import HyperglassSettings
 
-    return HyperglassSystem()
+    return HyperglassSettings()
 
 
 Settings = _system_settings()
