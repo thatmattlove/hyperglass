@@ -14,6 +14,10 @@ class Item(BaseModel):
     name: str
 
 
+class Items(MultiModel, model=Item, unique_by="id"):
+    """Multi Model Test."""
+
+
 ITEMS_1 = [
     {"id": "item1", "name": "Item One"},
     Item(id="item2", name="Item Two"),
@@ -32,7 +36,7 @@ ITEMS_3 = [
 
 
 def test_multi_model():
-    model = MultiModel(*ITEMS_1, model=Item, accessor="id")
+    model = Items(*ITEMS_1)
     assert model.count == 3
     assert len([o for o in model]) == model.count  # noqa: C416 (Iteration testing)
     assert model["item1"].name == "Item One"

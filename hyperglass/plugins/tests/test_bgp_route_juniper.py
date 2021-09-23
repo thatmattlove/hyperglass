@@ -9,6 +9,7 @@ import pytest
 
 # Project
 from hyperglass.log import log
+from hyperglass.models.api.query import Query
 from hyperglass.models.config.devices import Device
 from hyperglass.models.data.bgp_route import BGPRouteTable
 
@@ -42,7 +43,9 @@ def _tester(sample: str):
     # Override has_directives method for testing.
     device.has_directives = lambda *x: True
 
-    result = plugin.process((sample,), device)
+    query = type("Query", (), {"device": device})
+
+    result = plugin.process(output=(sample,), query=query)
     assert isinstance(result, BGPRouteTable), "Invalid parsed result"
     assert hasattr(result, "count"), "BGP Table missing count"
     assert result.count > 0, "BGP Table count is 0"
