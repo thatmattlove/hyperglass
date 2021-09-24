@@ -6,6 +6,7 @@ export type SingleOption = AnyOption & {
   value: string;
   group?: string;
   tags?: string[];
+  data?: Record<string, unknown>;
 };
 
 export type OptionGroup = AnyOption & {

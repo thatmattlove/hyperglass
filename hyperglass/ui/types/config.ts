@@ -122,7 +122,9 @@ interface _Device {
   id: string;
   name: string;
   group: string;
+  avatar: string | null;
   directives: _Directive[];
+  description: string | null;
 }
 
 interface _QueryContent {

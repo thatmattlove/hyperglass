@@ -14,11 +14,18 @@ function buildOptions(devices: DeviceGroup[]): OptionGroup[] {
     .map(group => {
       const label = group.group;
       const options = group.locations
-        .map(loc => ({
-          label: loc.name,
-          value: loc.id,
-          group: loc.group,
-        }))
+        .map(
+          loc =>
+            ({
+              label: loc.name,
+              value: loc.id,
+              group: loc.group,
+              data: {
+                avatar: loc.avatar,
+                description: loc.description,
+              },
+            } as SingleOption),
+        )
         .sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
       return { label, options };
     })
@@ -67,6 +74,7 @@ const LocationCard = (props: LocationCardProps): JSX.Element => {
       px={6}
       bg={bg}
       w="100%"
+      minW="xs"
       maxW="sm"
       mx="auto"
       shadow="lg"
@@ -102,12 +110,15 @@ const LocationCard = (props: LocationCardProps): JSX.Element => {
           bg="whiteAlpha.300"
           borderStyle="solid"
           borderColor={imageBorder}
+          src={(option.data?.avatar as string) ?? undefined}
         />
       </Flex>
 
-      <chakra.p mt={2} color={fg} opacity={0.6} fontSize="sm">
-        To do: add details field (and location image field)
-      </chakra.p>
+      {option?.data?.description && (
+        <chakra.p mt={2} color={fg} opacity={0.6} fontSize="sm">
+          {option.data.description as string}
+        </chakra.p>
+      )}
     </MotionBox>
   );
 };

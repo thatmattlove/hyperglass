@@ -7,7 +7,7 @@ from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
-from pydantic import StrictInt, StrictStr, StrictBool, validator
+from pydantic import FilePath, StrictInt, StrictStr, StrictBool, validator
 
 # Project
 from hyperglass.log import log
@@ -43,6 +43,8 @@ class Device(HyperglassModelWithId, extra="allow"):
 
     id: StrictStr
     name: StrictStr
+    description: Optional[StrictStr]
+    avatar: Optional[FilePath]
     address: Union[IPv4Address, IPv6Address, StrictStr]
     group: Optional[StrictStr]
     credential: Credential
@@ -155,6 +157,28 @@ class Device(HyperglassModelWithId, extra="allow"):
                     d=values["name"],
                     a=value,
                 )
+        return value
+
+    @validator("avatar")
+    def validate_avatar(
+        cls, value: Union[FilePath, None], values: Dict[str, Any]
+    ) -> Union[FilePath, None]:
+        """Migrate avatar to static directory."""
+        if value is not None:
+            # Standard Library
+            import shutil
+
+            # Third Party
+            from PIL import Image
+
+            target = Settings.static_path / "images" / value.name
+            copied = shutil.copy2(value, target)
+            log.debug("Copied {} avatar from {!r} to {!r}", values["name"], str(value), str(target))
+
+            with Image.open(copied) as src:
+                if src.width > 512:
+                    src.thumbnail((512, 512 * src.height / src.width))
+                    src.save(target)
         return value
 
     @validator("structured_output", pre=True, always=True)
@@ -300,9 +324,13 @@ class Devices(MultiModel, model=Device, unique_by="id"):
                 "group": group,
                 "locations": [
                     {
+                        "group": group,
                         "id": device.id,
                         "name": device.name,
-                        "group": group,
+                        "avatar": f"/images/{device.avatar.name}"
+                        if device.avatar is not None
+                        else None,
+                        "description": device.description,
                         "directives": [d.frontend(params) for d in device.directives],
                     }
                     for device in self

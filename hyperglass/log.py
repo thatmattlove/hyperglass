@@ -75,7 +75,6 @@ def setup_lib_logging(log_level: str) -> None:
     """
 
     intercept_handler = LibIntercentHandler()
-    logging.root.setLevel(log_level)
 
     seen = set()
     for name in [

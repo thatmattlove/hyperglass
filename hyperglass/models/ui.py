@@ -43,6 +43,8 @@ class UILocation(HyperglassModel):
     id: StrictStr
     name: StrictStr
     group: StrictStr
+    avatar: Optional[StrictStr]
+    description: Optional[StrictStr]
     directives: List[UIDirective] = []
 
 
