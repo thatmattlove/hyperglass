@@ -167,9 +167,22 @@ def init_directives() -> "Directives":
 
 def init_devices() -> "Devices":
     """Validate & initialize devices."""
-    _user_devices = _config_required(CONFIG_DEVICES)
-    log.debug("Unvalidated devices from {}: {}", CONFIG_DEVICES, _user_devices)
-    return Devices(_user_devices.get("devices", _user_devices.get("routers", [])))
+    devices_config = _config_required(CONFIG_DEVICES)
+    log.debug("Unvalidated devices from {!s}: {!r}", CONFIG_DEVICES, devices_config)
+    items = []
+
+    for key in ("main", "devices", "routers"):
+        if key in devices_config:
+            items = devices_config[key]
+            break
+
+    if len(items) < 1:
+        raise ConfigError("No devices are defined in devices.yaml")
+
+    devices = Devices(*items)
+    log.info("Initialized devices {!r}", devices)
+
+    return devices
 
 
 def init_ui_params(*, params: "Params", devices: "Devices") -> "UIParameters":
