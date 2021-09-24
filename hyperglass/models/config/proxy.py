@@ -28,7 +28,7 @@ class Proxy(HyperglassModel):
 
     def __init__(self: "Proxy", **kwargs: Any) -> None:
         """Check for legacy fields."""
-        kwargs = check_legacy_fields("Proxy", **kwargs)
+        kwargs = check_legacy_fields(model="Proxy", data=kwargs)
         super().__init__(**kwargs)
 
     @property

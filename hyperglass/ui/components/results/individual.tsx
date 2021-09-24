@@ -7,6 +7,7 @@ import {
   chakra,
   HStack,
   Tooltip,
+  useToast,
   AccordionItem,
   AccordionPanel,
   AccordionButton,
@@ -44,6 +45,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
   ref,
 ) => {
   const { index, queryLocation } = props;
+  const toast = useToast();
   const { web, cache, messages } = useConfig();
   const { index: indices, setIndex } = useAccordionContext();
   const getDevice = useDevice();
@@ -66,7 +68,9 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
     },
     {
       onSuccess(data) {
-        addResponse(device.id, data);
+        if (device !== null) {
+          addResponse(device.id, data);
+        }
       },
       onError(error) {
         console.error(error);
@@ -150,6 +154,21 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
       }
     }
   }, [data, index, indices, isLoading, isError, setIndex]);
+
+  if (device === null) {
+    const id = `toast-queryLocation-${index}-${queryLocation}`;
+    if (!toast.isActive(id)) {
+      toast({
+        id,
+        title: messages.general,
+        description: `Configuration for device with ID '${queryLocation}' not found.`,
+        status: 'error',
+        isClosable: true,
+      });
+    }
+    return <></>;
+  }
+
   return (
     <AnimatedAccordionItem
       ref={ref}

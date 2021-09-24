@@ -148,7 +148,7 @@ class Query(BaseModel):
     def validate_query_type(cls, value):
         """Ensure a requested query type exists."""
         devices = use_state("devices")
-        if any((device.has_directives(value) for device in devices.objects)):
+        if any((device.has_directives(value) for device in devices)):
             return value
 
         raise QueryTypeNotFound(name=value)
@@ -158,10 +158,8 @@ class Query(BaseModel):
         """Ensure query_location is defined."""
 
         devices = use_state("devices")
-        valid_id = value in devices.ids
-        valid_hostname = value in devices.hostnames
 
-        if not any((valid_id, valid_hostname)):
+        if not devices.valid_id_or_name(value):
             raise QueryLocationNotFound(location=value)
 
         return value

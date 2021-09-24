@@ -27,9 +27,7 @@ from .ssl import Ssl
 from ..main import MultiModel, HyperglassModel, HyperglassModelWithId
 from ..util import check_legacy_fields
 from .proxy import Proxy
-from .params import Params
 from ..fields import SupportedDriver
-from .network import Network
 from ..directive import Directives
 from .credential import Credential
 
@@ -46,7 +44,7 @@ class Device(HyperglassModelWithId, extra="allow"):
     id: StrictStr
     name: StrictStr
     address: Union[IPv4Address, IPv6Address, StrictStr]
-    network: Network
+    group: Optional[StrictStr]
     credential: Credential
     proxy: Optional[Proxy]
     display_name: Optional[StrictStr]
@@ -60,7 +58,7 @@ class Device(HyperglassModelWithId, extra="allow"):
 
     def __init__(self, **kw) -> None:
         """Check legacy fields and ensure an `id` is set."""
-        kw = check_legacy_fields("Device", **kw)
+        kw = check_legacy_fields(model="Device", data=kw)
         if "id" not in kw:
             kw = self._with_id(kw)
         super().__init__(**kw)
@@ -100,7 +98,7 @@ class Device(HyperglassModelWithId, extra="allow"):
         return {
             "id": self.id,
             "name": self.name,
-            "network": self.network.display_name,
+            "group": self.group,
         }
 
     @property
@@ -269,6 +267,13 @@ class Devices(MultiModel, model=Device, unique_by="id"):
         """Export API-facing device fields."""
         return [d.export_api() for d in self]
 
+    def valid_id_or_name(self, value: str) -> bool:
+        """Determine if a value is a valid device name or ID."""
+        for device in self:
+            if value == device.id or value == device.name:
+                return True
+        return False
+
     def directive_plugins(self) -> Dict[Path, Tuple[StrictStr]]:
         """Get a mapping of plugin paths to associated directive IDs."""
         result: Dict[Path, Set[StrictStr]] = {}
@@ -286,22 +291,23 @@ class Devices(MultiModel, model=Device, unique_by="id"):
         # Convert the directive set to a tuple.
         return {k: tuple(v) for k, v in result.items()}
 
-    def networks(self, params: Params) -> List[Dict[str, Any]]:
-        """Group devices by network."""
-        names = {device.network.display_name for device in self}
+    def frontend(self) -> List[Dict[str, Any]]:
+        """Export grouped devices for UIParameters."""
+        params = use_state("params")
+        groups = {device.group for device in self}
         return [
             {
-                "display_name": name,
+                "group": group,
                 "locations": [
                     {
                         "id": device.id,
                         "name": device.name,
-                        "network": device.network.display_name,
+                        "group": group,
                         "directives": [d.frontend(params) for d in device.directives],
                     }
                     for device in self
-                    if device.network.display_name == name
+                    if device.group == group
                 ],
             }
-            for name in names
+            for group in groups
         ]

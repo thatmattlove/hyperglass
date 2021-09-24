@@ -163,26 +163,12 @@ class Vrf(BaseModel):
         }
 
 
-class Network(BaseModel):
-    """Response model for /api/devices networks."""
-
-    name: StrictStr
-    display_name: StrictStr
-
-    class Config:
-        """Pydantic model configuration."""
-
-        title = "Network"
-        description = "Network/ASN attributes"
-        schema_extra = {"examples": [{"name": "primary", "display_name": "AS65000"}]}
-
-
 class RoutersResponse(BaseModel):
     """Response model for /api/devices list items."""
 
     id: StrictStr
     name: StrictStr
-    network: StrictStr
+    group: StrictStr
 
     class Config:
         """Pydantic model configuration."""
@@ -191,7 +177,7 @@ class RoutersResponse(BaseModel):
         description = "Device attributes"
         schema_extra = {
             "examples": [
-                {"id": "nyc_router_1", "name": "NYC Router 1", "network": "New York City, NY"}
+                {"id": "nyc_router_1", "name": "NYC Router 1", "group": "New York City, NY"}
             ]
         }
 

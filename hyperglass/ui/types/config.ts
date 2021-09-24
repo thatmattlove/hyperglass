@@ -97,36 +97,6 @@ interface _Web {
   theme: _ThemeConfig;
 }
 
-// export interface Query {
-//   name: string;
-//   enable: boolean;
-//   display_name: string;
-// }
-
-// export interface BGPCommunity {
-//   community: string;
-//   display_name: string;
-//   description: string;
-// }
-
-// export interface QueryBGPRoute extends Query {}
-// export interface QueryBGPASPath extends Query {}
-// export interface QueryPing extends Query {}
-// export interface QueryTraceroute extends Query {}
-// export interface QueryBGPCommunity extends Query {
-//   mode: 'input' | 'select';
-//   communities: BGPCommunity[];
-// }
-
-// export interface Queries {
-//   bgp_route: QueryBGPRoute;
-//   bgp_community: QueryBGPCommunity;
-//   bgp_aspath: QueryBGPASPath;
-//   ping: QueryPing;
-//   traceroute: QueryTraceroute;
-//   list: Query[];
-// }
-
 type _DirectiveBase = {
   id: string;
   name: string;
@@ -151,13 +121,8 @@ type _Directive = _DirectiveBase | _DirectiveSelect;
 interface _Device {
   id: string;
   name: string;
-  network: string;
+  group: string;
   directives: _Directive[];
-}
-
-interface _Network {
-  display_name: string;
-  locations: _Device[];
 }
 
 interface _QueryContent {
@@ -184,13 +149,16 @@ interface _Cache {
 
 type _Config = _ConfigDeep & _ConfigShallow;
 
+interface _DeviceGroup {
+  group: string;
+  locations: _Device[];
+}
+
 interface _ConfigDeep {
   cache: _Cache;
   web: _Web;
   messages: _Messages;
-  // queries: Queries;
-  devices: _Device[];
-  networks: _Network[];
+  devices: _DeviceGroup[];
   content: _Content;
 }
 
@@ -225,8 +193,8 @@ export type Config = CamelCasedPropertiesDeep<_ConfigDeep> & CamelCasedPropertie
 export type ThemeConfig = CamelCasedProperties<_ThemeConfig>;
 export type Content = CamelCasedProperties<_Content>;
 export type QueryContent = CamelCasedPropertiesDeep<_QueryContent>;
-export type Network = CamelCasedPropertiesDeep<_Network>;
 export type Device = CamelCasedPropertiesDeep<_Device>;
+export type DeviceGroup = CamelCasedPropertiesDeep<_DeviceGroup>;
 export type Directive = CamelCasedPropertiesDeep<_Directive>;
 export type DirectiveSelect = CamelCasedPropertiesDeep<_DirectiveSelect>;
 export type DirectiveOption = CamelCasedPropertiesDeep<_DirectiveOption>;

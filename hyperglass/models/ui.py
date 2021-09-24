@@ -42,14 +42,14 @@ class UILocation(HyperglassModel):
 
     id: StrictStr
     name: StrictStr
-    network: StrictStr
+    group: StrictStr
     directives: List[UIDirective] = []
 
 
-class UINetwork(HyperglassModel):
-    """UI: Network."""
+class UIDevices(HyperglassModel):
+    """UI: Devices."""
 
-    display_name: StrictStr
+    group: StrictStr
     locations: List[UILocation] = []
 
 
@@ -67,6 +67,6 @@ class UIParameters(ParamsPublic, HyperglassModel):
     web: WebPublic
     messages: Messages
     version: StrictStr
-    networks: List[UINetwork] = []
+    devices: List[UIDevices] = []
     parsed_data_fields: Tuple[StructuredDataField, ...]
     content: UIContent

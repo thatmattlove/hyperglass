@@ -6,18 +6,18 @@ import { Select } from '~/components';
 import { useConfig, useColorValue } from '~/context';
 import { useOpposingColor, useFormState } from '~/hooks';
 
-import type { Network, SingleOption, OptionGroup, FormData } from '~/types';
+import type { DeviceGroup, SingleOption, OptionGroup, FormData } from '~/types';
 import type { TQuerySelectField, LocationCardProps } from './types';
 
-function buildOptions(networks: Network[]): OptionGroup[] {
-  return networks
-    .map(net => {
-      const label = net.displayName;
-      const options = net.locations
+function buildOptions(devices: DeviceGroup[]): OptionGroup[] {
+  return devices
+    .map(group => {
+      const label = group.group;
+      const options = group.locations
         .map(loc => ({
           label: loc.name,
           value: loc.id,
-          group: net.displayName,
+          group: loc.group,
         }))
         .sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
       return { label, options };
@@ -115,14 +115,14 @@ const LocationCard = (props: LocationCardProps): JSX.Element => {
 export const QueryLocation = (props: TQuerySelectField): JSX.Element => {
   const { onChange, label } = props;
 
-  const { networks } = useConfig();
+  const { devices } = useConfig();
   const {
     formState: { errors },
   } = useFormContext<FormData>();
   const selections = useFormState(s => s.selections);
   const setSelection = useFormState(s => s.setSelection);
   const { form, filtered } = useFormState(({ form, filtered }) => ({ form, filtered }));
-  const options = useMemo(() => buildOptions(networks), [networks]);
+  const options = useMemo(() => buildOptions(devices), [devices]);
   const element = useMemo(() => {
     const groups = options.length;
     const maxOptionsPerGroup = Math.max(...options.map(opt => opt.options.length));

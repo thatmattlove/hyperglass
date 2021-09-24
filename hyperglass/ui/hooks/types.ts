@@ -29,12 +29,12 @@ export interface UseGreeting {
   close(): void;
 }
 
-export type TUseDevice = (
+export type UseDevice = (
   /**
    * Device's ID, e.g. the device.name field.
    */
   deviceId: string,
-) => Device;
+) => Device | null;
 
 export type UseStrfArgs = { [k: string]: unknown } | string;
 

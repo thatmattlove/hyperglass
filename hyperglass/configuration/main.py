@@ -204,7 +204,7 @@ def init_ui_params(*, params: "Params", devices: "Devices") -> "UIParameters":
     return UIParameters(
         **_ui_params,
         version=__version__,
-        networks=devices.networks(params),
+        devices=devices.frontend(),
         parsed_data_fields=PARSED_RESPONSE_FIELDS,
         content={"credit": content_credit, "greeting": content_greeting},
     )

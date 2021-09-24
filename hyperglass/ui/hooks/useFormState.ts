@@ -8,7 +8,7 @@ import { all, andJoin, dedupObjectArray, withDev } from '~/util';
 import type { StateCreator } from 'zustand';
 import type { UseFormSetError, UseFormClearErrors } from 'react-hook-form';
 import type { SingleOption, Directive, FormData, Text } from '~/types';
-import type { TUseDevice } from './types';
+import type { UseDevice } from './types';
 
 type FormStatus = 'form' | 'results';
 
@@ -67,7 +67,7 @@ interface FormStateType {
     extra: {
       setError: UseFormSetError<FormData>;
       clearErrors: UseFormClearErrors<FormData>;
-      getDevice: TUseDevice;
+      getDevice: UseDevice;
       text: Text;
     },
   ): void;
@@ -129,7 +129,7 @@ const formState: StateCreator<FormStateType> = (set, get) => ({
     extra: {
       setError: UseFormSetError<FormData>;
       clearErrors: UseFormClearErrors<FormData>;
-      getDevice: TUseDevice;
+      getDevice: UseDevice;
       text: Text;
     },
   ): void {
@@ -144,15 +144,17 @@ const formState: StateCreator<FormStateType> = (set, get) => ({
 
     for (const loc of locations) {
       const device = getDevice(loc);
-      locationNames.push(device.name);
-      allDevices.push(device);
-      const groups = new Set<string>();
-      for (const directive of device.directives) {
-        for (const group of directive.groups) {
-          groups.add(group);
+      if (device !== null) {
+        locationNames.push(device.name);
+        allDevices.push(device);
+        const groups = new Set<string>();
+        for (const directive of device.directives) {
+          for (const group of directive.groups) {
+            groups.add(group);
+          }
         }
+        allGroups.push(Array.from(groups));
       }
-      allGroups.push(Array.from(groups));
     }
 
     const intersecting = intersectionWith(...allGroups, isEqual);

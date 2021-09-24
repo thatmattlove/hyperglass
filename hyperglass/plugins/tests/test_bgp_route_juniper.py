@@ -17,7 +17,10 @@ from hyperglass.models.data.bgp_route import BGPRouteTable
 from .._builtin.bgp_route_juniper import BGPRoutePluginJuniper
 
 DEPENDS_KWARGS = {
-    "depends": ["hyperglass/external/tests/test_rpki.py::test_rpki"],
+    "depends": [
+        "hyperglass/models/tests/test_util.py::test_check_legacy_fields",
+        "hyperglass/external/tests/test_rpki.py::test_rpki",
+    ],
     "scope": "session",
 }
 
@@ -32,7 +35,7 @@ def _tester(sample: str):
     device = Device(
         name="Test Device",
         address="127.0.0.1",
-        network={"name": "Test Network", "display_name": "Test Network"},
+        group="Test Network",
         credential={"username": "", "password": ""},
         platform="juniper",
         structured_output=True,
