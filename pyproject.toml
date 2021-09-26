@@ -37,7 +37,7 @@ click = "^7.1.2"
 cryptography = "3.0.0"
 distro = "^1.5.0"
 fastapi = "^0.63.0"
-favicons = "^0.0.9"
+favicons = ">=0.1.0,<1.0"
 gunicorn = "^20.1.0"
 httpx = "^0.17.1"
 inquirer = "^2.6.3"
@@ -54,6 +54,7 @@ typing-extensions = "^3.7.4"
 uvicorn = {extras = ["standard"], version = "^0.13.4"}
 uvloop = "^0.14.0"
 xmltodict = "^0.12.0"
+rich = "^10.11.0"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.6.2"
@@ -79,9 +80,9 @@ mccabe = "^0.6.1"
 pep8-naming = "^0.9.1"
 pre-commit = "^1.21.0"
 pytest = "^6.2.5"
+pytest-dependency = "^0.5.1"
 stackprinter = "^0.2.3"
 taskipy = "^1.8.2"
-pytest-dependency = "^0.5.1"
 
 [tool.black]
 line-length = 100

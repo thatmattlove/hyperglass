@@ -16,7 +16,6 @@ from loguru._logger import Logger as LoguruLogger
 from netmiko.ssh_dispatcher import CLASS_MAPPER  # type: ignore
 
 # Project
-from hyperglass.log import log
 from hyperglass.types import Series
 from hyperglass.constants import DRIVER_MAP
 
@@ -269,6 +268,9 @@ def resolve_hostname(hostname: str) -> t.Generator[t.Union[IPv4Address, IPv6Addr
     """Resolve a hostname via DNS/hostfile."""
     # Standard Library
     from socket import gaierror, getaddrinfo
+
+    # Project
+    from hyperglass.log import log
 
     log.debug("Ensuring '{}' is resolvable...", hostname)
 

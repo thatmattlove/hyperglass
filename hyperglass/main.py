@@ -12,7 +12,7 @@ from gunicorn.arbiter import Arbiter  # type: ignore
 from gunicorn.app.base import BaseApplication  # type: ignore
 
 # Local
-from .log import GunicornLogger, log, set_log_level, setup_lib_logging
+from .log import CustomGunicornLogger, log, setup_lib_logging
 from .plugins import (
     InputPluginManager,
     OutputPluginManager,
@@ -156,7 +156,7 @@ def start(*, log_level: str, workers: int, **kwargs) -> None:
             "bind": Settings.bind(),
             "on_starting": on_starting,
             "command": shutil.which("gunicorn"),
-            "logger_class": GunicornLogger,
+            "logger_class": CustomGunicornLogger,
             "worker_class": "uvicorn.workers.UvicornWorker",
             "logconfig_dict": {"formatters": {"generic": {"format": "%(message)s"}}},
             **kwargs,
@@ -167,7 +167,6 @@ def start(*, log_level: str, workers: int, **kwargs) -> None:
 if __name__ == "__main__":
     try:
         init_user_config()
-        set_log_level(log, Settings.debug)
 
         log.debug("System settings: {!r}", Settings)
 
@@ -177,7 +176,6 @@ if __name__ == "__main__":
             workers, log_level = cpu_count(2), "WARNING"
 
         setup_lib_logging(log_level)
-
         start(log_level=log_level, workers=workers)
     except Exception as error:
         # Handle app exceptions.

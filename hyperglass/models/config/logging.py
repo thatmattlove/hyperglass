@@ -16,7 +16,6 @@ from pydantic import (
     StrictBool,
     StrictFloat,
     DirectoryPath,
-    constr,
     validator,
 )
 
@@ -25,10 +24,7 @@ from hyperglass.constants import __version__
 
 # Local
 from ..main import HyperglassModel
-
-HttpAuthMode = constr(regex=r"(basic|api_key)")
-HttpProvider = constr(regex=r"(msteams|slack|generic)")
-LogFormat = constr(regex=r"(text|json)")
+from ..fields import LogFormat, HttpAuthMode, HttpProvider
 
 
 class Syslog(HyperglassModel):

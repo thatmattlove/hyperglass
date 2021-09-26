@@ -9,7 +9,7 @@ from pydantic import ValidationError
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import get_fmt_keys
+from hyperglass.util import get_fmt_keys, repr_from_attrs
 from hyperglass.constants import STATUS_CODE_MAP
 
 ErrorLevel = Literal["danger", "warning"]
@@ -29,11 +29,11 @@ class HyperglassError(Exception):
         self._level = level
         self._keywords = keywords or []
         if self._level == "warning":
-            log.error(repr(self))
+            log.error(str(self))
         elif self._level == "danger":
-            log.critical(repr(self))
+            log.critical(str(self))
         else:
-            log.info(repr(self))
+            log.info(str(self))
 
     def __str__(self) -> str:
         """Return the instance's error message."""
@@ -41,7 +41,7 @@ class HyperglassError(Exception):
 
     def __repr__(self) -> str:
         """Return the instance's severity & error message in a string."""
-        return f"[{self.level.upper()}] {self._message}"
+        return repr_from_attrs(self, ("_message", "level", "keywords"), strip="_")
 
     def dict(self) -> Dict[str, Union[str, List[str]]]:
         """Return the instance's attributes as a dictionary."""

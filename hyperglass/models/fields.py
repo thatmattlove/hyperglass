@@ -2,57 +2,17 @@
 
 # Standard Library
 import re
-from typing import TypeVar
+import typing as t
 
 # Third Party
-from pydantic import StrictInt, StrictFloat, constr
+from pydantic import StrictInt, StrictFloat
 
-IntFloat = TypeVar("IntFloat", StrictInt, StrictFloat)
+IntFloat = t.TypeVar("IntFloat", StrictInt, StrictFloat)
 
-SupportedDriver = constr(regex=r"(scrapli|netmiko|hyperglass_agent)")
-
-
-class StrictBytes(bytes):
-    """Custom data type for a strict byte string.
-
-    Used for validating the encoded JWT request payload.
-    """
-
-    @classmethod
-    def __get_validators__(cls):
-        """Yield Pydantic validator function.
-
-        See: https://pydantic-docs.helpmanual.io/usage/types/#custom-data-types
-
-        Yields:
-            {function} -- Validator
-        """
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, value):
-        """Validate type.
-
-        Arguments:
-            value {Any} -- Pre-validated input
-
-        Raises:
-            TypeError: Raised if value is not bytes
-
-        Returns:
-            {object} -- Instantiated class
-        """
-        if not isinstance(value, bytes):
-            raise TypeError("bytes required")
-        return cls()
-
-    def __repr__(self):
-        """Return representation of object.
-
-        Returns:
-            {str} -- Representation
-        """
-        return f"StrictBytes({super().__repr__()})"
+SupportedDriver = t.Literal["scrapli", "netmiko", "hyperglass_agent"]
+HttpAuthMode = t.Literal["basic", "api_key"]
+HttpProvider = t.Literal["msteams", "slack", "generic"]
+LogFormat = t.Literal["text", "json"]
 
 
 class AnyUri(str):

@@ -3,10 +3,7 @@
 from typing import Union
 
 # Third Party
-from pydantic import BaseModel, StrictStr
-
-# Local
-from ..fields import StrictBytes
+from pydantic import BaseModel, StrictStr, StrictBytes
 
 
 class EncodedRequest(BaseModel):

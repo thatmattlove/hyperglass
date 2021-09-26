@@ -6,6 +6,7 @@ from pydantic import ValidationError
 
 # Project
 from hyperglass.log import log, enable_file_logging, enable_syslog_logging
+from hyperglass.settings import Settings
 from hyperglass.models.ui import UIParameters
 from hyperglass.models.directive import Directive, Directives
 from hyperglass.exceptions.private import ConfigError, ConfigInvalid
@@ -32,18 +33,16 @@ def init_params() -> "Params":
 
     # Set up file logging once configuration parameters are initialized.
     enable_file_logging(
-        logger=log,
         log_directory=params.logging.directory,
         log_format=params.logging.format,
         log_max_size=params.logging.max_size,
+        debug=Settings.debug,
     )
 
     # Set up syslog logging if enabled.
     if params.logging.syslog is not None and params.logging.syslog.enable:
         enable_syslog_logging(
-            logger=log,
-            syslog_host=params.logging.syslog.host,
-            syslog_port=params.logging.syslog.port,
+            syslog_host=params.logging.syslog.host, syslog_port=params.logging.syslog.port,
         )
 
     if params.logging.http is not None and params.logging.http.enable:
