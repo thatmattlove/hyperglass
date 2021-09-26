@@ -97,14 +97,6 @@ class QueryTypeNotFound(NotFound):
         super().__init__(type=TEXT.query_type, name=str(query_type), **kwargs)
 
 
-class QueryGroupNotFound(NotFound):
-    """Raised when a query group is not found."""
-
-    def __init__(self, group: Any, **kwargs: Dict[str, Any]) -> None:
-        """Initialize a NotFound error for a query group."""
-        super().__init__(type=TEXT.query_group, name=str(group), **kwargs)
-
-
 class InputInvalid(PublicHyperglassError, template=MESSAGES.invalid_input):
     """Raised when input validation fails."""
 

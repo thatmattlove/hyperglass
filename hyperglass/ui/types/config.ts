@@ -36,7 +36,6 @@ interface _Text {
   query_location: string;
   query_type: string;
   query_target: string;
-  query_group: string;
   fqdn_tooltip: string;
   fqdn_message: string;
   fqdn_error: string;

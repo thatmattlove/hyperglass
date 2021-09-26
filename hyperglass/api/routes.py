@@ -71,7 +71,7 @@ async def send_webhook(
 
                 await hook.send(
                     query={
-                        **query_data.export_dict(pretty=True),
+                        **query_data.dict(),
                         "headers": headers,
                         "source": host,
                         "network": network_info.get(host, {}),

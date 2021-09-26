@@ -1,10 +1,8 @@
 """Input query validation model."""
 
 # Standard Library
-import json
 import hashlib
 import secrets
-from typing import Optional
 from datetime import datetime
 
 # Third Party
@@ -30,12 +28,8 @@ from ..config.devices import Device
 class Query(BaseModel):
     """Validation model for input query parameters."""
 
-    # Device `name` field
-    query_location: StrictStr
-    # Directive `id` field
-    query_type: StrictStr
-    # Directive `groups` member
-    query_group: Optional[StrictStr] = None
+    query_location: StrictStr  # Device `name` field
+    query_type: StrictStr  # Directive `id` field
     query_target: constr(strip_whitespace=True, min_length=1)
 
     class Config:
@@ -53,11 +47,6 @@ class Query(BaseModel):
                 "title": TEXT.query_type,
                 "description": "Type of Query to Execute",
                 "example": "bgp_route",
-            },
-            "query_group": {
-                "title": TEXT.query_group,
-                "description": "Routing Table/VRF",
-                "example": "default",
             },
             "query_target": {
                 "title": TEXT.query_target,
@@ -106,43 +95,9 @@ class Query(BaseModel):
         log.debug("Validation passed for query {!r}", self)
 
     @property
-    def summary(self):
-        """Create abbreviated representation of instance."""
-        items = (
-            f"query_location={self.query_location}",
-            f"query_type={self.query_type}",
-            f"query_group={self.query_group}",
-            f"query_target={self.query_target!s}",
-        )
-        return f'Query({", ".join(items)})'
-
-    @property
     def device(self) -> Device:
         """Get this query's device object by query_location."""
         return self._state.devices[self.query_location]
-
-    def export_dict(self, pretty=False):
-        """Create dictionary representation of instance."""
-
-        if pretty:
-            items = {
-                "query_location": self.device.name,
-                "query_type": self.query.display_name,
-                "query_group": self.query_group,
-                "query_target": str(self.query_target),
-            }
-        else:
-            items = {
-                "query_location": self.query_location,
-                "query_type": self.query_type,
-                "query_group": self.query_group,
-                "query_target": str(self.query_target),
-            }
-        return items
-
-    def export_json(self):
-        """Create JSON representation of instance."""
-        return json.dumps(self.export_dict(), default=str)
 
     @validator("query_type")
     def validate_query_type(cls, value):
