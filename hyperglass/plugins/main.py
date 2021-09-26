@@ -68,6 +68,6 @@ def register_plugin(plugin_file: Path, **kwargs) -> t.Tuple[str, ...]:
     """Register an external plugin by file path."""
     if plugin_file.exists():
         module = _module_from_file(plugin_file)
-        results = _register_from_module(module, **kwargs)
+        results = _register_from_module(module, ref=plugin_file.stem, **kwargs)
         return results
     raise FileNotFoundError(str(plugin_file))

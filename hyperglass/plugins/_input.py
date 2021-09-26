@@ -4,7 +4,7 @@
 import typing as t
 
 # Local
-from ._base import DirectivePlugin
+from ._base import DirectivePlugin, HyperglassPlugin
 
 if t.TYPE_CHECKING:
     # Project
@@ -13,7 +13,7 @@ if t.TYPE_CHECKING:
 InputPluginReturn = t.Union[None, bool]
 
 
-class InputPlugin(DirectivePlugin):
+class InputPlugin(HyperglassPlugin, DirectivePlugin):
     """Plugin to validate user input prior to running commands."""
 
     failure_reason: t.Optional[str] = None

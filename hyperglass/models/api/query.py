@@ -12,6 +12,7 @@ from pydantic import BaseModel, StrictStr, constr, validator
 from hyperglass.log import log
 from hyperglass.util import snake_to_camel, repr_from_attrs
 from hyperglass.state import use_state
+from hyperglass.plugins import InputPluginManager
 from hyperglass.exceptions.public import (
     InputInvalid,
     QueryTypeNotFound,
@@ -91,7 +92,11 @@ class Query(BaseModel):
 
     def validate_query_target(self):
         """Validate a query target after all fields/relationships havebeen initialized."""
+        # Run config/rule-based validations.
         self.directive.validate_target(self.query_target)
+        # Run plugin-based validations.
+        manager = InputPluginManager()
+        manager.execute(query=self)
         log.debug("Validation passed for query {!r}", self)
 
     @property

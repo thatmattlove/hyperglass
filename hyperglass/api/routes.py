@@ -101,7 +101,7 @@ async def query(
     # each command output value is unique.
     cache_key = f"hyperglass.query.{query_data.digest()}"
 
-    log.info("Starting query execution for query {}", query_data.summary)
+    log.info("Starting query execution for {!r}", query)
 
     cache_response = cache.get_map(cache_key, "output")
     json_output = False

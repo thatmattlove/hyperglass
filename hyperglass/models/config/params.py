@@ -1,11 +1,14 @@
 """Configuration validation entry point."""
 
 # Standard Library
-from typing import Any, Dict, List, Union, Literal, Optional
-from ipaddress import ip_address
+from typing import Any, Dict, List, Tuple, Union, Literal, Optional
+from pathlib import Path
 
 # Third Party
-from pydantic import Field, StrictInt, StrictStr, StrictBool, IPvAnyAddress, validator
+from pydantic import Field, StrictInt, StrictStr, StrictBool, validator
+
+# Project
+from hyperglass.settings import Settings
 
 # Local
 from .web import Web
@@ -24,16 +27,6 @@ Localhost = Literal["localhost"]
 class ParamsPublic(HyperglassModel):
     """Public configuration parameters."""
 
-    debug: StrictBool = Field(
-        False,
-        title="Debug",
-        description="Enable debug mode. Warning: this will generate a *lot* of log output.",
-    )
-    developer_mode: StrictBool = Field(
-        False,
-        title="Developer Mode",
-        description='Enable developer mode. If enabled, the hyperglass backend (Python) and frontend (React/Javascript) applications are "unlinked", so that React tools can be used for front end development. A `<Debugger />` convenience component is also displayed in the UI for easier UI development.',
-    )
     request_timeout: StrictInt = Field(
         90,
         title="Request Timeout",
@@ -94,16 +87,6 @@ class Params(ParamsPublic, HyperglassModel):
         title="Fake Output",
         description="If enabled, the hyperglass backend will return static fake output for development/testing purposes.",
     )
-    listen_address: Optional[Union[IPvAnyAddress, Localhost]] = Field(
-        None,
-        title="Listen Address",
-        description="Local IP Address or hostname the hyperglass application listens on to serve web traffic.",
-    )
-    listen_port: StrictInt = Field(
-        8001,
-        title="Listen Port",
-        description="Local TCP port the hyperglass application listens on to serve web traffic.",
-    )
     cors_origins: List[StrictStr] = Field(
         [],
         title="Cross-Origin Resource Sharing",
@@ -112,6 +95,7 @@ class Params(ParamsPublic, HyperglassModel):
     netmiko_delay_factor: IntFloat = Field(
         0.1, title="Netmiko Delay Factor", description="Override the netmiko global delay factor.",
     )
+    plugins: List[StrictStr] = []
 
     # Sub Level Params
     cache: Cache = Cache()
@@ -127,58 +111,35 @@ class Params(ParamsPublic, HyperglassModel):
 
         schema_extra = {"level": 1}
 
-    @validator("listen_address", pre=True, always=True)
-    def validate_listen_address(cls, value, values):
-        """Set default listen_address based on debug mode.
-
-        Arguments:
-            value {str|IPvAnyAddress|None} -- listen_address
-            values {dict} -- already-validated entries before listen_address
-
-        Returns:
-            {str} -- Validated listen_address
-        """
-        if value is None and not values["debug"]:
-            listen_address = ip_address("127.0.0.1")
-        elif value is None and values["debug"]:
-            listen_address = ip_address("0.0.0.0")  # noqa: S104
-        elif isinstance(value, str) and value != "localhost":
-            try:
-                listen_address = ip_address(value)
-            except ValueError:
-                raise ValueError(str(value))
-        elif isinstance(value, str) and value == "localhost":
-            listen_address = ip_address("127.0.0.1")
-        else:
-            raise ValueError(str(value))
-        return listen_address
-
     @validator("site_description")
-    def validate_site_description(cls, value, values):
-        """Format the site descripion with the org_name field.
-
-        Arguments:
-            value {str} -- site_description
-            values {str} -- Values before site_description
-
-        Returns:
-            {str} -- Formatted description
-        """
+    def validate_site_description(cls: "Params", value: str, values: Dict[str, Any]) -> str:
+        """Format the site descripion with the org_name field."""
         return value.format(org_name=values["org_name"])
 
     @validator("primary_asn")
-    def validate_primary_asn(cls, value):
-        """Stringify primary_asn if passed as an integer.
+    def validate_primary_asn(cls: "Params", value: Union[int, str]) -> str:
+        """Stringify primary_asn if passed as an integer."""
+        return str(value)
 
-        Arguments:
-            value {str|int} -- Unvalidated Primary ASN
+    @validator("plugins")
+    def validate_plugins(cls: "Params", value: List[str]) -> List[str]:
+        """Validate and register configured plugins."""
+        plugin_dir = Settings.app_path / "plugins"
 
-        Returns:
-            {str} -- Stringified Primary ASN.
-        """
-        if not isinstance(value, str):
-            value = str(value)
-        return value
+        if plugin_dir.exists():
+            # Path objects whose file names match configured file names, should work
+            # whether or not file extension is specified.
+            matching_plugins = (
+                f
+                for f in plugin_dir.iterdir()
+                if f.name.split(".")[0] in (p.split(".")[0] for p in value)
+            )
+            return [str(f) for f in matching_plugins]
+        return []
+
+    def common_plugins(self) -> Tuple[Path, ...]:
+        """Get all validated external common plugins as Path objects."""
+        return tuple(Path(p) for p in self.plugins)
 
     def content_params(self) -> Dict[str, Any]:
         """Export content-specific parameters."""

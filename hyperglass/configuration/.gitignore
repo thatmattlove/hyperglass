@@ -1,0 +1,5 @@
+.DS_Store
+*.toml
+*.yaml
+*.test
+configuration_old

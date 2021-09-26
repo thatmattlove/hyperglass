@@ -1,15 +1,15 @@
 """Base Plugin Definition."""
 
 # Standard Library
+import typing as t
 from abc import ABC
-from typing import Any, Union, Literal, TypeVar, Sequence
 from inspect import Signature
 
 # Third Party
 from pydantic import BaseModel, PrivateAttr
 
-PluginType = Union[Literal["output"], Literal["input"]]
-SupportedMethod = TypeVar("SupportedMethod")
+PluginType = t.Union[t.Literal["output"], t.Literal["input"]]
+SupportedMethod = t.TypeVar("SupportedMethod")
 
 
 class HyperglassPlugin(BaseModel, ABC):
@@ -17,6 +17,8 @@ class HyperglassPlugin(BaseModel, ABC):
 
     __hyperglass_builtin__: bool = PrivateAttr(False)
     name: str
+    common: bool = False
+    ref: t.Optional[str] = None
 
     @property
     def _signature(self) -> Signature:
@@ -42,13 +44,13 @@ class HyperglassPlugin(BaseModel, ABC):
         return self.name
 
     @classmethod
-    def __init_subclass__(cls, **kwargs: Any) -> None:
+    def __init_subclass__(cls, **kwargs: t.Any) -> None:
         """Initialize plugin object."""
         name = kwargs.pop("name", None) or cls.__name__
-        cls._name = name
+        cls.name = name
         super().__init_subclass__()
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: t.Any) -> None:
         """Initialize plugin instance."""
         name = kwargs.pop("name", None) or self.__class__.__name__
         super().__init__(name=name, **kwargs)
@@ -60,7 +62,7 @@ class DirectivePlugin(BaseModel):
     Should always be subclassed with `HyperglassPlugin`.
     """
 
-    directives: Sequence[str] = ()
+    directives: t.Sequence[str] = ()
 
 
 class PlatformPlugin(BaseModel):
@@ -69,4 +71,4 @@ class PlatformPlugin(BaseModel):
     Should always be subclassed with `HyperglassPlugin`.
     """
 
-    platforms: Sequence[str] = ()
+    platforms: t.Sequence[str] = ()

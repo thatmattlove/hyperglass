@@ -22,10 +22,6 @@ from .plugins import (
 from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
 from .util.frontend import get_node_version
 
-if t.TYPE_CHECKING:
-    # Local
-    from .models.config.devices import Devices
-
 # Ensure the Python version meets the minimum requirements.
 pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
 if sys.version_info < MIN_PYTHON_VERSION:
@@ -59,19 +55,28 @@ async def build_ui() -> bool:
     return True
 
 
-def register_all_plugins(devices: "Devices") -> None:
+def register_all_plugins() -> None:
     """Validate and register configured plugins."""
+
+    state = use_state()
 
     # Register built-in plugins.
     init_builtin_plugins()
 
-    # Register external plugins.
-    for plugin_file, directives in devices.directive_plugins().items():
-        failures = register_plugin(plugin_file, directives=directives)
-        for failure in failures:
-            log.warning(
-                "Plugin '{}' is not a valid hyperglass plugin, and was not registered", failure,
-            )
+    failures = ()
+
+    # Register external directive-based plugins (defined in directives).
+    for plugin_file, directives in state.devices.directive_plugins().items():
+        failures += register_plugin(plugin_file, directives=directives)
+
+    # Register external global/common plugins (defined in config).
+    for plugin_file in state.params.common_plugins():
+        failures += register_plugin(plugin_file, common=True)
+
+    for failure in failures:
+        log.warning(
+            "Plugin {!r} is not a valid hyperglass plugin and was not registered", failure,
+        )
 
 
 def unregister_all_plugins() -> None:
@@ -87,9 +92,7 @@ def on_starting(server: "Arbiter") -> None:
     required = ".".join((str(v) for v in MIN_PYTHON_VERSION))
     log.debug("Python {} detected ({} required)", python_version, required)
 
-    state = use_state()
-
-    register_all_plugins(state.devices)
+    register_all_plugins()
 
     asyncio.run(build_ui())
 

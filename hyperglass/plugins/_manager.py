@@ -7,7 +7,7 @@ from inspect import isclass
 # Project
 from hyperglass.log import log
 from hyperglass.state import use_state
-from hyperglass.exceptions.private import PluginError
+from hyperglass.exceptions.private import PluginError, InputValidationError
 
 # Local
 from ._base import PluginType, HyperglassPlugin
@@ -18,7 +18,6 @@ if t.TYPE_CHECKING:
     # Project
     from hyperglass.state import HyperglassState
     from hyperglass.models.api.query import Query
-    from hyperglass.models.directive import Directive
 
 PluginT = t.TypeVar("PluginT", bound=HyperglassPlugin)
 
@@ -57,9 +56,10 @@ class PluginManager(t.Generic[PluginT]):
         self._index = 0
         raise StopIteration
 
-    def plugins(self: "PluginManager", builtins: bool = True) -> t.List[PluginT]:
+    def plugins(self: "PluginManager", *, builtins: bool = True) -> t.List[PluginT]:
         """Get all plugins, with built-in plugins last."""
         plugins = self._state.plugins(self._type)
+
         if builtins is False:
             plugins = [p for p in plugins if p.__hyperglass_builtin__ is False]
 
@@ -68,9 +68,7 @@ class PluginManager(t.Generic[PluginT]):
 
         # Sort with built-in plugins last.
         return sorted(
-            sorted_by_name,
-            key=lambda p: -1 if p.__hyperglass_builtin__ else 1,  # flake8: noqa IF100
-            reverse=True,
+            sorted_by_name, key=lambda p: -1 if p.__hyperglass_builtin__ else 1, reverse=True,
         )
 
     @property
@@ -112,9 +110,9 @@ class PluginManager(t.Generic[PluginT]):
                 instance = plugin(*args, **kwargs)
                 self._state.add_plugin(self._type, instance)
                 if instance.__hyperglass_builtin__ is True:
-                    log.debug("Registered built-in plugin '{}'", instance.name)
+                    log.debug("Registered {} built-in plugin {!r}", self._type, instance.name)
                 else:
-                    log.success("Registered plugin '{}'", instance.name)
+                    log.success("Registered {} plugin {!r}", self._type, instance.name)
                 return
         except TypeError:
             raise PluginError(
@@ -128,18 +126,30 @@ class PluginManager(t.Generic[PluginT]):
 class InputPluginManager(PluginManager[InputPlugin], type="input"):
     """Manage Input Validation Plugins."""
 
-    def execute(
-        self: "InputPluginManager", *, directive: "Directive", query: "Query"
-    ) -> InputPluginReturn:
+    def execute(self: "InputPluginManager", *, query: "Query") -> InputPluginReturn:
         """Execute all input validation plugins.
 
         If any plugin returns `False`, execution is halted.
         """
         result = None
-        for plugin in (plugin for plugin in self.plugins() if directive.id in plugin.directives):
-            if result is False:
-                return result
+        builtins = (
+            plugin
+            for plugin in self.plugins(builtins=True)
+            if plugin.directives and query.directive.id in plugin.directives
+        )
+        directives = (plugin for plugin in self.plugins() if plugin.ref in query.directive.plugins)
+        common = (plugin for plugin in self.plugins() if plugin.common is True)
+
+        for plugin in (*directives, *builtins, *common):
             result = plugin.validate(query)
+            result_test = "valid" if result is True else "invalid" if result is False else "none"
+            log.debug("Input Plugin {!r} result={!r}", plugin.name, result_test)
+            if result is False:
+                raise InputValidationError(
+                    error="No matched validation rules", target=query.query_target
+                )
+            if result is True:
+                return result
         return result
 
 
@@ -152,14 +162,18 @@ class OutputPluginManager(PluginManager[OutputPlugin], type="output"):
         The result of each plugin is passed to the next plugin.
         """
         result = output
-        for plugin in (
+        directives = (
             plugin
             for plugin in self.plugins()
             if query.directive.id in plugin.directives and query.device.platform in plugin.platforms
-        ):
+        )
+        common = (plugin for plugin in self.plugins() if plugin.common is True)
+        for plugin in (*directives, *common):
+
             log.debug("Output Plugin {!r} starting with\n{!r}", plugin.name, result)
             result = plugin.process(output=result, query=query)
             log.debug("Output Plugin {!r} completed with\n{!r}", plugin.name, result)
+
             if result is False:
                 return result
             # Pass the result of each plugin to the next plugin.
