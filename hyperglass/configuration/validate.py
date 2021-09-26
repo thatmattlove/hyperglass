@@ -1,26 +1,20 @@
-"""Import configuration files and returns default values if undefined."""
+"""Import configuration files and run validation."""
 
-# Standard Library
-import typing as t
-from pathlib import Path
 
 # Third Party
-import yaml
 from pydantic import ValidationError
 
 # Project
 from hyperglass.log import log, enable_file_logging, enable_syslog_logging
-from hyperglass.settings import Settings
 from hyperglass.models.ui import UIParameters
-from hyperglass.util.files import check_path
 from hyperglass.models.directive import Directive, Directives
-from hyperglass.exceptions.private import ConfigError, ConfigMissing
+from hyperglass.exceptions.private import ConfigError, ConfigInvalid
 from hyperglass.models.config.params import Params
 from hyperglass.models.config.devices import Devices
 
 # Local
+from .load import load_config
 from .markdown import get_markdown
-from .validation import validate_config
 
 __all__ = (
     "init_params",
@@ -29,93 +23,12 @@ __all__ = (
     "init_ui_params",
 )
 
-# Project Directories
-CONFIG_PATH = Settings.app_path
-CONFIG_FILES = (
-    ("hyperglass.yaml", False),
-    ("devices.yaml", True),
-    ("directives.yaml", False),
-)
-
-
-def _check_config_files(directory: Path):
-    """Verify config files exist and are readable."""
-
-    files = ()
-
-    for file in CONFIG_FILES:
-        file_name, required = file
-        file_path = directory / file_name
-
-        checked = check_path(file_path)
-
-        if checked is None and required:
-            raise ConfigMissing(missing_item=str(file_path))
-
-        if checked is None and not required:
-            log.warning(
-                "'{f}' was not found, but is not required to run hyperglass. "
-                + "Defaults will be used.",
-                f=str(file_path),
-            )
-        files += (checked,)
-
-    return files
-
-
-CONFIG_MAIN, CONFIG_DEVICES, CONFIG_DIRECTIVES = _check_config_files(CONFIG_PATH)
-
-
-def _config_required(config_path: Path) -> t.Dict[str, t.Any]:
-    try:
-        with config_path.open("r") as cf:
-            config = yaml.safe_load(cf)
-
-    except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
-        raise ConfigError(message="Error reading YAML file: '{e}'", e=yaml_error)
-
-    if config is None:
-        raise ConfigMissing(missing_item=config_path.name)
-
-    return config
-
-
-def _config_optional(config_path: Path) -> t.Dict[str, t.Any]:
-
-    config = {}
-
-    if config_path is None:
-        return config
-
-    else:
-        try:
-            with config_path.open("r") as cf:
-                config = yaml.safe_load(cf) or {}
-
-        except (yaml.YAMLError, yaml.MarkedYAMLError) as yaml_error:
-            raise ConfigError(message="Error reading YAML file: '{e}'", e=yaml_error)
-
-    return config
-
-
-def _get_directives(data: t.Dict[str, t.Any]) -> "Directives":
-    directives = ()
-    for name, directive in data.items():
-        try:
-            directives += (Directive(id=name, **directive),)
-        except ValidationError as err:
-            raise ConfigError(
-                message="Validation error in directive '{d}': '{e}'", d=name, e=err
-            ) from err
-    return Directives(*directives)
-
 
 def init_params() -> "Params":
     """Validate & initialize configuration parameters."""
-    user_config = _config_optional(CONFIG_MAIN)
+    user_config = load_config("config", required=False)
     # Map imported user configuration to expected schema.
-    log.debug("Unvalidated configuration from {}: {}", CONFIG_MAIN, user_config)
-    params = validate_config(config=user_config, importer=Params)
+    params = Params(**user_config)
 
     # Set up file logging once configuration parameters are initialized.
     enable_file_logging(
@@ -160,27 +73,35 @@ def init_params() -> "Params":
 def init_directives() -> "Directives":
     """Validate & initialize directives."""
     # Map imported user directives to expected schema.
-    _user_directives = _config_optional(CONFIG_DIRECTIVES)
-    log.debug("Unvalidated directives from {!s}: {}", CONFIG_DIRECTIVES, _user_directives)
-    return _get_directives(_user_directives)
+    directives = load_config("directives", required=False)
+    try:
+        directives = (
+            Directive(id=name, **directive)
+            for name, directive in load_config("directives", required=False).items()
+        )
+
+    except ValidationError as err:
+        raise ConfigInvalid(errors=err.errors()) from err
+
+    return Directives(*directives)
 
 
 def init_devices() -> "Devices":
     """Validate & initialize devices."""
-    devices_config = _config_required(CONFIG_DEVICES)
-    log.debug("Unvalidated devices from {!s}: {!r}", CONFIG_DEVICES, devices_config)
+    devices_config = load_config("devices", required=True)
     items = []
 
+    # Support first matching main key name.
     for key in ("main", "devices", "routers"):
         if key in devices_config:
             items = devices_config[key]
             break
 
     if len(items) < 1:
-        raise ConfigError("No devices are defined in devices.yaml")
+        raise ConfigError("No devices are defined in devices file")
 
     devices = Devices(*items)
-    log.info("Initialized devices {!r}", devices)
+    log.debug("Initialized devices {!r}", devices)
 
     return devices
 
