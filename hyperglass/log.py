@@ -8,6 +8,8 @@ from datetime import datetime
 
 # Third Party
 from loguru import logger as _loguru_logger
+from rich.theme import Theme
+from rich.console import Console
 from rich.logging import RichHandler
 from gunicorn.glogging import Logger as GunicornLogger  # type: ignore
 
@@ -42,6 +44,18 @@ _LOG_LEVELS = [
     {"name": "ERROR", "color": "<y>"},
     {"name": "CRITICAL", "color": "<r>"},
 ]
+
+HyperglassConsole = Console(
+    theme=Theme(
+        {
+            "info": "bold cyan",
+            "warning": "bold yellow",
+            "error": "bold red",
+            "success": "bold green",
+            "subtle": "rgb(128,128,128)",
+        }
+    )
+)
 
 
 class LibIntercentHandler(logging.Handler):
@@ -133,6 +147,7 @@ def init_logger(level: str = "INFO"):
         # Use Rich for logging if hyperglass started from a TTY.
         _loguru_logger.add(
             sink=RichHandler(
+                console=HyperglassConsole,
                 rich_tracebacks=True,
                 level=level,
                 tracebacks_show_locals=True,

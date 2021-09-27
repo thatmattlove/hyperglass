@@ -1,6 +1,6 @@
 """hyperglass cli module."""
 
-# Project
-from hyperglass.cli.commands import hg
+# Local
+from .main import cli, run
 
-CLI = hg
+__all__ = ("cli", "run")

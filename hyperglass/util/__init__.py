@@ -385,3 +385,10 @@ def run_coroutine_in_new_thread(coroutine: t.Coroutine) -> t.Any:
     thread.start()
     thread.join()
     return thread.result
+
+
+def compare_lists(left: t.List[t.Any], right: t.List[t.Any], *, ignore: Series[t.Any] = ()) -> bool:
+    """Determine if all items in left list exist in right list."""
+    left_ignored = [i for i in left if i not in ignore]
+    diff_ignored = [i for i in left if i in right and i not in ignore]
+    return len(left_ignored) == len(diff_ignored)

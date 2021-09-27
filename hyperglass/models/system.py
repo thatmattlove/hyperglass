@@ -18,6 +18,10 @@ from pydantic import (
 # Project
 from hyperglass.util import at_least, cpu_count
 
+if t.TYPE_CHECKING:
+    # Third Party
+    from rich.console import Console, RenderResult, ConsoleOptions
+
 ListenHost = t.Union[None, IPvAnyAddress, t.Literal["localhost"]]
 
 
@@ -40,6 +44,34 @@ class HyperglassSettings(BaseSettings):
     redis_dsn: RedisDsn = None
     host: IPvAnyAddress = None
     port: int = 8001
+
+    def __rich_console__(self, console: "Console", options: "ConsoleOptions") -> "RenderResult":
+        """Render a Rich table representation of hyperglass settings."""
+        # Third Party
+        from rich.panel import Panel
+        from rich.style import Style
+        from rich.table import Table, box
+        from rich.pretty import Pretty
+
+        table = Table(box=box.MINIMAL, border_style="subtle")
+        table.add_column("Environment Variable", style=Style(color="#118ab2", bold=True))
+        table.add_column("Value")
+        params = sorted(
+            (
+                "debug",
+                "dev_mode",
+                "app_path",
+                "redis_host",
+                "redis_db",
+                "redis_dsn",
+                "host",
+                "port",
+            )
+        )
+        for attr in params:
+            table.add_row(f"hyperglass_{attr}".upper(), Pretty(getattr(self, attr)))
+
+        yield Panel.fit(table, title="hyperglass settings", border_style="subtle")
 
     @validator("host", pre=True, always=True)
     def validate_host(

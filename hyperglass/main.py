@@ -164,7 +164,8 @@ def start(*, log_level: str, workers: int, **kwargs) -> None:
     ).run()
 
 
-if __name__ == "__main__":
+def run(_workers: int = None):
+    """Run hyperglass."""
     try:
         init_user_config()
 
@@ -174,6 +175,9 @@ if __name__ == "__main__":
 
         if Settings.debug is False:
             workers, log_level = cpu_count(2), "WARNING"
+
+        if _workers is not None:
+            workers = _workers
 
         setup_lib_logging(log_level)
         start(log_level=log_level, workers=workers)
@@ -188,3 +192,7 @@ if __name__ == "__main__":
     except SystemExit:
         # Handle Gunicorn exit.
         sys.exit(4)
+
+
+if __name__ == "__main__":
+    run()

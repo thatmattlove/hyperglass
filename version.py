@@ -7,7 +7,7 @@ from typing import Tuple, Union, Pattern
 from pathlib import Path
 
 # Third Party
-import click
+import typer
 
 PACKAGE_JSON = Path(__file__).parent / "hyperglass" / "ui" / "package.json"
 PACKAGE_JSON_PATTERN = re.compile(r"\s+\"version\"\:\s\"(.+)\"\,$")
@@ -23,6 +23,8 @@ UPGRADES = (
     ("pyproject.toml", PYPROJECT_TOML, PYPROJECT_PATTERN),
     ("constants.py", CONSTANTS, CONSTANT_PATTERN),
 )
+
+cli = typer.Typer(name="version", no_args_is_help=True)
 
 
 class Version:
@@ -115,20 +117,15 @@ class Version:
         return (self.old_version, self.new_version)
 
 
-@click.command(
-    name="Upgrade hyperglass Version",
-    help="Update pyproject.toml, constants.py, and package.json version statements",
-)
-@click.argument("new-version", nargs=1)
 def update_versions(new_version: str) -> None:
-    """Upgrade versions in pre-configured files to new version."""
+    """Update hyperglass version in all package files."""
     for name, file, pattern in UPGRADES:
         with Version(
             name=name, file=file, line_pattern=pattern, new_version=new_version,
         ) as version:
             version.upgrade()
-            click.echo(str(version))
+            typer.echo(str(version))
 
 
 if __name__ == "__main__":
-    update_versions()
+    typer.run(update_versions)
