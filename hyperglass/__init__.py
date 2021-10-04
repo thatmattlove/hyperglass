@@ -37,14 +37,10 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 # Third Party
-import uvloop
+import uvloop  # type: ignore
 
 # Project
-from hyperglass.util import set_app_path
 from hyperglass.constants import METADATA
-
-# Find hyperglass application directory.
-set_app_path()
 
 # Use Uvloop for performance.
 uvloop.install()
