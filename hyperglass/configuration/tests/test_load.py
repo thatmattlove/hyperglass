@@ -8,7 +8,7 @@ from pathlib import Path
 from hyperglass.settings import Settings
 
 # Local
-from ..collect import load_config
+from ..load import load_config
 
 TOML = """
 test = "from toml"
