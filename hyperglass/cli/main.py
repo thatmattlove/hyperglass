@@ -187,6 +187,55 @@ def _devices(
     echo._console.print(Columns(panels))
 
 
+@cli.command(name="directives")
+def _directives(
+    search: t.Optional[str] = typer.Argument(None, help="Directive ID or Name Search Pattern")
+):
+    """Show all configured devices"""
+    # Third Party
+    from rich.columns import Columns
+    from rich._inspect import Inspect
+
+    # Project
+    from hyperglass.state import use_state
+
+    directives = use_state("directives")
+    if search is not None:
+        pattern = re.compile(search, re.IGNORECASE)
+        for directive in directives:
+            if pattern.match(directive.id) or pattern.match(directive.name):
+                echo._console.print(
+                    Inspect(
+                        directive,
+                        title=directive.name,
+                        docs=False,
+                        methods=False,
+                        dunder=False,
+                        sort=True,
+                        all=False,
+                        value=True,
+                        help=False,
+                    )
+                )
+                raise typer.Exit(0)
+
+    panels = [
+        Inspect(
+            directive,
+            title=directive.name,
+            docs=False,
+            methods=False,
+            dunder=False,
+            sort=True,
+            all=False,
+            value=True,
+            help=False,
+        )
+        for directive in directives
+    ]
+    echo._console.print(Columns(panels))
+
+
 @cli.command(name="params")
 def _params(
     path: t.Optional[str] = typer.Argument(
