@@ -29,8 +29,8 @@ def run():
     return typer.run(cli())
 
 
-@cli.callback()
-def version(
+@cli.callback(name="version")
+def _version(
     version: t.Optional[bool] = typer.Option(
         None, "--version", help="hyperglass version", callback=_version
     )
@@ -39,8 +39,8 @@ def version(
     pass
 
 
-@cli.command()
-def start(build: bool = False, workers: t.Optional[int] = None) -> None:
+@cli.command(name="start")
+def _start(build: bool = False, workers: t.Optional[int] = None) -> None:
     """Start hyperglass"""
     # Project
     from hyperglass.main import run
@@ -68,8 +68,8 @@ def start(build: bool = False, workers: t.Optional[int] = None) -> None:
         raise typer.Exit(0)
 
 
-@cli.command()
-def build_ui(timeout: int = typer.Option(180, help="Timeout in seconds")) -> None:
+@cli.command(name="build-ui")
+def _build_ui(timeout: int = typer.Option(180, help="Timeout in seconds")) -> None:
     """Create a new UI build."""
     # Local
     from .util import build_ui as _build_ui
@@ -81,10 +81,12 @@ def build_ui(timeout: int = typer.Option(180, help="Timeout in seconds")) -> Non
         _build_ui()
 
 
-@cli.command()
-def system_info():
+@cli.command(name="system-info")
+def _system_info():
     """Get system information for a bug report"""
     # Third Party
+    from rich import box
+    from rich.panel import Panel
     from rich.table import Table
 
     # Project
@@ -103,13 +105,20 @@ def system_info():
     table = Table("Metric", "Value", box=MD_BOX)
     for title, metric in rows:
         table.add_row(title, metric)
-
-    echo.info("Please copy & paste this table in your bug report:\n")
+    echo._console.print(
+        Panel(
+            "Please copy & paste this table in your bug report",
+            style="bold yellow",
+            expand=False,
+            border_style="yellow",
+            box=box.HEAVY,
+        )
+    )
     echo.plain(table)
 
 
-@cli.command()
-def clear_cache():
+@cli.command(name="clear-cache")
+def _clear_cache():
     """Clear the Redis cache"""
     # Project
     from hyperglass.state import use_state
@@ -129,8 +138,8 @@ def clear_cache():
         raise typer.Exit(1)
 
 
-@cli.command()
-def devices(
+@cli.command(name="devices")
+def _devices(
     search: t.Optional[str] = typer.Argument(None, help="Device ID or Name Search Pattern")
 ):
     """Show all configured devices"""
@@ -231,8 +240,8 @@ def _params(
     echo._console.print(panel)
 
 
-@cli.command()
-def setup():
+@cli.command(name="setup")
+def _setup():
     """Initialize hyperglass setup."""
     # Local
     from .installer import Installer
@@ -241,8 +250,8 @@ def setup():
         start()
 
 
-@cli.command()
-def settings():
+@cli.command(name="settings")
+def _settings():
     """Show hyperglass system settings (environment variables)"""
 
     # Project
