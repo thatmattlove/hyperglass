@@ -2,21 +2,17 @@
 
 # Standard Library
 import sys
+import shutil
 import typing as t
 from inspect import isclass, getmembers
 from pathlib import Path
 from importlib.util import module_from_spec, spec_from_file_location
-
-# Project
-from hyperglass.log import log
 
 # Local
 from . import _builtin
 from ._input import InputPlugin
 from ._output import OutputPlugin
 from ._manager import InputPluginManager, OutputPluginManager
-
-_PLUGIN_GLOBALS = {"InputPlugin": InputPlugin, "OutputPlugin": OutputPlugin, "log": log}
 
 
 def _is_class(module: t.Any, obj: object) -> bool:
@@ -50,11 +46,12 @@ def _register_from_module(module: t.Any, **kwargs: t.Any) -> t.Tuple[str, ...]:
 
 def _module_from_file(file: Path) -> t.Any:
     """Import a plugin module from its file Path object."""
-    name = file.name.split(".")[0]
-    spec = spec_from_file_location(f"hyperglass.plugins.external.{name}", file)
+    plugins_dir = Path(__file__).parent / "external"
+    dst = plugins_dir / f"imported_{file.name}"
+    shutil.copy2(file, dst)
+    name = f"imported_{file.name.split('.')[0]}"
+    spec = spec_from_file_location(f"hyperglass.plugins.external.{name}", dst)
     module = module_from_spec(spec)
-    for k, v in _PLUGIN_GLOBALS.items():
-        setattr(module, k, v)
     spec.loader.exec_module(module)
     return module
 

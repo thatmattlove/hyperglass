@@ -16,6 +16,7 @@ InputPluginReturn = t.Union[None, bool]
 class InputPlugin(HyperglassPlugin, DirectivePlugin):
     """Plugin to validate user input prior to running commands."""
 
+    _type = "input"
     failure_reason: t.Optional[str] = None
 
     def validate(self, query: "Query") -> InputPluginReturn:

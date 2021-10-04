@@ -21,6 +21,8 @@ OutputType = Union["OutputDataModel", Series[str]]
 class OutputPlugin(HyperglassPlugin, DirectivePlugin, PlatformPlugin):
     """Plugin to interact with device command output."""
 
+    _type = "output"
+
     def process(self, *, output: OutputType, query: "Query") -> OutputType:
         """Process or manipulate output from a device."""
         log.warning("Output plugin '{}' has not implemented a 'process()' method", self.name)
