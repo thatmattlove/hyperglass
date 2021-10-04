@@ -1,6 +1,7 @@
 """hyperglass Command Line Interface."""
 
 # Standard Library
+import re
 import sys
 import typing as t
 
@@ -126,6 +127,55 @@ def clear_cache():
 
         echo.error("Error clearing cache: {!s}", err)
         raise typer.Exit(1)
+
+
+@cli.command()
+def devices(
+    search: t.Optional[str] = typer.Argument(None, help="Device ID or Name Search Pattern")
+):
+    """Show all configured devices"""
+    # Third Party
+    from rich.columns import Columns
+    from rich._inspect import Inspect
+
+    # Project
+    from hyperglass.state import use_state
+
+    devices = use_state("devices")
+    if search is not None:
+        pattern = re.compile(search, re.IGNORECASE)
+        for device in devices:
+            if pattern.match(device.id) or pattern.match(device.name):
+                echo._console.print(
+                    Inspect(
+                        device,
+                        title=device.name,
+                        docs=False,
+                        methods=False,
+                        dunder=False,
+                        sort=True,
+                        all=False,
+                        value=True,
+                        help=False,
+                    )
+                )
+                raise typer.Exit(0)
+
+    panels = [
+        Inspect(
+            device,
+            title=device.name,
+            docs=False,
+            methods=False,
+            dunder=False,
+            sort=True,
+            all=False,
+            value=True,
+            help=False,
+        )
+        for device in devices
+    ]
+    echo._console.print(Columns(panels))
 
 
 @cli.command()
