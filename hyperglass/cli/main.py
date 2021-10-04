@@ -178,6 +178,59 @@ def devices(
     echo._console.print(Columns(panels))
 
 
+@cli.command(name="params")
+def _params(
+    path: t.Optional[str] = typer.Argument(
+        None, help="Parameter Object Path, for example 'messages.no_input'"
+    )
+):
+    """Show configuration parameters"""
+    # Standard Library
+    from operator import attrgetter
+
+    # Third Party
+    from rich._inspect import Inspect
+
+    # Project
+    from hyperglass.state import use_state
+
+    params = use_state("params")
+    if path is not None:
+        try:
+            value = attrgetter(path)(params)
+
+            echo._console.print(
+                Inspect(
+                    value,
+                    title=f"params.{path}",
+                    docs=False,
+                    methods=False,
+                    dunder=False,
+                    sort=True,
+                    all=False,
+                    value=True,
+                    help=False,
+                )
+            )
+            raise typer.Exit(0)
+        except AttributeError:
+            echo.error(f"{'params.'+path!r} does not exist")
+            raise typer.Exit(1)
+
+    panel = Inspect(
+        params,
+        title="hyperglass Configuration Parameters",
+        docs=False,
+        methods=False,
+        dunder=False,
+        sort=True,
+        all=False,
+        value=True,
+        help=False,
+    )
+    echo._console.print(panel)
+
+
 @cli.command()
 def setup():
     """Initialize hyperglass setup."""
