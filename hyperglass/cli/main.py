@@ -236,6 +236,46 @@ def _directives(
     echo._console.print(Columns(panels))
 
 
+@cli.command(name="plugins")
+def _plugins(
+    search: t.Optional[str] = typer.Argument(None, help="Plugin ID or Name Search Pattern"),
+    _input: bool = typer.Option(
+        False, "--input", show_default=False, is_flag=True, help="Show Input Plugins"
+    ),
+    output: bool = typer.Option(
+        False, "--output", show_default=False, is_flag=True, help="Show Output Plugins"
+    ),
+):
+    """Show all configured devices"""
+    # Third Party
+    from rich.columns import Columns
+
+    # Project
+    from hyperglass.state import use_state
+
+    to_fetch = ("input", "output")
+    if _input is True:
+        to_fetch = ("input",)
+
+    elif output is True:
+        to_fetch = ("output",)
+
+    state = use_state()
+    all_plugins = [plugin for _type in to_fetch for plugin in state.plugins(_type)]
+
+    if search is not None:
+        pattern = re.compile(search, re.IGNORECASE)
+        matching = [plugin for plugin in all_plugins if pattern.match(plugin.name)]
+        if len(matching) == 0:
+            echo.error(f"No plugins matching {search!r}")
+            raise typer.Exit(1)
+        else:
+            echo._console.print(Columns(matching))
+            raise typer.Exit(0)
+
+    echo._console.print(Columns(all_plugins))
+
+
 @cli.command(name="params")
 def _params(
     path: t.Optional[str] = typer.Argument(

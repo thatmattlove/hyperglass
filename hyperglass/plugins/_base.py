@@ -8,6 +8,13 @@ from inspect import Signature
 # Third Party
 from pydantic import BaseModel, PrivateAttr
 
+# Project
+from hyperglass.log import log as _logger
+
+if t.TYPE_CHECKING:
+    # Third Party
+    from loguru import Logger
+
 PluginType = t.Union[t.Literal["output"], t.Literal["input"]]
 SupportedMethod = t.TypeVar("SupportedMethod")
 
@@ -16,9 +23,11 @@ class HyperglassPlugin(BaseModel, ABC):
     """Plugin to interact with device command output."""
 
     __hyperglass_builtin__: bool = PrivateAttr(False)
+    _type: t.ClassVar[str]
     name: str
     common: bool = False
     ref: t.Optional[str] = None
+    log: t.ClassVar["Logger"] = _logger
 
     @property
     def _signature(self) -> Signature:
@@ -54,6 +63,42 @@ class HyperglassPlugin(BaseModel, ABC):
         """Initialize plugin instance."""
         name = kwargs.pop("name", None) or self.__class__.__name__
         super().__init__(name=name, **kwargs)
+
+    def __rich_console__(self, *_, **__):
+        """Create a rich representation of this plugin for the hyperglass CLI."""
+
+        # Third Party
+        from rich.text import Text
+        from rich.panel import Panel
+        from rich.table import Table
+        from rich.pretty import Pretty
+
+        table = Table.grid(padding=(0, 1), expand=False)
+        table.add_column(justify="right")
+
+        data = {"builtin": True if self.__hyperglass_builtin__ else False}
+        data.update(
+            {
+                attr: getattr(self, attr)
+                for attr in ("name", "common", "directives", "platforms")
+                if hasattr(self, attr)
+            }
+        )
+        data = {k: data[k] for k in sorted(data.keys())}
+        for key, value in data.items():
+            table.add_row(
+                Text.assemble((key, "inspect.attr"), (" =", "inspect.equals")), Pretty(value)
+            )
+
+        yield Panel(
+            table,
+            expand=False,
+            title=f"[bold magenta]{self.name}",
+            title_align="left",
+            subtitle=f"[bold cornflower_blue]{self._type.capitalize()} Plugin",
+            subtitle_align="right",
+            padding=(1, 3),
+        )
 
 
 class DirectivePlugin(BaseModel):
