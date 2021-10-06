@@ -9,7 +9,7 @@ from pydantic import StrictInt, StrictFloat
 
 IntFloat = t.TypeVar("IntFloat", StrictInt, StrictFloat)
 
-SupportedDriver = t.Literal["scrapli", "netmiko", "hyperglass_agent"]
+SupportedDriver = t.Literal["netmiko", "hyperglass_agent"]
 HttpAuthMode = t.Literal["basic", "api_key"]
 HttpProvider = t.Literal["msteams", "slack", "generic"]
 LogFormat = t.Literal["text", "json"]

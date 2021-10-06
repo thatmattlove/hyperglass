@@ -22,16 +22,13 @@ if TYPE_CHECKING:
     from hyperglass.models.data import OutputDataModel
 
 # Local
-from .drivers import AgentConnection, NetmikoConnection, ScrapliConnection
+from .drivers import AgentConnection, NetmikoConnection
 
 
 def map_driver(driver_name: str) -> "Connection":
     """Get the correct driver class based on the driver name."""
 
-    if driver_name == "scrapli":
-        return ScrapliConnection
-
-    elif driver_name == "hyperglass_agent":
+    if driver_name == "hyperglass_agent":
         return AgentConnection
 
     return NetmikoConnection

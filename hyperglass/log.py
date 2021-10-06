@@ -118,7 +118,6 @@ def setup_lib_logging(log_level: str) -> None:
         "uvicorn.asgi",
         "netmiko",
         "paramiko",
-        "scrapli",
         "httpx",
     ]:
         if name not in seen:

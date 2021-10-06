@@ -48,7 +48,6 @@ pydantic = {extras = ["dotenv"], version = "^1.8.2"}
 python = ">=3.8.1,<4.0"
 redis = "^3.5.3"
 rich = "^10.11.0"
-scrapli = {version = "2021.07.30", extras = ["asyncssh"]}
 typer = "^0.4.0"
 typing-extensions = "^3.7.4"
 uvicorn = {extras = ["standard"], version = "^0.13.4"}

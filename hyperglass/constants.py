@@ -76,17 +76,6 @@ SCRAPE_HELPERS = {
 }
 
 DRIVER_MAP = {
-    # TODO: Troubleshoot Arista with Scrapli, broken after upgrading to 2021.1.30.
-    # "arista_eos": "scrapli", # noqa: E800
-    "bird": "scrapli",
-    "cisco_ios": "scrapli",
-    "cisco_xe": "scrapli",
-    "cisco_xr": "scrapli",
-    "cisco_nxos": "scrapli",
-    # TODO: Troubleshoot Juniper with Scrapli, broken after upgrading to 2021.7.30.
-    # "juniper": "scrapli", # noqa: E800
-    "tnsr": "scrapli",
-    "frr": "scrapli",
     "frr_legacy": "hyperglass_agent",
     "bird_legacy": "hyperglass_agent",
 }
