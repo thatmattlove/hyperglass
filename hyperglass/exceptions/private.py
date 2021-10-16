@@ -31,8 +31,8 @@ class UnsupportedDevice(PrivateHyperglassError):
         # Project
         from hyperglass.constants import DRIVER_MAP
 
-        drivers = ("", *[*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()].sort())
-        driver_list = "\n  - ".join(drivers)
+        sorted_drivers = sorted([*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()])
+        driver_list = "\n  - ".join(("", *sorted_drivers))
         super().__init__(message=f"'{platform}' is not supported. Must be one of:{driver_list}")
 
 

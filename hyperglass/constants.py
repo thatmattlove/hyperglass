@@ -78,4 +78,6 @@ SCRAPE_HELPERS = {
 DRIVER_MAP = {
     "frr_legacy": "hyperglass_agent",
     "bird_legacy": "hyperglass_agent",
+    "bird": "netmiko",
+    "frr": "netmiko",
 }

@@ -8,18 +8,14 @@ from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
 from pydantic import FilePath, StrictInt, StrictStr, StrictBool, validator
+from netmiko.ssh_dispatcher import CLASS_MAPPER  # type: ignore
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import (
-    get_driver,
-    get_fmt_keys,
-    resolve_hostname,
-    validate_platform,
-)
+from hyperglass.util import get_driver, get_fmt_keys, resolve_hostname
 from hyperglass.state import use_state
 from hyperglass.settings import Settings
-from hyperglass.constants import SCRAPE_HELPERS, SUPPORTED_STRUCTURED_OUTPUT
+from hyperglass.constants import DRIVER_MAP, SCRAPE_HELPERS, SUPPORTED_STRUCTURED_OUTPUT
 from hyperglass.exceptions.private import ConfigError, UnsupportedDevice
 
 # Local
@@ -30,6 +26,8 @@ from .proxy import Proxy
 from ..fields import SupportedDriver
 from ..directive import Directives
 from .credential import Credential
+
+ALL_DEVICE_TYPES = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
 
 
 class DirectiveOptions(HyperglassModel, extra="ignore"):
@@ -181,8 +179,29 @@ class Device(HyperglassModelWithId, extra="allow"):
                     src.save(target)
         return value
 
+    @validator("platform", pre=True, always=True)
+    def validate_platform(cls: "Device", value: Any, values: Dict[str, Any]) -> str:
+        """Validate & rewrite device platform, set default `directives`."""
+
+        if value is None:
+            # Ensure device platform is defined.
+            raise ConfigError(
+                "Device '{device}' is missing a 'platform' (Network Operating System) property",
+                device=values["name"],
+            )
+
+        if value in SCRAPE_HELPERS.keys():
+            # Rewrite platform to helper value if needed.
+            value = SCRAPE_HELPERS[value]
+
+        # Verify device platform is supported by hyperglass.
+        if value not in ALL_DEVICE_TYPES:
+            raise UnsupportedDevice(value)
+
+        return value
+
     @validator("structured_output", pre=True, always=True)
-    def validate_structured_output(cls, value: bool, values: Dict) -> bool:
+    def validate_structured_output(cls, value: bool, values: Dict[str, Any]) -> bool:
         """Validate structured output is supported on the device & set a default."""
 
         if value is True:
@@ -211,27 +230,6 @@ class Device(HyperglassModelWithId, extra="allow"):
                     log.warning("No certificate found for device {d}", d=values["name"])
                     cert_file.touch()
                 value.cert = cert_file
-        return value
-
-    @validator("platform", pre=True, always=True)
-    def validate_platform(cls: "Device", value: Any, values: Dict[str, Any]) -> str:
-        """Validate & rewrite device platform, set default `directives`."""
-
-        if value is None:
-            # Ensure device platform is defined.
-            raise ConfigError(
-                "Device '{device}' is missing a 'platform' (Network Operating System) property",
-                device={values["name"]},
-            )
-
-        if value in SCRAPE_HELPERS.keys():
-            # Rewrite platform to helper value if needed.
-            value = SCRAPE_HELPERS[value]
-
-        # Verify device platform is supported by hyperglass.
-        supported, _ = validate_platform(value)
-        if not supported:
-            raise UnsupportedDevice(value)
         return value
 
     @validator("directives", pre=True, always=True)

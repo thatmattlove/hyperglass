@@ -47,68 +47,7 @@ def check_python() -> str:
     return platform.python_version()
 
 
-async def write_env(variables: t.Dict) -> str:
-    """Write environment variables to temporary JSON file."""
-    env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
-    env_vars = json.dumps(variables)
-
-    try:
-        with env_file.open("w+") as ef:
-            ef.write(env_vars)
-    except Exception as e:
-        raise RuntimeError(str(e))
-
-    return f"Wrote {env_vars} to {str(env_file)}"
-
-
-def set_app_path(required: bool = False) -> Path:
-    """Find app directory and set value to environment variable."""
-
-    # Standard Library
-    from getpass import getuser
-
-    matched_path = None
-
-    config_paths = (Path.home() / "hyperglass", Path("/etc/hyperglass/"))
-
-    # Ensure only one app directory exists to reduce confusion.
-    if all((p.exists() for p in config_paths)):
-        raise RuntimeError(
-            "Both '{}' and '{}' exist. ".format(*(p.as_posix() for p in config_paths))
-            + "Please choose only one configuration directory and delete the other."
-        )
-
-    for path in config_paths:
-        try:
-            if path.exists():
-                tmp = path / "test.tmp"
-                tmp.touch()
-                if tmp.exists():
-                    matched_path = path
-                    tmp.unlink()
-                    break
-        except Exception:
-            matched_path = None
-
-    if required and matched_path is None:
-        # Only raise an error if required is True
-        raise RuntimeError(
-            """
-No configuration directories were determined to both exist and be readable
-by hyperglass. hyperglass is running as user '{un}' (UID '{uid}'), and tried
-to access the following directories:
-{dir}""".format(
-                un=getuser(),
-                uid=os.getuid(),
-                dir="\n".join(["\t - " + str(p) for p in config_paths]),
-            )
-        )
-
-    os.environ["hyperglass_directory"] = str(matched_path)
-    return matched_path
-
-
-def split_on_uppercase(s):
+def split_on_uppercase(s: str) -> t.List[str]:
     """Split characters by uppercase letters.
 
     From: https://stackoverflow.com/a/40382663
@@ -127,7 +66,7 @@ def split_on_uppercase(s):
     return parts
 
 
-def parse_exception(exc):
+def parse_exception(exc: BaseException) -> str:
     """Parse an exception and its direct cause."""
 
     if not isinstance(exc, BaseException):
@@ -155,31 +94,6 @@ def parse_exception(exc):
         else:
             parsed.append(cause)
     return ", caused by ".join(parsed)
-
-
-def set_cache_env(host, port, db):
-    """Set basic cache config parameters to environment variables.
-
-    Functions using Redis to access the pickled config need to be able
-    to access Redis without reading the config.
-    """
-
-    os.environ["HYPERGLASS_CACHE_HOST"] = str(host)
-    os.environ["HYPERGLASS_CACHE_PORT"] = str(port)
-    os.environ["HYPERGLASS_CACHE_DB"] = str(db)
-    return True
-
-
-def get_cache_env():
-    """Get basic cache config from environment variables."""
-
-    host = os.environ.get("HYPERGLASS_CACHE_HOST")
-    port = os.environ.get("HYPERGLASS_CACHE_PORT")
-    db = os.environ.get("HYPERGLASS_CACHE_DB")
-    for i in (host, port, db):
-        if i is None:
-            raise LookupError("Unable to find cache configuration in environment variables")
-    return host, port, db
 
 
 def make_repr(_class):
@@ -331,7 +245,10 @@ def deep_convert_keys(_dict: t.Type[DeepConvert], predicate: t.Callable[[str], s
     return converted
 
 
-def at_least(minimum: int, value: int,) -> int:
+def at_least(
+    minimum: int,
+    value: int,
+) -> int:
     """Get a number value that is at least a specified minimum."""
     if value < minimum:
         return minimum
