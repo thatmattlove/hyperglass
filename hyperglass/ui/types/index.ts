@@ -7,3 +7,4 @@ export * from './guards';
 export * from './table';
 export * from './theme';
 export * from './util';
+export * from './wtfismyip';

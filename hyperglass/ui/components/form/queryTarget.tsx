@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
-import { Input, Text } from '@chakra-ui/react';
+import { Input, InputGroup, InputRightElement, Text } from '@chakra-ui/react';
 import { components } from 'react-select';
 import { If, Select } from '~/components';
 import { useColorValue } from '~/context';
 import { useDirective, useFormState } from '~/hooks';
 import { isSelectDirective } from '~/types';
+import { UserIP } from './userIP';
+
 import type { OptionProps } from 'react-select';
 import type { Directive, SingleOption } from '~/types';
 import type { TQueryTarget } from './types';
@@ -73,19 +75,28 @@ export const QueryTarget: React.FC<TQueryTarget> = (props: TQueryTarget) => {
         />
       </If>
       <If c={directive === null || !isSelectDirective(directive)}>
-        <Input
-          bg={bg}
-          size="lg"
-          color={color}
-          borderRadius="md"
-          borderColor={border}
-          aria-label={placeholder}
-          placeholder={placeholder}
-          value={displayTarget}
-          name="queryTargetDisplay"
-          onChange={handleInputChange}
-          _placeholder={{ color: placeholderColor }}
-        />
+        <InputGroup size="lg">
+          <Input
+            bg={bg}
+            color={color}
+            borderRadius="md"
+            borderColor={border}
+            value={displayTarget}
+            aria-label={placeholder}
+            placeholder={placeholder}
+            name="queryTargetDisplay"
+            onChange={handleInputChange}
+            _placeholder={{ color: placeholderColor }}
+          />
+          <InputRightElement w="max-content" pr={2}>
+            <UserIP
+              setTarget={(target: string) => {
+                setTarget({ display: target });
+                onChange({ field: name, value: target });
+              }}
+            />
+          </InputRightElement>
+        </InputGroup>
       </If>
     </>
   );

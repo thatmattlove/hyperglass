@@ -34,3 +34,7 @@ export interface LocationCardProps {
   onChange(a: 'add' | 'remove', v: SingleOption): void;
   hasError: boolean;
 }
+
+export interface UserIPProps {
+  setTarget(target: string): void;
+}

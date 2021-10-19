@@ -153,6 +153,10 @@ class Text(HyperglassModel):
     rpki_unknown: StrictStr = "No ROAs Exist"
     rpki_unverified: StrictStr = "Not Verified"
     no_communities: StrictStr = "No Communities"
+    ip_error: StrictStr = "Unable to determine IP Address"
+    no_ip: StrictStr = "No {protocol} Address"
+    ip_select: StrictStr = "Select an IP Address"
+    ip_button: StrictStr = "My IP"
 
     @validator("title_mode")
     def validate_title_mode(cls, value):

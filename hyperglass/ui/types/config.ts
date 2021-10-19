@@ -48,6 +48,10 @@ interface _Text {
   rpki_unknown: string;
   rpki_unverified: string;
   no_communities: string;
+  ip_error: string;
+  no_ip: string;
+  ip_select: string;
+  ip_button: string;
 }
 
 interface _Greeting {

@@ -16,6 +16,7 @@ export * from './markdown';
 export * from './meta';
 export * from './output';
 export * from './path';
+export * from './prompt';
 export * from './results';
 export * from './select';
 export * from './submit';
