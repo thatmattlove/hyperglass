@@ -98,8 +98,25 @@ def run_whois_sync(targets: List[str]) -> str:
 
     # Open the socket to bgp.tools
     log.debug("Opening connection to bgp.tools")
-    sock = socket.socket()
-    sock.connect(("bgp.tools", 43))
+    err = None
+    sock = None
+    for res in socket.getaddrinfo("bpg.tools", 43, socket.AF_UNSPEC, socket.SOCK_STREAM):
+      af, socktype, proto, canonname, sa = res
+      try:
+        sock = socket.socket(af, socktype, proto)
+      except socket.error as e:
+        err = e
+        continue
+      try:
+        sock.connect(("bgp.tools", 43))
+      except socket.error as e:
+        err = e
+        sock = None
+        continue
+
+    if not sock and err:
+      raise err
+
     sock.send(query)
 
     # Read the response
