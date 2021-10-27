@@ -113,6 +113,7 @@ def run_whois_sync(targets: List[str]) -> str:
         err = e
         sock = None
         continue
+      break
 
     if not sock and err:
       raise err
