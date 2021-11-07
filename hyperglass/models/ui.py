@@ -72,3 +72,4 @@ class UIParameters(ParamsPublic, HyperglassModel):
     devices: List[UIDevices] = []
     parsed_data_fields: Tuple[StructuredDataField, ...]
     content: UIContent
+    developer_mode: StrictBool
