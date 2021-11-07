@@ -80,4 +80,5 @@ DRIVER_MAP = {
     "bird_legacy": "hyperglass_agent",
     "bird": "netmiko",
     "frr": "netmiko",
+    "http": "hyperglass_http_client",
 }

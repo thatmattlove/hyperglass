@@ -3,7 +3,7 @@
 Accepts input from front end application, validates the input and
 returns errors if input is invalid. Passes validated parameters to
 construct.py, which is used to build & run the Netmiko connections or
-hyperglass-frr API calls, returns the output back to the front end.
+http client API calls, returns the output back to the front end.
 """
 
 # Standard Library
@@ -22,14 +22,14 @@ if TYPE_CHECKING:
     from hyperglass.models.data import OutputDataModel
 
 # Local
-from .drivers import AgentConnection, NetmikoConnection
+from .drivers import HttpClient, NetmikoConnection
 
 
 def map_driver(driver_name: str) -> "Connection":
     """Get the correct driver class based on the driver name."""
 
-    if driver_name == "hyperglass_agent":
-        return AgentConnection
+    if driver_name == "hyperglass_http_client":
+        return HttpClient
 
     return NetmikoConnection
 

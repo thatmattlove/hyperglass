@@ -13,6 +13,7 @@ SupportedDriver = t.Literal["netmiko", "hyperglass_agent"]
 HttpAuthMode = t.Literal["basic", "api_key"]
 HttpProvider = t.Literal["msteams", "slack", "generic"]
 LogFormat = t.Literal["text", "json"]
+Primitives = t.Union[None, float, int, bool, str]
 
 
 class AnyUri(str):
@@ -71,3 +72,40 @@ class Action(str):
     def __repr__(self):
         """Stringify custom field representation."""
         return f"Action({super().__repr__()})"
+
+
+class HttpMethod(str):
+    """Custom field type for HTTP methods."""
+
+    methods = (
+        "CONNECT",
+        "DELETE",
+        "GET",
+        "HEAD",
+        "OPTIONS",
+        "PATCH",
+        "POST",
+        "PUT",
+        "TRACE",
+    )
+
+    @classmethod
+    def __get_validators__(cls):
+        """Pydantic custom field method."""
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: str):
+        """Ensure http method is valid."""
+        if not isinstance(value, str):
+            raise TypeError("HTTP Method must be a string")
+        value = value.strip().upper()
+
+        if value in cls.methods:
+            return cls(value)
+
+        raise ValueError("HTTP Method must be one of {!r}".format(", ".join(cls.methods)))
+
+    def __repr__(self):
+        """Stringify custom field representation."""
+        return f"HttpMethod({super().__repr__()})"

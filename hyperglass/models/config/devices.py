@@ -19,13 +19,13 @@ from hyperglass.constants import DRIVER_MAP, SCRAPE_HELPERS, SUPPORTED_STRUCTURE
 from hyperglass.exceptions.private import ConfigError, UnsupportedDevice
 
 # Local
-from .ssl import Ssl
 from ..main import MultiModel, HyperglassModel, HyperglassModelWithId
 from ..util import check_legacy_fields
 from .proxy import Proxy
 from ..fields import SupportedDriver
 from ..directive import Directives
 from .credential import Credential
+from .http_client import HttpConfiguration
 
 ALL_DEVICE_TYPES = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
 
@@ -49,7 +49,7 @@ class Device(HyperglassModelWithId, extra="allow"):
     proxy: Optional[Proxy]
     display_name: Optional[StrictStr]
     port: StrictInt = 22
-    ssl: Optional[Ssl]
+    http: HttpConfiguration = HttpConfiguration()
     platform: StrictStr
     structured_output: Optional[StrictBool]
     directives: Directives = Directives()
@@ -217,19 +217,6 @@ class Device(HyperglassModelWithId, extra="allow"):
             value = True
         else:
             value = False
-        return value
-
-    @validator("ssl")
-    def validate_ssl(cls, value, values):
-        """Set default cert file location if undefined."""
-
-        if value is not None:
-            if value.enable and value.cert is None:
-                cert_file = Settings.app_path / "certs" / f'{values["name"]}.pem'
-                if not cert_file.exists():
-                    log.warning("No certificate found for device {d}", d=values["name"])
-                    cert_file.touch()
-                value.cert = cert_file
         return value
 
     @validator("directives", pre=True, always=True)
