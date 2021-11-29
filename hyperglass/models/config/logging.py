@@ -5,6 +5,7 @@ import base64
 from ast import literal_eval
 from typing import Dict, Union, Optional
 from pathlib import Path
+from sys import version_info
 
 # Third Party
 from pydantic import (
@@ -92,12 +93,17 @@ class Http(HyperglassModelExtra):
             else:
                 dumped["auth"] = self.authentication.basic()
 
-        self._obscured_params = base64.encodestring(str(dumped).encode())
+        if version_info < (3, 8):
+            self._obscured_params = base64.encodestring(str(dumped).encode())
+        else:
+            self._obscured_params = base64.encodebytes(str(dumped).encode())
 
     def decoded(self):
         """Decode connection details."""
-        return literal_eval(base64.decodestring(self._obscured_params).decode())
-
+        if version_info < (3, 8):
+            return literal_eval(base64.decodestring(self._obscured_params).decode())
+        else:
+            return literal_eval(base64.decodebytes(self._obscured_params).decode())
 
 class Logging(HyperglassModel):
     """Validation model for logging configuration."""
