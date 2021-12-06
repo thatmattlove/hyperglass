@@ -1,7 +1,7 @@
 """Validate branding configuration variables."""
 
 # Standard Library
-from typing import Union, Optional, Sequence
+import typing as t
 from pathlib import Path
 
 # Third Party
@@ -33,13 +33,14 @@ ColorMode = constr(regex=r"light|dark")
 DOHProvider = constr(regex="|".join(DNS_OVER_HTTPS.keys()))
 Title = constr(max_length=32)
 Side = constr(regex=r"left|right")
+LocationDisplayMode = t.Literal["auto", "dropdown", "gallery"]
 
 
 class Analytics(HyperglassModel):
     """Validation model for Google Analytics."""
 
     enable: StrictBool = False
-    id: Optional[StrictStr]
+    id: t.Optional[StrictStr]
 
     @validator("id")
     def validate_id(cls, value, values):
@@ -102,7 +103,7 @@ class Greeting(HyperglassModel):
     """Validation model for greeting modal."""
 
     enable: StrictBool = False
-    file: Optional[FilePath]
+    file: t.Optional[FilePath]
     title: StrictStr = "Welcome"
     button: StrictStr = "Continue"
     required: StrictBool = False
@@ -121,8 +122,8 @@ class Logo(HyperglassModel):
     light: FilePath = DEFAULT_IMAGES / "hyperglass-light.svg"
     dark: FilePath = DEFAULT_IMAGES / "hyperglass-dark.svg"
     favicon: FilePath = DEFAULT_IMAGES / "hyperglass-icon.svg"
-    width: Optional[Union[StrictInt, Percentage]] = "100%"
-    height: Optional[Union[StrictInt, Percentage]]
+    width: t.Optional[t.Union[StrictInt, Percentage]] = "100%"
+    height: t.Optional[t.Union[StrictInt, Percentage]]
 
 
 class LogoPublic(Logo):
@@ -188,12 +189,12 @@ class ThemeColors(HyperglassModel):
     cyan: Color = "#118ab2"
     pink: Color = "#f2607d"
     purple: Color = "#8d30b5"
-    primary: Optional[Color]
-    secondary: Optional[Color]
-    success: Optional[Color]
-    warning: Optional[Color]
-    error: Optional[Color]
-    danger: Optional[Color]
+    primary: t.Optional[Color]
+    secondary: t.Optional[Color]
+    success: t.Optional[Color]
+    warning: t.Optional[Color]
+    error: t.Optional[Color]
+    danger: t.Optional[Color]
 
     @validator(*FUNC_COLOR_MAP.keys(), pre=True, always=True)
     def validate_colors(cls, value, values, field):
@@ -226,7 +227,7 @@ class Theme(HyperglassModel):
     """Validation model for theme variables."""
 
     colors: ThemeColors = ThemeColors()
-    default_color_mode: Optional[ColorMode]
+    default_color_mode: t.Optional[ColorMode]
     fonts: ThemeFonts = ThemeFonts()
 
 
@@ -256,10 +257,10 @@ class Web(HyperglassModel):
 
     credit: Credit = Credit()
     dns_provider: DnsOverHttps = DnsOverHttps()
-    links: Sequence[Link] = [
+    links: t.Sequence[Link] = [
         Link(title="PeeringDB", url="https://www.peeringdb.com/asn/{primary_asn}")
     ]
-    menus: Sequence[Menu] = [
+    menus: t.Sequence[Menu] = [
         Menu(title="Terms", content=DEFAULT_TERMS),
         Menu(title="Help", content=DEFAULT_HELP),
     ]
@@ -268,6 +269,7 @@ class Web(HyperglassModel):
     opengraph: OpenGraph = OpenGraph()
     text: Text = Text()
     theme: Theme = Theme()
+    location_display_mode: LocationDisplayMode = "auto"
 
 
 class WebPublic(Web):

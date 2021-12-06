@@ -15,6 +15,7 @@ export const useControlStyle = <Opt extends SingleOption, IsMulti extends boolea
   props: RSStyleCallbackProps,
 ): RSStyleFunction<'control', Opt, IsMulti> => {
   const { colorMode } = props;
+
   const { isError } = useSelectContext();
 
   const minHeight = useToken('space', 12);
@@ -22,9 +23,10 @@ export const useControlStyle = <Opt extends SingleOption, IsMulti extends boolea
   const color = useColorToken('colors', 'black', 'whiteAlpha.800');
   const focusBorder = useColorToken('colors', 'blue.500', 'blue.300');
   const invalidBorder = useColorToken('colors', 'red.500', 'red.300');
+  // const borderColor = useColorToken('colors', 'gray.200', 'whiteAlpha.300');
   const borderColor = useColorToken('colors', 'gray.100', 'whiteAlpha.50');
   const borderHover = useColorToken('colors', 'gray.300', 'whiteAlpha.400');
-  const backgroundColor = useColorToken('colors', 'white', 'whiteAlpha.100');
+  const backgroundColor = useColorToken('colors', 'white', 'blackSolid.800');
 
   return useCallback(
     (base, state) => {
@@ -56,9 +58,12 @@ export const useMenuStyle = <Opt extends SingleOption, IsMulti extends boolean>(
   props: RSStyleCallbackProps,
 ): RSStyleFunction<'menu', Opt, IsMulti> => {
   const { colorMode } = props;
+
   const { isOpen } = useSelectContext();
+
   const backgroundColor = useColorToken('colors', 'white', 'blackSolid.700');
   const styles = { backgroundColor, zIndex: 1500 };
+
   return useCallback(base => mergeWith({}, base, styles), [colorMode, isOpen]);
 };
 
@@ -66,13 +71,14 @@ export const useMenuListStyle = <Opt extends SingleOption, IsMulti extends boole
   props: RSStyleCallbackProps,
 ): RSStyleFunction<'menuList', Opt, IsMulti> => {
   const { colorMode } = props;
+
   const { isOpen } = useSelectContext();
+
   const borderRadius = useToken('radii', 'md');
   const backgroundColor = useColorToken('colors', 'white', 'blackSolid.700');
   const scrollbarTrack = useColorToken('colors', 'blackAlpha.50', 'whiteAlpha.50');
   const scrollbarThumb = useColorToken('colors', 'blackAlpha.300', 'whiteAlpha.300');
   const scrollbarThumbHover = useColorToken('colors', 'blackAlpha.400', 'whiteAlpha.400');
-
   const styles = {
     borderRadius,
     backgroundColor,
@@ -82,6 +88,7 @@ export const useMenuListStyle = <Opt extends SingleOption, IsMulti extends boole
     '&::-webkit-scrollbar-thumb:hover': { backgroundColor: scrollbarThumbHover },
     '-ms-overflow-style': { display: 'none' },
   };
+
   return useCallback(base => mergeWith({}, base, styles), [colorMode, isOpen]);
 };
 
@@ -89,6 +96,7 @@ export const useOptionStyle = <Opt extends SingleOption, IsMulti extends boolean
   props: RSStyleCallbackProps,
 ): RSStyleFunction<'option', Opt, IsMulti> => {
   const { colorMode } = props;
+
   const { isOpen } = useSelectContext();
 
   const fontSize = useToken('fontSizes', 'lg');
@@ -136,8 +144,10 @@ export const useIndicatorSeparatorStyle = <Opt extends SingleOption, IsMulti ext
   props: RSStyleCallbackProps,
 ): RSStyleFunction<'indicatorSeparator', Opt, IsMulti> => {
   const { colorMode } = props;
-  const backgroundColor = useColorToken('colors', 'whiteAlpha.700', 'gray.600');
+  const backgroundColor = useColorToken('colors', 'gray.200', 'whiteAlpha.300');
+  // const backgroundColor = useColorToken('colors', 'gray.200', 'gray.600');
   const styles = { backgroundColor };
+
   return useCallback(base => mergeWith({}, base, styles), [colorMode]);
 };
 
@@ -145,8 +155,10 @@ export const usePlaceholderStyle = <Opt extends SingleOption, IsMulti extends bo
   props: RSStyleCallbackProps,
 ): RSStyleFunction<'placeholder', Opt, IsMulti> => {
   const { colorMode } = props;
+
   const color = useColorToken('colors', 'gray.600', 'whiteAlpha.700');
   const fontSize = useToken('fontSizes', 'lg');
+
   return useCallback(base => mergeWith({}, base, { color, fontSize }), [colorMode]);
 };
 
@@ -157,8 +169,8 @@ export const useSingleValueStyle = <Opt extends SingleOption, IsMulti extends bo
 
   const color = useColorValue('black', 'whiteAlpha.800');
   const fontSize = useToken('fontSizes', 'lg');
-
   const styles = { color, fontSize };
+
   return useCallback(base => mergeWith({}, base, styles), [color, colorMode]);
 };
 
@@ -169,8 +181,9 @@ export const useMultiValueStyle = <Opt extends SingleOption, IsMulti extends boo
 
   const backgroundColor = useColorToken('colors', 'primary.500', 'primary.300');
   const color = useOpposingColor(backgroundColor);
+  const borderRadius = useToken('radii', 'md');
+  const styles = { backgroundColor, color, borderRadius };
 
-  const styles = { backgroundColor, color };
   return useCallback(base => mergeWith({}, base, styles), [backgroundColor, colorMode]);
 };
 
@@ -181,8 +194,8 @@ export const useMultiValueLabelStyle = <Opt extends SingleOption, IsMulti extend
 
   const backgroundColor = useColorToken('colors', 'primary.500', 'primary.300');
   const color = useOpposingColor(backgroundColor);
-
   const styles = { color };
+
   return useCallback(base => mergeWith({}, base, styles), [colorMode]);
 };
 
@@ -193,16 +206,17 @@ export const useMultiValueRemoveStyle = <Opt extends SingleOption, IsMulti exten
 
   const backgroundColor = useColorToken('colors', 'primary.500', 'primary.300');
   const color = useOpposingColor(backgroundColor);
-
   const styles = {
     color,
-    '&:hover': { backgroundColor: 'inherit', color, opacity: 0.7 },
+    '&:hover': { backgroundColor: 'transparent', color, opacity: 0.8 },
   };
+
   return useCallback(base => mergeWith({}, base, styles), [colorMode]);
 };
 
 export const useRSTheme = (): RSThemeFunction => {
   const borderRadius = useToken('radii', 'md');
+
   return useCallback((t: ReactSelect.Theme): ReactSelect.Theme => ({ ...t, borderRadius }), []);
 };
 
@@ -215,5 +229,6 @@ export const useMenuPortal = <Opt extends SingleOption, IsMulti extends boolean>
   const styles = {
     zIndex: isMobile ? 1500 : 1,
   };
+
   return useCallback(base => merge(base, styles), [isMobile]);
 };

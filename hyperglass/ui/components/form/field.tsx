@@ -38,13 +38,14 @@ export const FormField: React.FC<TField> = (props: TField) => {
       {...rest}
     >
       <FormLabel
-        pl={1}
         pr={0}
+        mb={{ lg: 4 }}
         htmlFor={name}
         display="flex"
         opacity={opacity}
         alignItems="center"
         justifyContent="space-between"
+        fontWeight="bold"
         color={error !== null ? errorColor : labelColor}
       >
         {label}

@@ -42,7 +42,7 @@ const Option = (props: OptionProps<OptionWithDescription, false>) => {
 export const QueryTarget = (props: TQueryTarget): JSX.Element => {
   const { name, register, onChange, placeholder } = props;
 
-  const bg = useColorValue('white', 'whiteAlpha.100');
+  const bg = useColorValue('white', 'blackSolid.800');
   const color = useColorValue('gray.400', 'whiteAlpha.800');
   const border = useColorValue('gray.100', 'whiteAlpha.50');
   const placeholderColor = useColorValue('gray.600', 'whiteAlpha.700');

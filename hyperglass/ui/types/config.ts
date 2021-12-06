@@ -98,6 +98,7 @@ interface _Web {
   terms: { enable: boolean; title: string };
   text: _Text;
   theme: _ThemeConfig;
+  location_display_mode: 'auto' | 'gallery' | 'dropdown';
 }
 
 type _DirectiveBase = {

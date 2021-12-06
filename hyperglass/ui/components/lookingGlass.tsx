@@ -189,7 +189,7 @@ export const LookingGlass = (): JSX.Element => {
           </FormField>
         </FormRow>
         <FormRow>
-          <SlideFade offsetY={100} in={filtered.types.length > 0} unmountOnExit>
+          <SlideFade offsetX={-100} in={filtered.types.length > 0} unmountOnExit>
             <FormField
               name="queryType"
               label={web.text.queryType}
