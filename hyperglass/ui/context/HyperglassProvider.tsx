@@ -12,7 +12,7 @@ import { makeTheme, defaultTheme } from '~/util';
 import type { Config, Theme } from '~/types';
 import type { THyperglassProvider } from './types';
 
-const HyperglassContext = createContext<Config>(Object());
+export const HyperglassContext = createContext<Config>({} as Config);
 
 const queryClient = new QueryClient();
 
