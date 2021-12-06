@@ -30,7 +30,7 @@ if sys.version_info < MIN_PYTHON_VERSION:
 # Ensure the NodeJS version meets the minimum requirements.
 node_major, _, __ = get_node_version()
 
-if node_major != MIN_NODE_VERSION:
+if node_major < MIN_NODE_VERSION:
     raise RuntimeError(f"NodeJS {MIN_NODE_VERSION!s}+ is required.")
 
 

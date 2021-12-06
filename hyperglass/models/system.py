@@ -81,9 +81,9 @@ class HyperglassSettings(BaseSettings):
 
         if value is None:
             if values["debug"] is False:
-                return ip_address("127.0.0.1")
+                return ip_address("::1")
             elif values["debug"] is True:
-                return ip_address("0.0.0.0")
+                return ip_address("::")
 
         if isinstance(value, str):
             if value != "localhost":
@@ -93,7 +93,7 @@ class HyperglassSettings(BaseSettings):
                     raise ValueError(str(value))
 
             elif value == "localhost":
-                return ip_address("127.0.0.1")
+                return ip_address("::1")
 
         raise ValueError(str(value))
 

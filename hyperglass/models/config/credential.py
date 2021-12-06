@@ -22,7 +22,7 @@ class Credential(HyperglassModel, extra="allow"):
     @root_validator
     def validate_credential(cls, values):
         """Ensure either a password or an SSH key is set."""
-        if values["key"] is None and values["password"] is None:
+        if values.get("key") is None and values.get("password") is None:
             raise ValueError(
                 "Either a password or an SSH key must be specified for user '{}'".format(
                     values["username"]
