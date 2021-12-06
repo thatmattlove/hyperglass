@@ -1,15 +1,10 @@
 import { useMemo } from 'react';
-import dynamic from 'next/dynamic';
-import { Button, chakra, Stack, Text, VStack, useDisclosure } from '@chakra-ui/react';
-import { Prompt } from '~/components';
+import { Button, Stack, Text, VStack, useDisclosure } from '@chakra-ui/react';
+import { DynamicIcon, Prompt } from '~/components';
 import { useConfig, useColorValue } from '~/context';
 import { useStrf, useWtf } from '~/hooks';
 
 import type { UserIPProps } from './types';
-
-const RightArrow = chakra(
-  dynamic<MeronexIcon>(() => import('@meronex/icons/fa').then(i => i.FaArrowCircleRight)),
-);
 
 export const UserIP = (props: UserIPProps): JSX.Element => {
   const { setTarget } = props;
@@ -67,7 +62,7 @@ export const UserIP = (props: UserIPProps): JSX.Element => {
                 ipv4?.data?.ip && setTarget(ipv4.data.ip);
                 disclosure.onClose();
               }}
-              rightIcon={<RightArrow boxSize="18px" />}
+              rightIcon={<DynamicIcon icon={{ fa: 'FaArrowCircleRight' }} boxSize="18px" />}
             >
               {ipv4?.data?.ip ?? noIPv4}
             </Button>
@@ -85,7 +80,7 @@ export const UserIP = (props: UserIPProps): JSX.Element => {
                 ipv6?.data?.ip && setTarget(ipv6.data.ip);
                 disclosure.onClose();
               }}
-              rightIcon={<RightArrow boxSize="18px" />}
+              rightIcon={<DynamicIcon icon={{ fa: 'FaArrowCircleRight' }} boxSize="18px" />}
             >
               {ipv6?.data?.ip ?? noIPv6}
             </Button>

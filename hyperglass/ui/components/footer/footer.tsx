@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
-import dynamic from 'next/dynamic';
-import { Flex, Icon, HStack, useToken } from '@chakra-ui/react';
-import { If } from '~/components';
+import { Flex, HStack, useToken } from '@chakra-ui/react';
+import { DynamicIcon, If } from '~/components';
 import { useConfig, useMobile, useColorValue, useBreakpointValue } from '~/context';
 import { useStrf } from '~/hooks';
 import { FooterButton } from './button';
@@ -11,9 +10,6 @@ import { isLink, isMenu } from './types';
 
 import type { ButtonProps, LinkProps } from '@chakra-ui/react';
 import type { Link, Menu } from '~/types';
-
-const CodeIcon = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiCode));
-const ExtIcon = dynamic<MeronexIcon>(() => import('@meronex/icons/go').then(i => i.GoLinkExternal));
 
 function buildItems(links: Link[], menus: Menu[]): [(Link | Menu)[], (Link | Menu)[]] {
   const leftLinks = links.filter(link => link.side === 'left');
@@ -61,7 +57,7 @@ export const Footer: React.FC = () => {
           const icon: Partial<ButtonProps & LinkProps> = {};
 
           if (item.showIcon) {
-            icon.rightIcon = <ExtIcon />;
+            icon.rightIcon = <DynamicIcon icon={{ go: 'GoLinkExternal' }} />;
           }
           return <FooterLink key={item.title} href={url} title={item.title} {...icon} />;
         } else if (isMenu(item)) {
@@ -77,7 +73,7 @@ export const Footer: React.FC = () => {
           const icon: Partial<ButtonProps & LinkProps> = {};
 
           if (item.showIcon) {
-            icon.rightIcon = <ExtIcon />;
+            icon.rightIcon = <DynamicIcon icon={{ go: 'GoLinkExternal' }} />;
           }
           return <FooterLink key={item.title} href={url} title={item.title} {...icon} />;
         } else if (isMenu(item)) {
@@ -91,7 +87,7 @@ export const Footer: React.FC = () => {
           key="credit"
           side="right"
           content={content.credit}
-          title={<Icon as={CodeIcon} boxSize={size} />}
+          title={<DynamicIcon icon={{ fi: 'FiCode' }} boxSize={size} />}
         />
       </If>
       <ColorModeToggle size={size} />

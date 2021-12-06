@@ -1,18 +1,14 @@
-import dynamic from 'next/dynamic';
-import { Button, Icon, Tooltip } from '@chakra-ui/react';
+import { Button, Tooltip } from '@chakra-ui/react';
+import { DynamicIcon } from '~/components';
 
 import type { TPathButton } from './types';
 
-const PathIcon = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/bi').then(i => i.BisNetworkChart),
-);
-
-export const PathButton: React.FC<TPathButton> = (props: TPathButton) => {
+export const PathButton = (props: TPathButton): JSX.Element => {
   const { onOpen } = props;
   return (
     <Tooltip hasArrow label="View AS Path" placement="top">
       <Button as="a" mx={1} size="sm" variant="ghost" onClick={onOpen} colorScheme="secondary">
-        <Icon as={PathIcon} boxSize="16px" />
+        <DynamicIcon icon={{ bi: 'BiNetworkChart' }} boxSize="16px" />
       </Button>
     </Tooltip>
   );

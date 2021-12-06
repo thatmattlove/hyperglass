@@ -1,4 +1,3 @@
-import dynamic from 'next/dynamic';
 import {
   Modal,
   ScaleFade,
@@ -10,13 +9,11 @@ import {
   useDisclosure,
   ModalCloseButton,
 } from '@chakra-ui/react';
-import { Markdown } from '~/components';
+import { DynamicIcon, Markdown } from '~/components';
 import { useColorValue } from '~/context';
 import { isQueryContent } from '~/types';
 
 import type { THelpModal } from './types';
-
-const Info = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiInfo));
 
 export const HelpModal: React.FC<THelpModal> = (props: THelpModal) => {
   const { visible, item, name, ...rest } = props;
@@ -36,7 +33,7 @@ export const HelpModal: React.FC<THelpModal> = (props: THelpModal) => {
           minW={3}
           size="md"
           variant="link"
-          icon={<Info />}
+          icon={<DynamicIcon icon={{ fi: 'FiInfo' }} />}
           onClick={onOpen}
           colorScheme="blue"
           aria-label={`${name}_help`}

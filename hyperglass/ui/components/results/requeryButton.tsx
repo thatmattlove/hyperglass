@@ -1,10 +1,8 @@
 import { forwardRef } from 'react';
-import dynamic from 'next/dynamic';
-import { Button, Icon, Tooltip } from '@chakra-ui/react';
+import { Button, Tooltip } from '@chakra-ui/react';
+import { DynamicIcon } from '~/components';
 
 import type { TRequeryButton } from './types';
-
-const Repeat = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiRepeat));
 
 const _RequeryButton: React.ForwardRefRenderFunction<HTMLButtonElement, TRequeryButton> = (
   props: TRequeryButton,
@@ -25,7 +23,7 @@ const _RequeryButton: React.ForwardRefRenderFunction<HTMLButtonElement, TRequery
         colorScheme="secondary"
         {...rest}
       >
-        <Icon as={Repeat} boxSize="16px" />
+        <DynamicIcon icon={{ fi: 'FiRepeat' }} boxSize="16px" />
       </Button>
     </Tooltip>
   );

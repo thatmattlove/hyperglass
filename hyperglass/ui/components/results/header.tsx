@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { AccordionIcon, Box, Spinner, HStack, Text, Tooltip } from '@chakra-ui/react';
-import { BisError as Warning } from '@meronex/icons/bi';
-import { FaCheckCircle as Check } from '@meronex/icons/fa';
+import { DynamicIcon } from '~/components';
 import { useConfig, useColorValue } from '~/context';
 import { useOpposingColor, useStrf } from '~/hooks';
 
@@ -43,8 +42,8 @@ export const ResultHeader: React.FC<TResultHeader> = (props: TResultHeader) => {
           {loading ? (
             <Spinner size="sm" mr={4} color={status} />
           ) : (
-            <Box
-              as={isError ? Warning : Check}
+            <DynamicIcon
+              icon={isError ? { bi: 'BisError' } : { fa: 'FaCheckCircle' }}
               color={isError ? warning : defaultStatus}
               mr={4}
               boxSize="100%"

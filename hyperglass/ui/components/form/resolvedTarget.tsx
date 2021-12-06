@@ -1,19 +1,11 @@
 import { useMemo } from 'react';
-import dynamic from 'next/dynamic';
-import { Button, chakra, Stack, Text, VStack } from '@chakra-ui/react';
+import { Button, Stack, Text, VStack } from '@chakra-ui/react';
+import { DynamicIcon } from '~/components';
 import { useConfig, useColorValue } from '~/context';
 import { useStrf, useDNSQuery, useFormState } from '~/hooks';
 
 import type { DnsOverHttps } from '~/types';
 import type { ResolvedTargetProps } from './types';
-
-const RightArrow = chakra(
-  dynamic<MeronexIcon>(() => import('@meronex/icons/fa').then(i => i.FaArrowCircleRight)),
-);
-
-const LeftArrow = chakra(
-  dynamic<MeronexIcon>(() => import('@meronex/icons/fa').then(i => i.FaArrowCircleLeft)),
-);
 
 function findAnswer(data: DnsOverHttps.Response | undefined): string {
   let answer = '';
@@ -68,16 +60,12 @@ export const ResolvedTarget = (props: ResolvedTargetProps): JSX.Element => {
   }
 
   const hasAnswer = useMemo(
-    () => (!isError4 || !isError6) && (answer4 !== '' || answer6 !== ''),
+    () => (!isError4 || !isError6) && (answer4 || answer6),
     [answer4, answer6, isError4, isError6],
   );
-  const showA = useMemo(
-    () => !isLoading4 && !isError4 && answer4 !== '',
-    [isLoading4, isError4, answer4],
-  );
-
+  const showA = useMemo(() => !isLoading4 && !isError4 && answer4, [isLoading4, isError4, answer4]);
   const showAAAA = useMemo(
-    () => !isLoading6 && !isError6 && answer6 !== '',
+    () => !isLoading6 && !isError6 && answer6,
     [isLoading6, isError6, answer6],
   );
 
@@ -102,7 +90,7 @@ export const ResolvedTarget = (props: ResolvedTargetProps): JSX.Element => {
             colorScheme="primary"
             justifyContent="space-between"
             onClick={() => selectTarget(answer4)}
-            rightIcon={<RightArrow boxSize="18px" />}
+            rightIcon={<DynamicIcon icon={{ fa: 'FaArrowCircleRight' }} boxSize="18px" />}
           >
             {answer4}
           </Button>
@@ -116,7 +104,7 @@ export const ResolvedTarget = (props: ResolvedTargetProps): JSX.Element => {
             colorScheme="secondary"
             justifyContent="space-between"
             onClick={() => selectTarget(answer6)}
-            rightIcon={<RightArrow boxSize="18px" />}
+            rightIcon={<DynamicIcon icon={{ fa: 'FaArrowCircleRight' }} boxSize="18px" />}
           >
             {answer6}
           </Button>
@@ -135,7 +123,7 @@ export const ResolvedTarget = (props: ResolvedTargetProps): JSX.Element => {
               variant="outline"
               size="sm"
               onClick={errorClose}
-              leftIcon={<LeftArrow />}
+              leftIcon={<DynamicIcon icon={{ fa: 'FaArrowCircleLeft' }} />}
             >
               {web.text.fqdnErrorButton}
             </Button>

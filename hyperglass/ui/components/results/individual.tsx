@@ -2,7 +2,6 @@ import { forwardRef, memo, useEffect, useMemo } from 'react';
 import {
   Box,
   Flex,
-  Icon,
   Alert,
   chakra,
   HStack,
@@ -14,10 +13,9 @@ import {
   useAccordionContext,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { BsLightningFill } from '@meronex/icons/bs';
-import { startCase } from 'lodash';
+import startCase from 'lodash/startCase';
 import isEqual from 'react-fast-compare';
-import { BGPTable, Countdown, TextOutput, If, Path } from '~/components';
+import { BGPTable, Countdown, DynamicIcon, If, Path, TextOutput } from '~/components';
 import { useColorValue, useConfig, useMobile } from '~/context';
 import { useStrf, useLGQuery, useTableToString, useFormState, useDevice } from '~/hooks';
 import { isStructuredOutput, isStringOutput } from '~/types';
@@ -262,7 +260,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
                 </If>
                 <Tooltip hasArrow label={cacheLabel} placement="top">
                   <Box>
-                    <Icon as={BsLightningFill} color={color} />
+                    <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
                   </Box>
                 </Tooltip>
                 <If c={isMobile}>

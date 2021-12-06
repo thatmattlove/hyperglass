@@ -12,11 +12,8 @@ import {
   useDisclosure,
   ModalCloseButton,
 } from '@chakra-ui/react';
-import { HiOutlineDownload as RefreshIcon } from '@meronex/icons/hi';
-import { IosColorPalette as ThemeIcon } from '@meronex/icons/ios';
-import { MdcCodeJson as ConfigIcon } from '@meronex/icons/mdc';
 import { useConfig, useColorValue, useBreakpointValue } from '~/context';
-import { CodeBlock } from '~/components';
+import { CodeBlock, DynamicIcon } from '~/components';
 import { useHyperglassConfig } from '~/hooks';
 
 import type { UseDisclosureReturn } from '@chakra-ui/react';
@@ -75,16 +72,26 @@ export const Debugger: React.FC = () => {
         <Tag size={tagSize} colorScheme="gray">
           {colorMode.toUpperCase()}
         </Tag>
-        <Button size={btnSize} leftIcon={<ConfigIcon />} colorScheme="cyan" onClick={onConfigOpen}>
+        <Button
+          size={btnSize}
+          colorScheme="cyan"
+          onClick={onConfigOpen}
+          leftIcon={<DynamicIcon icon={{ bs: 'BsBraces' }} />}
+        >
           View Config
         </Button>
-        <Button size={btnSize} leftIcon={<ThemeIcon />} colorScheme="blue" onClick={onThemeOpen}>
+        <Button
+          size={btnSize}
+          leftIcon={<DynamicIcon icon={{ io: 'IoIosColorPalette' }} />}
+          colorScheme="blue"
+          onClick={onThemeOpen}
+        >
           View Theme
         </Button>
         <Button
           size={btnSize}
           colorScheme="purple"
-          leftIcon={<RefreshIcon />}
+          leftIcon={<DynamicIcon icon={{ hi: 'HiOutlineDownload' }} />}
           onClick={() => refetch()}
         >
           Reload Config

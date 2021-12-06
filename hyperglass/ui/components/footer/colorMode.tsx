@@ -1,14 +1,10 @@
 import { forwardRef } from 'react';
-import dynamic from 'next/dynamic';
-import { Button, Icon, Tooltip } from '@chakra-ui/react';
-import { If } from '~/components';
+import { Button, Tooltip } from '@chakra-ui/react';
+import { DynamicIcon, If } from '~/components';
 import { useColorMode, useColorValue, useBreakpointValue } from '~/context';
 import { useOpposingColor } from '~/hooks';
 
 import type { TColorModeToggle } from './types';
-
-const Sun = dynamic<MeronexIcon>(() => import('@meronex/icons/hi').then(i => i.HiSun));
-const Moon = dynamic<MeronexIcon>(() => import('@meronex/icons/hi').then(i => i.HiMoon));
 
 export const ColorModeToggle = forwardRef<HTMLButtonElement, TColorModeToggle>(
   (props: TColorModeToggle, ref) => {
@@ -34,10 +30,10 @@ export const ColorModeToggle = forwardRef<HTMLButtonElement, TColorModeToggle>(
           {...rest}
         >
           <If c={colorMode === 'light'}>
-            <Icon as={Moon} boxSize={size} />
+            <DynamicIcon icon={{ hi: 'HiMoon' }} boxSize={size} />
           </If>
           <If c={colorMode === 'dark'}>
-            <Icon as={Sun} boxSize={size} />
+            <DynamicIcon icon={{ hi: 'HiSun' }} boxSize={size} />
           </If>
         </Button>
       </Tooltip>

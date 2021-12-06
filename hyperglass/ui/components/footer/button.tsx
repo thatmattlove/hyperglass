@@ -40,6 +40,7 @@ export const FooterButton: React.FC<TFooterButton> = (props: TFooterButton) => {
         as={Button}
         size={size}
         variant="ghost"
+        lineHeight={0}
         aria-label={typeof title === 'string' ? title : undefined}
       >
         {title}

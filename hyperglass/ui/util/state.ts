@@ -1,6 +1,6 @@
 import { devtools } from 'zustand/middleware';
 
-import type { StateCreator } from 'zustand';
+import type { StateCreator, SetState, GetState, StoreApi } from 'zustand';
 
 /**
  * Wrap a zustand state function with devtools, if applicable.
@@ -14,7 +14,7 @@ export function withDev<T extends object = {}>(
   name: string,
 ): StateCreator<T> {
   if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    return devtools<T>(store, { name });
+    return devtools<T, SetState<T>, GetState<T>, StoreApi<T>>(store, { name });
   }
   return store;
 }

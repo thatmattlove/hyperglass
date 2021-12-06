@@ -1,11 +1,9 @@
 // This rule isn't needed because react-table does this for us, for better or worse.
 /* eslint react/jsx-key: 0 */
-
-import dynamic from 'next/dynamic';
-import { Flex, Icon, Text } from '@chakra-ui/react';
+import { Flex, Text } from '@chakra-ui/react';
 import { usePagination, useSortBy, useTable } from 'react-table';
 import { useMobile } from '~/context';
-import { CardBody, CardFooter, CardHeader, If } from '~/components';
+import { CardBody, CardFooter, CardHeader, DynamicIcon, If } from '~/components';
 import { TableMain } from './table';
 import { TableCell } from './cell';
 import { TableHead } from './head';
@@ -17,25 +15,6 @@ import { TableSelectShow } from './pageSelect';
 import type { TableOptions, PluginHook } from 'react-table';
 import type { TCellRender } from '~/types';
 import type { TTable } from './types';
-
-const ChevronRight = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/fa').then(i => i.FaChevronRight),
-);
-
-const ChevronLeft = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/fa').then(i => i.FaChevronLeft),
-);
-
-const ChevronDown = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/fa').then(i => i.FaChevronDown),
-);
-
-const DoubleChevronRight = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/fi').then(i => i.FiChevronsRight),
-);
-const DoubleChevronLeft = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/fi').then(i => i.FiChevronsLeft),
-);
 
 export const Table: React.FC<TTable> = (props: TTable) => {
   const {
@@ -112,10 +91,10 @@ export const Table: React.FC<TTable> = (props: TTable) => {
                   </Text>
                   <If c={column.isSorted}>
                     <If c={typeof column.isSortedDesc !== 'undefined'}>
-                      <Icon as={ChevronDown} boxSize={4} ml={1} />
+                      <DynamicIcon icon={{ fa: 'FaChevronDown' }} boxSize={4} ml={1} />
                     </If>
                     <If c={!column.isSortedDesc}>
-                      <Icon as={ChevronRight} boxSize={4} ml={1} />
+                      <DynamicIcon icon={{ fa: 'FaChevronRight' }} boxSize={4} ml={1} />
                     </If>
                   </If>
                   <If c={!column.isSorted}>{''}</If>
@@ -163,13 +142,13 @@ export const Table: React.FC<TTable> = (props: TTable) => {
             mr={2}
             onClick={() => gotoPage(0)}
             isDisabled={!canPreviousPage}
-            icon={<Icon as={DoubleChevronLeft} boxSize={4} />}
+            icon={<DynamicIcon icon={{ fi: 'FiChevronsLeft' }} boxSize={4} />}
           />
           <TableIconButton
             mr={2}
             onClick={() => previousPage()}
             isDisabled={!canPreviousPage}
-            icon={<Icon as={ChevronLeft} boxSize={3} />}
+            icon={<DynamicIcon icon={{ fa: 'FaChevronLeft' }} boxSize={3} />}
           />
         </Flex>
         <Flex justifyContent="center" alignItems="center">
@@ -193,12 +172,12 @@ export const Table: React.FC<TTable> = (props: TTable) => {
             ml={2}
             onClick={nextPage}
             isDisabled={!canNextPage}
-            icon={<Icon as={ChevronRight} boxSize={3} />}
+            icon={<DynamicIcon icon={{ fa: 'FaChevronRight' }} boxSize={3} />}
           />
           <TableIconButton
             ml={2}
             isDisabled={!canNextPage}
-            icon={<Icon as={DoubleChevronRight} boxSize={4} />}
+            icon={<DynamicIcon icon={{ fi: 'FiChevronsRight' }} boxSize={4} />}
             onClick={() => gotoPage(pageCount ? pageCount - 1 : 1)}
           />
         </Flex>

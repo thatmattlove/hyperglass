@@ -1,13 +1,10 @@
-import dynamic from 'next/dynamic';
-import { Flex, Icon, IconButton } from '@chakra-ui/react';
+import { Flex, IconButton } from '@chakra-ui/react';
 import { AnimatePresence } from 'framer-motion';
-import { AnimatedDiv } from '~/components';
+import { AnimatedDiv, DynamicIcon } from '~/components';
 import { useColorValue } from '~/context';
 import { useOpposingColor, useFormState } from '~/hooks';
 
 import type { TResetButton } from './types';
-
-const LeftArrow = dynamic<MeronexIcon>(() => import('@meronex/icons/fa').then(i => i.FaAngleLeft));
 
 export const ResetButton = (props: TResetButton): JSX.Element => {
   const { developerMode, resetForm, ...rest } = props;
@@ -34,11 +31,12 @@ export const ResetButton = (props: TResetButton): JSX.Element => {
         >
           <Flex boxSize="100%" justifyContent="center" alignItems="center" {...rest}>
             <IconButton
-              variant="unstyled"
+              lineHeight={0}
               color="current"
+              variant="unstyled"
               aria-label="Reset"
               onClick={resetForm}
-              icon={<Icon as={LeftArrow} boxSize={8} />}
+              icon={<DynamicIcon icon={{ fa: 'FaAngleLeft' }} boxSize={8} />}
             />
           </Flex>
         </AnimatedDiv>

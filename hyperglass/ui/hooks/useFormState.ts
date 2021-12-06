@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import create from 'zustand';
-import { intersectionWith } from 'lodash';
+import intersectionWith from 'lodash/intersectionWith';
 import plur from 'plur';
 import isEqual from 'react-fast-compare';
 import { all, andJoin, dedupObjectArray, withDev } from '~/util';

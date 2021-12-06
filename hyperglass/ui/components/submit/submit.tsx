@@ -13,9 +13,8 @@ import {
   ModalCloseButton,
   PopoverCloseButton,
 } from '@chakra-ui/react';
-import { FiSearch } from '@meronex/icons/fi';
 import { useFormContext } from 'react-hook-form';
-import { If, ResolvedTarget } from '~/components';
+import { DynamicIcon, If, ResolvedTarget } from '~/components';
 import { useMobile, useColorValue } from '~/context';
 import { useFormState } from '~/hooks';
 
@@ -33,7 +32,7 @@ const _SubmitIcon: React.ForwardRefRenderFunction<
       size="lg"
       width={16}
       type="submit"
-      icon={<FiSearch />}
+      icon={<DynamicIcon icon={{ fi: 'FiSearch' }} />}
       title="Submit Query"
       colorScheme="primary"
       isLoading={isLoading}

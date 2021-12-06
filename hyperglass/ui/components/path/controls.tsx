@@ -1,10 +1,6 @@
-import dynamic from 'next/dynamic';
 import { ButtonGroup, IconButton } from '@chakra-ui/react';
 import { useZoomPanHelper } from 'react-flow-renderer';
-
-const Plus = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiPlus));
-const Minus = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiMinus));
-const Square = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiSquare));
+import { DynamicIcon } from '~/components';
 
 export const Controls: React.FC = () => {
   const { fitView, zoomIn, zoomOut } = useZoomPanHelper();
@@ -20,9 +16,21 @@ export const Controls: React.FC = () => {
       variant="solid"
       colorScheme="secondary"
     >
-      <IconButton icon={<Plus />} onClick={() => zoomIn()} aria-label="Zoom In" />
-      <IconButton icon={<Minus />} onClick={() => zoomOut()} aria-label="Zoom Out" />
-      <IconButton icon={<Square />} onClick={() => fitView()} aria-label="Fit Nodes" />
+      <IconButton
+        icon={<DynamicIcon icon={{ fi: 'FiPlus' }} />}
+        onClick={() => zoomIn()}
+        aria-label="Zoom In"
+      />
+      <IconButton
+        icon={<DynamicIcon icon={{ fi: 'FiMinus' }} />}
+        onClick={() => zoomOut()}
+        aria-label="Zoom Out"
+      />
+      <IconButton
+        icon={<DynamicIcon icon={{ fi: 'FiSquare' }} />}
+        onClick={() => fitView()}
+        aria-label="Fit Nodes"
+      />
     </ButtonGroup>
   );
 };
