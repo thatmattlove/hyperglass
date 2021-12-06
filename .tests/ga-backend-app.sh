@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 LOG_FILE="$HOME/hyperglass-ci.log"
+touch /tmp/hyperglass.log
 
 export POETRY_HYPERGLASS_UI_BUILD_TIMEOUT="600"
 echo "[INFO] Set build timeout to $POETRY_HYPERGLASS_UI_BUILD_TIMEOUT seconds"
