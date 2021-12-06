@@ -15,7 +15,7 @@ import { useGreeting, useOpposingColor } from '~/hooks';
 
 import type { TGreeting } from './types';
 
-export const Greeting: React.FC<TGreeting> = (props: TGreeting) => {
+export const Greeting = (props: TGreeting): JSX.Element => {
   const { web, content } = useConfig();
   const { isAck, isOpen, open, ack } = useGreeting();
 
@@ -31,7 +31,7 @@ export const Greeting: React.FC<TGreeting> = (props: TGreeting) => {
     <Modal
       size="lg"
       isCentered
-      onClose={() => ack(false)}
+      onClose={() => ack(false, web.greeting.required)}
       isOpen={isOpen}
       motionPreset="slideInBottom"
       closeOnEsc={web.greeting.required}
@@ -54,7 +54,7 @@ export const Greeting: React.FC<TGreeting> = (props: TGreeting) => {
           <Markdown content={content.greeting} />
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="primary" onClick={() => ack(true)}>
+          <Button colorScheme="primary" onClick={() => ack(true, web.greeting.required)}>
             {web.greeting.button}
           </Button>
         </ModalFooter>

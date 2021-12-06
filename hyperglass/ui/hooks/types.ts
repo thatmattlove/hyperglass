@@ -20,15 +20,6 @@ export interface TOpposingOptions {
   dark?: string;
 }
 
-export interface UseGreeting {
-  isAck: boolean;
-  isOpen: boolean;
-  greetingReady: boolean;
-  ack(value: boolean): void;
-  open(): void;
-  close(): void;
-}
-
 export type UseDevice = (
   /**
    * Device's ID, e.g. the device.name field.
