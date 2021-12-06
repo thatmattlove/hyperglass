@@ -1,5 +1,7 @@
 name: Installer Testing
-on: [push, pull_request]
+on:
+  - push
+  - pull_request
 
 jobs:
   installer:
@@ -7,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -15,4 +17,4 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run hyperglass
-        run: "sudo bash ./install.sh"
+        run: 'sudo bash ./install.sh'

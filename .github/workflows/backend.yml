@@ -1,5 +1,7 @@
 name: Backend Testing
-on: [push, pull_request]
+on:
+  - push
+  - pull_request
 
 jobs:
   backend:
@@ -9,9 +11,9 @@ jobs:
       matrix:
         node-version: [14.x]
         redis-version: [5, 6]
-        poetry-version: [1.1.4]
-        python-version: [3.6, 3.8]
-        os: [ubuntu-20.04]
+        poetry-version: [1.1.11]
+        python-version: [3.8, 3.9]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -29,7 +31,7 @@ jobs:
           poetry-version: ${{ matrix.poetry-version }}
 
       - name: Install Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
 

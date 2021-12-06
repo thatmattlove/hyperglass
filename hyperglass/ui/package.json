@@ -11,6 +11,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "format": "prettier --config ./.prettierrc -c -w .",
+    "format:check": "prettier --config ./.prettierrc -c .",
     "build": "export NODE_OPTIONS=--openssl-legacy-provider; next build && next export -o ../hyperglass/static/ui",
     "test": "jest"
   },

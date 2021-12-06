@@ -1,0 +1,17 @@
+juniper_bgp_route:
+  name: BGP Route
+  groups:
+    - Global
+  rules:
+    - condition: '1.0.0.1/32'
+      action: deny
+    - condition: '0.0.0.0/0'
+      ge: 8
+      le: 25
+      command: 'show route protocol bgp table inet.0 {target} detail'
+    - condition: '::/0'
+      ge: 16
+      le: 64
+      command: 'show route protocol bgp table inet6.0 {target} detail'
+  field:
+    description: IP Address or Prefix

@@ -1,89 +1,12 @@
 ---
 routers:
-  - name: sfo_router01
-    address: 10.0.0.1
-    network:
-      name: primary
-      display_name: Main Network
+  - name: Example Device
+    address: 127.0.0.1
+    group: Test
     credential:
-      username: user1
-      password: secret1
-    display_name: San Francisco, CA
-    port: 22
-    nos: cisco_ios
-    vrfs:
-      - name: default
-        display_name: Global
-        ipv4:
-          source_address: 192.0.2.1
-          access_list:
-            - network: 10.0.0.0/8
-              action: deny
-            - network: 192.168.0.0/16
-              action: deny
-            - network: 172.16.0.0/12
-              action: deny
-            - network: 0.0.0.0/0
-              action: permit
-              ge: 8
-              le: 24
-        ipv6:
-          source_address: 2001:db8::1
-          access_list:
-            - network: ::/0
-              action: permit
-              ge: 32
-              le: 64
-      - name: customer_a
-        display_name: Customer A
-        ipv4:
-          source_address: 192.168.1.1
-          access_list:
-            - network: 192.0.2.0/24
-              action: deny
-            - network: 10.0.0.0/8
-              action: permit
-        ipv6: null
-    proxy: null
-  - name: atl_router01
-    address: 10.0.0.2
-    network:
-      name: secondary
-      display_name: That Other Network
-    credential:
-      username: user2
-      password: secret2
-    display_name: Atlanta, GA
-    port: 22
-    nos: juniper
-    vrfs:
-      - name: default
-        display_name: Global
-        ipv4:
-          source_address: 192.0.2.2
-          access_list:
-            - network: 10.0.0.0/8
-              action: deny
-            - network: 192.168.0.0/16
-              action: deny
-            - network: 172.16.0.0/12
-              action: deny
-            - network: 0.0.0.0/0
-              action: permit
-              ge: 8
-              le: 24
-        ipv6:
-          source_address: 2001:db8::2
-          access_list:
-            - network: ::/0
-              action: permit
-              ge: 32
-              le: 64
-    proxy:
-      name: server01
-      address: 10.11.6.204
-      port: 22
-      credential:
-        username: user1
-        password: secret1
-      nos: linux_ssh
+      username: test
+      password: test
+    platform: juniper
+    directives:
+      - '*'
+      - juniper_bgp_route

@@ -1,5 +1,7 @@
 name: Frontend Testing
-on: [push, pull_request]
+on:
+  - push
+  - pull_request
 
 jobs:
   frontend:
@@ -8,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [14.x]
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     env:
       working-directory: ./hyperglass/ui
@@ -25,11 +27,14 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: yarn install
 
-      - name: TypeScript
-        run: ./.tests/pre-commit-frontend.sh --typescript
+      - name: Formatting (Prettier)
+        run: yarn format:check
 
-      - name: ESLint
-        run: ./.tests/pre-commit-frontend.sh --eslint
+      - name: Lint (ESLint)
+        run: yarn lint
 
-      - name: Prettier
-        run: ./.tests/pre-commit-frontend.sh --prettier
+      - name: Types (TypeScript)
+        run: yarn typecheck
+
+      - name: Tests (Jest)
+        run: yarn test
