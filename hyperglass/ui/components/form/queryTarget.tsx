@@ -2,40 +2,44 @@ import { useMemo } from 'react';
 import { Input, InputGroup, InputRightElement, Text } from '@chakra-ui/react';
 import { components } from 'react-select';
 import { If, Select } from '~/components';
+import { isSingleValue } from '~/components/select';
 import { useColorValue } from '~/context';
 import { useDirective, useFormState } from '~/hooks';
 import { isSelectDirective } from '~/types';
 import { UserIP } from './userIP';
 
-import type { OptionProps } from 'react-select';
+import type { OptionProps, GroupBase } from 'react-select';
+import type { SelectOnChange } from '~/components/select';
 import type { Directive, SingleOption } from '~/types';
 import type { TQueryTarget } from './types';
 
-function buildOptions(directive: Nullable<Directive>): SingleOption[] {
+type OptionWithDescription = SingleOption<{ description: string | null }>;
+
+function buildOptions(directive: Nullable<Directive>): OptionWithDescription[] {
   if (directive !== null && isSelectDirective(directive)) {
     return directive.options.map(o => ({
       value: o.value,
       label: o.name,
-      description: o.description,
+      data: { description: o.description },
     }));
   }
   return [];
 }
 
-const Option = (props: OptionProps<Dict, false>) => {
+const Option = (props: OptionProps<OptionWithDescription, false>) => {
   const { label, data } = props;
   return (
-    <components.Option {...props}>
+    <components.Option<OptionWithDescription, false, GroupBase<OptionWithDescription>> {...props}>
       <Text as="span">{label}</Text>
       <br />
       <Text fontSize="xs" as="span">
-        {data.description}
+        {data.data?.description}
       </Text>
     </components.Option>
   );
 };
 
-export const QueryTarget: React.FC<TQueryTarget> = (props: TQueryTarget) => {
+export const QueryTarget = (props: TQueryTarget): JSX.Element => {
   const { name, register, onChange, placeholder } = props;
 
   const bg = useColorValue('white', 'whiteAlpha.100');
@@ -54,22 +58,20 @@ export const QueryTarget: React.FC<TQueryTarget> = (props: TQueryTarget) => {
     onChange({ field: name, value: e.target.value });
   }
 
-  function handleSelectChange(e: SingleOption | SingleOption[]): void {
-    if (!Array.isArray(e) && e !== null) {
+  const handleSelectChange: SelectOnChange<OptionWithDescription> = e => {
+    if (isSingleValue(e)) {
       onChange({ field: name, value: e.value });
       setTarget({ display: e.value });
     }
-  }
+  };
 
   return (
     <>
       <input {...register('queryTarget')} hidden readOnly value={form.queryTarget} />
       <If c={directive !== null && isSelectDirective(directive)}>
-        <Select
-          size="lg"
+        <Select<OptionWithDescription, false>
           name={name}
           options={options}
-          innerRef={register}
           components={{ Option }}
           onChange={handleSelectChange}
         />

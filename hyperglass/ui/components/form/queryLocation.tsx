@@ -5,11 +5,16 @@ import { useFormContext } from 'react-hook-form';
 import { Select } from '~/components';
 import { useConfig, useColorValue } from '~/context';
 import { useOpposingColor, useFormState } from '~/hooks';
+import { isMultiValue, isSingleValue } from '~/components/select';
 
 import type { DeviceGroup, SingleOption, OptionGroup, FormData } from '~/types';
+import type { SelectOnChange } from '~/components/select';
 import type { TQuerySelectField, LocationCardProps } from './types';
 
-function buildOptions(devices: DeviceGroup[]): OptionGroup[] {
+/** Location option type alias for future extensions. */
+type LocationOption = SingleOption;
+
+function buildOptions(devices: DeviceGroup[]): OptionGroup<LocationOption>[] {
   return devices
     .map(group => {
       const label = group.group;
@@ -39,7 +44,7 @@ const LocationCard = (props: LocationCardProps): JSX.Element => {
   const { label } = option;
   const [isChecked, setChecked] = useState(defaultChecked);
 
-  function handleChange(value: SingleOption) {
+  function handleChange(value: LocationOption) {
     if (isChecked) {
       setChecked(false);
       onChange('remove', value);
@@ -176,15 +181,15 @@ export const QueryLocation = (props: TQuerySelectField): JSX.Element => {
    * @param options Final value. React-select determines if an option is being added or removed and
    * only sends back the final value.
    */
-  function handleSelectChange(options: SingleOption[] | SingleOption): void {
-    if (Array.isArray(options)) {
+  const handleSelectChange: SelectOnChange<LocationOption> = (options): void => {
+    if (isMultiValue(options)) {
       onChange({ field: 'queryLocation', value: options.map(o => o.value) });
-      setSelection('queryLocation', options);
-    } else {
+      setSelection<LocationOption>('queryLocation', options);
+    } else if (isSingleValue(options)) {
       onChange({ field: 'queryLocation', value: options.value });
-      setSelection('queryLocation', [options]);
+      setSelection<LocationOption>('queryLocation', [options]);
     }
-  }
+  };
 
   if (element === 'cards') {
     return (
@@ -211,9 +216,8 @@ export const QueryLocation = (props: TQuerySelectField): JSX.Element => {
     );
   } else if (element === 'select') {
     return (
-      <Select
+      <Select<LocationOption, true>
         isMulti
-        size="lg"
         options={options}
         aria-label={label}
         name="queryLocation"

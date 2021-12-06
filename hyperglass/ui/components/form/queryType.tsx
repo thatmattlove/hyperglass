@@ -4,22 +4,25 @@ import { Box, Button, HStack, useRadio, useRadioGroup } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { components } from 'react-select';
 import { Select } from '~/components';
-import { useFormState } from '~/hooks';
+import { useFormState, useFormSelections } from '~/hooks';
+import { isSingleValue } from '~/components/select';
 
 import type { UseRadioProps } from '@chakra-ui/react';
-import type { MenuListComponentProps } from 'react-select';
-import type { SingleOption, OptionGroup, SelectOption } from '~/types';
-import type { TOptions } from '~/components/select';
+import type { MenuListProps } from 'react-select';
+import type { SingleOption, OptionGroup, OptionsOrGroup } from '~/types';
+import type { SelectOnChange } from '~/components/select';
 import type { TQuerySelectField } from './types';
 
-function sorter<T extends SingleOption | OptionGroup>(a: T, b: T): number {
+type QueryTypeOption = SingleOption<{ group?: string }>;
+
+function sorter<T extends QueryTypeOption | OptionGroup<QueryTypeOption>>(a: T, b: T): number {
   return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
 }
 
 type UserFilter = {
   selected: string;
   setSelected(n: string): void;
-  filter(candidate: SelectOption<{ group: string | null }>, input: string): boolean;
+  filter(candidate: QueryTypeOption, input: string): boolean;
 };
 
 const useFilter = create<UserFilter>((set, get) => ({
@@ -28,10 +31,9 @@ const useFilter = create<UserFilter>((set, get) => ({
     set(() => ({ selected: newValue }));
   },
   filter(candidate, input): boolean {
-    const {
-      label,
-      data: { group },
-    } = candidate;
+    const { label, data } = candidate;
+    const group = data?.group ?? null;
+
     if (input && (label || group)) {
       const search = input.toLowerCase();
       if (group) {
@@ -52,14 +54,14 @@ const useFilter = create<UserFilter>((set, get) => ({
 
 function useOptions() {
   const filtered = useFormState(s => s.filtered);
-  return useMemo((): TOptions => {
+  return useMemo((): OptionsOrGroup<QueryTypeOption> => {
     const groupNames = new Set(
       filtered.types
         .filter(t => t.groups.length > 0)
         .map(t => t.groups)
         .flat(),
     );
-    const optGroups: OptionGroup[] = Array.from(groupNames).map(group => ({
+    const optGroups: OptionGroup<QueryTypeOption>[] = Array.from(groupNames).map(group => ({
       label: group,
       options: filtered.types
         .filter(t => t.groups.includes(group))
@@ -67,7 +69,7 @@ function useOptions() {
         .sort(sorter),
     }));
 
-    const noGroups: OptionGroup = {
+    const noGroups: OptionGroup<QueryTypeOption> = {
       label: '',
       options: filtered.types
         .filter(t => t.groups.length === 0)
@@ -108,7 +110,7 @@ const GroupFilter = (props: React.PropsWithChildren<UseRadioProps>): JSX.Element
   );
 };
 
-const MenuList = (props: MenuListComponentProps<TOptions, false>) => {
+const MenuList = (props: MenuListProps<QueryTypeOption, boolean>): JSX.Element => {
   const { children, ...rest } = props;
   const filtered = useFormState(s => s.filtered);
   const selected = useFilter(state => state.selected);
@@ -150,27 +152,25 @@ export const QueryType = (props: TQuerySelectField): JSX.Element => {
     formState: { errors },
   } = useFormContext();
   const setSelection = useFormState(s => s.setSelection);
-  const selections = useFormState(s => s.selections);
+  const selections = useFormSelections<QueryTypeOption>();
   const setFormValue = useFormState(s => s.setFormValue);
   const options = useOptions();
   const { filter } = useFilter(); // Intentionally re-render on any changes
 
-  function handleChange(e: SingleOption | SingleOption[]): void {
+  const handleChange: SelectOnChange<QueryTypeOption> = e => {
     let value = '';
-    if (!Array.isArray(e) && e !== null) {
-      // setFormValue('queryType', e.value);
-      setSelection('queryType', e);
+    if (isSingleValue(e)) {
+      setSelection<QueryTypeOption>('queryType', e);
       value = e.value;
     } else {
       setFormValue('queryType', '');
-      setSelection('queryType', null);
+      setSelection<QueryTypeOption>('queryType', null);
     }
     onChange({ field: 'queryType', value });
-  }
+  };
 
   return (
-    <Select
-      size="lg"
+    <Select<QueryTypeOption>
       name="queryType"
       options={options}
       aria-label={label}

@@ -33,7 +33,7 @@ app
 
     // Set up the proxy.
     if (dev && devProxy) {
-      Object.keys(devProxy).forEach(function (context) {
+      Object.keys(devProxy).forEach(context => {
         server.use(proxyMiddleware(context, devProxy[context]));
       });
     }

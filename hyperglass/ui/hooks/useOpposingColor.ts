@@ -1,25 +1,37 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { getColor, isLight } from '@chakra-ui/theme-tools';
 import { useTheme } from '~/context';
 
 import type { TOpposingOptions } from './types';
+
+export type UseIsDarkCallbackReturn = (color: string) => boolean;
 
 /**
  * Parse the color string to determine if it's a Chakra UI theme key, and determine if the
  * opposing color should be black or white.
  */
 export function useIsDark(color: string): boolean {
+  const isDarkFn = useIsDarkCallback();
+  return useMemo((): boolean => isDarkFn(color), [color, isDarkFn]);
+}
+
+export function useIsDarkCallback(): UseIsDarkCallbackReturn {
   const theme = useTheme();
-  if (typeof color === 'string' && color.match(/[a-zA-Z]+\.[a-zA-Z0-9]+/g)) {
-    color = getColor(theme, color, color);
-  }
-  let opposingShouldBeDark = true;
-  try {
-    opposingShouldBeDark = isLight(color)(theme);
-  } catch (err) {
-    console.error(err);
-  }
-  return opposingShouldBeDark;
+  return useCallback(
+    (color: string): boolean => {
+      if (typeof color === 'string' && color.match(/[a-zA-Z]+\.[a-zA-Z0-9]+/g)) {
+        color = getColor(theme, color, color);
+      }
+      let opposingShouldBeDark = true;
+      try {
+        opposingShouldBeDark = isLight(color)(theme);
+      } catch (err) {
+        console.error(err);
+      }
+      return opposingShouldBeDark;
+    },
+    [theme],
+  );
 }
 
 /**
@@ -35,4 +47,18 @@ export function useOpposingColor(color: string, options?: TOpposingOptions): str
       return options?.light ?? 'white';
     }
   }, [isBlack, options?.dark, options?.light]);
+}
+
+export function useOpposingColorCallback(options?: TOpposingOptions): (color: string) => string {
+  const isDark = useIsDarkCallback();
+  return useCallback(
+    (color: string) => {
+      const isBlack = isDark(color);
+      if (isBlack) {
+        return options?.dark ?? 'black';
+      }
+      return options?.light ?? 'white';
+    },
+    [isDark, options?.dark, options?.light],
+  );
 }

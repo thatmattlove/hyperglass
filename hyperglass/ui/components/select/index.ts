@@ -1,2 +1,3 @@
 export * from './select';
-export type { TOptions } from './types';
+export { isSingleValue, isMultiValue } from './types';
+export type { SelectOnChange } from './types';

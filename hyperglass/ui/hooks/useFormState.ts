@@ -5,8 +5,9 @@ import plur from 'plur';
 import isEqual from 'react-fast-compare';
 import { all, andJoin, dedupObjectArray, withDev } from '~/util';
 
+import type { SingleValue, MultiValue } from 'react-select';
 import type { StateCreator } from 'zustand';
-import type { UseFormSetError, UseFormClearErrors } from 'react-hook-form';
+import { UseFormSetError, UseFormClearErrors } from 'react-hook-form';
 import type { SingleOption, Directive, FormData, Text } from '~/types';
 import type { UseDevice } from './types';
 
@@ -21,9 +22,9 @@ interface FormValues {
 /**
  * Selected *options*, vs. values.
  */
-interface FormSelections {
-  queryLocation: SingleOption[];
-  queryType: SingleOption | null;
+interface FormSelections<Opt extends SingleOption = SingleOption> {
+  queryLocation: MultiValue<Opt>;
+  queryType: SingleValue<Opt>;
 }
 
 interface Filtered {
@@ -39,13 +40,13 @@ interface Target {
   display: string;
 }
 
-interface FormStateType {
+interface FormStateType<Opt extends SingleOption = SingleOption> {
   // Values
   filtered: Filtered;
   form: FormValues;
   loading: boolean;
   responses: Responses;
-  selections: FormSelections;
+  selections: FormSelections<Opt>;
   status: FormStatus;
   target: Target;
   resolvedIsOpen: boolean;
@@ -57,7 +58,13 @@ interface FormStateType {
   addResponse(deviceId: string, data: QueryResponse): void;
   setLoading(value: boolean): void;
   setStatus(value: FormStatus): void;
-  setSelection<K extends keyof FormSelections>(field: K, value: FormSelections[K]): void;
+  setSelection<
+    Opt extends SingleOption,
+    K extends keyof FormSelections<Opt> = keyof FormSelections<Opt>,
+  >(
+    field: K,
+    value: FormSelections[K],
+  ): void;
   setTarget(update: Partial<Target>): void;
   getDirective(): Directive | null;
   reset(): void;
@@ -95,7 +102,10 @@ const formState: StateCreator<FormStateType> = (set, get) => ({
     set({ status });
   },
 
-  setSelection<K extends keyof FormSelections>(field: K, value: FormSelections[K]): void {
+  setSelection<
+    Opt extends SingleOption,
+    K extends keyof FormSelections<Opt> = keyof FormSelections<Opt>,
+  >(field: K, value: FormSelections[K]): void {
     set(state => ({ selections: { ...state.selections, [field]: value } }));
   },
 
@@ -222,6 +232,10 @@ const formState: StateCreator<FormStateType> = (set, get) => ({
 export const useFormState = create<FormStateType>(
   withDev<FormStateType>(formState, 'useFormState'),
 );
+
+export function useFormSelections<Opt extends SingleOption = SingleOption>(): FormSelections<Opt> {
+  return useFormState(s => s.selections as FormSelections<Opt>);
+}
 
 export function useView(): FormStatus {
   const { status, form } = useFormState(({ status, form }) => ({ status, form }));

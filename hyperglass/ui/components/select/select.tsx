@@ -1,6 +1,6 @@
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, forwardRef, useContext } from 'react';
 import ReactSelect from 'react-select';
-import { chakra, useDisclosure } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 import { useColorMode } from '~/context';
 import { Option } from './option';
 import {
@@ -17,67 +17,81 @@ import {
   useMultiValueRemoveStyle,
   useIndicatorSeparatorStyle,
 } from './styles';
+import { isSingleValue } from './types';
 
+import type {
+  Props as ReactSelectProps,
+  MultiValue,
+  OnChangeValue,
+  SelectInstance,
+} from 'react-select';
 import type { SingleOption } from '~/types';
-import type { TSelectBase, TSelectContext, TReactSelectChakra } from './types';
+import type { TSelectBase, TSelectContext } from './types';
 
 const SelectContext = createContext<TSelectContext>({} as TSelectContext);
 export const useSelectContext = (): TSelectContext => useContext(SelectContext);
 
-const ReactSelectChakra = chakra<typeof ReactSelect, TReactSelectChakra>(ReactSelect);
+export const Select = forwardRef(
+  <Opt extends SingleOption = SingleOption, IsMulti extends boolean = boolean>(
+    props: TSelectBase<Opt, IsMulti>,
+    ref: React.Ref<SelectInstance<Opt, IsMulti>>,
+  ): JSX.Element => {
+    const { options, isMulti, onSelect, isError = false, components, ...rest } = props;
 
-export const Select: React.FC<TSelectBase> = (props: TSelectBase) => {
-  const { options, multi, onSelect, isError = false, components, ...rest } = props;
-  const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { colorMode } = useColorMode();
+    const { colorMode } = useColorMode();
 
-  const selectContext = useMemo<TSelectContext>(
-    () => ({ colorMode, isOpen, isError }),
-    [colorMode, isError, isOpen],
-  );
+    const defaultOnChange: ReactSelectProps<Opt, IsMulti>['onChange'] = changed => {
+      if (isSingleValue<Opt>(changed)) {
+        changed = [changed] as unknown as OnChangeValue<Opt, IsMulti>;
+      }
+      if (typeof onSelect === 'function') {
+        onSelect(changed as MultiValue<Opt>);
+      }
+    };
 
-  const defaultOnChange = (changed: SingleOption | SingleOption[]) => {
-    if (!Array.isArray(changed)) {
-      changed = [changed];
-    }
-    if (typeof onSelect === 'function') {
-      onSelect(changed);
-    }
-  };
+    const menu = useMenuStyle<Opt, IsMulti>({ colorMode });
+    const menuList = useMenuListStyle<Opt, IsMulti>({ colorMode });
+    const control = useControlStyle<Opt, IsMulti>({ colorMode });
+    const option = useOptionStyle<Opt, IsMulti>({ colorMode });
+    const singleValue = useSingleValueStyle<Opt, IsMulti>({ colorMode });
+    const multiValue = useMultiValueStyle<Opt, IsMulti>({ colorMode });
+    const multiValueLabel = useMultiValueLabelStyle<Opt, IsMulti>({ colorMode });
+    const multiValueRemove = useMultiValueRemoveStyle<Opt, IsMulti>({ colorMode });
+    const menuPortal = useMenuPortal<Opt, IsMulti>();
+    const placeholder = usePlaceholderStyle<Opt, IsMulti>({ colorMode });
+    const indicatorSeparator = useIndicatorSeparatorStyle<Opt, IsMulti>({ colorMode });
+    const rsTheme = useRSTheme();
 
-  const multiValue = useMultiValueStyle({ colorMode });
-  const multiValueLabel = useMultiValueLabelStyle({ colorMode });
-  const multiValueRemove = useMultiValueRemoveStyle({ colorMode });
-  const menuPortal = useMenuPortal();
-  const rsTheme = useRSTheme();
-
-  return (
-    <SelectContext.Provider value={selectContext}>
-      <ReactSelectChakra
-        onChange={defaultOnChange}
-        onMenuClose={onClose}
-        onMenuOpen={onOpen}
-        isClearable={true}
-        options={options}
-        isMulti={multi}
-        theme={rsTheme}
-        components={{ Option, ...components }}
-        styles={{
-          menuPortal,
-          multiValue,
-          multiValueLabel,
-          multiValueRemove,
-          menu: useMenuStyle,
-          option: useOptionStyle,
-          control: useControlStyle,
-          menuList: useMenuListStyle,
-          singleValue: useSingleValueStyle,
-          placeholder: usePlaceholderStyle,
-          indicatorSeparator: useIndicatorSeparatorStyle,
-        }}
-        {...rest}
-      />
-    </SelectContext.Provider>
-  );
-};
+    return (
+      <SelectContext.Provider value={{ colorMode, isOpen, isError }}>
+        <ReactSelect<Opt, IsMulti>
+          onChange={defaultOnChange}
+          onMenuClose={onClose}
+          onMenuOpen={onOpen}
+          isClearable={true}
+          options={options}
+          isMulti={isMulti}
+          theme={rsTheme}
+          components={{ Option, ...components }}
+          ref={ref}
+          styles={{
+            menu,
+            option,
+            control,
+            menuList,
+            menuPortal,
+            multiValue,
+            singleValue,
+            placeholder,
+            multiValueLabel,
+            multiValueRemove,
+            indicatorSeparator,
+          }}
+          {...rest}
+        />
+      </SelectContext.Provider>
+    );
+  },
+);
