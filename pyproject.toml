@@ -26,7 +26,7 @@ repository = "https://github.com/thatmattlove/hyperglass"
 version = "2.0.0-dev"
 
 [tool.poetry.scripts]
-hyperglass = "hyperglass.console:CLI"
+hyperglass = "hyperglass.console:run"
 
 [tool.poetry.dependencies]
 Pillow = "^7.2"
