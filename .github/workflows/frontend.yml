@@ -28,13 +28,17 @@ jobs:
         run: yarn install
 
       - name: Formatting (Prettier)
+        working-directory: ${{ env.working-directory }}
         run: yarn format:check
 
       - name: Lint (ESLint)
+        working-directory: ${{ env.working-directory }}
         run: yarn lint
 
       - name: Types (TypeScript)
+        working-directory: ${{ env.working-directory }}
         run: yarn typecheck
 
       - name: Tests (Jest)
+        working-directory: ${{ env.working-directory }}
         run: yarn test
