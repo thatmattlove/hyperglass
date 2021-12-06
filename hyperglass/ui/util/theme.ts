@@ -3,6 +3,7 @@ import { mode } from '@chakra-ui/theme-tools';
 import { generateFontFamily, generatePalette } from 'palette-by-numbers';
 
 import type { ChakraTheme } from '@chakra-ui/react';
+import type { StyleFunctionProps } from '@chakra-ui/theme-tools';
 import type { ThemeConfig, Theme } from '~/types';
 
 function importFonts(userFonts: Theme.Fonts): ChakraTheme['fonts'] {
@@ -91,7 +92,7 @@ export function makeTheme(
     config,
     fontWeights,
     styles: {
-      global: props => ({
+      global: (props: StyleFunctionProps) => ({
         html: { scrollBehavior: 'smooth', height: '-webkit-fill-available' },
         body: {
           background: mode('light.500', 'dark.500')(props),
@@ -100,7 +101,7 @@ export function makeTheme(
         },
       }),
     },
-  });
+  }) as Theme.Full;
 
   return defaultTheme;
 }

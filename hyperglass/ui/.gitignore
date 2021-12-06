@@ -1,4 +1,5 @@
 .DS_Store
+*.tsbuildinfo
 # dev/test files
 TODO.txt
 *.tmp*

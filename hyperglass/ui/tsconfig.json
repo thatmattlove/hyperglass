@@ -6,31 +6,63 @@
     "strict": true,
     "baseUrl": "." /* Base directory to resolve non-absolute module names. */,
     "paths": {
-      "~/components": ["components/index"],
-      "~/components/*": ["components/*"],
-      "~/context": ["context/index"],
-      "~/context/*": ["context/*"],
-      "~/hooks": ["hooks/index"],
-      "~/hooks/*": ["hooks/*"],
-      "~/state": ["state/index"],
-      "~/state/*": ["state/*"],
-      "~/types": ["types/index"],
-      "~/types/*": ["types/*"],
-      "~/util": ["util/index"],
-      "~/util/*": ["util/*"]
+      "~/components": [
+        "components/index"
+      ],
+      "~/components/*": [
+        "components/*"
+      ],
+      "~/context": [
+        "context/index"
+      ],
+      "~/context/*": [
+        "context/*"
+      ],
+      "~/hooks": [
+        "hooks/index"
+      ],
+      "~/hooks/*": [
+        "hooks/*"
+      ],
+      "~/state": [
+        "state/index"
+      ],
+      "~/state/*": [
+        "state/*"
+      ],
+      "~/types": [
+        "types/index"
+      ],
+      "~/types/*": [
+        "types/*"
+      ],
+      "~/util": [
+        "util/index"
+      ],
+      "~/util/*": [
+        "util/*"
+      ]
     },
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "noEmit": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "incremental": true
   },
-  "exclude": ["node_modules", ".next"],
+  "exclude": [
+    "node_modules",
+    ".next"
+  ],
   "include": [
     "next-env.d.ts",
     "**/*.ts",

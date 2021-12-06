@@ -160,7 +160,6 @@ export const LookingGlass = (): JSX.Element => {
     } else if (e.field === 'queryTarget' && isString(e.value)) {
       setFormValue('queryTarget', e.value);
     }
-    console.table(form);
   }
 
   useEffect(() => {

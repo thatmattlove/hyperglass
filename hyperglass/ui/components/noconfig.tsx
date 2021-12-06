@@ -2,11 +2,12 @@ import { Center, Flex, ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { mode } from '@chakra-ui/theme-tools';
 
 import type { CenterProps } from '@chakra-ui/react';
+import type { StyleFunctionProps } from '@chakra-ui/theme-tools';
 
 const theme = extendTheme({
   useSystemColorMode: true,
   styles: {
-    global: props => ({
+    global: (props: StyleFunctionProps) => ({
       html: { scrollBehavior: 'smooth', height: '-webkit-fill-available' },
       body: {
         background: mode('white', 'black')(props),
