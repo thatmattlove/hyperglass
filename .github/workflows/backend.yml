@@ -40,11 +40,14 @@ jobs:
         with:
           redis-version: ${{ matrix.redis-version }}
 
-      - name: Install Python Dependencies
+      - name: Install (Poetry)
         run: poetry install
 
-      - name: Run Flake8
-        run: poetry run flake8 hyperglass
+      - name: Lint (Flake8)
+        run: poetry run task lint
+
+      - name: Test (PyTest)
+        run: poetry run task test
 
       - name: Run hyperglass
         run: '.tests/ga-backend-app.sh'
