@@ -51,8 +51,9 @@ jobs:
       - name: Lint (Flake8)
         run: poetry run task lint
 
-      - name: Test (PyTest)
-        run: poetry run task test
-
+      # This needs to come before testing, so redis is pre-populated.
       - name: Run hyperglass
         run: '.tests/ga-backend-app.sh'
+
+      - name: Test (PyTest)
+        run: poetry run task test
