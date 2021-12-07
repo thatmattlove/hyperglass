@@ -15,8 +15,6 @@ jobs:
         python-version: [3.8, 3.9]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
-    env:
-      HYPERGLASS_APP_PATH: ${{ env.HOME }}/hyperglass
 
     steps:
       - name: Git Checkout
@@ -43,7 +41,9 @@ jobs:
           redis-version: ${{ matrix.redis-version }}
 
       - name: Prepare
-        run: mkdir ${{ env.HYPERGLASS_APP_PATH }}
+        run: |
+          echo "HYPERGLASS_APP_PATH=$HOME/hyperglass" >> $GITHUB_ENV
+          mkdir $HYPERGLASS_APP_PATH
 
       - name: Install (Poetry)
         run: poetry install
