@@ -17,9 +17,6 @@ cp ./hyperglass/examples/directives.yaml $HOME/hyperglass/directives.yaml
 echo "[INFO] Copying devices.yaml file..."
 cp ./hyperglass/examples/devices.yaml $HOME/hyperglass/devices.yaml
 
-echo "[INFO] Setting listen_address..."
-echo "listen_address: 127.0.0.1" >>$HOME/hyperglass/config.yaml
-
 echo "[INFO] Starting UI build."
 poetry run hyperglass build-ui &>$LOG_FILE
 

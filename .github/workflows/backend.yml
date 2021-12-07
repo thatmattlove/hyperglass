@@ -44,6 +44,8 @@ jobs:
         run: |
           mkdir -p "$HOME/hyperglass"
           echo "HYPERGLASS_APP_PATH=$HOME/hyperglass" >> $GITHUB_ENV
+          echo "HYPERGLASS_HOST=127.0.0.1" >> $GITHUB_ENV
+          echo "HYPERGLASS_PORT=8001" >> $GITHUB_ENV
 
       - name: Install (Poetry)
         run: poetry install
