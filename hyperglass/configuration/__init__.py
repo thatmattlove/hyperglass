@@ -1,7 +1,6 @@
 """hyperglass Configuration."""
 
 # Project
-from hyperglass.log import log
 from hyperglass.state import use_state
 from hyperglass.defaults.directives import init_builtin_directives
 
