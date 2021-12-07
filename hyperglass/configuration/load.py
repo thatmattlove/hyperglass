@@ -112,10 +112,16 @@ def load_python(path: Path, *, empty_allowed: bool) -> LoadedConfig:
 def load_config(name: str, *, required: bool) -> LoadedConfig:
     """Load a configuration file."""
     path = find_path(name, required=required)
-    if path.suffix == ".py":
+
+    if path is None and required is False:
+        return {}
+
+    elif path.suffix == ".py":
         return load_python(path, empty_allowed=not required)
+
     elif path.suffix.replace(".", "") in CONFIG_EXTENSIONS:
         return load_dsl(path, empty_allowed=not required)
+
     raise ConfigError(
         "{p} has an unsupported file extension. Must be one of {e}",
         p=path,
