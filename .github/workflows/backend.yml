@@ -16,7 +16,7 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     env:
-      HYPERGLASS_APP_PATH: $HOME/hyperglass
+      HYPERGLASS_APP_PATH: ${{ env.HOME }}/hyperglass
 
     steps:
       - name: Git Checkout
