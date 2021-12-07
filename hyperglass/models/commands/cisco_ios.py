@@ -24,7 +24,7 @@ class _IPv6(CommandSet):
     bgp_aspath: StrictStr = 'show bgp ipv6 unicast quote-regexp "{target}"'
     bgp_route: StrictStr = "show bgp ipv6 unicast {target} | exclude pathid:|Epoch"
     ping: StrictStr = "ping ipv6 {target} repeat 5 source {source}"
-    traceroute: StrictStr = ("traceroute ipv6 {target} timeout 1 probe 2 source {source}")
+    traceroute: StrictStr = "traceroute ipv6 {target} timeout 1 probe 2 source {source}"
 
 
 class _VPNIPv4(CommandSet):
@@ -34,7 +34,7 @@ class _VPNIPv4(CommandSet):
     bgp_aspath: StrictStr = 'show bgp vpnv4 unicast vrf {vrf} quote-regexp "{target}"'
     bgp_route: StrictStr = "show bgp vpnv4 unicast vrf {vrf} {target}"
     ping: StrictStr = "ping vrf {vrf} {target} repeat 5 source {source}"
-    traceroute: StrictStr = ("traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}")
+    traceroute: StrictStr = "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
 
 
 class _VPNIPv6(CommandSet):
@@ -44,7 +44,7 @@ class _VPNIPv6(CommandSet):
     bgp_aspath: StrictStr = 'show bgp vpnv6 unicast vrf {vrf} quote-regexp "{target}"'
     bgp_route: StrictStr = "show bgp vpnv6 unicast vrf {vrf} {target}"
     ping: StrictStr = "ping vrf {vrf} {target} repeat 5 source {source}"
-    traceroute: StrictStr = ("traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}")
+    traceroute: StrictStr = "traceroute vrf {vrf} {target} timeout 1 probe 2 source {source}"
 
 
 class CiscoIOSCommands(CommandGroup):

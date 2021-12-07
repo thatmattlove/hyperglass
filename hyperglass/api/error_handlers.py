@@ -20,7 +20,8 @@ async def http_handler(request, exc):
     """Handle web server errors."""
 
     return JSONResponse(
-        {"output": exc.detail, "level": "danger", "keywords": []}, status_code=exc.status_code,
+        {"output": exc.detail, "level": "danger", "keywords": []},
+        status_code=exc.status_code,
     )
 
 
@@ -36,5 +37,6 @@ async def validation_handler(request, exc):
     """Handle Pydantic validation errors raised by FastAPI."""
     error = exc.errors()[0]
     return JSONResponse(
-        {"output": error["msg"], "level": "error", "keywords": error["loc"]}, status_code=422,
+        {"output": error["msg"], "level": "error", "keywords": error["loc"]},
+        status_code=422,
     )

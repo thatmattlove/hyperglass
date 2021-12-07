@@ -168,7 +168,7 @@ def get_connection_id():
 
 
 def _remove_none_values(dictionary):
-    """ Remove dictionary keys whose value is None."""
+    """Remove dictionary keys whose value is None."""
     return list(map(dictionary.pop, [i for i in dictionary if dictionary[i] is None]))
 
 
@@ -180,7 +180,7 @@ def _remove_none_values(dictionary):
 
 
 class BaseSSHTunnelForwarderError(Exception):
-    """ Exception raised by :class:`SSHTunnelForwarder` errors """
+    """Exception raised by :class:`SSHTunnelForwarder` errors"""
 
     def __init__(self, *args, **kwargs):
         self.value = kwargs.pop("value", args[0] if args else "")
@@ -190,7 +190,7 @@ class BaseSSHTunnelForwarderError(Exception):
 
 
 class HandlerSSHTunnelForwarderError(BaseSSHTunnelForwarderError):
-    """ Exception for Tunnel forwarder errors """
+    """Exception for Tunnel forwarder errors"""
 
     pass
 
@@ -203,7 +203,7 @@ class HandlerSSHTunnelForwarderError(BaseSSHTunnelForwarderError):
 
 
 class _ForwardHandler(socketserver.BaseRequestHandler):
-    """ Base handler for tunnel connections """
+    """Base handler for tunnel connections"""
 
     remote_address = None
     ssh_transport = None
@@ -227,7 +227,9 @@ class _ForwardHandler(socketserver.BaseRequestHandler):
                 if not chan.recv_ready():
                     break
                 data = chan.recv(1024)
-                self.logger.trace("<<< IN {0} recv: {1} <<<".format(self.info, hexlify(data)),)
+                self.logger.trace(
+                    "<<< IN {0} recv: {1} <<<".format(self.info, hexlify(data)),
+                )
                 self.request.sendall(data)
 
     def handle(self):
@@ -687,7 +689,11 @@ class SSHTunnelForwarder:
             else:
                 forward_maker_class = self._make_ssh_forward_server_class
             _Server = forward_maker_class(remote_address)
-            ssh_forward_server = _Server(local_bind_address, _Handler, logger=self.logger,)
+            ssh_forward_server = _Server(
+                local_bind_address,
+                _Handler,
+                logger=self.logger,
+            )
 
             if ssh_forward_server:
                 ssh_forward_server.daemon_threads = self.daemon_forward_servers
@@ -699,7 +705,8 @@ class SSHTunnelForwarder:
                     "Problem setting up ssh {0} <> {1} forwarder. You can "
                     "suppress this exception by using the `mute_exceptions`"
                     "argument".format(
-                        address_to_str(local_bind_address), address_to_str(remote_address),
+                        address_to_str(local_bind_address),
+                        address_to_str(remote_address),
                     ),
                 )
         except IOError:
@@ -969,7 +976,9 @@ class SSHTunnelForwarder:
             - ``paramiko.Pkey`` - it will be transparently added to loaded keys
         """
         ssh_loaded_pkeys = SSHTunnelForwarder.get_keys(
-            logger=logger, host_pkey_directories=host_pkey_directories, allow_agent=allow_agent,
+            logger=logger,
+            host_pkey_directories=host_pkey_directories,
+            allow_agent=allow_agent,
         )
 
         if isinstance(ssh_pkey, str):
@@ -1109,7 +1118,12 @@ class SSHTunnelForwarder:
         for pkey_class in (
             (key_type,)
             if key_type
-            else (paramiko.RSAKey, paramiko.DSSKey, paramiko.ECDSAKey, paramiko.Ed25519Key,)
+            else (
+                paramiko.RSAKey,
+                paramiko.DSSKey,
+                paramiko.ECDSAKey,
+                paramiko.Ed25519Key,
+            )
         ):
             try:
                 ssh_pkey = pkey_class.from_private_key_file(pkey_file, password=pkey_password)
@@ -1170,7 +1184,7 @@ class SSHTunnelForwarder:
 
     def check_tunnels(self) -> None:
         """Check that if all tunnels are established and populates.
-        
+
         :attr:`.tunnel_is_up`
         """
         for _srv in self._server_list:
@@ -1184,7 +1198,8 @@ class SSHTunnelForwarder:
         self._create_tunnels()
         if not self.is_active:
             self._raise(
-                BaseSSHTunnelForwarderError, reason="Could not establish session to SSH gateway",
+                BaseSSHTunnelForwarderError,
+                reason="Could not establish session to SSH gateway",
             )
         for _srv in self._server_list:
             thread = threading.Thread(
@@ -1198,7 +1213,8 @@ class SSHTunnelForwarder:
         self.is_alive = any(self.tunnel_is_up.values())
         if not self.is_alive:
             self._raise(
-                HandlerSSHTunnelForwarderError, "An error occurred while opening tunnels.",
+                HandlerSSHTunnelForwarderError,
+                "An error occurred while opening tunnels.",
             )
 
     def stop(self) -> None:
@@ -1386,7 +1402,7 @@ class SSHTunnelForwarder:
 
     @property
     def is_active(self) -> bool:
-        """ Return True if the underlying SSH transport is up """
+        """Return True if the underlying SSH transport is up"""
         if "_transport" in self.__dict__ and self._transport.is_active():
             return True
         return False

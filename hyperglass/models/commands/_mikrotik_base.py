@@ -14,7 +14,9 @@ class _IPv4(CommandSet):
     bgp_aspath: StrictStr = "ip route print where bgp-as-path={target}"
     bgp_route: StrictStr = "ip route print where dst-address={target}"
     ping: StrictStr = "ping src-address={source} count=5 {target}"
-    traceroute: StrictStr = "tool traceroute src-address={source} timeout=1 duration=5 count=1 {target}"
+    traceroute: StrictStr = (
+        "tool traceroute src-address={source} timeout=1 duration=5 count=1 {target}"
+    )
 
 
 class _IPv6(CommandSet):
@@ -24,7 +26,9 @@ class _IPv6(CommandSet):
     bgp_aspath: StrictStr = "ipv6 route print where bgp-as-path={target}"
     bgp_route: StrictStr = "ipv6 route print where dst-address={target}"
     ping: StrictStr = "ping src-address={source} count=5 {target}"
-    traceroute: StrictStr = "tool traceroute src-address={source} timeout=1 duration=5 count=1 {target}"
+    traceroute: StrictStr = (
+        "tool traceroute src-address={source} timeout=1 duration=5 count=1 {target}"
+    )
 
 
 class _VPNIPv4(CommandSet):

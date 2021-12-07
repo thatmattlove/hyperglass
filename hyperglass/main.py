@@ -75,7 +75,8 @@ def register_all_plugins() -> None:
 
     for failure in failures:
         log.warning(
-            "Plugin {!r} is not a valid hyperglass plugin and was not registered", failure,
+            "Plugin {!r} is not a valid hyperglass plugin and was not registered",
+            failure,
         )
 
 

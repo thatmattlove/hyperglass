@@ -180,5 +180,7 @@ class RedisManager:
                     )
 
         return RedisManagerPipeline(
-            parent=self.instance, instance=self.instance.pipeline(), namespace=self.namespace,
+            parent=self.instance,
+            instance=self.instance.pipeline(),
+            namespace=self.namespace,
         )

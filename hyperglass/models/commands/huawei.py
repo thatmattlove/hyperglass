@@ -30,8 +30,12 @@ class _IPv6(CommandSet):
 class _VPNIPv4(CommandSet):
     """Default commands for dual afi commands."""
 
-    bgp_community: StrictStr = "display bgp vpnv4 vpn-instance {vrf} routing-table regular-expression {target}"
-    bgp_aspath: StrictStr = "display bgp vpnv4 vpn-instance {vrf} routing-table regular-expression {target}"
+    bgp_community: StrictStr = (
+        "display bgp vpnv4 vpn-instance {vrf} routing-table regular-expression {target}"
+    )
+    bgp_aspath: StrictStr = (
+        "display bgp vpnv4 vpn-instance {vrf} routing-table regular-expression {target}"
+    )
     bgp_route: StrictStr = "display bgp vpnv4 vpn-instance {vrf} routing-table {target}"
     ping: StrictStr = "ping -vpn-instance {vrf} -c 5 -a {source} {target}"
     traceroute: StrictStr = "tracert -q 2 -f 1 -vpn-instance {vrf} -a {source} {target}"
@@ -40,8 +44,12 @@ class _VPNIPv4(CommandSet):
 class _VPNIPv6(CommandSet):
     """Default commands for dual afi commands."""
 
-    bgp_community: StrictStr = "display bgp vpnv6 vpn-instance {vrf} routing-table regular-expression {target}"
-    bgp_aspath: StrictStr = "display bgp vpnv6 vpn-instance {vrf} routing-table regular-expression {target}"
+    bgp_community: StrictStr = (
+        "display bgp vpnv6 vpn-instance {vrf} routing-table regular-expression {target}"
+    )
+    bgp_aspath: StrictStr = (
+        "display bgp vpnv6 vpn-instance {vrf} routing-table regular-expression {target}"
+    )
     bgp_route: StrictStr = "display bgp vpnv6 vpn-instance {vrf} routing-table {target}"
     ping: StrictStr = "ping vpnv6 vpn-instance {vrf} -c 5 -a {source} {target}"
     traceroute: StrictStr = "tracert -q 2 -f 1 vpn-instance {vrf} -a {source} {target}"

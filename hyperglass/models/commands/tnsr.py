@@ -10,7 +10,9 @@ from .common import CommandSet, CommandGroup
 class _IPv4(CommandSet):
     """Validation model for default VRF IPv4 commands."""
 
-    bgp_community: StrictStr = 'dataplane shell sudo vtysh -c "show bgp ipv4 unicast community {target}"'
+    bgp_community: StrictStr = (
+        'dataplane shell sudo vtysh -c "show bgp ipv4 unicast community {target}"'
+    )
     bgp_aspath: StrictStr = 'dataplane shell sudo vtysh -c "show bgp ipv4 unicast regexp {target}"'
     bgp_route: StrictStr = 'dataplane shell sudo vtysh -c "show bgp ipv4 unicast {target}"'
     ping: StrictStr = "ping {target} ipv4 source {source} count 5 timeout 1"
@@ -20,7 +22,9 @@ class _IPv4(CommandSet):
 class _IPv6(CommandSet):
     """Validation model for default VRF IPv6 commands."""
 
-    bgp_community: StrictStr = 'dataplane shell sudo vtysh -c "show bgp ipv6 unicast community {target}"'
+    bgp_community: StrictStr = (
+        'dataplane shell sudo vtysh -c "show bgp ipv6 unicast community {target}"'
+    )
     bgp_aspath: StrictStr = 'dataplane shell sudo vtysh -c "show bgp ipv6 unicast regexp {target}"'
     bgp_route: StrictStr = 'dataplane shell sudo vtysh -c "show bgp ipv6 unicast {target}"'
     ping: StrictStr = "ping {target} ipv6 source {source} count 5 timeout 1"
@@ -30,9 +34,15 @@ class _IPv6(CommandSet):
 class _VPNIPv4(CommandSet):
     """Validation model for non-default ipv6 commands."""
 
-    bgp_community: StrictStr = 'dataplane shell sudo vtysh -c "show bgp vrf {vrf} ipv4 unicast community {target}"'
-    bgp_aspath: StrictStr = 'dataplane shell sudo vtysh -c "show bgp vrf {vrf} ipv4 unicast regexp {target}"'
-    bgp_route: StrictStr = 'dataplane shell sudo vtysh -c "show bgp vrf {vrf} ipv4 unicast {target}"'
+    bgp_community: StrictStr = (
+        'dataplane shell sudo vtysh -c "show bgp vrf {vrf} ipv4 unicast community {target}"'
+    )
+    bgp_aspath: StrictStr = (
+        'dataplane shell sudo vtysh -c "show bgp vrf {vrf} ipv4 unicast regexp {target}"'
+    )
+    bgp_route: StrictStr = (
+        'dataplane shell sudo vtysh -c "show bgp vrf {vrf} ipv4 unicast {target}"'
+    )
     ping: StrictStr = "dataplane shell ping -4 -c 5 -W 1 -I {vrf} -S {source} {target}"
     traceroute: StrictStr = "dataplane shell traceroute -4 -w 1 -q 1 -i {vrf} -s {source} {target}"
 
@@ -40,9 +50,15 @@ class _VPNIPv4(CommandSet):
 class _VPNIPv6(CommandSet):
     """Validation model for non-default ipv6 commands."""
 
-    bgp_community: StrictStr = 'dataplane shell sudo vtysh -c "show bgp vrf {vrf} ipv6 unicast community {target}"'
-    bgp_aspath: StrictStr = 'dataplane shell sudo vtysh -c "show bgp vrf {vrf} ipv6 unicast regexp {target}"'
-    bgp_route: StrictStr = 'dataplane shell sudo vtysh -c "show bgp vrf {vrf} ipv6 unicast {target}"'
+    bgp_community: StrictStr = (
+        'dataplane shell sudo vtysh -c "show bgp vrf {vrf} ipv6 unicast community {target}"'
+    )
+    bgp_aspath: StrictStr = (
+        'dataplane shell sudo vtysh -c "show bgp vrf {vrf} ipv6 unicast regexp {target}"'
+    )
+    bgp_route: StrictStr = (
+        'dataplane shell sudo vtysh -c "show bgp vrf {vrf} ipv6 unicast {target}"'
+    )
     ping: StrictStr = "dataplane shell ping -6 -c 5 -W 1 -I {vrf} -S {source} {target}"
     traceroute: StrictStr = "dataplane shell traceroute -6 -w 1 -q 1 -i {vrf} -s {source} {target}"
 

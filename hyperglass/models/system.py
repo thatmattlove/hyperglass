@@ -107,7 +107,9 @@ class HyperglassSettings(BaseSettings):
             password = values.get("redis_password")
             if password is not None:
                 dsn = "redis://:{}@{}/{!s}".format(
-                    password.get_secret_value(), values["redis_host"], values["redis_db"],
+                    password.get_secret_value(),
+                    values["redis_host"],
+                    values["redis_db"],
                 )
             return dsn
         return value

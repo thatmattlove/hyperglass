@@ -80,7 +80,9 @@ class BgpCommunity(HyperglassModel):
     """Validation model for bgp_community configuration."""
 
     enable: StrictBool = Field(
-        True, title="Enable", description="Enable or disable the BGP Community query type.",
+        True,
+        title="Enable",
+        description="Enable or disable the BGP Community query type.",
     )
     display_name: StrictStr = Field(
         "BGP Community",
@@ -109,7 +111,9 @@ class BgpAsPath(HyperglassModel):
     """Validation model for bgp_aspath configuration."""
 
     enable: StrictBool = Field(
-        True, title="Enable", description="Enable or disable the BGP AS Path query type.",
+        True,
+        title="Enable",
+        description="Enable or disable the BGP AS Path query type.",
     )
     display_name: StrictStr = Field(
         "BGP AS Path",

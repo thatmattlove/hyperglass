@@ -111,7 +111,10 @@ class FRRRoute(_FRRBase):
             )
 
         serialized = BGPRouteTable(
-            vrf=vrf, count=len(routes), routes=routes, winning_weight="high",
+            vrf=vrf,
+            count=len(routes),
+            routes=routes,
+            winning_weight="high",
         )
 
         log.info("Serialized FRR response: {}", serialized)

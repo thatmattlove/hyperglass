@@ -163,7 +163,11 @@ async def build_ui(app_path: Path):
 
 
 def generate_opengraph(
-    image_path: Path, max_width: int, max_height: int, target_path: Path, background_color: str,
+    image_path: Path,
+    max_width: int,
+    max_height: int,
+    target_path: Path,
+    background_color: str,
 ):
     """Generate an OpenGraph compliant image."""
     # Third Party
@@ -362,7 +366,11 @@ async def build_frontend(  # noqa: C901
         migrate_images(app_path, params)
 
         generate_opengraph(
-            params.web.opengraph.image, 1200, 630, images_dir, params.web.theme.colors.black,
+            params.web.opengraph.image,
+            1200,
+            630,
+            images_dir,
+            params.web.theme.colors.black,
         )
 
     except Exception as err:

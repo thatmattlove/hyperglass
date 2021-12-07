@@ -24,5 +24,6 @@ class Webhook(BaseExternal):
             return provider_class(config)
         except KeyError:
             raise UnsupportedError(
-                message="{p} is not yet supported as a webhook target.", p=config.provider.title(),
+                message="{p} is not yet supported as a webhook target.",
+                p=config.provider.title(),
             )

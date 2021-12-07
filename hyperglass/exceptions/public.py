@@ -19,7 +19,9 @@ if TYPE_CHECKING:
 
 
 class ScrapeError(
-    PublicHyperglassError, template=MESSAGES.connection_error, level="danger",
+    PublicHyperglassError,
+    template=MESSAGES.connection_error,
+    level="danger",
 ):
     """Raised when an SSH driver error occurs."""
 

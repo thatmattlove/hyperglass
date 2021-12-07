@@ -50,7 +50,9 @@ def get_ui_params():
 
 
 async def send_webhook(
-    query_data: Query, request: Request, timestamp: datetime,
+    query_data: Query,
+    request: Request,
+    timestamp: datetime,
 ):
     """If webhooks are enabled, get request info and send a webhook."""
     params = use_state("params")

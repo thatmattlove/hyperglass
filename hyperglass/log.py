@@ -229,8 +229,12 @@ def enable_syslog_logging(syslog_host: str, syslog_port: int) -> None:
     from logging.handlers import SysLogHandler
 
     _loguru_logger.add(
-        SysLogHandler(address=(str(syslog_host), syslog_port)), format=_FMT_BASIC, enqueue=True,
+        SysLogHandler(address=(str(syslog_host), syslog_port)),
+        format=_FMT_BASIC,
+        enqueue=True,
     )
     log.debug(
-        "Logging to syslog target {}:{} enabled", str(syslog_host), str(syslog_port),
+        "Logging to syslog target {}:{} enabled",
+        str(syslog_host),
+        str(syslog_port),
     )

@@ -68,7 +68,9 @@ class PluginManager(t.Generic[PluginT]):
 
         # Sort with built-in plugins last.
         return sorted(
-            sorted_by_name, key=lambda p: -1 if p.__hyperglass_builtin__ else 1, reverse=True,
+            sorted_by_name,
+            key=lambda p: -1 if p.__hyperglass_builtin__ else 1,
+            reverse=True,
         )
 
     @property

@@ -93,7 +93,9 @@ class Params(ParamsPublic, HyperglassModel):
         description="Allowed CORS hosts. By default, no CORS hosts are allowed.",
     )
     netmiko_delay_factor: IntFloat = Field(
-        0.1, title="Netmiko Delay Factor", description="Override the netmiko global delay factor.",
+        0.1,
+        title="Netmiko Delay Factor",
+        description="Override the netmiko global delay factor.",
     )
     plugins: List[StrictStr] = []
 

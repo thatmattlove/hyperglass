@@ -158,7 +158,10 @@ class AristaRoute(_AristaBase):
                 )
 
         serialized = BGPRouteTable(
-            vrf=self.vrf, count=count, routes=routes, winning_weight=WINNING_WEIGHT,
+            vrf=self.vrf,
+            count=count,
+            routes=routes,
+            winning_weight=WINNING_WEIGHT,
         )
 
         log.debug("Serialized Arista response: {}", serialized)

@@ -44,7 +44,9 @@ class _VPNIPv6(CommandSet):
     bgp_aspath: StrictStr = 'show route protocol bgp table {vrf}.inet6.0 aspath-regex "{target}"'
     bgp_community: StrictStr = "show route protocol bgp table {vrf}.inet6.0 community {target}"
     ping: StrictStr = "ping inet6 routing-instance {vrf} {target} count 5 source {source}"
-    traceroute: StrictStr = "traceroute inet6 routing-instance {vrf} {target} wait 2 source {source}"
+    traceroute: StrictStr = (
+        "traceroute inet6 routing-instance {vrf} {target} wait 2 source {source}"
+    )
 
 
 _structured = CommandGroup(

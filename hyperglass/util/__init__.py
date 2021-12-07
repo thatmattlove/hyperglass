@@ -245,7 +245,10 @@ def deep_convert_keys(_dict: t.Type[DeepConvert], predicate: t.Callable[[str], s
     return converted
 
 
-def at_least(minimum: int, value: int,) -> int:
+def at_least(
+    minimum: int,
+    value: int,
+) -> int:
     """Get a number value that is at least a specified minimum."""
     if value < minimum:
         return minimum

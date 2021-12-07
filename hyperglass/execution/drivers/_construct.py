@@ -36,7 +36,9 @@ class Construct:
     def __init__(self, device: "Device", query: "Query"):
         """Initialize command construction."""
         log.debug(
-            "Constructing '{}' query for '{}'", query.query_type, str(query.query_target),
+            "Constructing '{}' query for '{}'",
+            query.query_type,
+            str(query.query_target),
         )
         self.query = query
         self.device = device

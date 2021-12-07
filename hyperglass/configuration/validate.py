@@ -42,7 +42,8 @@ def init_params() -> "Params":
     # Set up syslog logging if enabled.
     if params.logging.syslog is not None and params.logging.syslog.enable:
         enable_syslog_logging(
-            syslog_host=params.logging.syslog.host, syslog_port=params.logging.syslog.port,
+            syslog_host=params.logging.syslog.host,
+            syslog_port=params.logging.syslog.port,
         )
 
     if params.logging.http is not None and params.logging.http.enable:
@@ -113,7 +114,9 @@ def init_ui_params(*, params: "Params", devices: "Devices") -> "UIParameters":
     from hyperglass.constants import PARSED_RESPONSE_FIELDS, __version__
 
     content_greeting = get_markdown(
-        config=params.web.greeting, default="", params={"title": params.web.greeting.title},
+        config=params.web.greeting,
+        default="",
+        params={"title": params.web.greeting.title},
     )
     content_credit = CREDIT.format(version=__version__)
 

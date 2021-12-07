@@ -55,7 +55,9 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 
     except ValueError:
         raise InputInvalid(
-            params.messages.invalid_input, target=value, query_type=query_type_params.display_name,
+            params.messages.invalid_input,
+            target=value,
+            query_type=query_type_params.display_name,
         )
 
     # Test the valid IP address to determine if it is:
@@ -65,7 +67,9 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
     # ...and returns an error if so.
     if valid_ip.is_reserved or valid_ip.is_unspecified or valid_ip.is_loopback:
         raise InputInvalid(
-            params.messages.invalid_input, target=value, query_type=query_type_params.display_name,
+            params.messages.invalid_input,
+            target=value,
+            query_type=query_type_params.display_name,
         )
 
     ip_version = valid_ip.version
@@ -103,7 +107,10 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
             new_ip = valid_ip.network_address
 
             log.debug(
-                "Converted '{o}' to '{n}' for '{q}' query", o=valid_ip, n=new_ip, q=query_type,
+                "Converted '{o}' to '{n}' for '{q}' query",
+                o=valid_ip,
+                n=new_ip,
+                q=query_type,
             )
 
             valid_ip = new_ip
@@ -121,7 +128,9 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 
             if containing_prefix is None:
                 log.error(
-                    "Unable to find containing prefix for {}. Got: {}", str(valid_ip), network_info,
+                    "Unable to find containing prefix for {}. Got: {}",
+                    str(valid_ip),
+                    network_info,
                 )
                 raise InputInvalid("{q} does not have a containing prefix", q=ip_str)
 
@@ -132,7 +141,9 @@ def validate_ip(value, query_type, query_vrf):  # noqa: C901
 
             except ValueError as err:
                 log.error(
-                    "Unable to find containing prefix for {q}. Error: {e}", q=str(valid_ip), e=err,
+                    "Unable to find containing prefix for {q}. Error: {e}",
+                    q=str(valid_ip),
+                    e=err,
                 )
                 raise InputInvalid("{q} does does not have a containing prefix", q=valid_ip)
 
