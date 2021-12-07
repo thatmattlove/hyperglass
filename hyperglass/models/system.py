@@ -37,7 +37,7 @@ class HyperglassSettings(BaseSettings):
 
     debug: bool = False
     dev_mode: bool = False
-    app_path: DirectoryPath
+    app_path: DirectoryPath = "/etc/hyperglass"
     redis_host: str = "localhost"
     redis_password: t.Optional[SecretStr]
     redis_db: int = 1
