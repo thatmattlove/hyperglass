@@ -43,7 +43,7 @@ def _version(
 def _start(build: bool = False, workers: t.Optional[int] = None) -> None:
     """Start hyperglass"""
     # Project
-    from hyperglass.main import run
+    from hyperglass.main import run, init_user_config
 
     # Local
     from .util import build_ui
@@ -53,6 +53,7 @@ def _start(build: bool = False, workers: t.Optional[int] = None) -> None:
         kwargs["workers"] = workers
 
     try:
+        init_user_config()
         if build:
             build_complete = build_ui(timeout=180)
             if build_complete:
