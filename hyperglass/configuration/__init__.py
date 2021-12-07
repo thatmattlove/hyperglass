@@ -5,7 +5,13 @@ from hyperglass.state import use_state
 from hyperglass.defaults.directives import init_builtin_directives
 
 # Local
-from .validate import init_params, init_devices, init_ui_params, init_directives
+from .validate import (
+    init_files,
+    init_params,
+    init_devices,
+    init_ui_params,
+    init_directives,
+)
 
 __all__ = ("init_user_config",)
 
@@ -13,6 +19,7 @@ __all__ = ("init_user_config",)
 def init_user_config() -> None:
     """Initialize all user configurations and add them to global state."""
     state = use_state()
+    init_files()
 
     params = init_params()
     builtins = init_builtin_directives()

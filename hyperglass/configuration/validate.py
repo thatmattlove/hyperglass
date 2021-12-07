@@ -1,6 +1,5 @@
 """Import configuration files and run validation."""
 
-
 # Third Party
 from pydantic import ValidationError
 
@@ -18,11 +17,21 @@ from .load import load_config
 from .markdown import get_markdown
 
 __all__ = (
-    "init_params",
-    "init_directives",
     "init_devices",
+    "init_directives",
+    "init_files",
+    "init_params",
     "init_ui_params",
 )
+
+
+def init_files() -> None:
+    """Check if required directories exist and if not, create them."""
+    for directory in ("plugins", "static/images"):
+        path = Settings.app_path / directory
+        if not path.exists():
+            path.mkdir(parents=True)
+            log.debug("Created directory {!s}", path)
 
 
 def init_params() -> "Params":
