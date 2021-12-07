@@ -42,8 +42,8 @@ jobs:
 
       - name: Prepare
         run: |
+          mkdir -p "$HOME/hyperglass"
           echo "HYPERGLASS_APP_PATH=$HOME/hyperglass" >> $GITHUB_ENV
-          mkdir -p "$HYPERGLASS_APP_PATH"
 
       - name: Install (Poetry)
         run: poetry install
