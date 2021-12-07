@@ -12,10 +12,10 @@ echo "[SUCCESS] Setup completed."
 sleep 2
 
 echo "[INFO] Copying directives.yaml file..."
-cp ./hyperglass/examples/directives.yaml $HOME/hyperglass/directives.yaml
+cp ./directives.yaml $HOME/hyperglass/directives.yaml
 
 echo "[INFO] Copying devices.yaml file..."
-cp ./hyperglass/examples/devices.yaml $HOME/hyperglass/devices.yaml
+cp ./devices.yaml $HOME/hyperglass/devices.yaml
 
 echo "[INFO] Starting UI build."
 poetry run hyperglass build-ui &>$LOG_FILE

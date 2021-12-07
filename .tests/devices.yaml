@@ -8,5 +8,5 @@ routers:
       password: test
     platform: juniper
     directives:
-      - '*'
+      - builtins: false
       - juniper_bgp_route
