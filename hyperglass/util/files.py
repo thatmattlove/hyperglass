@@ -2,8 +2,8 @@
 
 # Standard Library
 import shutil
+import typing as t
 from queue import Queue
-from typing import List, Tuple, Union, Iterable, Optional, Generator
 from pathlib import Path
 from threading import Thread
 
@@ -11,14 +11,8 @@ from threading import Thread
 from hyperglass.log import log
 
 
-async def move_files(src: Path, dst: Path, files: Iterable[Path]) -> Tuple[str]:  # noqa: C901
-    """Move iterable of files from source to destination.
-
-    Arguments:
-        src {Path} -- Current directory of files
-        dst {Path} -- Target destination directory
-        files {Iterable} -- Iterable of files
-    """
+async def move_files(src: Path, dst: Path, files: t.Iterable[Path]) -> t.Tuple[str]:  # noqa: C901
+    """Move iterable of files from source to destination."""
 
     def error(*args, **kwargs):
         msg = ", ".join(args)
@@ -39,7 +33,7 @@ async def move_files(src: Path, dst: Path, files: Iterable[Path]) -> Tuple[str]:
         except TypeError:
             raise error("{p} is not a valid path", p=dst)
 
-    if not isinstance(files, (List, Tuple, Generator)):
+    if not isinstance(files, (t.List, t.Tuple, t.Generator)):
         raise error(
             "{fa} must be an iterable (list, tuple, or generator). Received {f}",
             fa="Files argument",
@@ -95,7 +89,7 @@ class FileCopy(Thread):
             pass
 
 
-def copyfiles(src_files: Iterable[Path], dst_files: Iterable[Path]):
+def copyfiles(src_files: t.Iterable[Path], dst_files: t.Iterable[Path]):
     """Copy iterable of files from source to destination with threading."""
     queue = Queue()
     threads = ()
@@ -131,7 +125,7 @@ def copyfiles(src_files: Iterable[Path], dst_files: Iterable[Path]):
     return True
 
 
-def check_path(path: Union[Path, str], mode: str = "r", create: bool = False) -> Optional[Path]:
+def check_path(path: t.Union[Path, str], mode: str = "r", create: bool = False) -> t.Optional[Path]:
     """Verify if a path exists and is accessible."""
 
     result = None
@@ -155,5 +149,32 @@ def check_path(path: Union[Path, str], mode: str = "r", create: bool = False) ->
 
     except Exception:  # noqa: S110
         pass
+
+    return result
+
+
+def dotenv_to_dict(dotenv: t.Union[Path, str]) -> t.Dict[str, str]:
+    """Convert a .env file to a Python dict."""
+    if not isinstance(dotenv, (Path, str)):
+        raise TypeError("Argument 'file' must be a Path object or string")
+    result = {}
+    data = ""
+    if isinstance(dotenv, Path):
+        if not dotenv.exists():
+            raise FileNotFoundError("{!r} does not exist", str(dotenv))
+        with dotenv.open("r") as f:
+            data = f.read()
+    else:
+        data = dotenv
+
+    for line in (line for line in (line.strip() for line in data.splitlines()) if line):
+        parts = line.split("=")
+        if len(parts) != 2:
+            raise TypeError(
+                f"Line {line!r} is improperly formatted. "
+                "Expected a key/value pair such as 'key=value'"
+            )
+        key, value = line.split("=")
+        result[key.strip()] = value.strip()
 
     return result

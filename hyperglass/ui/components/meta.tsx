@@ -4,7 +4,7 @@ import { useTheme } from '@chakra-ui/react';
 import { useConfig } from '~/context';
 import { googleFontUrl } from '~/util';
 
-export const Meta: React.FC = () => {
+export const Meta = (): JSX.Element => {
   const config = useConfig();
   const { fonts } = useTheme();
   const [location, setLocation] = useState('/');
@@ -12,22 +12,6 @@ export const Meta: React.FC = () => {
   const {
     siteTitle: title = 'hyperglass',
     siteDescription: description = 'Network Looking Glass',
-    siteKeywords: keywords = [
-      'hyperglass',
-      'looking glass',
-      'lg',
-      'peer',
-      'peering',
-      'ipv4',
-      'ipv6',
-      'transit',
-      'community',
-      'communities',
-      'bgp',
-      'routing',
-      'network',
-      'isp',
-    ],
   } = useConfig();
 
   const siteName = `${title} - ${description}`;
@@ -42,8 +26,7 @@ export const Meta: React.FC = () => {
 
   return (
     <Head>
-      <title>{title}</title>
-      <meta name="language" content="en" />
+      <title key="title">{title}</title>
       <meta name="url" content={location} />
       <meta name="og:title" content={title} />
       <meta name="og:url" content={location} />
@@ -52,8 +35,7 @@ export const Meta: React.FC = () => {
       <meta name="description" content={description} />
       <meta property="og:image:alt" content={siteName} />
       <meta name="og:description" content={description} />
-      <meta name="keywords" content={keywords.join(', ')} />
-      <meta name="hg-version" content={config.version} />
+      <meta name="hyperglass-version" content={config.version} />
     </Head>
   );
 };

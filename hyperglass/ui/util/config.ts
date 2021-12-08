@@ -1,6 +1,6 @@
 import { isObject } from '~/types';
 
-import type { Config, FaviconComponent } from '~/types';
+import type { Config } from '~/types';
 
 export class ConfigLoadError extends Error {
   public url: string = '/ui/props/';
@@ -55,15 +55,4 @@ export async function getHyperglassConfig(): Promise<Config> {
     throw new ConfigLoadError(String(error));
   }
   throw new ConfigLoadError('Unknown Error');
-}
-
-export async function getFavicons(): Promise<FaviconComponent[]> {
-  const { favicons: faviconConfig } = process.env.hyperglass;
-  return faviconConfig.map(icon => {
-    const { image_format, dimensions, prefix } = icon;
-    const [w, h] = dimensions;
-    const rel = icon.rel ?? '';
-    const src = `/images/favicons/${prefix}-${w}x${h}.${image_format}`;
-    return { rel, href: src, type: `image/${image_format}` };
-  });
 }

@@ -1,0 +1,4 @@
+node_modules
+dist
+.next/
+favicon-formats.ts

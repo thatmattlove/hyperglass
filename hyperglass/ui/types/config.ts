@@ -1,8 +1,6 @@
 import type { Theme } from './theme';
 import type { CamelCasedPropertiesDeep, CamelCasedProperties } from 'type-fest';
 
-// export type QueryFields = 'query_type' | 'query_target' | 'query_location' | 'query_vrf';
-
 type Side = 'left' | 'right';
 
 export type ParsedDataField = [string, keyof Route, 'left' | 'right' | 'center' | null];
@@ -187,12 +185,6 @@ export interface Favicon {
   dimensions: [number, number];
   image_format: string;
   prefix: string;
-}
-
-export interface FaviconComponent {
-  rel: string;
-  href: string;
-  type: string;
 }
 
 export type Config = CamelCasedPropertiesDeep<_ConfigDeep> & CamelCasedProperties<_ConfigShallow>;

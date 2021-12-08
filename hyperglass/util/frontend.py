@@ -14,7 +14,7 @@ from pathlib import Path
 from hyperglass.log import log
 
 # Local
-from .files import copyfiles, check_path
+from .files import copyfiles, check_path, dotenv_to_dict
 
 if t.TYPE_CHECKING:
     # Project
@@ -239,6 +239,26 @@ def migrate_images(app_path: Path, params: "UIParameters"):
     return copyfiles(src_files, dst_files)
 
 
+def write_favicon_formats(formats: t.Tuple[t.Dict[str, t.Any]]) -> None:
+    """Create a TypeScript file in the `ui` directory containing favicon formats.
+
+    This file should stay the same, unless the favicons library updates
+    supported formats.
+    """
+    # Standard Library
+    from collections import OrderedDict
+
+    file = Path(__file__).parent.parent / "ui" / "favicon-formats.ts"
+
+    # Sort each favicon definition to ensure the result stays the same
+    # time the UI build runs.
+    ordered = json.dumps([OrderedDict(sorted(fmt.items())) for fmt in formats])
+    data = "import type {{ Favicon }} from '~/types';export default {} as Favicon[];".format(
+        ordered
+    )
+    file.write_text(data)
+
+
 async def build_frontend(  # noqa: C901
     dev_mode: bool,
     dev_url: str,
@@ -249,19 +269,7 @@ async def build_frontend(  # noqa: C901
     timeout: int = 180,
     full: bool = False,
 ) -> bool:
-    """Perform full frontend UI build process.
-
-    Securely creates temporary file, writes frontend configuration
-    parameters to file as JSON. Then writes the name of the temporary
-    file to /tmp/hyperglass.env.json as {"configFile": <file_name> }.
-
-    Webpack reads /tmp/hyperglass.env.json, loads the temporary file,
-    and sets its contents to Node environment variables during the build
-    process.
-
-    After the build is successful, the temporary file is automatically
-    closed during garbage collection.
-    """
+    """Perform full frontend UI build process."""
     # Standard Library
     import hashlib
 
@@ -273,24 +281,18 @@ async def build_frontend(  # noqa: C901
 
     # Create temporary file. json file extension is added for easy
     # webpack JSON parsing.
-    env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
+    dot_env_file = Path(__file__).parent.parent / "ui" / ".env"
+    env_config = {}
 
     package_json = await read_package_json()
-
-    env_vars = {
-        "hyperglass": {"version": __version__},
-        "env": {},
-    }
 
     # Set NextJS production/development mode and base URL based on
     # developer_mode setting.
     if dev_mode:
-        env_vars["env"].update({"NODE_ENV": "development"})
-        env_vars["hyperglass"].update({"url": dev_url})
+        env_config.update({"HYPERGLASS_URL": dev_url, "NODE_ENV": "development"})
 
     else:
-        env_vars["env"].update({"NODE_ENV": "production"})
-        env_vars["hyperglass"].update({"url": prod_url})
+        env_config.update({"HYPERGLASS_URL": prod_url, "NODE_ENV": "production"})
 
     # Check if hyperglass/ui/node_modules has been initialized. If not,
     # initialize it.
@@ -310,71 +312,70 @@ async def build_frontend(  # noqa: C901
     images_dir = app_path / "static" / "images"
     favicon_dir = images_dir / "favicons"
 
-    try:
-        if not favicon_dir.exists():
-            favicon_dir.mkdir()
-        async with Favicons(
-            source=params.web.logo.favicon,
-            output_directory=favicon_dir,
-            base_url="/images/favicons/",
-        ) as favicons:
-            await favicons.generate()
-            log.debug("Generated {} favicons", favicons.completed)
-            env_vars["hyperglass"].update({"favicons": favicons.formats()})
-        build_data = {
-            "params": params.export_dict(),
-            "version": __version__,
-            "package_json": package_json,
-        }
-        build_json = json.dumps(build_data, default=str)
-        # Create SHA256 hash from all parameters passed to UI, use as
-        # build identifier.
-        build_id = hashlib.sha256(build_json.encode()).hexdigest()
+    if not favicon_dir.exists():
+        favicon_dir.mkdir()
 
-        # Read hard-coded environment file from last build. If build ID
-        # matches this build's ID, don't run a new build.
-        if env_file.exists() and not force:
-            with env_file.open("r") as ef:
-                ef_id = json.load(ef).get("buildId", "empty")
-                log.debug("Previous Build ID: {}", ef_id)
+    async with Favicons(
+        source=params.web.logo.favicon,
+        output_directory=favicon_dir,
+        base_url="/images/favicons/",
+    ) as favicons:
+        await favicons.generate()
+        log.debug("Generated {} favicons", favicons.completed)
+        write_favicon_formats(favicons.formats())
 
-            if ef_id == build_id:
-                log.debug("UI parameters unchanged since last build, skipping UI build...")
-                return True
+    build_data = {
+        "params": params.export_dict(),
+        "version": __version__,
+        "package_json": package_json,
+    }
 
-        env_vars["buildId"] = build_id
+    build_json = json.dumps(build_data, default=str)
 
-        env_file.write_text(json.dumps(env_vars, default=str))
-        log.debug("Wrote UI environment file '{}'", str(env_file))
+    # Create SHA256 hash from all parameters passed to UI, use as
+    # build identifier.
+    build_id = hashlib.sha256(build_json.encode()).hexdigest()
 
-        # Initiate Next.JS export process.
-        if any((not dev_mode, force, full)):
-            log.info("Starting UI build")
-            initialize_result = await node_initial(timeout, dev_mode)
-            build_result = await build_ui(app_path=app_path)
+    # Read hard-coded environment file from last build. If build ID
+    # matches this build's ID, don't run a new build.
+    if dot_env_file.exists() and not force:
+        env_data = dotenv_to_dict(dot_env_file)
+        env_build_id = env_data.get("HYPERGLASS_BUILD_ID", "None")
+        log.debug("Previous Build ID: {!r}", env_build_id)
 
-            if initialize_result:
-                log.debug(initialize_result)
-            elif initialize_result == "":
-                log.debug("Re-initialized node_modules")
+        if env_build_id == build_id:
+            log.debug("UI parameters unchanged since last build, skipping UI build...")
+            return True
 
-            if build_result:
-                log.success("Completed UI build")
-        elif dev_mode and not force:
-            log.debug("Running in developer mode, did not build new UI files")
+    env_config.update({"HYPERGLASS_BUILD_ID": build_id})
 
-        migrate_images(app_path, params)
+    dot_env_file.write_text("\n".join(f"{k}={v}" for k, v in env_config.items()))
+    log.debug("Wrote UI environment file {!r}", str(dot_env_file))
 
-        generate_opengraph(
-            params.web.opengraph.image,
-            1200,
-            630,
-            images_dir,
-            params.web.theme.colors.black,
-        )
+    # Initiate Next.JS export process.
+    if any((not dev_mode, force, full)):
+        log.info("Starting UI build")
+        initialize_result = await node_initial(timeout, dev_mode)
+        build_result = await build_ui(app_path=app_path)
 
-    except Exception as err:
-        log.error(err)
-        raise RuntimeError(str(err)) from None
+        if initialize_result:
+            log.debug(initialize_result)
+        elif initialize_result == "":
+            log.debug("Re-initialized node_modules")
+
+        if build_result:
+            log.success("Completed UI build")
+    elif dev_mode and not force:
+        log.debug("Running in developer mode, did not build new UI files")
+
+    migrate_images(app_path, params)
+
+    generate_opengraph(
+        params.web.opengraph.image,
+        1200,
+        630,
+        images_dir,
+        params.web.theme.colors.black,
+    )
 
     return True

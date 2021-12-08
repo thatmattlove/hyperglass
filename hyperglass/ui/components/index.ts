@@ -2,6 +2,7 @@ export * from './card';
 export * from './codeBlock';
 export * from './countdown';
 export * from './debugger';
+export * from './favicon';
 export * from './footer';
 export * from './form';
 export * from './greeting';
