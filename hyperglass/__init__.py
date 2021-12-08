@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 # Third Party
-import uvloop  # type: ignore
+import uvloop
 
 # Project
 from hyperglass.constants import METADATA
