@@ -70,6 +70,7 @@ class NetmikoConnection(SSHConnection):
             "timeout": math.floor(params.request_timeout * 1.25),
             "session_timeout": math.ceil(params.request_timeout - 1),
             **global_args,
+            **self.device.driver_config,
         }
 
         if "_telnet" in self.device.platform:

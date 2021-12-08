@@ -54,6 +54,7 @@ class Device(HyperglassModelWithId, extra="allow"):
     structured_output: Optional[StrictBool]
     directives: Directives = Directives()
     driver: Optional[SupportedDriver]
+    driver_config: Dict[str, Any] = {}
     attrs: Dict[str, str] = {}
 
     def __init__(self, **kw) -> None:
