@@ -1,22 +1,18 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { useRouter } from 'next/router';
+import { useCallback, useRef } from 'react';
 import { Flex } from '@chakra-ui/react';
 import { isSafari } from 'react-device-detect';
 import { If, Debugger, Greeting, Footer, Header } from '~/components';
 import { useConfig } from '~/context';
-import { useGoogleAnalytics, useFormState } from '~/hooks';
+import { useFormState } from '~/hooks';
 import { ResetButton } from './resetButton';
 
 import type { TFrame } from './types';
 
 export const Frame = (props: TFrame): JSX.Element => {
-  const router = useRouter();
-  const { developerMode, googleAnalytics } = useConfig();
+  const { developerMode } = useConfig();
   const { setStatus, reset } = useFormState(
     useCallback(({ setStatus, reset }) => ({ setStatus, reset }), []),
   );
-
-  const { initialize, trackPage } = useGoogleAnalytics();
 
   const containerRef = useRef<HTMLDivElement>({} as HTMLDivElement);
 
@@ -25,15 +21,6 @@ export const Frame = (props: TFrame): JSX.Element => {
     setStatus('form');
     reset();
   }
-
-  useEffect(() => {
-    initialize(googleAnalytics, developerMode);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    trackPage(router.pathname);
-  }, [router.pathname, trackPage]);
 
   return (
     <>

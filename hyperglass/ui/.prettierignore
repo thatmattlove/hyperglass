@@ -7,3 +7,4 @@ package-lock.json
 tsconfig.json
 .next/
 favicon-formats.ts
+custom.*[js, html]

@@ -36,31 +36,6 @@ Side = constr(regex=r"left|right")
 LocationDisplayMode = t.Literal["auto", "dropdown", "gallery"]
 
 
-class Analytics(HyperglassModel):
-    """Validation model for Google Analytics."""
-
-    enable: StrictBool = False
-    id: t.Optional[StrictStr]
-
-    @validator("id")
-    def validate_id(cls, value, values):
-        """Ensure ID is set if analytics is enabled.
-
-        Arguments:
-            value {str|None} -- Google Analytics ID
-            values {[type]} -- Already-validated model parameters
-
-        Raises:
-            ValueError: Raised if analytics is enabled but no ID is set.
-
-        Returns:
-            {str|None} -- Google Analytics ID if enabled.
-        """
-        if values["enable"] and value is None:
-            raise ValueError("Analytics is enabled, but no ID is set.")
-        return value
-
-
 class Credit(HyperglassModel):
     """Validation model for developer credit."""
 
@@ -270,6 +245,8 @@ class Web(HyperglassModel):
     text: Text = Text()
     theme: Theme = Theme()
     location_display_mode: LocationDisplayMode = "auto"
+    custom_javascript: t.Optional[FilePath]
+    custom_html: t.Optional[FilePath]
 
 
 class WebPublic(Web):

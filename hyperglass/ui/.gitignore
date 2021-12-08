@@ -1,5 +1,6 @@
 .DS_Store
 .env*
+custom.*[js, html]
 *.tsbuildinfo
 # dev/test files
 TODO.txt

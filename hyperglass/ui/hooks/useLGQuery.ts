@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { useConfig } from '~/context';
-import { useGoogleAnalytics } from './useGoogleAnalytics';
 import { fetchWithTimeout } from '~/util';
 
 import type { QueryFunction, QueryFunctionContext, QueryObserverResult } from 'react-query';
@@ -17,16 +16,6 @@ export function useLGQuery(
 ): QueryObserverResult<QueryResponse> {
   const { requestTimeout, cache } = useConfig();
   const controller = useMemo(() => new AbortController(), []);
-
-  const { trackEvent } = useGoogleAnalytics();
-
-  trackEvent({
-    category: 'Query',
-    action: 'submit',
-    dimension1: query.queryLocation,
-    dimension2: query.queryTarget,
-    dimension3: query.queryType,
-  });
 
   const runQuery: QueryFunction<QueryResponse, LGQueryKey> = async (
     ctx: QueryFunctionContext<LGQueryKey>,

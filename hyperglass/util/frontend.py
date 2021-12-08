@@ -259,6 +259,25 @@ def write_favicon_formats(formats: t.Tuple[t.Dict[str, t.Any]]) -> None:
     file.write_text(data)
 
 
+def write_custom_files(params: "UIParameters") -> None:
+    """Write custom files to the `ui` directory so they can be imported and rendered."""
+    js = Path(__file__).parent.parent / "ui" / "custom.js"
+    html = Path(__file__).parent.parent / "ui" / "custom.html"
+
+    # Handle Custom JS.
+    if params.web.custom_javascript is not None:
+        copyfiles((params.web.custom_javascript,), (js,))
+    else:
+        with js.open("w") as f:
+            f.write("")
+    # Handle Custom HTML.
+    if params.web.custom_html is not None:
+        copyfiles((params.web.custom_html,), (html,))
+    else:
+        with html.open("w") as f:
+            f.write("")
+
+
 async def build_frontend(  # noqa: C901
     dev_mode: bool,
     dev_url: str,
@@ -369,6 +388,8 @@ async def build_frontend(  # noqa: C901
         log.debug("Running in developer mode, did not build new UI files")
 
     migrate_images(app_path, params)
+
+    write_custom_files(params)
 
     generate_opengraph(
         params.web.opengraph.image,

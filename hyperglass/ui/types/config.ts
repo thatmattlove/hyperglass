@@ -172,7 +172,6 @@ interface _ConfigShallow {
   primary_asn: string;
   request_timeout: number;
   org_name: string;
-  google_analytics: string | null;
   site_title: string;
   site_keywords: string[];
   site_description: string;

@@ -4,7 +4,6 @@ export * from './useDevice';
 export * from './useDirective';
 export * from './useDNSQuery';
 export * from './useFormState';
-export * from './useGoogleAnalytics';
 export * from './useGreeting';
 export * from './useHyperglassConfig';
 export * from './useLGQuery';

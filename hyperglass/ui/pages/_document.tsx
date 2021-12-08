@@ -1,13 +1,21 @@
+import fs from 'fs';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
-import { Favicon } from '~/components';
+import { Favicon, CustomJavascript, CustomHtml } from '~/components';
 import favicons from '../favicon-formats';
 
 import type { DocumentContext, DocumentInitialProps } from 'next/document';
 
-class MyDocument extends Document {
-  static async getInitialProps(ctx: DocumentContext): Promise<DocumentInitialProps> {
+interface DocumentExtra extends DocumentInitialProps {
+  customJs: string;
+  customHtml: string;
+}
+
+class MyDocument extends Document<DocumentExtra> {
+  static async getInitialProps(ctx: DocumentContext): Promise<DocumentExtra> {
     const initialProps = await Document.getInitialProps(ctx);
-    return { ...initialProps };
+    const customJs = fs.readFileSync('custom.js').toString();
+    const customHtml = fs.readFileSync('custom.html').toString();
+    return { customJs, customHtml, ...initialProps };
   }
 
   render(): JSX.Element {
@@ -31,9 +39,11 @@ class MyDocument extends Document {
           {favicons.map((favicon, idx) => (
             <Favicon key={idx} {...favicon} />
           ))}
+          <CustomJavascript>{this.props.customJs}</CustomJavascript>
         </Head>
         <body>
           <Main />
+          <CustomHtml>{this.props.customHtml}</CustomHtml>
           <NextScript />
         </body>
       </Html>

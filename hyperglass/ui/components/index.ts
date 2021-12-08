@@ -1,6 +1,7 @@
 export * from './card';
 export * from './codeBlock';
 export * from './countdown';
+export * from './custom';
 export * from './debugger';
 export * from './favicon';
 export * from './footer';
