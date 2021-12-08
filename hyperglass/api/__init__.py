@@ -45,7 +45,6 @@ WORKING_DIR = Path(__file__).parent
 EXAMPLES_DIR = WORKING_DIR / "examples"
 
 UI_DIR = STATE.settings.static_path / "ui"
-CUSTOM_DIR = STATE.settings.static_path / "custom"
 IMAGES_DIR = STATE.settings.static_path / "images"
 
 EXAMPLE_DEVICES_PY = EXAMPLES_DIR / "devices.py"
@@ -252,5 +251,4 @@ if STATE.params.docs.enable:
     app.openapi = _custom_openapi
 
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
-app.mount("/custom", StaticFiles(directory=CUSTOM_DIR), name="custom")
 app.mount("/", StaticFiles(directory=UI_DIR, html=True), name="ui")

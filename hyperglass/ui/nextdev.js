@@ -13,7 +13,6 @@ const devProxy = {
   '/api/query/': { target: url + 'api/query/', pathRewrite: { '^/api/query/': '' } },
   '/ui/props/': { target: url + 'ui/props/', pathRewrite: { '^/ui/props/': '' } },
   '/images': { target: url + 'images', pathRewrite: { '^/images': '' } },
-  '/custom': { target: url + 'custom', pathRewrite: { '^/custom': '' } },
 };
 
 const port = parseInt(process.env.PORT, 10) || 3000;
