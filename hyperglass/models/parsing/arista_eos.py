@@ -73,7 +73,7 @@ class AristaRoutePath(_AristaBase):
     """Validation model for Arista bgpRoutePaths."""
 
     as_path_entry: AristaAsPathEntry
-    med: int
+    med: int = 0
     local_preference: int
     weight: int
     peer_entry: AristaPeerEntry
