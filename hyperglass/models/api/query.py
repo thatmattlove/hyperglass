@@ -1,6 +1,7 @@
 """Input query validation model."""
 
 # Standard Library
+import typing as t
 import hashlib
 import secrets
 from datetime import datetime
@@ -98,6 +99,10 @@ class Query(BaseModel):
         manager = InputPluginManager()
         manager.execute(query=self)
         log.debug("Validation passed for query {!r}", self)
+
+    def dict(self) -> t.Dict[str, str]:
+        """Include only public fields."""
+        return super().dict(include={"query_location", "query_target", "query_type"})
 
     @property
     def device(self) -> Device:

@@ -1,8 +1,6 @@
 """Validate logging configuration."""
 
 # Standard Library
-import base64
-from ast import literal_eval
 from typing import Dict, Union, Optional
 from pathlib import Path
 
@@ -87,12 +85,6 @@ class Http(HyperglassModel, extra="allow"):
                 dumped["headers"].update(self.authentication.api_key())
             else:
                 dumped["auth"] = self.authentication.basic()
-
-        self._obscured_params = base64.encodebytes(str(dumped).encode())
-
-    def decoded(self):
-        """Decode connection details."""
-        return literal_eval(base64.decodestring(self._obscured_params).decode())
 
 
 class Logging(HyperglassModel):

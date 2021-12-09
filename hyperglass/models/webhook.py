@@ -53,7 +53,6 @@ class Webhook(HyperglassModel):
 
     query_location: StrictStr
     query_type: StrictStr
-    query_vrf: StrictStr
     query_target: StrictStr
     headers: WebhookHeaders
     source: StrictStr = "Unknown"
@@ -92,7 +91,6 @@ class Webhook(HyperglassModel):
                         {"name": "Query Location", "value": self.query_location},
                         {"name": "Query Target", "value": code(self.query_target)},
                         {"name": "Query Type", "value": self.query_type},
-                        {"name": "Query VRF", "value": self.query_vrf},
                     ],
                 },
                 {"markdown": True, "text": "**Source Information**"},
@@ -133,7 +131,6 @@ class Webhook(HyperglassModel):
             {"type": "mrkdwn", "text": make_field("Query Location", self.query_location)},
             {"type": "mrkdwn", "text": make_field("Query Target", self.query_target, code=True)},
             {"type": "mrkdwn", "text": make_field("Query Type", self.query_type)},
-            {"type": "mrkdwn", "text": make_field("Query VRF", self.query_vrf)},
         ]
 
         source_data = [
