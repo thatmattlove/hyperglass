@@ -93,7 +93,7 @@ class AristaRouteEntry(_AristaBase):
     bgp_route_paths: List[AristaRoutePath] = []
 
 
-class AristaRoute(_AristaBase):
+class AristaBGPTable(_AristaBase):
     """Validation model for Arista bgpRouteEntries data."""
 
     router_id: str
@@ -114,7 +114,7 @@ class AristaRoute(_AristaBase):
             return []
         return [int(p) for p in as_path.split() if p.isdecimal()]
 
-    def serialize(self):
+    def bgp_table(self: "AristaBGPTable") -> "BGPRouteTable":
         """Convert the Arista-formatted fields to standard parsed data model."""
         routes = []
         count = 0
@@ -164,5 +164,5 @@ class AristaRoute(_AristaBase):
             winning_weight=WINNING_WEIGHT,
         )
 
-        log.debug("Serialized Arista response: {}", serialized)
+        log.debug("Serialized Arista response: {!r}", serialized)
         return serialized
