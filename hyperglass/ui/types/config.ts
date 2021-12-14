@@ -85,6 +85,12 @@ interface _Credit {
   enable: boolean;
 }
 
+interface _Highlight {
+  pattern: string;
+  label: string | null;
+  color: string;
+}
+
 interface _Web {
   credit: _Credit;
   dns_provider: { name: string; url: string };
@@ -97,6 +103,7 @@ interface _Web {
   text: _Text;
   theme: _ThemeConfig;
   location_display_mode: 'auto' | 'gallery' | 'dropdown';
+  highlight: _Highlight[];
 }
 
 type _DirectiveBase = {
@@ -201,3 +208,4 @@ export type Greeting = CamelCasedProperties<_Greeting>;
 export type Logo = CamelCasedProperties<_Logo>;
 export type Link = CamelCasedProperties<_Link>;
 export type Menu = CamelCasedProperties<_Menu>;
+export type Highlight = CamelCasedProperties<_Highlight>;

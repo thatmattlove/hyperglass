@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react';
-import { useColorValue } from '~/context';
+import { useColorValue, useConfig } from '~/context';
+import { Highlighted } from './highlighted';
 
 import type { TTextOutput } from './types';
 
@@ -10,6 +11,10 @@ export const TextOutput: React.FC<TTextOutput> = (props: TTextOutput) => {
   const color = useColorValue('black', 'white');
   const selectionBg = useColorValue('black', 'white');
   const selectionColor = useColorValue('white', 'black');
+
+  const {
+    web: { highlight },
+  } = useConfig();
 
   return (
     <Box
@@ -33,7 +38,9 @@ export const TextOutput: React.FC<TTextOutput> = (props: TTextOutput) => {
       }}
       {...rest}
     >
-      {children.split('\\n').join('\n').replace(/\n\n/g, '\n')}
+      <Highlighted patterns={highlight}>
+        {children.split('\\n').join('\n').replace(/\n\n/g, '\n')}
+      </Highlighted>
     </Box>
   );
 };

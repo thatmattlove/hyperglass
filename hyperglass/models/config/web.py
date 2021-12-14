@@ -61,7 +61,7 @@ class Menu(HyperglassModel):
     order: StrictInt = 0
 
     @validator("content")
-    def validate_content(cls, value):
+    def validate_content(cls: "Menu", value: str) -> str:
         """Read content from file if a path is provided."""
 
         if len(value) < 260:
@@ -135,14 +135,14 @@ class Text(HyperglassModel):
     ip_button: StrictStr = "My IP"
 
     @validator("title_mode")
-    def validate_title_mode(cls, value):
+    def validate_title_mode(cls: "Text", value: str) -> str:
         """Set legacy logo_title to logo_subtitle."""
         if value == "logo_title":
             value = "logo_subtitle"
         return value
 
     @validator("cache_prefix")
-    def validate_cache_prefix(cls, value):
+    def validate_cache_prefix(cls: "Text", value: str) -> str:
         """Ensure trailing whitespace."""
         return " ".join(value.split()) + " "
 
@@ -172,21 +172,16 @@ class ThemeColors(HyperglassModel):
     danger: t.Optional[Color]
 
     @validator(*FUNC_COLOR_MAP.keys(), pre=True, always=True)
-    def validate_colors(cls, value, values, field):
-        """Set default functional color mapping.
-
-        Arguments:
-            value {str|None} -- Functional color
-            values {str} -- Already-validated colors
-        Returns:
-            {str} -- Mapped color.
-        """
+    def validate_colors(
+        cls: "ThemeColors", value: str, values: t.Dict[str, t.Optional[str]], field
+    ) -> str:
+        """Set default functional color mapping."""
         if value is None:
             default_color = FUNC_COLOR_MAP[field.name]
             value = str(values[default_color])
         return value
 
-    def dict(self, *args, **kwargs):
+    def dict(self, *args: t.Any, **kwargs: t.Any) -> t.Dict[str, str]:
         """Return dict for colors only."""
         return {k: v.as_hex() for k, v in self.__dict__.items()}
 
@@ -213,18 +208,30 @@ class DnsOverHttps(HyperglassModel):
     url: StrictStr = ""
 
     @root_validator
-    def validate_dns(cls, values):
-        """Assign url field to model based on selected provider.
-
-        Arguments:
-            values {dict} -- Dict of selected provider
-
-        Returns:
-            {dict} -- Dict with url attribute
-        """
+    def validate_dns(cls: "DnsOverHttps", values: t.Dict[str, str]) -> t.Dict[str, str]:
+        """Assign url field to model based on selected provider."""
         provider = values["name"]
         values["url"] = DNS_OVER_HTTPS[provider]
         return values
+
+
+class HighlightPattern(HyperglassModel):
+    """Validation model for highlight pattern configuration."""
+
+    pattern: StrictStr
+    label: t.Optional[StrictStr] = None
+    color: StrictStr = "primary"
+
+    @validator("color")
+    def validate_color(cls: "HighlightPattern", value: str) -> str:
+        """Ensure highlight color is a valid theme color."""
+        colors = list(ThemeColors.__fields__.keys())
+        color_list = "\n  - ".join(("", *colors))
+        if value not in colors:
+            raise ValueError(
+                "{!r} is not a supported color. Must be one of:{!s}".format(value, color_list)
+            )
+        return value
 
 
 class Web(HyperglassModel):
@@ -247,6 +254,7 @@ class Web(HyperglassModel):
     location_display_mode: LocationDisplayMode = "auto"
     custom_javascript: t.Optional[FilePath]
     custom_html: t.Optional[FilePath]
+    highlight: t.List[HighlightPattern] = []
 
 
 class WebPublic(Web):
