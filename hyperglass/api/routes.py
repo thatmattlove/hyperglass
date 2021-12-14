@@ -128,7 +128,7 @@ async def query(
 
         if state.params.fake_output:
             # Return fake, static data for development purposes, if enabled.
-            output = await fake_output(True)
+            output = await fake_output(query_data.device.structured_output or False)
         else:
             # Pass request to execution module
             output = await execute(query_data)

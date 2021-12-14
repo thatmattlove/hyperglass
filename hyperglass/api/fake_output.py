@@ -1,7 +1,10 @@
 """Return fake, static data for development purposes."""
 
 # Standard Library
-from typing import Dict, Union
+import typing as t
+
+# Project
+from hyperglass.models.data import BGPRouteTable
 
 PLAIN = r"""
 BGP routing table entry for 4.0.0.0/9, version 1017877672
@@ -156,15 +159,10 @@ ROUTES = [
     },
 ]
 
-STRUCTURED = {
-    "vrf": "default",
-    "count": len(ROUTES),
-    "routes": ROUTES,
-    "winning_weight": "high",
-}
+STRUCTURED = BGPRouteTable(vrf="default", count=len(ROUTES), routes=ROUTES, winning_weight="high")
 
 
-async def fake_output(structured: bool) -> Union[str, Dict]:
+async def fake_output(structured: bool) -> t.Union[str, BGPRouteTable]:
     """Bypass the standard execution process and return static, fake output."""
     output = PLAIN
 
