@@ -13,8 +13,14 @@ interface DocumentExtra extends DocumentInitialProps {
 class MyDocument extends Document<DocumentExtra> {
   static async getInitialProps(ctx: DocumentContext): Promise<DocumentExtra> {
     const initialProps = await Document.getInitialProps(ctx);
-    const customJs = fs.readFileSync('custom.js').toString();
-    const customHtml = fs.readFileSync('custom.html').toString();
+    let customJs = '',
+      customHtml = '';
+    if (fs.existsSync('custom.js')) {
+      customJs = fs.readFileSync('custom.js').toString();
+    }
+    if (fs.existsSync('custom.html')) {
+      customHtml = fs.readFileSync('custom.html').toString();
+    }
     return { customJs, customHtml, ...initialProps };
   }
 
