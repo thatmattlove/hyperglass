@@ -8,12 +8,14 @@ import typing as t
 from pydantic import StrictInt, StrictFloat
 
 IntFloat = t.TypeVar("IntFloat", StrictInt, StrictFloat)
+J = t.TypeVar("J")
 
 SupportedDriver = t.Literal["netmiko", "hyperglass_agent"]
 HttpAuthMode = t.Literal["basic", "api_key"]
 HttpProvider = t.Literal["msteams", "slack", "generic"]
 LogFormat = t.Literal["text", "json"]
 Primitives = t.Union[None, float, int, bool, str]
+JsonValue = t.Union[J, t.Sequence[J], t.Dict[str, J]]
 
 
 class AnyUri(str):

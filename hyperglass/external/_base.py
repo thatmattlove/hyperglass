@@ -1,4 +1,4 @@
-"""Session handler for RIPEStat Data API."""
+"""Session handler for external http data sources."""
 
 # Standard Library
 import re
@@ -6,7 +6,6 @@ import json as _json
 import socket
 import typing as t
 from json import JSONDecodeError
-from types import TracebackType
 from socket import gaierror
 
 # Third Party
@@ -16,10 +15,21 @@ import httpx
 from hyperglass.log import log
 from hyperglass.util import make_repr, parse_exception
 from hyperglass.constants import __version__
+from hyperglass.models.fields import JsonValue, HttpMethod, Primitives
 from hyperglass.exceptions.private import ExternalError
 
+if t.TYPE_CHECKING:
+    # Standard Library
+    from types import TracebackType
 
-def _prepare_dict(_dict):
+    # Project
+    from hyperglass.exceptions._common import ErrorLevel
+    from hyperglass.models.config.logging import Http
+
+D = t.TypeVar("D", bound=t.Dict)
+
+
+def _prepare_dict(_dict: D) -> D:
     return _json.loads(_json.dumps(_dict, default=str))
 
 
@@ -28,16 +38,17 @@ class BaseExternal:
 
     def __init__(
         self,
-        base_url,
-        config=None,
-        uri_prefix="",
-        uri_suffix="",
-        verify_ssl=True,
-        timeout=10,
-        parse=True,
-    ):
+        base_url: str,
+        config: t.Optional["Http"] = None,
+        uri_prefix: str = "",
+        uri_suffix: str = "",
+        verify_ssl: bool = True,
+        timeout: int = 10,
+        parse: bool = True,
+    ) -> None:
         """Initialize connection instance."""
         self.__name__ = getattr(self, "name", "BaseExternal")
+        self.name = self.__name__
         self.config = config
         self.base_url = base_url.strip("/")
         self.uri_prefix = uri_prefix.strip("/")
@@ -55,61 +66,80 @@ class BaseExternal:
         self._asession = httpx.AsyncClient(**session_args)
 
     @classmethod
-    def __init_subclass__(cls, name=None, **kwargs):
+    def __init_subclass__(
+        cls: "BaseExternal", name: t.Optional[str] = None, **kwargs: t.Any
+    ) -> None:
         """Set correct subclass name."""
         super().__init_subclass__(**kwargs)
         cls.name = name or cls.__name__
 
-    async def __aenter__(self):
+    async def __aenter__(self: "BaseExternal") -> "BaseExternal":
         """Test connection on entry."""
         available = await self._atest()
 
         if available:
             log.debug("Initialized session with {}", self.base_url)
             return self
-        else:
-            raise self._exception(f"Unable to create session to {self.name}")
+        raise self._exception(f"Unable to create session to {self.name}")
 
-    async def __aexit__(self, exc_type=None, exc_value=None, traceback=None):
+    async def __aexit__(
+        self: "BaseExternal",
+        exc_type: t.Optional[t.Type[BaseException]] = None,
+        exc_value: t.Optional[BaseException] = None,
+        traceback: t.Optional["TracebackType"] = None,
+    ) -> True:
         """Close connection on exit."""
         log.debug("Closing session with {}", self.base_url)
 
+        if exc_type is not None:
+            log.error(str(exc_value))
+
         await self._asession.aclose()
+        if exc_value is not None:
+            raise exc_value
         return True
 
-    def __enter__(self):
+    def __enter__(self: "BaseExternal") -> "BaseExternal":
         """Test connection on entry."""
         available = self._test()
 
         if available:
             log.debug("Initialized session with {}", self.base_url)
             return self
-        else:
-            raise self._exception(f"Unable to create session to {self.name}")
+        raise self._exception(f"Unable to create session to {self.name}")
 
     def __exit__(
-        self,
+        self: "BaseExternal",
         exc_type: t.Optional[t.Type[BaseException]] = None,
         exc_value: t.Optional[BaseException] = None,
-        exc_traceback: t.Optional[TracebackType] = None,
-    ):
+        exc_traceback: t.Optional["TracebackType"] = None,
+    ) -> bool:
         """Close connection on exit."""
         if exc_type is not None:
             log.error(str(exc_value))
         self._session.close()
+        if exc_value is not None:
+            raise exc_value
+        return True
 
-    def __repr__(self):
+    def __repr__(self: "BaseExternal") -> str:
         """Return user friendly representation of instance."""
         return make_repr(self)
 
-    def _exception(self, message, exc=None, level="warning", **kwargs):
+    def _exception(
+        self: "BaseExternal",
+        message: str,
+        exc: t.Optional[BaseException] = None,
+        level: "ErrorLevel" = "warning",
+        **kwargs: t.Any,
+    ) -> ExternalError:
         """Add stringified exception to message if passed."""
         if exc is not None:
-            message = f"{str(message)}: {str(exc)}"
+            message = f"{message!s}: {exc!s}"
 
         return ExternalError(message=message, level=level, **kwargs)
 
-    def _parse_response(self, response):
+    def _parse_response(self: "BaseExternal", response: httpx.Response) -> t.Any:
         if self.parse:
             parsed = {}
             try:
@@ -124,7 +154,7 @@ class BaseExternal:
             parsed = response
         return parsed
 
-    def _test(self):
+    def _test(self: "BaseExternal") -> bool:
         """Open a low-level connection to the base URL to ensure its port is open."""
         log.debug("Testing connection to {}", self.base_url)
 
@@ -146,15 +176,17 @@ class BaseExternal:
 
         except gaierror as err:
             # Raised if the target isn't listening on the port
-            raise self._exception(f"{self.name} appears to be unreachable", err) from None
+            raise self._exception(
+                f"{self.name!r} appears to be unreachable at {self.base_url!r}", err
+            ) from None
 
         return True
 
-    async def _atest(self):
+    async def _atest(self: "BaseExternal") -> bool:
         """Open a low-level connection to the base URL to ensure its port is open."""
         return self._test()
 
-    def _build_request(self, **kwargs):
+    def _build_request(self: "BaseExternal", **kwargs: t.Any) -> t.Dict[str, t.Any]:
         """Process requests parameters into structure usable by http library."""
         # Standard Library
         from operator import itemgetter
@@ -212,16 +244,16 @@ class BaseExternal:
         return request
 
     async def _arequest(  # noqa: C901
-        self,
-        method,
-        endpoint,
-        item=None,
-        headers=None,
-        params=None,
-        data=None,
-        timeout=None,
-        response_required=False,
-    ):
+        self: "BaseExternal",
+        method: HttpMethod,
+        endpoint: str,
+        item: t.Union[str, int, None] = None,
+        headers: t.Dict[str, str] = None,
+        params: t.Dict[str, JsonValue[Primitives]] = None,
+        data: t.Optional[t.Any] = None,
+        timeout: t.Optional[int] = None,
+        response_required: bool = False,
+    ) -> t.Any:
         """Run HTTP POST operation."""
         request = self._build_request(
             method=method,
@@ -249,35 +281,35 @@ class BaseExternal:
 
         return self._parse_response(response)
 
-    async def _aget(self, endpoint, **kwargs):
+    async def _aget(self: "BaseExternal", endpoint: str, **kwargs: t.Any) -> t.Any:
         return await self._arequest(method="GET", endpoint=endpoint, **kwargs)
 
-    async def _apost(self, endpoint, **kwargs):
+    async def _apost(self: "BaseExternal", endpoint: str, **kwargs: t.Any) -> t.Any:
         return await self._arequest(method="POST", endpoint=endpoint, **kwargs)
 
-    async def _aput(self, endpoint, **kwargs):
+    async def _aput(self: "BaseExternal", endpoint: str, **kwargs: t.Any) -> t.Any:
         return await self._arequest(method="PUT", endpoint=endpoint, **kwargs)
 
-    async def _adelete(self, endpoint, **kwargs):
+    async def _adelete(self: "BaseExternal", endpoint: str, **kwargs: t.Any) -> t.Any:
         return await self._arequest(method="DELETE", endpoint=endpoint, **kwargs)
 
-    async def _apatch(self, endpoint, **kwargs):
+    async def _apatch(self: "BaseExternal", endpoint: str, **kwargs: t.Any) -> t.Any:
         return await self._arequest(method="PATCH", endpoint=endpoint, **kwargs)
 
-    async def _ahead(self, endpoint, **kwargs):
+    async def _ahead(self: "BaseExternal", endpoint: str, **kwargs: t.Any) -> t.Any:
         return await self._arequest(method="HEAD", endpoint=endpoint, **kwargs)
 
     def _request(  # noqa: C901
-        self,
-        method,
-        endpoint,
-        item=None,
-        headers=None,
-        params=None,
-        data=None,
-        timeout=None,
-        response_required=False,
-    ):
+        self: "BaseExternal",
+        method: HttpMethod,
+        endpoint: str,
+        item: t.Union[str, int, None] = None,
+        headers: t.Dict[str, str] = None,
+        params: t.Dict[str, JsonValue[Primitives]] = None,
+        data: t.Optional[t.Any] = None,
+        timeout: t.Optional[int] = None,
+        response_required: bool = False,
+    ) -> t.Any:
         """Run HTTP POST operation."""
         request = self._build_request(
             method=method,
@@ -305,20 +337,20 @@ class BaseExternal:
 
         return self._parse_response(response)
 
-    def _get(self, endpoint, **kwargs):
+    def _get(self: "BaseExternal", endpoint: str, **kwargs: t.Any) -> t.Any:
         return self._request(method="GET", endpoint=endpoint, **kwargs)
 
-    def _post(self, endpoint, **kwargs):
+    def _post(self: "BaseExternal", endpoint: str, **kwargs: t.Any) -> t.Any:
         return self._request(method="POST", endpoint=endpoint, **kwargs)
 
-    def _put(self, endpoint, **kwargs):
+    def _put(self: "BaseExternal", endpoint: str, **kwargs: t.Any) -> t.Any:
         return self._request(method="PUT", endpoint=endpoint, **kwargs)
 
-    def _delete(self, endpoint, **kwargs):
+    def _delete(self: "BaseExternal", endpoint: str, **kwargs: t.Any) -> t.Any:
         return self._request(method="DELETE", endpoint=endpoint, **kwargs)
 
-    def _patch(self, endpoint, **kwargs):
+    def _patch(self: "BaseExternal", endpoint: str, **kwargs: t.Any) -> t.Any:
         return self._request(method="PATCH", endpoint=endpoint, **kwargs)
 
-    def _head(self, endpoint, **kwargs):
+    def _head(self: "BaseExternal", endpoint: str, **kwargs: t.Any) -> t.Any:
         return self._request(method="HEAD", endpoint=endpoint, **kwargs)
