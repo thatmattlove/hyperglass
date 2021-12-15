@@ -43,7 +43,7 @@ loguru = "^0.5.3"
 netmiko = "^3.4.0"
 paramiko = "^2.7.2"
 psutil = "^5.7.2"
-py-cpuinfo = "^7.0.0"
+py-cpuinfo = "^8.0.0"
 pydantic = {extras = ["dotenv"], version = "^1.8.2"}
 python = ">=3.8.1,<4.0"
 redis = "^3.5.3"

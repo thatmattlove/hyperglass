@@ -1,5 +1,6 @@
 """Session handler for Microsoft Teams API."""
 
+# Standard Library
 import typing as t
 
 # Project
@@ -8,6 +9,7 @@ from hyperglass.external._base import BaseExternal
 from hyperglass.models.webhook import Webhook
 
 if t.TYPE_CHECKING:
+    # Project
     from hyperglass.models.config.logging import Http
 
 

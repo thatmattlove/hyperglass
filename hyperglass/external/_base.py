@@ -13,7 +13,7 @@ import httpx
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import make_repr, parse_exception
+from hyperglass.util import parse_exception, repr_from_attrs
 from hyperglass.constants import __version__
 from hyperglass.models.fields import JsonValue, HttpMethod, Primitives
 from hyperglass.exceptions.private import ExternalError
@@ -124,7 +124,7 @@ class BaseExternal:
 
     def __repr__(self: "BaseExternal") -> str:
         """Return user friendly representation of instance."""
-        return make_repr(self)
+        return repr_from_attrs(self, ("name", "base_url", "config", "parse"))
 
     def _exception(
         self: "BaseExternal",

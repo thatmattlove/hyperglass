@@ -7,7 +7,6 @@ import math
 import shutil
 import typing as t
 import asyncio
-import subprocess
 from pathlib import Path
 
 # Project
@@ -19,18 +18,6 @@ from .files import copyfiles, check_path, dotenv_to_dict
 if t.TYPE_CHECKING:
     # Project
     from hyperglass.models.ui import UIParameters
-
-
-def get_node_version() -> t.Tuple[int, int, int]:
-    """Get the system's NodeJS version."""
-    node_path = shutil.which("node")
-
-    raw_version = subprocess.check_output([node_path, "--version"]).decode()  # noqa: S603
-
-    # Node returns the version as 'v14.5.0', for example. Remove the v.
-    version = raw_version.replace("v", "")
-    # Parse the version parts.
-    return tuple((int(v) for v in version.split(".")))
 
 
 def get_ui_build_timeout() -> t.Optional[int]:
