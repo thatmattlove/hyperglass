@@ -18,7 +18,7 @@ from .tools import (
 from .typing import is_type, is_series
 from .frontend import build_ui, build_frontend
 from .validation import get_driver, resolve_hostname, validate_platform
-from .system_info import cpu_count, check_python
+from .system_info import cpu_count, check_python, get_system_info, get_node_version
 
 __all__ = (
     "at_least",
@@ -35,6 +35,8 @@ __all__ = (
     "dotenv_to_dict",
     "get_driver",
     "get_fmt_keys",
+    "get_node_version",
+    "get_system_info",
     "is_series",
     "is_type",
     "move_files",

@@ -20,7 +20,7 @@ from .plugins import (
     init_builtin_plugins,
 )
 from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
-from .util.frontend import get_node_version
+from .util import get_node_version
 
 # Ensure the Python version meets the minimum requirements.
 pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
