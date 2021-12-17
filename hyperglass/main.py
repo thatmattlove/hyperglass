@@ -13,6 +13,7 @@ from gunicorn.app.base import BaseApplication  # type: ignore
 
 # Local
 from .log import CustomGunicornLogger, log, setup_lib_logging
+from .util import get_node_version
 from .plugins import (
     InputPluginManager,
     OutputPluginManager,
@@ -20,7 +21,6 @@ from .plugins import (
     init_builtin_plugins,
 )
 from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
-from .util import get_node_version
 
 # Ensure the Python version meets the minimum requirements.
 pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
