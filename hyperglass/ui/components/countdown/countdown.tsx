@@ -1,6 +1,6 @@
 import { chakra, Text } from '@chakra-ui/react';
 import ReactCountdown, { zeroPad } from 'react-countdown';
-import { If } from '~/components';
+import { If, Then, Else } from 'react-if';
 import { useColorValue } from '~/context';
 
 import type { TCountdown, TRenderer } from './types';
@@ -12,19 +12,19 @@ const Renderer = (props: TRenderer): JSX.Element => {
   hours !== 0 && time.unshift(zeroPad(hours));
   const bg = useColorValue('black', 'white');
   return (
-    <>
-      <If c={completed}>
+    <If condition={completed}>
+      <Then>
         <Text fontSize="xs" />
-      </If>
-      <If c={!completed}>
+      </Then>
+      <Else>
         <Text fontSize="xs" color="gray.500">
           {text}
           <chakra.span fontSize="xs" color={bg}>
             {time.join(':')}
           </chakra.span>
         </Text>
-      </If>
-    </>
+      </Else>
+    </If>
   );
 };
 

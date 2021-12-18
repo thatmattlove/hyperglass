@@ -1,7 +1,7 @@
 import { Flex, Button, VStack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { isSafari } from 'react-device-detect';
-import { If } from '~/components';
+import { Switch, Case } from 'react-if';
 import { useConfig, useMobile } from '~/context';
 import { useBooleanValue, useFormState } from '~/hooks';
 import { SubtitleOnly } from './subtitleOnly';
@@ -141,18 +141,20 @@ export const Title = (props: TTitle): JSX.Element => {
         _focus={{ boxShadow: 'none' }}
         _hover={{ textDecoration: 'none' }}
       >
-        <If c={titleMode === 'text_only'}>
-          <TextOnly />
-        </If>
-        <If c={titleMode === 'logo_only'}>
-          <LogoOnly />
-        </If>
-        <If c={titleMode === 'logo_subtitle'}>
-          <LogoSubtitle />
-        </If>
-        <If c={titleMode === 'all'}>
-          <All />
-        </If>
+        <Switch>
+          <Case condition={titleMode === 'text_only'}>
+            <TextOnly />
+          </Case>
+          <Case condition={titleMode === 'logo_only'}>
+            <LogoOnly />
+          </Case>
+          <Case condition={titleMode === 'logo_subtitle'}>
+            <LogoSubtitle />
+          </Case>
+          <Case condition={titleMode === 'all'}>
+            <All />
+          </Case>
+        </Switch>
       </Button>
     </Flex>
   );

@@ -14,7 +14,8 @@ import {
   PopoverCloseButton,
 } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
-import { DynamicIcon, If, ResolvedTarget } from '~/components';
+import { If, Then, Else } from 'react-if';
+import { DynamicIcon, ResolvedTarget } from '~/components';
 import { useMobile, useColorValue } from '~/context';
 import { useFormState } from '~/hooks';
 
@@ -113,17 +114,17 @@ export const SubmitButton = (props: SubmitButtonProps): JSX.Element => {
   }
 
   return (
-    <>
-      <If c={isMobile}>
+    <If condition={isMobile}>
+      <Then>
         <MSubmitButton isOpen={resolvedIsOpen} onClose={handleClose}>
           <SubmitIcon isLoading={loading} {...props} />
         </MSubmitButton>
-      </If>
-      <If c={!isMobile}>
+      </Then>
+      <Else>
         <DSubmitButton isOpen={resolvedIsOpen} onClose={handleClose}>
           <SubmitIcon isLoading={loading} {...props} />
         </DSubmitButton>
-      </If>
-    </>
+      </Else>
+    </If>
   );
 };

@@ -2,8 +2,9 @@
 /* eslint react/jsx-key: 0 */
 import { Flex, Text } from '@chakra-ui/react';
 import { usePagination, useSortBy, useTable } from 'react-table';
+import { If, Then, Else } from 'react-if';
 import { useMobile } from '~/context';
-import { CardBody, CardFooter, CardHeader, DynamicIcon, If } from '~/components';
+import { CardBody, CardFooter, CardHeader, DynamicIcon } from '~/components';
 import { TableMain } from './table';
 import { TableCell } from './cell';
 import { TableHead } from './head';
@@ -89,15 +90,19 @@ export const Table = (props: TTable): JSX.Element => {
                   <Text fontSize="sm" fontWeight="bold" display="inline-block">
                     {column.render('Header')}
                   </Text>
-                  <If c={column.isSorted}>
-                    <If c={typeof column.isSortedDesc !== 'undefined'}>
-                      <DynamicIcon icon={{ fa: 'FaChevronDown' }} boxSize={4} ml={1} />
-                    </If>
-                    <If c={!column.isSortedDesc}>
-                      <DynamicIcon icon={{ fa: 'FaChevronRight' }} boxSize={4} ml={1} />
-                    </If>
+                  <If condition={column.isSorted}>
+                    <Then>
+                      <If condition={column.isSortedDesc}>
+                        <Then>
+                          <DynamicIcon icon={{ fa: 'FaChevronDown' }} boxSize={4} ml={1} />
+                        </Then>
+                        <Else>
+                          <DynamicIcon icon={{ fa: 'FaChevronRight' }} boxSize={4} ml={1} />
+                        </Else>
+                      </If>
+                    </Then>
+                    <Else>{''}</Else>
                   </If>
-                  <If c={!column.isSorted}>{''}</If>
                 </TableCell>
               ))}
             </TableRow>

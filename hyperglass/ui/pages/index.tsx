@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic';
-import { Meta, Loading, If, LoadError } from '~/components';
+import { Switch, Case, Default } from 'react-if';
+import { Meta, Loading, LoadError } from '~/components';
 import { HyperglassProvider } from '~/context';
 import { useHyperglassConfig } from '~/hooks';
 
@@ -14,20 +15,23 @@ const Index: NextPage = () => {
     useHyperglassConfig();
 
   return (
-    <>
-      <If c={isLoadingInitial}>
+    <Switch>
+      <Case condition={isLoadingInitial}>
         <Loading />
-      </If>
-      <If c={showError}>
+      </Case>
+      <Case condition={showError}>
         <LoadError error={error!} retry={refetch} inProgress={isLoading} />
-      </If>
-      <If c={ready}>
+      </Case>
+      <Case condition={ready}>
         <HyperglassProvider config={data!}>
           <Meta />
           <Layout />
         </HyperglassProvider>
-      </If>
-    </>
+      </Case>
+      <Default>
+        <LoadError error={error!} retry={refetch} inProgress={isLoading} />
+      </Default>
+    </Switch>
   );
 };
 

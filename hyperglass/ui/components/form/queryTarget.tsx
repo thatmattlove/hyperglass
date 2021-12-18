@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Input, InputGroup, InputRightElement, Text } from '@chakra-ui/react';
 import { components } from 'react-select';
-import { If, Select } from '~/components';
+import { If, Then, Else } from 'react-if';
+import { Select } from '~/components';
 import { isSingleValue } from '~/components/select';
 import { useColorValue } from '~/context';
 import { useDirective, useFormState } from '~/hooks';
@@ -68,37 +69,39 @@ export const QueryTarget = (props: TQueryTarget): JSX.Element => {
   return (
     <>
       <input {...register('queryTarget')} hidden readOnly value={form.queryTarget} />
-      <If c={directive !== null && isSelectDirective(directive)}>
-        <Select<OptionWithDescription, false>
-          name={name}
-          options={options}
-          components={{ Option }}
-          onChange={handleSelectChange}
-        />
-      </If>
-      <If c={directive === null || !isSelectDirective(directive)}>
-        <InputGroup size="lg">
-          <Input
-            bg={bg}
-            color={color}
-            borderRadius="md"
-            borderColor={border}
-            value={displayTarget}
-            aria-label={placeholder}
-            placeholder={placeholder}
-            name="queryTargetDisplay"
-            onChange={handleInputChange}
-            _placeholder={{ color: placeholderColor }}
+      <If condition={directive !== null && isSelectDirective(directive)}>
+        <Then>
+          <Select<OptionWithDescription, false>
+            name={name}
+            options={options}
+            components={{ Option }}
+            onChange={handleSelectChange}
           />
-          <InputRightElement w="max-content" pr={2}>
-            <UserIP
-              setTarget={(target: string) => {
-                setTarget({ display: target });
-                onChange({ field: name, value: target });
-              }}
+        </Then>
+        <Else>
+          <InputGroup size="lg">
+            <Input
+              bg={bg}
+              color={color}
+              borderRadius="md"
+              borderColor={border}
+              value={displayTarget}
+              aria-label={placeholder}
+              placeholder={placeholder}
+              name="queryTargetDisplay"
+              onChange={handleInputChange}
+              _placeholder={{ color: placeholderColor }}
             />
-          </InputRightElement>
-        </InputGroup>
+            <InputRightElement w="max-content" pr={2}>
+              <UserIP
+                setTarget={(target: string) => {
+                  setTarget({ display: target });
+                  onChange({ field: name, value: target });
+                }}
+              />
+            </InputRightElement>
+          </InputGroup>
+        </Else>
       </If>
     </>
   );

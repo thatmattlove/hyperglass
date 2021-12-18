@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Flex, FormControl, FormLabel, FormErrorMessage } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
-import { If } from '~/components';
+import { If, Then } from 'react-if';
 import { useColorValue } from '~/context';
 import { useBooleanValue } from '~/hooks';
 
@@ -33,8 +33,8 @@ export const FormField = (props: TField): JSX.Element => {
       w="100%"
       maxW="100%"
       flexDir="column"
-      isInvalid={error !== null}
       my={{ base: 2, lg: 4 }}
+      isInvalid={error !== null}
       {...rest}
     >
       <FormLabel
@@ -43,19 +43,23 @@ export const FormField = (props: TField): JSX.Element => {
         htmlFor={name}
         display="flex"
         opacity={opacity}
+        fontWeight="bold"
         alignItems="center"
         justifyContent="space-between"
-        fontWeight="bold"
         color={error !== null ? errorColor : labelColor}
       >
         {label}
-        <If c={typeof labelAddOn !== 'undefined'}>{labelAddOn}</If>
+        <If condition={typeof labelAddOn !== 'undefined'}>
+          <Then>{labelAddOn}</Then>
+        </If>
       </FormLabel>
       {children}
-      <If c={typeof fieldAddOn !== 'undefined'}>
-        <Flex justify="flex-end" pt={3}>
-          {fieldAddOn}
-        </Flex>
+      <If condition={typeof fieldAddOn !== 'undefined'}>
+        <Then>
+          <Flex justify="flex-end" pt={3}>
+            {fieldAddOn}
+          </Flex>
+        </Then>
       </If>
       <FormErrorMessage opacity={opacity}>{error?.message}</FormErrorMessage>
     </FormControl>

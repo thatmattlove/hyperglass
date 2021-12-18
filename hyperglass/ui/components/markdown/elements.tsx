@@ -17,7 +17,8 @@ import {
   Checkbox as ChakraCheckbox,
   ListItem as ChakraListItem,
 } from '@chakra-ui/react';
-import { CodeBlock as CustomCodeBlock, If } from '~/components';
+import { If, Then, Else } from 'react-if';
+import { CodeBlock as CustomCodeBlock } from '~/components';
 import { useColorValue } from '~/context';
 
 import type {
@@ -62,14 +63,14 @@ export const Checkbox = (props: TCheckbox & MDProps): JSX.Element => {
 export const List = (props: TList): JSX.Element => {
   const { ordered, ...rest } = props;
   return (
-    <>
-      <If c={ordered}>
+    <If condition={ordered}>
+      <Then>
         <OrderedList {...rest} />
-      </If>
-      <If c={!ordered}>
+      </Then>
+      <Else>
         <UnorderedList {...rest} />
-      </If>
-    </>
+      </Else>
+    </If>
   );
 };
 
@@ -144,14 +145,14 @@ export const TableHead = (props: TableHeadProps): JSX.Element => (
 export const TableCell = (props: TTableData): JSX.Element => {
   const { isHeader, ...rest } = props;
   return (
-    <>
-      <If c={isHeader}>
+    <If condition={isHeader}>
+      <Then>
         <Th {...clean<TableCellProps>(rest)} />
-      </If>
-      <If c={!isHeader}>
+      </Then>
+      <Else>
         <Td {...clean<TableCellProps>(rest)} />
-      </If>
-    </>
+      </Else>
+    </If>
   );
 };
 

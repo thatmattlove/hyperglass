@@ -15,7 +15,8 @@ import {
 import { motion } from 'framer-motion';
 import startCase from 'lodash/startCase';
 import isEqual from 'react-fast-compare';
-import { BGPTable, Countdown, DynamicIcon, If, Path, TextOutput } from '~/components';
+import { If, Then, Else } from 'react-if';
+import { BGPTable, Countdown, DynamicIcon, Path, TextOutput } from '~/components';
 import { useColorValue, useConfig, useMobile } from '~/context';
 import { useStrf, useLGQuery, useTableToString, useFormState, useDevice } from '~/hooks';
 import { isStructuredOutput, isStringOutput } from '~/types';
@@ -254,17 +255,24 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
               flex="1 0 auto"
               justifyContent={{ base: 'flex-start', lg: 'flex-end' }}
             >
-              <If c={cache.showText && !isError && isCached}>
-                <If c={!isMobile}>
-                  <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
-                </If>
-                <Tooltip hasArrow label={cacheLabel} placement="top">
-                  <Box>
-                    <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
-                  </Box>
-                </Tooltip>
-                <If c={isMobile}>
-                  <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
+              <If condition={cache.showText && !isError && isCached}>
+                <If condition={isMobile}>
+                  <Then>
+                    <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
+                    <Tooltip hasArrow label={cacheLabel} placement="top">
+                      <Box>
+                        <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
+                      </Box>
+                    </Tooltip>
+                  </Then>
+                  <Else>
+                    <Tooltip hasArrow label={cacheLabel} placement="top">
+                      <Box>
+                        <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
+                      </Box>
+                    </Tooltip>
+                    <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
+                  </Else>
                 </If>
               </If>
             </HStack>

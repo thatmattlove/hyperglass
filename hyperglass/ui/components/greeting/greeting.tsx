@@ -9,7 +9,8 @@ import {
   ModalContent,
   ModalCloseButton,
 } from '@chakra-ui/react';
-import { If, Markdown } from '~/components';
+import { If, Then } from 'react-if';
+import { Markdown } from '~/components';
 import { useConfig, useColorValue } from '~/context';
 import { useGreeting, useOpposingColor } from '~/hooks';
 
@@ -47,8 +48,10 @@ export const Greeting = (props: TGreeting): JSX.Element => {
         {...props}
       >
         <ModalHeader>{web.greeting.title}</ModalHeader>
-        <If c={!web.greeting.required}>
-          <ModalCloseButton />
+        <If condition={!web.greeting.required}>
+          <Then>
+            <ModalCloseButton />
+          </Then>
         </If>
         <ModalBody>
           <Markdown content={content.greeting} />

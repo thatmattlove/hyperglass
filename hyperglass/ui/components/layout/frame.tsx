@@ -1,7 +1,8 @@
 import { useCallback, useRef } from 'react';
 import { Flex } from '@chakra-ui/react';
 import { isSafari } from 'react-device-detect';
-import { If, Debugger, Greeting, Footer, Header } from '~/components';
+import { If, Then } from 'react-if';
+import { Debugger, Greeting, Footer, Header } from '~/components';
 import { useConfig } from '~/context';
 import { useFormState } from '~/hooks';
 import { ResetButton } from './resetButton';
@@ -51,8 +52,10 @@ export const Frame = (props: TFrame): JSX.Element => {
           {...props}
         />
         <Footer />
-        <If c={developerMode}>
-          <Debugger />
+        <If condition={developerMode}>
+          <Then>
+            <Debugger />
+          </Then>
         </If>
         <ResetButton developerMode={developerMode} resetForm={handleReset} />
       </Flex>

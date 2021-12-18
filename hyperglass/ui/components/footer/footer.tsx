@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Flex, HStack, useToken } from '@chakra-ui/react';
-import { DynamicIcon, If } from '~/components';
+import { If, Then } from 'react-if';
+import { DynamicIcon } from '~/components';
 import { useConfig, useMobile, useColorValue, useBreakpointValue } from '~/context';
 import { useStrf } from '~/hooks';
 import { FooterButton } from './button';
@@ -82,13 +83,15 @@ export const Footer = (): JSX.Element => {
           );
         }
       })}
-      <If c={web.credit.enable}>
-        <FooterButton
-          key="credit"
-          side="right"
-          content={content.credit}
-          title={<DynamicIcon icon={{ fi: 'FiCode' }} boxSize={size} />}
-        />
+      <If condition={web.credit.enable}>
+        <Then>
+          <FooterButton
+            key="credit"
+            side="right"
+            content={content.credit}
+            title={<DynamicIcon icon={{ fi: 'FiCode' }} boxSize={size} />}
+          />
+        </Then>
       </If>
       <ColorModeToggle size={size} />
     </HStack>

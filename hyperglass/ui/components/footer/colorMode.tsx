@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import { Button, Tooltip } from '@chakra-ui/react';
-import { DynamicIcon, If } from '~/components';
+import { Switch, Case } from 'react-if';
+import { DynamicIcon } from '~/components';
 import { useColorMode, useColorValue, useBreakpointValue } from '~/context';
 import { useOpposingColor } from '~/hooks';
 
@@ -29,12 +30,14 @@ export const ColorModeToggle = forwardRef<HTMLButtonElement, TColorModeToggle>(
           onClick={toggleColorMode}
           {...rest}
         >
-          <If c={colorMode === 'light'}>
-            <DynamicIcon icon={{ hi: 'HiMoon' }} boxSize={size} />
-          </If>
-          <If c={colorMode === 'dark'}>
-            <DynamicIcon icon={{ hi: 'HiSun' }} boxSize={size} />
-          </If>
+          <Switch>
+            <Case condition={colorMode === 'light'}>
+              <DynamicIcon icon={{ hi: 'HiMoon' }} boxSize={size} />
+            </Case>
+            <Case condition={colorMode === 'dark'}>
+              <DynamicIcon icon={{ hi: 'HiSun' }} boxSize={size} />
+            </Case>
+          </Switch>
         </Button>
       </Tooltip>
     );

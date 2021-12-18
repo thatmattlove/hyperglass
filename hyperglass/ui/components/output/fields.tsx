@@ -3,7 +3,8 @@ import { Text, Box, Tooltip, Menu, MenuButton, MenuList, Link } from '@chakra-ui
 import dayjs from 'dayjs';
 import relativeTimePlugin from 'dayjs/plugin/relativeTime';
 import utcPlugin from 'dayjs/plugin/utc';
-import { If, DynamicIcon } from '~/components';
+import { If, Then, Else } from 'react-if';
+import { DynamicIcon } from '~/components';
 import { useConfig, useColorValue } from '~/context';
 import { useOpposingColor } from '~/hooks';
 
@@ -33,14 +34,14 @@ export const Active = (props: TActive): JSX.Element => {
   const { isActive } = props;
   const color = useColorValue(['gray.500', 'green.500'], ['whiteAlpha.300', 'blackAlpha.500']);
   return (
-    <>
-      <If c={isActive}>
+    <If condition={isActive}>
+      <Then>
         <DynamicIcon color={color[+isActive]} icon={{ fa: 'FaCheckCircle' }} />
-      </If>
-      <If c={!isActive}>
+      </Then>
+      <Else>
         <DynamicIcon color={color[+isActive]} icon={{ md: 'MdCancel' }} />
-      </If>
-    </>
+      </Else>
+    </If>
   );
 };
 
@@ -113,15 +114,15 @@ export const Communities = (props: TCommunities): JSX.Element => {
   const bg = useColorValue('white', 'gray.900');
   const color = useOpposingColor(bg);
   return (
-    <>
-      <If c={communities.length === 0}>
+    <If condition={communities.length === 0}>
+      <Then>
         <Tooltip placement="right" hasArrow label={web.text.noCommunities}>
           <Link>
             <DynamicIcon icon={{ bs: 'BsQuestionCircleFill' }} />
           </Link>
         </Tooltip>
-      </If>
-      <If c={communities.length !== 0}>
+      </Then>
+      <Else>
         <Menu preventOverflow>
           <MenuButton>
             <DynamicIcon icon={{ cg: 'CgMoreO' }} />
@@ -141,8 +142,8 @@ export const Communities = (props: TCommunities): JSX.Element => {
             {communities.join('\n')}
           </MenuList>
         </Menu>
-      </If>
-    </>
+      </Else>
+    </If>
   );
 };
 
