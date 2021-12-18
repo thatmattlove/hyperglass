@@ -5,10 +5,10 @@ import plur from 'plur';
 import isEqual from 'react-fast-compare';
 import { all, andJoin, dedupObjectArray, withDev } from '~/util';
 
-import type { SingleValue, MultiValue } from 'react-select';
 import type { StateCreator } from 'zustand';
-import { UseFormSetError, UseFormClearErrors } from 'react-hook-form';
-import type { SingleOption, Directive, FormData, Text } from '~/types';
+import type { UseFormSetError, UseFormClearErrors } from 'react-hook-form';
+import type { SingleValue, MultiValue } from 'react-select';
+import type { SingleOption, Directive, FormData, Text, Device } from '~/types';
 import type { UseDevice } from './types';
 
 type FormStatus = 'form' | 'results';
@@ -146,62 +146,48 @@ const formState: StateCreator<FormStateType> = (set, get) => ({
     const { setError, clearErrors, getDevice, text } = extra;
 
     clearErrors('queryLocation');
-    const locationNames = [] as string[];
-    const allGroups = [] as string[][];
-    const allTypes = [] as Directive[][];
-    const allDevices = [];
     set(state => ({ form: { ...state.form, queryLocation: locations } }));
 
-    for (const loc of locations) {
-      const device = getDevice(loc);
-      if (device !== null) {
-        locationNames.push(device.name);
-        allDevices.push(device);
-        const groups = new Set<string>();
-        for (const directive of device.directives) {
-          for (const group of directive.groups) {
-            groups.add(group);
-          }
-        }
-        allGroups.push(Array.from(groups));
-      }
-    }
+    // Get device configuration objects for each selected location ID.
+    const allDevices = locations
+      .map(getDevice)
+      .filter((device): device is Device => device !== null);
 
+    // Determine all unique group names.
+    const allGroups = allDevices.map(dev =>
+      Array.from(new Set(dev.directives.map(dir => dir.groups).flat())),
+    );
+
+    // Get group names that are common between all selected locations.
     const intersecting = intersectionWith(...allGroups, isEqual);
 
-    for (const group of intersecting) {
-      for (const device of allDevices) {
-        for (const directive of device.directives) {
-          if (directive.groups.includes(group)) {
-            allTypes.push(device.directives);
-          }
-        }
-      }
-    }
+    // Get all directives of all selected devices.
+    const allDirectives = locations
+      .map(getDevice)
+      .filter((device): device is Device => device !== null)
+      .map(device => device.directives);
 
-    let intersectingTypes = intersectionWith(...allTypes, isEqual);
-    intersectingTypes = dedupObjectArray<Directive>(intersectingTypes, 'id');
-    set({ filtered: { groups: intersecting, types: intersectingTypes } });
+    // Get directive objects that are common between selected locations.
+    const intersectingDirectives = intersectionWith(...allDirectives, isEqual);
 
-    // If there is more than one location selected, but there are no intersecting groups, show an error.
-    if (locations.length > 1 && intersecting.length === 0) {
-      setError('queryLocation', {
-        message: `${locationNames.join(', ')} have no groups in common.`,
-      });
-    }
+    // Deduplicate all intersecting directives by ID.
+    const directives = dedupObjectArray(intersectingDirectives, 'id');
+
+    set({ filtered: { groups: intersecting, types: directives } });
+
     // If there is only one intersecting group, set it as the form value so the user doesn't have to.
     const { selections, form } = get();
-    if (form.queryLocation.length > 1 && intersectingTypes.length === 0) {
+    if (
+      (form.queryLocation.length > 1 || locations.length > 1) &&
+      intersectingDirectives.length === 0
+    ) {
       const start = plur(text.queryLocation, selections.queryLocation.length);
       const locationsAnd = andJoin(selections.queryLocation.map(s => s.label));
       const types = plur(text.queryType, 2);
       const message = `${start} ${locationsAnd} have no ${types} in common.`;
-      setError('queryLocation', {
-        // message: `${locationNames.join(', ')} have no query types in common.`,
-        message,
-      });
-    } else if (intersectingTypes.length === 1) {
-      set(state => ({ form: { ...state.form, queryType: intersectingTypes[0].id } }));
+      setError('queryLocation', { message });
+    } else if (intersectingDirectives.length === 1) {
+      set(state => ({ form: { ...state.form, queryType: intersectingDirectives[0].id } }));
     }
   },
 
