@@ -61,20 +61,20 @@ async def query(
 
     # Initialize cache
     cache = state.redis
-    log.debug("Initialized cache {}", repr(cache))
 
     # Use hashed query_data string as key for for k/v cache store so
     # each command output value is unique.
     cache_key = f"hyperglass.query.{query_data.digest()}"
 
-    log.info("Starting query execution for {!r}", query)
+    log.info("{!r} starting query execution", query_data)
 
     cache_response = cache.get_map(cache_key, "output")
     json_output = False
     cached = False
     runtime = 65535
+
     if cache_response:
-        log.debug("Query {!r} exists in cache", query_data)
+        log.debug("{!r} cache hit (cache key {!r})", query_data, cache_key)
 
         # If a cached response exists, reset the expiration time.
         cache.expire(cache_key, expire_in=state.params.cache.timeout)
@@ -84,7 +84,7 @@ async def query(
         timestamp = cache.get_map(cache_key, "timestamp")
 
     elif not cache_response:
-        log.debug("Created new cache entry {} entry for query {!r}", cache_key, query_data)
+        log.debug("{!r} cache miss (cache key {!r})", query_data, cache_key)
 
         timestamp = query_data.timestamp
 
@@ -99,7 +99,7 @@ async def query(
 
         endtime = time.time()
         elapsedtime = round(endtime - starttime, 4)
-        log.debug("{!r} took {} seconds to run", query_data, elapsedtime)
+        log.debug("{!r} runtime: {!s} seconds", query_data, elapsedtime)
 
         if output is None:
             raise HyperglassError(message=state.params.messages.general, alert="danger")
@@ -115,7 +115,7 @@ async def query(
         cache.set_map_item(cache_key, "timestamp", timestamp)
         cache.expire(cache_key, expire_in=state.params.cache.timeout)
 
-        log.debug("Added cache entry for query {!r}", query_data)
+        log.debug("{!r} cached for {!s} seconds", query_data, state.params.cache.timeout)
 
         runtime = int(round(elapsedtime, 0))
 
@@ -128,7 +128,7 @@ async def query(
     if json_output:
         response_format = "application/json"
 
-    log.success("Completed query execution for query {!r}", query_data)
+    log.success("{!r} execution completed", query_data)
 
     return {
         "output": cache_response,
