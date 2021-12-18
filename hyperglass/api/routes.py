@@ -13,8 +13,6 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 # Project
 from hyperglass.log import log
 from hyperglass.state import HyperglassState, use_state
-from hyperglass.external import Webhook, bgptools
-from hyperglass.api.tasks import process_headers
 from hyperglass.constants import __version__
 from hyperglass.models.ui import UIParameters
 from hyperglass.exceptions import HyperglassError
@@ -26,6 +24,7 @@ from hyperglass.models.config.params import Params
 from hyperglass.models.config.devices import Devices
 
 # Local
+from .tasks import send_webhook
 from .fake_output import fake_output
 
 
@@ -47,41 +46,6 @@ def get_devices():
 def get_ui_params():
     """Get hyperglass ui_params as FastAPI dependency."""
     return use_state("ui_params")
-
-
-async def send_webhook(
-    query_data: Query,
-    request: Request,
-    timestamp: datetime,
-):
-    """If webhooks are enabled, get request info and send a webhook."""
-    params = use_state("params")
-    try:
-        if params.logging.http is not None:
-            headers = await process_headers(headers=request.headers)
-
-            if headers.get("x-real-ip") is not None:
-                host = headers["x-real-ip"]
-            elif headers.get("x-forwarded-for") is not None:
-                host = headers["x-forwarded-for"]
-            else:
-                host = request.client.host
-
-            network_info = await bgptools.network_info(host)
-
-            async with Webhook(params.logging.http) as hook:
-
-                await hook.send(
-                    query={
-                        **query_data.dict(),
-                        "headers": headers,
-                        "source": host,
-                        "network": network_info.get(host, {}),
-                        "timestamp": timestamp,
-                    }
-                )
-    except Exception as err:
-        log.error("Error sending webhook to {}: {}", params.logging.http.provider, str(err))
 
 
 async def query(

@@ -3,9 +3,23 @@
 # Standard Library
 from typing import Dict, Union
 from pathlib import Path
+from datetime import datetime
 
 # Third Party
 from httpx import Headers
+from starlette.requests import Request
+
+# Project
+from hyperglass.log import log
+from hyperglass.state import use_state
+from hyperglass.external import Webhook, bgptools
+from hyperglass.models.api import Query
+
+__all__ = (
+    "import_public_key",
+    "process_headers",
+    "send_webhook",
+)
 
 
 def import_public_key(app_path: Union[Path, str], device_name: str, keystring: str) -> bool:
@@ -47,3 +61,38 @@ async def process_headers(headers: Headers) -> Dict:
         "x-forwarded-for",
     )
     return {k: headers.get(k) for k in header_keys}
+
+
+async def send_webhook(
+    query_data: Query,
+    request: Request,
+    timestamp: datetime,
+):
+    """If webhooks are enabled, get request info and send a webhook."""
+    params = use_state("params")
+    try:
+        if params.logging.http is not None:
+            headers = await process_headers(headers=request.headers)
+
+            if headers.get("x-real-ip") is not None:
+                host = headers["x-real-ip"]
+            elif headers.get("x-forwarded-for") is not None:
+                host = headers["x-forwarded-for"]
+            else:
+                host = request.client.host
+
+            network_info = await bgptools.network_info(host)
+
+            async with Webhook(params.logging.http) as hook:
+
+                await hook.send(
+                    query={
+                        **query_data.dict(),
+                        "headers": headers,
+                        "source": host,
+                        "network": network_info.get(host, {}),
+                        "timestamp": timestamp,
+                    }
+                )
+    except Exception as err:
+        log.error("Error sending webhook to {}: {}", params.logging.http.provider, str(err))
