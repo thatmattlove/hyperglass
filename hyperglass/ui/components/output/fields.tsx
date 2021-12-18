@@ -167,7 +167,7 @@ const _RPKIState: React.ForwardRefRenderFunction<HTMLDivElement, TRPKIState> = (
   const icon = [
     { md: 'MdCancel' },
     { fa: 'FaCheckCircle' },
-    { bi: 'BisError' },
+    { bi: 'BiError' },
     { bs: 'BsQuestionCircleFill' },
   ] as Record<string, string>[];
 
