@@ -50,6 +50,10 @@
     "vest": "^3.2.8",
     "zustand": "^3.6.6"
   },
+  "resolutions": {
+    "react-select/@emotion/react": "^11.7.0",
+    "@hookform/devtools/@emotion/react": "^11.7.0"
+  },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.0",
