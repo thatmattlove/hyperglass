@@ -40,7 +40,6 @@ def _register_from_module(module: t.Any, **kwargs: t.Any) -> t.Tuple[str, ...]:
             failures += (name,)
             continue
         manager.register(plugin, **kwargs)
-        return failures
     return failures
 
 
