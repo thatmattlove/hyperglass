@@ -1,12 +1,12 @@
 import { Heading } from '@chakra-ui/react';
 import { useConfig } from '~/context';
-import { useBooleanValue, useFormState } from '~/hooks';
+import { useBooleanValue, useFormInteractive } from '~/hooks';
 import { useTitleSize } from './useTitleSize';
 
 export const TitleOnly = (): JSX.Element => {
   const { web } = useConfig();
-  const status = useFormState(s => s.status);
-  const margin = useBooleanValue(status === 'results', 0, 2);
+  const formInteractive = useFormInteractive();
+  const margin = useBooleanValue(formInteractive, 0, 2);
   const sizeSm = useTitleSize(web.text.title, '2xl', []);
 
   return (

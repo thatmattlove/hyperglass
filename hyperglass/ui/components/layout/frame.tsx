@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { Flex } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
 import { isSafari } from 'react-device-detect';
 import { If, Then } from 'react-if';
 import { Debugger, Greeting, Footer, Header } from '~/components';
@@ -8,6 +9,8 @@ import { useFormState } from '~/hooks';
 import { ResetButton } from './resetButton';
 
 import type { TFrame } from './types';
+
+const AnimatedFlex = motion(Flex);
 
 export const Frame = (props: TFrame): JSX.Element => {
   const { developerMode } = useConfig();
@@ -38,19 +41,25 @@ export const Frame = (props: TFrame): JSX.Element => {
          */
         minHeight={isSafari ? '-webkit-fill-available' : '100vh'}
       >
-        <Header resetForm={() => handleReset()} />
-        <Flex
+        <Header />
+        <AnimatedFlex
+          layout
           px={4}
           py={0}
           w="100%"
           as="main"
-          align="center"
           flex="1 1 auto"
-          justify="start"
           flexDir="column"
           textAlign="center"
-          {...props}
-        />
+          alignItems="center"
+          justifyContent="start"
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          exit={{ opacity: 0, x: -300 }}
+          initial={{ opacity: 0, y: 300 }}
+        >
+          {props.children}
+        </AnimatedFlex>
         <Footer />
         <If condition={developerMode}>
           <Then>

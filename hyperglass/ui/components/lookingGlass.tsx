@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import isEqual from 'react-fast-compare';
-import { Flex, ScaleFade, SlideFade } from '@chakra-ui/react';
+import { chakra, Flex, ScaleFade, SlideFade } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { vestResolver } from '@hookform/resolvers/vest';
 import vest, { test, enforce } from 'vest';
@@ -9,7 +9,6 @@ import {
   FormField,
   HelpModal,
   QueryType,
-  AnimatedDiv,
   QueryTarget,
   SubmitButton,
   QueryLocation,
@@ -169,17 +168,12 @@ export const LookingGlass = (): JSX.Element => {
 
   return (
     <FormProvider {...formInstance}>
-      <AnimatedDiv
+      <chakra.form
         p={0}
         my={4}
         w="100%"
-        as="form"
         mx="auto"
         textAlign="left"
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        exit={{ opacity: 0, x: -300 }}
-        initial={{ opacity: 0, y: 300 }}
         maxW={{ base: '100%', lg: '75%' }}
         onSubmit={handleSubmit(submitHandler)}
       >
@@ -232,7 +226,7 @@ export const LookingGlass = (): JSX.Element => {
             </ScaleFade>
           </Flex>
         </FormRow>
-      </AnimatedDiv>
+      </chakra.form>
     </FormProvider>
   );
 };

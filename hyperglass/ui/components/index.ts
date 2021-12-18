@@ -1,8 +1,10 @@
+export * from './animated';
 export * from './card';
 export * from './codeBlock';
 export * from './countdown';
 export * from './custom';
 export * from './debugger';
+export * from './dynamic-icon';
 export * from './favicon';
 export * from './footer';
 export * from './form';
@@ -23,4 +25,3 @@ export * from './results';
 export * from './select';
 export * from './submit';
 export * from './table';
-export * from './util';

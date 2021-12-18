@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { isSafari } from 'react-device-detect';
 import { Switch, Case } from 'react-if';
 import { useConfig, useMobile } from '~/context';
-import { useBooleanValue, useFormState } from '~/hooks';
+import { useFormState, useFormInteractive } from '~/hooks';
 import { SubtitleOnly } from './subtitleOnly';
 import { TitleOnly } from './titleOnly';
 import { Logo } from './logo';
@@ -11,17 +11,18 @@ import { Logo } from './logo';
 import type { TTitle, TTitleWrapper, TDWrapper, TMWrapper } from './types';
 
 const AnimatedVStack = motion(VStack);
+const AnimatedFlex = motion(Flex);
 
 /**
  * Title wrapper for mobile devices, breakpoints sm & md.
  */
 const MWrapper = (props: TMWrapper): JSX.Element => {
-  const status = useFormState(s => s.status);
+  const formInteractive = useFormInteractive();
   return (
     <AnimatedVStack
       layout
       spacing={1}
-      alignItems={status === 'results' ? 'center' : 'flex-start'}
+      alignItems={formInteractive ? 'center' : 'flex-start'}
       {...props}
     />
   );
@@ -31,13 +32,13 @@ const MWrapper = (props: TMWrapper): JSX.Element => {
  * Title wrapper for desktop devices, breakpoints lg & xl.
  */
 const DWrapper = (props: TDWrapper): JSX.Element => {
-  const status = useFormState(s => s.status);
+  const formInteractive = useFormInteractive();
   return (
     <AnimatedVStack
       spacing={1}
       initial="main"
       alignItems="center"
-      animate={status}
+      animate={formInteractive}
       transition={{ damping: 15, type: 'spring', stiffness: 100 }}
       variants={{ results: { scale: 0.5 }, form: { scale: 1 } }}
       {...props}
@@ -108,19 +109,15 @@ export const Title = (props: TTitle): JSX.Element => {
   const { web } = useConfig();
   const { titleMode } = web.text;
 
-  const { status, reset } = useFormState(({ status, reset }) => ({
-    status,
-    reset,
-  }));
-
-  const titleHeight = useBooleanValue(status === 'results', undefined, { md: '20vh' });
+  const reset = useFormState(s => s.reset);
+  const formInteractive = useFormInteractive();
 
   return (
-    <Flex
+    <AnimatedFlex
       px={0}
       flexWrap="wrap"
       flexDir="column"
-      minH={titleHeight}
+      animate={{ height: formInteractive ? undefined : '20vh' }}
       justifyContent="center"
       /* flexBasis
         This is a fix for Safari specifically. LMGTFY: Safari flex-basis width. Nutshell: Safari
@@ -129,7 +126,7 @@ export const Title = (props: TTitle): JSX.Element => {
         div up to the parent's max-width. The fix is to hard-code a flex-basis width.
        */
       flexBasis={{ base: '100%', lg: isSafari ? '33%' : '100%' }}
-      mt={{ md: status === 'results' ? undefined : 'auto' }}
+      mt={{ md: formInteractive ? undefined : 'auto' }}
       {...rest}
     >
       <Button
@@ -156,6 +153,6 @@ export const Title = (props: TTitle): JSX.Element => {
           </Case>
         </Switch>
       </Button>
-    </Flex>
+    </AnimatedFlex>
   );
 };

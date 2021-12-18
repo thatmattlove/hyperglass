@@ -235,3 +235,8 @@ export function useView(): FormStatus {
     return ready ? 'results' : 'form';
   }, [status, form]);
 }
+
+export function useFormInteractive(): boolean {
+  const { status, selections } = useFormState(({ status, selections }) => ({ status, selections }));
+  return status === 'results' || selections.queryLocation.length > 0;
+}
