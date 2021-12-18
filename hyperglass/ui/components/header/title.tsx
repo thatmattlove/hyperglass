@@ -15,7 +15,7 @@ const AnimatedVStack = motion(VStack);
 /**
  * Title wrapper for mobile devices, breakpoints sm & md.
  */
-const MWrapper: React.FC<TMWrapper> = (props: TMWrapper) => {
+const MWrapper = (props: TMWrapper): JSX.Element => {
   const status = useFormState(s => s.status);
   return (
     <AnimatedVStack
@@ -30,7 +30,7 @@ const MWrapper: React.FC<TMWrapper> = (props: TMWrapper) => {
 /**
  * Title wrapper for desktop devices, breakpoints lg & xl.
  */
-const DWrapper: React.FC<TDWrapper> = (props: TDWrapper) => {
+const DWrapper = (props: TDWrapper): JSX.Element => {
   const status = useFormState(s => s.status);
   return (
     <AnimatedVStack
@@ -49,7 +49,7 @@ const DWrapper: React.FC<TDWrapper> = (props: TDWrapper) => {
  * Universal wrapper for title sub-components, which will be different depending on the
  * `title_mode` configuration variable.
  */
-const TitleWrapper: React.FC<TDWrapper | TMWrapper> = (props: TDWrapper | TMWrapper) => {
+const TitleWrapper = (props: TDWrapper | TMWrapper): JSX.Element => {
   const isMobile = useMobile();
   return (
     <>
@@ -61,7 +61,7 @@ const TitleWrapper: React.FC<TDWrapper | TMWrapper> = (props: TDWrapper | TMWrap
 /**
  * Title sub-component if `title_mode` is set to `text_only`.
  */
-const TextOnly: React.FC<TTitleWrapper> = (props: TTitleWrapper) => {
+const TextOnly = (props: TTitleWrapper): JSX.Element => {
   return (
     <TitleWrapper {...props}>
       <TitleOnly />
@@ -73,7 +73,7 @@ const TextOnly: React.FC<TTitleWrapper> = (props: TTitleWrapper) => {
 /**
  * Title sub-component if `title_mode` is set to `logo_only`. Renders only the logo.
  */
-const LogoOnly: React.FC = () => (
+const LogoOnly = (): JSX.Element => (
   <TitleWrapper>
     <Logo />
   </TitleWrapper>
@@ -83,7 +83,7 @@ const LogoOnly: React.FC = () => (
  * Title sub-component if `title_mode` is set to `logo_subtitle`. Renders the logo with the
  * subtitle underneath.
  */
-const LogoSubtitle: React.FC = () => (
+const LogoSubtitle = (): JSX.Element => (
   <TitleWrapper>
     <Logo />
     <SubtitleOnly />
@@ -93,7 +93,7 @@ const LogoSubtitle: React.FC = () => (
 /**
  * Title sub-component if `title_mode` is set to `all`. Renders the logo, title, and subtitle.
  */
-const All: React.FC = () => (
+const All = (): JSX.Element => (
   <TitleWrapper>
     <Logo />
     <TextOnly mt={2} />
@@ -103,7 +103,7 @@ const All: React.FC = () => (
 /**
  * Title component which renders sub-components based on the `title_mode` configuration variable.
  */
-export const Title: React.FC<TTitle> = (props: TTitle) => {
+export const Title = (props: TTitle): JSX.Element => {
   const { fontSize, ...rest } = props;
   const { web } = useConfig();
   const { titleMode } = web.text;

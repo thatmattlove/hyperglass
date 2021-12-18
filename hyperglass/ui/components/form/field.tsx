@@ -9,7 +9,7 @@ import type { FieldError } from 'react-hook-form';
 import type { FormData } from '~/types';
 import type { TField } from './types';
 
-export const FormField: React.FC<TField> = (props: TField) => {
+export const FormField = (props: TField): JSX.Element => {
   const { name, label, children, labelAddOn, fieldAddOn, hiddenLabels = false, ...rest } = props;
   const labelColor = useColorValue('blackAlpha.700', 'whiteAlpha.700');
   const errorColor = useColorValue('red.500', 'red.300');

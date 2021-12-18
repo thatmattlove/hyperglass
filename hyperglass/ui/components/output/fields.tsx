@@ -20,7 +20,7 @@ import type {
 dayjs.extend(relativeTimePlugin);
 dayjs.extend(utcPlugin);
 
-export const MonoField: React.FC<TMonoField> = (props: TMonoField) => {
+export const MonoField = (props: TMonoField): JSX.Element => {
   const { v, ...rest } = props;
   return (
     <Text as="span" fontSize="sm" fontFamily="mono" {...rest}>
@@ -29,7 +29,7 @@ export const MonoField: React.FC<TMonoField> = (props: TMonoField) => {
   );
 };
 
-export const Active: React.FC<TActive> = (props: TActive) => {
+export const Active = (props: TActive): JSX.Element => {
   const { isActive } = props;
   const color = useColorValue(['gray.500', 'green.500'], ['whiteAlpha.300', 'blackAlpha.500']);
   return (
@@ -44,7 +44,7 @@ export const Active: React.FC<TActive> = (props: TActive) => {
   );
 };
 
-export const Age: React.FC<TAge> = (props: TAge) => {
+export const Age = (props: TAge): JSX.Element => {
   const { inSeconds, ...rest } = props;
   const now = dayjs.utc();
   const then = now.subtract(inSeconds, 'second');
@@ -57,7 +57,7 @@ export const Age: React.FC<TAge> = (props: TAge) => {
   );
 };
 
-export const Weight: React.FC<TWeight> = (props: TWeight) => {
+export const Weight = (props: TWeight): JSX.Element => {
   const { weight, winningWeight, ...rest } = props;
   const fixMeText =
     winningWeight === 'low' ? 'Lower Weight is Preferred' : 'Higher Weight is Preferred';
@@ -70,7 +70,7 @@ export const Weight: React.FC<TWeight> = (props: TWeight) => {
   );
 };
 
-export const ASPath: React.FC<TASPath> = (props: TASPath) => {
+export const ASPath = (props: TASPath): JSX.Element => {
   const { path, active } = props;
   const color = useColorValue(
     // light: inactive, active
@@ -107,7 +107,7 @@ export const ASPath: React.FC<TASPath> = (props: TASPath) => {
   return <>{paths}</>;
 };
 
-export const Communities: React.FC<TCommunities> = (props: TCommunities) => {
+export const Communities = (props: TCommunities): JSX.Element => {
   const { communities } = props;
   const { web } = useConfig();
   const bg = useColorValue('white', 'gray.900');

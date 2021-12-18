@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react';
-import { useConfig } from '~/context';
 import { Table } from '~/components';
+import { useConfig } from '~/context';
 import { Cell } from './cell';
 
 import type { TColumn, ParsedDataField, TCellRender } from '~/types';
@@ -25,7 +25,7 @@ function makeColumns(fields: ParsedDataField[]): TColumn[] {
   });
 }
 
-export const BGPTable: React.FC<TBGPTable> = (props: TBGPTable) => {
+export const BGPTable = (props: TBGPTable): JSX.Element => {
   const { children: data, ...rest } = props;
   const { parsedDataFields } = useConfig();
   const columns = makeColumns(parsedDataFields);

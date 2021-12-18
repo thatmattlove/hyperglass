@@ -9,7 +9,7 @@ import type { Transition } from 'framer-motion';
 
 const transition = { duration: 0.3, delay: 0.5 } as Transition;
 
-export const Tags: React.FC = () => {
+export const Tags = (): JSX.Element => {
   const { web } = useConfig();
   const form = useFormState(s => s.form);
   const getDirective = useFormState(s => s.getDirective);
@@ -29,13 +29,6 @@ export const Tags: React.FC = () => {
     xl: { opacity: 1, x: 0 },
   });
 
-  // const animateCenter = useBreakpointValue({
-  //   base: { opacity: 1 },
-  //   md: { opacity: 1 },
-  //   lg: { opacity: 1 },
-  //   xl: { opacity: 1 },
-  // });
-
   const animateRight = useBreakpointValue({
     base: { opacity: 1, x: 0 },
     md: { opacity: 1, x: 0 },
@@ -49,13 +42,6 @@ export const Tags: React.FC = () => {
     lg: { opacity: 0, x: '-100%' },
     xl: { opacity: 0, x: '-100%' },
   });
-
-  // const initialCenter = useBreakpointValue({
-  //   base: { opacity: 0 },
-  //   md: { opacity: 0 },
-  //   lg: { opacity: 0 },
-  //   xl: { opacity: 0 },
-  // });
 
   const initialRight = useBreakpointValue({
     base: { opacity: 0, x: '100%' },

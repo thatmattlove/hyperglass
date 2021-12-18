@@ -2,7 +2,7 @@ import { Select } from '@chakra-ui/react';
 
 import type { SelectProps } from '@chakra-ui/react';
 
-export const TableSelectShow: React.FC<SelectProps> = (props: SelectProps) => {
+export const TableSelectShow = (props: SelectProps): JSX.Element => {
   const { value, ...rest } = props;
   return (
     <Select size="sm" {...rest}>

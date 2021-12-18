@@ -20,7 +20,7 @@ function getConfigFmt(config: Config): Record<string, string> {
   return fmt;
 }
 
-export const FooterButton: React.FC<TFooterButton> = (props: TFooterButton) => {
+export const FooterButton = (props: TFooterButton): JSX.Element => {
   const { content, title, side, ...rest } = props;
 
   const config = useConfig();

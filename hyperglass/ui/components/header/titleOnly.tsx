@@ -3,7 +3,7 @@ import { useConfig } from '~/context';
 import { useBooleanValue, useFormState } from '~/hooks';
 import { useTitleSize } from './useTitleSize';
 
-export const TitleOnly: React.FC = () => {
+export const TitleOnly = (): JSX.Element => {
   const { web } = useConfig();
   const status = useFormState(s => s.status);
   const margin = useBooleanValue(status === 'results', 0, 2);

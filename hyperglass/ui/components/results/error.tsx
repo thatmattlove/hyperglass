@@ -22,7 +22,7 @@ function formatError(text: string, values: string[], regex: RegExp): TFormatErro
   }, [] as TFormatError[]);
 }
 
-export const FormattedError: React.FC<TFormattedError> = (props: TFormattedError) => {
+export const FormattedError = (props: TFormattedError): JSX.Element => {
   const { keywords, message } = props;
   const pattern = new RegExp(keywords.map(kw => `(${kw})`).join('|'), 'gi');
   const things = formatError(message, keywords, pattern);

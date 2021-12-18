@@ -1,9 +1,9 @@
-import { Box } from '@chakra-ui/react';
+import { chakra } from '@chakra-ui/react';
 import { useColorValue } from '~/context';
 
 import type { TTableCell } from './types';
 
-export const TableCell: React.FC<TTableCell> = (props: TTableCell) => {
+export const TableCell = (props: TTableCell): JSX.Element => {
   const { bordersVertical = [false, 0], align, ...rest } = props;
   const [doVerticalBorders, index] = bordersVertical;
   const borderLeftColor = useColorValue('blackAlpha.100', 'whiteAlpha.100');
@@ -14,11 +14,10 @@ export const TableCell: React.FC<TTableCell> = (props: TTableCell) => {
   }
 
   return (
-    <Box
+    <chakra.td
       p={4}
       m={0}
       w="1%"
-      as="td"
       textAlign={align}
       whiteSpace="nowrap"
       {...borderProps}

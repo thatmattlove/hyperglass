@@ -7,7 +7,7 @@ import { useElements } from './useElements';
 
 import type { TChart, TNode, TNodeData } from './types';
 
-export const Chart: React.FC<TChart> = (props: TChart) => {
+export const Chart = (props: TChart): JSX.Element => {
   const { data } = props;
   const { primaryAsn, orgName } = useConfig();
 
@@ -32,7 +32,7 @@ export const Chart: React.FC<TChart> = (props: TChart) => {
   );
 };
 
-const ASNode: React.FC<TNode<TNodeData>> = (props: TNode<TNodeData>) => {
+const ASNode = (props: TNode<TNodeData>): JSX.Element => {
   const { data } = props;
   const { asn, name, hasChildren, hasParents } = data;
 

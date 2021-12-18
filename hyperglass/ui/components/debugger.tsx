@@ -23,7 +23,7 @@ interface TViewer extends Pick<UseDisclosureReturn, 'isOpen' | 'onClose'> {
   children: React.ReactNode;
 }
 
-const Viewer: React.FC<TViewer> = (props: TViewer) => {
+const Viewer = (props: TViewer): JSX.Element => {
   const { title, isOpen, onClose, children } = props;
   const bg = useColorValue('white', 'blackSolid.700');
   const color = useColorValue('black', 'white');
@@ -41,7 +41,7 @@ const Viewer: React.FC<TViewer> = (props: TViewer) => {
   );
 };
 
-export const Debugger: React.FC = () => {
+export const Debugger = (): JSX.Element => {
   const { isOpen: configOpen, onOpen: onConfigOpen, onClose: configClose } = useDisclosure();
   const { isOpen: themeOpen, onOpen: onThemeOpen, onClose: themeClose } = useDisclosure();
   const { colorMode } = useColorMode();

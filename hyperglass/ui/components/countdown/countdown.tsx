@@ -1,11 +1,11 @@
-import { Text } from '@chakra-ui/react';
+import { chakra, Text } from '@chakra-ui/react';
 import ReactCountdown, { zeroPad } from 'react-countdown';
 import { If } from '~/components';
 import { useColorValue } from '~/context';
 
 import type { TCountdown, TRenderer } from './types';
 
-const Renderer: React.FC<TRenderer> = (props: TRenderer) => {
+const Renderer = (props: TRenderer): JSX.Element => {
   const { hours, minutes, seconds, completed, text } = props;
   const time = [zeroPad(seconds)];
   minutes !== 0 && time.unshift(zeroPad(minutes));
@@ -19,16 +19,16 @@ const Renderer: React.FC<TRenderer> = (props: TRenderer) => {
       <If c={!completed}>
         <Text fontSize="xs" color="gray.500">
           {text}
-          <Text as="span" fontSize="xs" color={bg}>
+          <chakra.span fontSize="xs" color={bg}>
             {time.join(':')}
-          </Text>
+          </chakra.span>
         </Text>
       </If>
     </>
   );
 };
 
-export const Countdown: React.FC<TCountdown> = (props: TCountdown) => {
+export const Countdown = (props: TCountdown): JSX.Element => {
   const { timeout, text } = props;
   const then = timeout * 1000;
   return (

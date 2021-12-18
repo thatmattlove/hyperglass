@@ -37,6 +37,6 @@ const renderers = {
   thematicBreak: Divider,
 } as ReactMarkdownProps['renderers'];
 
-export const Markdown: React.FC<TMarkdown> = (props: TMarkdown) => (
+export const Markdown = (props: TMarkdown): JSX.Element => (
   <ReactMarkdown plugins={[gfm]} renderers={renderers} source={props.content} />
 );

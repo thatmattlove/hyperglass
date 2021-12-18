@@ -15,7 +15,7 @@ import { Chart } from './chart';
 
 import type { TPath } from './types';
 
-export const Path: React.FC<TPath> = (props: TPath) => {
+export const Path = (props: TPath): JSX.Element => {
   const { device } = props;
   const displayTarget = useFormState(s => s.target.display);
   const getResponse = useFormState(s => s.response);

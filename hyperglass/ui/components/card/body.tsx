@@ -3,7 +3,7 @@ import { useColorValue } from '~/context';
 
 import type { TCardBody } from './types';
 
-export const CardBody: React.FC<TCardBody> = (props: TCardBody) => {
+export const CardBody = (props: TCardBody): JSX.Element => {
   const { onClick, ...rest } = props;
   const bg = useColorValue('white', 'dark.500');
   const color = useColorValue('dark.500', 'white');

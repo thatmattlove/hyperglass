@@ -4,7 +4,7 @@ import { Highlighted } from './highlighted';
 
 import type { TTextOutput } from './types';
 
-export const TextOutput: React.FC<TTextOutput> = (props: TTextOutput) => {
+export const TextOutput = (props: TTextOutput): JSX.Element => {
   const { children, ...rest } = props;
 
   const bg = useColorValue('blackAlpha.100', 'gray.800');

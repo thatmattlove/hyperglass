@@ -1,10 +1,10 @@
-import { Box } from '@chakra-ui/react';
+import { chakra } from '@chakra-ui/react';
 import { useColorValue } from '~/context';
 import { useOpposingColor } from '~/hooks';
 
 import type { TTableRow } from './types';
 
-export const TableRow: React.FC<TTableRow> = (props: TTableRow) => {
+export const TableRow = (props: TTableRow): JSX.Element => {
   const {
     index = 0,
     doStripe = false,
@@ -35,8 +35,7 @@ export const TableRow: React.FC<TTableRow> = (props: TTableRow) => {
   const borderProps = doHorizontalBorders && index !== 0 ? rowBorder : {};
 
   return (
-    <Box
-      as="tr"
+    <chakra.tr
       bg={bg}
       css={{ '& > td': { color } }}
       fontWeight={highlight ? 'bold' : undefined}

@@ -31,7 +31,7 @@ function useLogo(): [string, () => void] {
   return useMemo(() => [fallback ?? src, setFallback], [fallback, setFallback, src]);
 }
 
-export const Logo: React.FC<TLogo> = (props: TLogo) => {
+export const Logo = (props: TLogo): JSX.Element => {
   const { web } = useConfig();
   const { width } = web.logo;
 

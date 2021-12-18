@@ -16,7 +16,7 @@ import type { TableOptions, PluginHook } from 'react-table';
 import type { TCellRender } from '~/types';
 import type { TTable } from './types';
 
-export const Table: React.FC<TTable> = (props: TTable) => {
+export const Table = (props: TTable): JSX.Element => {
   const {
     data,
     columns,

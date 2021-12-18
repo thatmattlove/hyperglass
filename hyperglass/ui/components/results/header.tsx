@@ -14,7 +14,7 @@ const runtimeText = (runtime: number, text: string): string => {
   return `${text} ${unit}`;
 };
 
-export const ResultHeader: React.FC<TResultHeader> = (props: TResultHeader) => {
+export const ResultHeader = (props: TResultHeader): JSX.Element => {
   const { title, loading, isError, errorMsg, errorLevel, runtime } = props;
 
   const status = useColorValue('primary.500', 'primary.300');

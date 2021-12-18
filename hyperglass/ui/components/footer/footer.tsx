@@ -22,7 +22,7 @@ function buildItems(links: Link[], menus: Menu[]): [(Link | Menu)[], (Link | Men
   return [left, right];
 }
 
-export const Footer: React.FC = () => {
+export const Footer = (): JSX.Element => {
   const { web, content, primaryAsn } = useConfig();
 
   const footerBg = useColorValue('blackAlpha.50', 'whiteAlpha.100');

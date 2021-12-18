@@ -2,7 +2,7 @@ import { Heading } from '@chakra-ui/react';
 import { useConfig, useBreakpointValue } from '~/context';
 import { useTitleSize } from './useTitleSize';
 
-export const SubtitleOnly: React.FC = () => {
+export const SubtitleOnly = (): JSX.Element => {
   const { web } = useConfig();
   const sizeSm = useTitleSize(web.text.subtitle, 'sm');
   const fontSize = useBreakpointValue({ base: sizeSm, lg: 'xl' });

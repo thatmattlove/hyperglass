@@ -3,7 +3,7 @@ import { useColorValue } from '~/context';
 
 import type { TCardHeader } from './types';
 
-export const CardHeader: React.FC<TCardHeader> = (props: TCardHeader) => {
+export const CardHeader = (props: TCardHeader): JSX.Element => {
   const { children, ...rest } = props;
   const bg = useColorValue('blackAlpha.50', 'whiteAlpha.100');
   return (

@@ -7,7 +7,7 @@ import { Title } from './title';
 
 import type { THeader } from './types';
 
-export const Header: React.FC<THeader> = (props: THeader) => {
+export const Header = (props: THeader): JSX.Element => {
   const { resetForm, ...rest } = props;
 
   const status = useFormState(s => s.status);

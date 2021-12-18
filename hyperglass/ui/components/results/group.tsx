@@ -6,7 +6,7 @@ import { useFormState } from '~/hooks';
 import { Result } from './individual';
 import { Tags } from './tags';
 
-export const Results: React.FC = () => {
+export const Results = (): JSX.Element => {
   const { queryLocation } = useFormState(s => s.form);
 
   // Scroll to the top of the page when results load - primarily for mobile.
