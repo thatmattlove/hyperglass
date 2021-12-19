@@ -26,10 +26,6 @@ from hyperglass.exceptions.private import InputValidationError
 from .main import MultiModel, HyperglassModel, HyperglassUniqueModel
 from .fields import Action
 
-if t.TYPE_CHECKING:
-    # Local
-    from .config.params import Params
-
 IPv4PrefixLength = conint(ge=0, le=32)
 IPv6PrefixLength = conint(ge=0, le=128)
 IPNetwork = t.Union[IPv4Network, IPv6Network]
@@ -277,7 +273,7 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
             return [str(f) for f in matching_plugins]
         return []
 
-    def frontend(self: "Directive", params: "Params") -> t.Dict[str, t.Any]:
+    def frontend(self: "Directive") -> t.Dict[str, t.Any]:
         """Prepare a representation of the directive for the UI."""
 
         value = {
@@ -291,11 +287,7 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
 
         if self.info is not None:
             with self.info.open() as md:
-                value["info"] = {
-                    "enable": True,
-                    "params": params.content_params(),
-                    "content": md.read(),
-                }
+                value["info"] = md.read()
 
         if self.field.is_select:
             value["options"] = [o.export_dict() for o in self.field.options if o is not None]

@@ -2,7 +2,7 @@
 
 # Standard Library
 import re
-from typing import Any, Set, Dict, List, Tuple, Union, Optional
+import typing as t
 from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address
 
@@ -33,7 +33,7 @@ ALL_DEVICE_TYPES = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
 class DirectiveOptions(HyperglassModel, extra="ignore"):
     """Per-device directive options."""
 
-    builtins: Union[StrictBool, List[StrictStr]] = True
+    builtins: t.Union[StrictBool, t.List[StrictStr]] = True
 
 
 class Device(HyperglassModelWithId, extra="allow"):
@@ -41,21 +41,21 @@ class Device(HyperglassModelWithId, extra="allow"):
 
     id: StrictStr
     name: StrictStr
-    description: Optional[StrictStr]
-    avatar: Optional[FilePath]
-    address: Union[IPv4Address, IPv6Address, StrictStr]
-    group: Optional[StrictStr]
+    description: t.Optional[StrictStr]
+    avatar: t.Optional[FilePath]
+    address: t.Union[IPv4Address, IPv6Address, StrictStr]
+    group: t.Optional[StrictStr]
     credential: Credential
-    proxy: Optional[Proxy]
-    display_name: Optional[StrictStr]
+    proxy: t.Optional[Proxy]
+    display_name: t.Optional[StrictStr]
     port: StrictInt = 22
     http: HttpConfiguration = HttpConfiguration()
     platform: StrictStr
-    structured_output: Optional[StrictBool]
+    structured_output: t.Optional[StrictBool]
     directives: Directives = Directives()
-    driver: Optional[SupportedDriver]
-    driver_config: Dict[str, Any] = {}
-    attrs: Dict[str, str] = {}
+    driver: t.Optional[SupportedDriver]
+    driver_config: t.Dict[str, t.Any] = {}
+    attrs: t.Dict[str, str] = {}
 
     def __init__(self, **kw) -> None:
         """Check legacy fields and ensure an `id` is set."""
@@ -70,7 +70,7 @@ class Device(HyperglassModelWithId, extra="allow"):
         return str(self.address)
 
     @staticmethod
-    def _with_id(values: Dict) -> str:
+    def _with_id(values: t.Dict) -> str:
         """Generate device id & handle legacy display_name field."""
 
         def generate_id(name: str) -> str:
@@ -94,7 +94,7 @@ class Device(HyperglassModelWithId, extra="allow"):
 
         return {"id": device_id, "name": display_name, "display_name": None, **values}
 
-    def export_api(self) -> Dict[str, Any]:
+    def export_api(self) -> t.Dict[str, t.Any]:
         """Export API-facing device fields."""
         return {
             "id": self.id,
@@ -103,7 +103,7 @@ class Device(HyperglassModelWithId, extra="allow"):
         }
 
     @property
-    def directive_commands(self) -> List[str]:
+    def directive_commands(self) -> t.List[str]:
         """Get all commands associated with the device."""
         return [
             command
@@ -113,7 +113,7 @@ class Device(HyperglassModelWithId, extra="allow"):
         ]
 
     @property
-    def directive_ids(self) -> List[str]:
+    def directive_ids(self) -> t.List[str]:
         """Get all directive IDs associated with the device."""
         return [directive.id for directive in self.directives]
 
@@ -146,7 +146,9 @@ class Device(HyperglassModelWithId, extra="allow"):
                 )
 
     @validator("address")
-    def validate_address(cls, value, values):
+    def validate_address(
+        cls, value: t.Union[IPv4Address, IPv6Address, str], values: t.Dict[str, t.Any]
+    ) -> t.Union[IPv4Address, IPv6Address, str]:
         """Ensure a hostname is resolvable."""
 
         if not isinstance(value, (IPv4Address, IPv6Address)):
@@ -160,8 +162,8 @@ class Device(HyperglassModelWithId, extra="allow"):
 
     @validator("avatar")
     def validate_avatar(
-        cls, value: Union[FilePath, None], values: Dict[str, Any]
-    ) -> Union[FilePath, None]:
+        cls, value: t.Union[FilePath, None], values: t.Dict[str, t.Any]
+    ) -> t.Union[FilePath, None]:
         """Migrate avatar to static directory."""
         if value is not None:
             # Standard Library
@@ -181,7 +183,7 @@ class Device(HyperglassModelWithId, extra="allow"):
         return value
 
     @validator("platform", pre=True, always=True)
-    def validate_platform(cls: "Device", value: Any, values: Dict[str, Any]) -> str:
+    def validate_platform(cls: "Device", value: t.Any, values: t.Dict[str, t.Any]) -> str:
         """Validate & rewrite device platform, set default `directives`."""
 
         if value is None:
@@ -202,7 +204,7 @@ class Device(HyperglassModelWithId, extra="allow"):
         return value
 
     @validator("structured_output", pre=True, always=True)
-    def validate_structured_output(cls, value: bool, values: Dict[str, Any]) -> bool:
+    def validate_structured_output(cls, value: bool, values: t.Dict[str, t.Any]) -> bool:
         """Validate structured output is supported on the device & set a default."""
 
         if value is True:
@@ -221,7 +223,9 @@ class Device(HyperglassModelWithId, extra="allow"):
         return value
 
     @validator("directives", pre=True, always=True)
-    def validate_directives(cls: "Device", value, values) -> "Directives":
+    def validate_directives(
+        cls: "Device", value: t.Optional[t.List[str]], values: t.Dict[str, t.Any]
+    ) -> "Directives":
         """Associate directive IDs to loaded directive objects."""
         directives = use_state("directives")
 
@@ -234,7 +238,7 @@ class Device(HyperglassModelWithId, extra="allow"):
             **{
                 k: v
                 for statement in directive_ids
-                if isinstance(statement, Dict)
+                if isinstance(statement, t.Dict)
                 for k, v in statement.items()
             }
         )
@@ -253,14 +257,14 @@ class Device(HyperglassModelWithId, extra="allow"):
         if directive_options.builtins is True:
             # Add all builtins.
             device_directives += builtins
-        elif isinstance(directive_options.builtins, List):
+        elif isinstance(directive_options.builtins, t.List):
             # If the user provides a list of builtin directives to include, add only those.
             device_directives += builtins.matching(*directive_options.builtins)
 
         return device_directives
 
     @validator("driver")
-    def validate_driver(cls, value: Optional[str], values: Dict) -> Dict:
+    def validate_driver(cls: "Device", value: t.Optional[str], values: t.Dict[str, t.Any]) -> str:
         """Set the correct driver and override if supported."""
         return get_driver(values["platform"], value)
 
@@ -268,25 +272,25 @@ class Device(HyperglassModelWithId, extra="allow"):
 class Devices(MultiModel, model=Device, unique_by="id"):
     """Container for all devices."""
 
-    def __init__(self, *items: Dict[str, Any]) -> None:
+    def __init__(self: "Devices", *items: t.Dict[str, t.Any]) -> None:
         """Generate IDs prior to validation."""
         with_id = (Device._with_id(item) for item in items)
         super().__init__(*with_id)
 
-    def export_api(self) -> List[Dict[str, Any]]:
+    def export_api(self: "Devices") -> t.List[t.Dict[str, t.Any]]:
         """Export API-facing device fields."""
         return [d.export_api() for d in self]
 
-    def valid_id_or_name(self, value: str) -> bool:
+    def valid_id_or_name(self: "Devices", value: str) -> bool:
         """Determine if a value is a valid device name or ID."""
         for device in self:
             if value == device.id or value == device.name:
                 return True
         return False
 
-    def directive_plugins(self) -> Dict[Path, Tuple[StrictStr]]:
+    def directive_plugins(self: "Devices") -> t.Dict[Path, t.Tuple[StrictStr]]:
         """Get a mapping of plugin paths to associated directive IDs."""
-        result: Dict[Path, Set[StrictStr]] = {}
+        result: t.Dict[Path, t.Set[StrictStr]] = {}
         # Unique set of all directives.
         directives = {directive for device in self for directive in device.directives}
         # Unique set of all plugin file names.
@@ -301,9 +305,8 @@ class Devices(MultiModel, model=Device, unique_by="id"):
         # Convert the directive set to a tuple.
         return {k: tuple(v) for k, v in result.items()}
 
-    def frontend(self) -> List[Dict[str, Any]]:
+    def frontend(self: "Devices") -> t.List[t.Dict[str, t.Any]]:
         """Export grouped devices for UIParameters."""
-        params = use_state("params")
         groups = {device.group for device in self}
         return [
             {
@@ -317,7 +320,7 @@ class Devices(MultiModel, model=Device, unique_by="id"):
                         if device.avatar is not None
                         else None,
                         "description": device.description,
-                        "directives": [d.frontend(params) for d in device.directives],
+                        "directives": [d.frontend() for d in device.directives],
                     }
                     for device in self
                     if device.group == group

@@ -143,10 +143,6 @@ class Params(ParamsPublic, HyperglassModel):
         """Get all validated external common plugins as Path objects."""
         return tuple(Path(p) for p in self.plugins)
 
-    def content_params(self) -> Dict[str, Any]:
-        """Export content-specific parameters."""
-        return self.dict(include={"primary_asn", "org_name", "site_title", "site_description"})
-
     def frontend(self) -> Dict[str, Any]:
         """Export UI-specific parameters."""
 

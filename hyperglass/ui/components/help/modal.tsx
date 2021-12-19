@@ -11,16 +11,15 @@ import {
 } from '@chakra-ui/react';
 import { DynamicIcon, Markdown } from '~/components';
 import { useColorValue } from '~/context';
-import { isQueryContent } from '~/types';
 
 import type { THelpModal } from './types';
 
 export const HelpModal = (props: THelpModal): JSX.Element => {
-  const { visible, item, name, ...rest } = props;
+  const { visible, item, name, title, ...rest } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const bg = useColorValue('whiteSolid.50', 'blackSolid.800');
   const color = useColorValue('black', 'white');
-  if (!isQueryContent(item)) {
+  if (item === null) {
     return <></>;
   }
   return (
@@ -33,19 +32,19 @@ export const HelpModal = (props: THelpModal): JSX.Element => {
           minW={3}
           size="md"
           variant="link"
-          icon={<DynamicIcon icon={{ fi: 'FiInfo' }} />}
           onClick={onOpen}
           colorScheme="blue"
           aria-label={`${name}_help`}
+          icon={<DynamicIcon icon={{ fi: 'FiInfo' }} />}
         />
       </ScaleFade>
       <Modal isOpen={isOpen} onClose={onClose} size="xl" motionPreset="slideInRight">
         <ModalOverlay />
         <ModalContent bg={bg} color={color} py={4} borderRadius="md" {...rest}>
-          <ModalHeader>{item.params.title}</ModalHeader>
+          <ModalHeader>{title}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Markdown content={item.content} />
+            <Markdown content={item} />
           </ModalBody>
         </ModalContent>
       </Modal>

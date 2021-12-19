@@ -1,5 +1,5 @@
 import type { FormData, TStringTableData, TQueryResponseString } from './data';
-import type { QueryContent, DirectiveSelect, Directive } from './config';
+import type { DirectiveSelect, Directive } from './config';
 
 export function isString(a: unknown): a is string {
   return typeof a === 'string';
@@ -23,10 +23,6 @@ export function isStringOutput(data: unknown): data is TQueryResponseString {
   return (
     isObject(data) && 'output' in data && typeof (data as { output: unknown }).output === 'string'
   );
-}
-
-export function isQueryContent(content: unknown): content is QueryContent {
-  return isObject(content) && 'content' in content;
 }
 
 /**

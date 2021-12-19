@@ -17,14 +17,6 @@ Alignment = Union[Literal["left"], Literal["center"], Literal["right"], None]
 StructuredDataField = Tuple[str, str, Alignment]
 
 
-class UIDirectiveInfo(HyperglassModel):
-    """UI: Directive Info."""
-
-    enable: StrictBool
-    params: Dict[str, str]
-    content: StrictStr
-
-
 class UIDirective(HyperglassModel):
     """UI: Directive."""
 
@@ -33,7 +25,7 @@ class UIDirective(HyperglassModel):
     field_type: StrictStr
     groups: List[StrictStr]
     description: StrictStr
-    info: Optional[UIDirectiveInfo] = None
+    info: Optional[str] = None
     options: Optional[List[Dict[str, Any]]]
 
 

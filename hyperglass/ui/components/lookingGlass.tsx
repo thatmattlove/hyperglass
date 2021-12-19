@@ -189,9 +189,10 @@ export const LookingGlass = (): JSX.Element => {
               label={web.text.queryType}
               labelAddOn={
                 <HelpModal
-                  visible={directive?.info !== null}
-                  item={directive?.info ?? null}
                   name="queryType"
+                  title={directive?.name ?? null}
+                  item={directive?.info ?? null}
+                  visible={directive?.info !== null}
                 />
               }
             >

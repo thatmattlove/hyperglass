@@ -112,7 +112,7 @@ type _DirectiveBase = {
   field_type: 'text' | 'select' | null;
   description: string;
   groups: string[];
-  info: _QueryContent | null;
+  info: string | null;
 };
 
 type _DirectiveOption = {
@@ -134,18 +134,6 @@ interface _Device {
   avatar: string | null;
   directives: _Directive[];
   description: string | null;
-}
-
-interface _QueryContent {
-  content: string;
-  enable: boolean;
-  params: {
-    primary_asn: _Config['primary_asn'];
-    org_name: _Config['org_name'];
-    site_title: _Config['site_title'];
-    title: string;
-    [k: string]: string;
-  };
 }
 
 interface _Content {
@@ -196,7 +184,6 @@ export interface Favicon {
 export type Config = CamelCasedPropertiesDeep<_ConfigDeep> & CamelCasedProperties<_ConfigShallow>;
 export type ThemeConfig = CamelCasedProperties<_ThemeConfig>;
 export type Content = CamelCasedProperties<_Content>;
-export type QueryContent = CamelCasedPropertiesDeep<_QueryContent>;
 export type Device = CamelCasedPropertiesDeep<_Device>;
 export type DeviceGroup = CamelCasedPropertiesDeep<_DeviceGroup>;
 export type Directive = CamelCasedPropertiesDeep<_Directive>;
