@@ -7,7 +7,7 @@ import vest, { test, enforce } from 'vest';
 import {
   FormRow,
   FormField,
-  HelpModal,
+  DirectiveInfoModal,
   QueryType,
   QueryTarget,
   SubmitButton,
@@ -43,8 +43,8 @@ export const LookingGlass = (): JSX.Element => {
   const locationChange = useFormState(s => s.locationChange);
   const setTarget = useFormState(s => s.setTarget);
   const setFormValue = useFormState(s => s.setFormValue);
-  const { form, filtered } = useFormState(
-    useCallback(({ form, filtered }) => ({ form, filtered }), []),
+  const { form, filtered, selections } = useFormState(
+    useCallback(({ form, filtered, selections }) => ({ form, filtered, selections }), []),
     isEqual,
   );
 
@@ -188,12 +188,14 @@ export const LookingGlass = (): JSX.Element => {
               name="queryType"
               label={web.text.queryType}
               labelAddOn={
-                <HelpModal
-                  name="queryType"
-                  title={directive?.name ?? null}
-                  item={directive?.info ?? null}
-                  visible={directive?.info !== null}
-                />
+                directive !== null && (
+                  <DirectiveInfoModal
+                    name="queryType"
+                    title={directive.name ?? null}
+                    item={directive.info ?? null}
+                    visible={selections.queryType !== null && directive.info !== null}
+                  />
+                )
               }
             >
               <QueryType onChange={handleChange} label={web.text.queryType} />

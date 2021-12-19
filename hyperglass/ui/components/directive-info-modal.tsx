@@ -12,12 +12,19 @@ import {
 import { DynamicIcon, Markdown } from '~/components';
 import { useColorValue } from '~/context';
 
-import type { THelpModal } from './types';
+import type { ModalContentProps } from '@chakra-ui/react';
 
-export const HelpModal = (props: THelpModal): JSX.Element => {
+interface DirectiveInfoModalProps extends Omit<ModalContentProps, 'title'> {
+  title: string | null;
+  item: string | null;
+  name: string;
+  visible: boolean;
+}
+
+export const DirectiveInfoModal = (props: DirectiveInfoModalProps): JSX.Element => {
   const { visible, item, name, title, ...rest } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const bg = useColorValue('whiteSolid.50', 'blackSolid.800');
+  const bg = useColorValue('whiteSolid.50', 'blackSolid.700');
   const color = useColorValue('black', 'white');
   if (item === null) {
     return <></>;
@@ -34,11 +41,11 @@ export const HelpModal = (props: THelpModal): JSX.Element => {
           variant="link"
           onClick={onOpen}
           colorScheme="blue"
-          aria-label={`${name}_help`}
-          icon={<DynamicIcon icon={{ fi: 'FiInfo' }} />}
+          aria-label={`${title} Details`}
+          icon={<DynamicIcon icon={{ fa: 'InfoCircle' }} />}
         />
       </ScaleFade>
-      <Modal isOpen={isOpen} onClose={onClose} size="xl" motionPreset="slideInRight">
+      <Modal isOpen={isOpen} onClose={onClose} size="xl" motionPreset="scale">
         <ModalOverlay />
         <ModalContent bg={bg} color={color} py={4} borderRadius="md" {...rest}>
           <ModalHeader>{title}</ModalHeader>
