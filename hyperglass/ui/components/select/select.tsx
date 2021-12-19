@@ -26,14 +26,14 @@ import type {
   SelectInstance,
 } from 'react-select';
 import type { SingleOption } from '~/types';
-import type { TSelectBase, TSelectContext } from './types';
+import type { SelectProps, SelectContextProps } from './types';
 
-const SelectContext = createContext<TSelectContext>({} as TSelectContext);
-export const useSelectContext = (): TSelectContext => useContext(SelectContext);
+const SelectContext = createContext<SelectContextProps>({} as SelectContextProps);
+export const useSelectContext = (): SelectContextProps => useContext(SelectContext);
 
 export const Select = forwardRef(
   <Opt extends SingleOption = SingleOption, IsMulti extends boolean = boolean>(
-    props: TSelectBase<Opt, IsMulti>,
+    props: SelectProps<Opt, IsMulti>,
     ref: React.Ref<SelectInstance<Opt, IsMulti>>,
   ): JSX.Element => {
     const { options, isMulti, onSelect, isError = false, components, ...rest } = props;

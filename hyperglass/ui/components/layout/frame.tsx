@@ -6,13 +6,13 @@ import { If, Then } from 'react-if';
 import { Debugger, Greeting, Footer, Header } from '~/components';
 import { useConfig } from '~/context';
 import { useFormState } from '~/hooks';
-import { ResetButton } from './resetButton';
+import { ResetButton } from './reset-button';
 
-import type { TFrame } from './types';
+import type { FlexProps } from '@chakra-ui/react';
 
 const AnimatedFlex = motion(Flex);
 
-export const Frame = (props: TFrame): JSX.Element => {
+export const Frame = (props: FlexProps): JSX.Element => {
   const { developerMode } = useConfig();
   const { setStatus, reset } = useFormState(
     useCallback(({ setStatus, reset }) => ({ setStatus, reset }), []),

@@ -11,13 +11,24 @@ import { TableHead } from './head';
 import { TableRow } from './row';
 import { TableBody } from './body';
 import { TableIconButton } from './button';
-import { TableSelectShow } from './pageSelect';
+import { PageSelect } from './page-select';
 
 import type { TableOptions, PluginHook } from 'react-table';
-import type { TCellRender } from '~/types';
-import type { TTable } from './types';
+import type { Theme, TableColumn, CellRenderProps } from '~/types';
 
-export const Table = (props: TTable): JSX.Element => {
+interface TableProps {
+  data: Route[];
+  striped?: boolean;
+  columns: TableColumn[];
+  heading?: React.ReactNode;
+  bordersVertical?: boolean;
+  bordersHorizontal?: boolean;
+  Cell?: React.FC<CellRenderProps>;
+  rowHighlightProp?: keyof Route;
+  rowHighlightBg?: Theme.ColorNames;
+}
+
+export const Table = (props: TableProps): JSX.Element => {
   const {
     data,
     columns,
@@ -121,7 +132,7 @@ export const Table = (props: TTable): JSX.Element => {
                 {...row.getRowProps()}
               >
                 {row.cells.map((cell, i) => {
-                  const { column, row, value } = cell as TCellRender;
+                  const { column, row, value } = cell as CellRenderProps;
                   return (
                     <TableCell
                       align={cell.column.align}
@@ -164,7 +175,7 @@ export const Table = (props: TTable): JSX.Element => {
             </strong>{' '}
           </Text>
           {!isMobile && (
-            <TableSelectShow
+            <PageSelect
               value={pageSize}
               onChange={e => {
                 setPageSize(Number(e.target.value));

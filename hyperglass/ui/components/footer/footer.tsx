@@ -5,9 +5,9 @@ import { DynamicIcon } from '~/components';
 import { useConfig, useMobile, useColorValue, useBreakpointValue } from '~/context';
 import { useStrf } from '~/hooks';
 import { FooterButton } from './button';
-import { ColorModeToggle } from './colorMode';
+import { ColorModeToggle } from './color-mode';
 import { FooterLink } from './link';
-import { isLink, isMenu } from './types';
+import { isLink, isMenu } from '~/types';
 
 import type { ButtonProps, LinkProps } from '@chakra-ui/react';
 import type { Link, Menu } from '~/types';

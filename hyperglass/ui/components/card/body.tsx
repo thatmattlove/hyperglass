@@ -1,9 +1,13 @@
 import { Flex } from '@chakra-ui/react';
 import { useColorValue } from '~/context';
 
-import type { TCardBody } from './types';
+import type { FlexProps } from '@chakra-ui/react';
 
-export const CardBody = (props: TCardBody): JSX.Element => {
+interface CardBodyProps extends Omit<FlexProps, 'onClick'> {
+  onClick?: () => boolean;
+}
+
+export const CardBody = (props: CardBodyProps): JSX.Element => {
   const { onClick, ...rest } = props;
   const bg = useColorValue('white', 'dark.500');
   const color = useColorValue('dark.500', 'white');

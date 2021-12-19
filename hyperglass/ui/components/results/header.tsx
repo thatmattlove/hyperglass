@@ -4,7 +4,16 @@ import { DynamicIcon } from '~/components';
 import { useConfig, useColorValue } from '~/context';
 import { useOpposingColor, useStrf } from '~/hooks';
 
-import type { TResultHeader } from './types';
+import type { ErrorLevels } from '~/types';
+
+interface ResultHeaderProps {
+  title: string;
+  loading: boolean;
+  isError?: boolean;
+  errorMsg: string;
+  errorLevel: ErrorLevels;
+  runtime: number;
+}
 
 const runtimeText = (runtime: number, text: string): string => {
   let unit = 'seconds';
@@ -14,7 +23,7 @@ const runtimeText = (runtime: number, text: string): string => {
   return `${text} ${unit}`;
 };
 
-export const ResultHeader = (props: TResultHeader): JSX.Element => {
+export const ResultHeader = (props: ResultHeaderProps): JSX.Element => {
   const { title, loading, isError, errorMsg, errorLevel, runtime } = props;
 
   const status = useColorValue('primary.500', 'primary.300');

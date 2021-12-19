@@ -18,7 +18,10 @@ import {
 } from './elements';
 
 import type { ReactMarkdownProps } from 'react-markdown';
-import type { TMarkdown } from './types';
+
+interface MarkdownProps {
+  content: string;
+}
 
 const renderers = {
   break: Br,
@@ -37,6 +40,6 @@ const renderers = {
   thematicBreak: Divider,
 } as ReactMarkdownProps['renderers'];
 
-export const Markdown = (props: TMarkdown): JSX.Element => (
+export const Markdown = (props: MarkdownProps): JSX.Element => (
   <ReactMarkdown plugins={[gfm]} renderers={renderers} source={props.content} />
 );

@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Image, Skeleton } from '@chakra-ui/react';
 import { useColorValue, useConfig } from '~/context';
 
-import type { TLogo } from './types';
+import type { ImageProps } from '@chakra-ui/react';
 
 /**
  * Custom hook to handle loading the user's logo, errors loading the logo, and color mode changes.
@@ -31,7 +31,7 @@ function useLogo(): [string, () => void] {
   return useMemo(() => [fallback ?? src, setFallback], [fallback, setFallback, src]);
 }
 
-export const Logo = (props: TLogo): JSX.Element => {
+export const Logo = (props: ImageProps): JSX.Element => {
   const { web } = useConfig();
   const { width } = web.logo;
 

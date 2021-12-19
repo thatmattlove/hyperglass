@@ -4,11 +4,16 @@ import { isSafari } from 'react-device-detect';
 import { Switch, Case } from 'react-if';
 import { useConfig, useMobile } from '~/context';
 import { useFormState, useFormInteractive } from '~/hooks';
-import { SubtitleOnly } from './subtitleOnly';
-import { TitleOnly } from './titleOnly';
 import { Logo } from './logo';
+import { SubtitleOnly } from './subtitle-only';
+import { TitleOnly } from './title-only';
 
-import type { TTitle, TTitleWrapper, TDWrapper, TMWrapper } from './types';
+import type { FlexProps, StackProps } from '@chakra-ui/react';
+import type { MotionProps } from 'framer-motion';
+
+type DWrapperProps = Omit<StackProps, 'transition'> & MotionProps;
+type MWrapperProps = Omit<StackProps, 'transition'> & MotionProps;
+type TextOnlyProps = Partial<MotionProps & Omit<StackProps, 'transition'>>;
 
 const AnimatedVStack = motion(VStack);
 const AnimatedFlex = motion(Flex);
@@ -16,7 +21,7 @@ const AnimatedFlex = motion(Flex);
 /**
  * Title wrapper for mobile devices, breakpoints sm & md.
  */
-const MWrapper = (props: TMWrapper): JSX.Element => {
+const MWrapper = (props: MWrapperProps): JSX.Element => {
   const formInteractive = useFormInteractive();
   return (
     <AnimatedVStack
@@ -31,7 +36,7 @@ const MWrapper = (props: TMWrapper): JSX.Element => {
 /**
  * Title wrapper for desktop devices, breakpoints lg & xl.
  */
-const DWrapper = (props: TDWrapper): JSX.Element => {
+const DWrapper = (props: DWrapperProps): JSX.Element => {
   const formInteractive = useFormInteractive();
   return (
     <AnimatedVStack
@@ -50,11 +55,15 @@ const DWrapper = (props: TDWrapper): JSX.Element => {
  * Universal wrapper for title sub-components, which will be different depending on the
  * `title_mode` configuration variable.
  */
-const TitleWrapper = (props: TDWrapper | TMWrapper): JSX.Element => {
+const TitleWrapper = (props: DWrapperProps | MWrapperProps): JSX.Element => {
   const isMobile = useMobile();
   return (
     <>
-      {isMobile ? <MWrapper {...(props as TMWrapper)} /> : <DWrapper {...(props as TDWrapper)} />}
+      {isMobile ? (
+        <MWrapper {...(props as MWrapperProps)} />
+      ) : (
+        <DWrapper {...(props as DWrapperProps)} />
+      )}
     </>
   );
 };
@@ -62,7 +71,7 @@ const TitleWrapper = (props: TDWrapper | TMWrapper): JSX.Element => {
 /**
  * Title sub-component if `title_mode` is set to `text_only`.
  */
-const TextOnly = (props: TTitleWrapper): JSX.Element => {
+const TextOnly = (props: TextOnlyProps): JSX.Element => {
   return (
     <TitleWrapper {...props}>
       <TitleOnly />
@@ -104,7 +113,7 @@ const All = (): JSX.Element => (
 /**
  * Title component which renders sub-components based on the `title_mode` configuration variable.
  */
-export const Title = (props: TTitle): JSX.Element => {
+export const Title = (props: FlexProps): JSX.Element => {
   const { fontSize, ...rest } = props;
   const { web } = useConfig();
   const { titleMode } = web.text;

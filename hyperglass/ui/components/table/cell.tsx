@@ -1,9 +1,14 @@
 import { chakra } from '@chakra-ui/react';
 import { useColorValue } from '~/context';
 
-import type { TTableCell } from './types';
+import type { BoxProps } from '@chakra-ui/react';
 
-export const TableCell = (props: TTableCell): JSX.Element => {
+interface TableCellProps extends Omit<BoxProps, 'align'> {
+  bordersVertical?: [boolean, number];
+  align?: 'left' | 'right' | 'center';
+}
+
+export const TableCell = (props: TableCellProps): JSX.Element => {
   const { bordersVertical = [false, 0], align, ...rest } = props;
   const [doVerticalBorders, index] = bordersVertical;
   const borderLeftColor = useColorValue('blackAlpha.100', 'whiteAlpha.100');

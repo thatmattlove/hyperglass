@@ -21,12 +21,17 @@ import { useColorValue, useConfig, useMobile } from '~/context';
 import { useStrf, useLGQuery, useTableToString, useFormState, useDevice } from '~/hooks';
 import { isStructuredOutput, isStringOutput } from '~/types';
 import { isStackError, isFetchError, isLGError, isLGOutputOrError } from './guards';
-import { RequeryButton } from './requeryButton';
-import { CopyButton } from './copyButton';
-import { FormattedError } from './error';
+import { RequeryButton } from './requery-button';
+import { CopyButton } from './copy-button';
+import { FormattedError } from './formatted-error';
 import { ResultHeader } from './header';
 
-import type { ResultProps, TErrorLevels } from './types';
+import type { ErrorLevels } from '~/types';
+
+interface ResultProps {
+  index: number;
+  queryLocation: string;
+}
 
 const AnimatedAccordionItem = motion(AccordionItem);
 
@@ -106,7 +111,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
     }
   }, [error, data, messages.general, messages.requestTimeout]);
 
-  const errorLevel = useMemo<TErrorLevels>(() => {
+  const errorLevel = useMemo<ErrorLevels>(() => {
     const statusMap = {
       success: 'success',
       warning: 'warning',
@@ -114,7 +119,7 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
       danger: 'error',
     } as { [K in ResponseLevel]: 'success' | 'warning' | 'error' };
 
-    let e: TErrorLevels = 'error';
+    let e: ErrorLevels = 'error';
 
     if (isLGError(error)) {
       const idx = error.level as ResponseLevel;
@@ -182,103 +187,101 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
         '&:last-of-type': { borderBottom: 'none' },
       }}
     >
-      <>
-        <AccordionHeaderWrapper>
-          <AccordionButton py={2} w="unset" _hover={{}} _focus={{}} flex="1 0 auto">
-            <ResultHeader
-              isError={isError}
-              loading={isLoading}
-              errorMsg={errorMsg}
-              errorLevel={errorLevel}
-              runtime={data?.runtime ?? 0}
-              title={device.name}
-            />
-          </AccordionButton>
-          <HStack py={2} spacing={1}>
-            {isStructuredOutput(data) && data.level === 'success' && tableComponent && (
-              <Path device={device.id} />
+      <AccordionHeaderWrapper>
+        <AccordionButton py={2} w="unset" _hover={{}} _focus={{}} flex="1 0 auto">
+          <ResultHeader
+            isError={isError}
+            loading={isLoading}
+            errorMsg={errorMsg}
+            errorLevel={errorLevel}
+            runtime={data?.runtime ?? 0}
+            title={device.name}
+          />
+        </AccordionButton>
+        <HStack py={2} spacing={1}>
+          {isStructuredOutput(data) && data.level === 'success' && tableComponent && (
+            <Path device={device.id} />
+          )}
+          <CopyButton copyValue={copyValue} isDisabled={isLoading} />
+          <RequeryButton requery={refetch} isDisabled={isLoading} />
+        </HStack>
+      </AccordionHeaderWrapper>
+      <AccordionPanel
+        pb={4}
+        overflowX="auto"
+        css={{
+          WebkitOverflowScrolling: 'touch',
+          '&::-webkit-scrollbar': { height: '5px' },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: scrollbarBg,
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: scrollbar,
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            backgroundColor: scrollbarHover,
+          },
+
+          '-ms-overflow-style': { display: 'none' },
+        }}
+      >
+        <Box>
+          <Flex direction="column" flex="1 0 auto" maxW={error ? '100%' : undefined}>
+            {!isError && typeof data !== 'undefined' ? (
+              <>
+                {isStructuredOutput(data) && data.level === 'success' && tableComponent ? (
+                  <BGPTable>{data.output}</BGPTable>
+                ) : isStringOutput(data) && data.level === 'success' && !tableComponent ? (
+                  <TextOutput>{data.output}</TextOutput>
+                ) : isStringOutput(data) && data.level !== 'success' ? (
+                  <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
+                    <FormattedError message={data.output} keywords={errorKeywords} />
+                  </Alert>
+                ) : (
+                  <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
+                    <FormattedError message={errorMsg} keywords={errorKeywords} />
+                  </Alert>
+                )}
+              </>
+            ) : (
+              <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
+                <FormattedError message={errorMsg} keywords={errorKeywords} />
+              </Alert>
             )}
-            <CopyButton copyValue={copyValue} isDisabled={isLoading} />
-            <RequeryButton requery={refetch} isDisabled={isLoading} />
-          </HStack>
-        </AccordionHeaderWrapper>
-        <AccordionPanel
-          pb={4}
-          overflowX="auto"
-          css={{
-            WebkitOverflowScrolling: 'touch',
-            '&::-webkit-scrollbar': { height: '5px' },
-            '&::-webkit-scrollbar-track': {
-              backgroundColor: scrollbarBg,
-            },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: scrollbar,
-            },
-            '&::-webkit-scrollbar-thumb:hover': {
-              backgroundColor: scrollbarHover,
-            },
-
-            '-ms-overflow-style': { display: 'none' },
-          }}
-        >
-          <Box>
-            <Flex direction="column" flex="1 0 auto" maxW={error ? '100%' : undefined}>
-              {!isError && typeof data !== 'undefined' ? (
-                <>
-                  {isStructuredOutput(data) && data.level === 'success' && tableComponent ? (
-                    <BGPTable>{data.output}</BGPTable>
-                  ) : isStringOutput(data) && data.level === 'success' && !tableComponent ? (
-                    <TextOutput>{data.output}</TextOutput>
-                  ) : isStringOutput(data) && data.level !== 'success' ? (
-                    <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
-                      <FormattedError message={data.output} keywords={errorKeywords} />
-                    </Alert>
-                  ) : (
-                    <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
-                      <FormattedError message={errorMsg} keywords={errorKeywords} />
-                    </Alert>
-                  )}
-                </>
-              ) : (
-                <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
-                  <FormattedError message={errorMsg} keywords={errorKeywords} />
-                </Alert>
-              )}
-            </Flex>
-          </Box>
-
-          <Flex direction="row" flexWrap="wrap">
-            <HStack
-              px={3}
-              mt={2}
-              spacing={1}
-              flex="1 0 auto"
-              justifyContent={{ base: 'flex-start', lg: 'flex-end' }}
-            >
-              <If condition={cache.showText && !isError && isCached}>
-                <If condition={isMobile}>
-                  <Then>
-                    <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
-                    <Tooltip hasArrow label={cacheLabel} placement="top">
-                      <Box>
-                        <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
-                      </Box>
-                    </Tooltip>
-                  </Then>
-                  <Else>
-                    <Tooltip hasArrow label={cacheLabel} placement="top">
-                      <Box>
-                        <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
-                      </Box>
-                    </Tooltip>
-                    <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
-                  </Else>
-                </If>
-              </If>
-            </HStack>
           </Flex>
-        </AccordionPanel>
-      </>
+        </Box>
+
+        <Flex direction="row" flexWrap="wrap">
+          <HStack
+            px={3}
+            mt={2}
+            spacing={1}
+            flex="1 0 auto"
+            justifyContent={{ base: 'flex-start', lg: 'flex-end' }}
+          >
+            <If condition={cache.showText && !isError && isCached}>
+              <If condition={isMobile}>
+                <Then>
+                  <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
+                  <Tooltip hasArrow label={cacheLabel} placement="top">
+                    <Box>
+                      <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
+                    </Box>
+                  </Tooltip>
+                </Then>
+                <Else>
+                  <Tooltip hasArrow label={cacheLabel} placement="top">
+                    <Box>
+                      <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
+                    </Box>
+                  </Tooltip>
+                  <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
+                </Else>
+              </If>
+            </If>
+          </HStack>
+        </Flex>
+      </AccordionPanel>
     </AnimatedAccordionItem>
   );
 };

@@ -1,48 +1,4 @@
-import type { UseQueryOptions } from 'react-query';
 import type * as ReactGA from 'react-ga';
-import type { Device, TFormQuery } from '~/types';
-
-export type LGQueryKey = [string, TFormQuery];
-export type DNSQueryKey = [string, { target: string | null; family: 4 | 6 }];
-
-export type LGQueryOptions = Omit<
-  UseQueryOptions<QueryResponse, Response | QueryResponse | Error, QueryResponse, LGQueryKey>,
-  | 'queryKey'
-  | 'queryFn'
-  | 'cacheTime'
-  | 'refetchOnWindowFocus'
-  | 'refetchInterval'
-  | 'refetchOnMount'
->;
-
-export interface TOpposingOptions {
-  light?: string;
-  dark?: string;
-}
-
-export type UseDevice = (
-  /**
-   * Device's ID, e.g. the device.name field.
-   */
-  deviceId: string,
-) => Device | null;
-
-export type UseStrfArgs = { [k: string]: unknown } | string;
-
-export type TTableToStringFormatter =
-  | ((v: string) => string)
-  | ((v: number) => string)
-  | ((v: number[]) => string)
-  | ((v: string[]) => string)
-  | ((v: boolean) => string);
-
-export type TTableToStringFormatted = {
-  age: (v: number) => string;
-  active: (v: boolean) => string;
-  as_path: (v: number[]) => string;
-  communities: (v: string[]) => string;
-  rpki_state: (v: number, n: RPKIState) => string;
-};
 
 export type GAEffect = (ga: typeof ReactGA) => void;
 

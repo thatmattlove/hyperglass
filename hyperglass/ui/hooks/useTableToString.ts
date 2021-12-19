@@ -5,7 +5,20 @@ import utcPlugin from 'dayjs/plugin/utc';
 import { useConfig } from '~/context';
 import { isStructuredOutput } from '~/types';
 
-import type { TTableToStringFormatter, TTableToStringFormatted } from './types';
+type TableToStringFormatter =
+  | ((v: string) => string)
+  | ((v: number) => string)
+  | ((v: number[]) => string)
+  | ((v: string[]) => string)
+  | ((v: boolean) => string);
+
+interface TableToStringFormatted {
+  age: (v: number) => string;
+  active: (v: boolean) => string;
+  as_path: (v: number[]) => string;
+  communities: (v: string[]) => string;
+  rpki_state: (v: number, n: RPKIState) => string;
+}
 
 dayjs.extend(relativeTimePlugin);
 dayjs.extend(utcPlugin);
@@ -65,11 +78,11 @@ export function useTableToString(
     rpki_state: formatRpkiState,
   };
 
-  function isFormatted(key: string): key is keyof TTableToStringFormatted {
+  function isFormatted(key: string): key is keyof TableToStringFormatted {
     return key in tableFormatMap;
   }
 
-  function getFmtFunc(accessor: keyof Route): TTableToStringFormatter {
+  function getFmtFunc(accessor: keyof Route): TableToStringFormatter {
     if (isFormatted(accessor)) {
       return tableFormatMap[accessor];
     } else {

@@ -3,14 +3,10 @@ import { fetchWithTimeout } from '~/util';
 
 import type {
   QueryFunction,
-  QueryFunctionContext,
-  UseQueryOptions,
   UseQueryResult,
+  UseQueryOptions,
+  QueryFunctionContext,
 } from 'react-query';
-import type { WtfIsMyIP } from '~/types';
-
-const URL_IP4 = 'https://ipv4.json.myip.wtf';
-const URL_IP6 = 'https://ipv6.json.myip.wtf';
 
 interface WtfIndividual {
   ip: string;
@@ -20,6 +16,23 @@ interface WtfIndividual {
 }
 
 type Wtf = [UseQueryResult<WtfIndividual>, UseQueryResult<WtfIndividual>, () => Promise<void>];
+
+/**
+ * myip.wtf response.
+ *
+ * @see https://github.com/wtfismyip/wtfismyip
+ * @see https://wtfismyip.com/automation
+ */
+interface WtfIsMyIP {
+  YourFuckingIPAddress: string;
+  YourFuckingLocation: string;
+  YourFuckingISP: string;
+  YourFuckingTorExit: boolean;
+  YourFuckingCountryCode: string;
+}
+
+const URL_IP4 = 'https://ipv4.json.myip.wtf';
+const URL_IP6 = 'https://ipv6.json.myip.wtf';
 
 function transform(wtf: WtfIsMyIP): WtfIndividual {
   const { YourFuckingIPAddress, YourFuckingISP, YourFuckingLocation, YourFuckingCountryCode } = wtf;

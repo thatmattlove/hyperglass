@@ -9,7 +9,7 @@ import type { StateCreator } from 'zustand';
 import type { UseFormSetError, UseFormClearErrors } from 'react-hook-form';
 import type { SingleValue, MultiValue } from 'react-select';
 import type { SingleOption, Directive, FormData, Text, Device } from '~/types';
-import type { UseDevice } from './types';
+import type { UseDeviceReturn } from './useDevice';
 
 type FormStatus = 'form' | 'results';
 
@@ -74,7 +74,7 @@ interface FormStateType<Opt extends SingleOption = SingleOption> {
     extra: {
       setError: UseFormSetError<FormData>;
       clearErrors: UseFormClearErrors<FormData>;
-      getDevice: UseDevice;
+      getDevice: UseDeviceReturn;
       text: Text;
     },
   ): void;
@@ -139,7 +139,7 @@ const formState: StateCreator<FormStateType> = (set, get) => ({
     extra: {
       setError: UseFormSetError<FormData>;
       clearErrors: UseFormClearErrors<FormData>;
-      getDevice: UseDevice;
+      getDevice: UseDeviceReturn;
       text: Text;
     },
   ): void {

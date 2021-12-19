@@ -8,20 +8,47 @@ import { DynamicIcon } from '~/components';
 import { useConfig, useColorValue } from '~/context';
 import { useOpposingColor } from '~/hooks';
 
-import type {
-  TAge,
-  TActive,
-  TWeight,
-  TASPath,
-  TMonoField,
-  TRPKIState,
-  TCommunities,
-} from './types';
+import type { TextProps } from '@chakra-ui/react';
+
+interface ActiveProps {
+  isActive: boolean;
+}
+
+interface MonoFieldProps extends TextProps {
+  v: React.ReactNode;
+}
+
+interface AgeProps extends TextProps {
+  inSeconds: number;
+}
+
+interface WeightProps extends TextProps {
+  weight: number;
+  winningWeight: 'low' | 'high';
+}
+
+interface ASPathProps {
+  path: number[];
+  active: boolean;
+}
+
+interface CommunitiesProps {
+  communities: string[];
+}
+
+interface RPKIStateProps {
+  state:
+    | 0 // Invalid
+    | 1 // Valid
+    | 2 // Unknown
+    | 3; // Unverified
+  active: boolean;
+}
 
 dayjs.extend(relativeTimePlugin);
 dayjs.extend(utcPlugin);
 
-export const MonoField = (props: TMonoField): JSX.Element => {
+export const MonoField = (props: MonoFieldProps): JSX.Element => {
   const { v, ...rest } = props;
   return (
     <Text as="span" fontSize="sm" fontFamily="mono" {...rest}>
@@ -30,7 +57,7 @@ export const MonoField = (props: TMonoField): JSX.Element => {
   );
 };
 
-export const Active = (props: TActive): JSX.Element => {
+export const Active = (props: ActiveProps): JSX.Element => {
   const { isActive } = props;
   const color = useColorValue(['gray.500', 'green.500'], ['whiteAlpha.300', 'blackAlpha.500']);
   return (
@@ -45,7 +72,7 @@ export const Active = (props: TActive): JSX.Element => {
   );
 };
 
-export const Age = (props: TAge): JSX.Element => {
+export const Age = (props: AgeProps): JSX.Element => {
   const { inSeconds, ...rest } = props;
   const now = dayjs.utc();
   const then = now.subtract(inSeconds, 'second');
@@ -58,7 +85,7 @@ export const Age = (props: TAge): JSX.Element => {
   );
 };
 
-export const Weight = (props: TWeight): JSX.Element => {
+export const Weight = (props: WeightProps): JSX.Element => {
   const { weight, winningWeight, ...rest } = props;
   const fixMeText =
     winningWeight === 'low' ? 'Lower Weight is Preferred' : 'Higher Weight is Preferred';
@@ -71,7 +98,7 @@ export const Weight = (props: TWeight): JSX.Element => {
   );
 };
 
-export const ASPath = (props: TASPath): JSX.Element => {
+export const ASPath = (props: ASPathProps): JSX.Element => {
   const { path, active } = props;
   const color = useColorValue(
     // light: inactive, active
@@ -108,7 +135,7 @@ export const ASPath = (props: TASPath): JSX.Element => {
   return <>{paths}</>;
 };
 
-export const Communities = (props: TCommunities): JSX.Element => {
+export const Communities = (props: CommunitiesProps): JSX.Element => {
   const { communities } = props;
   const { web } = useConfig();
   const bg = useColorValue('white', 'gray.900');
@@ -147,8 +174,8 @@ export const Communities = (props: TCommunities): JSX.Element => {
   );
 };
 
-const _RPKIState: React.ForwardRefRenderFunction<HTMLDivElement, TRPKIState> = (
-  props: TRPKIState,
+const _RPKIState: React.ForwardRefRenderFunction<HTMLDivElement, RPKIStateProps> = (
+  props: RPKIStateProps,
   ref,
 ) => {
   const { state, active } = props;
@@ -194,4 +221,4 @@ const _RPKIState: React.ForwardRefRenderFunction<HTMLDivElement, TRPKIState> = (
   );
 };
 
-export const RPKIState = forwardRef<HTMLDivElement, TRPKIState>(_RPKIState);
+export const RPKIState = forwardRef<HTMLDivElement, RPKIStateProps>(_RPKIState);

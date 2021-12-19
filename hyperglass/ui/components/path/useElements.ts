@@ -3,7 +3,11 @@ import { useMemo } from 'react';
 import isEqual from 'react-fast-compare';
 
 import type { FlowElement } from 'react-flow-renderer';
-import type { BasePath } from './types';
+
+interface BasePath {
+  asn: string;
+  name: string;
+}
 
 const NODE_WIDTH = 200;
 const NODE_HEIGHT = 48;

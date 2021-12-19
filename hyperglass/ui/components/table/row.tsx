@@ -2,9 +2,19 @@ import { chakra } from '@chakra-ui/react';
 import { useColorValue } from '~/context';
 import { useOpposingColor } from '~/hooks';
 
-import type { TTableRow } from './types';
+import type { BoxProps } from '@chakra-ui/react';
 
-export const TableRow = (props: TTableRow): JSX.Element => {
+import type { Theme } from '~/types';
+
+interface TableRowProps extends BoxProps {
+  highlightBg?: Theme.ColorNames;
+  doHorizontalBorders?: boolean;
+  highlight?: boolean;
+  doStripe?: boolean;
+  index: number;
+}
+
+export const TableRow = (props: TableRowProps): JSX.Element => {
   const {
     index = 0,
     doStripe = false,

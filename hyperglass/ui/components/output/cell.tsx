@@ -1,8 +1,13 @@
 import { MonoField, Active, Weight, Age, Communities, RPKIState, ASPath } from './fields';
 
-import type { TCell } from './types';
+import type { CellRenderProps } from '~/types';
 
-export const Cell = (props: TCell): JSX.Element => {
+interface CellProps {
+  data: CellRenderProps;
+  rawData: StructuredResponse;
+}
+
+export const Cell = (props: CellProps): JSX.Element => {
   const { data, rawData } = props;
   const cellId = data.column.id as keyof Route;
   const component = {

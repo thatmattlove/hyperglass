@@ -1,2 +1,2 @@
-export * from './table';
-export * from './text';
+export * from './bgp-table';
+export * from './text-output';

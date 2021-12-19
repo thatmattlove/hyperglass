@@ -3,15 +3,31 @@ import { useQuery } from 'react-query';
 import { useConfig } from '~/context';
 import { fetchWithTimeout } from '~/util';
 
-import type { QueryFunction, QueryFunctionContext, QueryObserverResult } from 'react-query';
-import type { TFormQuery } from '~/types';
-import type { LGQueryKey, LGQueryOptions } from './types';
+import type {
+  QueryFunction,
+  UseQueryOptions,
+  QueryObserverResult,
+  QueryFunctionContext,
+} from 'react-query';
+import type { FormQuery } from '~/types';
+
+type LGQueryKey = [string, FormQuery];
+
+type LGQueryOptions = Omit<
+  UseQueryOptions<QueryResponse, Response | QueryResponse | Error, QueryResponse, LGQueryKey>,
+  | 'queryKey'
+  | 'queryFn'
+  | 'cacheTime'
+  | 'refetchOnWindowFocus'
+  | 'refetchInterval'
+  | 'refetchOnMount'
+>;
 
 /**
  * Custom hook handle submission of a query to the hyperglass backend.
  */
 export function useLGQuery(
-  query: TFormQuery,
+  query: FormQuery,
   options: LGQueryOptions = {} as LGQueryOptions,
 ): QueryObserverResult<QueryResponse> {
   const { requestTimeout, cache } = useConfig();

@@ -1,5 +1,5 @@
 import { Spinner } from '@chakra-ui/react';
-import { NoConfig } from './noconfig';
+import { NoConfig } from './no-config';
 
 export const Loading = (): JSX.Element => {
   return (

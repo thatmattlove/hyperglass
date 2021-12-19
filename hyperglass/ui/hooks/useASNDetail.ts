@@ -1,9 +1,18 @@
 import { useQuery } from 'react-query';
 
 import type { QueryFunctionContext, QueryObserverResult, QueryFunction } from 'react-query';
-import type { TASNQuery } from '~/types';
 
-const query: QueryFunction<TASNQuery, string> = async (ctx: QueryFunctionContext) => {
+interface ASNQuery {
+  data: {
+    asn: {
+      organization: {
+        orgName: string;
+      } | null;
+    };
+  };
+}
+
+const query: QueryFunction<ASNQuery, string> = async (ctx: QueryFunctionContext) => {
   const asn = ctx.queryKey;
   const res = await fetch('https://api.asrank.caida.org/v2/graphql', {
     mode: 'cors',
@@ -19,8 +28,8 @@ const query: QueryFunction<TASNQuery, string> = async (ctx: QueryFunctionContext
  * Query the Caida AS Rank API to get an ASN's organization name for the AS Path component.
  * @see https://api.asrank.caida.org/v2/docs
  */
-export function useASNDetail(asn: string): QueryObserverResult<TASNQuery> {
-  return useQuery<TASNQuery, unknown, TASNQuery, string>({
+export function useASNDetail(asn: string): QueryObserverResult<ASNQuery> {
+  return useQuery<ASNQuery, unknown, ASNQuery, string>({
     queryKey: asn,
     queryFn: query,
     refetchOnWindowFocus: false,

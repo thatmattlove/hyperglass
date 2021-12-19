@@ -4,7 +4,8 @@ import { fetchWithTimeout } from '~/util';
 
 import type { QueryFunction, QueryFunctionContext, QueryObserverResult } from 'react-query';
 import type { DnsOverHttps } from '~/types';
-import type { DNSQueryKey } from './types';
+
+type DNSQueryKey = [string, { target: string | null; family: 4 | 6 }];
 
 /**
  * Perform a DNS over HTTPS query using the application/dns-json MIME type.

@@ -6,9 +6,9 @@ import type { Theme, SingleOption } from '~/types';
 export type SelectOnChange<
   Opt extends SingleOption = SingleOption,
   IsMulti extends boolean = boolean,
-> = NonNullable<ReactSelect.Props<Opt, IsMulti>['onChange']>;
+> = NonNullable<Get<ReactSelect.Props<Opt, IsMulti>, 'onChange'>>;
 
-export interface TSelectBase<Opt extends SingleOption, IsMulti extends boolean>
+export interface SelectProps<Opt extends SingleOption, IsMulti extends boolean>
   extends ReactSelect.Props<Opt, IsMulti> {
   name: string;
   isMulti?: IsMulti;
@@ -18,7 +18,7 @@ export interface TSelectBase<Opt extends SingleOption, IsMulti extends boolean>
   colorScheme?: Theme.ColorNames;
 }
 
-export interface TSelectContext {
+export interface SelectContextProps {
   colorMode: 'light' | 'dark';
   isOpen: boolean;
   isError: boolean;

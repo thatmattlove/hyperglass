@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import format from 'string-format';
 
-import type { UseStrfArgs } from './types';
+type UseStrfArgs = { [k: string]: unknown } | string;
 
 /**
  * Format a string with variables, like Python's string.format()

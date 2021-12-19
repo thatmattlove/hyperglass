@@ -1,10 +1,13 @@
-import type { MotionProps } from 'framer-motion';
-
-declare global {
+export declare global {
   type Dict<T = string> = Record<string, T>;
+
   type ValueOf<T> = T[keyof T];
 
   type Nullable<T> = T | null;
+
+  type Get<T, K extends keyof T> = T[K];
+
+  type Swap<T, K extends keyof T, V> = Record<K, V> & Omit<T, K>;
 
   type RPKIState = 0 | 1 | 2 | 3;
 
@@ -45,12 +48,6 @@ declare global {
     output: string | StructuredResponse;
     format: 'text/plain' | 'application/json';
   };
-  type ReactRef<T = HTMLElement> = MutableRefObject<T>;
-
-  type Animated<T> = Omit<T, keyof MotionProps> &
-    Omit<MotionProps, keyof T> & { transition?: MotionProps['transition'] };
-
-  type MeronexIcon = import('@meronex/icons').IconBaseProps;
 
   type RequiredProps<T> = { [P in keyof T]-?: Exclude<T[P], undefined> };
 

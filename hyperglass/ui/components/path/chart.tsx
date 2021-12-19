@@ -5,9 +5,24 @@ import { useASNDetail } from '~/hooks';
 import { Controls } from './controls';
 import { useElements } from './useElements';
 
-import type { TChart, TNode, TNodeData } from './types';
+import type { NodeProps as ReactFlowNodeProps } from 'react-flow-renderer';
 
-export const Chart = (props: TChart): JSX.Element => {
+interface ChartProps {
+  data: StructuredResponse;
+}
+
+interface NodeProps<D extends unknown> extends Omit<ReactFlowNodeProps, 'data'> {
+  data: D;
+}
+
+interface NodeData {
+  asn: string;
+  name: string;
+  hasChildren: boolean;
+  hasParents?: boolean;
+}
+
+export const Chart = (props: ChartProps): JSX.Element => {
   const { data } = props;
   const { primaryAsn, orgName } = useConfig();
 
@@ -32,7 +47,7 @@ export const Chart = (props: TChart): JSX.Element => {
   );
 };
 
-const ASNode = (props: TNode<TNodeData>): JSX.Element => {
+const ASNode = (props: NodeProps<NodeData>): JSX.Element => {
   const { data } = props;
   const { asn, name, hasChildren, hasParents } = data;
 

@@ -2,19 +2,26 @@ import { useCallback, useMemo } from 'react';
 import { useConfig } from '~/context';
 
 import type { Device } from '~/types';
-import type { UseDevice } from './types';
+
+export type UseDeviceReturn = (
+  /** Device's ID, e.g. the device.name field.*/
+  deviceId: string,
+) => Nullable<Device>;
 
 /**
  * Get a device's configuration from the global configuration context based on its name.
  */
-export function useDevice(): UseDevice {
+export function useDevice(): UseDeviceReturn {
   const { devices } = useConfig();
 
-  const locations = useMemo(() => devices.map(group => group.locations).flat(), [devices]);
+  const locations = useMemo<Device[]>(
+    () => devices.map(group => group.locations).flat(),
+    [devices],
+  );
 
-  function getDevice(id: string): Device | null {
+  function getDevice(id: string): Nullable<Device> {
     return locations.find(device => device.id === id) ?? null;
   }
 
-  return useCallback(getDevice, [locations]);
+  return useCallback<UseDeviceReturn>(getDevice, [locations]);
 }

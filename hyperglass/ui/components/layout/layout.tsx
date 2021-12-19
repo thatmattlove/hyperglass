@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion';
-import { LookingGlass, Results } from '~/components';
+import { LookingGlassForm, Results } from '~/components';
 import { useView } from '~/hooks';
 import { Frame } from './frame';
 
@@ -11,7 +11,7 @@ export const Layout = (): JSX.Element => {
         <Results />
       ) : (
         <AnimatePresence>
-          <LookingGlass />
+          <LookingGlassForm />
         </AnimatePresence>
       )}
     </Frame>

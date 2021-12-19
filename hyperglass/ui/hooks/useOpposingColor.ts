@@ -2,7 +2,10 @@ import { useMemo, useCallback } from 'react';
 import { getColor, isLight } from '@chakra-ui/theme-tools';
 import { useTheme } from '~/context';
 
-import type { TOpposingOptions } from './types';
+interface OpposingColorOptions {
+  light?: string;
+  dark?: string;
+}
 
 export type UseIsDarkCallbackReturn = (color: string) => boolean;
 
@@ -37,7 +40,7 @@ export function useIsDarkCallback(): UseIsDarkCallbackReturn {
 /**
  * Determine if the foreground color for `color` should be white or black.
  */
-export function useOpposingColor(color: string, options?: TOpposingOptions): string {
+export function useOpposingColor(color: string, options?: OpposingColorOptions): string {
   const isBlack = useIsDark(color);
 
   return useMemo(() => {
@@ -49,7 +52,9 @@ export function useOpposingColor(color: string, options?: TOpposingOptions): str
   }, [isBlack, options?.dark, options?.light]);
 }
 
-export function useOpposingColorCallback(options?: TOpposingOptions): (color: string) => string {
+export function useOpposingColorCallback(
+  options?: OpposingColorOptions,
+): (color: string) => string {
   const isDark = useIsDarkCallback();
   return useCallback(
     (color: string) => {

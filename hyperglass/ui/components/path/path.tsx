@@ -10,12 +10,14 @@ import {
 } from '@chakra-ui/react';
 import { useColorValue, useBreakpointValue } from '~/context';
 import { useFormState } from '~/hooks';
-import { PathButton } from './button';
+import { PathButton } from './path-button';
 import { Chart } from './chart';
 
-import type { TPath } from './types';
+interface PathProps {
+  device: string;
+}
 
-export const Path = (props: TPath): JSX.Element => {
+export const Path = (props: PathProps): JSX.Element => {
   const { device } = props;
   const displayTarget = useFormState(s => s.target.display);
   const getResponse = useFormState(s => s.response);

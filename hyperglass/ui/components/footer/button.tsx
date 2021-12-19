@@ -4,8 +4,14 @@ import { Markdown } from '~/components';
 import { useColorValue, useBreakpointValue, useConfig } from '~/context';
 import { useOpposingColor, useStrf } from '~/hooks';
 
+import type { MenuListProps } from '@chakra-ui/react';
 import type { Config } from '~/types';
-import type { TFooterButton } from './types';
+
+interface FooterButtonProps extends Omit<MenuListProps, 'title'> {
+  side: 'left' | 'right';
+  title?: MenuListProps['children'];
+  content: string;
+}
 
 /**
  * Filter the configuration object based on values that are strings for formatting.
@@ -20,7 +26,7 @@ function getConfigFmt(config: Config): Record<string, string> {
   return fmt;
 }
 
-export const FooterButton = (props: TFooterButton): JSX.Element => {
+export const FooterButton = (props: FooterButtonProps): JSX.Element => {
   const { content, title, side, ...rest } = props;
 
   const config = useConfig();
