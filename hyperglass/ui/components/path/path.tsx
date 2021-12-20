@@ -8,8 +8,7 @@ import {
   useDisclosure,
   ModalCloseButton,
 } from '@chakra-ui/react';
-import { useColorValue, useBreakpointValue } from '~/context';
-import { useFormState } from '~/hooks';
+import { useFormState, useColorValue, useBreakpointValue } from '~/hooks';
 import { PathButton } from './path-button';
 import { Chart } from './chart';
 

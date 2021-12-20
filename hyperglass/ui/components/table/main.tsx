@@ -3,8 +3,8 @@
 import { Flex, Text } from '@chakra-ui/react';
 import { usePagination, useSortBy, useTable } from 'react-table';
 import { If, Then, Else } from 'react-if';
-import { useMobile } from '~/context';
 import { CardBody, CardFooter, CardHeader, DynamicIcon } from '~/elements';
+import { useMobile } from '~/hooks';
 import { TableMain } from './table';
 import { TableCell } from './cell';
 import { TableHead } from './head';

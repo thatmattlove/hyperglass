@@ -4,9 +4,9 @@ import dayjs from 'dayjs';
 import relativeTimePlugin from 'dayjs/plugin/relativeTime';
 import utcPlugin from 'dayjs/plugin/utc';
 import { If, Then, Else } from 'react-if';
-import { useConfig, useColorValue } from '~/context';
+import { useConfig } from '~/context';
 import { DynamicIcon } from '~/elements';
-import { useOpposingColor } from '~/hooks';
+import { useOpposingColor, useColorValue } from '~/hooks';
 
 import type { TextProps } from '@chakra-ui/react';
 

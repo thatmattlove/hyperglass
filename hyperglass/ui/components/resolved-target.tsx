@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { Button, Stack, Text, VStack } from '@chakra-ui/react';
-import { useConfig, useColorValue } from '~/context';
+import { useConfig } from '~/context';
 import { DynamicIcon } from '~/elements';
-import { useStrf, useDNSQuery, useFormState } from '~/hooks';
+import { useStrf, useColorValue, useDNSQuery, useFormState } from '~/hooks';
 
 import type { DnsOverHttps } from '~/types';
 

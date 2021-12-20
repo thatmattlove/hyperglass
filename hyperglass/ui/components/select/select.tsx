@@ -1,7 +1,7 @@
 import { createContext, forwardRef, useContext } from 'react';
 import ReactSelect from 'react-select';
 import { useDisclosure } from '@chakra-ui/react';
-import { useColorMode } from '~/context';
+import { useColorMode } from '~/hooks';
 import { Option } from './option';
 import {
   useRSTheme,

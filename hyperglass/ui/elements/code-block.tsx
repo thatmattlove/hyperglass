@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import { useColorValue } from '~/context';
+import { useColorValue } from '~/hooks';
 
 import type { BoxProps } from '@chakra-ui/react';
 

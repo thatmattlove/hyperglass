@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { Button, Stack, Text, VStack, useDisclosure } from '@chakra-ui/react';
 import { Prompt } from '~/components';
-import { useConfig, useColorValue } from '~/context';
+import { useConfig } from '~/context';
 import { DynamicIcon } from '~/elements';
-import { useStrf, useWtf } from '~/hooks';
+import { useStrf, useWtf, useColorValue } from '~/hooks';
 
 interface UserIPProps {
   setTarget(target: string): void;

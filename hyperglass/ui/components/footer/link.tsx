@@ -1,4 +1,5 @@
-import { Button, Link, useBreakpointValue } from '@chakra-ui/react';
+import { Button, Link } from '@chakra-ui/react';
+import { useBreakpointValue } from '~/hooks';
 
 import type { ButtonProps, LinkProps } from '@chakra-ui/react';
 

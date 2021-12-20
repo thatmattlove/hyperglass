@@ -3,8 +3,13 @@ import { useCallback } from 'react';
 import { useToken } from '@chakra-ui/react';
 import { mergeWith } from '@chakra-ui/utils';
 import { merge } from 'merge-anything';
-import { useOpposingColor, useOpposingColorCallback } from '~/hooks';
-import { useColorValue, useColorToken, useMobile } from '~/context';
+import {
+  useMobile,
+  useColorValue,
+  useColorToken,
+  useOpposingColor,
+  useOpposingColorCallback,
+} from '~/hooks';
 import { useSelectContext } from './select';
 
 import * as ReactSelect from 'react-select';

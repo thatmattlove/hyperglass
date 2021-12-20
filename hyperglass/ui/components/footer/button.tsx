@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { Button, Menu, MenuButton, MenuList } from '@chakra-ui/react';
-import { useColorValue, useBreakpointValue, useConfig } from '~/context';
+import { useConfig } from '~/context';
 import { Markdown } from '~/elements';
-import { useOpposingColor, useStrf } from '~/hooks';
+import { useColorValue, useBreakpointValue, useOpposingColor, useStrf } from '~/hooks';
 
 import type { MenuListProps } from '@chakra-ui/react';
 import type { Config } from '~/types';

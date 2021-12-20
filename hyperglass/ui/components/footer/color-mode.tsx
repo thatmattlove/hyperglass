@@ -1,9 +1,8 @@
 import { forwardRef } from 'react';
 import { Button, Tooltip } from '@chakra-ui/react';
 import { Switch, Case } from 'react-if';
-import { useColorMode, useColorValue, useBreakpointValue } from '~/context';
 import { DynamicIcon } from '~/elements';
-import { useOpposingColor } from '~/hooks';
+import { useOpposingColor, useColorMode, useColorValue, useBreakpointValue } from '~/hooks';
 
 import type { ButtonProps } from '@chakra-ui/react';
 

@@ -1,7 +1,6 @@
 import { Flex, ScaleFade } from '@chakra-ui/react';
-import { useBreakpointValue } from '~/context';
 import { motionChakra } from '~/elements';
-import { useBooleanValue, useFormInteractive } from '~/hooks';
+import { useBooleanValue, useFormInteractive, useBreakpointValue } from '~/hooks';
 import { Title } from './title';
 
 const Wrapper = motionChakra('header', {

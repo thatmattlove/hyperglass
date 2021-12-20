@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
-import { useTheme } from '@chakra-ui/react';
 import { useConfig } from '~/context';
+import { useTheme } from '~/hooks';
 import { googleFontUrl } from '~/util';
 
 export const Meta = (): JSX.Element => {

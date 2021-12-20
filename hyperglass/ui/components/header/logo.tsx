@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Image, Skeleton } from '@chakra-ui/react';
-import { useColorValue, useConfig } from '~/context';
+import { useConfig } from '~/context';
+import { useColorValue } from '~/hooks';
 
 import type { ImageProps } from '@chakra-ui/react';
 

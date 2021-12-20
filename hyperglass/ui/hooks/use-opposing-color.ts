@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react';
 import { getColor, isLight } from '@chakra-ui/theme-tools';
-import { useTheme } from '~/context';
+import { useTheme } from './theme-hooks';
 
 interface OpposingColorOptions {
   light?: string;

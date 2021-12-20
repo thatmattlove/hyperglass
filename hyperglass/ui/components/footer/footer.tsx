@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { Flex, HStack, useToken } from '@chakra-ui/react';
 import { If, Then } from 'react-if';
-import { useConfig, useMobile, useColorValue, useBreakpointValue } from '~/context';
+import { useConfig } from '~/context';
 import { DynamicIcon } from '~/elements';
-import { useStrf } from '~/hooks';
+import { useStrf, useMobile, useColorValue, useBreakpointValue } from '~/hooks';
 import { FooterButton } from './button';
 import { ColorModeToggle } from './color-mode';
 import { FooterLink } from './link';

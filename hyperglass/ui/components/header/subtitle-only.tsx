@@ -1,6 +1,7 @@
 import { Heading } from '@chakra-ui/react';
-import { useConfig, useBreakpointValue } from '~/context';
-import { useTitleSize } from './useTitleSize';
+import { useConfig } from '~/context';
+import { useBreakpointValue } from '~/hooks';
+import { useTitleSize } from './use-title-size';
 
 export const SubtitleOnly = (): JSX.Element => {
   const { web } = useConfig();

@@ -1,1 +1,1 @@
-export * from './HyperglassProvider';
+export * from './hyperglass-provider';

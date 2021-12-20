@@ -9,8 +9,8 @@ import {
   useDisclosure,
   ModalCloseButton,
 } from '@chakra-ui/react';
-import { useColorValue } from '~/context';
 import { DynamicIcon, Markdown } from '~/elements';
+import { useColorValue } from '~/hooks';
 
 import type { ModalContentProps } from '@chakra-ui/react';
 

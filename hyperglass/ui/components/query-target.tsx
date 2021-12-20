@@ -4,8 +4,7 @@ import { components } from 'react-select';
 import { If, Then, Else } from 'react-if';
 import { Select } from '~/components';
 import { isSingleValue } from '~/components/select';
-import { useColorValue } from '~/context';
-import { useDirective, useFormState } from '~/hooks';
+import { useColorValue, useDirective, useFormState } from '~/hooks';
 import { isSelectDirective } from '~/types';
 import { UserIP } from './user-ip';
 

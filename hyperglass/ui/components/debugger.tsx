@@ -3,18 +3,22 @@ import {
   Modal,
   HStack,
   Button,
-  useTheme,
   ModalBody,
   ModalHeader,
   ModalOverlay,
   ModalContent,
-  useColorMode,
   useDisclosure,
   ModalCloseButton,
 } from '@chakra-ui/react';
-import { useConfig, useColorValue, useBreakpointValue } from '~/context';
+import { useConfig } from '~/context';
 import { CodeBlock, DynamicIcon } from '~/elements';
-import { useHyperglassConfig } from '~/hooks';
+import {
+  useTheme,
+  useColorMode,
+  useColorValue,
+  useBreakpointValue,
+  useHyperglassConfig,
+} from '~/hooks';
 
 import type { UseDisclosureReturn } from '@chakra-ui/react';
 

@@ -1,9 +1,7 @@
 import { chakra } from '@chakra-ui/react';
-import { useColorValue } from '~/context';
-import { useOpposingColor } from '~/hooks';
+import { useColorValue, useOpposingColor } from '~/hooks';
 
 import type { BoxProps } from '@chakra-ui/react';
-
 import type { Theme } from '~/types';
 
 interface TableRowProps extends BoxProps {

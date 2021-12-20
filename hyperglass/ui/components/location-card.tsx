@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Flex, Box, Avatar, chakra } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import { useColorValue } from '~/context';
-import { useOpposingColor } from '~/hooks';
+import { Flex, Avatar, chakra } from '@chakra-ui/react';
+import { motionChakra } from '~/elements';
+import { useColorValue, useOpposingColor } from '~/hooks';
 
 import type { SingleOption } from '~/types';
 import type { LocationOption } from './query-location';
@@ -14,7 +13,21 @@ interface LocationCardProps {
   hasError: boolean;
 }
 
-const MotionBox = motion(Box);
+const LocationCardWrapper = motionChakra('div', {
+  baseStyle: {
+    py: 4,
+    px: 6,
+    w: '100%',
+    minW: 'xs',
+    maxW: 'sm',
+    mx: 'auto',
+    shadow: 'sm',
+    rounded: 'lg',
+    cursor: 'pointer',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+  },
+});
 
 export const LocationCard = (props: LocationCardProps): JSX.Element => {
   const { option, onChange, defaultChecked, hasError } = props;
@@ -51,20 +64,9 @@ export const LocationCard = (props: LocationCardProps): JSX.Element => {
     [hasError, isChecked, checkedBorder, errorBorder],
   );
   return (
-    <MotionBox
-      py={4}
-      px={6}
+    <LocationCardWrapper
       bg={bg}
-      w="100%"
-      minW="xs"
-      maxW="sm"
-      mx="auto"
-      shadow="sm"
       key={label}
-      rounded="lg"
-      cursor="pointer"
-      borderWidth="1px"
-      borderStyle="solid"
       whileHover={{ scale: 1.05 }}
       borderColor={borderColor}
       onClick={(e: React.MouseEvent) => {
@@ -101,6 +103,6 @@ export const LocationCard = (props: LocationCardProps): JSX.Element => {
           {option.data.description as string}
         </chakra.p>
       )}
-    </MotionBox>
+    </LocationCardWrapper>
   );
 };

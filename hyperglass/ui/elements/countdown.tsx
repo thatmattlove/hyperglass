@@ -1,7 +1,7 @@
 import { chakra, Text } from '@chakra-ui/react';
 import ReactCountdown, { zeroPad } from 'react-countdown';
 import { If, Then, Else } from 'react-if';
-import { useColorValue } from '~/context';
+import { useColorValue } from '~/hooks';
 
 import type { CountdownRenderProps } from 'react-countdown';
 

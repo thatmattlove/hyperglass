@@ -2,8 +2,7 @@ import { useMemo } from 'react';
 import { Flex, FormControl, FormLabel, FormErrorMessage } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { If, Then } from 'react-if';
-import { useColorValue } from '~/context';
-import { useBooleanValue } from '~/hooks';
+import { useBooleanValue, useColorValue } from '~/hooks';
 
 import type { FormControlProps } from '@chakra-ui/react';
 import type { FieldError } from 'react-hook-form';

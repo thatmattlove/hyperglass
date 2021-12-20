@@ -11,8 +11,8 @@ import {
 } from '@chakra-ui/react';
 import { If, Then } from 'react-if';
 import { Markdown } from '~/elements';
-import { useConfig, useColorValue } from '~/context';
-import { useGreeting, useOpposingColor } from '~/hooks';
+import { useConfig } from '~/context';
+import { useGreeting, useColorValue, useOpposingColor } from '~/hooks';
 
 import type { ModalContentProps } from '@chakra-ui/react';
 

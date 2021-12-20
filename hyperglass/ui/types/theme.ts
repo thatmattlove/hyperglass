@@ -12,7 +12,8 @@ export namespace Theme {
 
   export type FontWeights = Partial<ChakraTheme['fontWeights']>;
 
-  export interface Full extends Omit<ChakraTheme, 'colors'> {
+  export interface Full extends Omit<ChakraTheme, 'colors' | 'fonts'> {
     colors: Colors;
+    fonts: Fonts;
   }
 }

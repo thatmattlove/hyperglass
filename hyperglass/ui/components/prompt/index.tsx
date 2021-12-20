@@ -1,4 +1,4 @@
-import { useMobile } from '~/context';
+import { useMobile } from '~/hooks';
 import { DesktopPrompt } from './desktop';
 import { MobilePrompt } from './mobile';
 

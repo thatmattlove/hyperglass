@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { If, Then, Else } from 'react-if';
 import { CodeBlock as CustomCodeBlock } from '~/elements';
-import { useColorValue } from '~/context';
+import { useColorValue } from '~/hooks';
 
 import type {
   BoxProps,

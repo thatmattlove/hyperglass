@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { AccordionIcon, Box, Spinner, HStack, Text, Tooltip } from '@chakra-ui/react';
-import { useConfig, useColorValue } from '~/context';
+import { useConfig } from '~/context';
 import { DynamicIcon } from '~/elements';
-import { useOpposingColor, useStrf } from '~/hooks';
+import { useColorValue, useOpposingColor, useStrf } from '~/hooks';
 
 import type { ErrorLevels } from '~/types';
 

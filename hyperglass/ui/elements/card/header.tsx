@@ -1,5 +1,5 @@
 import { Flex, Text } from '@chakra-ui/react';
-import { useColorValue } from '~/context';
+import { useColorValue } from '~/hooks';
 
 import type { FlexProps } from '@chakra-ui/react';
 

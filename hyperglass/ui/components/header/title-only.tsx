@@ -1,7 +1,7 @@
 import { Heading } from '@chakra-ui/react';
 import { useConfig } from '~/context';
 import { useBooleanValue, useFormInteractive } from '~/hooks';
-import { useTitleSize } from './useTitleSize';
+import { useTitleSize } from './use-title-size';
 
 export const TitleOnly = (): JSX.Element => {
   const { web } = useConfig();

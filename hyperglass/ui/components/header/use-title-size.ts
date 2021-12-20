@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useToken } from '@chakra-ui/react';
-import { useMobile } from '~/context';
+import { useMobile } from '~/hooks';
 
 // Mobile:
 // xs: 32

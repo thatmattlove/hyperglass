@@ -1,5 +1,5 @@
 import { Modal, ModalBody, ModalOverlay, ModalContent, ModalCloseButton } from '@chakra-ui/react';
-import { useColorValue } from '~/context';
+import { useColorValue } from '~/hooks';
 
 import type { PromptProps } from './types';
 

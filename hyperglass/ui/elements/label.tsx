@@ -1,7 +1,6 @@
 import { forwardRef } from 'react';
 import { Flex } from '@chakra-ui/react';
-import { useColorValue } from '~/context';
-import { useOpposingColor } from '~/hooks';
+import { useColorValue, useOpposingColor } from '~/hooks';
 
 import type { FlexProps } from '@chakra-ui/react';
 

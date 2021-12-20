@@ -17,9 +17,17 @@ import startCase from 'lodash/startCase';
 import isEqual from 'react-fast-compare';
 import { If, Then, Else } from 'react-if';
 import { BGPTable, Path, TextOutput } from '~/components';
-import { useColorValue, useConfig, useMobile } from '~/context';
+import { useConfig } from '~/context';
 import { Countdown, DynamicIcon } from '~/elements';
-import { useStrf, useLGQuery, useTableToString, useFormState, useDevice } from '~/hooks';
+import {
+  useStrf,
+  useDevice,
+  useMobile,
+  useLGQuery,
+  useFormState,
+  useColorValue,
+  useTableToString,
+} from '~/hooks';
 import { isStructuredOutput, isStringOutput } from '~/types';
 import { isStackError, isFetchError, isLGError, isLGOutputOrError } from './guards';
 import { RequeryButton } from './requery-button';
