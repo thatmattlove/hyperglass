@@ -42,13 +42,9 @@ const query: QueryFunction<DnsOverHttps.Response, DNSQueryKey> = async (
  * an A record will be queried. If `family` is `6`, only a AAAA record will be queried.
  */
 export function useDNSQuery(
-  /**
-   * Hostname for DNS query.
-   */
+  /** Hostname for DNS query. */
   target: string | null,
-  /**
-   * Address family, e.g. IPv4 or IPv6.
-   */
+  /** Address family, e.g. IPv4 or IPv6. */
   family: 4 | 6,
 ): QueryObserverResult<DnsOverHttps.Response> {
   const { cache, web } = useConfig();

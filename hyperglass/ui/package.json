@@ -55,7 +55,8 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^12.1.0",
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/react-hooks": "^7.0.2",
     "@testing-library/user-event": "^13.5.0",
     "@types/dagre": "^0.7.44",
     "@types/express": "^4.17.13",
@@ -80,6 +81,7 @@
     "express": "^4.17.1",
     "http-proxy-middleware": "0.20.0",
     "identity-obj-proxy": "^3.0.0",
+    "isomorphic-fetch": "^3.0.0",
     "jest": "^27.2.1",
     "prettier": "^2.3.2",
     "prettier-eslint": "^13.0.0",
