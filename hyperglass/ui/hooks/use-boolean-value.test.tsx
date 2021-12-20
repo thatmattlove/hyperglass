@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
-import { useBooleanValue } from './useBooleanValue';
+import { useBooleanValue } from './use-boolean-value';
 
 const VALUE_IF_TRUE = 'Is True';
 const VALUE_IF_FALSE = 'Is False';

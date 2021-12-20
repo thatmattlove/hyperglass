@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useGreeting } from './useGreeting';
+import { useGreeting } from './use-greeting';
 
 const TRUE = JSON.stringify(true);
 const FALSE = JSON.stringify(false);

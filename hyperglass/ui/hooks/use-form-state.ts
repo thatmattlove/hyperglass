@@ -9,7 +9,7 @@ import type { StateCreator } from 'zustand';
 import type { UseFormSetError, UseFormClearErrors } from 'react-hook-form';
 import type { SingleValue, MultiValue } from 'react-select';
 import type { SingleOption, Directive, FormData, Text, Device } from '~/types';
-import type { UseDeviceReturn } from './useDevice';
+import type { UseDeviceReturn } from './use-device';
 
 type FormStatus = 'form' | 'results';
 

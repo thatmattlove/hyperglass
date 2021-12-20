@@ -1,7 +1,6 @@
-import {} from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { useDevice } from './useDevice';
+import { useDevice } from './use-device';
 import { HyperglassContext } from '~/context';
 
 import type { DeviceGroup, Config } from '~/types';

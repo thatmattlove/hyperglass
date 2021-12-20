@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { useStrf } from './useStrf';
+import { useStrf } from './use-strf';
 
 const TEMPLATE = 'Testing {name} hook';
 const OBJECT = { name: 'useStrf' };
