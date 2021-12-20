@@ -29,7 +29,7 @@ export function isStringOutput(data: unknown): data is StringQueryResponse {
  * Determine if a form field name is a valid form key name.
  */
 export function isQueryField(field: string): field is keyof FormData {
-  return ['queryLocation', 'queryType', 'queryGroup', 'queryTarget'].includes(field);
+  return ['queryLocation', 'queryType', 'queryTarget'].includes(field);
 }
 
 /**

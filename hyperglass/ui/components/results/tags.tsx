@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { Box, Stack, useToken } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Label } from '~/components';
 import { useConfig, useBreakpointValue } from '~/context';
+import { Label } from '~/elements';
 import { useFormState } from '~/hooks';
 
 import type { Transition } from 'framer-motion';

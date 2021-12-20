@@ -5,7 +5,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { vestResolver } from '@hookform/resolvers/vest';
 import vest, { test, enforce } from 'vest';
 import {
-  FormRow,
   FormField,
   DirectiveInfoModal,
   QueryType,
@@ -14,6 +13,7 @@ import {
   QueryLocation,
 } from '~/components';
 import { useConfig } from '~/context';
+import { FormRow } from '~/elements';
 import { useStrf, useGreeting, useDevice, useFormState } from '~/hooks';
 import { isString, isQueryField, Directive } from '~/types';
 

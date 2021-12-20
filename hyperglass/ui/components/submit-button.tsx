@@ -15,8 +15,9 @@ import {
 } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { If, Then, Else } from 'react-if';
-import { DynamicIcon, ResolvedTarget } from '~/components';
+import { ResolvedTarget } from '~/components';
 import { useMobile, useColorValue } from '~/context';
+import { DynamicIcon } from '~/elements';
 import { useFormState } from '~/hooks';
 
 import type { IconButtonProps } from '@chakra-ui/react';

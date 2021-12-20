@@ -1,18 +1,29 @@
 import { useCallback, useRef } from 'react';
 import { Flex } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
 import { isSafari } from 'react-device-detect';
 import { If, Then } from 'react-if';
-import { Debugger, Greeting, Footer, Header } from '~/components';
+import { Debugger, Greeting, Footer, Header, ResetButton } from '~/components';
 import { useConfig } from '~/context';
+import { motionChakra } from '~/elements';
 import { useFormState } from '~/hooks';
-import { ResetButton } from './reset-button';
 
 import type { FlexProps } from '@chakra-ui/react';
 
-const AnimatedFlex = motion(Flex);
+const Main = motionChakra('main', {
+  baseStyle: {
+    px: 4,
+    py: 0,
+    w: '100%',
+    display: 'flex',
+    flex: '1 1 auto',
+    flexDir: 'column',
+    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'start',
+  },
+});
 
-export const Frame = (props: FlexProps): JSX.Element => {
+export const Layout = (props: FlexProps): JSX.Element => {
   const { developerMode } = useConfig();
   const { setStatus, reset } = useFormState(
     useCallback(({ setStatus, reset }) => ({ setStatus, reset }), []),
@@ -42,24 +53,15 @@ export const Frame = (props: FlexProps): JSX.Element => {
         minHeight={isSafari ? '-webkit-fill-available' : '100vh'}
       >
         <Header />
-        <AnimatedFlex
+        <Main
           layout
-          px={4}
-          py={0}
-          w="100%"
-          as="main"
-          flex="1 1 auto"
-          flexDir="column"
-          textAlign="center"
-          alignItems="center"
-          justifyContent="start"
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           exit={{ opacity: 0, x: -300 }}
           initial={{ opacity: 0, y: 300 }}
         >
           {props.children}
-        </AnimatedFlex>
+        </Main>
         <Footer />
         <If condition={developerMode}>
           <Then>

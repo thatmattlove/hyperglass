@@ -1,6 +1,6 @@
 import fs from 'fs';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
-import { Favicon, CustomJavascript, CustomHtml } from '~/components';
+import { CustomJavascript, CustomHtml, Favicon } from '~/elements';
 import favicons from '../favicon-formats';
 
 import type { DocumentContext, DocumentInitialProps } from 'next/document';

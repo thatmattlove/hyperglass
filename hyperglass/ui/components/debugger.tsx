@@ -13,7 +13,7 @@ import {
   ModalCloseButton,
 } from '@chakra-ui/react';
 import { useConfig, useColorValue, useBreakpointValue } from '~/context';
-import { CodeBlock, DynamicIcon } from '~/components';
+import { CodeBlock, DynamicIcon } from '~/elements';
 import { useHyperglassConfig } from '~/hooks';
 
 import type { UseDisclosureReturn } from '@chakra-ui/react';

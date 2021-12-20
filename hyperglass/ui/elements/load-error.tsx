@@ -7,7 +7,7 @@ import {
   AlertTitle,
   AlertDescription,
 } from '@chakra-ui/react';
-import { NoConfig } from './no-config';
+import { NoConfig } from '~/elements';
 
 import type { CenterProps } from '@chakra-ui/react';
 import type { ConfigLoadError } from '~/util';

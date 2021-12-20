@@ -10,7 +10,7 @@ import {
   ModalCloseButton,
 } from '@chakra-ui/react';
 import { If, Then } from 'react-if';
-import { Markdown } from '~/components';
+import { Markdown } from '~/elements';
 import { useConfig, useColorValue } from '~/context';
 import { useGreeting, useOpposingColor } from '~/hooks';
 

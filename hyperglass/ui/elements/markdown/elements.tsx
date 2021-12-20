@@ -18,7 +18,7 @@ import {
   ListItem as ChakraListItem,
 } from '@chakra-ui/react';
 import { If, Then, Else } from 'react-if';
-import { CodeBlock as CustomCodeBlock } from '~/components';
+import { CodeBlock as CustomCodeBlock } from '~/elements';
 import { useColorValue } from '~/context';
 
 import type {

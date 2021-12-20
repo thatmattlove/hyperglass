@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Button, Stack, Text, VStack, useDisclosure } from '@chakra-ui/react';
-import { DynamicIcon, Prompt } from '~/components';
+import { Prompt } from '~/components';
 import { useConfig, useColorValue } from '~/context';
+import { DynamicIcon } from '~/elements';
 import { useStrf, useWtf } from '~/hooks';
 
 interface UserIPProps {

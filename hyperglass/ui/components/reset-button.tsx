@@ -1,7 +1,7 @@
 import { Flex, IconButton } from '@chakra-ui/react';
 import { AnimatePresence } from 'framer-motion';
-import { AnimatedDiv, DynamicIcon } from '~/components';
 import { useColorValue } from '~/context';
+import { AnimatedDiv, DynamicIcon } from '~/elements';
 import { useOpposingColor, useFormState } from '~/hooks';
 
 import type { FlexProps } from '@chakra-ui/react';

@@ -1,5 +1,5 @@
 import { Button, Tooltip } from '@chakra-ui/react';
-import { DynamicIcon } from '~/components';
+import { DynamicIcon } from '~/elements';
 
 interface PathButtonProps {
   onOpen(): void;

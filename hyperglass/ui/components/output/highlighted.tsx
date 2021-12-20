@@ -45,13 +45,7 @@ const _Highlighted = (props: HighlightedProps): JSX.Element => {
     times++;
   }
 
-  return (
-    <>
-      {result.map(r => (
-        <>{r}</>
-      ))}
-    </>
-  );
+  return <>{result}</>;
 };
 
 export const Highlighted = memo(_Highlighted, isEqual);

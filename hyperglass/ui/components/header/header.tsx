@@ -1,6 +1,6 @@
 import { Flex, ScaleFade } from '@chakra-ui/react';
-import { motionChakra } from '~/components';
 import { useBreakpointValue } from '~/context';
+import { motionChakra } from '~/elements';
 import { useBooleanValue, useFormInteractive } from '~/hooks';
 import { Title } from './title';
 

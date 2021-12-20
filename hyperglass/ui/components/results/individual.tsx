@@ -16,8 +16,9 @@ import { motion } from 'framer-motion';
 import startCase from 'lodash/startCase';
 import isEqual from 'react-fast-compare';
 import { If, Then, Else } from 'react-if';
-import { BGPTable, Countdown, DynamicIcon, Path, TextOutput } from '~/components';
+import { BGPTable, Path, TextOutput } from '~/components';
 import { useColorValue, useConfig, useMobile } from '~/context';
+import { Countdown, DynamicIcon } from '~/elements';
 import { useStrf, useLGQuery, useTableToString, useFormState, useDevice } from '~/hooks';
 import { isStructuredOutput, isStringOutput } from '~/types';
 import { isStackError, isFetchError, isLGError, isLGOutputOrError } from './guards';
@@ -227,8 +228,8 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
       >
         <Box>
           <Flex direction="column" flex="1 0 auto" maxW={error ? '100%' : undefined}>
-            {!isError && typeof data !== 'undefined' ? (
-              <>
+            <If condition={!isError && typeof data !== 'undefined'}>
+              <Then>
                 {isStructuredOutput(data) && data.level === 'success' && tableComponent ? (
                   <BGPTable>{data.output}</BGPTable>
                 ) : isStringOutput(data) && data.level === 'success' && !tableComponent ? (
@@ -242,12 +243,13 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
                     <FormattedError message={errorMsg} keywords={errorKeywords} />
                   </Alert>
                 )}
-              </>
-            ) : (
-              <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
-                <FormattedError message={errorMsg} keywords={errorKeywords} />
-              </Alert>
-            )}
+              </Then>
+              <Else>
+                <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
+                  <FormattedError message={errorMsg} keywords={errorKeywords} />
+                </Alert>
+              </Else>
+            </If>
           </Flex>
         </Box>
 
@@ -260,24 +262,26 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
             justifyContent={{ base: 'flex-start', lg: 'flex-end' }}
           >
             <If condition={cache.showText && !isError && isCached}>
-              <If condition={isMobile}>
-                <Then>
-                  <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
-                  <Tooltip hasArrow label={cacheLabel} placement="top">
-                    <Box>
-                      <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
-                    </Box>
-                  </Tooltip>
-                </Then>
-                <Else>
-                  <Tooltip hasArrow label={cacheLabel} placement="top">
-                    <Box>
-                      <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
-                    </Box>
-                  </Tooltip>
-                  <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
-                </Else>
-              </If>
+              <Then>
+                <If condition={isMobile}>
+                  <Then>
+                    <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
+                    <Tooltip hasArrow label={cacheLabel} placement="top">
+                      <Box>
+                        <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
+                      </Box>
+                    </Tooltip>
+                  </Then>
+                  <Else>
+                    <Tooltip hasArrow label={cacheLabel} placement="top">
+                      <Box>
+                        <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
+                      </Box>
+                    </Tooltip>
+                    <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
+                  </Else>
+                </If>
+              </Then>
             </If>
           </HStack>
         </Flex>

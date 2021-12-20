@@ -1,5 +1,5 @@
 import { Button, Tooltip, useClipboard } from '@chakra-ui/react';
-import { DynamicIcon } from '~/components';
+import { DynamicIcon } from '~/elements';
 
 import type { ButtonProps } from '@chakra-ui/react';
 

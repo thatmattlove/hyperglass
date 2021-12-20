@@ -1,37 +1,36 @@
 import dynamic from 'next/dynamic';
-import { Switch, Case, Default } from 'react-if';
-import { Meta, Loading, LoadError } from '~/components';
-import { HyperglassProvider } from '~/context';
-import { useHyperglassConfig } from '~/hooks';
+import { If, Then, Else } from 'react-if';
+import { Loading } from '~/elements';
+import { useView } from '~/hooks';
 
 import type { NextPage } from 'next';
+import type { AnimatePresenceProps } from 'framer-motion';
 
-const Layout = dynamic<Dict>(() => import('~/components').then(i => i.Layout), {
+const AnimatePresence = dynamic<AnimatePresenceProps>(() =>
+  import('framer-motion').then(i => i.AnimatePresence),
+);
+
+const LookingGlassForm = dynamic<Dict>(() => import('~/components').then(i => i.LookingGlassForm), {
+  loading: Loading,
+});
+
+const Results = dynamic<Dict>(() => import('~/components').then(i => i.Results), {
   loading: Loading,
 });
 
 const Index: NextPage = () => {
-  const { data, error, isLoading, ready, refetch, showError, isLoadingInitial } =
-    useHyperglassConfig();
-
+  const view = useView();
   return (
-    <Switch>
-      <Case condition={isLoadingInitial}>
-        <Loading />
-      </Case>
-      <Case condition={showError}>
-        <LoadError error={error!} retry={refetch} inProgress={isLoading} />
-      </Case>
-      <Case condition={ready}>
-        <HyperglassProvider config={data!}>
-          <Meta />
-          <Layout />
-        </HyperglassProvider>
-      </Case>
-      <Default>
-        <LoadError error={error!} retry={refetch} inProgress={isLoading} />
-      </Default>
-    </Switch>
+    <If condition={view === 'results'}>
+      <Then>
+        <Results />
+      </Then>
+      <Else>
+        <AnimatePresence>
+          <LookingGlassForm />
+        </AnimatePresence>
+      </Else>
+    </If>
   );
 };
 

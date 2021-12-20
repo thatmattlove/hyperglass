@@ -10,6 +10,8 @@
       "~/components/*": ["components/*"],
       "~/context": ["context/index"],
       "~/context/*": ["context/*"],
+      "~/elements": ["elements/index"],
+      "~/elements/*": ["elements/*"],
       "~/hooks": ["hooks/index"],
       "~/hooks/*": ["hooks/*"],
       "~/state": ["state/index"],

@@ -1,24 +1,19 @@
-export * from './animated';
-export * from './card';
-export * from './code-block';
-export * from './countdown';
-export * from './custom';
+/**
+ * The components directory contains React components that handle logic.
+ *
+ * Generally, components that call hooks or reference configuration, or API types should be in
+ * components.
+ */
+
 export * from './debugger';
 export * from './directive-info-modal';
-export * from './dynamic-icon';
-export * from './favicon';
 export * from './footer';
 export * from './form-field';
-export * from './form-row';
 export * from './greeting';
 export * from './header';
-export * from './label';
 export * from './layout';
-export * from './load-error';
-export * from './loading';
 export * from './location-card';
 export * from './looking-glass-form';
-export * from './markdown';
 export * from './meta';
 export * from './output';
 export * from './path';
@@ -26,6 +21,7 @@ export * from './prompt';
 export * from './query-location';
 export * from './query-target';
 export * from './query-type';
+export * from './reset-button';
 export * from './resolved-target';
 export * from './results';
 export * from './select';

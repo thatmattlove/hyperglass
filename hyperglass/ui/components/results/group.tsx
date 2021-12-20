@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Accordion } from '@chakra-ui/react';
 import { AnimatePresence } from 'framer-motion';
-import { AnimatedDiv } from '~/components';
+import { AnimatedDiv } from '~/elements';
 import { useFormState } from '~/hooks';
 import { Result } from './individual';
 import { Tags } from './tags';
