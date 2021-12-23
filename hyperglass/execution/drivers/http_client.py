@@ -8,12 +8,7 @@ import httpx
 
 # Project
 from hyperglass.util import get_fmt_keys
-from hyperglass.exceptions.public import (
-    AuthError,
-    RestError,
-    DeviceTimeout,
-    ResponseEmpty,
-)
+from hyperglass.exceptions.public import AuthError, RestError, DeviceTimeout, ResponseEmpty
 
 # Local
 from ._common import Connection

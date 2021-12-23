@@ -9,11 +9,7 @@ from hyperglass.log import log
 from hyperglass.util import run_coroutine_in_new_thread
 from hyperglass.settings import Settings
 from hyperglass.constants import CONFIG_EXTENSIONS
-from hyperglass.exceptions.private import (
-    ConfigError,
-    ConfigMissing,
-    ConfigLoaderMissing,
-)
+from hyperglass.exceptions.private import ConfigError, ConfigMissing, ConfigLoaderMissing
 
 LoadedConfig = t.Union[t.Dict[str, t.Any], t.List[t.Any], t.Tuple[t.Any, ...]]
 

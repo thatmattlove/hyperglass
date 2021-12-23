@@ -6,14 +6,7 @@ from pathlib import Path
 from ipaddress import ip_address
 
 # Third Party
-from pydantic import (
-    RedisDsn,
-    SecretStr,
-    BaseSettings,
-    DirectoryPath,
-    IPvAnyAddress,
-    validator,
-)
+from pydantic import RedisDsn, SecretStr, BaseSettings, DirectoryPath, IPvAnyAddress, validator
 
 # Project
 from hyperglass.util import at_least, cpu_count

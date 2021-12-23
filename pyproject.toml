@@ -82,6 +82,21 @@ taskipy = "^1.8.2"
 [tool.black]
 line-length = 100
 
+[tool.isort]
+balanced_wrapping = true
+force_single_line = false
+import_heading_firstparty = "Project"
+import_heading_localfolder = "Local"
+import_heading_stdlib = "Standard Library"
+import_heading_thirdparty = "Third Party"
+include_trailing_comma = true
+indent = '    '
+known_third_party = ["starlette", "fastapi", "inquirer"]
+length_sort = true
+line_length = 100
+multi_line_output = 3
+skip_glob = "hyperglass/api/examples/*.py"
+
 [tool.pyright]
 exclude = ["**/node_modules", "**/ui", "**/__pycache__"]
 include = ["hyperglass"]

@@ -5,13 +5,7 @@ from hyperglass.state import use_state
 from hyperglass.defaults.directives import init_builtin_directives
 
 # Local
-from .validate import (
-    init_files,
-    init_params,
-    init_devices,
-    init_ui_params,
-    init_directives,
-)
+from .validate import init_files, init_params, init_devices, init_ui_params, init_directives
 
 __all__ = ("init_user_config",)
 

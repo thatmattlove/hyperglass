@@ -14,11 +14,7 @@ from hyperglass.log import log
 from hyperglass.util import snake_to_camel, repr_from_attrs
 from hyperglass.state import use_state
 from hyperglass.plugins import InputPluginManager
-from hyperglass.exceptions.public import (
-    InputInvalid,
-    QueryTypeNotFound,
-    QueryLocationNotFound,
-)
+from hyperglass.exceptions.public import InputInvalid, QueryTypeNotFound, QueryLocationNotFound
 from hyperglass.exceptions.private import InputValidationError
 
 # Local

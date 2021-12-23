@@ -6,15 +6,7 @@ import typing as t
 from ipaddress import IPv4Network, IPv6Network, ip_network
 
 # Third Party
-from pydantic import (
-    Field,
-    FilePath,
-    StrictStr,
-    StrictBool,
-    PrivateAttr,
-    conint,
-    validator,
-)
+from pydantic import Field, FilePath, StrictStr, StrictBool, PrivateAttr, conint, validator
 
 # Project
 from hyperglass.log import log
