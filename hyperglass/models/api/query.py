@@ -22,13 +22,15 @@ from ..config.devices import Device
 
 (TEXT := use_state("params").web.text)
 
+QueryTarget = constr(strip_whitespace=True, min_length=1)
+
 
 class Query(BaseModel):
     """Validation model for input query parameters."""
 
     query_location: StrictStr  # Device `name` field
     query_type: StrictStr  # Directive `id` field
-    query_target: constr(strip_whitespace=True, min_length=1)
+    query_target: t.Union[t.List[QueryTarget], QueryTarget]
 
     class Config:
         """Pydantic model configuration."""
