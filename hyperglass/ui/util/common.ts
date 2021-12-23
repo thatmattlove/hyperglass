@@ -124,3 +124,23 @@ export function andJoin(values: string[], options?: AndJoinOptions): string {
   }
   return last;
 }
+
+/**
+ * Determine if an input value is an FQDN string.
+ *
+ * @param value Input value.
+ */
+export function isFQDN(value: unknown): value is string {
+  /**
+   * Don't set the global flag on this.
+   * @see https://stackoverflow.com/questions/24084926/javascript-regexp-cant-use-twice
+   *
+   * TLDR: the test() will pass the first time, but not the second. In React Strict Mode & in a dev
+   * environment, this will mean isFqdn will be true the first time, then false the second time,
+   * submitting the FQDN to hyperglass the second time.
+   */
+  const pattern = new RegExp(
+    /^(?!:\/\/)([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z-]{2,6}?$/im,
+  );
+  return typeof value === 'string' && pattern.test(value);
+}

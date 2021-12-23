@@ -15,21 +15,10 @@ import {
 import { useConfig } from '~/context';
 import { FormRow } from '~/elements';
 import { useStrf, useGreeting, useDevice, useFormState } from '~/hooks';
+import { isFQDN } from '~/util';
 import { isString, isQueryField, Directive } from '~/types';
 
 import type { FormData, OnChangeArgs } from '~/types';
-
-/**
- * Don't set the global flag on this.
- * @see https://stackoverflow.com/questions/24084926/javascript-regexp-cant-use-twice
- *
- * TLDR: the test() will pass the first time, but not the second. In React Strict Mode & in a dev
- * environment, this will mean isFqdn will be true the first time, then false the second time,
- * submitting the FQDN to hyperglass the second time.
- */
-const fqdnPattern = new RegExp(
-  /^(?!:\/\/)([a-zA-Z0-9-]+\.)?[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z-]{2,6}?$/im,
-);
 
 export const LookingGlassForm = (): JSX.Element => {
   const { web, messages } = useConfig();
@@ -84,7 +73,7 @@ export const LookingGlassForm = (): JSX.Element => {
   // const isFqdnQuery = useIsFqdn(form.queryTarget, form.queryType);
   const isFqdnQuery = useCallback(
     (target: string, fieldType: Directive['fieldType'] | null): boolean =>
-      fieldType === 'text' && fqdnPattern.test(target),
+      fieldType === 'text' && isFQDN(target),
     [],
   );
 
