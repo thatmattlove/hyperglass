@@ -9,7 +9,6 @@ from socket import gaierror
 
 # Third Party
 import httpx
-from httpx import StatusCode
 
 # Project
 from hyperglass.log import log
@@ -244,7 +243,7 @@ class BaseExternal:
             response = await self._asession.request(**request)
 
             if response.status_code not in range(200, 300):
-                status = StatusCode(response.status_code)
+                status = httpx.codes(response.status_code)
                 error = self._parse_response(response)
                 raise self._exception(
                     f'{status.name.replace("_", " ")}: {error}', level="danger"
@@ -300,7 +299,7 @@ class BaseExternal:
             response = self._session.request(**request)
 
             if response.status_code not in range(200, 300):
-                status = StatusCode(response.status_code)
+                status = httpx.codes(response.status_code)
                 error = self._parse_response(response)
                 raise self._exception(
                     f'{status.name.replace("_", " ")}: {error}', level="danger"
