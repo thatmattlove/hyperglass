@@ -126,9 +126,9 @@ class Formatter:
         pass
 
     def _get_formatter(self):
-		if self.nos in TARGET_FORMAT_SPACE:
-			if self.query_type == "bgp_route":
-				return self._huawei_bgp_route
+        if self.nos in TARGET_FORMAT_SPACE:
+            if self.query_type == "bgp_route":
+                return self._huawei_bgp_route
         if self.nos in ("juniper", "juniper_junos"):
             if self.query_type == "bgp_aspath":
                 return self._juniper_bgp_aspath
@@ -142,12 +142,12 @@ class Formatter:
     def _default(self, target: str) -> str:
         """Don't format targets by default."""
         return target
-		
-	def _huawei_bgp_route(self, target: str) -> str:
-		""" Remove slashes from target for required platforms."""
-		self.target = re.sub(r"\/", r" ", str(self.query_data.query_target))
-		log.debug("Modified target '{}' to '{}'", self.query_data.query_target, self.target)
-		return query
+        
+    def _huawei_bgp_route(self, target: str) -> str:
+        """ Remove slashes from target for required platforms."""
+        self.target = re.sub(r"\/", r" ", str(self.query_data.query_target))
+        log.debug("Modified target '{}' to '{}'", self.query_data.query_target, self.target)
+        return query
 
     def _juniper_bgp_aspath(self, target: str) -> str:
         """Convert from Cisco AS_PATH format to Juniper format."""
