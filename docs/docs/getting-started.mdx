@@ -113,6 +113,41 @@ $ pip3.8 install asyncssh==2.7.0
 $ pip3.8 install hyperglass
 ```
 
+A suggestion for this customized setup with systemd can be as follows
+
+```shell-session
+# /lib/systemd/system/hyperglass.service
+#
+# Enable systemd service:
+# ln -s /lib/systemd/system/hyperglass.service /etc/systemd/system/hyperglass.service
+# systemctl daemon-reload
+
+[Unit]
+Description=hyperglass
+Documentation=https://hyperglass.dev/docs
+After=network.target
+Requires=redis-server.service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hyperglass
+Group=hyperglass
+ExecStartPre=-touch /var/log/hyperglass.log
+ExecStartPre=-ln -s /tmp/hyperglass.log /var/log/hyperglass.log
+ExecStartPre=-chown hyperglass:hyperglass /var/log/hyperglass.log
+ExecStart=/opt/hyperglass/venv/bin/hyperglass start
+Restart=on-failure
+RestartSec=30
+PermissionsStartOnly=true
+Environment="LC_ALL=C.UTF-8"
+Environment="LANG=C.UTF-8"
+
+[Install]
+WantedBy=multi-user.target
+```
+
 </TabItem>
 
 </Tabs>
