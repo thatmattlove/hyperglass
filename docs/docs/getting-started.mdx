@@ -33,7 +33,7 @@ You should be <i>very</i> worried when someone asks you to do what I just did. D
 
 #### Python
 
-hyperglass is written in Python 3 and requires Python version 3.6 as a minimum dependency.
+hyperglass is written in Python 3 and requires Python version 3.6 as a minimum dependency. Note for Ubuntu >= 22.04 LTS as of 2022-11 is Python cannot be higher than 3.8. Due to uvloop being unable to compile for Python >=3.9. Ubuntu 22.04 defaults to Python 3.10.
 
 If you're confident upgrading your system's version of Python won't break your system (many Linux operating systems rely heavily on Python for package management and other system functions), you can install Python 3.6:
 
@@ -41,7 +41,8 @@ If you're confident upgrading your system's version of Python won't break your s
   defaultValue="debian"
   values={[
     { label: 'Debian/Ubuntu', value: 'debian' },
-    { label: 'RHEL/CentOS', value: 'rhel' }]}>
+    { label: 'RHEL/CentOS', value: 'rhel' },
+    { label: 'Ubuntu Virtuel Environment', value: 'ubuntu-venv' }]}>
 
 <TabItem value="debian">
 
@@ -75,6 +76,41 @@ But you can also use the [SCL repository](https://www.softwarecollections.org/en
 ```shell-session
 $ sudo yum install centos-release-scl
 $ sudo yum install rh-python36
+```
+
+</TabItem>
+
+<TabItem value="ubuntu-venv">
+
+On Ubuntu 22.04. Python3.8 is not available with all the required packages. Add 3rd party repo from launchpad to be able to install the required packages for a python virtual environment.
+
+```shell-session
+$ sudo apt install software-properties-common
+$ sudo add-apt-repository ppa:deadsnakes/ppa
+$ sudo apt update
+$ sudo apt install python3.8 python3.8-dev python3.8-minimal python3.8-venv
+```
+
+Create the folder `/{etc,opt}/hyperglass`. Add dedicated user `hyperglass` and group. Including a persistent log file `/var/log/hyperglass.log`.
+
+```shell-session
+$ sudo touch /var/log/hyperglass.log
+$ sudo ln -s /tmp/hyperglass.log /var/log/hyperglass.log
+$ sudo mkdir /{etc,opt}/hyperglass
+$ sudo groupadd --system hyperglass
+$ sudo adduser --system --home /opt/hyperglass --group hyperglass
+$ sudo chown --recursive hyperglass:hyperglass /{etc,opt}/hyperglass
+$ sudo chown hyperglass:hyperglass /var/log/hyperglass.log
+```
+
+Run the below commands as user `hyperglass`. Install the Python3.8 virtual environment to a new folder `/opt/hyperglass/venv`. We install an older asyncssh release, otherwise ssh to remote devices will fail due to breaking changes that make the newest releases incompatible with hyperglass 1.0.4.
+
+```shell-session
+$ python3.8 -m venv /opt/hyperglass/venv
+$ . /opt/hyperglass/venv/bin/activate
+$ pip3.8 install --upgrade pip
+$ pip3.8 install asyncssh==2.7.0
+$ pip3.8 install hyperglass
 ```
 
 </TabItem>
