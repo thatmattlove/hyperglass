@@ -62,7 +62,7 @@ export const QueryTarget = (props: QueryTargetProps): JSX.Element => {
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>): void {
     setTarget({ display: e.target.value });
-    onChange({ field: name, value: e.target.value });
+    onChange({ field: name, value: [e.target.value] });
   }
 
   const handleSelectChange: SelectOnChange<OptionWithDescription> = e => {

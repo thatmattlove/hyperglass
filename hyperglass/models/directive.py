@@ -125,9 +125,13 @@ class RuleWithIP(Rule):
 
     def validate_target(self, target: "QueryTarget", *, multiple: bool) -> bool:
         """Validate an IP address target against this rule's conditions."""
+
         if isinstance(target, t.List):
-            self._passed = False
-            raise InputValidationError("Target must be a single value")
+            if len(target) > 1:
+                self._passed = False
+                raise InputValidationError("Target must be a single value")
+            target = target[0]
+
         try:
             # Attempt to use IP object factory to create an IP address object
             valid_target = ip_network(target)
@@ -257,6 +261,7 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
     table_output: t.Optional[StrictStr]
     groups: t.List[StrictStr] = []
     multiple: StrictBool = False
+    multiple_separator: StrictStr = " "
 
     def validate_target(self, target: str) -> bool:
         """Validate a target against all configured rules."""

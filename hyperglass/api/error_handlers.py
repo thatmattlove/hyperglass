@@ -1,13 +1,14 @@
 """API Error Handlers."""
 
 # Third Party
+from fastapi import Request
 from starlette.responses import JSONResponse
 
 # Project
 from hyperglass.state import use_state
 
 
-async def default_handler(request, exc):
+async def default_handler(request: Request, exc: BaseException) -> JSONResponse:
     """Handle uncaught errors."""
     state = use_state()
     return JSONResponse(
@@ -16,7 +17,7 @@ async def default_handler(request, exc):
     )
 
 
-async def http_handler(request, exc):
+async def http_handler(request: Request, exc: BaseException) -> JSONResponse:
     """Handle web server errors."""
 
     return JSONResponse(
@@ -25,7 +26,7 @@ async def http_handler(request, exc):
     )
 
 
-async def app_handler(request, exc):
+async def app_handler(request: Request, exc: BaseException) -> JSONResponse:
     """Handle application errors."""
     return JSONResponse(
         {"output": exc.message, "level": exc.level, "keywords": exc.keywords},
@@ -33,7 +34,7 @@ async def app_handler(request, exc):
     )
 
 
-async def validation_handler(request, exc):
+async def validation_handler(request: Request, exc: BaseException) -> JSONResponse:
     """Handle Pydantic validation errors raised by FastAPI."""
     error = exc.errors()[0]
     return JSONResponse(

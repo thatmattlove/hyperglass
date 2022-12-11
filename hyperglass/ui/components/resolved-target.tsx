@@ -58,7 +58,7 @@ export const ResolvedTarget = (props: ResolvedTargetProps): JSX.Element => {
   const answer6 = useMemo(() => findAnswer(data6), [data6]);
 
   function selectTarget(value: string): void {
-    setFormValue('queryTarget', value);
+    setFormValue('queryTarget', [value]);
     setStatus('results');
   }
 

@@ -84,7 +84,7 @@ export const Tags = (): JSX.Element => {
               >
                 <Label
                   bg={targetBg}
-                  value={form.queryTarget}
+                  value={form.queryTarget.join(', ')}
                   label={web.text.queryTarget}
                   fontSize={{ base: 'xs', md: 'sm' }}
                 />

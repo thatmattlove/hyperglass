@@ -15,7 +15,7 @@ type FormStatus = 'form' | 'results';
 
 interface FormValues {
   queryLocation: string[];
-  queryTarget: string;
+  queryTarget: string[];
   queryType: string;
 }
 
@@ -82,7 +82,7 @@ interface FormStateType<Opt extends SingleOption = SingleOption> {
 
 const formState: StateCreator<FormStateType> = (set, get) => ({
   filtered: { types: [], groups: [] },
-  form: { queryLocation: [], queryTarget: '', queryType: '' },
+  form: { queryLocation: [], queryTarget: [], queryType: '' },
   loading: false,
   responses: {},
   selections: { queryLocation: [], queryType: null },
@@ -204,7 +204,7 @@ const formState: StateCreator<FormStateType> = (set, get) => ({
   reset(): void {
     set({
       filtered: { types: [], groups: [] },
-      form: { queryLocation: [], queryTarget: '', queryType: '' },
+      form: { queryLocation: [], queryTarget: [], queryType: '' },
       loading: false,
       responses: {},
       selections: { queryLocation: [], queryType: null },
@@ -230,7 +230,7 @@ export function useView(): FormStatus {
       status === 'results',
       form.queryLocation.length !== 0,
       form.queryType !== '',
-      form.queryTarget !== '',
+      form.queryTarget.length !== 0,
     );
     return ready ? 'results' : 'form';
   }, [status, form]);

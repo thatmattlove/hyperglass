@@ -1,6 +1,7 @@
+
 [build-system]
-build-backend = "poetry.masonry.api"
-requires = ["poetry>=0.12"]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
 
 [tool.poetry]
 authors = ["Matt Love <matt@hyperglass.dev>"]
@@ -33,18 +34,17 @@ Pillow = "^8.3.2"
 PyJWT = "^2.0.1"
 PyYAML = "^5.4.1"
 aiofiles = "^0.7.0"
-cryptography = "3.0.0"
 distro = "^1.5.0"
-fastapi = "^0.63.0"
+fastapi = "^0.73.0"
 favicons = ">=0.1.0,<1.0"
 gunicorn = "^20.1.0"
 httpx = "^0.20.0"
 loguru = "^0.5.3"
 netmiko = "^3.4.0"
-paramiko = "^2.7.2"
+paramiko = "^2.12.0"
 psutil = "^5.7.2"
 py-cpuinfo = "^8.0.0"
-pydantic = {extras = ["dotenv"], version = "^1.8.2"}
+pydantic = {extras = ["dotenv"], version = "^1.9.0"}
 python = ">=3.8.1,<4.0"
 redis = "^3.5.3"
 rich = "^10.11.0"
@@ -54,30 +54,29 @@ uvicorn = {extras = ["standard"], version = "^0.15.0"}
 uvloop = "^0.16.0"
 xmltodict = "^0.12.0"
 
-[tool.poetry.dev-dependencies]
-bandit = "^1.6.2"
-black = "^21.12b0"
-flake8 = "^3.8"
-flake8-bandit = "^2.1.2"
-flake8-black = "^0.2.2"
+[tool.poetry.group.dev.dependencies]
+bandit = "^1.7.4"
+black = "^22.12.0"
+flake8 = "^6.0.0"
+flake8-bandit = "^4.1.1"
+flake8-black = "^0.3.5"
 flake8-breakpoint = "^1.1.0"
-flake8-bugbear = "^20.1.0"
-flake8-builtins = "^1.4.2"
-flake8-comprehensions = "^3.1.4"
-flake8-deprecated = "^1.3"
-flake8-docstrings = "^1.5.0"
-flake8-isort = "^4.0.0"
-flake8-plugin-utils = "^1.3.1"
+flake8-bugbear = "^22.12.6"
+flake8-builtins = "^2.0.1"
+flake8-comprehensions = "^3.10.1"
+flake8-deprecated = "^2.0.1"
+flake8-docstrings = "^1.6.0"
+flake8-isort = "^5.0.3"
+flake8-plugin-utils = "^1.3.2"
 flake8-polyfill = "^1.0.2"
-flake8-print = "^3.1.4"
-isort = "^5.5.3"
-mccabe = "^0.6.1"
-pep8-naming = "^0.9.1"
+flake8-print = "^5.0.0"
+isort = "^5.10.1"
+pep8-naming = "^0.13.2"
 pre-commit = "^1.21.0"
-pytest = "^6.2.5"
+pytest = "^7.2.0"
 pytest-dependency = "^0.5.1"
-stackprinter = "^0.2.3"
-taskipy = "^1.8.2"
+stackprinter = "^0.2.10"
+taskipy = "^1.10.3"
 
 [tool.black]
 line-length = 100
@@ -106,6 +105,7 @@ reportMissingTypeStubs = true
 
 [tool.taskipy.tasks]
 check = {cmd = "task lint && task ui-lint", help = "Run all lint checks"}
+format = {cmd = "black hyperglass", help = "Run Black"}
 lint = {cmd = "flake8 hyperglass", help = "Run Flake8"}
 sort = {cmd = "isort hyperglass", help = "Run iSort"}
 start = {cmd = "python3 -m hyperglass.main", help = "Start hyperglass"}

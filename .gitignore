@@ -13,9 +13,16 @@ old_*.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+.ipynb*
 
 # Pyenv
 .python-version
+
+# MyPy
+.mypy_cache
+
+# Pytest
+.pytest_cache
 
 # C extensions
 *.so

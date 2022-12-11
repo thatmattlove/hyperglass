@@ -19,9 +19,11 @@ from hyperglass.exceptions.private import ConfigError
 
 if t.TYPE_CHECKING:
     # Project
-    from hyperglass.models.api.query import Query
+    from hyperglass.models.api.query import Query, QueryTarget
     from hyperglass.models.directive import Directive
     from hyperglass.models.config.devices import Device
+
+FormatterCallback = t.Callable[[str], "QueryTarget"]
 
 
 class Construct:
@@ -54,8 +56,21 @@ class Construct:
         if self.device.platform in TARGET_FORMAT_SPACE:
             self.target = re.sub(r"\/", r" ", str(self.query.query_target))
 
-        with Formatter(self.device.platform, self.query.query_type) as formatter:
-            self.target = formatter(self.query.query_target)
+        with Formatter(self.query) as formatter:
+            self.target = formatter(self.prepare_target())
+
+    def prepare_target(self) -> "QueryTarget":
+        """Format the query target based on directive parameters."""
+        if isinstance(self.query.query_target, t.List):
+            # Directive can accept multiple values in a single command.
+            if self.directive.multiple:
+                return self.directive.multiple_separator.join(self.query.query_target)
+            # Target is an array of one, return single item.
+            if len(self.query.query_target) == 1:
+                return self.query.query_target[0]
+            # Directive commands should be run once for each item in the target.
+
+        return self.query.query_target
 
     def json(self, afi):
         """Return JSON version of validated query for REST devices."""
@@ -107,10 +122,11 @@ class Construct:
 class Formatter:
     """Modify query target based on the device's NOS requirements and the query type."""
 
-    def __init__(self, platform: str, query_type: str) -> None:
+    def __init__(self, query: "Query") -> None:
         """Initialize target formatting."""
-        self.platform = platform
-        self.query_type = query_type
+        self.query = query
+        self.platform = query.device.platform
+        self.query_type = query.query_type
 
     def __enter__(self):
         """Get the relevant formatter."""
@@ -125,17 +141,24 @@ class Formatter:
     def _get_formatter(self):
         if self.platform in ("juniper", "juniper_junos"):
             if self.query_type == "bgp_aspath":
-                return self._juniper_bgp_aspath
+                return self._with_formatter(self._juniper_bgp_aspath)
         if self.platform in ("bird", "bird_ssh"):
             if self.query_type == "bgp_aspath":
-                return self._bird_bgp_aspath
+                return self._with_formatter(self._bird_bgp_aspath)
             elif self.query_type == "bgp_community":
-                return self._bird_bgp_community
-        return self._default
+                return self._with_formatter(self._bird_bgp_community)
+        return self._with_formatter(self._default)
 
     def _default(self, target: str) -> str:
         """Don't format targets by default."""
         return target
+
+    def _with_formatter(self, formatter: t.Callable[[str], str]) -> FormatterCallback:
+        result: FormatterCallback
+        if isinstance(self.query.query_target, t.List):
+            result = lambda s: [formatter(i) for i in s]
+        result = lambda s: formatter(s)
+        return result
 
     def _juniper_bgp_aspath(self, target: str) -> str:
         """Convert from Cisco AS_PATH format to Juniper format."""

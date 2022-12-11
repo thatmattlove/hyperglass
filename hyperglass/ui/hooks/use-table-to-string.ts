@@ -54,7 +54,7 @@ function formatTime(val: number): string {
  * Get a function to convert table data to string, for use in the copy button component.
  */
 export function useTableToString(
-  target: string,
+  target: string[],
   data: QueryResponse | undefined,
   ...deps: unknown[]
 ): () => string {
@@ -90,11 +90,14 @@ export function useTableToString(
     }
   }
 
-  function doFormat(target: string, data: QueryResponse | undefined): string {
+  function doFormat(target: string[], data: QueryResponse | undefined): string {
     let result = messages.noOutput;
     try {
       if (typeof data !== 'undefined' && isStructuredOutput(data)) {
-        const tableStringParts = [`Routes For: ${target}`, `Timestamp: ${data.timestamp} UTC`];
+        const tableStringParts = [
+          `Routes For: ${target.join(', ')}`,
+          `Timestamp: ${data.timestamp} UTC`,
+        ];
         for (const route of data.output.routes) {
           for (const field of parsedDataFields) {
             const [header, accessor, align] = field;

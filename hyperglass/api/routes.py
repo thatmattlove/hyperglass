@@ -6,8 +6,7 @@ import typing as t
 from datetime import datetime
 
 # Third Party
-from fastapi import Depends, HTTPException, BackgroundTasks
-from starlette.requests import Request
+from fastapi import Depends, Request, HTTPException, BackgroundTasks
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 
 # Project

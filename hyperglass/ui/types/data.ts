@@ -1,7 +1,7 @@
 export interface FormData {
   queryLocation: string[];
   queryType: string;
-  queryTarget: string;
+  queryTarget: string[];
 }
 
 export type FormQuery = Swap<FormData, 'queryLocation', string>;

@@ -52,7 +52,7 @@ export const LookingGlassForm = (): JSX.Element => {
       enforce(data.queryLocation).isArrayOf(enforce.isString()).isNotEmpty();
     });
     test('queryTarget', noQueryTarget, () => {
-      enforce(data.queryTarget).longerThan(1);
+      enforce(data.queryTarget).isArrayOf(enforce.isString()).isNotEmpty();
     });
     test('queryType', noQueryType, () => {
       enforce(data.queryType).inside(queryTypes);
@@ -62,7 +62,7 @@ export const LookingGlassForm = (): JSX.Element => {
   const formInstance = useForm<FormData>({
     resolver: vestResolver(formSchema),
     defaultValues: {
-      queryTarget: '',
+      queryTarget: [],
       queryLocation: [],
       queryType: '',
     },
@@ -72,8 +72,8 @@ export const LookingGlassForm = (): JSX.Element => {
 
   // const isFqdnQuery = useIsFqdn(form.queryTarget, form.queryType);
   const isFqdnQuery = useCallback(
-    (target: string, fieldType: Directive['fieldType'] | null): boolean =>
-      fieldType === 'text' && isFQDN(target),
+    (target: string | string[], fieldType: Directive['fieldType'] | null): boolean =>
+      typeof target === 'string' && fieldType === 'text' && isFQDN(target),
     [],
   );
 
@@ -138,15 +138,19 @@ export const LookingGlassForm = (): JSX.Element => {
     } else if (e.field === 'queryType' && isString(e.value)) {
       setValue('queryType', e.value);
       setFormValue('queryType', e.value);
-      if (form.queryTarget !== '') {
+      if (form.queryTarget.length !== 0) {
         // Reset queryTarget as well, so that, for example, selecting BGP Community, and selecting
         // a community, then changing the queryType to BGP Route doesn't preserve the selected
         // community as the queryTarget.
-        setFormValue('queryTarget', '');
+        setFormValue('queryTarget', []);
         setTarget({ display: '' });
       }
-    } else if (e.field === 'queryTarget' && isString(e.value)) {
-      setFormValue('queryTarget', e.value);
+    } else if (e.field === 'queryTarget') {
+      if (isString(e.value)) {
+        setFormValue('queryTarget', [e.value]);
+      } else if (Array.isArray(e.value)) {
+        setFormValue('queryTarget', e.value);
+      }
     }
   }
 
@@ -213,7 +217,7 @@ export const LookingGlassForm = (): JSX.Element => {
             flexDir="column"
             mr={{ base: 0, lg: 2 }}
           >
-            <ScaleFade initialScale={0.5} in={form.queryTarget !== ''}>
+            <ScaleFade initialScale={0.5} in={form.queryTarget.length !== 0}>
               <SubmitButton />
             </ScaleFade>
           </Flex>

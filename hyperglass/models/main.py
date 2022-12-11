@@ -302,7 +302,7 @@ class MultiModel(GenericModel, t.Generic[MultiModelT]):
             `Model` is yielded.
             """
             for search in searches:
-                pattern = re.compile(fr".*{search}.*", re.IGNORECASE)
+                pattern = re.compile(rf".*{search}.*", re.IGNORECASE)
                 for item in self:
                     if pattern.match(getattr(item, self.unique_by)):
                         yield item

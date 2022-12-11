@@ -34,7 +34,7 @@ class UILocation(HyperglassModel):
 
     id: StrictStr
     name: StrictStr
-    group: StrictStr
+    group: Optional[StrictStr]
     avatar: Optional[StrictStr]
     description: Optional[StrictStr]
     directives: List[UIDirective] = []
@@ -43,7 +43,7 @@ class UILocation(HyperglassModel):
 class UIDevices(HyperglassModel):
     """UI: Devices."""
 
-    group: StrictStr
+    group: Optional[StrictStr]
     locations: List[UILocation] = []
 
 
