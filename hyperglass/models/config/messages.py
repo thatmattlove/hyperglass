@@ -15,15 +15,10 @@ class Messages(HyperglassModel):
         title="No Input",
         description="Displayed when no a required field is not specified. `{field}` may be used to display the `display_name` of the field that was omitted.",
     )
-    acl_denied: StrictStr = Field(
-        "{target} is a member of {denied_network}, which is not allowed.",
-        title="ACL - Denied",
-        description="Displayed when a query target is explicitly denied by a matched VRF's ACL entry. `{target}` and `{denied_network}` may be used to display the denied query target and the ACL entry that caused it to be denied.",
-    )
-    acl_not_allowed: StrictStr = Field(
+    target_not_allowed: StrictStr = Field(
         "{target} is not allowed.",
-        title="ACL - Not Allowed",
-        description="Displayed when a query target is implicitly denied by a matched VRF's ACL. `{target}` may be used to display the denied query target.",
+        title="Target Not Allowed",
+        description="Displayed when a query target is implicitly denied by a configured rule. `{target}` will be used to display the denied query target.",
     )
     feature_not_enabled: StrictStr = Field(
         "{feature} is not enabled.",
@@ -74,25 +69,10 @@ class Messages(HyperglassModel):
         title="No Response",
         description="Displayed when hyperglass can connect to a device, but no output able to be read. Seeing this error may indicate a bug in hyperglas or one of its dependencies. If you see this in the wild, try enabling [debug mode](/fixme) and review the logs to pinpoint the source of the error.",
     )
-    vrf_not_associated: StrictStr = Field(
-        "VRF {vrf_name} is not associated with {device_name}.",
-        title="VRF Not Associated",
-        description="Displayed when a query request's VRF field value contains a VRF that is not configured or associated with the corresponding location/device. The hyperglass UI automatically filters out VRFs that are not configured on a selected device, so this error is most likely to appear when using the hyperglass API. `{vrf_name}` and `{device_name}` may be used to display the VRF in question and corresponding device.",
-    )
-    vrf_not_found: StrictStr = Field(
-        "VRF {vrf_name} is not defined.",
-        title="VRF Not Found",
-        description="Displayed when a query VRF is not configured on any devices. The hyperglass UI only shows configured VRFs, so this error is most likely to appear when using the hyperglass API. `{vrf_name}` may be used to display the VRF in question.",
-    )
     no_output: StrictStr = Field(
         "The query completed, but no matching results were found.",
         title="No Output",
         description="Displayed when hyperglass can connect to a device and execute a query, but the response is empty.",
-    )
-    parsing_error: StrictStr = Field(
-        "An error occurred while parsing the query output.",
-        title="Parsing Error",
-        description="Displayed when hyperglass can connect to a device and execute a query, but the response cannot be parsed.",
     )
 
     class Config:

@@ -7,18 +7,13 @@ export type ParsedDataField = [string, keyof Route, 'left' | 'right' | 'center' 
 
 interface _Messages {
   no_input: string;
-  acl_denied: string;
-  acl_not_allowed: string;
   feature_not_enabled: string;
   invalid_input: string;
-  invalid_field: string;
   general: string;
   request_timeout: string;
   connection_error: string;
   authentication_error: string;
-  no_response: string;
   no_output: string;
-  parsing_error: string;
 }
 
 interface _ThemeConfig {
@@ -168,7 +163,6 @@ interface _ConfigShallow {
   request_timeout: number;
   org_name: string;
   site_title: string;
-  site_keywords: string[];
   site_description: string;
   version: string;
   parsed_data_fields: ParsedDataField[];

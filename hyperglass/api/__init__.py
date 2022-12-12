@@ -35,7 +35,6 @@ from hyperglass.models.api.response import (
     InfoResponse,
     QueryResponse,
     RoutersResponse,
-    CommunityResponse,
     SupportedQueryResponse,
 )
 
@@ -62,11 +61,11 @@ ASGI_PARAMS = {
 }
 DOCS_PARAMS = {}
 if STATE.params.docs.enable:
-    DOCS_PARAMS.update({"openapi_url": STATE.params.docs.openapi_uri})
+    DOCS_PARAMS.update({"openapi_url": "/openapi.json"})
     if STATE.params.docs.mode == "redoc":
-        DOCS_PARAMS.update({"docs_url": None, "redoc_url": STATE.params.docs.uri})
+        DOCS_PARAMS.update({"docs_url": None, "redoc_url": STATE.params.docs.path})
     elif STATE.params.docs.mode == "swagger":
-        DOCS_PARAMS.update({"docs_url": STATE.params.docs.uri, "redoc_url": None})
+        DOCS_PARAMS.update({"docs_url": STATE.params.docs.path, "redoc_url": None})
 
 for directory in (UI_DIR, IMAGES_DIR):
     if not directory.exists():
@@ -247,7 +246,7 @@ app.add_api_route(
 
 
 if STATE.params.docs.enable:
-    app.add_api_route(path=STATE.params.docs.uri, endpoint=docs, include_in_schema=False)
+    app.add_api_route(path=STATE.params.docs.path, endpoint=docs, include_in_schema=False)
     app.openapi = _custom_openapi
 
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")

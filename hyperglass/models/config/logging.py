@@ -39,10 +39,11 @@ class HttpAuth(HyperglassModel):
     mode: HttpAuthMode = "basic"
     username: Optional[StrictStr]
     password: SecretStr
+    header: StrictStr = "x-api-key"
 
-    def api_key(self, header_name="X-API-Key"):
+    def api_key(self):
         """Represent authentication as an API key header."""
-        return {header_name: self.password.get_secret_value()}
+        return {self.header: self.password.get_secret_value()}
 
     def basic(self):
         """Represent HTTP basic authentication."""

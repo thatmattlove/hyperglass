@@ -14,7 +14,7 @@ StructuredRPKIMode = constr(regex=r"(router|external)")
 
 
 class StructuredCommunities(HyperglassModel):
-    """Control structured data response for BGP communties."""
+    """Control structured data response for BGP communities."""
 
     mode: StructuredCommunityMode = "deny"
     items: List[StrictStr] = []

@@ -66,7 +66,7 @@ class NetmikoConnection(SSHConnection):
             "port": port or self.device.port,
             "device_type": self.device.platform,
             "username": self.device.credential.username,
-            "global_delay_factor": params.netmiko_delay_factor,
+            "global_delay_factor": 0.1,
             "timeout": math.floor(params.request_timeout * 1.25),
             "session_timeout": math.ceil(params.request_timeout - 1),
             **global_args,

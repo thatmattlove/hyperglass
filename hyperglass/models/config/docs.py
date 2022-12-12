@@ -45,15 +45,10 @@ class Docs(HyperglassModel):
         title="Base URL",
         description="Base URL used in request samples.",
     )
-    uri: AnyUri = Field(
+    path: AnyUri = Field(
         "/api/docs",
         title="URI",
         description="HTTP URI/path where API documentation can be accessed.",
-    )
-    openapi_uri: AnyUri = Field(
-        "/openapi.json",
-        title="OpenAPI URI",
-        description="Path to the automatically generated `openapi.json` file.",
     )
     title: StrictStr = Field(
         "{site_title} API Documentation",
@@ -79,11 +74,6 @@ class Docs(HyperglassModel):
         title="Supported Queries",
         description="List of supported query types.",
         summary="Query Types",
-    )
-    communities: EndpointConfig = EndpointConfig(
-        title="BGP Communities",
-        description="List of BGP communities.",
-        summary="BGP Communities List",
     )
     info: EndpointConfig = EndpointConfig(
         title="System Information",

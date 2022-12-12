@@ -28,7 +28,7 @@ from .opengraph import OpenGraph
 DEFAULT_IMAGES = Path(__file__).parent.parent.parent / "images"
 
 Percentage = constr(regex=r"^([1-9][0-9]?|100)\%$")
-TitleMode = constr(regex=("logo_only|text_only|logo_title|logo_subtitle|all"))
+TitleMode = constr(regex=("logo_only|text_only|logo_subtitle|all"))
 ColorMode = constr(regex=r"light|dark")
 DOHProvider = constr(regex="|".join(DNS_OVER_HTTPS.keys()))
 Title = constr(max_length=32)
@@ -66,11 +66,9 @@ class Menu(HyperglassModel):
 
         if len(value) < 260:
             path = Path(value)
-            if path.exists():
+            if path.is_file() and path.exists():
                 with path.open("r") as f:
                     return f.read()
-            else:
-                return value
         return value
 
 
@@ -133,13 +131,6 @@ class Text(HyperglassModel):
     no_ip: StrictStr = "No {protocol} Address"
     ip_select: StrictStr = "Select an IP Address"
     ip_button: StrictStr = "My IP"
-
-    @validator("title_mode")
-    def validate_title_mode(cls: "Text", value: str) -> str:
-        """Set legacy logo_title to logo_subtitle."""
-        if value == "logo_title":
-            value = "logo_subtitle"
-        return value
 
     @validator("cache_prefix")
     def validate_cache_prefix(cls: "Text", value: str) -> str:

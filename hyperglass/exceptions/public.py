@@ -115,7 +115,7 @@ class InputInvalid(PublicHyperglassError, template=MESSAGES.invalid_input):
         super().__init__(**kwargs)
 
 
-class InputNotAllowed(PublicHyperglassError, template=MESSAGES.acl_not_allowed):
+class InputNotAllowed(PublicHyperglassError, template=MESSAGES.target_not_allowed):
     """Raised when input validation fails due to a configured check."""
 
     def __init__(

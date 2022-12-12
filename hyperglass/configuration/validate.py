@@ -66,13 +66,6 @@ def init_params() -> "Params":
         params.web.text.subtitle = params.web.text.subtitle.format(
             **params.dict(exclude={"web", "queries", "messages"})
         )
-
-        # If keywords are unmodified (default), add the org name &
-        # site_title.
-        if Params().site_keywords == params.site_keywords:
-            params.site_keywords = sorted(
-                {*params.site_keywords, params.org_name, params.site_title}
-            )
     except KeyError:
         pass
 

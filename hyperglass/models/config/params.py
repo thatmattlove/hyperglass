@@ -1,7 +1,7 @@
 """Configuration validation entry point."""
 
 # Standard Library
-from typing import Any, Dict, List, Tuple, Union, Literal, Optional
+from typing import Any, Dict, List, Tuple, Union, Literal
 from pathlib import Path
 
 # Third Party
@@ -15,9 +15,7 @@ from .web import Web
 from .docs import Docs
 from ..main import HyperglassModel
 from .cache import Cache
-from ..fields import IntFloat
 from .logging import Logging
-from .queries import Queries
 from .messages import Messages
 from .structured import Structured
 
@@ -42,7 +40,6 @@ class ParamsPublic(HyperglassModel):
         title="Organization Name",
         description="Your organization's name. This field is used in the UI & API documentation to set fields such as `<meta/>` HTML tags for SEO and the terms & conditions footer component.",
     )
-    google_analytics: Optional[StrictStr]
     site_title: StrictStr = Field(
         "hyperglass",
         title="Site Title",
@@ -52,28 +49,6 @@ class ParamsPublic(HyperglassModel):
         "{org_name} Network Looking Glass",
         title="Site Description",
         description='A short description of your hyperglass site. This field is used in th UI & API documentation to set the `<meta name="description"/>` tag. `{org_name}` may be used to insert the value of the `org_name` field.',
-    )
-    site_keywords: List[StrictStr] = Field(
-        [
-            "hyperglass",
-            "looking glass",
-            "lg",
-            "peer",
-            "peering",
-            "ip",
-            "ipv4",
-            "ipv6",
-            "transit",
-            "community",
-            "communities",
-            "bgp",
-            "routing",
-            "network",
-            "isp",
-            "internet service provider",
-        ],
-        title="Site Keywords",
-        description='Keywords pertaining to your hyperglass site. This field is used to generate `<meta name="keywords"/>` HTML tags, which helps tremendously with SEO.',
     )
 
 
@@ -92,11 +67,6 @@ class Params(ParamsPublic, HyperglassModel):
         title="Cross-Origin Resource Sharing",
         description="Allowed CORS hosts. By default, no CORS hosts are allowed.",
     )
-    netmiko_delay_factor: IntFloat = Field(
-        0.1,
-        title="Netmiko Delay Factor",
-        description="Override the netmiko global delay factor.",
-    )
     plugins: List[StrictStr] = []
 
     # Sub Level Params
@@ -104,7 +74,6 @@ class Params(ParamsPublic, HyperglassModel):
     docs: Docs = Docs()
     logging: Logging = Logging()
     messages: Messages = Messages()
-    queries: Queries = Queries()
     structured: Structured = Structured()
     web: Web = Web()
 
@@ -154,10 +123,8 @@ class Params(ParamsPublic, HyperglassModel):
                 "primary_asn": ...,
                 "request_timeout": ...,
                 "org_name": ...,
-                "google_analytics": ...,
                 "site_title": ...,
                 "site_description": ...,
-                "site_keywords": ...,
                 "web": ...,
                 "messages": ...,
             }
