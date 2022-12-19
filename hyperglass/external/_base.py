@@ -14,10 +14,10 @@ import httpx
 # Project
 from hyperglass.log import log
 from hyperglass.util import parse_exception, repr_from_attrs
+from hyperglass.settings import Settings
 from hyperglass.constants import __version__
 from hyperglass.models.fields import JsonValue, HttpMethod, Primitives
 from hyperglass.exceptions.private import ExternalError
-from hyperglass.settings import Settings
 
 if t.TYPE_CHECKING:
     # Standard Library

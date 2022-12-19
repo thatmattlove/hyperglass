@@ -7,13 +7,13 @@ from ipaddress import ip_address
 
 # Third Party
 from pydantic import (
+    FilePath,
     RedisDsn,
     SecretStr,
     BaseSettings,
     DirectoryPath,
     IPvAnyAddress,
     validator,
-    FilePath,
 )
 
 # Project
