@@ -1,6 +1,8 @@
 import styles from './global.module.css';
 import { DocsThemeConfig } from 'nextra-theme-docs';
 
+const NO_INDEX_FOLLOW = process.env.CF_PAGES_BRANCH !== 'main';
+
 const config: DocsThemeConfig = {
   logo: (
     <span className={styles.logo}>
@@ -69,6 +71,7 @@ const config: DocsThemeConfig = {
   project: {
     link: 'https://github.com/thatmattlove/hyperglass',
   },
+  useNextSeoProps: () => ({ noindex: NO_INDEX_FOLLOW, nofollow: NO_INDEX_FOLLOW }),
 };
 
 export default config;
