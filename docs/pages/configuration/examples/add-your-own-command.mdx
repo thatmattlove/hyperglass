@@ -1,0 +1,37 @@
+While hyperglass does come with several built-in commands or [directives](/configuration/directives-file-reference), you can also add your own. For example, say you want to add a command that shows the BGP summary from a device:
+
+## 1. Create the Directive
+
+```yaml filename="directives.yaml"
+show-bgp-summary:
+  name: BGP Summary
+  rules:
+    - condition: null
+      command: show bgp all summary
+  field: null
+```
+
+## 2. Associate the Directive with the Device
+
+```yaml filename="devices.yaml"
+devices:
+  - name: Your Router
+    address: 192.0.2.1
+    platform: cisco_ios
+    directives:
+      - show-bgp-summary
+```
+
+By default, all built-in directives are _also_ enabled. If you wish to _only_ enable directives you specify, you can use `builtins: false` as a directive:
+
+```yaml filename="devices.yaml"
+devices:
+  - name: Your Router
+    address: 192.0.2.1
+    platform: cisco_ios
+    directives:
+      - builtins: false
+      - show-bgp-summary
+```
+
+When this is specified, _only_ the `show-bgp-summary` directive will be enabled.

@@ -6,7 +6,15 @@ from pathlib import Path
 from ipaddress import ip_address
 
 # Third Party
-from pydantic import RedisDsn, SecretStr, BaseSettings, DirectoryPath, IPvAnyAddress, validator
+from pydantic import (
+    RedisDsn,
+    SecretStr,
+    BaseSettings,
+    DirectoryPath,
+    IPvAnyAddress,
+    validator,
+    FilePath,
+)
 
 # Project
 from hyperglass.util import at_least, cpu_count
@@ -37,6 +45,7 @@ class HyperglassSettings(BaseSettings):
     redis_dsn: RedisDsn = None
     host: IPvAnyAddress = None
     port: int = 8001
+    ca_cert: t.Optional[FilePath]
 
     def __rich_console__(self, console: "Console", options: "ConsoleOptions") -> "RenderResult":
         """Render a Rich table representation of hyperglass settings."""

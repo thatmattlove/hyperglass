@@ -1,0 +1,107 @@
+Each configured device may have the following parameters:
+
+| Parameter           | Type            | Default Value | Description                                                                                                                             |
+| :------------------ | :-------------- | :------------ | :-------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`              | String          |               | Display name of the device.                                                                                                             |
+| `description`       | String          |               | Description of the device, displayed as a subtle label.                                                                                 |
+| `avatar`            | String          |               | Path to an avatar/logo image for this site. Used when [`web.location_display_mode`](/config-file-reference/web-ui) is set to `gallery`. |
+| `address`           | String          |               | IPv4 address, IPv6 address, or hostname of the device.                                                                                  |
+| `group`             | String          |               | Group name, used to visually group devices in the UI.                                                                                   |
+| `port`              | Number          |               | TCP port on which to connect to the device.                                                                                             |
+| `platform`          | String          |               | Device platform/OS. Must be a [supported platform](/supported-platforms).                                                               |
+| `structured_output` | Boolean         | `true`        | Disable structured output for a device that supports it.                                                                                |
+| `directives`        | List of Strings |               | Enable referenced directives configured in the [directives config file](/configuration/directives-file-reference).                      |
+| `driver`            | String          | netmiko       | Specify which driver to use for this device. Currently, only `netmiko` is supported.                                                    |
+| `driver_config`     | Mapping         |               | Mapping/dict of options to pass to the connection driver.                                                                               |
+| `attrs`             | Mapping         |               | Mapping/dict of variables, as referenced in configured directives.                                                                      |
+| `credential`        | Mapping         |               | Mapping/dict of a [credential configuration](#credential-onfiguration).                                                                 |
+| `http`              | Mapping         |               | Mapping/dict of HTTP client options, if this device is connected via HTTP.                                                              |
+| `proxy`             | Mapping         |               | Mapping/dict of SSH proxy to use for this device's requests.                                                                            |
+
+## Credential Configuration
+
+| Parameter             | Type   | Default Value | Description                                            |
+| :-------------------- | :----- | :------------ | :----------------------------------------------------- |
+| `credential.username` | String |               | Username to use for authentication to the device.      |
+| `credential.password` | String |               | Password to use for authentication to the device.      |
+| `credential.key`      | String |               | Path to SSH key used for authentication to the device. |
+
+## SSH Proxy Configuration
+
+| Parameter          | Type    | Default Value | Description                                                             |
+| :----------------- | :------ | :------------ | :---------------------------------------------------------------------- |
+| `proxy.address`    | String  |               | IPv4 address, IPv6 address, or hostname of SSH proxy.                   |
+| `proxy.port`       | Number  | 22            | TCP port to use for connecting to the SSH proxy.                        |
+| `proxy.platform`   | String  | linux_ssh     | Currently, only `linux_ssh` is supported.                               |
+| `proxy.credential` | Mapping |               | Mapping/dict of a [credential configuration](#credential-onfiguration). |
+
+## HTTP Configuration
+
+| Parameter               | Type    | Default Value | Description                                                                                                            |
+| :---------------------- | :------ | :------------ | :--------------------------------------------------------------------------------------------------------------------- |
+| `http.attribute_map`    | Mapping |               | Mapping/dict of hyperglass query fields as keys, and hyperglass query field replacements as values.                    |
+| `http.basic_auth`       | Mapping |               | If basic authentication is required, provide a mapping/dict containing the basic authentication username and password. |
+| `http.body_format`      | String  | json          | Body format, options are `json` `yaml` `xml` `text`                                                                    |
+| `http.follow_redirects` | Boolean | `false`       | Follow HTTP redirects from server.                                                                                     |
+| `http.headers`          | Mapping |               | Mapping/dict of http headers to append to requests.                                                                    |
+| `http.method`           | String  | GET           | HTTP method to use for requests.                                                                                       |
+| `http.path`             | String  | /             | HTTP URI/Path.                                                                                                         |
+| `http.query`            | Mapping |               | Mapping/Dict of URL Query Parameters.                                                                                  |
+| `http.retries`          | Number  | 0             | Number of retries to perform before request failure.                                                                   |
+| `http.scheme`           | String  | https         | HTTP schema, must be `http` or `https`                                                                                 |
+| `http.source`           | String  |               | Request source IP address.                                                                                             |
+| `http.ssl_ca`           | String  |               | Path to SSL CA certificate file for SSL validation.                                                                    |
+| `http.ssl_client`       | String  |               | Path to client SSL certificates for request.                                                                           |
+| `http.timeout`          | Number  | 5             | Request timeout in seconds.                                                                                            |
+| `http.verify_ssl`       | Boolean | `true`        | If `false`, invalid certificates for HTTPS hosts will be ignored.                                                      |
+
+# Examples
+
+## Simple
+
+```yaml filename="devices.yaml"
+devices:
+  - name: New York, NY
+    address: 192.0.2.1
+    platform: cisco_ios
+    credential:
+      username: you
+      password: your password
+  - name: San Francisco, CA
+    address: 192.0.2.2
+    platform: juniper
+    credential:
+      username: you
+      password: your password
+```
+
+## With Directives
+
+```yaml filename="devices.yaml"
+devices:
+  - name: New York, NY
+    address: 192.0.2.1
+    platform: cisco_ios
+    credential:
+      username: you
+      password: your password
+    directives:
+      - cisco-show-lldp-neighbors
+```
+
+## With an SSH Proxy
+
+```yaml filename="devices.yaml"
+devices:
+  - name: New York, NY
+    address: 192.0.2.1
+    platform: cisco_ios
+    credential:
+      username: you
+      password: your password
+    proxy:
+      address: 192.0.0.123
+      credential:
+        username: your proxy's username
+        password: your proxy's password
+```

@@ -257,7 +257,6 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
     field: t.Union[Text, Select, None]
     info: t.Optional[FilePath]
     plugins: t.List[StrictStr] = []
-    disable_builtins: StrictBool = False
     table_output: t.Optional[StrictStr]
     groups: t.List[StrictStr] = []
     multiple: StrictBool = False

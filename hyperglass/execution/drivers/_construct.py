@@ -9,6 +9,7 @@ hyperglass API modules.
 import re
 import json as _json
 import typing as t
+import ipaddress
 
 # Project
 from hyperglass.log import log
@@ -89,7 +90,7 @@ class Construct:
         """Return formatted command for 'Scrape' endpoints (SSH)."""
         keys = get_fmt_keys(command)
         attrs = {k: v for k, v in self.device.attrs.items() if k in keys}
-        for key in [k for k in keys if k != "target"]:
+        for key in [k for k in keys if k != "target" and k != "mask"]:
             if key not in attrs:
                 raise ConfigError(
                     ("Command '{c}' has attribute '{k}', " "which is missing from device '{d}'"),
@@ -98,7 +99,17 @@ class Construct:
                     k=key,
                     d=self.device.name,
                 )
-        return command.format(target=self.target, **attrs)
+
+        mask = ipaddress.ip_address("255.255.255.255")
+        try:
+            network = ipaddress.ip_network(self.target)
+            if network.version == 4 and network.network_address != network.broadcast_address:
+                # Network is an IPv4 network with more than one host.
+                mask = network.netmask
+        except ValueError:
+            pass
+
+        return command.format(target=self.target, mask=mask, **attrs)
 
     def queries(self):
         """Return queries for each enabled AFI."""

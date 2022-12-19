@@ -17,6 +17,7 @@ from hyperglass.util import parse_exception, repr_from_attrs
 from hyperglass.constants import __version__
 from hyperglass.models.fields import JsonValue, HttpMethod, Primitives
 from hyperglass.exceptions.private import ExternalError
+from hyperglass.settings import Settings
 
 if t.TYPE_CHECKING:
     # Standard Library
@@ -57,13 +58,19 @@ class BaseExternal:
         self.timeout = timeout
         self.parse = parse
 
-        session_args = {
-            "verify": self.verify_ssl,
+        context = httpx.create_ssl_context(verify=verify_ssl)
+
+        if Settings.ca_cert is not None:
+            context.load_verify_locations(cafile=str(Settings.ca_cert))
+
+        client_kwargs = {
             "base_url": self.base_url,
             "timeout": self.timeout,
+            "verify": context,
         }
-        self._session = httpx.Client(**session_args)
-        self._asession = httpx.AsyncClient(**session_args)
+
+        self._session = httpx.Client(**client_kwargs)
+        self._asession = httpx.AsyncClient(**client_kwargs)
 
     @classmethod
     def __init_subclass__(

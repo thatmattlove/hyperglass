@@ -51,7 +51,7 @@ class NetmikoConnection(SSHConnection):
             log.debug(
                 "Connecting to {} via proxy {} [{}]",
                 self.device.name,
-                self.device.proxy.name,
+                self.device.proxy.address,
                 f"{host}:{port}",
             )
         else:

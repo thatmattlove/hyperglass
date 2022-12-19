@@ -20,7 +20,6 @@ from .credential import Credential
 class Proxy(HyperglassModel):
     """Validation model for per-proxy config in devices.yaml."""
 
-    name: StrictStr
     address: Union[IPv4Address, IPv6Address, StrictStr]
     port: StrictInt = 22
     credential: Credential
@@ -36,14 +35,13 @@ class Proxy(HyperglassModel):
         return str(self.address)
 
     @validator("address")
-    def validate_address(cls, value, values):
+    def validate_address(cls, value):
         """Ensure a hostname is resolvable."""
 
         if not isinstance(value, (IPv4Address, IPv6Address)):
             if not any(resolve_hostname(value)):
                 raise ConfigError(
-                    "Device '{d}' has an address of '{a}', which is not resolvable.",
-                    d=values["name"],
+                    "Proxy '{a}' is not resolvable.",
                     a=value,
                 )
         return value
@@ -55,7 +53,7 @@ class Proxy(HyperglassModel):
         if value != "linux_ssh":
             raise UnsupportedDevice(
                 "Proxy '{p}' uses platform '{t}', which is currently unsupported.",
-                p=values["name"],
+                p=values["address"],
                 t=value,
             )
         return value
