@@ -4,7 +4,10 @@ const withNextra = require('nextra')({
 });
 
 module.exports = withNextra({
-  experimental: {
-    runtime: 'experimental-edge',
+  // experimental: {
+  //   runtime: 'experimental-edge',
+  // },
+  images: {
+    unoptimized: true,
   },
 });
