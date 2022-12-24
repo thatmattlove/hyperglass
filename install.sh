@@ -227,6 +227,12 @@ node_apt_prepare() {
     NEEDS_UPDATE="1"
 }
 
+redis_apt_prepare() {
+    curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+    echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/redis.list
+    NEEDS_UPDATE="1"
+}
+
 yarn_apt_prepare() {
     curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg -o /tmp/yarnkey.gpg
     sleep 1
@@ -306,7 +312,7 @@ python_brew() {
 }
 
 redis_apt() {
-    apt-get install -y redis-server
+    apt-get install -y redis
     sleep 1
     redis_post $?
 }
@@ -514,6 +520,10 @@ while true; do
         node_apt_prepare
     elif [[ $NEEDS_NODE == "1" && $INSTALLER == "yum" ]]; then
         node_yum_prepare
+    fi
+
+    if [[ $NEEDS_REDIS == "1" && $INSTALLER == "apt" ]]; then
+        redis_apt_prepare
     fi
 
     if [[ $NEEDS_UPDATE == "1" ]]; then
