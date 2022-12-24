@@ -216,7 +216,7 @@ class Device(HyperglassModelWithId, extra="allow"):
                     p=values["platform"],
                 )
             return value
-        elif value is None and values["platform"] in SUPPORTED_STRUCTURED_OUTPUT:
+        if value is None and values["platform"] in SUPPORTED_STRUCTURED_OUTPUT:
             value = True
         else:
             value = False

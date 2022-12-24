@@ -1,10 +1,15 @@
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+  - repo: https://github.com/pycqa/isort
+    rev: 5.11.2
     hooks:
-      - id: flake8
-        stages:
-          - commit
+      - id: isort
+        args: ['--profile', 'black', '--filter-files', '--check']
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.192
+    hooks:
+      - id: ruff
+        # Respect `exclude` and `extend-exclude` settings.
+        args: ['--force-exclude']
   - repo: local
     hooks:
       - id: typescript

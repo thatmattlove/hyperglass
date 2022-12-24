@@ -9,10 +9,10 @@ classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Information Technology",
   "Operating System :: POSIX :: Linux",
-  "Programming Language :: JavaScript",
-  "Programming Language :: Python :: 3.6",
-  "Programming Language :: Python :: 3.7",
+  "Programming Language :: TypeScript",
   "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
   "Topic :: Internet",
   "Topic :: System :: Networking",
 ]
@@ -57,24 +57,12 @@ xmltodict = "^0.12.0"
 [tool.poetry.group.dev.dependencies]
 bandit = "^1.7.4"
 black = "^22.12.0"
-flake8 = "^6.0.0"
-flake8-bandit = "^4.1.1"
-flake8-black = "^0.3.5"
-flake8-breakpoint = "^1.1.0"
-flake8-bugbear = "^22.12.6"
-flake8-builtins = "^2.0.1"
-flake8-comprehensions = "^3.10.1"
-flake8-deprecated = "^2.0.1"
-flake8-docstrings = "^1.6.0"
-flake8-isort = "^5.0.3"
-flake8-plugin-utils = "^1.3.2"
-flake8-polyfill = "^1.0.2"
-flake8-print = "^5.0.0"
 isort = "^5.10.1"
 pep8-naming = "^0.13.2"
-pre-commit = "^1.21.0"
+pre-commit = "^2.20.0"
 pytest = "^7.2.0"
 pytest-dependency = "^0.5.1"
+ruff = "^0.0.192"
 stackprinter = "^0.2.10"
 taskipy = "^1.10.3"
 
@@ -94,19 +82,20 @@ known_third_party = ["starlette", "fastapi", "inquirer"]
 length_sort = true
 line_length = 100
 multi_line_output = 3
+profile = "black"
 skip_glob = "hyperglass/api/examples/*.py"
 
 [tool.pyright]
 exclude = ["**/node_modules", "**/ui", "**/__pycache__"]
 include = ["hyperglass"]
-pythonVersion = "3.8"
+pythonVersion = "3.9"
 reportMissingImports = true
 reportMissingTypeStubs = true
 
 [tool.taskipy.tasks]
 check = {cmd = "task lint && task ui-lint", help = "Run all lint checks"}
 format = {cmd = "black hyperglass", help = "Run Black"}
-lint = {cmd = "flake8 hyperglass", help = "Run Flake8"}
+lint = {cmd = "ruff hyperglass", help = "Run Ruff Linter"}
 sort = {cmd = "isort hyperglass", help = "Run iSort"}
 start = {cmd = "python3 -m hyperglass.main", help = "Start hyperglass"}
 start-asgi = {cmd = "uvicorn hyperglass.api:app", help = "Start hyperglass via Uvicorn"}
@@ -118,3 +107,59 @@ ui-lint = {cmd = "yarn --cwd ./hyperglass/ui/ lint", help = "Run ESLint"}
 ui-typecheck = {cmd = "yarn --cwd ./hyperglass/ui/ typecheck", help = "Run TypeScript Check"}
 upgrade = {cmd = "python3 version.py", help = "Upgrade hyperglass version"}
 yarn = {cmd = "yarn --cwd ./hyperglass/ui/", help = "Run a yarn command from the UI directory"}
+
+[tool.ruff]
+exclude = [
+  ".git",
+  "__pycache__",
+  "hyperglass/ui",
+  "hyperglass/plugins/external",
+  "hyperglass/api/examples/*.py",
+  "hyperglass/compat/_sshtunnel.py",
+]
+ignore = [
+  # "W503",
+  "RET504",
+  "D202", # "S403",
+  # "S301",
+  # "S404",
+  "E731",
+  "D203", # Blank line before docstring.
+  "D213", # Multiline docstring summary on second line.
+  "D402",
+  "D406",
+  "D407",
+  "B008",
+  "I001",
+  "D418", # No docstring on overloaded functions.
+  "N818", # Error suffix on custom exceptions.
+  "RET501", # Explicitly return None
+]
+line-length = 100
+select = ["B", "C", "D", "E", "F", "I", "N", "S", "RET", "W"]
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.ruff.per-file-ignores]
+"hyperglass/main.py" = ["E402"]
+# Disable classmethod warning for validator decorat
+"hyperglass/configuration/models/*.py" = ["N805"]
+"hyperglass/defaults/*/*.py" = ["E501"]
+"hyperglass/models/*.py" = ["N805", "E501"]
+"hyperglass/models/api/*.py" = ["N805", "E501"]
+"hyperglass/models/commands/*.py" = ["N805", "E5"]
+"hyperglass/parsing/models/*.py" = ["N805"]
+# Disable unused import warning for modules
+"hyperglass/*/__init__.py" = ["F401"]
+"hyperglass/models/*/__init__.py" = ["F401"]
+# Disable assertion and docstring checks on tests.
+"hyperglass/**/test_*.py" = ["S101", "D103", "D100", "D104"]
+"hyperglass/**/tests/*.py" = ["S101", "D103", "D100", "D104"]
+"hyperglass/**/tests/__init__.py" = ["D103", "D100", "D104"]
+"hyperglass/state/hooks.py" = ["F811"]
+# Ignore whitespace in docstrings
+"hyperglass/cli/static.py" = []
+# Ignore docstring standards
+"hyperglass/cli/*.py" = ["B904"]
+"hyperglass/cli/main.py" = ["D400", "D403", "D415"]

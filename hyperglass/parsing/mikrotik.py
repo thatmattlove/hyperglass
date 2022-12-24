@@ -46,7 +46,7 @@ def parse_mikrotik(output: str):
 
         # Remove any lines marked for removal and re-join with a single
         # newline character.
-        lines = [l for i, l in enumerate(lines) if i not in remove_lines]
+        lines = [line for idx, line in enumerate(lines) if idx not in remove_lines]
         output = "\n".join(lines)
 
     return output

@@ -77,10 +77,10 @@ class Version:
         if self._did_update:
             old, new = self.upgrade_path
             return f"Upgraded {self.name} from {old} → {new}"
-        elif self._did_check:
+        if self._did_check:
             return f"No update required for {self.name} from version {self.old_version}"
-        else:
-            return f"{self.name} has not been checked"
+
+        return f"{self.name} has not been checked"
 
     def upgrade(self) -> None:
         """Find a matching current version and upgrade it to the new version."""
@@ -121,7 +121,10 @@ def update_versions(new_version: str) -> None:
     """Update hyperglass version in all package files."""
     for name, file, pattern in UPGRADES:
         with Version(
-            name=name, file=file, line_pattern=pattern, new_version=new_version,
+            name=name,
+            file=file,
+            line_pattern=pattern,
+            new_version=new_version,
         ) as version:
             version.upgrade()
             typer.echo(str(version))

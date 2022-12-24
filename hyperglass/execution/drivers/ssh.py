@@ -54,6 +54,8 @@ class SSHConnection(Connection):
                 log.error(
                     f"Error connecting to device {self.device.name} via " f"proxy {proxy.name}"
                 )
-                raise ScrapeError(error=scrape_proxy_error, device=self.device)
+                raise ScrapeError(
+                    error=scrape_proxy_error, device=self.device
+                ) from scrape_proxy_error
 
         return opener

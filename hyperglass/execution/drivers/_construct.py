@@ -156,7 +156,7 @@ class Formatter:
         if self.platform in ("bird", "bird_ssh"):
             if self.query_type == "bgp_aspath":
                 return self._with_formatter(self._bird_bgp_aspath)
-            elif self.query_type == "bgp_community":
+            if self.query_type == "bgp_community":
                 return self._with_formatter(self._bird_bgp_community)
         return self._with_formatter(self._default)
 

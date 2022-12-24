@@ -108,10 +108,10 @@ def parse_juniper(output: Sequence[str]) -> "OutputDataModel":  # noqa: C901
             raise ParsingError("Error parsing response data") from err
 
         except KeyError as err:
-            raise ParsingError("{key} was not found in the response", key=str(err))
+            raise ParsingError("{key} was not found in the response", key=str(err)) from err
 
         except ValidationError as err:
-            raise ParsingError(err)
+            raise ParsingError(err) from err
 
     return result
 

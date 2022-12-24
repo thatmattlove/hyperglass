@@ -94,10 +94,10 @@ def parse_juniper(output: Sequence) -> Dict:  # noqa: C901
 
         except KeyError as err:
             log.critical("{} was not found in the response", str(err))
-            raise ParsingError("Error parsing response data")
+            raise ParsingError("Error parsing response data") from err
 
         except ValidationError as err:
             log.critical(str(err))
-            raise ParsingError(err.errors())
+            raise ParsingError(err.errors()) from err
 
     return data

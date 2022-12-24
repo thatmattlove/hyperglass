@@ -128,9 +128,9 @@ def deep_convert_keys(_dict: t.Type[DeepConvert], predicate: t.Callable[[str], s
     def get_value(value: t.Any):
         if isinstance(value, t.Dict):
             return {predicate(k): get_value(v) for k, v in value.items()}
-        elif isinstance(value, t.List):
+        if isinstance(value, t.List):
             return [get_value(v) for v in value]
-        elif isinstance(value, t.Tuple):
+        if isinstance(value, t.Tuple):
             return tuple(get_value(v) for v in value)
         return value
 

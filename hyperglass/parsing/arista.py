@@ -39,19 +39,19 @@ def parse_arista(output: Sequence[str]) -> Dict:  # noqa: C901
 
         except json.JSONDecodeError as err:
             log.critical("Error decoding JSON: {}", str(err))
-            raise ParsingError("Error parsing response data")
+            raise ParsingError("Error parsing response data") from err
 
         except KeyError as err:
             log.critical("'{}' was not found in the response", str(err))
-            raise ParsingError("Error parsing response data")
+            raise ParsingError("Error parsing response data") from err
 
         except IndexError as err:
             log.critical(str(err))
-            raise ParsingError("Error parsing response data")
+            raise ParsingError("Error parsing response data") from err
 
         except ValidationError as err:
             log.critical(str(err))
-            raise ParsingError(err.errors())
+            raise ParsingError(err.errors()) from err
 
-    log.debug("Serialzed: {}", data)
+    log.debug("Serialized: {}", data)
     return data

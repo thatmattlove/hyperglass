@@ -150,8 +150,7 @@ async def docs(params: "Params" = Depends(get_params)):
         return docs_func(
             openapi_url=params.docs.openapi_url, title=params.site_title + " - API Docs"
         )
-    else:
-        raise HTTPException(detail="Not found", status_code=404)
+    raise HTTPException(detail="Not found", status_code=404)
 
 
 async def router(id: str, devices: "Devices" = Depends(get_devices)):

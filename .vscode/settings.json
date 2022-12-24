@@ -1,0 +1,7 @@
+{
+  "yaml.format.singleQuote": true,
+  "eslint.workingDirectories": ["./hyperglass/ui"],
+  "python.linting.mypyEnabled": false,
+  "python.linting.enabled": false,
+  "prettier.configPath": "./hyperglass/ui/.prettierrc"
+}

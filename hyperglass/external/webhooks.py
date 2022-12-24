@@ -31,8 +31,8 @@ class Webhook(BaseExternal):
         try:
             provider_class = PROVIDER_MAP[config.provider]
             return provider_class(config)
-        except KeyError:
+        except KeyError as err:
             raise UnsupportedError(
                 message="{p} is not yet supported as a webhook target.",
                 p=config.provider.title(),
-            )
+            ) from err

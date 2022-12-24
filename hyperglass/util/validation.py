@@ -35,12 +35,12 @@ def get_driver(_type: str, driver: t.Optional[str]) -> str:
         # If no driver is set, use the driver map with netmiko as
         # fallback.
         return DRIVER_MAP.get(_type, "netmiko")
-    elif driver in ALL_DRIVERS:
+    if driver in ALL_DRIVERS:
         # If a driver is set and it is valid, allow it.
         return driver
-    else:
-        # Otherwise, fail validation.
-        raise ValueError("{} is not a supported driver.".format(driver))
+
+    # Otherwise, fail validation.
+    raise ValueError("{} is not a supported driver.".format(driver))
 
 
 def resolve_hostname(

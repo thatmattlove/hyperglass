@@ -79,7 +79,7 @@ class JuniperRouteTableEntry(JuniperBase):
             if "selected_next_hop" in hop:
                 selected_next_hop = hop.get("to", "")
                 break
-            elif hop.get("to") is not None:
+            if hop.get("to") is not None:
                 selected_next_hop = hop["to"]
                 break
 
@@ -114,8 +114,8 @@ class JuniperRouteTableEntry(JuniperBase):
         if not isinstance(value, dict):
             try:
                 value = int(value)
-            except ValueError:
-                raise ValueError(f"Age field is in an unexpected format. Got: {value}")
+            except ValueError as err:
+                raise ValueError(f"Age field is in an unexpected format. Got: {value}") from err
         else:
             value = value.get("@junos:seconds", 0)
         return int(value)

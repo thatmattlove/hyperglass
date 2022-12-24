@@ -79,7 +79,7 @@ class BGPRoute(HyperglassModel):
             # If router validation is enabled, return the value as-is.
             return value
 
-        elif structured.rpki.mode == "external":
+        if structured.rpki.mode == "external":
             # If external validation is enabled, validate the prefix
             # & asn with Cloudflare's RPKI API.
             as_path = values["as_path"]
@@ -88,9 +88,8 @@ class BGPRoute(HyperglassModel):
                 # If the AS_PATH length is 0, i.e. for an internal route,
                 # return RPKI Unknown state.
                 return 3
-            else:
-                # Get last ASN in path
-                asn = as_path[-1]
+            # Get last ASN in path
+            asn = as_path[-1]
 
         try:
             net = ip_network(values["prefix"])
@@ -100,8 +99,8 @@ class BGPRoute(HyperglassModel):
         # Only do external RPKI lookups for global prefixes.
         if net.is_global:
             return rpki_state(prefix=values["prefix"], asn=asn)
-        else:
-            return value
+
+        return value
 
 
 class BGPRouteTable(HyperglassModel):

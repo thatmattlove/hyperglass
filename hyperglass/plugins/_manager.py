@@ -11,7 +11,7 @@ from hyperglass.exceptions.private import PluginError, InputValidationError
 
 # Local
 from ._base import PluginType, HyperglassPlugin
-from ._input import InputPlugin, InputPluginReturn
+from ._input import InputPlugin, InputPluginTransformReturn, InputPluginValidationReturn
 from ._output import OutputType, OutputPlugin
 
 if t.TYPE_CHECKING:
@@ -117,7 +117,7 @@ class PluginManager(t.Generic[PluginT]):
                     log.success("Registered {} plugin {!r}", self._type, instance.name)
                 return
         except TypeError:
-            raise PluginError(
+            raise PluginError(  # noqa: B904
                 "Plugin '{p}' has not defined a required method. "
                 "Please consult the hyperglass documentation.",
                 p=repr(plugin),
@@ -128,30 +128,41 @@ class PluginManager(t.Generic[PluginT]):
 class InputPluginManager(PluginManager[InputPlugin], type="input"):
     """Manage Input Validation Plugins."""
 
-    def execute(self: "InputPluginManager", *, query: "Query") -> InputPluginReturn:
+    def _gather_plugins(
+        self: "InputPluginManager", query: "Query"
+    ) -> t.Generator[InputPlugin, None, None]:
+        for plugin in self.plugins(builtins=True):
+            if plugin.directives and query.directive.id in plugin.directives:
+                yield plugin
+            if plugin.ref in query.directive.plugins:
+                yield plugin
+            if plugin.common is True:
+                yield plugin
+
+    def validate(self: "InputPluginManager", query: "Query") -> InputPluginValidationReturn:
         """Execute all input validation plugins.
 
         If any plugin returns `False`, execution is halted.
         """
         result = None
-        builtins = (
-            plugin
-            for plugin in self.plugins(builtins=True)
-            if plugin.directives and query.directive.id in plugin.directives
-        )
-        directives = (plugin for plugin in self.plugins() if plugin.ref in query.directive.plugins)
-        common = (plugin for plugin in self.plugins() if plugin.common is True)
-
-        for plugin in (*directives, *builtins, *common):
+        for plugin in self._gather_plugins(query):
             result = plugin.validate(query)
             result_test = "valid" if result is True else "invalid" if result is False else "none"
-            log.debug("Input Plugin {!r} result={!r}", plugin.name, result_test)
+            log.debug("Input Plugin Validation {!r} result={!r}", plugin.name, result_test)
             if result is False:
                 raise InputValidationError(
                     error="No matched validation rules", target=query.query_target
                 )
             if result is True:
                 return result
+        return result
+
+    def transform(self: "InputPluginManager", *, query: "Query") -> InputPluginTransformReturn:
+        """Execute all input transformation plugins."""
+        result = query.query_target
+        for plugin in self._gather_plugins(query):
+            result = plugin.transform(query=query)
+            log.debug("Input Plugin Transform {!r} result={!r}", plugin.name, result)
         return result
 
 

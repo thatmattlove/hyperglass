@@ -24,14 +24,14 @@ async def move_files(src: Path, dst: Path, files: t.Iterable[Path]) -> t.Tuple[s
     if not isinstance(src, Path):
         try:
             src = Path(src)
-        except TypeError:
-            raise error("{p} is not a valid path", p=src)
+        except TypeError as err:
+            raise error("{p} is not a valid path", p=src) from err
 
     if not isinstance(dst, Path):
         try:
             dst = Path(dst)
-        except TypeError:
-            raise error("{p} is not a valid path", p=dst)
+        except TypeError as err:
+            raise error("{p} is not a valid path", p=dst) from err
 
     if not isinstance(files, (t.List, t.Tuple, t.Generator)):
         raise error(
@@ -57,7 +57,7 @@ async def move_files(src: Path, dst: Path, files: t.Iterable[Path]) -> t.Tuple[s
                 shutil.copyfile(file, dst_file)
                 migrated += (str(dst_file),)
         except Exception as e:
-            raise error("Failed to migrate {f}: {e}", f=dst_file, e=e)
+            raise error("Failed to migrate {f}: {e}", f=dst_file, e=e) from e
 
     return migrated
 

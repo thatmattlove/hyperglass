@@ -84,15 +84,15 @@ class HyperglassSettings(BaseSettings):
         if value is None:
             if values["debug"] is False:
                 return ip_address("::1")
-            elif values["debug"] is True:
+            if values["debug"] is True:
                 return ip_address("::")
 
         if isinstance(value, str):
             if value != "localhost":
                 try:
                     return ip_address(value)
-                except ValueError:
-                    raise ValueError(str(value))
+                except ValueError as err:
+                    raise ValueError(str(value)) from err
 
             elif value == "localhost":
                 return ip_address("::1")

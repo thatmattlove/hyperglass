@@ -64,7 +64,7 @@ class Action(str):
 
         if value in cls.permits:
             return cls("permit")
-        elif value in cls.denies:
+        if value in cls.denies:
             return cls("deny")
 
         raise ValueError(

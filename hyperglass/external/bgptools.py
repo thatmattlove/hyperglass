@@ -148,7 +148,7 @@ async def network_info(*targets: str) -> TargetData:
 
     # Try to use cached data for each of the items in the list of
     # resources.
-    for target in (t for t in query_targets if t in cached):
+    for target in (target for target in query_targets if target in cached):
         # Reassign the cached network info to the matching resource.
         query_data[target] = cached[target]
         log.debug("Using cached network info for {}", target)

@@ -269,9 +269,9 @@ def _plugins(
         if len(matching) == 0:
             echo.error(f"No plugins matching {search!r}")
             raise typer.Exit(1)
-        else:
-            echo._console.print(Columns(matching))
-            raise typer.Exit(0)
+
+        echo._console.print(Columns(matching))
+        raise typer.Exit(0)
 
     echo._console.print(Columns(all_plugins))
 

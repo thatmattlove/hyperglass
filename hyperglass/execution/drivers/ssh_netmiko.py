@@ -102,10 +102,10 @@ class NetmikoConnection(SSHConnection):
             nm_connect_direct.disconnect()
 
         except NetMikoTimeoutException as scrape_error:
-            raise DeviceTimeout(error=scrape_error, device=self.device)
+            raise DeviceTimeout(error=scrape_error, device=self.device) from scrape_error
 
         except NetMikoAuthenticationException as auth_error:
-            raise AuthError(error=auth_error, device=self.device)
+            raise AuthError(error=auth_error, device=self.device) from auth_error
 
         if not responses:
             raise ResponseEmpty(query=self.query_data)

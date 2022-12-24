@@ -36,8 +36,8 @@ def load_dsl(path: Path, *, empty_allowed: bool) -> LoadedConfig:
 
             loader = yaml.safe_load
 
-        except ImportError:
-            raise ConfigLoaderMissing(path)
+        except ImportError as err:
+            raise ConfigLoaderMissing(path) from err
     elif path.suffix == ".toml":
         try:
             # Third Party
@@ -45,8 +45,8 @@ def load_dsl(path: Path, *, empty_allowed: bool) -> LoadedConfig:
 
             loader = toml.load
 
-        except ImportError:
-            raise ConfigLoaderMissing(path)
+        except ImportError as err:
+            raise ConfigLoaderMissing(path) from err
 
     elif path.suffix == ".json":
         # Standard Library
@@ -112,10 +112,10 @@ def load_config(name: str, *, required: bool) -> LoadedConfig:
     if path is None and required is False:
         return {}
 
-    elif path.suffix == ".py":
+    if path.suffix == ".py":
         return load_python(path, empty_allowed=not required)
 
-    elif path.suffix.replace(".", "") in CONFIG_EXTENSIONS:
+    if path.suffix.replace(".", "") in CONFIG_EXTENSIONS:
         return load_dsl(path, empty_allowed=not required)
 
     raise ConfigError(

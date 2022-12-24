@@ -60,8 +60,8 @@ async def read_package_json() -> t.Dict[str, t.Any]:
         with package_json_file.open("r") as file:
             package_json = json.load(file)
 
-    except Exception as e:
-        raise RuntimeError(f"Error reading package.json: {str(e)}")
+    except Exception as err:
+        raise RuntimeError(f"Error reading package.json: {str(err)}") from err
 
     log.debug("package.json:\n{p}", p=package_json)
 
@@ -98,8 +98,8 @@ async def node_initial(timeout: int = 180, dev_mode: bool = False) -> str:
         await proc.wait()
         all_messages += (messages,)
 
-    except Exception as e:
-        raise RuntimeError(str(e))
+    except Exception as err:
+        raise RuntimeError(str(err)) from err
 
     return "\n".join(all_messages)
 
@@ -107,7 +107,7 @@ async def node_initial(timeout: int = 180, dev_mode: bool = False) -> str:
 async def build_ui(app_path: Path):
     """Execute `next build` & `next export` from UI directory.
 
-    Raises:
+    ### Raises
         RuntimeError: Raised if exit code is not 0.
         RuntimeError: Raised when any other error occurs.
     """
@@ -139,12 +139,12 @@ async def build_ui(app_path: Path):
             await proc.wait()
             all_messages.append(messages)
 
-        except asyncio.TimeoutError:
-            raise RuntimeError(f"{timeout} second timeout exceeded while building UI")
+        except asyncio.TimeoutError as err:
+            raise RuntimeError(f"{timeout} second timeout exceeded while building UI") from err
 
         except Exception as err:
             log.error(err)
-            raise RuntimeError(str(err))
+            raise RuntimeError(str(err)) from err
 
     return "\n".join(all_messages)
 

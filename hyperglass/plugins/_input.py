@@ -8,9 +8,11 @@ from ._base import DirectivePlugin, HyperglassPlugin
 
 if t.TYPE_CHECKING:
     # Project
-    from hyperglass.models.api.query import Query
+    from hyperglass.models.api.query import Query, QueryTarget
 
-InputPluginReturn = t.Union[None, bool]
+
+InputPluginValidationReturn = t.Union[None, bool]
+InputPluginTransformReturn = t.Union[t.Sequence["QueryTarget"], "QueryTarget"]
 
 
 class InputPlugin(HyperglassPlugin, DirectivePlugin):
@@ -19,6 +21,10 @@ class InputPlugin(HyperglassPlugin, DirectivePlugin):
     _type = "input"
     failure_reason: t.Optional[str] = None
 
-    def validate(self, query: "Query") -> InputPluginReturn:
+    def validate(self, query: "Query") -> InputPluginValidationReturn:
         """Validate input from hyperglass UI/API."""
         return None
+
+    def transform(self, query: "Query") -> InputPluginTransformReturn:
+        """Transform query target prior to running commands."""
+        return query.query_target

@@ -56,10 +56,14 @@ class Query(BaseModel):
 
         self.directive = query_directives[0]
 
+        self._input_plugin_manager = InputPluginManager()
+
+        self.query_target = self.transform_query_target()
+
         try:
             self.validate_query_target()
         except InputValidationError as err:
-            raise InputInvalid(**err.kwargs)
+            raise InputInvalid(**err.kwargs) from err
 
     def __repr__(self) -> str:
         """Represent only the query fields."""
@@ -80,13 +84,16 @@ class Query(BaseModel):
         ).hexdigest()
 
     def validate_query_target(self) -> None:
-        """Validate a query target after all fields/relationships havebeen initialized."""
+        """Validate a query target after all fields/relationships have been initialized."""
         # Run config/rule-based validations.
         self.directive.validate_target(self.query_target)
         # Run plugin-based validations.
-        manager = InputPluginManager()
-        manager.execute(query=self)
+        self._input_plugin_manager.validate(query=self)
         log.debug("Validation passed for query {!r}", self)
+
+    def transform_query_target(self) -> QueryTarget:
+        """Transform a query target based on defined plugins."""
+        return self._input_plugin_manager.transform(query=self)
 
     def dict(self) -> t.Dict[str, t.Union[t.List[str], str]]:
         """Include only public fields."""

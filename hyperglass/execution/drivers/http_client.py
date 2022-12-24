@@ -43,7 +43,7 @@ class HttpClient(Connection):
                 self.config._attribute_map.query_location: self.query_data.query_location,
                 self.config._attribute_map.query_type: self.query_data.query_type,
             }
-        elif isinstance(self.config.query, t.Dict):
+        if isinstance(self.config.query, t.Dict):
             return {
                 key: value.format(
                     **{
@@ -65,13 +65,13 @@ class HttpClient(Connection):
         if self.config.body_format == "json":
             return {"json": data}
 
-        elif self.config.body_format == "yaml":
+        if self.config.body_format == "yaml":
             # Third Party
             import yaml
 
             return {"content": yaml.dump(data), "headers": {"content-type": "text/yaml"}}
 
-        elif self.config.body_format == "xml":
+        if self.config.body_format == "xml":
             # Third Party
             import xmltodict  # type: ignore
 
@@ -79,7 +79,7 @@ class HttpClient(Connection):
                 "content": xmltodict.unparse({"query": data}),
                 "headers": {"content-type": "application/xml"},
             }
-        elif self.config.body_format == "text":
+        if self.config.body_format == "text":
             return {"data": data}
 
         return {}
@@ -108,10 +108,10 @@ class HttpClient(Connection):
                 responses += (data,)
 
             except (httpx.TimeoutException) as error:
-                raise DeviceTimeout(error=error, device=self.device)
+                raise DeviceTimeout(error=error, device=self.device) from error
 
             except (httpx.HTTPStatusError) as error:
                 if error.response.status_code == 401:
-                    raise AuthError(error=error, device=self.device)
-                raise RestError(error=error, device=self.device)
+                    raise AuthError(error=error, device=self.device) from error
+                raise RestError(error=error, device=self.device) from error
             return responses

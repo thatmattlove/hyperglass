@@ -243,8 +243,8 @@ class BaseExternal:
             if not isinstance(timeout, int):
                 try:
                     timeout = int(timeout)
-                except TypeError:
-                    raise self._exception(f"Timeout must be an int, got: {str(timeout)}")
+                except TypeError as err:
+                    raise self._exception(f"Timeout must be an int, got: {str(timeout)}") from err
             request["timeout"] = timeout
 
         log.debug("Constructed request parameters {}", request)

@@ -11,11 +11,14 @@ from pydantic import PrivateAttr
 from hyperglass.state.hooks import use_state
 
 # Local
-from .._input import InputPlugin, InputPluginReturn
+from .._input import InputPlugin
 
 if t.TYPE_CHECKING:
     # Project
     from hyperglass.models.api.query import Query
+
+    # Local
+    from .._input import InputPluginValidationReturn
 
 _32BIT = 0xFFFFFFFF
 _16BIT = 0xFFFF
@@ -63,10 +66,10 @@ def validate_new_format(value: str) -> bool:
         if all((check_decimal(one, _16BIT), check_decimal(two, _16BIT))):
             # Handle standard format, e.g. `65000:1`
             return True
-        elif all((check_decimal(one, _16BIT), check_decimal(two, _32BIT))):
+        if all((check_decimal(one, _16BIT), check_decimal(two, _32BIT))):
             # Handle extended format, e.g. `65000:4294967295`
             return True
-        elif all((check_string(one), check_decimal(two, _16BIT))):
+        if all((check_string(one), check_decimal(two, _16BIT))):
             # Handle IP address format, e.g. `192.0.2.1:65000`
             return True
 
@@ -92,7 +95,7 @@ class ValidateBGPCommunity(InputPlugin):
 
     __hyperglass_builtin__: bool = PrivateAttr(True)
 
-    def validate(self, query: "Query") -> InputPluginReturn:
+    def validate(self, query: "Query") -> "InputPluginValidationReturn":
         """Ensure an input query target is a valid BGP community."""
 
         params = use_state("params")

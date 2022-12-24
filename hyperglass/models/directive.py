@@ -137,7 +137,7 @@ class RuleWithIP(Rule):
             valid_target = ip_network(target)
 
         except ValueError as err:
-            raise InputValidationError(error=str(err), target=target)
+            raise InputValidationError(error=str(err), target=target) from err
 
         is_member = self.membership(valid_target, self.condition)
         in_range = self.in_range(valid_target)
@@ -146,7 +146,7 @@ class RuleWithIP(Rule):
             self._passed = True
             return True
 
-        elif is_member and not in_range:
+        if is_member and not in_range:
             self._passed = False
             raise InputValidationError(
                 error="Prefix-length is not within range {ge}-{le}",
@@ -155,7 +155,7 @@ class RuleWithIP(Rule):
                 le=self.le,
             )
 
-        elif is_member and self.action == "deny":
+        if is_member and self.action == "deny":
             self._passed = False
             raise InputValidationError(
                 error="Member of denied network '{network}'",
@@ -204,7 +204,7 @@ class RuleWithPattern(Rule):
 
             if is_match and self.action == "permit":
                 return True
-            elif is_match and self.action == "deny":
+            if is_match and self.action == "deny":
                 return InputValidationError(target=value, error="Denied")
             return False
 
@@ -213,13 +213,13 @@ class RuleWithPattern(Rule):
                 if isinstance(result, BaseException):
                     self._passed = False
                     raise result
-                elif result is False:
+                if result is False:
                     self._passed = False
                     return result
             self._passed = True
             return True
 
-        elif isinstance(target, t.List) and not multiple:
+        if isinstance(target, t.List) and not multiple:
             raise InputValidationError("Target must be a single value")
 
         result = validate_single_value(target)
@@ -277,7 +277,7 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
 
         if self.field.is_select:
             return "select"
-        elif self.field.is_text or self.field.is_ip:
+        if self.field.is_text or self.field.is_ip:
             return "text"
         return None
 
