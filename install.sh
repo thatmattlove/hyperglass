@@ -2,10 +2,13 @@
 
 set -e
 
+# HYPERGLASS_VERSION="1.0.0b42"
+
 MIN_PYTHON_MAJOR="3"
-MIN_PYTHON_MINOR="9"
-MIN_NODE_MAJOR="18"
-MIN_REDIS_MAJOR="6"
+MIN_PYTHON_MINOR="6"
+MIN_NODE_MAJOR="14"
+MIN_YARN_MAJOR="1"
+MIN_REDIS_MAJOR="4"
 
 APT_INSTALL="apt-get install -y"
 APT_UPDATE="apt update"
@@ -21,14 +24,10 @@ INSTALLER=""
 NEEDS_UPDATE="0"
 NEEDS_PYTHON="1"
 NEEDS_NODE="1"
-NEEDS_PNPM="1"
+NEEDS_YARN="1"
 NEEDS_REDIS="1"
 
-PNPM_INSTALL_FILE="/tmp/hyperglass-install-pnpm.sh"
-
 has_cmd() {
-    source ~/.profile
-
     which $1 >/dev/null
 
     if [[ $? == 0 ]]; then
@@ -40,7 +39,7 @@ has_cmd() {
 
 clean_temp() {
     echo "Cleaning up temporary files..."
-    rm -rf $PNPM_INSTALL_FILE
+    rm -rf /tmp/yarnkey.gpg
     rm -rf /tmp/nodesetup.sh
 }
 
@@ -130,14 +129,14 @@ needs_node() {
     fi
 }
 
-needs_pnpm() {
-    local has_pnpm=$(has_cmd pnpm)
-    if [[ $has_pnpm == 1 ]]; then
-        NEEDS_PNPM="1"
-    elif [[ $has_pnpm == 0 ]]; then
-        NEEDS_PNPM="0"
+needs_yarn() {
+    local has_yarn=$(has_cmd yarn)
+    if [[ $has_yarn == 1 ]]; then
+        NEEDS_YARN="1"
+    elif [[ $has_yarn == 0 ]]; then
+        NEEDS_YARN="0"
     else
-        NEEDS_PNPM="1"
+        NEEDS_YARN="1"
     fi
 }
 
@@ -195,16 +194,16 @@ node_post() {
     fi
 }
 
-pnpm_post() {
+yarn_post() {
     if [[ $1 == 0 ]]; then
-        local successful=$(NEEDS_PNPM)
+        local successful=$(needs_yarn)
         if [[ $successful == 0 ]]; then
-            echo "[SUCCESS] Installed PNPM $(pnpm --version | egrep -o '\d+\.\d+\.\d+')"
+            echo "[SUCCESS] Installed Yarn $(yarn --version | egrep -o '\d+\.\d+\.\d+')"
         else
-            echo "[ERROR] Tried to install PNPM, but post-install check failed."
+            echo "[ERROR] Tried to install Yarn, but post-install check failed."
         fi
     else
-        echo '[ERROR] Tried to install PNPM, but encountered an error.'
+        echo '[ERROR] Tried to install Yarn, but encountered an error.'
     fi
 }
 
@@ -228,6 +227,14 @@ node_apt_prepare() {
     NEEDS_UPDATE="1"
 }
 
+yarn_apt_prepare() {
+    curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg -o /tmp/yarnkey.gpg
+    sleep 1
+    apt-key add /tmp/yarnkey.gpg
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+    NEEDS_UPDATE="1"
+}
+
 node_yum_prepare() {
     curl -sL https://rpm.nodesource.com/setup_$MIN_NODE_MAJOR.x -o /tmp/nodesetup.sh
     bash /tmp/nodesetup.sh
@@ -235,9 +242,9 @@ node_yum_prepare() {
     NEEDS_UPDATE="1"
 }
 
-redis_apt_prepare() {
-    curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
-    echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/redis.list
+yarn_yum_prepare() {
+    curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo
+    sleep 1
     NEEDS_UPDATE="1"
 }
 
@@ -257,6 +264,24 @@ node_brew() {
     brew install node
     sleep 1
     node_post $?
+}
+
+yarn_apt() {
+    apt-get install -y yarn
+    sleep 1
+    yarn_post $?
+}
+
+yarn_yum() {
+    yum -y install gcc-c++ make yarn
+    sleep 1
+    yarn_post $?
+}
+
+yarn_brew() {
+    brew install yarn
+    sleep 1
+    yarn_post $?
 }
 
 python_apt() {
@@ -281,7 +306,7 @@ python_brew() {
 }
 
 redis_apt() {
-    apt-get install -y redis
+    apt-get install -y redis-server
     sleep 1
     redis_post $?
 }
@@ -350,21 +375,25 @@ install_node() {
     fi
 }
 
-install_pnpm() {
-    if [[ $NEEDS_PNPM == "1" ]]; then
-        echo "[INFO] Installing PNPM..."
-        curl -fsSL https://get.pnpm.io/install.sh -o $PNPM_INSTALL_FILE
-        bash $PNPM_INSTALL_FILE
+install_yarn() {
+    if [[ $NEEDS_YARN == "1" ]]; then
+        echo "[INFO] Installing Yarn..."
 
-    elif [[ $NEEDS_PNPM == "0" ]]; then
-        echo "[INFO] Your system is running PNPM $(pnpm --version)."
+        if [[ $INSTALLER == "apt" ]]; then
+            yarn_apt
+        elif [[ $INSTALLER == "yum" ]]; then
+            yarn_yum
+        elif [[ $INSTALLER == "brew" ]]; then
+            yarn_brew
+        fi
+
+    elif [[ $NEEDS_YARN == "0" ]]; then
+        echo "[INFO] Your system is running Yarn $(yarn --version) (Minimum is $MIN_YARN_MAJOR+)."
 
     else
-        echo "[ERROR] Unable to determine if your system needs PNPM."
+        echo "[ERROR] Unable to determine if your system needs Yarn."
         exit 1
-
     fi
-    pnpm_post $?
 }
 
 install_redis() {
@@ -472,17 +501,19 @@ while true; do
 
     needs_python
     needs_node
-    needs_pnpm
+    needs_yarn
     needs_redis
+
+    if [[ $NEEDS_YARN == "1" && $INSTALLER == "apt" ]]; then
+        yarn_apt_prepare
+    elif [[ $NEEDS_YARN == "1" && $INSTALLER == "yum" ]]; then
+        yarn_yum_prepare
+    fi
 
     if [[ $NEEDS_NODE == "1" && $INSTALLER == "apt" ]]; then
         node_apt_prepare
     elif [[ $NEEDS_NODE == "1" && $INSTALLER == "yum" ]]; then
         node_yum_prepare
-    fi
-
-    if [[ $NEEDS_REDIS == "1" && $INSTALLER == "apt" ]]; then
-        redis_apt_prepare
     fi
 
     if [[ $NEEDS_UPDATE == "1" ]]; then
@@ -491,7 +522,7 @@ while true; do
 
     install_python
     install_node
-    install_pnpm
+    install_yarn
     install_redis
 
     if [[ $? == 0 ]]; then
