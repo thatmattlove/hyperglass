@@ -118,9 +118,7 @@ class HyperglassUniqueModel(HyperglassModel):
 
     def __hash__(self: "HyperglassUniqueModel") -> int:
         """Create a hashed representation of this model's name."""
-        fields = dict(
-            zip(self._unique_fields, (getattr(self, f) for f in self._unique_fields), strict=True)
-        )
+        fields = dict(zip(self._unique_fields, (getattr(self, f) for f in self._unique_fields)))
         return hash(json.dumps(fields))
 
 

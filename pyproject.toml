@@ -134,6 +134,7 @@ ignore = [
   "D418", # No docstring on overloaded functions.
   "N818", # Error suffix on custom exceptions.
   "RET501", # Explicitly return None
+  "B905", # zip without `strict`
 ]
 line-length = 100
 select = ["B", "C", "D", "E", "F", "I", "N", "S", "RET", "W"]
