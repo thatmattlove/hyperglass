@@ -23,6 +23,9 @@ __pycache__/
 # Pytest
 .pytest_cache
 
+# Ruff
+.ruff_cache
+
 # C extensions
 *.so
 
