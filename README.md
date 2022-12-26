@@ -17,9 +17,9 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/hyperglass?color=%2340798C&style=for-the-badge)
 [![GitHub Contributors](https://img.shields.io/github/contributors/thatmattlove/hyperglass?color=40798C&style=for-the-badge)](https://github.com/thatmattlove/hyperglass)
 
-[![Frontend Tests](https://img.shields.io/github/workflow/status/thatmattlove/hyperglass/frontend.yml?label=Frontend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/frontend.yml)
-[![Backend Tests](https://img.shields.io/github/workflow/status/thatmattlove/hyperglass/backend.yml?label=Backend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/backend.yml)
-[![Installer Tests](https://img.shields.io/github/workflow/status/thatmattlove/hyperglass/installer.yml?label=Installer%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/installer.yml)
+[![Frontend Tests](https://img.shields.io/github/actions/workflow/status/thatmattlove/hyperglass/frontend.yml?label=Frontend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/frontend.yml)
+[![Backend Tests](https://img.shields.io/github/actions/workflow/status/thatmattlove/hyperglass/backend.yml?label=Backend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/backend.yml)
+[![Installer Tests](https://img.shields.io/github/actions/workflow/status/thatmattlove/hyperglass/installer.yml?label=Installer%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/installer.yml)
 
 <br/>
 
