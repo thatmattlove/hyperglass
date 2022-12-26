@@ -1,1 +1,44 @@
-# Test
+---
+title: Introduction
+description: Get started with hyperglass
+---
+
+import Link from 'next/link';
+import { Button } from 'nextra/components';
+
+## What is hyperglass?
+
+**hyperglass** is an open source network looking glass written by a network engineer for other network engineers. The purpose of a looking glass is to provide customers, peers, and complete strangers with unattended visibility into the an operator's network.
+
+hyperglass was created with the lofty goal of benefiting the internet community at-large by providing a faster, easier, and more secure way for operators to provide looking glass services to their customers, peers, and other network operators.
+
+## Features
+
+- BGP Route, BGP Community, BGP AS Path, Ping, & Traceroute
+- Full IPv6 support
+- Customizable everything: features, theme, UI/API text, error messages, commands
+- Built in support for:
+  - Arista EOS
+  - BIRD
+  - Cisco IOS-XR
+  - Cisco IOS/IOS-XE
+  - Cisco NX-OS
+  - FRRouting
+  - Huawei
+  - Juniper JunOS
+  - Mikrotik
+  - Nokia SR OS
+  - TNSR
+  - VyOS
+- Configurable support for any other [supported platform](platforms.mdx)
+- Optionally access devices via an SSH proxy/jump server
+- VRF support
+- Access List/prefix-list style query control to whitelist or blacklist query targets on a per-VRF basis
+- REST API with automatic, configurable OpenAPI documentation
+- Modern, responsive UI
+- Query multiple devices simultaneously
+- Browser-based DNS-over-HTTPS resolution of FQDN queries
+
+<Link href="/installation">
+  <Button>Get Started</Button>
+</Link>

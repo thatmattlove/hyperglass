@@ -1,7 +1,33 @@
 {
-  "index": "hyperglass",
-  "introduction": "Introduction",
+  "index": { "title": "Introduction", "theme": { "breadcrumb": false } },
+  "---": {
+    "type": "separator"
+  },
   "installation": "Installation",
   "configuration": "Configuration",
-  "plugins": "Plugins"
+  "plugins": "Plugins",
+  "documentation": {
+    "title": "Documentation",
+    "type": "menu",
+    "items": {
+      "installation": {
+        "title": "Installation",
+        "href": "/installation"
+      },
+      "configuration": {
+        "title": "Configuration",
+        "href": "/configuration"
+      },
+      "plugins": {
+        "title": "Plugins",
+        "href": "/plugins"
+      }
+    }
+  },
+  "demo": {
+    "title": "Demo",
+    "type": "page",
+    "href": "https://demo.hyperglass.dev",
+    "newWindow": true
+  }
 }

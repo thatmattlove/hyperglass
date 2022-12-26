@@ -1,6 +1,4 @@
 {
-  "examples": "Examples",
-  "config-file-reference": "Config File Reference",
-  "devices-file-reference": "Devices File Reference",
-  "directives-file-reference": "Directives File Reference"
+  "reference": "Reference",
+  "examples": "Examples"
 }
