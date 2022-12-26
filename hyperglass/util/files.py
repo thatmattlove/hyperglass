@@ -104,51 +104,52 @@ def copyfiles(src_files: t.Iterable[Path], dst_files: t.Iterable[Path]):
             )
         )
 
-    for i, file in enumerate(src_files):
-        file_thread = FileCopy(src=file, dst=dst_files[i], queue=queue)
+    for i, file_ in enumerate(src_files):
+        file_thread = FileCopy(src=file_, dst=dst_files[i], queue=queue)
         threads += (file_thread,)
 
     for thread in threads:
         thread.start()
 
-    for _file in src_files:
+    for _ in src_files:
         copied = queue.get()
         log.debug("Copied {}", str(copied))
 
     for thread in threads:
         thread.join()
 
-    for i, file in enumerate(dst_files):
-        if not file.exists():
-            raise RuntimeError("{} was not copied to {}", str(src_files[i]), str(file))
+    for i, file_ in enumerate(dst_files):
+        if not file_.exists():
+            raise RuntimeError("{!s} was not copied to {!s}", src_files[i], file_)
 
     return True
 
 
-def check_path(path: t.Union[Path, str], mode: str = "r", create: bool = False) -> t.Optional[Path]:
+def check_path(
+    path: t.Union[Path, str], *, mode: str = "r", create: bool = False
+) -> t.Optional[Path]:
     """Verify if a path exists and is accessible."""
 
     result = None
 
-    try:
-        if not isinstance(path, Path):
-            path = Path(path)
+    if not isinstance(path, Path):
+        path = Path(path)
 
-        if not path.exists():
-            if create:
-                if path.is_file():
-                    path.parent.mkdir(parents=True)
-                else:
-                    path.mkdir(parents=True)
+    if not path.exists():
+        if create:
+            if path.is_file():
+                path.parent.mkdir(parents=True)
             else:
-                raise FileNotFoundError(f"{str(path)} does not exist.")
+                path.mkdir(parents=True)
+        else:
+            raise FileNotFoundError(f"{str(path)} does not exist.")
 
-        if path.exists():
+    if path.exists():
+        if path.is_file():
             with path.open(mode):
                 result = path
-
-    except Exception:  # noqa: S110
-        pass
+        else:
+            result = path
 
     return result
 
