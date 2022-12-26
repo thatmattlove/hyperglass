@@ -80,3 +80,8 @@ DRIVER_MAP = {
     "frr": "netmiko",
     "http": "hyperglass_http_client",
 }
+
+LINUX_PLATFORMS = (
+    "frr",
+    "bird",
+)

@@ -64,7 +64,7 @@ class NetmikoConnection(SSHConnection):
         driver_kwargs = {
             "host": host or self.device._target,
             "port": port or self.device.port,
-            "device_type": self.device.platform,
+            "device_type": self.device.get_device_type(),
             "username": self.device.credential.username,
             "global_delay_factor": 0.1,
             "timeout": math.floor(params.request_timeout * 1.25),

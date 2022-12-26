@@ -15,7 +15,12 @@ from hyperglass.log import log
 from hyperglass.util import get_driver, get_fmt_keys, resolve_hostname
 from hyperglass.state import use_state
 from hyperglass.settings import Settings
-from hyperglass.constants import DRIVER_MAP, SCRAPE_HELPERS, SUPPORTED_STRUCTURED_OUTPUT
+from hyperglass.constants import (
+    DRIVER_MAP,
+    SCRAPE_HELPERS,
+    LINUX_PLATFORMS,
+    SUPPORTED_STRUCTURED_OUTPUT,
+)
 from hyperglass.exceptions.private import ConfigError, UnsupportedDevice
 
 # Local
@@ -123,6 +128,19 @@ class Device(HyperglassModelWithId, extra="allow"):
             if directive_id in self.directive_ids:
                 return True
         return False
+
+    def get_device_type(self) -> str:
+        """Get the `device_type` field for use by Netmiko.
+
+        In some cases, the platform might be different than the
+        device_type. For example, any linux-based platform like FRR,
+        BIRD, or OpenBGPD will have directives associated with those
+        platforms, but the `device_type` sent to Netmiko needs to be
+        `linux_ssh`.
+        """
+        if self.platform in LINUX_PLATFORMS:
+            return "linux_ssh"
+        return self.platform
 
     def _validate_directive_attrs(self) -> None:
 
