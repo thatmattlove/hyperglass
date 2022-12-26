@@ -65,6 +65,7 @@ pytest-dependency = "^0.5.1"
 ruff = "^0.0.192"
 stackprinter = "^0.2.10"
 taskipy = "^1.10.3"
+pytest-asyncio = "^0.20.3"
 
 [tool.black]
 line-length = 100
