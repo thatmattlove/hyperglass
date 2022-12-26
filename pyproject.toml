@@ -61,11 +61,11 @@ isort = "^5.10.1"
 pep8-naming = "^0.13.2"
 pre-commit = "^2.20.0"
 pytest = "^7.2.0"
+pytest-asyncio = "^0.20.3"
 pytest-dependency = "^0.5.1"
 ruff = "v0.0.194"
 stackprinter = "^0.2.10"
 taskipy = "^1.10.3"
-pytest-asyncio = "^0.20.3"
 
 [tool.black]
 line-length = 100
@@ -95,6 +95,7 @@ reportMissingTypeStubs = true
 
 [tool.taskipy.tasks]
 check = {cmd = "task lint && task ui-lint", help = "Run all lint checks"}
+docs-platforms = {cmd = "python3 -c 'from hyperglass.util.docs import create_platform_list;print(create_platform_list())'"}
 format = {cmd = "black hyperglass", help = "Run Black"}
 lint = {cmd = "ruff hyperglass", help = "Run Ruff Linter"}
 sort = {cmd = "isort hyperglass", help = "Run iSort"}
