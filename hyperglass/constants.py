@@ -78,10 +78,12 @@ SCRAPE_HELPERS = {
 DRIVER_MAP = {
     "bird": "netmiko",
     "frr": "netmiko",
+    "openbgpd": "netmiko",
     "http": "hyperglass_http_client",
 }
 
 LINUX_PLATFORMS = (
     "frr",
     "bird",
+    "openbgpd",
 )
