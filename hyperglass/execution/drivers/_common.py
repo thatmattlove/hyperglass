@@ -13,9 +13,9 @@ from ._construct import Construct
 
 if t.TYPE_CHECKING:
     # Project
+    from hyperglass.compat import SSHTunnelForwarder
     from hyperglass.models.api import Query
     from hyperglass.models.data import OutputDataModel
-    from hyperglass.compat._sshtunnel import SSHTunnelForwarder
     from hyperglass.models.config.devices import Device
 
 

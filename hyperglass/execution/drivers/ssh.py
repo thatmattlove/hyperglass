@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 # Project
 from hyperglass.log import log
 from hyperglass.state import use_state
-from hyperglass.compat._sshtunnel import BaseSSHTunnelForwarderError, open_tunnel
+from hyperglass.compat import BaseSSHTunnelForwarderError, open_tunnel
 from hyperglass.exceptions.public import ScrapeError
 
 # Local
@@ -14,7 +14,7 @@ from ._common import Connection
 
 if TYPE_CHECKING:
     # Project
-    from hyperglass.compat._sshtunnel import SSHTunnelForwarder
+    from hyperglass.compat import SSHTunnelForwarder
 
 
 class SSHConnection(Connection):
