@@ -9,9 +9,6 @@ from netmiko.ssh_dispatcher import CLASS_MAPPER  # type: ignore
 # Project
 from hyperglass.constants import DRIVER_MAP
 
-ALL_DEVICE_TYPES = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
-ALL_DRIVERS = {*DRIVER_MAP.values(), "netmiko"}
-
 if t.TYPE_CHECKING:
     # Standard Library
     from ipaddress import IPv4Address, IPv6Address
@@ -20,9 +17,11 @@ if t.TYPE_CHECKING:
 def validate_platform(_type: str) -> t.Tuple[bool, t.Union[None, str]]:
     """Validate device type is supported."""
 
+    all_device_types = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
+
     result = (False, None)
 
-    if _type in ALL_DEVICE_TYPES:
+    if _type in all_device_types:
         result = (True, DRIVER_MAP.get(_type, "netmiko"))
 
     return result
@@ -35,7 +34,10 @@ def get_driver(_type: str, driver: t.Optional[str]) -> str:
         # If no driver is set, use the driver map with netmiko as
         # fallback.
         return DRIVER_MAP.get(_type, "netmiko")
-    if driver in ALL_DRIVERS:
+
+    all_drivers = {*DRIVER_MAP.values(), "netmiko"}
+
+    if driver in all_drivers:
         # If a driver is set and it is valid, allow it.
         return driver
 
