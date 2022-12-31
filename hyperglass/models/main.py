@@ -36,7 +36,7 @@ class HyperglassModel(BaseModel):
         def alias_generator(cls: "HyperglassModel", field: str) -> str:
             """Remove unsupported characters from field names.
 
-            Converts any "desirable" seperators to underscore, then removes all
+            Converts any "desirable" separators to underscore, then removes all
             characters that are unsupported in Python class variable names.
             Also removes leading numbers underscores.
             """
