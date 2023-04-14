@@ -25,6 +25,16 @@
 
 hyperglass is intended to make implementing a looking glass too easy not to do, with the lofty goal of improving the internet community at large by making looking glasses more common across autonomous systems of any size.
 
+<br/>
+
+{% warning %}
+
+hyperglass is under active development via the [v2.0.0 branch](https://github.com/thatmattlove/hyperglass/tree/v2.0.0). No further changes will be made to the v1.0.0 branch.
+
+_Unfortunately, I've been extremely busy in my work and personal life and haven't had a lot of time to dedicate to hyperglass recently. I'm hoping that will change soon, but in the meantime, hyperglass v1.0.0 might be unusable or unstable unless you're running Ubuntu 18.04, Python 3.6, and Node 14, which is probably a bad idea for security reasons. v2.0.0 is almost ready for release, but not quite yet._
+
+{% endnote %}
+
 </div>
 
 ### [Changelog](https://github.com/thatmattlove/hyperglass/blob/v1.0.0/CHANGELOG.md)
