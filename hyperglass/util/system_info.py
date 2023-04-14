@@ -22,6 +22,7 @@ def _cpu() -> SystemData:
     brand = cpu_info.get("brand_raw", "")
     cores_logical = _psutil.cpu_count()
     cores_raw = _psutil.cpu_count(logical=False)
+    # TODO: this is currently broken for M1 Macs, check status of: https://github.com/giampaolo/psutil/issues/1892
     cpu_ghz = _psutil.cpu_freq().current / 1000
     return (brand, cores_logical, cores_raw, cpu_ghz)
 
