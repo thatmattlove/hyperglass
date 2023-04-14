@@ -42,7 +42,7 @@ const TestComponent = (): JSX.Element => {
 };
 
 describe('useGreeting Hook', () => {
-  it('should open and close when toggled', () => {
+  it('should open and close when toggled', async () => {
     const { container } = render(<TestComponent />);
     const open = container.querySelector('#open');
     const close = container.querySelector('#close');
@@ -50,16 +50,16 @@ describe('useGreeting Hook', () => {
 
     if (open !== null && close !== null && isOpen !== null) {
       expect(isOpen).toHaveTextContent(FALSE);
-      userEvent.click(open);
+      await userEvent.click(open);
       expect(isOpen).toHaveTextContent(TRUE);
-      userEvent.click(close);
+      await userEvent.click(close);
       expect(isOpen).toHaveTextContent(FALSE);
     } else {
       throw new Error('Test render error');
     }
   });
 
-  it('should properly update acknowledgement state', () => {
+  it('should properly update acknowledgement state', async () => {
     const { container } = render(<TestComponent />);
     const open = container.querySelector('#open');
     const close = container.querySelector('#close');
@@ -82,31 +82,31 @@ describe('useGreeting Hook', () => {
       ackFalseNotRequired !== null &&
       ackTrueNotRequired !== null
     ) {
-      userEvent.click(open);
+      await userEvent.click(open);
       expect(isOpen).toHaveTextContent(TRUE);
       expect(isAck).toHaveTextContent(FALSE);
       expect(greetingReady).toHaveTextContent(FALSE);
 
-      userEvent.click(open);
-      userEvent.click(ackFalseRequired);
+      await userEvent.click(open);
+      await userEvent.click(ackFalseRequired);
       expect(isOpen).toHaveTextContent(FALSE);
       expect(isAck).toHaveTextContent(FALSE);
       expect(greetingReady).toHaveTextContent(FALSE);
 
-      userEvent.click(open);
-      userEvent.click(ackTrueRequired);
+      await userEvent.click(open);
+      await userEvent.click(ackTrueRequired);
       expect(isOpen).toHaveTextContent(FALSE);
       expect(isAck).toHaveTextContent(TRUE);
       expect(greetingReady).toHaveTextContent(TRUE);
 
-      userEvent.click(open);
-      userEvent.click(ackFalseNotRequired);
+      await userEvent.click(open);
+      await userEvent.click(ackFalseNotRequired);
       expect(isOpen).toHaveTextContent(FALSE);
       expect(isAck).toHaveTextContent(FALSE);
       expect(greetingReady).toHaveTextContent(TRUE);
 
-      userEvent.click(open);
-      userEvent.click(ackTrueNotRequired);
+      await userEvent.click(open);
+      await userEvent.click(ackTrueNotRequired);
       expect(isOpen).toHaveTextContent(FALSE);
       expect(isAck).toHaveTextContent(TRUE);
       expect(greetingReady).toHaveTextContent(TRUE);

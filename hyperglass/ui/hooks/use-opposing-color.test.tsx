@@ -23,7 +23,7 @@ const TestComponent = (): JSX.Element => {
 };
 
 describe('useOpposingColor Hook', () => {
-  it('should change foreground color', () => {
+  it('should change foreground color', async () => {
     const { getByRole, container } = render(
       <ChakraProvider theme={extendTheme({ initialColorMode: 'light', useSystemColorMode: false })}>
         <TestComponent />
@@ -35,12 +35,12 @@ describe('useOpposingColor Hook', () => {
     expect(test1).toHaveStyle('color: black;');
     expect(test2).toHaveStyle('color: black;');
 
-    userEvent.click(getByRole('button'));
+    await userEvent.click(getByRole('button'));
 
     expect(test1).toHaveStyle('color: white;');
     expect(test2).toHaveStyle('color: white;');
 
-    userEvent.click(getByRole('button'));
+    await userEvent.click(getByRole('button'));
 
     expect(test1).toHaveStyle('color: black;');
     expect(test2).toHaveStyle('color: black;');
