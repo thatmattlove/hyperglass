@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { fetchWithTimeout } from '~/util';
 
 import type {
@@ -6,7 +6,7 @@ import type {
   UseQueryResult,
   UseQueryOptions,
   QueryFunctionContext,
-} from 'react-query';
+} from '@tanstack/react-query';
 
 interface WtfIndividual {
   ip: string;
@@ -44,7 +44,9 @@ function transform(wtf: WtfIsMyIP): WtfIndividual {
   };
 }
 
-const query: QueryFunction<WtfIndividual, string> = async (ctx: QueryFunctionContext<string>) => {
+const query: QueryFunction<WtfIndividual, string[]> = async (
+  ctx: QueryFunctionContext<string[]>,
+) => {
   const controller = new AbortController();
   const [url] = ctx.queryKey;
 
@@ -61,7 +63,7 @@ const query: QueryFunction<WtfIndividual, string> = async (ctx: QueryFunctionCon
   return transform(data);
 };
 
-const common: UseQueryOptions<WtfIndividual, unknown, WtfIndividual, string> = {
+const common: UseQueryOptions<WtfIndividual, unknown, WtfIndividual, string[]> = {
   queryFn: query,
   enabled: false,
   refetchInterval: false,
@@ -72,12 +74,12 @@ const common: UseQueryOptions<WtfIndividual, unknown, WtfIndividual, string> = {
 };
 
 export function useWtf(): Wtf {
-  const ipv4 = useQuery<WtfIndividual, unknown, WtfIndividual, string>({
-    queryKey: URL_IP4,
+  const ipv4 = useQuery<WtfIndividual, unknown, WtfIndividual, string[]>({
+    queryKey: [URL_IP4],
     ...common,
   });
-  const ipv6 = useQuery<WtfIndividual, unknown, WtfIndividual, string>({
-    queryKey: URL_IP6,
+  const ipv6 = useQuery<WtfIndividual, unknown, WtfIndividual, string[]>({
+    queryKey: [URL_IP6],
     ...common,
   });
 

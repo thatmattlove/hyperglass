@@ -6,8 +6,8 @@ import { useOpposingColor, useColorMode, useColorValue, useBreakpointValue } fro
 
 import type { ButtonProps } from '@chakra-ui/react';
 
-interface ColorModeToggleProps extends ButtonProps {
-  size?: string;
+interface ColorModeToggleProps extends Omit<ButtonProps, 'size'> {
+  size?: string | number;
 }
 
 export const ColorModeToggle = forwardRef<HTMLButtonElement, ColorModeToggleProps>(

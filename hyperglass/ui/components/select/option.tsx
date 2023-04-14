@@ -11,9 +11,13 @@ export const Option = <Opt extends SingleOption, IsMulti extends boolean>(
   const tags = Array.isArray(data.tags) ? (data.tags as string[]) : [];
   return (
     <components.Option<Opt, IsMulti, GroupBase<Opt>> {...props}>
-      <chakra.span d={{ base: 'block', lg: 'inline' }}>{label}</chakra.span>
+      <chakra.span display={{ base: 'block', lg: 'inline' }}>{label}</chakra.span>
       {tags.length > 0 && (
-        <HStack d={{ base: 'flex', lg: 'inline-flex' }} ms={{ base: 0, lg: 2 }} alignItems="center">
+        <HStack
+          alignItems="center"
+          ms={{ base: 0, lg: 2 }}
+          display={{ base: 'flex', lg: 'inline-flex' }}
+        >
           {tags.map(tag => (
             <Badge fontSize="xs" variant="subtle" key={tag} colorScheme="gray" textTransform="none">
               {tag}

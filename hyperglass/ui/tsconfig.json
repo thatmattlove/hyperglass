@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES5",
-    "module": "esnext",
+    "target": "ESNext",
+    "module": "ESNext",
     "downlevelIteration": true,
     "strict": true,
     "baseUrl": "." /* Base directory to resolve non-absolute module names. */,

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getHyperglassConfig } from '~/util';
 
-import type { UseQueryResult } from 'react-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 import type { ConfigLoadError } from '~/util';
 import type { Config } from '~/types';
 
@@ -38,7 +38,7 @@ export function useHyperglassConfig(): UseHyperglassConfig {
   const [initFailed, setInitFailed] = useState<boolean>(false);
 
   const query = useQuery<Config, ConfigLoadError>({
-    queryKey: 'hyperglass-ui-config',
+    queryKey: ['hyperglass-ui-config'],
     queryFn: getHyperglassConfig,
     refetchOnWindowFocus: false,
     refetchInterval: 10000,

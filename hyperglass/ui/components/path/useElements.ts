@@ -2,17 +2,20 @@ import dagre from 'dagre';
 import { useMemo } from 'react';
 import isEqual from 'react-fast-compare';
 
-import type { FlowElement } from 'react-flow-renderer';
+import type { Node, Edge } from 'react-flow-renderer';
+import type { NodeData } from './chart';
 
 interface BasePath {
   asn: string;
   name: string;
 }
 
+type FlowElement<T> = Node<T> | Edge<T>;
+
 const NODE_WIDTH = 200;
 const NODE_HEIGHT = 48;
 
-export function useElements(base: BasePath, data: StructuredResponse): FlowElement[] {
+export function useElements(base: BasePath, data: StructuredResponse): FlowElement<NodeData>[] {
   return useMemo(() => {
     return [...buildElements(base, data)];
   }, [base, data]);
@@ -22,7 +25,10 @@ export function useElements(base: BasePath, data: StructuredResponse): FlowEleme
  * Calculate the positions for each AS Path.
  * @see https://github.com/MrBlenny/react-flow-chart/issues/61
  */
-function* buildElements(base: BasePath, data: StructuredResponse): Generator<FlowElement> {
+function* buildElements(
+  base: BasePath,
+  data: StructuredResponse,
+): Generator<FlowElement<NodeData>> {
   const { routes } = data;
   // Eliminate empty AS paths & deduplicate non-empty AS paths. Length should be same as count minus empty paths.
   const asPaths = routes.filter(r => r.as_path.length !== 0).map(r => [...new Set(r.as_path)]);
@@ -107,7 +113,7 @@ function* buildElements(base: BasePath, data: StructuredResponse): Generator<Flo
           type: 'ASNode',
           position: { x, y },
           data: {
-            asn,
+            asn: `${asn}`,
             name: `AS${asn}`,
             hasChildren: idx < endIdx,
             hasParents: true,

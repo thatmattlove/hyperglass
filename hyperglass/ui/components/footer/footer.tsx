@@ -48,7 +48,7 @@ export const Footer = (): JSX.Element => {
       whiteSpace="nowrap"
       color={footerColor}
       spacing={{ base: 8, lg: 6 }}
-      d={{ base: 'inline-block', lg: 'flex' }}
+      display={{ base: 'inline-block', lg: 'flex' }}
       overflowY={{ base: 'auto', lg: 'unset' }}
       justifyContent={{ base: 'center', lg: 'space-between' }}
     >

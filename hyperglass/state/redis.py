@@ -92,7 +92,7 @@ class RedisManager:
         name = self.key(key)
         value: t.Optional[bytes] = self.instance.get(name)
         if isinstance(value, bytes):
-            return pickle.loads(value)
+            return pickle.loads(value)  # noqa
         if raise_if_none is True:
             raise StateError("'{key}' ('{name}') does not exist in Redis store", key=key, name=name)
         if value_if_none is not None:
@@ -121,7 +121,7 @@ class RedisManager:
             value = self.instance.hgetall(name)
 
         if isinstance(value, bytes):
-            return pickle.loads(value)
+            return pickle.loads(value)  # noqa
         return None
 
     def set_map_item(self, key: str, item: str, value: t.Any) -> None:

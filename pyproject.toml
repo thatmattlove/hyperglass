@@ -63,7 +63,7 @@ pre-commit = "^2.20.0"
 pytest = "^7.2.0"
 pytest-asyncio = "^0.20.3"
 pytest-dependency = "^0.5.1"
-ruff = "v0.0.194"
+ruff = "^0.0.261"
 stackprinter = "^0.2.10"
 taskipy = "^1.10.3"
 
@@ -128,6 +128,7 @@ ignore = [
   "E731",
   "D203", # Blank line before docstring.
   "D213", # Multiline docstring summary on second line.
+  "D107", # Don't require docstrings for __init__ functions.
   "D402",
   "D406",
   "D407",
@@ -137,9 +138,13 @@ ignore = [
   "N818", # Error suffix on custom exceptions.
   "RET501", # Explicitly return None
   "B905", # zip without `strict`
+  "W293", # blank line contains whitespace
 ]
 line-length = 100
 select = ["B", "C", "D", "E", "F", "I", "N", "S", "RET", "W"]
+
+[tool.ruff.pydocstyle]
+convention = "pep257"
 
 [tool.ruff.mccabe]
 max-complexity = 10

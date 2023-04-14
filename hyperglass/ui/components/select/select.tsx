@@ -75,6 +75,7 @@ export const Select = forwardRef(
           isMulti={isMulti}
           theme={rsTheme}
           components={{ Option, ...components }}
+          menuPortalTarget={document?.body ?? undefined}
           ref={ref}
           styles={{
             menu,

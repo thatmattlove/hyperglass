@@ -3,7 +3,7 @@ import { Button, Tooltip } from '@chakra-ui/react';
 import { DynamicIcon } from '~/elements';
 
 import type { ButtonProps } from '@chakra-ui/react';
-import type { UseQueryResult } from 'react-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 
 interface RequeryButtonProps extends ButtonProps {
   requery: Get<UseQueryResult<QueryResponse>, 'refetch'>;

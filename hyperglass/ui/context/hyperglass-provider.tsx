@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo } from 'react';
-import { ChakraProvider } from '@chakra-ui/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { makeTheme, defaultTheme } from '~/util';
+import { ChakraProvider, localStorageManager } from '@chakra-ui/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { makeTheme } from '~/util';
 
 import type { Config } from '~/types';
 
@@ -16,15 +16,15 @@ const queryClient = new QueryClient();
 
 export const HyperglassProvider = (props: HyperglassProviderProps): JSX.Element => {
   const { config, children } = props;
-  const value = useMemo(() => config, [config]);
-  const userTheme = value && makeTheme(value.web.theme, value.web.theme.defaultColorMode);
-  const theme = value ? userTheme : defaultTheme;
+  const value = useMemo(() => config, []);
+  const theme = useMemo(() => makeTheme(value.web.theme, value.web.theme.defaultColorMode), []);
+
   return (
-    <ChakraProvider theme={theme}>
-      <HyperglassContext.Provider value={value}>
+    <HyperglassContext.Provider value={value}>
+      <ChakraProvider theme={theme} colorModeManager={localStorageManager} resetCSS>
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-      </HyperglassContext.Provider>
-    </ChakraProvider>
+      </ChakraProvider>
+    </HyperglassContext.Provider>
   );
 };
 

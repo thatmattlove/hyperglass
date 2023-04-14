@@ -7,11 +7,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  experimental: {
-    // See: https://github.com/react-hook-form/resolvers/issues/271#issuecomment-986618265
-    // See: https://github.com/vercel/next.js/issues/30750#issuecomment-962198711
-    esmExternals: false,
-  },
+  swcMinify: true,
+  productionBrowserSourceMaps: true,
 };
 
 module.exports = nextConfig;

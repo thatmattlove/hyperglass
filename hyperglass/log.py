@@ -57,8 +57,10 @@ HyperglassConsole = Console(
     )
 )
 
+log = _loguru_logger
 
-class LibIntercentHandler(logging.Handler):
+
+class LibInterceptHandler(logging.Handler):
     """Custom log handler for integrating third party library logging with hyperglass's logger."""
 
     def emit(self, record):
@@ -104,25 +106,25 @@ def setup_lib_logging(log_level: str) -> None:
     See: https://pawamoy.github.io/posts/unify-logging-for-a-gunicorn-uvicorn-app/
     """
 
-    intercept_handler = LibIntercentHandler()
-
-    seen = set()
-    for name in [
-        *logging.root.manager.loggerDict.keys(),
-        "gunicorn",
-        "gunicorn.access",
-        "gunicorn.error",
-        "uvicorn",
-        "uvicorn.access",
-        "uvicorn.error",
-        "uvicorn.asgi",
-        "netmiko",
-        "paramiko",
-        "httpx",
-    ]:
-        if name not in seen:
-            seen.add(name.split(".")[0])
-            logging.getLogger(name).handlers = [intercept_handler]
+    intercept_handler = LibInterceptHandler()
+    names = {
+        name.split(".")[0]
+        for name in (
+            *logging.root.manager.loggerDict.keys(),
+            "gunicorn",
+            "gunicorn.access",
+            "gunicorn.error",
+            "uvicorn",
+            "uvicorn.access",
+            "uvicorn.error",
+            "uvicorn.asgi",
+            "netmiko",
+            "paramiko",
+            "httpx",
+        )
+    }
+    for name in names:
+        logging.getLogger(name).handlers = [intercept_handler]
 
 
 def _log_patcher(record):
@@ -165,18 +167,10 @@ def init_logger(level: str = "INFO"):
     return _loguru_logger
 
 
-log = init_logger()
-
-logging.addLevelName(25, "SUCCESS")
-
-
 def _log_success(self: "LoguruLogger", message: str, *a: t.Any, **kw: t.Any) -> None:
     """Add custom builtin logging handler for the success level."""
     if self.isEnabledFor(25):
         self._log(25, message, a, **kw)
-
-
-logging.Logger.success = _log_success
 
 
 def enable_file_logging(
@@ -238,3 +232,8 @@ def enable_syslog_logging(syslog_host: str, syslog_port: int) -> None:
         str(syslog_host),
         str(syslog_port),
     )
+
+
+# Side Effects
+logging.addLevelName(25, "SUCCESS")
+logging.Logger.success = _log_success

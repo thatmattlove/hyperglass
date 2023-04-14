@@ -1,7 +1,10 @@
 import * as ReactSelect from 'react-select';
 
-import type { StylesProps, StylesConfigFunction } from 'react-select/dist/declarations/src/styles';
+import type { CSSObjectWithLabel } from 'react-select';
+import type { StylesProps } from 'react-select/dist/declarations/src/styles';
 import type { Theme, SingleOption } from '~/types';
+
+type StylesConfigFunction<Props> = (base: CSSObjectWithLabel, props: Props) => CSSObjectWithLabel;
 
 export type SelectOnChange<
   Opt extends SingleOption = SingleOption,

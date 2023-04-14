@@ -53,6 +53,39 @@ class HyperglassModel(BaseModel):
                 )
             return snake_to_camel(snake_field)
 
+    def convert_paths(self, value: t.Any):
+        """Change path to relative to app_path."""
+        # Project
+        from hyperglass.settings import Settings
+
+        if isinstance(value, Path):
+            if Settings.container:
+                return str(
+                    Settings.default_app_path.joinpath(
+                        *(p for p in value.parts if p not in Settings.app_path.parts)
+                    )
+                )
+
+        if isinstance(value, str):
+            path = Path(value)
+            if path.exists() and Settings.container:
+                # if path.exists():
+                return str(
+                    Settings.default_app_path.joinpath(
+                        *(p for p in path.parts if p not in Settings.app_path.parts)
+                    )
+                )
+
+        if isinstance(value, t.Tuple):
+            return tuple(self.convert_paths(v) for v in value)
+        if isinstance(value, t.List):
+            return [self.convert_paths(v) for v in value]
+        if isinstance(value, t.Generator):
+            return (self.convert_paths(v) for v in value)
+        if isinstance(value, t.Dict):
+            return {k: self.convert_paths(v) for k, v in value.items()}
+        return value
+
     def _repr_from_attrs(self, attrs: Series[str]) -> str:
         """Alias to `hyperglass.util:repr_from_attrs` in the context of this model."""
         return repr_from_attrs(self, attrs)

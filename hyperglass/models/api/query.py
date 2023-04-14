@@ -67,7 +67,7 @@ class Query(BaseModel):
 
     def __repr__(self) -> str:
         """Represent only the query fields."""
-        return repr_from_attrs(self, self.__config__.fields.keys())
+        return repr_from_attrs(self, ("query_location", "query_type", "query_target"))
 
     def __str__(self) -> str:
         """Alias __str__ to __repr__."""

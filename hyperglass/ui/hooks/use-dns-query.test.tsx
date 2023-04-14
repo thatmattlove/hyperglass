@@ -1,7 +1,7 @@
 import 'isomorphic-fetch';
 import '@testing-library/jest-dom';
 import { renderHook } from '@testing-library/react-hooks';
-import { QueryClientProvider, QueryClient } from 'react-query';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { HyperglassContext } from '~/context';
 import { useDNSQuery } from './use-dns-query';
 
@@ -41,6 +41,7 @@ describe('useDNSQuery Cloudflare', () => {
     const { result, waitFor } = renderHook(() => useDNSQuery('one.one.one.one', 4), {
       wrapper: CloudflareWrapper,
     });
+
     await waitFor(() => result.current.isSuccess, { timeout: 5_000 });
     expect(result.current.data?.Answer.map(a => a.data)).toContain('1.1.1.1');
   });

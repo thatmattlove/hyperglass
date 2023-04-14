@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { Text, Box, Tooltip, Menu, MenuButton, MenuList, Link } from '@chakra-ui/react';
+import { Text, Box, Tooltip, Menu, MenuButton, MenuList, Link, Flex } from '@chakra-ui/react';
 import dayjs from 'dayjs';
 import relativeTimePlugin from 'dayjs/plugin/relativeTime';
 import utcPlugin from 'dayjs/plugin/utc';
@@ -123,6 +123,7 @@ export const ASPath = (props: ASPathProps): JSX.Element => {
           color={color[+active]}
           boxSize={5}
           px={2}
+          display="inline-flex"
         />,
       );
     paths.push(
@@ -132,7 +133,7 @@ export const ASPath = (props: ASPathProps): JSX.Element => {
     );
   });
 
-  return <>{paths}</>;
+  return <Flex>{paths}</Flex>;
 };
 
 export const Communities = (props: CommunitiesProps): JSX.Element => {

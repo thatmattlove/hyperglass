@@ -12,7 +12,7 @@ from gunicorn.arbiter import Arbiter  # type: ignore
 from gunicorn.app.base import BaseApplication  # type: ignore
 
 # Local
-from .log import CustomGunicornLogger, log, setup_lib_logging
+from .log import CustomGunicornLogger, log, init_logger, setup_lib_logging
 from .util import get_node_version
 from .plugins import InputPluginManager, OutputPluginManager, register_plugin, init_builtin_plugins
 from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
@@ -23,10 +23,11 @@ if sys.version_info < MIN_PYTHON_VERSION:
     raise RuntimeError(f"Python {pretty_version}+ is required.")
 
 # Ensure the NodeJS version meets the minimum requirements.
-node_major, _, __ = get_node_version()
+node_major, node_minor, node_patch = get_node_version()
 
 if node_major < MIN_NODE_VERSION:
-    raise RuntimeError(f"NodeJS {MIN_NODE_VERSION!s}+ is required.")
+    installed = ".".join(str(v) for v in (node_major, node_minor, node_patch))
+    raise RuntimeError(f"NodeJS {MIN_NODE_VERSION!s}+ is required (version {installed} installed)")
 
 
 # Local
@@ -175,6 +176,7 @@ def run(_workers: int = None):
         if _workers is not None:
             workers = _workers
 
+        init_logger(log_level)
         setup_lib_logging(log_level)
         start(log_level=log_level, workers=workers)
     except Exception as error:
@@ -187,6 +189,8 @@ def run(_workers: int = None):
         raise error
     except SystemExit:
         # Handle Gunicorn exit.
+        sys.exit(4)
+    except BaseException:
         sys.exit(4)
 
 

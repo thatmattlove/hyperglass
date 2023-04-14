@@ -5,11 +5,10 @@ repos:
       - id: isort
         args: ['--profile', 'black', '--filter-files', '--check']
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.192
+    rev: v0.0.261
     hooks:
       - id: ruff
         # Respect `exclude` and `extend-exclude` settings.
-        args: ['--force-exclude']
   - repo: local
     hooks:
       - id: typescript

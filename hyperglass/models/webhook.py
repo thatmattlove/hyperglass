@@ -1,7 +1,7 @@
 """Data models used throughout hyperglass."""
 
 # Standard Library
-from typing import Optional
+import typing as t
 from datetime import datetime
 
 # Third Party
@@ -20,12 +20,12 @@ _ICON_URL = "https://res.cloudinary.com/hyperglass/image/upload/v1593192484/icon
 class WebhookHeaders(HyperglassModel):
     """Webhook data model."""
 
-    user_agent: Optional[StrictStr]
-    referer: Optional[StrictStr]
-    accept_encoding: Optional[StrictStr]
-    accept_language: Optional[StrictStr]
-    x_real_ip: Optional[StrictStr]
-    x_forwarded_for: Optional[StrictStr]
+    user_agent: t.Optional[StrictStr]
+    referer: t.Optional[StrictStr]
+    accept_encoding: t.Optional[StrictStr]
+    accept_language: t.Optional[StrictStr]
+    x_real_ip: t.Optional[StrictStr]
+    x_forwarded_for: t.Optional[StrictStr]
 
     class Config:
         """Pydantic model config."""
@@ -51,9 +51,9 @@ class WebhookNetwork(HyperglassModel, extra="allow"):
 class Webhook(HyperglassModel):
     """Webhook data model."""
 
-    query_location: StrictStr
-    query_type: StrictStr
-    query_target: StrictStr
+    query_location: str
+    query_type: str
+    query_target: t.Union[t.List[str], str]
     headers: WebhookHeaders
     source: StrictStr = "Unknown"
     network: WebhookNetwork
@@ -69,7 +69,7 @@ class Webhook(HyperglassModel):
     def msteams(self):
         """Format the webhook data as a Microsoft Teams card."""
 
-        def code(value):
+        def code(value: t.Any):
             """Wrap argument in backticks for markdown inline code formatting."""
             return f"`{str(value)}`"
 

@@ -44,7 +44,7 @@ export const LocationCard = (props: LocationCardProps): JSX.Element => {
     }
   }
 
-  const bg = useColorValue('white', 'blackSolid.800');
+  const bg = useColorValue('white', 'blackSolid.600');
   const imageBorder = useColorValue('gray.600', 'whiteAlpha.800');
   const fg = useOpposingColor(bg);
   const checkedBorder = useColorValue('blue.400', 'blue.300');
@@ -74,35 +74,35 @@ export const LocationCard = (props: LocationCardProps): JSX.Element => {
         handleChange(option);
       }}
     >
-      <Flex justifyContent="space-between" alignItems="center">
-        <chakra.h2
-          color={fg}
-          fontWeight="bold"
-          mt={{ base: 2, md: 0 }}
-          fontSize={{ base: 'lg', md: 'xl' }}
-        >
-          {label}
-        </chakra.h2>
-        <Avatar
-          color={fg}
-          fit="cover"
-          alt={label}
-          name={label}
-          boxSize={12}
-          rounded="full"
-          borderWidth={1}
-          bg="whiteAlpha.300"
-          borderStyle="solid"
-          borderColor={imageBorder}
-          src={(option.data?.avatar as string) ?? undefined}
-        />
-      </Flex>
+      <>
+        <Flex justifyContent="space-between" alignItems="center">
+          <chakra.h2
+            color={fg}
+            fontWeight="bold"
+            mt={{ base: 2, md: 0 }}
+            fontSize={{ base: 'lg', md: 'xl' }}
+          >
+            {label}
+          </chakra.h2>
+          <Avatar
+            color={fg}
+            name={label}
+            boxSize={12}
+            rounded="full"
+            borderWidth={1}
+            bg="whiteAlpha.300"
+            borderStyle="solid"
+            borderColor={imageBorder}
+            src={(option.data?.avatar as string) ?? undefined}
+          />
+        </Flex>
 
-      {option?.data?.description && (
-        <chakra.p mt={2} color={fg} opacity={0.6} fontSize="sm">
-          {option.data.description as string}
-        </chakra.p>
-      )}
+        {option?.data?.description && (
+          <chakra.p mt={2} color={fg} opacity={0.6} fontSize="sm">
+            {option.data.description as string}
+          </chakra.p>
+        )}
+      </>
     </LocationCardWrapper>
   );
 };

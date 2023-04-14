@@ -3,6 +3,7 @@
 # Standard Library
 import re
 import typing as t
+from pathlib import Path
 
 # Third Party
 from pydantic import StrictInt, StrictFloat
@@ -111,3 +112,39 @@ class HttpMethod(str):
     def __repr__(self):
         """Stringify custom field representation."""
         return f"HttpMethod({super().__repr__()})"
+
+
+class ConfigPathItem(Path):
+    """Custom field type for files or directories contained within app_path."""
+
+    @classmethod
+    def __get_validators__(cls):
+        """Pydantic custom field method."""
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value: Path) -> Path:
+        """Ensure path is within app path."""
+
+        if isinstance(value, str):
+            value = Path(value)
+
+        if not isinstance(value, Path):
+            raise TypeError("Unable to convert type {} to ConfigPathItem".format(type(value)))
+
+        # Project
+        from hyperglass.settings import Settings
+
+        if not value.is_relative_to(Settings.app_path):
+            raise ValueError("{!s} must be relative to {!s}".format(value, Settings.app_path))
+
+        if Settings.container:
+            value = Settings.default_app_path.joinpath(
+                *(p for p in value.parts if p not in Settings.app_path.parts)
+            )
+        print(f"{value=}")
+        return value
+
+    def __repr__(self):
+        """Stringify custom field representation."""
+        return f"ConfigPathItem({super().__repr__()})"

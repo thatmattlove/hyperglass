@@ -82,6 +82,9 @@ class Params(ParamsPublic, HyperglassModel):
 
         schema_extra = {"level": 1}
 
+    def __init__(self, **kw: Any) -> None:
+        return super().__init__(**self.convert_paths(kw))
+
     @validator("site_description")
     def validate_site_description(cls: "Params", value: str, values: Dict[str, Any]) -> str:
         """Format the site descripion with the org_name field."""

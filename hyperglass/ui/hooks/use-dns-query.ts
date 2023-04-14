@@ -1,8 +1,12 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useConfig } from '~/context';
 import { fetchWithTimeout } from '~/util';
 
-import type { QueryFunction, QueryFunctionContext, QueryObserverResult } from 'react-query';
+import type {
+  QueryFunction,
+  QueryFunctionContext,
+  QueryObserverResult,
+} from '@tanstack/react-query';
 import type { DnsOverHttps } from '~/types';
 
 type DNSQueryKey = [string, { target: string | null; family: 4 | 6 }];

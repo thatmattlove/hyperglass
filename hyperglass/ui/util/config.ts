@@ -1,3 +1,4 @@
+import type { QueryFunctionContext } from '@tanstack/react-query';
 import { isObject } from '~/types';
 
 import type { Config } from '~/types';
@@ -23,8 +24,14 @@ export class ConfigLoadError extends Error {
   }
 }
 
-export async function getHyperglassConfig(): Promise<Config> {
+export async function getHyperglassConfig(url?: QueryFunctionContext | string): Promise<Config> {
   let mode: RequestInit['mode'];
+
+  let fetchUrl = '/ui/props/';
+
+  if (typeof url === 'string') {
+    fetchUrl = url.replace(/(^\/)|(\/$)/g, '') + '/ui/props/';
+  }
 
   if (process.env.NODE_ENV === 'production') {
     mode = 'same-origin';
@@ -34,7 +41,7 @@ export async function getHyperglassConfig(): Promise<Config> {
   const options: RequestInit = { method: 'GET', mode, headers: { 'user-agent': 'hyperglass-ui' } };
 
   try {
-    const response = await fetch('/ui/props/', options);
+    const response = await fetch(fetchUrl, options);
     const data = await response.json();
     if (!response.ok) {
       throw response;

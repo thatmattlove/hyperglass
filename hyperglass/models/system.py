@@ -25,6 +25,8 @@ if t.TYPE_CHECKING:
 
 ListenHost = t.Union[None, IPvAnyAddress, t.Literal["localhost"]]
 
+_default_app_path = Path("/etc/hyperglass")
+
 
 class HyperglassSettings(BaseSettings):
     """hyperglass system settings, required to start hyperglass."""
@@ -33,12 +35,15 @@ class HyperglassSettings(BaseSettings):
         """hyperglass system settings configuration."""
 
         env_prefix = "hyperglass_"
+        underscore_attrs_are_private = True
 
     config_file_names: t.ClassVar[t.Tuple[str, ...]] = ("config", "devices", "directives")
+    default_app_path: t.ClassVar[Path] = _default_app_path
+    _original_app_path: DirectoryPath = _default_app_path
 
     debug: bool = False
     dev_mode: bool = False
-    app_path: DirectoryPath = "/etc/hyperglass"
+    app_path: DirectoryPath = _default_app_path
     redis_host: str = "localhost"
     redis_password: t.Optional[SecretStr]
     redis_db: int = 1
@@ -46,6 +51,14 @@ class HyperglassSettings(BaseSettings):
     host: IPvAnyAddress = None
     port: int = 8001
     ca_cert: t.Optional[FilePath]
+    container: bool = False
+
+    def __init__(self, **kwargs) -> None:
+        """Create hyperglass Settings instance."""
+        super().__init__(**kwargs)
+        if self.container:
+            self.app_path = self.default_app_path
+        print(self)
 
     def __rich_console__(self, console: "Console", options: "ConsoleOptions") -> "RenderResult":
         """Render a Rich table representation of hyperglass settings."""

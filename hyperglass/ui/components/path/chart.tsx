@@ -1,5 +1,13 @@
+import { useMemo } from 'react';
 import { Box, Flex, SkeletonText, Badge, VStack } from '@chakra-ui/react';
-import ReactFlow, { Background, ReactFlowProvider, Handle, Position } from 'react-flow-renderer';
+import ReactFlow, {
+  Background,
+  ReactFlowProvider,
+  Handle,
+  Position,
+  isNode,
+  isEdge,
+} from 'react-flow-renderer';
 import { useConfig } from '~/context';
 import { useASNDetail, useColorValue, useColorToken } from '~/hooks';
 import { Controls } from './controls';
@@ -15,7 +23,7 @@ interface NodeProps<D extends unknown> extends Omit<ReactFlowNodeProps, 'data'> 
   data: D;
 }
 
-interface NodeData {
+export interface NodeData {
   asn: string;
   name: string;
   hasChildren: boolean;
@@ -30,14 +38,18 @@ export const Chart = (props: ChartProps): JSX.Element => {
 
   const elements = useElements({ asn: primaryAsn, name: orgName }, data);
 
+  const nodes = useMemo(() => elements.filter(isNode), [elements]);
+  const edges = useMemo(() => elements.filter(isEdge), [elements]);
+
   return (
     <ReactFlowProvider>
       <Box w="100%" h={{ base: '100vh', lg: '70vh' }} zIndex={1}>
         <ReactFlow
           snapToGrid
-          elements={elements}
+          nodes={nodes}
+          edges={edges}
           nodeTypes={{ ASNode }}
-          onLoad={inst => setTimeout(() => inst.fitView(), 0)}
+          onInit={inst => setTimeout(() => inst.fitView(), 0)}
         >
           <Background color={dots} />
           <Controls />

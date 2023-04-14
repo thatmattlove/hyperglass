@@ -1,9 +1,9 @@
 import { ButtonGroup, IconButton } from '@chakra-ui/react';
-import { useZoomPanHelper } from 'react-flow-renderer';
+import { useReactFlow } from 'react-flow-renderer';
 import { DynamicIcon } from '~/elements';
 
 export const Controls = (): JSX.Element => {
-  const { fitView, zoomIn, zoomOut } = useZoomPanHelper();
+  const { fitView, zoomIn, zoomOut } = useReactFlow();
   return (
     <ButtonGroup
       m={4}

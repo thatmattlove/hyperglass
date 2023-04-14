@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useConfig } from '~/context';
 import { fetchWithTimeout } from '~/util';
 
@@ -8,7 +8,7 @@ import type {
   UseQueryOptions,
   QueryObserverResult,
   QueryFunctionContext,
-} from 'react-query';
+} from '@tanstack/react-query';
 import type { FormQuery } from '~/types';
 
 type LGQueryKey = [string, FormQuery];

@@ -21,7 +21,7 @@ export function chunkArray<A extends unknown>(array: A[], size: number): A[][] {
  */
 export function entries<O, K extends keyof O = keyof O>(obj: O): [K, O[K]][] {
   const _entries = [] as [K, O[K]][];
-  const keys = Object.keys(obj) as K[];
+  const keys = Object.keys(obj as Record<string, unknown>) as K[];
   for (const key of keys) {
     _entries.push([key, obj[key]]);
   }

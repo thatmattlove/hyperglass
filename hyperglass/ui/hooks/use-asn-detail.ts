@@ -1,6 +1,10 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 
-import type { QueryFunctionContext, QueryObserverResult, QueryFunction } from 'react-query';
+import type {
+  QueryFunctionContext,
+  QueryObserverResult,
+  QueryFunction,
+} from '@tanstack/react-query';
 
 interface ASNQuery {
   data: {
@@ -12,7 +16,7 @@ interface ASNQuery {
   };
 }
 
-const query: QueryFunction<ASNQuery, string> = async (ctx: QueryFunctionContext) => {
+const query: QueryFunction<ASNQuery, string[]> = async (ctx: QueryFunctionContext) => {
   const asn = ctx.queryKey;
   const res = await fetch('https://api.asrank.caida.org/v2/graphql', {
     mode: 'cors',
@@ -29,8 +33,8 @@ const query: QueryFunction<ASNQuery, string> = async (ctx: QueryFunctionContext)
  * @see https://api.asrank.caida.org/v2/docs
  */
 export function useASNDetail(asn: string): QueryObserverResult<ASNQuery> {
-  return useQuery<ASNQuery, unknown, ASNQuery, string>({
-    queryKey: asn,
+  return useQuery<ASNQuery, unknown, ASNQuery, string[]>({
+    queryKey: [asn],
     queryFn: query,
     refetchOnWindowFocus: false,
     refetchInterval: false,

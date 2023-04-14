@@ -99,7 +99,7 @@ export const Table = (props: TableProps): JSX.Element => {
                   {...column.getSortByToggleProps()}
                 >
                   <Text fontSize="sm" fontWeight="bold" display="inline-block">
-                    {column.render('Header')}
+                    {column.render('Header') as React.ReactNode}
                   </Text>
                   <If condition={column.isSorted}>
                     <Then>
@@ -142,7 +142,7 @@ export const Table = (props: TableProps): JSX.Element => {
                       {typeof Cell !== 'undefined' ? (
                         <Cell column={column} row={row} value={value} />
                       ) : (
-                        cell.render('Cell')
+                        (cell.render('Cell') as React.ReactNode)
                       )}
                     </TableCell>
                   );

@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Switch, Case, Default } from 'react-if';
 import { Meta, Layout } from '~/components';
 import { HyperglassProvider } from '~/context';

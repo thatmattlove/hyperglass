@@ -1,8 +1,8 @@
 """Test file-related utilities."""
 
 # Standard Library
-import random
 import string
+import secrets
 from pathlib import Path
 
 # Third Party
@@ -15,6 +15,12 @@ ENV_TEST = """KEY1=VALUE1
 KEY2=VALUE2
 KEY3=VALUE3
     """
+
+
+def _random_string(length: int) -> str:
+    alphabet = string.ascii_letters + string.digits
+    result = "".join(secrets.choice(alphabet) for i in range(length))
+    return result
 
 
 def test_dotenv_to_dict_string():
@@ -94,9 +100,7 @@ def test_check_path_raises(tmp_path_factory: pytest.TempPathFactory):
 async def test_move_files(tmp_path_factory: pytest.TempPathFactory):
     src = tmp_path_factory.mktemp("src")
     dst = tmp_path_factory.mktemp("dst")
-    filenames = (
-        "".join(random.choice(string.ascii_lowercase) for _ in range(8)) for _ in range(10)
-    )
+    filenames = ("".join(_random_string(8)) for _ in range(10))
     files = [src / name for name in filenames]
     [f.touch() for f in files]
     result = await move_files(src, dst, files)
@@ -109,9 +113,7 @@ async def test_move_files(tmp_path_factory: pytest.TempPathFactory):
 async def test_move_files_raise(tmp_path_factory: pytest.TempPathFactory):
     src = tmp_path_factory.mktemp("src")
     dst = tmp_path_factory.mktemp("dst")
-    filenames = (
-        "".join(random.choice(string.ascii_lowercase) for _ in range(8)) for _ in range(10)
-    )
+    filenames = ("".join(_random_string(8)) for _ in range(10))
     files = [src / name for name in filenames]
     with pytest.raises(RuntimeError):
         await move_files(src, dst, files)
@@ -120,9 +122,7 @@ async def test_move_files_raise(tmp_path_factory: pytest.TempPathFactory):
 def test_copyfiles(tmp_path_factory: pytest.TempPathFactory):
     src = tmp_path_factory.mktemp("src")
     dst = tmp_path_factory.mktemp("dst")
-    filenames = [
-        "".join(random.choice(string.ascii_lowercase) for _ in range(8)) for _ in range(10)
-    ]
+    filenames = ["".join(_random_string(8)) for _ in range(10)]
     src_files = [src / name for name in filenames]
     dst_files = [dst / name for name in filenames]
     [f.touch() for f in src_files]
@@ -133,9 +133,7 @@ def test_copyfiles(tmp_path_factory: pytest.TempPathFactory):
 def test_copyfiles_wrong_length(tmp_path_factory: pytest.TempPathFactory):
     src = tmp_path_factory.mktemp("src")
     dst = tmp_path_factory.mktemp("dst")
-    filenames = [
-        "".join(random.choice(string.ascii_lowercase) for _ in range(8)) for _ in range(10)
-    ]
+    filenames = ["".join(_random_string(8)) for _ in range(10)]
     dst_filenames = filenames[1:8]
     src_files = [src / name for name in filenames]
     dst_files = [dst / name for name in dst_filenames]

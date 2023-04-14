@@ -155,7 +155,6 @@ class BaseExternal:
                 try:
                     parsed = _json.loads(response)
                 except (JSONDecodeError, TypeError):
-                    log.error("Error parsing JSON for response {}", repr(response))
                     parsed = {"data": response.text}
         else:
             parsed = response

@@ -2,7 +2,6 @@
 import { useCallback } from 'react';
 import { useToken } from '@chakra-ui/react';
 import { mergeWith } from '@chakra-ui/utils';
-import { merge } from 'merge-anything';
 import {
   useMobile,
   useColorValue,
@@ -150,7 +149,6 @@ export const useIndicatorSeparatorStyle = <Opt extends SingleOption, IsMulti ext
 ): RSStyleFunction<'indicatorSeparator', Opt, IsMulti> => {
   const { colorMode } = props;
   const backgroundColor = useColorToken('colors', 'gray.200', 'whiteAlpha.300');
-  // const backgroundColor = useColorToken('colors', 'gray.200', 'gray.600');
   const styles = { backgroundColor };
 
   return useCallback(base => mergeWith({}, base, styles), [colorMode]);
@@ -220,7 +218,7 @@ export const useMultiValueRemoveStyle = <Opt extends SingleOption, IsMulti exten
 };
 
 export const useRSTheme = (): RSThemeFunction => {
-  const borderRadius = useToken('radii', 'md');
+  const borderRadius = useToken('radii', 'md') as unknown as number;
 
   return useCallback((t: ReactSelect.Theme): ReactSelect.Theme => ({ ...t, borderRadius }), []);
 };
@@ -232,8 +230,8 @@ export const useMenuPortal = <Opt extends SingleOption, IsMulti extends boolean>
 > => {
   const isMobile = useMobile();
   const styles = {
-    zIndex: isMobile ? 1500 : 1,
+    zIndex: 1500,
   };
 
-  return useCallback(base => merge(base, styles), [isMobile]);
+  return useCallback(base => mergeWith({}, base, styles), [isMobile]);
 };
