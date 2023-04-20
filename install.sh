@@ -422,7 +422,7 @@ install_redis() {
 install_app() {
     echo "[INFO] Installing hyperglass..."
 
-    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -o /tmp/get-poetry.py
+    curl -sSL https://install.python-poetry.org -o /tmp/get-poetry.py
     python3 /tmp/get-poetry.py -f -y >/dev/null
     sleep 1
     source $HOME/.profile
