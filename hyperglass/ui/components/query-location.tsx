@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Wrap, VStack, Flex, chakra } from '@chakra-ui/react';
+import { Wrap, Stack, Flex, chakra } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { Select, LocationCard } from '~/components';
 import { useConfig } from '~/context';
@@ -114,13 +114,16 @@ export const QueryLocation = (props: QueryLocationProps): JSX.Element => {
 
   if (element === 'cards') {
     return (
-      <Wrap align="flex-start" justify={{ base: 'center', lg: 'space-between' }} shouldWrapChildren>
-        {options.map(group => (
-          <VStack key={group.label} align="center">
-            <chakra.h3 fontSize={{ base: 'sm', md: 'md' }} alignSelf="flex-start" opacity={0.5}>
-              {group.label}
-            </chakra.h3>
-            {group.options.map(opt => {
+      <>
+        {options.length === 1 ? (
+          <Wrap
+            p={{ lg: 4 }}
+            align="flex-start"
+            shouldWrapChildren
+            spacing={{ base: 4, lg: 8 }}
+            justify={{ base: 'center', lg: 'flex-start' }}
+          >
+            {options[0].options.map(opt => {
               return (
                 <LocationCard
                   key={opt.label}
@@ -131,9 +134,30 @@ export const QueryLocation = (props: QueryLocationProps): JSX.Element => {
                 />
               );
             })}
-          </VStack>
-        ))}
-      </Wrap>
+          </Wrap>
+        ) : (
+          <>
+            {options.map(group => (
+              <Stack key={group.label} align="center">
+                <chakra.h3 fontSize={{ base: 'sm', md: 'md' }} alignSelf="flex-start" opacity={0.5}>
+                  {group.label}
+                </chakra.h3>
+                {group.options.map(opt => {
+                  return (
+                    <LocationCard
+                      key={opt.label}
+                      option={opt}
+                      onChange={handleCardChange}
+                      hasError={noOverlap}
+                      defaultChecked={form.queryLocation.includes(opt.value)}
+                    />
+                  );
+                })}
+              </Stack>
+            ))}
+          </>
+        )}
+      </>
     );
   } else if (element === 'select') {
     return (

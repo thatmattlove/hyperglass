@@ -17,9 +17,8 @@ const LocationCardWrapper = motionChakra('div', {
   baseStyle: {
     py: 4,
     px: 6,
-    w: '100%',
     minW: 'xs',
-    maxW: 'sm',
+    maxW: 'md',
     mx: 'auto',
     shadow: 'sm',
     rounded: 'lg',
