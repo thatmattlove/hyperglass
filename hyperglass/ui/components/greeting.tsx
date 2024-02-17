@@ -24,10 +24,13 @@ export const Greeting = (props: ModalContentProps): JSX.Element => {
   const color = useOpposingColor(bg);
 
   useEffect(() => {
+    if (!web.greeting.enable && !web.greeting.required) {
+      ack(true, false);
+    }
     if (!isAck && web.greeting.enable) {
       open();
     }
-  }, [isAck, open, web.greeting.enable]);
+  }, [isAck, open, web.greeting.enable, web.greeting.required, ack]);
   return (
     <Modal
       size="lg"
