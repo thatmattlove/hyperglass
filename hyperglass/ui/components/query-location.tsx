@@ -32,12 +32,14 @@ function buildOptions(devices: DeviceGroup[]): OptionGroup<LocationOption>[] {
                 avatar: loc.avatar,
                 description: loc.description,
               },
-            } as SingleOption),
+            }) as SingleOption,
         )
         .sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
-      return { label, options };
+      return { label: label ?? '', options };
     })
-    .sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
+    .sort((a, b) =>
+      (a.label ?? 0) < (b.label ?? 0) ? -1 : (a.label ?? 0) > (b.label ?? 0) ? 1 : 0,
+    );
 }
 
 export const QueryLocation = (props: QueryLocationProps): JSX.Element => {
@@ -58,7 +60,8 @@ export const QueryLocation = (props: QueryLocationProps): JSX.Element => {
   const element = useMemo(() => {
     if (locationDisplayMode === 'dropdown') {
       return 'select';
-    } else if (locationDisplayMode === 'gallery') {
+    }
+    if (locationDisplayMode === 'gallery') {
       return 'cards';
     }
     const groups = options.length;
@@ -159,7 +162,8 @@ export const QueryLocation = (props: QueryLocationProps): JSX.Element => {
         )}
       </>
     );
-  } else if (element === 'select') {
+  }
+  if (element === 'select') {
     return (
       <Select<LocationOption, true>
         isMulti

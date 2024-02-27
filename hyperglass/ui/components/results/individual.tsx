@@ -107,17 +107,20 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
   const errorMsg = useMemo(() => {
     if (isLGError(error)) {
       return error.output as string;
-    } else if (isLGOutputOrError(data)) {
-      return data.output as string;
-    } else if (isFetchError(error)) {
-      return startCase(error.statusText);
-    } else if (isStackError(error) && error.message.toLowerCase().startsWith('timeout')) {
-      return messages.requestTimeout;
-    } else if (isStackError(error)) {
-      return startCase(error.message);
-    } else {
-      return messages.general;
     }
+    if (isLGOutputOrError(data)) {
+      return data.output as string;
+    }
+    if (isFetchError(error)) {
+      return startCase(error.statusText);
+    }
+    if (isStackError(error) && error.message.toLowerCase().startsWith('timeout')) {
+      return messages.requestTimeout;
+    }
+    if (isStackError(error)) {
+      return startCase(error.message);
+    }
+    return messages.general;
   }, [error, data, messages.general, messages.requestTimeout]);
 
   const errorLevel = useMemo<ErrorLevels>(() => {

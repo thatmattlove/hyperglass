@@ -21,7 +21,7 @@ const query: QueryFunction<DnsOverHttps.Response, DNSQueryKey> = async (
 
   const controller = new AbortController();
 
-  let json;
+  let json = undefined;
   const type = family === 4 ? 'A' : family === 6 ? 'AAAA' : '';
 
   if (url !== null) {

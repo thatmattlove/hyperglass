@@ -68,7 +68,7 @@ type MDProps = {
   node: Dict;
 };
 
-/* eslint @typescript-eslint/no-explicit-any: off */
+// biome-ignore lint/suspicious/noExplicitAny: reasons!
 function hasNode<C>(p: any): p is C & MDProps {
   return 'node' in p;
 }

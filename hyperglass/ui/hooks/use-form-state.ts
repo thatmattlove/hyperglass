@@ -61,10 +61,7 @@ interface FormStateType<Opt extends SingleOption = SingleOption> {
   setSelection<
     Opt extends SingleOption,
     K extends keyof FormSelections<Opt> = keyof FormSelections<Opt>,
-  >(
-    field: K,
-    value: FormSelections[K],
-  ): void;
+  >(field: K, value: FormSelections[K]): void;
   setTarget(update: Partial<Target>): void;
   getDirective(): Directive | null;
   reset(): void;
@@ -155,7 +152,7 @@ const formState: StateCreator<FormStateType> = (set, get) => ({
 
     // Determine all unique group names.
     const allGroups = allDevices.map(dev =>
-      Array.from(new Set(dev.directives.map(dir => dir.groups).flat())),
+      Array.from(new Set(dev.directives.flatMap(dir => dir.groups))),
     );
 
     // Get group names that are common between all selected locations.

@@ -6,6 +6,7 @@
 export const CustomJavascript = (props: React.PropsWithChildren<Dict>): JSX.Element => {
   const { children } = props;
   if (typeof children === 'string' && children !== '') {
+    // biome-ignore lint/security/noDangerouslySetInnerHtml: required for injecting custom JS
     return <script id="custom-javascript" dangerouslySetInnerHTML={{ __html: children }} />;
   }
   return <></>;
@@ -19,6 +20,7 @@ export const CustomJavascript = (props: React.PropsWithChildren<Dict>): JSX.Elem
 export const CustomHtml = (props: React.PropsWithChildren<Dict>): JSX.Element => {
   const { children } = props;
   if (typeof children === 'string' && children !== '') {
+    // biome-ignore lint/security/noDangerouslySetInnerHtml: required for injecting custom HTML
     return <div id="custom-html" dangerouslySetInnerHTML={{ __html: children }} />;
   }
   return <></>;

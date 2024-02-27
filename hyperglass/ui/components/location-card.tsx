@@ -55,10 +55,10 @@ export const LocationCard = (props: LocationCardProps): JSX.Element => {
         ? // Highlight red when there are no overlapping query types for the locations selected.
           errorBorder
         : isChecked && !hasError
-        ? // Highlight blue when any location is selected and there is no error.
-          checkedBorder
-        : // Otherwise, no border.
-          'transparent',
+          ? // Highlight blue when any location is selected and there is no error.
+            checkedBorder
+          : // Otherwise, no border.
+            'transparent',
 
     [hasError, isChecked, checkedBorder, errorBorder],
   );

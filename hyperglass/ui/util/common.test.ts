@@ -1,10 +1,13 @@
+import { expect, describe, it, test } from 'vitest';
 import { all, chunkArray, entries, dedupObjectArray, andJoin, isFQDN } from './common';
 
 test('all - all items are truthy', () => {
+  // biome-ignore lint/suspicious/noSelfCompare: because this is a test, duh
   expect(all(1 === 1, true, 'one' === 'one')).toBe(true);
 });
 
 test('all - one item is not truthy', () => {
+  // biome-ignore lint/suspicious/noSelfCompare: because this is a test, duh
   expect(all(1 === 1, false, 'one' === 'one')).toBe(false);
 });
 

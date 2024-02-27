@@ -1,45 +1,23 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Switch, Case, Default } from 'react-if';
 import { Meta, Layout } from '~/components';
 import { HyperglassProvider } from '~/context';
-import { LoadError, Loading } from '~/elements';
-import { useHyperglassConfig } from '~/hooks';
+import * as config from '../hyperglass.json';
 
 import type { AppProps } from 'next/app';
+import type { Config } from '~/types';
 
 const queryClient = new QueryClient();
 
-const AppComponent = (props: AppProps) => {
-  const { Component, pageProps } = props;
-  const { data, error, isLoading, ready, refetch, showError, isLoadingInitial } =
-    useHyperglassConfig();
-  return (
-    <Switch>
-      <Case condition={isLoadingInitial}>
-        <Loading />
-      </Case>
-      <Case condition={showError}>
-        <LoadError error={error!} retry={refetch} inProgress={isLoading} />
-      </Case>
-      <Case condition={ready}>
-        <HyperglassProvider config={data!}>
-          <Meta />
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
-        </HyperglassProvider>
-      </Case>
-      <Default>
-        <LoadError error={error!} retry={refetch} inProgress={isLoading} />
-      </Default>
-    </Switch>
-  );
-};
-
 const App = (props: AppProps): JSX.Element => {
+  const { Component, pageProps } = props;
   return (
     <QueryClientProvider client={queryClient}>
-      <AppComponent {...props} />
+      <HyperglassProvider config={config as unknown as Config}>
+        <Meta />
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </HyperglassProvider>
     </QueryClientProvider>
   );
 };

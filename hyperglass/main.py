@@ -12,9 +12,8 @@ from gunicorn.arbiter import Arbiter  # type: ignore
 from gunicorn.app.base import BaseApplication  # type: ignore
 
 # Local
-from .log import CustomGunicornLogger, log, init_logger, setup_lib_logging
+from .log import log, init_logger, setup_lib_logging
 from .util import get_node_version
-from .plugins import InputPluginManager, OutputPluginManager, register_plugin, init_builtin_plugins
 from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
 
 # Ensure the Python version meets the minimum requirements.
@@ -34,12 +33,18 @@ if node_major < MIN_NODE_VERSION:
 from .util import cpu_count
 from .state import use_state
 from .settings import Settings
-from .configuration import init_user_config
-from .util.frontend import build_frontend
+
+
+log_level = "INFO" if Settings.debug is False else "DEBUG"
+
+setup_lib_logging(log_level)
+init_logger(log_level)
 
 
 async def build_ui() -> bool:
     """Perform a UI build prior to starting the application."""
+    from .frontend import build_frontend
+
     state = use_state()
     await build_frontend(
         dev_mode=Settings.dev_mode,
@@ -53,6 +58,8 @@ async def build_ui() -> bool:
 
 def register_all_plugins() -> None:
     """Validate and register configured plugins."""
+
+    from .plugins import register_plugin, init_builtin_plugins
 
     state = use_state()
 
@@ -78,6 +85,8 @@ def register_all_plugins() -> None:
 
 def unregister_all_plugins() -> None:
     """Unregister all plugins."""
+    from .plugins import InputPluginManager, OutputPluginManager
+
     for manager in (InputPluginManager, OutputPluginManager):
         manager().reset()
 
@@ -91,7 +100,12 @@ def on_starting(server: "Arbiter") -> None:
 
     register_all_plugins()
 
-    asyncio.run(build_ui())
+    if not Settings.disable_ui:
+        asyncio.run(build_ui())
+
+
+def when_ready(server: "Arbiter") -> None:
+    """Gunicorn post-start hook."""
 
     log.success(
         "Started hyperglass {} on http://{} with {!s} workers",
@@ -141,6 +155,8 @@ class HyperglassWSGI(BaseApplication):
 def start(*, log_level: str, workers: int, **kwargs) -> None:
     """Start hyperglass via gunicorn."""
 
+    from .log import CustomGunicornLogger
+
     HyperglassWSGI(
         app="hyperglass.api:app",
         options={
@@ -152,6 +168,7 @@ def start(*, log_level: str, workers: int, **kwargs) -> None:
             "loglevel": log_level,
             "bind": Settings.bind(),
             "on_starting": on_starting,
+            "when_ready": when_ready,
             "command": shutil.which("gunicorn"),
             "logger_class": CustomGunicornLogger,
             "worker_class": "uvicorn.workers.UvicornWorker",
@@ -163,21 +180,15 @@ def start(*, log_level: str, workers: int, **kwargs) -> None:
 
 def run(_workers: int = None):
     """Run hyperglass."""
-    try:
-        init_user_config()
+    from .configuration import init_user_config
 
+    try:
         log.debug("System settings: {!r}", Settings)
 
-        workers, log_level = 1, "DEBUG"
+        init_user_config()
 
-        if Settings.debug is False:
-            workers, log_level = cpu_count(2), "WARNING"
+        workers = 1 if Settings.debug else cpu_count(2)
 
-        if _workers is not None:
-            workers = _workers
-
-        init_logger(log_level)
-        setup_lib_logging(log_level)
         start(log_level=log_level, workers=workers)
     except Exception as error:
         # Handle app exceptions.

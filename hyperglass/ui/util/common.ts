@@ -35,6 +35,7 @@ export function entries<O, K extends keyof O = keyof O>(obj: O): [K, O[K]][] {
  */
 export async function fetchWithTimeout(
   uri: string,
+  // biome-ignore lint/style/useDefaultParameterLast: goal is to match the fetch API as closely as possible.
   options: RequestInit = {},
   timeout: number,
   controller: AbortController,
@@ -69,9 +70,8 @@ export function dedupObjectArray<E extends Record<string, unknown>, P extends ke
 
     if (!x) {
       return acc.concat([current]);
-    } else {
-      return acc;
     }
+    return acc;
   }, []);
 }
 

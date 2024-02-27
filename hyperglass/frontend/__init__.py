@@ -11,9 +11,9 @@ from pathlib import Path
 
 # Project
 from hyperglass.log import log
+from hyperglass.util import copyfiles, check_path, dotenv_to_dict
+from hyperglass.state import use_state
 
-# Local
-from .files import copyfiles, check_path, dotenv_to_dict
 
 if t.TYPE_CHECKING:
     # Project
@@ -56,7 +56,6 @@ async def read_package_json() -> t.Dict[str, t.Any]:
     package_json_file = Path(__file__).parent.parent / "ui" / "package.json"
 
     try:
-
         with package_json_file.open("r") as file:
             package_json = json.load(file)
 
@@ -82,7 +81,7 @@ async def node_initial(timeout: int = 180, dev_mode: bool = False) -> str:
 
     try:
         proc = await asyncio.create_subprocess_shell(
-            cmd="yarn --silent --emoji false",
+            cmd="pnpm install",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=ui_path,
@@ -178,10 +177,8 @@ def generate_opengraph(
     log.debug("Copied {} to {}", str(image_path), str(target_path))
 
     with Image.open(copied) as src:
-
         # Only resize the image if it needs to be resized
         if src.size[0] != max_width or src.size[1] != max_height:
-
             # Resize image while maintaining aspect ratio
             log.debug("Opengraph image is not 1200x630, resizing...")
             src.thumbnail((max_width, max_height))
@@ -289,6 +286,10 @@ async def build_frontend(  # noqa: C901
     # webpack JSON parsing.
     dot_env_file = Path(__file__).parent.parent / "ui" / ".env"
     env_config = {}
+
+    ui_config_file = Path(__file__).parent.parent / "ui" / "hyperglass.json"
+
+    ui_config_file.write_text(params.export_json(by_alias=True))
 
     package_json = await read_package_json()
 

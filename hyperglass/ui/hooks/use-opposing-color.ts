@@ -22,12 +22,13 @@ export function useIsDarkCallback(): UseIsDarkCallbackReturn {
   const theme = useTheme();
   return useCallback(
     (color: string): boolean => {
+      let opposing = color;
       if (typeof color === 'string' && color.match(/[a-zA-Z]+\.[a-zA-Z0-9]+/g)) {
-        color = getColor(theme, color, color);
+        opposing = getColor(theme, color, color);
       }
       let opposingShouldBeDark = true;
       try {
-        opposingShouldBeDark = isLight(color)(theme);
+        opposingShouldBeDark = isLight(opposing)(theme);
       } catch (err) {
         console.error(err);
       }
@@ -46,9 +47,8 @@ export function useOpposingColor(color: string, options?: OpposingColorOptions):
   return useMemo(() => {
     if (isBlack) {
       return options?.dark ?? 'black';
-    } else {
-      return options?.light ?? 'white';
     }
+    return options?.light ?? 'white';
   }, [isBlack, options?.dark, options?.light]);
 }
 

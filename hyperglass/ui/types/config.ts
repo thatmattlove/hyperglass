@@ -1,7 +1,7 @@
 import type { Theme } from './theme';
 import type { CamelCasedPropertiesDeep, CamelCasedProperties } from 'type-fest';
 
-type Side = 'left' | 'right';
+type Side = 'left' | 'right' | string;
 
 export type ParsedDataField = [string, keyof Route, 'left' | 'right' | 'center' | null];
 
@@ -92,19 +92,17 @@ interface _Web {
   links: _Link[];
   menus: _Menu[];
   greeting: _Greeting;
-  help_menu: { enable: boolean; title: string };
   logo: _Logo;
-  terms: { enable: boolean; title: string };
   text: _Text;
   theme: _ThemeConfig;
-  location_display_mode: 'auto' | 'gallery' | 'dropdown';
+  location_display_mode: 'auto' | 'gallery' | 'dropdown' | string;
   highlight: _Highlight[];
 }
 
 type _DirectiveBase = {
   id: string;
   name: string;
-  field_type: 'text' | 'select' | null;
+  field_type: 'text' | 'select' | null | string;
   description: string;
   groups: string[];
   info: string | null;
@@ -125,7 +123,7 @@ type _Directive = _DirectiveBase | _DirectiveSelect;
 interface _Device {
   id: string;
   name: string;
-  group: string;
+  group: string | null;
   avatar: string | null;
   directives: _Directive[];
   description: string | null;
@@ -144,7 +142,7 @@ interface _Cache {
 type _Config = _ConfigDeep & _ConfigShallow;
 
 interface _DeviceGroup {
-  group: string;
+  group: string | null;
   locations: _Device[];
 }
 
@@ -157,7 +155,6 @@ interface _ConfigDeep {
 }
 
 interface _ConfigShallow {
-  debug: boolean;
   developer_mode: boolean;
   primary_asn: string;
   request_timeout: number;

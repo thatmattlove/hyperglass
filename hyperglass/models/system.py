@@ -43,6 +43,7 @@ class HyperglassSettings(BaseSettings):
 
     debug: bool = False
     dev_mode: bool = False
+    disable_ui: bool = False
     app_path: DirectoryPath = _default_app_path
     redis_host: str = "localhost"
     redis_password: t.Optional[SecretStr]
@@ -58,7 +59,6 @@ class HyperglassSettings(BaseSettings):
         super().__init__(**kwargs)
         if self.container:
             self.app_path = self.default_app_path
-        print(self)
 
     def __rich_console__(self, console: "Console", options: "ConsoleOptions") -> "RenderResult":
         """Render a Rich table representation of hyperglass settings."""

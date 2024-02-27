@@ -1,3 +1,4 @@
+import { expect, describe, it } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { useBooleanValue } from './use-boolean-value';

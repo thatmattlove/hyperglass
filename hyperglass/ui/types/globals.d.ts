@@ -55,8 +55,14 @@ export declare global {
     export interface ProcessEnv {
       hyperglass: { favicons: import('./config').Favicon[]; version: string };
       buildId: string;
+      UI_PARAMS: import('./config').Config;
     }
   }
+}
+
+declare module 'hyperglass.json' {
+  type Config = import('./config').Config;
+  export default Config;
 }
 
 declare module 'react' {

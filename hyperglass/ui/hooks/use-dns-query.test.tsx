@@ -1,4 +1,5 @@
 import 'isomorphic-fetch';
+import { expect, describe, it } from 'vitest';
 import '@testing-library/jest-dom';
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
@@ -16,7 +17,7 @@ const CloudflareWrapper = (props: React.PropsWithChildren<Dict<JSX.Element>>) =>
     cache: { timeout: 120 },
 
     web: { dnsProvider: { url: 'https://cloudflare-dns.com/dns-query' } },
-  } as jest.Mocked<Config>;
+  } as Config;
   return (
     <QueryClientProvider client={queryClient}>
       <HyperglassContext.Provider value={config} {...props} />
@@ -28,7 +29,7 @@ const GoogleWrapper = (props: React.PropsWithChildren<Dict<JSX.Element>>) => {
   const config = {
     cache: { timeout: 120 },
     web: { dnsProvider: { url: 'https://dns.google/resolve' } },
-  } as jest.Mocked<Config>;
+  } as Config;
   return (
     <QueryClientProvider client={queryClient}>
       <HyperglassContext.Provider value={config} {...props} />

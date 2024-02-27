@@ -45,8 +45,8 @@ export const useControlStyle = <Opt extends SingleOption, IsMulti extends boolea
         boxShadow: isError
           ? `0 0 0 1px ${invalidBorder}`
           : isFocused
-          ? `0 0 0 1px ${focusBorder}`
-          : undefined,
+            ? `0 0 0 1px ${focusBorder}`
+            : undefined,
         '&:hover': { borderColor: isFocused ? focusBorder : borderHover },
         '&:hover > div > span': { backgroundColor: borderHover },
         '&:focus': { borderColor: isError ? invalidBorder : focusBorder },

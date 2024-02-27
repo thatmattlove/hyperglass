@@ -20,18 +20,19 @@ app
 
     const devProxy = {
       '/api/query/': {
-        target: process.env.HYPERGLASS_URL + 'api/query/',
+        target: `${process.env.HYPERGLASS_URL}api/query/`,
         pathRewrite: { '^/api/query/': '' },
       },
       '/ui/props/': {
-        target: process.env.HYPERGLASS_URL + 'ui/props/',
+        target: `${process.env.HYPERGLASS_URL}ui/props/`,
         pathRewrite: { '^/ui/props/': '' },
       },
-      '/images': { target: process.env.HYPERGLASS_URL + 'images', pathRewrite: { '^/images': '' } },
+      '/images': { target: `${process.env.HYPERGLASS_URL}images`, pathRewrite: { '^/images': '' } },
     };
 
     // Set up the proxy.
     if (dev) {
+      // biome-ignore lint/complexity/noForEach: not messing with Next's example code.
       Object.keys(devProxy).forEach(context => {
         server.use(proxyMiddleware(context, devProxy[context]));
       });

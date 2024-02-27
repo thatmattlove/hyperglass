@@ -14,10 +14,7 @@ export type UseDeviceReturn = (
 export function useDevice(): UseDeviceReturn {
   const { devices } = useConfig();
 
-  const locations = useMemo<Device[]>(
-    () => devices.map(group => group.locations).flat(),
-    [devices],
-  );
+  const locations = useMemo<Device[]>(() => devices.flatMap(group => group.locations), [devices]);
 
   function getDevice(id: string): Nullable<Device> {
     return locations.find(device => device.id === id) ?? null;

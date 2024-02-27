@@ -1,6 +1,7 @@
+import { expect, describe, it } from 'vitest';
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { useGreeting } from './use-greeting';
 
 const TRUE = JSON.stringify(true);
@@ -26,16 +27,16 @@ const TestComponent = (): JSX.Element => {
         Close
       </button>
       <button id="ack-false-required" type="button" onClick={() => ack(false, true)}>
-        {`Don't acknowledge, is required`}
+        Don't acknowledge, is required
       </button>
       <button id="ack-true-required" type="button" onClick={() => ack(true, true)}>
-        {`Acknowledge, is required`}
+        Acknowledge, is required
       </button>
       <button id="ack-false-not-required" type="button" onClick={() => ack(false, false)}>
-        {`Don't Acknowledge, not required`}
+        Don't Acknowledge, not required
       </button>
       <button id="ack-true-not-required" type="button" onClick={() => ack(true, false)}>
-        {`Acknowledge, not required`}
+        Acknowledge, not required
       </button>
     </div>
   );

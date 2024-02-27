@@ -16,7 +16,7 @@ def build_ui(timeout: int) -> None:
     # Project
     from hyperglass.state import use_state
     from hyperglass.configuration import init_user_config
-    from hyperglass.util.frontend import build_frontend
+    from hyperglass.frontend import build_frontend
 
     # Populate configuration to Redis prior to accessing it.
     init_user_config()

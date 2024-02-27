@@ -1,70 +1,64 @@
-
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core"]
-
-[tool.poetry]
-authors = ["Matt Love <matt@hyperglass.dev>"]
-classifiers = [
-  "Development Status :: 5 - Production/Stable",
-  "Intended Audience :: Information Technology",
-  "Operating System :: POSIX :: Linux",
-  "Programming Language :: TypeScript",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Topic :: Internet",
-  "Topic :: System :: Networking",
-]
-description = "hyperglass is the modern network looking glass that tries to make the internet better."
-documentation = "https://hyperglass.dev"
-homepage = "https://hyperglass.dev"
-keywords = ["looking glass", "network automation", "isp", "bgp", "routing"]
-license = "BSD-3-Clause-Clear"
+[project]
 name = "hyperglass"
-readme = "README.md"
-repository = "https://github.com/thatmattlove/hyperglass"
 version = "2.0.0-dev"
+description = "hyperglass is the modern network looking glass that tries to make the internet better."
+authors = [
+    { name = "thatmattlove", email = "matt@hyperglass.dev" }
+]
+dependencies = [
+    "Pillow==10.2.0",
+    "PyJWT==2.6.0",
+    "PyYAML>=6.0",
+    "aiofiles>=23.2.1",
+    "distro==1.8.0",
+    "fastapi==0.95.1",
+    "favicons==0.2.2",
+    "gunicorn==20.1.0",
+    "httpx==0.24.0",
+    "loguru==0.7.0",
+    "netmiko==4.1.2",
+    "paramiko==3.4.0",
+    "psutil==5.9.4",
+    "py-cpuinfo==9.0.0",
+    "pydantic==1.10.14",
+    "redis==4.5.4",
+    "rich>=13.7.0",
+    "typer>=0.9.0",
+    "uvicorn==0.21.1",
+    "uvloop>=0.17.0",
+    "xmltodict==0.13.0",
+]
+readme = "README.md"
+requires-python = ">= 3.11"
 
-[tool.poetry.scripts]
+[project.scripts]
 hyperglass = "hyperglass.console:run"
 
-[tool.poetry.dependencies]
-Pillow = "^9.5.0"
-PyJWT = "^2.6.0"
-PyYAML = "^6.0"
-aiofiles = "^23.1.0"
-distro = "^1.8.0"
-fastapi = "^0.95.1"
-favicons = "^0.2.0"
-gunicorn = "^20.1.0"
-httpx = "^0.24.0"
-loguru = "^0.7.0"
-netmiko = "^4.1.2"
-paramiko = "^3.1.0"
-psutil = "^5.9.4"
-py-cpuinfo = "^9.0.0"
-pydantic = "^1.10.7"
-python = ">=3.8.1,<4.0"
-redis = "^4.5.4"
-rich = "^13.3.4"
-typer = "^0.7.0"
-uvicorn = "^0.21.1"
-uvloop = "^0.17.0"
-xmltodict = "^0.13.0"
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry.group.dev.dependencies]
-bandit = "^1.7.4"
-black = "^22.12.0"
-isort = "^5.10.1"
-pep8-naming = "^0.13.2"
-pre-commit = "^2.20.0"
-pytest = "^7.2.0"
-pytest-asyncio = "^0.20.3"
-pytest-dependency = "^0.5.1"
-ruff = "^0.0.261"
-stackprinter = "^0.2.10"
-taskipy = "^1.10.3"
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "bandit>=1.7.7",
+    "black>=24.2.0",
+    "isort>=5.13.2",
+    "pep8-naming>=0.13.3",
+    "pre-commit>=3.6.1",
+    "pytest>=8.0.1",
+    "pytest-asyncio>=0.23.5",
+    "pytest-dependency>=0.6.0",
+    "ruff>=0.2.1",
+    "stackprinter>=0.2.11",
+    "taskipy>=1.12.2",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["hyperglass"]
 
 [tool.black]
 line-length = 100
@@ -85,13 +79,6 @@ multi_line_output = 3
 profile = "black"
 skip_glob = "hyperglass/api/examples/*.py"
 
-[tool.pyright]
-exclude = ["**/node_modules", "**/ui", "**/__pycache__"]
-include = ["hyperglass"]
-pythonVersion = "3.9"
-reportMissingImports = true
-reportMissingTypeStubs = true
-
 [tool.taskipy.tasks]
 check = {cmd = "task lint && task ui-lint", help = "Run all lint checks"}
 docs-platforms = {cmd = "python3 -c 'from hyperglass.util.docs import create_platform_list;print(create_platform_list())'"}
@@ -102,12 +89,12 @@ start = {cmd = "python3 -m hyperglass.main", help = "Start hyperglass"}
 start-asgi = {cmd = "uvicorn hyperglass.api:app", help = "Start hyperglass via Uvicorn"}
 test = {cmd = "pytest hyperglass --ignore hyperglass/plugins/external", help = "Run hyperglass tests"}
 ui-build = {cmd = "python3 -m hyperglass.console build-ui", help = "Run a UI Build"}
-ui-dev = {cmd = "yarn --cwd ./hyperglass/ui/ dev", help = "Start the Next.JS dev server"}
-ui-format = {cmd = "yarn --cwd ./hyperglass/ui/ format", help = "Run Prettier"}
-ui-lint = {cmd = "yarn --cwd ./hyperglass/ui/ lint", help = "Run ESLint"}
-ui-typecheck = {cmd = "yarn --cwd ./hyperglass/ui/ typecheck", help = "Run TypeScript Check"}
+ui-dev = {cmd = "pnpm run --dir ./hyperglass/ui/ dev", help = "Start the Next.JS dev server"}
+ui-format = {cmd = "pnpm run --dir ./hyperglass/ui/ format", help = "Run Prettier"}
+ui-lint = {cmd = "pnpm run --dir ./hyperglass/ui/ lint", help = "Run ESLint"}
+ui-typecheck = {cmd = "pnpm run --dir ./hyperglass/ui/ typecheck", help = "Run TypeScript Check"}
 upgrade = {cmd = "python3 version.py", help = "Upgrade hyperglass version"}
-yarn = {cmd = "yarn --cwd ./hyperglass/ui/", help = "Run a yarn command from the UI directory"}
+pnpm = {cmd = "pnpm run --dir ./hyperglass/ui/", help = "Run a yarn command from the UI directory"}
 
 [tool.ruff]
 exclude = [
@@ -148,7 +135,7 @@ convention = "pep257"
 [tool.ruff.mccabe]
 max-complexity = 10
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "hyperglass/main.py" = ["E402"]
 # Disable classmethod warning for validator decorat
 "hyperglass/configuration/models/*.py" = ["N805"]

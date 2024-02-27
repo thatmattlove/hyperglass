@@ -11,7 +11,7 @@ export class ConfigLoadError extends Error {
   constructor(detail?: string) {
     super();
     this.detail = detail;
-    this.baseMessage = `Unable to connect to hyperglass at`;
+    this.baseMessage = 'Unable to connect to hyperglass at';
     this.message = `${this.baseMessage} '${this.url}'`;
     console.error(this);
   }
@@ -30,7 +30,7 @@ export async function getHyperglassConfig(url?: QueryFunctionContext | string): 
   let fetchUrl = '/ui/props/';
 
   if (typeof url === 'string') {
-    fetchUrl = url.replace(/(^\/)|(\/$)/g, '') + '/ui/props/';
+    fetchUrl = `${url.replace(/(^\/)|(\/$)/g, '')}/ui/props`;
   }
 
   if (process.env.NODE_ENV === 'production') {

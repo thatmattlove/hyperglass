@@ -1,4 +1,5 @@
 import { googleFontUrl } from './theme';
+import { describe, expect, test } from 'vitest';
 
 describe('google font URL generation', () => {
   test('no space font', () => {

@@ -61,7 +61,8 @@ export const Footer = (): JSX.Element => {
             icon.rightIcon = <DynamicIcon icon={{ go: 'GoLinkExternal' }} />;
           }
           return <FooterLink key={item.title} href={url} title={item.title} {...icon} />;
-        } else if (isMenu(item)) {
+        }
+        if (isMenu(item)) {
           return (
             <FooterButton key={item.title} side="left" content={item.content} title={item.title} />
           );
@@ -77,7 +78,8 @@ export const Footer = (): JSX.Element => {
             icon.rightIcon = <DynamicIcon icon={{ go: 'GoLinkExternal' }} />;
           }
           return <FooterLink key={item.title} href={url} title={item.title} {...icon} />;
-        } else if (isMenu(item)) {
+        }
+        if (isMenu(item)) {
           return (
             <FooterButton key={item.title} side="right" content={item.content} title={item.title} />
           );

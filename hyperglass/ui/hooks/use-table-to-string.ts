@@ -29,7 +29,7 @@ function formatAsPath(path: number[]): string {
 
 function formatCommunities(comms: string[]): string {
   const commsStr = comms.map(c => `      - ${c}`);
-  return '\n' + commsStr.join('\n');
+  return `\n ${commsStr.join('\n')}`;
 }
 
 function formatBool(val: boolean): string {
@@ -85,9 +85,8 @@ export function useTableToString(
   function getFmtFunc(accessor: keyof Route): TableToStringFormatter {
     if (isFormatted(accessor)) {
       return tableFormatMap[accessor];
-    } else {
-      return String;
     }
+    return String;
   }
 
   function doFormat(target: string[], data: QueryResponse | undefined): string {

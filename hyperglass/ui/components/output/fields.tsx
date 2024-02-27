@@ -119,6 +119,7 @@ export const ASPath = (props: ASPathProps): JSX.Element => {
       paths.push(
         <DynamicIcon
           icon={{ fa: 'FaChevronRight' }}
+          // biome-ignore lint/suspicious/noArrayIndexKey: index makes sense in this case.
           key={`separator-${i}`}
           color={color[+active]}
           boxSize={5}
@@ -127,6 +128,7 @@ export const ASPath = (props: ASPathProps): JSX.Element => {
         />,
       );
     paths.push(
+      // biome-ignore lint/suspicious/noArrayIndexKey: index makes sense in this case.
       <Text fontSize="sm" as="span" whiteSpace="pre" fontFamily="mono" key={`as-${asnStr}-${i}`}>
         {asnStr}
       </Text>,

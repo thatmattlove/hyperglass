@@ -142,7 +142,6 @@ class ConfigPathItem(Path):
             value = Settings.default_app_path.joinpath(
                 *(p for p in value.parts if p not in Settings.app_path.parts)
             )
-        print(f"{value=}")
         return value
 
     def __repr__(self):

@@ -47,7 +47,7 @@ class IconError extends Error {
     this.original = original;
     this.library = library;
     this.iconName = iconName;
-    this.stack = this.stack + `\nOriginal object: '${JSON.stringify(this.original)}'`;
+    this.stack += `\nOriginal object: '${JSON.stringify(this.original)}'`;
   }
 
   get message(): string {

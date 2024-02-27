@@ -52,6 +52,12 @@ HyperglassConsole = Console(
             "warning": "bold yellow",
             "error": "bold red",
             "success": "bold green",
+            "critical": "bold bright_red",
+            "logging.level.info": "bold cyan",
+            "logging.level.warning": "bold yellow",
+            "logging.level.error": "bold red",
+            "logging.level.critical": "bold bright_red",
+            "logging.level.success": "bold green",
             "subtle": "rgb(128,128,128)",
         }
     )
@@ -146,12 +152,13 @@ def init_logger(level: str = "INFO"):
 
     if sys.stdout.isatty():
         # Use Rich for logging if hyperglass started from a TTY.
+
         _loguru_logger.add(
             sink=RichHandler(
                 console=HyperglassConsole,
                 rich_tracebacks=True,
                 level=level,
-                tracebacks_show_locals=True,
+                tracebacks_show_locals=level == "DEBUG",
                 log_time_format="[%Y%m%d %H:%M:%S]",
             ),
             format=_FMT_BASIC,

@@ -2,8 +2,9 @@ import fs from 'fs';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 import { ColorModeScript } from '@chakra-ui/react';
 import { CustomJavascript, CustomHtml, Favicon } from '~/elements';
-import { getHyperglassConfig, googleFontUrl } from '~/util';
+import { googleFontUrl } from '~/util';
 import favicons from '../favicon-formats';
+import config from '../hyperglass.json';
 
 import type { DocumentContext, DocumentInitialProps } from 'next/document';
 import type { ThemeConfig } from '~/types';
@@ -18,8 +19,8 @@ interface DocumentExtra
 class MyDocument extends Document<DocumentExtra> {
   static async getInitialProps(ctx: DocumentContext): Promise<DocumentExtra> {
     const initialProps = await Document.getInitialProps(ctx);
-    let customJs = '',
-      customHtml = '';
+    let customJs = '';
+    let customHtml = '';
 
     if (fs.existsSync('custom.js')) {
       customJs = fs.readFileSync('custom.js').toString();
@@ -31,18 +32,18 @@ class MyDocument extends Document<DocumentExtra> {
     let fonts = { body: '', mono: '' };
     let defaultColorMode: 'light' | 'dark' | null = null;
 
-    const hyperglassUrl = process.env.HYPERGLASS_URL ?? '';
-    const {
-      web: {
-        theme: { fonts: themeFonts, defaultColorMode: themeDefaultColorMode },
-      },
-    } = await getHyperglassConfig(hyperglassUrl);
+    // const hyperglassUrl = process.env.HYPERGLASS_URL ?? '';
+    // const {
+    //   web: {
+    //     theme: { fonts: themeFonts, defaultColorMode: themeDefaultColorMode },
+    //   },
+    // } = await getHyperglassConfig(hyperglassUrl);
 
     fonts = {
-      body: googleFontUrl(themeFonts.body),
-      mono: googleFontUrl(themeFonts.mono),
+      body: googleFontUrl(config.web.theme.fonts.body),
+      mono: googleFontUrl(config.web.theme.fonts.mono),
     };
-    defaultColorMode = themeDefaultColorMode;
+    defaultColorMode = config.web.theme.defaultColorMode;
 
     return { customJs, customHtml, fonts, defaultColorMode, ...initialProps };
   }
@@ -63,8 +64,8 @@ class MyDocument extends Document<DocumentExtra> {
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
           <link href={this.props.fonts.mono} rel="stylesheet" />
           <link href={this.props.fonts.body} rel="stylesheet" />
-          {favicons.map((favicon, idx) => (
-            <Favicon key={idx} {...favicon} />
+          {favicons.map(favicon => (
+            <Favicon key={JSON.stringify(favicon)} {...favicon} />
           ))}
           <CustomJavascript>{this.props.customJs}</CustomJavascript>
         </Head>

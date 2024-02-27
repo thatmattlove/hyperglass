@@ -8,7 +8,6 @@ import type { StateCreator, SetState, GetState, StoreApi } from 'zustand';
  * @param store zustand store function.
  * @param name Store name.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
 export function withDev<T extends object = {}>(
   store: StateCreator<T>,
   name: string,

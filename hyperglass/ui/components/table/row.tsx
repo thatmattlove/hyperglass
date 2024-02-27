@@ -30,7 +30,7 @@ export const TableRow = (props: TableRowProps): JSX.Element => {
     { borderTop: '1px', borderTopColor: 'blackAlpha.100' },
     { borderTop: '1px', borderTopColor: 'whiteAlpha.100' },
   );
-  let bg;
+  let bg = undefined;
 
   if (highlight) {
     bg = `${String(highlightBg)}.${alpha}`;

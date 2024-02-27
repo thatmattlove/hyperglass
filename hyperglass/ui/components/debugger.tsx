@@ -17,7 +17,7 @@ import {
   useColorMode,
   useColorValue,
   useBreakpointValue,
-  useHyperglassConfig,
+  // useHyperglassConfig,
 } from '~/hooks';
 
 import type { UseDisclosureReturn } from '@chakra-ui/react';
@@ -56,7 +56,7 @@ export const Debugger = (): JSX.Element => {
     useBreakpointValue({ base: 'SMALL', md: 'MEDIUM', lg: 'LARGE', xl: 'X-LARGE' }) ?? 'UNKNOWN';
   const tagSize = useBreakpointValue({ base: 'sm', lg: 'lg' }) ?? 'lg';
   const btnSize = useBreakpointValue({ base: 'xs', lg: 'sm' }) ?? 'sm';
-  const { refetch } = useHyperglassConfig();
+  // const { refetch } = useHyperglassConfig();
   return (
     <>
       <HStack
@@ -92,14 +92,14 @@ export const Debugger = (): JSX.Element => {
         >
           View Theme
         </Button>
-        <Button
+        {/* <Button
           size={btnSize}
           colorScheme="purple"
           leftIcon={<DynamicIcon icon={{ hi: 'HiOutlineDownload' }} />}
           onClick={() => refetch()}
         >
           Reload Config
-        </Button>
+        </Button> */}
         <Tag size={tagSize} colorScheme="teal">
           {mediaSize}
         </Tag>

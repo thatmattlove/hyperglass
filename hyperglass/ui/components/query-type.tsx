@@ -60,10 +60,7 @@ function useOptions() {
   const filtered = useFormState(s => s.filtered);
   return useMemo((): OptionsOrGroup<QueryTypeOption> => {
     const groupNames = new Set(
-      filtered.types
-        .filter(t => t.groups.length > 0)
-        .map(t => t.groups)
-        .flat(),
+      filtered.types.filter(t => t.groups.length > 0).flatMap(t => t.groups),
     );
     const optGroups: OptionGroup<QueryTypeOption>[] = Array.from(groupNames).map(group => ({
       label: group,

@@ -11,8 +11,7 @@ export function useBooleanValue<T extends unknown, F extends unknown>(
   return useMemo(() => {
     if (status) {
       return ifTrue;
-    } else {
-      return ifFalse;
     }
+    return ifFalse;
   }, [status, ifTrue, ifFalse]);
 }

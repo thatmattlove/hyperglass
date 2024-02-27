@@ -25,5 +25,5 @@ export const Cell = (props: CellProps): JSX.Element => {
     rpki_state: <RPKIState state={data.value} active={data.row.values.active} />,
     weight: <Weight weight={data.value} winningWeight={rawData.winning_weight} />,
   };
-  return component[cellId] ?? <> </>;
+  return component[cellId] ?? '';
 };

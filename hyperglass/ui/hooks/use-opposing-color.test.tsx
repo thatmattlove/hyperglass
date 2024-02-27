@@ -1,6 +1,7 @@
+import { expect, describe, it } from 'vitest';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { ChakraProvider, useColorMode, useColorModeValue, extendTheme } from '@chakra-ui/react';
 import { useOpposingColor } from './use-opposing-color';
 
@@ -32,17 +33,17 @@ describe('useOpposingColor Hook', () => {
     const test1 = container.querySelector('#test1');
     const test2 = container.querySelector('#test2');
 
-    expect(test1).toHaveStyle('color: black;');
-    expect(test2).toHaveStyle('color: black;');
+    expect(test1).toHaveStyle('color: rgb(0, 0, 0);');
+    expect(test2).toHaveStyle('color: rgb(0, 0, 0);');
 
     await userEvent.click(getByRole('button'));
 
-    expect(test1).toHaveStyle('color: white;');
-    expect(test2).toHaveStyle('color: white;');
+    expect(test1).toHaveStyle('color: rgb(255, 255, 255);');
+    expect(test2).toHaveStyle('color: rgb(255, 255, 255);');
 
     await userEvent.click(getByRole('button'));
 
-    expect(test1).toHaveStyle('color: black;');
-    expect(test2).toHaveStyle('color: black;');
+    expect(test1).toHaveStyle('color: rgb(0, 0, 0);');
+    expect(test2).toHaveStyle('color: rgb(0, 0, 0);');
   });
 });

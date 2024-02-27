@@ -103,23 +103,24 @@ export const LookingGlassForm = (): JSX.Element => {
     const isFqdn = isFqdnQuery(form.queryTarget, directive?.fieldType ?? null);
 
     if (greetingReady && !isFqdn) {
-      return setStatus('results');
+      setStatus('results');
+      return;
     }
 
     if (greetingReady && isFqdn) {
       setLoading(true);
-      return resolvedOpen();
-    } else {
-      console.group('%cSomething went wrong', 'color:red;');
-      console.table({
-        'Greeting Required': web.greeting.required,
-        'Greeting Ready': greetingReady,
-        'Query Target': form.queryTarget,
-        'Query Type': form.queryType,
-        'Is FQDN': isFqdn,
-      });
-      console.groupEnd();
+      resolvedOpen();
+      return;
     }
+    console.group('%cSomething went wrong', 'color:red;');
+    console.table({
+      'Greeting Required': web.greeting.required,
+      'Greeting Ready': greetingReady,
+      'Query Target': form.queryTarget,
+      'Query Type': form.queryType,
+      'Is FQDN': isFqdn,
+    });
+    console.groupEnd();
   }
 
   const handleLocChange = (locations: string[]) =>
