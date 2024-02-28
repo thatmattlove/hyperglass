@@ -1,7 +1,9 @@
 {
-  "yaml.format.singleQuote": true,
-  "eslint.workingDirectories": ["./hyperglass/ui"],
-  "python.linting.mypyEnabled": false,
-  "python.linting.enabled": false,
-  "biome.lspBin": "./hyperglass/ui/node_modules/.bin/biome"
+    "yaml.format.singleQuote": true,
+    "python.linting.mypyEnabled": false,
+    "python.linting.enabled": false,
+    "biome.lspBin": "./hyperglass/ui/node_modules/.bin/biome",
+    "editor.codeActionsOnSave": {
+        "source.organizeImports.biome": "always"
+    }
 }
