@@ -3,7 +3,7 @@ const rewrites = async () => {
     return [];
   }
   return [
-    { source: '/api/query/', destination: `${process.env.HYPERGLASS_URL}api/query/` },
+    { source: '/api/query', destination: `${process.env.HYPERGLASS_URL}api/query` },
     { source: '/images/:image*', destination: `${process.env.HYPERGLASS_URL}images/:image*` },
   ];
 };

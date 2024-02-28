@@ -220,7 +220,7 @@ app.add_api_route(
 )
 
 app.add_api_route(
-    path="/api/query/",
+    path="/api/query",
     endpoint=query,
     methods=["POST"],
     summary=STATE.params.docs.query.summary,
