@@ -124,7 +124,7 @@ export const QueryLocation = (props: QueryLocationProps): JSX.Element => {
             align="flex-start"
             shouldWrapChildren
             spacing={{ base: 4, lg: 8 }}
-            justify={{ base: 'center', lg: 'flex-start' }}
+            justify={{ base: 'center', lg: 'center' }}
           >
             {options[0].options.map(opt => {
               return (

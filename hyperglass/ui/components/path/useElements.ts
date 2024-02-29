@@ -2,7 +2,7 @@ import dagre from 'dagre';
 import { useMemo } from 'react';
 import isEqual from 'react-fast-compare';
 
-import type { Node, Edge } from 'react-flow-renderer';
+import type { Edge, Node } from 'reactflow';
 import type { NodeData } from './chart';
 
 interface BasePath {
@@ -12,7 +12,7 @@ interface BasePath {
 
 type FlowElement<T> = Node<T> | Edge<T>;
 
-const NODE_WIDTH = 200;
+const NODE_WIDTH = 128;
 const NODE_HEIGHT = 48;
 
 export function useElements(base: BasePath, data: StructuredResponse): FlowElement<NodeData>[] {

@@ -1,5 +1,5 @@
 import { ButtonGroup, IconButton } from '@chakra-ui/react';
-import { useReactFlow } from 'react-flow-renderer';
+import { useReactFlow } from 'reactflow';
 import { DynamicIcon } from '~/elements';
 
 export const Controls = (): JSX.Element => {

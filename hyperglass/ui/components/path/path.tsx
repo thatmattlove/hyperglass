@@ -1,16 +1,17 @@
 import {
   Modal,
-  Skeleton,
   ModalBody,
+  ModalCloseButton,
+  ModalContent,
   ModalHeader,
   ModalOverlay,
-  ModalContent,
+  Skeleton,
   useDisclosure,
-  ModalCloseButton,
 } from '@chakra-ui/react';
-import { useFormState, useColorValue, useBreakpointValue } from '~/hooks';
-import { PathButton } from './path-button';
+import 'reactflow/dist/style.css';
+import { useBreakpointValue, useColorValue, useFormState } from '~/hooks';
 import { Chart } from './chart';
+import { PathButton } from './path-button';
 
 interface PathProps {
   device: string;

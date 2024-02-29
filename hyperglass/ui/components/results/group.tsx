@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
 import { Accordion } from '@chakra-ui/react';
 import { AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
 import { AnimatedDiv } from '~/elements';
 import { useFormState } from '~/hooks';
 import { Result } from './individual';
@@ -34,7 +34,7 @@ export const Results = (): JSX.Element => {
         animate={{ opacity: 1, y: 0 }}
         maxW={{ base: '100%', md: '75%' }}
       >
-        <Accordion allowMultiple allowToggle>
+        <Accordion allowMultiple>
           <AnimatePresence>
             {queryLocation.length > 0 &&
               queryLocation.map((location, index) => {

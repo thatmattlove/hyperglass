@@ -1,22 +1,22 @@
+import { Flex, ScaleFade, SlideFade, chakra } from '@chakra-ui/react';
+import { vestResolver } from '@hookform/resolvers/vest';
 import { useCallback, useEffect, useMemo } from 'react';
 import isEqual from 'react-fast-compare';
-import { chakra, Flex, ScaleFade, SlideFade } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { vestResolver } from '@hookform/resolvers/vest';
 import vest, { test, enforce } from 'vest';
 import {
-  FormField,
   DirectiveInfoModal,
-  QueryType,
-  QueryTarget,
-  SubmitButton,
+  FormField,
   QueryLocation,
+  QueryTarget,
+  QueryType,
+  SubmitButton,
 } from '~/components';
 import { useConfig } from '~/context';
 import { FormRow } from '~/elements';
-import { useStrf, useGreeting, useDevice, useFormState } from '~/hooks';
+import { useDevice, useFormState, useGreeting, useStrf } from '~/hooks';
+import { Directive, isQueryField, isString } from '~/types';
 import { isFQDN } from '~/util';
-import { isString, isQueryField, Directive } from '~/types';
 
 import type { FormData, OnChangeArgs } from '~/types';
 
@@ -70,7 +70,6 @@ export const LookingGlassForm = (): JSX.Element => {
 
   const { handleSubmit, register, setValue, setError, clearErrors } = formInstance;
 
-  // const isFqdnQuery = useIsFqdn(form.queryTarget, form.queryType);
   const isFqdnQuery = useCallback(
     (target: string | string[], fieldType: Directive['fieldType'] | null): boolean =>
       typeof target === 'string' && fieldType === 'text' && isFQDN(target),
@@ -79,20 +78,21 @@ export const LookingGlassForm = (): JSX.Element => {
 
   const directive = useMemo<Directive | null>(
     () => getDirective(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [form.queryType, form.queryLocation, getDirective],
   );
 
   function submitHandler(): void {
-    console.table({
-      'Query Location': form.queryLocation.toString(),
-      'Query Type': form.queryType,
-      'Query Target': form.queryTarget,
-      'Selected Directive': directive?.name ?? null,
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.table({
+        'Query Location': form.queryLocation.toString(),
+        'Query Type': form.queryType,
+        'Query Target': form.queryTarget,
+        'Selected Directive': directive?.name ?? null,
+      });
+    }
+
     // Before submitting a query, make sure the greeting is acknowledged if required. This should
     // be handled before loading the app, but people be sneaky.
-
     if (!greetingReady) {
       resetForm();
       location.reload();

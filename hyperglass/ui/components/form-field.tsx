@@ -1,5 +1,5 @@
+import { Flex, FormControl, FormErrorMessage, FormLabel } from '@chakra-ui/react';
 import { useMemo } from 'react';
-import { Flex, FormControl, FormLabel, FormErrorMessage } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { If, Then } from 'react-if';
 import { useBooleanValue, useColorValue } from '~/hooks';
@@ -40,6 +40,7 @@ export const FormField = (props: FormFieldProps): JSX.Element => {
       w="100%"
       maxW="100%"
       flexDir="column"
+      alignItems="center"
       my={{ base: 2, lg: 4 }}
       isInvalid={error !== null}
       {...rest}
