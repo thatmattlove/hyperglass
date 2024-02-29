@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
 import { Badge, Tooltip, useStyleConfig } from '@chakra-ui/react';
+import React, { memo } from 'react';
 import isEqual from 'react-fast-compare';
 import replace from 'react-string-replace';
 
@@ -29,20 +29,24 @@ const Highlight = (props: HighlightProps): JSX.Element => {
 
 const _Highlighted = (props: HighlightedProps): JSX.Element => {
   const { patterns, children } = props;
-  let result: React.ReactNodeArray = [];
+  let result: React.ReactNode[] = [];
   let times: number = 0;
 
-  for (const config of patterns) {
-    let toReplace: string | React.ReactNodeArray = children;
-    if (times !== 0) {
-      toReplace = result;
+  if (patterns.length === 0) {
+    result = [children];
+  } else {
+    for (const config of patterns) {
+      let toReplace: string | React.ReactNode[] = children;
+      if (times !== 0) {
+        toReplace = result;
+      }
+      result = replace(toReplace, new RegExp(`(${config.pattern})`, 'gm'), (m, i) => (
+        <Highlight key={`${m + i}`} label={config.label} colorScheme={config.color}>
+          {m}
+        </Highlight>
+      ));
+      times++;
     }
-    result = replace(toReplace, new RegExp(`(${config.pattern})`, 'gm'), (m, i) => (
-      <Highlight key={`${m + i}`} label={config.label} colorScheme={config.color}>
-        {m}
-      </Highlight>
-    ));
-    times++;
   }
 
   return <>{result}</>;

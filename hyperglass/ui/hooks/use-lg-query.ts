@@ -1,13 +1,13 @@
-import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useMemo } from 'react';
 import { useConfig } from '~/context';
 import { fetchWithTimeout } from '~/util';
 
 import type {
   QueryFunction,
-  UseQueryOptions,
-  QueryObserverResult,
   QueryFunctionContext,
+  QueryObserverResult,
+  UseQueryOptions,
 } from '@tanstack/react-query';
 import type { FormQuery } from '~/types';
 
@@ -54,7 +54,10 @@ export function useLGQuery(
       controller,
     );
     try {
-      return await res.json();
+      const data = await res.json();
+      console.dir(data, { depth: null });
+      return data;
+      // return await res.json();
     } catch (err) {
       throw new Error(res.statusText);
     }

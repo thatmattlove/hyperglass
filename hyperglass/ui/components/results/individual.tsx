@@ -1,39 +1,39 @@
-import { forwardRef, memo, useEffect, useMemo } from 'react';
 import {
-  Box,
-  Flex,
-  Alert,
-  chakra,
-  HStack,
-  Tooltip,
-  useToast,
+  AccordionButton,
   AccordionItem,
   AccordionPanel,
-  AccordionButton,
+  Alert,
+  Box,
+  Flex,
+  HStack,
+  Tooltip,
+  chakra,
   useAccordionContext,
+  useToast,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import startCase from 'lodash/startCase';
+import { forwardRef, memo, useEffect, useMemo } from 'react';
 import isEqual from 'react-fast-compare';
-import { If, Then, Else } from 'react-if';
+import { Else, If, Then } from 'react-if';
 import { BGPTable, Path, TextOutput } from '~/components';
 import { useConfig } from '~/context';
 import { Countdown, DynamicIcon } from '~/elements';
 import {
-  useStrf,
-  useDevice,
-  useMobile,
-  useLGQuery,
-  useFormState,
   useColorValue,
+  useDevice,
+  useFormState,
+  useLGQuery,
+  useMobile,
+  useStrf,
   useTableToString,
 } from '~/hooks';
-import { isStructuredOutput, isStringOutput } from '~/types';
-import { isStackError, isFetchError, isLGError, isLGOutputOrError } from './guards';
-import { RequeryButton } from './requery-button';
+import { isStringOutput, isStructuredOutput } from '~/types';
 import { CopyButton } from './copy-button';
 import { FormattedError } from './formatted-error';
+import { isFetchError, isLGError, isLGOutputOrError, isStackError } from './guards';
 import { ResultHeader } from './header';
+import { RequeryButton } from './requery-button';
 
 import type { ErrorLevels } from '~/types';
 

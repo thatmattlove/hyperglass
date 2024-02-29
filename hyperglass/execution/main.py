@@ -69,6 +69,8 @@ async def execute(query: "Query") -> Union["OutputDataModel", str]:
 
     output = await driver.response(response)
 
+    log.debug("Response for {!r}\n{response}", query, response=response)
+
     if is_series(output):
         if len(output) == 0:
             raise ResponseEmpty(query=query)

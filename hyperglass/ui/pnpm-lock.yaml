@@ -87,8 +87,8 @@ dependencies:
     specifier: ^5.7.0
     version: 5.7.0(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
   react-string-replace:
-    specifier: ^0.5.0
-    version: 0.5.0
+    specifier: ^1.1.1
+    version: 1.1.1
   react-table:
     specifier: ^7.7.0
     version: 7.7.0(react@18.2.0)
@@ -6325,8 +6325,8 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /react-string-replace@0.5.0:
-    resolution: {integrity: sha512-xtfotmm+Gby5LjfYg3s5+eT6bnwgOIdZRAdHTouLY/7SicDtX4JXjG7CAGaGDcS0ax4nsaaEVNRxArSa8BgQKw==}
+  /react-string-replace@1.1.1:
+    resolution: {integrity: sha512-26TUbLzLfHQ5jO5N7y3Mx88eeKo0Ml0UjCQuX4BMfOd/JX+enQqlKpL1CZnmjeBRvQE8TR+ds9j1rqx9CxhKHQ==}
     engines: {node: '>=0.12.0'}
     dev: false
 
