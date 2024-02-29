@@ -1,12 +1,12 @@
-import { forwardRef } from 'react';
-import { Text, Box, Tooltip, Menu, MenuButton, MenuList, Link, Flex } from '@chakra-ui/react';
+import { Box, Flex, Link, Menu, MenuButton, MenuList, Text, Tooltip } from '@chakra-ui/react';
 import dayjs from 'dayjs';
 import relativeTimePlugin from 'dayjs/plugin/relativeTime';
 import utcPlugin from 'dayjs/plugin/utc';
-import { If, Then, Else } from 'react-if';
+import { forwardRef } from 'react';
+import { Else, If, Then } from 'react-if';
 import { useConfig } from '~/context';
 import { DynamicIcon } from '~/elements';
-import { useOpposingColor, useColorValue } from '~/hooks';
+import { useColorValue, useOpposingColor } from '~/hooks';
 
 import type { TextProps } from '@chakra-ui/react';
 
@@ -108,7 +108,13 @@ export const ASPath = (props: ASPathProps): JSX.Element => {
   );
 
   if (path.length === 0) {
-    return <DynamicIcon icon={{ ri: 'RiHome2Fill' }} />;
+    return (
+      <Tooltip hasArrow label="Internal" placement="right">
+        <Link>
+          <DynamicIcon icon={{ ri: 'RiHome2Fill' }} />
+        </Link>
+      </Tooltip>
+    );
   }
 
   const paths = [] as JSX.Element[];
