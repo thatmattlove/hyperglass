@@ -1,13 +1,15 @@
 import fs from 'fs';
-import Document, { Html, Head, Main, NextScript } from 'next/document';
 import { ColorModeScript } from '@chakra-ui/react';
-import { CustomJavascript, CustomHtml, Favicon } from '~/elements';
+import Document, { Html, Head, Main, NextScript } from 'next/document';
+import { CustomHtml, CustomJavascript, Favicon } from '~/elements';
 import { googleFontUrl } from '~/util';
 import favicons from '../favicon-formats';
-import config from '../hyperglass.json';
 
 import type { DocumentContext, DocumentInitialProps } from 'next/document';
-import type { ThemeConfig } from '~/types';
+import type { Config, ThemeConfig } from '~/types';
+
+// Declare imported JSON type to avoid type errors when file is not present (testing).
+const config = (await import('../hyperglass.json')) as unknown as Config;
 
 interface DocumentExtra
   extends DocumentInitialProps,
