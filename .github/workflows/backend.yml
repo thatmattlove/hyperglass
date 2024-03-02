@@ -53,8 +53,10 @@ jobs:
             - name: Install
               run: rye sync
 
-            - name: Enter venv
-              run: . .venv/bin/activate
+            - name: Activate virtualenv
+              run: |
+                  . .venv/bin/activate
+                  echo PATH=$PATH >> $GITHUB_ENV
 
             - name: Lint (Rye)
               run: rye lint
