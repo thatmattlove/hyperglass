@@ -1,7 +1,9 @@
 name: Frontend Testing
 on:
-    - push
-    - pull_request
+    push:
+        paths:
+            - hyperglass/ui/**
+    pull_request:
 
 jobs:
     frontend:
