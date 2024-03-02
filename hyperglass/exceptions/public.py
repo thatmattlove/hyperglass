@@ -3,8 +3,6 @@
 # Standard Library
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
-# Project
-from hyperglass.state import use_state
 
 # Local
 from ._common import PublicHyperglassError
@@ -14,13 +12,10 @@ if TYPE_CHECKING:
     from hyperglass.models.api.query import Query
     from hyperglass.models.config.devices import Device
 
-(MESSAGES := use_state("params").messages)
-(TEXT := use_state("params").web.text)
-
 
 class ScrapeError(
     PublicHyperglassError,
-    template=MESSAGES.connection_error,
+    template="connection_error",
     level="danger",
 ):
     """Raised when an SSH driver error occurs."""
@@ -30,7 +25,7 @@ class ScrapeError(
         super().__init__(error=str(error), device=device.name, proxy=device.proxy)
 
 
-class AuthError(PublicHyperglassError, template=MESSAGES.authentication_error, level="danger"):
+class AuthError(PublicHyperglassError, template="authentication_error", level="danger"):
     """Raised when authentication to a device fails."""
 
     def __init__(self, *, error: BaseException, device: "Device"):
@@ -38,7 +33,7 @@ class AuthError(PublicHyperglassError, template=MESSAGES.authentication_error, l
         super().__init__(error=str(error), device=device.name, proxy=device.proxy)
 
 
-class RestError(PublicHyperglassError, template=MESSAGES.connection_error, level="danger"):
+class RestError(PublicHyperglassError, template="connection_error", level="danger"):
     """Raised upon a rest API client error."""
 
     def __init__(self, *, error: BaseException, device: "Device"):
@@ -46,7 +41,7 @@ class RestError(PublicHyperglassError, template=MESSAGES.connection_error, level
         super().__init__(error=str(error), device=device.name)
 
 
-class DeviceTimeout(PublicHyperglassError, template=MESSAGES.request_timeout, level="danger"):
+class DeviceTimeout(PublicHyperglassError, template="request_timeout", level="danger"):
     """Raised when the connection to a device times out."""
 
     def __init__(self, *, error: BaseException, device: "Device"):
@@ -54,7 +49,7 @@ class DeviceTimeout(PublicHyperglassError, template=MESSAGES.request_timeout, le
         super().__init__(error=str(error), device=device.name, proxy=device.proxy)
 
 
-class InvalidQuery(PublicHyperglassError, template=MESSAGES.invalid_query):
+class InvalidQuery(PublicHyperglassError, template="request_timeout"):
     """Raised when input validation fails."""
 
     def __init__(
@@ -74,7 +69,7 @@ class InvalidQuery(PublicHyperglassError, template=MESSAGES.invalid_query):
         super().__init__(**kwargs)
 
 
-class NotFound(PublicHyperglassError, template=MESSAGES.not_found):
+class NotFound(PublicHyperglassError, template="not_found"):
     """Raised when an object is not found."""
 
     def __init__(self, type: str, name: str, **kwargs: Dict[str, str]) -> None:
@@ -87,8 +82,11 @@ class QueryLocationNotFound(NotFound):
 
     def __init__(self, location: Any, **kwargs: Dict[str, Any]) -> None:
         """Initialize a NotFound error for a query location."""
+        from hyperglass.state import use_state
 
-        super().__init__(type=TEXT.query_location, name=str(location), **kwargs)
+        (text := use_state("params").web.text)
+
+        super().__init__(type=text.query_location, name=str(location), **kwargs)
 
 
 class QueryTypeNotFound(NotFound):
@@ -96,10 +94,13 @@ class QueryTypeNotFound(NotFound):
 
     def __init__(self, query_type: Any, **kwargs: Dict[str, Any]) -> None:
         """Initialize a NotFound error for a query type."""
-        super().__init__(type=TEXT.query_type, name=str(query_type), **kwargs)
+        from hyperglass.state import use_state
+
+        (text := use_state("params").web.text)
+        super().__init__(type=text.query_type, name=str(query_type), **kwargs)
 
 
-class InputInvalid(PublicHyperglassError, template=MESSAGES.invalid_input):
+class InputInvalid(PublicHyperglassError, template="invalid_input"):
     """Raised when input validation fails."""
 
     def __init__(
@@ -115,7 +116,7 @@ class InputInvalid(PublicHyperglassError, template=MESSAGES.invalid_input):
         super().__init__(**kwargs)
 
 
-class InputNotAllowed(PublicHyperglassError, template=MESSAGES.target_not_allowed):
+class InputNotAllowed(PublicHyperglassError, template="target_not_allowed"):
     """Raised when input validation fails due to a configured check."""
 
     def __init__(
@@ -135,7 +136,7 @@ class InputNotAllowed(PublicHyperglassError, template=MESSAGES.target_not_allowe
         super().__init__(**kwargs)
 
 
-class ResponseEmpty(PublicHyperglassError, template=MESSAGES.no_output):
+class ResponseEmpty(PublicHyperglassError, template="no_output"):
     """Raised when hyperglass can connect to the device but the response is empty."""
 
     def __init__(

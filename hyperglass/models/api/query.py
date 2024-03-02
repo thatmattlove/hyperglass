@@ -20,7 +20,6 @@ from hyperglass.exceptions.private import InputValidationError
 # Local
 from ..config.devices import Device
 
-(TEXT := use_state("params").web.text)
 
 QueryLocation = constr(strip_whitespace=True, strict=True, min_length=1)
 QueryTarget = constr(strip_whitespace=True, min_length=1)

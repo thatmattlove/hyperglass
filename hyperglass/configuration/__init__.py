@@ -1,4 +1,5 @@
 """hyperglass Configuration."""
+
 # Standard Library
 import typing as t
 

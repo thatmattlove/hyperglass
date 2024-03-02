@@ -75,6 +75,17 @@ class Messages(HyperglassModel):
         description="Displayed when hyperglass can connect to a device and execute a query, but the response is empty.",
     )
 
+    def has(self, attr: str) -> bool:
+        """Determine if message type exists in Messages model."""
+        return attr in self.dict().keys()
+
+    def __getitem__(self, attr: str) -> StrictStr:
+        """Make messages subscriptable."""
+
+        if not self.has(attr):
+            raise KeyError(f"'{attr}' does not exist on Messages model")
+        return getattr(self, attr)
+
     class Config:
         """Pydantic model configuration."""
 

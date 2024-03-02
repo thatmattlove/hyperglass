@@ -253,8 +253,8 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
 
     id: StrictStr
     name: StrictStr
-    rules: t.List[RuleType]
-    field: t.Union[Text, Select, None]
+    rules: t.List[RuleType] = [RuleWithPattern(condition="*")]
+    field: t.Union[Text, Select]
     info: t.Optional[FilePath]
     plugins: t.List[StrictStr] = []
     table_output: t.Optional[StrictStr]
@@ -350,3 +350,13 @@ class Directives(MultiModel[Directive], model=Directive, unique_by="id"):
             if _directive.id == directive.table_output:
                 return _directive
         return directive
+
+    @classmethod
+    def new(cls, /, *raw_directives: t.Dict[str, t.Any]) -> "Directives":
+        """Create a new Directives collection from raw directive configurations."""
+        directives = (
+            Directive(id=name, **directive)
+            for raw_directive in raw_directives
+            for name, directive in raw_directive.items()
+        )
+        return Directives(*directives)

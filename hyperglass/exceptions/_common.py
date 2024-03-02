@@ -68,7 +68,6 @@ class HyperglassError(Exception):
         return template.format(**kwargs)
 
     def _parse_pydantic_errors(*errors: Dict[str, Any]) -> str:
-
         errs = ("\n",)
 
         for err in errors:
@@ -121,10 +120,16 @@ class PublicHyperglassError(HyperglassError):
 
     def __init__(self, **kwargs: str) -> None:
         """Format error message with keyword arguments."""
+        from hyperglass.state import use_state
+
         if "error" in kwargs:
             error = kwargs.pop("error")
             error = self._safe_format(str(error), **kwargs)
             kwargs["error"] = error
+
+        (messages := use_state("params").messages)
+        if messages.has(self._message_template):
+            self._message_template = messages[self._message_template]
         self._message = self._safe_format(self._message_template, **kwargs)
         self._keywords = list(kwargs.values())
         super().__init__(message=self._message, level=self._level, keywords=self._keywords)

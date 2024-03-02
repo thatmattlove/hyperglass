@@ -143,7 +143,6 @@ class Device(HyperglassModelWithId, extra="allow"):
         return self.platform
 
     def _validate_directive_attrs(self) -> None:
-
         # Set of all keys except for built-in key `target`.
         keys = {
             key
