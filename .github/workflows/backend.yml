@@ -1,61 +1,60 @@
 name: Backend Testing
 on:
-  - push
-  - pull_request
+    - push
+    - pull_request
 
 jobs:
-  backend:
-    name: Backend Tests
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [18.x]
-        redis-version: [6]
-        poetry-version: [1.2.2]
-        python-version: [3.9]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+    backend:
+        name: Backend Tests
+        strategy:
+            fail-fast: false
+            matrix:
+                node-version: [20.x]
+                redis-version: [7]
+                python-version: [3.9, 3.10, 3.11]
+                os: [ubuntu-latest]
+        runs-on: ${{ matrix.os }}
 
-    steps:
-      - name: Git Checkout
-        uses: actions/checkout@v3
+        steps:
+            - name: Git Checkout
+              uses: actions/checkout@v3
 
-      - name: Install Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
+            - name: Install Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ matrix.python-version }}
 
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.2.0
-        with:
-          poetry-version: ${{ matrix.poetry-version }}
+            - name: Setup Rye
+              uses: sksat/setup-rye@v0.8.0
 
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
+            - name: Install Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
 
-      - name: Start Redis
-        uses: supercharge/redis-github-action@1.1.0
-        with:
-          redis-version: ${{ matrix.redis-version }}
+            - name: Start Redis
+              uses: supercharge/redis-github-action@1.7.0
+              with:
+                  redis-version: ${{ matrix.redis-version }}
 
-      - name: Prepare
-        run: |
-          mkdir -p "$HOME/hyperglass"
-          echo "HYPERGLASS_APP_PATH=$HOME/hyperglass" >> $GITHUB_ENV
-          echo "HYPERGLASS_HOST=127.0.0.1" >> $GITHUB_ENV
-          echo "HYPERGLASS_PORT=8001" >> $GITHUB_ENV
+            - name: Prepare
+              run: |
+                  mkdir -p "$HOME/hyperglass"
+                  echo "HYPERGLASS_APP_PATH=$HOME/hyperglass" >> $GITHUB_ENV
+                  echo "HYPERGLASS_HOST=127.0.0.1" >> $GITHUB_ENV
+                  echo "HYPERGLASS_PORT=8001" >> $GITHUB_ENV
 
-      - name: Install (Poetry)
-        run: poetry install
+            - name: Enter venv
+              run: . .venv/bin/activate
 
-      - name: Lint (Flake8)
-        run: poetry run task lint
+            - name: Install
+              run: rye install
 
-      # This needs to come before testing, so redis is pre-populated.
-      - name: Run hyperglass
-        run: '.tests/ga-backend-app.sh'
+            - name: Lint (Rye)
+              run: rye lint
 
-      - name: Test (PyTest)
-        run: poetry run task test
+            - name: Tests (PyTest)
+              run: task test
+
+            - name: Run hyperglass
+              run: ".tests/ga-backend-app.sh"
