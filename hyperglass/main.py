@@ -118,13 +118,14 @@ def when_ready(server: "Arbiter") -> None:
 def on_exit(_: t.Any) -> None:
     """Gunicorn shutdown tasks."""
 
-    log.critical("Stopping hyperglass {}", __version__)
-
     state = use_state()
-    if not Settings.dev_mode:
-        state.clear()
+    state.clear()
+
+    log.info("Cleared hyperglass state")
 
     unregister_all_plugins()
+
+    log.critical("Stopping hyperglass {}", __version__)
 
 
 class HyperglassWSGI(BaseApplication):
@@ -184,6 +185,9 @@ def run(_workers: int = None):
 
     try:
         log.debug("System settings: {!r}", Settings)
+
+        state = use_state()
+        state.clear()
 
         init_user_config()
 
