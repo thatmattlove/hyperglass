@@ -60,7 +60,7 @@ jobs:
               run: rye lint
 
             - name: Tests (PyTest)
-              run: task test
+              run: pytest hyperglass --ignore hyperglass/plugins/external
 
             - name: Run hyperglass
               run: ".tests/ga-backend-app.sh"
