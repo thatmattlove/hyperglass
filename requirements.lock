@@ -127,6 +127,8 @@ textfsm==1.1.2
 tinycss2==1.2.1
     # via cssselect2
     # via svglib
+toml==0.10.2
+    # via hyperglass
 typer==0.9.0
     # via favicons
     # via hyperglass
