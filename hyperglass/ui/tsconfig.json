@@ -40,7 +40,6 @@
     "**/*.tsx",
     "types/*.d.ts",
     "next.config.js",
-    "nextdev.js",
-    "hyperglass.json"
+    "nextdev.js"
   ]
 }

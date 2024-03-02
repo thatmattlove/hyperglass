@@ -10,6 +10,7 @@ jobs:
             fail-fast: false
             matrix:
                 node-version: [20.x]
+                pnpm-version: [8]
                 redis-version: [latest]
                 python-version: ["3.9", "3.10", "3.11"]
                 os: [ubuntu-latest]
@@ -32,6 +33,11 @@ jobs:
               with:
                   node-version: ${{ matrix.node-version }}
 
+            - name: Install PNPM
+              uses: pnpm/action-setup@v3
+              with:
+                  version: ${{ matrix.pnpm-version }}
+
             - name: Start Redis
               uses: supercharge/redis-github-action@1.7.0
               with:
@@ -44,11 +50,11 @@ jobs:
                   echo "HYPERGLASS_HOST=127.0.0.1" >> $GITHUB_ENV
                   echo "HYPERGLASS_PORT=8001" >> $GITHUB_ENV
 
+            - name: Install
+              run: rye install && rye sync
+
             - name: Enter venv
               run: . .venv/bin/activate
-
-            - name: Install
-              run: rye install
 
             - name: Lint (Rye)
               run: rye lint
