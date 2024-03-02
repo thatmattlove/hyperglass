@@ -33,6 +33,10 @@ jobs:
               working-directory: ${{ env.working-directory }}
               run: pnpm install
 
+            - name: Create empty hyperglass.json
+              working-directory: ${{ env.working-directory }}
+              run: echo '{}' > hyperglass.json
+
             - name: Formatting
               working-directory: ${{ env.working-directory }}
               run: pnpm run format:check

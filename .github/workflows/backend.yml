@@ -51,7 +51,7 @@ jobs:
                   echo "HYPERGLASS_PORT=8001" >> $GITHUB_ENV
 
             - name: Install
-              run: rye install && rye sync
+              run: rye sync
 
             - name: Enter venv
               run: . .venv/bin/activate
