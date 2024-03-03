@@ -72,7 +72,7 @@ export function useLGQuery(
   );
 
   return useQuery<QueryResponse, Response | QueryResponse | Error, QueryResponse, LGQueryKey>({
-    queryKey: ['/api/query/', query],
+    queryKey: ['/api/query', query],
     queryFn: runQuery,
     // Invalidate react-query's cache just shy of the configured cache timeout.
     cacheTime: cache.timeout * 1000 * 0.95,
