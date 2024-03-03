@@ -1,7 +1,7 @@
 """Response model."""
 
 # Standard Library
-from typing import Dict, List, Union, Optional
+import typing as t
 
 # Third Party
 from pydantic import BaseModel, StrictInt, StrictStr, StrictBool, constr, validator
@@ -19,8 +19,8 @@ class QueryError(BaseModel):
 
     output: StrictStr
     level: ErrorName = "danger"
-    id: Optional[StrictStr]
-    keywords: List[StrictStr] = []
+    id: t.Optional[StrictStr]
+    keywords: t.List[StrictStr] = []
 
     @validator("output")
     def validate_output(cls: "QueryError", value):
@@ -62,12 +62,12 @@ class QueryError(BaseModel):
 class QueryResponse(BaseModel):
     """Query response model."""
 
-    output: Union[Dict, StrictStr]
+    output: t.Union[t.Dict, StrictStr]
     level: ResponseLevel = "success"
     random: StrictStr
     cached: StrictBool
     runtime: StrictInt
-    keywords: List[StrictStr] = []
+    keywords: t.List[StrictStr] = []
     timestamp: StrictStr
     format: ResponseFormat = "text/plain"
 
@@ -144,31 +144,12 @@ Paths: (12 available, best #1, table default)
         }
 
 
-class Vrf(BaseModel):
-    """Response model for /api/devices VRFs."""
-
-    name: StrictStr
-    display_name: StrictStr
-
-    class Config:
-        """Pydantic model configuration."""
-
-        title = "VRF"
-        description = "VRF attributes"
-        schema_extra = {
-            "examples": [
-                {"name": "default", "display_name": "Global Routing Table"},
-                {"name": "customer_vrf_name", "display_name": "Customer Name"},
-            ]
-        }
-
-
 class RoutersResponse(BaseModel):
     """Response model for /api/devices list items."""
 
     id: StrictStr
     name: StrictStr
-    group: StrictStr
+    group: t.Union[StrictStr, None]
 
     class Config:
         """Pydantic model configuration."""
