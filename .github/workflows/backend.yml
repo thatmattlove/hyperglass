@@ -1,7 +1,9 @@
 name: Backend Testing
 on:
-    - push
-    - pull_request
+    push:
+        paths:
+            - hyperglass/**
+    pull_request:
 
 jobs:
     backend:
