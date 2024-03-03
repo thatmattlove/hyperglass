@@ -1,6 +1,7 @@
 # Project
 hyperglass/hyperglass/static
 TODO*
+.env
 
 test.py
 .DS_Store
