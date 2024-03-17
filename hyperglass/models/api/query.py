@@ -7,7 +7,7 @@ import secrets
 from datetime import datetime
 
 # Third Party
-from pydantic import BaseModel, constr, field_validator, ConfigDict, Field
+from pydantic import BaseModel, constr, field_validator, ConfigDict
 
 # Project
 from hyperglass.log import log
