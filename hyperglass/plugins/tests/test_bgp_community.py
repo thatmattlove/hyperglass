@@ -1,14 +1,19 @@
 """Test BGP Community validation."""
+# Standard Library
 import typing as t
+
+# Third Party
 import pytest
+
+# Project
+from hyperglass.state import use_state
+from hyperglass.models.config.params import Params
 
 # Local
 from .._builtin.bgp_community import ValidateBGPCommunity
 
-from hyperglass.state import use_state
-from hyperglass.models.config.params import Params
-
 if t.TYPE_CHECKING:
+    # Project
     from hyperglass.state import HyperglassState
 
 

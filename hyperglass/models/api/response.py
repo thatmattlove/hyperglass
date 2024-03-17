@@ -4,15 +4,7 @@
 import typing as t
 
 # Third Party
-from pydantic import (
-    BaseModel,
-    StrictInt,
-    StrictStr,
-    StrictBool,
-    field_validator,
-    Field,
-    ConfigDict,
-)
+from pydantic import Field, BaseModel, StrictInt, StrictStr, ConfigDict, StrictBool, field_validator
 
 # Project
 from hyperglass.state import use_state

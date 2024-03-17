@@ -34,7 +34,6 @@ from .util import cpu_count
 from .state import use_state
 from .settings import Settings
 
-
 log_level = "INFO" if Settings.debug is False else "DEBUG"
 
 setup_lib_logging(log_level)
@@ -43,6 +42,7 @@ init_logger(log_level)
 
 async def build_ui() -> bool:
     """Perform a UI build prior to starting the application."""
+    # Local
     from .frontend import build_frontend
 
     state = use_state()
@@ -59,6 +59,7 @@ async def build_ui() -> bool:
 def register_all_plugins() -> None:
     """Validate and register configured plugins."""
 
+    # Local
     from .plugins import register_plugin, init_builtin_plugins
 
     state = use_state()
@@ -85,6 +86,7 @@ def register_all_plugins() -> None:
 
 def unregister_all_plugins() -> None:
     """Unregister all plugins."""
+    # Local
     from .plugins import InputPluginManager, OutputPluginManager
 
     for manager in (InputPluginManager, OutputPluginManager):
@@ -156,6 +158,7 @@ class HyperglassWSGI(BaseApplication):
 def start(*, log_level: str, workers: int, **kwargs) -> None:
     """Start hyperglass via gunicorn."""
 
+    # Local
     from .log import CustomGunicornLogger
 
     HyperglassWSGI(
@@ -181,6 +184,7 @@ def start(*, log_level: str, workers: int, **kwargs) -> None:
 
 def run(_workers: int = None):
     """Run hyperglass."""
+    # Local
     from .configuration import init_user_config
 
     try:

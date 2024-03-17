@@ -5,7 +5,7 @@ import typing as t
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
-from pydantic import field_validator, ValidationInfo
+from pydantic import ValidationInfo, field_validator
 
 # Project
 from hyperglass.util import resolve_hostname

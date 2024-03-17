@@ -3,7 +3,6 @@
 # Standard Library
 import typing as t
 
-
 # Local
 from ..main import HyperglassModel
 

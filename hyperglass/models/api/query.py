@@ -7,7 +7,7 @@ import secrets
 from datetime import datetime
 
 # Third Party
-from pydantic import BaseModel, constr, field_validator, ConfigDict
+from pydantic import BaseModel, ConfigDict, constr, field_validator
 
 # Project
 from hyperglass.log import log
@@ -19,7 +19,6 @@ from hyperglass.exceptions.private import InputValidationError
 
 # Local
 from ..config.devices import Device
-
 
 QueryLocation = constr(strip_whitespace=True, strict=True, min_length=1)
 QueryTarget = constr(strip_whitespace=True, min_length=1)

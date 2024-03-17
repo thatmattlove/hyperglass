@@ -1,18 +1,20 @@
 """Test state hooks."""
 
+# Standard Library
 import typing as t
-import pytest
 
+# Third Party
+import pytest
 
 if t.TYPE_CHECKING:
     from hyperglass.state import HyperglassState
 
 # Project
 from hyperglass.models.ui import UIParameters
-from hyperglass.models.config.devices import Devices
 from hyperglass.configuration import init_ui_params
-from hyperglass.models.config.params import Params
 from hyperglass.models.directive import Directives
+from hyperglass.models.config.params import Params
+from hyperglass.models.config.devices import Devices
 
 # Local
 from ..hooks import use_state

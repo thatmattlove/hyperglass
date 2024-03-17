@@ -1,5 +1,6 @@
 """Configuration for API docs feature."""
 
+# Standard Library
 import typing as t
 
 # Third Party

@@ -5,7 +5,7 @@ import typing as t
 from pathlib import Path
 
 # Third Party
-from pydantic import HttpUrl, FilePath, constr, field_validator, model_validator, ValidationInfo
+from pydantic import HttpUrl, FilePath, ValidationInfo, constr, field_validator, model_validator
 from pydantic_extra_types.color import Color
 
 # Project

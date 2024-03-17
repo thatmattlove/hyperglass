@@ -5,7 +5,7 @@ import typing as t
 from pathlib import Path
 
 # Third Party
-from pydantic import Field, field_validator, ValidationInfo, ConfigDict
+from pydantic import Field, ConfigDict, ValidationInfo, field_validator
 
 # Project
 from hyperglass.settings import Settings

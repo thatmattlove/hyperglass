@@ -7,7 +7,7 @@ from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
-from pydantic import FilePath, field_validator, ValidationInfo
+from pydantic import FilePath, ValidationInfo, field_validator
 from netmiko.ssh_dispatcher import CLASS_MAPPER  # type: ignore
 
 # Project

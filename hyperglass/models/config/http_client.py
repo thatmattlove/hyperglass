@@ -5,12 +5,7 @@ import typing as t
 
 # Third Party
 import httpx
-from pydantic import (
-    FilePath,
-    SecretStr,
-    PrivateAttr,
-    IPvAnyAddress,
-)
+from pydantic import FilePath, SecretStr, PrivateAttr, IPvAnyAddress
 
 # Project
 from hyperglass.models import HyperglassModel

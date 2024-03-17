@@ -120,6 +120,7 @@ class PublicHyperglassError(HyperglassError):
 
     def __init__(self, **kwargs: str) -> None:
         """Format error message with keyword arguments."""
+        # Project
         from hyperglass.state import use_state
 
         if "error" in kwargs:

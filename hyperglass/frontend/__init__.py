@@ -14,7 +14,6 @@ from hyperglass.log import log
 from hyperglass.util import copyfiles, check_path, dotenv_to_dict
 from hyperglass.state import use_state
 
-
 if t.TYPE_CHECKING:
     # Project
     from hyperglass.models.ui import UIParameters

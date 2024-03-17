@@ -12,8 +12,8 @@ from hyperglass.models.config.devices import Device
 from hyperglass.models.data.bgp_route import BGPRouteTable
 
 # Local
-from .._builtin.bgp_route_arista import BGPRoutePluginArista
 from ._fixtures import MockDevice
+from .._builtin.bgp_route_arista import BGPRoutePluginArista
 
 DEPENDS_KWARGS = {
     "depends": [

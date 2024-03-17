@@ -4,7 +4,7 @@
 import typing as t
 
 # Third Party
-from pydantic import field_validator, model_validator, ConfigDict
+from pydantic import ConfigDict, field_validator, model_validator
 
 # Project
 from hyperglass.log import log

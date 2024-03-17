@@ -3,12 +3,12 @@
 # Standard Library
 # flake8: noqa
 import math
-import secrets
 import typing as t
+import secrets
 from datetime import datetime
 
 # Third Party
-from pydantic import BaseModel, field_validator, ConfigDict, Field
+from pydantic import Field, BaseModel, ConfigDict, field_validator
 
 """Patterns:
 GET /.well-known/looking-glass/v1/ping/2001:DB8::35?protocol=2,1

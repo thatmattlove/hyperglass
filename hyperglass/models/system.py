@@ -12,10 +12,9 @@ from pydantic import (
     SecretStr,
     DirectoryPath,
     IPvAnyAddress,
-    field_validator,
     ValidationInfo,
+    field_validator,
 )
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Project

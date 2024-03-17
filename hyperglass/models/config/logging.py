@@ -5,13 +5,7 @@ import typing as t
 from pathlib import Path
 
 # Third Party
-from pydantic import (
-    ByteSize,
-    SecretStr,
-    AnyHttpUrl,
-    DirectoryPath,
-    field_validator,
-)
+from pydantic import ByteSize, SecretStr, AnyHttpUrl, DirectoryPath, field_validator
 
 # Project
 from hyperglass.constants import __version__

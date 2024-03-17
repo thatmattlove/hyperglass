@@ -9,7 +9,7 @@ import typing as t
 from pathlib import Path
 
 # Third Party
-from pydantic import HttpUrl, BaseModel, PrivateAttr, RootModel, ConfigDict
+from pydantic import HttpUrl, BaseModel, RootModel, ConfigDict, PrivateAttr
 
 # Project
 from hyperglass.log import log

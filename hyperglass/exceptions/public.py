@@ -3,7 +3,6 @@
 # Standard Library
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
-
 # Local
 from ._common import PublicHyperglassError
 
@@ -82,6 +81,7 @@ class QueryLocationNotFound(NotFound):
 
     def __init__(self, location: Any, **kwargs: Dict[str, Any]) -> None:
         """Initialize a NotFound error for a query location."""
+        # Project
         from hyperglass.state import use_state
 
         (text := use_state("params").web.text)
@@ -94,6 +94,7 @@ class QueryTypeNotFound(NotFound):
 
     def __init__(self, query_type: Any, **kwargs: Dict[str, Any]) -> None:
         """Initialize a NotFound error for a query type."""
+        # Project
         from hyperglass.state import use_state
 
         (text := use_state("params").web.text)

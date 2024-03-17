@@ -1,12 +1,11 @@
 """API Error Handlers."""
 
-from hyperglass.log import log
-
 # Third Party
 from fastapi import Request
 from starlette.responses import JSONResponse
 
 # Project
+from hyperglass.log import log
 from hyperglass.state import use_state
 
 

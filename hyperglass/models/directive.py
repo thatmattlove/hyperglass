@@ -6,13 +6,7 @@ import typing as t
 from ipaddress import IPv4Network, IPv6Network, ip_network
 
 # Third Party
-from pydantic import (
-    field_validator,
-    Field,
-    FilePath,
-    IPvAnyNetwork,
-    PrivateAttr,
-)
+from pydantic import Field, FilePath, PrivateAttr, IPvAnyNetwork, field_validator
 
 # Project
 from hyperglass.log import log
@@ -23,7 +17,6 @@ from hyperglass.exceptions.private import InputValidationError
 # Local
 from .main import MultiModel, HyperglassModel, HyperglassUniqueModel
 from .fields import Action
-
 
 StringOrArray = t.Union[str, t.List[str]]
 Condition = t.Union[IPvAnyNetwork, str]

@@ -2,10 +2,10 @@
 
 # Project
 from hyperglass.models.directive import (
+    Text,
     RuleWithIPv4,
     RuleWithIPv6,
     RuleWithPattern,
-    Text,
     BuiltinDirective,
 )
 

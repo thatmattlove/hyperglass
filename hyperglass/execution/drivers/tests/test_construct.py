@@ -1,17 +1,22 @@
-# Project
+# Standard Library
 import typing as t
+
+# Third Party
 import pytest
+
+# Project
+from hyperglass.state import use_state
 from hyperglass.models.api import Query
 from hyperglass.configuration import init_ui_params
-from hyperglass.models.config.params import Params
 from hyperglass.models.directive import Directives
+from hyperglass.models.config.params import Params
 from hyperglass.models.config.devices import Devices
-from hyperglass.state import use_state
 
 # Local
 from .._construct import Construct
 
 if t.TYPE_CHECKING:
+    # Project
     from hyperglass.state import HyperglassState
 
 

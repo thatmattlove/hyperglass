@@ -5,7 +5,7 @@ import typing as t
 from datetime import datetime
 
 # Third Party
-from pydantic import model_validator, ConfigDict
+from pydantic import ConfigDict, model_validator
 
 # Project
 from hyperglass.log import log

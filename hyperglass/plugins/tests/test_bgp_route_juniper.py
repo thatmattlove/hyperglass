@@ -13,8 +13,8 @@ from hyperglass.models.api.query import Query
 from hyperglass.models.data.bgp_route import BGPRouteTable
 
 # Local
-from .._builtin.bgp_route_juniper import BGPRoutePluginJuniper
 from ._fixtures import MockDevice
+from .._builtin.bgp_route_juniper import BGPRoutePluginJuniper
 
 DEPENDS_KWARGS = {
     "depends": [
