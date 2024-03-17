@@ -7,13 +7,11 @@ from ipaddress import IPv4Network, IPv6Network, ip_network
 
 # Third Party
 from pydantic import (
-    Discriminator,
     field_validator,
     Field,
     FilePath,
     IPvAnyNetwork,
     PrivateAttr,
-    Tag,
 )
 
 # Project
@@ -77,7 +75,7 @@ class Select(Input):
 class Rule(HyperglassModel):
     """Base rule."""
 
-    _type: RuleTypeAttr = PrivateAttr(Field("none", discriminator="_type"))
+    _type: RuleTypeAttr = "none"
     _passed: PassedValidation = PrivateAttr(None)
     condition: Condition
     action: Action = "permit"
@@ -243,7 +241,7 @@ class RuleWithoutValidation(Rule):
     """A rule with no validation."""
 
     _type: RuleTypeAttr = "none"
-    condition: None
+    condition: None = None
 
     def validate_target(self, target: str, *, multiple: bool) -> t.Literal[True]:
         """Don't validate a target. Always returns `True`."""
@@ -251,25 +249,12 @@ class RuleWithoutValidation(Rule):
         return True
 
 
-RuleWithIPv4Type = t.Annotated[RuleWithIPv4, Tag("ipv4")]
-RuleWithIPv6Type = t.Annotated[RuleWithIPv6, Tag("ipv6")]
-RuleWithPatternType = t.Annotated[RuleWithPattern, Tag("pattern")]
-RuleWithoutValidationType = t.Annotated[RuleWithoutValidation, Tag("none")]
-
-# RuleType = t.Union[RuleWithIPv4, RuleWithIPv6, RuleWithPattern, RuleWithoutValidation]
 RuleType = t.Union[
-    RuleWithIPv4Type,
-    RuleWithIPv6Type,
-    RuleWithPatternType,
-    RuleWithoutValidationType,
+    RuleWithIPv4,
+    RuleWithIPv6,
+    RuleWithPattern,
+    RuleWithoutValidation,
 ]
-
-
-def type_discriminator(value: t.Any) -> RuleTypeAttr:
-    """Pydantic type discriminator."""
-    if isinstance(value, dict):
-        return value.get("_type")
-    return getattr(value, "_type", None)
 
 
 class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
@@ -279,9 +264,7 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
 
     id: str
     name: str
-    rules: t.List[RuleType] = [
-        Field(RuleWithPattern(condition="*"), discriminator=Discriminator(type_discriminator))
-    ]
+    rules: t.List[RuleType] = [RuleWithoutValidation()]
     field: t.Union[Text, Select]
     info: t.Optional[FilePath] = None
     plugins: t.List[str] = []
@@ -289,6 +272,28 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
     groups: t.List[str] = []
     multiple: bool = False
     multiple_separator: str = " "
+
+    @field_validator("rules", mode="before")
+    @classmethod
+    def validate_rules(cls, rules: t.List[t.Dict[str, t.Any]]):
+        """Initialize the correct rule type based on condition value."""
+        out_rules: t.List[RuleType] = []
+        for rule in rules:
+            if isinstance(rule, dict):
+                condition = rule.get("condition")
+                if condition is None:
+                    out_rules.append(RuleWithoutValidation(**rule))
+                try:
+                    condition_net = ip_network(condition)
+                    if condition_net.version == 4:
+                        out_rules.append(RuleWithIPv4(**rule))
+                    if condition_net.version == 6:
+                        out_rules.append(RuleWithIPv6(**rule))
+                except ValueError:
+                    out_rules.append(RuleWithPattern(**rule))
+            if isinstance(rule, Rule):
+                out_rules.append(rule)
+        return out_rules
 
     def validate_target(self, target: str) -> bool:
         """Validate a target against all configured rules."""

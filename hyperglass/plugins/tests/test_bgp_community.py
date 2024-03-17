@@ -1,7 +1,16 @@
 """Test BGP Community validation."""
+import typing as t
+import pytest
 
 # Local
 from .._builtin.bgp_community import ValidateBGPCommunity
+
+from hyperglass.state import use_state
+from hyperglass.models.config.params import Params
+
+if t.TYPE_CHECKING:
+    from hyperglass.state import HyperglassState
+
 
 CHECKS = (
     ("32768", True),
@@ -24,7 +33,25 @@ CHECKS = (
 )
 
 
-def test_bgp_community():
+@pytest.fixture
+def params():
+    return {}
+
+
+@pytest.fixture
+def state(*, params: t.Dict[str, t.Any]) -> t.Generator["HyperglassState", None, None]:
+    """Test fixture to initialize Redis store."""
+    _state = use_state()
+    _params = Params(**params)
+
+    with _state.cache.pipeline() as pipeline:
+        pipeline.set("params", _params)
+
+    yield _state
+    _state.clear()
+
+
+def test_bgp_community(state):
     plugin = ValidateBGPCommunity()
 
     for value, expected in CHECKS:

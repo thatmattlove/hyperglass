@@ -1,14 +1,28 @@
 # Project
+import typing as t
+import pytest
 from hyperglass.models.api import Query
+from hyperglass.configuration import init_ui_params
+from hyperglass.models.config.params import Params
+from hyperglass.models.directive import Directives
+from hyperglass.models.config.devices import Devices
 from hyperglass.state import use_state
-from hyperglass.test import initialize_state
 
 # Local
 from .._construct import Construct
 
+if t.TYPE_CHECKING:
+    from hyperglass.state import HyperglassState
 
-def test_construct():
-    devices = [
+
+@pytest.fixture
+def params():
+    return {}
+
+
+@pytest.fixture
+def devices():
+    return [
         {
             "name": "test1",
             "address": "127.0.0.1",
@@ -18,7 +32,11 @@ def test_construct():
             "directives": ["juniper_bgp_route"],
         }
     ]
-    directives = [
+
+
+@pytest.fixture
+def directives():
+    return [
         {
             "juniper_bgp_route": {
                 "name": "BGP Route",
@@ -27,10 +45,37 @@ def test_construct():
         }
     ]
 
-    initialize_state(params={}, directives=directives, devices=devices)
 
-    state = use_state()
+@pytest.fixture
+def state(
+    *,
+    params: t.Dict[str, t.Any],
+    directives: t.Sequence[t.Dict[str, t.Any]],
+    devices: t.Sequence[t.Dict[str, t.Any]],
+) -> t.Generator["HyperglassState", None, None]:
+    """Test fixture to initialize Redis store."""
+    _state = use_state()
+    _params = Params(**params)
+    _directives = Directives.new(*directives)
 
+    with _state.cache.pipeline() as pipeline:
+        # Write params and directives to the cache first to avoid a race condition where ui_params
+        # or devices try to access params or directives before they're available.
+        pipeline.set("params", _params)
+        pipeline.set("directives", _directives)
+
+    _devices = Devices(*devices)
+    ui_params = init_ui_params(params=_params, devices=_devices)
+
+    with _state.cache.pipeline() as pipeline:
+        pipeline.set("devices", _devices)
+        pipeline.set("ui_params", ui_params)
+
+    yield _state
+    _state.clear()
+
+
+def test_construct(state):
     query = Query(
         queryLocation="test1",
         queryTarget="192.0.2.0/24",
