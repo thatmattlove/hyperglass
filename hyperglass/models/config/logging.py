@@ -1,20 +1,16 @@
 """Validate logging configuration."""
 
 # Standard Library
-from typing import Dict, Union, Optional
+import typing as t
 from pathlib import Path
 
 # Third Party
 from pydantic import (
     ByteSize,
     SecretStr,
-    StrictInt,
-    StrictStr,
     AnyHttpUrl,
-    StrictBool,
-    StrictFloat,
     DirectoryPath,
-    validator,
+    field_validator,
 )
 
 # Project
@@ -28,18 +24,18 @@ from ..fields import LogFormat, HttpAuthMode, HttpProvider
 class Syslog(HyperglassModel):
     """Validation model for syslog configuration."""
 
-    enable: StrictBool = True
-    host: StrictStr
-    port: StrictInt = 514
+    enable: bool = True
+    host: str
+    port: int = 514
 
 
 class HttpAuth(HyperglassModel):
     """HTTP hook authentication parameters."""
 
     mode: HttpAuthMode = "basic"
-    username: Optional[StrictStr]
+    username: t.Optional[str] = None
     password: SecretStr
-    header: StrictStr = "x-api-key"
+    header: str = "x-api-key"
 
     def api_key(self):
         """Represent authentication as an API key header."""
@@ -53,16 +49,16 @@ class HttpAuth(HyperglassModel):
 class Http(HyperglassModel, extra="allow"):
     """HTTP logging parameters."""
 
-    enable: StrictBool = True
+    enable: bool = True
     provider: HttpProvider = "generic"
     host: AnyHttpUrl
-    authentication: Optional[HttpAuth]
-    headers: Dict[StrictStr, Union[StrictStr, StrictInt, StrictBool, None]] = {}
-    params: Dict[StrictStr, Union[StrictStr, StrictInt, StrictBool, None]] = {}
-    verify_ssl: StrictBool = True
-    timeout: Union[StrictFloat, StrictInt] = 5.0
+    authentication: t.Optional[HttpAuth] = None
+    headers: t.Dict[str, t.Union[str, int, bool, None]] = {}
+    params: t.Dict[str, t.Union[str, int, bool, None]] = {}
+    verify_ssl: bool = True
+    timeout: t.Union[float, int] = 5.0
 
-    @validator("headers", "params")
+    @field_validator("headers", "params")
     def stringify_headers_params(cls, value):
         """Ensure headers and URL parameters are strings."""
         for k, v in value.items():
@@ -94,5 +90,5 @@ class Logging(HyperglassModel):
     directory: DirectoryPath = Path("/tmp")  # noqa: S108
     format: LogFormat = "text"
     max_size: ByteSize = "50MB"
-    syslog: Optional[Syslog]
-    http: Optional[Http]
+    syslog: t.Optional[Syslog] = None
+    http: t.Optional[Http] = None

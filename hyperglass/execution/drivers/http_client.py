@@ -48,7 +48,7 @@ class HttpClient(Connection):
                 key: value.format(
                     **{
                         str(v): str(getattr(self.query_data, k, None))
-                        for k, v in self.config.attribute_map.dict().items()
+                        for k, v in self.config.attribute_map.model_dump().items()
                         if v in get_fmt_keys(value)
                     }
                 )
@@ -107,10 +107,10 @@ class HttpClient(Connection):
 
                 responses += (data,)
 
-            except (httpx.TimeoutException) as error:
+            except httpx.TimeoutException as error:
                 raise DeviceTimeout(error=error, device=self.device) from error
 
-            except (httpx.HTTPStatusError) as error:
+            except httpx.HTTPStatusError as error:
                 if error.response.status_code == 401:
                     raise AuthError(error=error, device=self.device) from error
                 raise RestError(error=error, device=self.device) from error

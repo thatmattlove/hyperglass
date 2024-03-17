@@ -29,7 +29,6 @@ def parse_arista(output: t.Sequence[str]) -> "OutputDataModel":
     result = None
 
     for response in output:
-
         try:
             parsed: t.Dict = json.loads(response)
 
@@ -68,7 +67,7 @@ def parse_arista(output: t.Sequence[str]) -> "OutputDataModel":
 class BGPRoutePluginArista(OutputPlugin):
     """Coerce a Arista route table in JSON format to a standard BGP Table structure."""
 
-    __hyperglass_builtin__: bool = PrivateAttr(True)
+    _hyperglass_builtin: bool = PrivateAttr(True)
     platforms: t.Sequence[str] = ("arista_eos",)
     directives: t.Sequence[str] = (
         "__hyperglass_arista_eos_bgp_route_table__",

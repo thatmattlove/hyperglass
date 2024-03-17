@@ -1,4 +1,5 @@
 """hyperglass-agent certificate import models."""
+
 # Standard Library
 from typing import Union
 

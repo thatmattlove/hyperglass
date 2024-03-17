@@ -64,7 +64,7 @@ def init_params() -> "Params":
     # from params.
     try:
         params.web.text.subtitle = params.web.text.subtitle.format(
-            **params.dict(exclude={"web", "queries", "messages"})
+            **params.model_dump(exclude={"web", "queries", "messages"})
         )
     except KeyError:
         pass

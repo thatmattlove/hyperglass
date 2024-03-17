@@ -1,7 +1,13 @@
 """Default Huawei Directives."""
 
 # Project
-from hyperglass.models.directive import Rule, Text, BuiltinDirective
+from hyperglass.models.directive import (
+    RuleWithIPv4,
+    RuleWithIPv6,
+    RuleWithPattern,
+    Text,
+    BuiltinDirective,
+)
 
 __all__ = (
     "Huawei_BGPASPath",
@@ -15,12 +21,12 @@ Huawei_BGPRoute = BuiltinDirective(
     id="__hyperglass_huawei_bgp_route__",
     name="BGP Route",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="display bgp routing-table {target}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="display bgp ipv6 routing-table {target}",
@@ -34,7 +40,7 @@ Huawei_BGPASPath = BuiltinDirective(
     id="__hyperglass_huawei_bgp_aspath__",
     name="BGP AS Path",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -51,7 +57,7 @@ Huawei_BGPCommunity = BuiltinDirective(
     id="__hyperglass_huawei_bgp_community__",
     name="BGP Community",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -68,12 +74,12 @@ Huawei_Ping = BuiltinDirective(
     id="__hyperglass_huawei_ping__",
     name="Ping",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="ping -c 5 -a {source4} {target}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="ping ipv6 -c 5 -a {source6} {target}",
@@ -87,12 +93,12 @@ Huawei_Traceroute = BuiltinDirective(
     id="__hyperglass_huawei_traceroute__",
     name="Traceroute",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="tracert -q 2 -f 1 -a {source4} {target}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="tracert -q 2 -f 1 -a {source6} {target}",

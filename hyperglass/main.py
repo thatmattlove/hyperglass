@@ -119,9 +119,9 @@ def on_exit(_: t.Any) -> None:
     """Gunicorn shutdown tasks."""
 
     state = use_state()
-    state.clear()
-
-    log.info("Cleared hyperglass state")
+    if not Settings.dev_mode:
+        state.clear()
+        log.info("Cleared hyperglass state")
 
     unregister_all_plugins()
 
@@ -195,6 +195,7 @@ def run(_workers: int = None):
 
         start(log_level=log_level, workers=workers)
     except Exception as error:
+        log.critical(error)
         # Handle app exceptions.
         if not Settings.dev_mode:
             state = use_state()

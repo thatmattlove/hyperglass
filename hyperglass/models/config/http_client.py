@@ -8,9 +8,6 @@ import httpx
 from pydantic import (
     FilePath,
     SecretStr,
-    StrictInt,
-    StrictStr,
-    StrictBool,
     PrivateAttr,
     IPvAnyAddress,
 )
@@ -39,23 +36,23 @@ Scheme = t.Literal["http", "https"]
 class AttributeMapConfig(HyperglassModel):
     """Allow the user to 'rewrite' hyperglass field names to their own values."""
 
-    query_target: t.Optional[StrictStr]
-    query_type: t.Optional[StrictStr]
-    query_location: t.Optional[StrictStr]
+    query_target: t.Optional[str] = None
+    query_type: t.Optional[str] = None
+    query_location: t.Optional[str] = None
 
 
 class AttributeMap(HyperglassModel):
     """Merged implementation of attribute map configuration."""
 
-    query_target: StrictStr
-    query_type: StrictStr
-    query_location: StrictStr
+    query_target: str
+    query_type: str
+    query_location: str
 
 
 class HttpBasicAuth(HyperglassModel):
     """Configuration model for HTTP basic authentication."""
 
-    username: StrictStr
+    username: str
     password: SecretStr
 
 
@@ -63,21 +60,21 @@ class HttpConfiguration(HyperglassModel):
     """HTTP client configuration."""
 
     _attribute_map: AttributeMap = PrivateAttr()
-    path: StrictStr = "/"
+    path: str = "/"
     method: HttpMethod = "GET"
     scheme: Scheme = "https"
-    query: t.Optional[t.Union[t.Literal[False], t.Dict[str, Primitives]]]
-    verify_ssl: StrictBool = True
-    ssl_ca: t.Optional[FilePath]
-    ssl_client: t.Optional[FilePath]
-    source: t.Optional[IPvAnyAddress]
+    query: t.Optional[t.Union[t.Literal[False], t.Dict[str, Primitives]]] = None
+    verify_ssl: bool = True
+    ssl_ca: t.Optional[FilePath] = None
+    ssl_client: t.Optional[FilePath] = None
+    source: t.Optional[IPvAnyAddress] = None
     timeout: IntFloat = 5
     headers: t.Dict[str, str] = {}
-    follow_redirects: StrictBool = False
-    basic_auth: t.Optional[HttpBasicAuth]
+    follow_redirects: bool = False
+    basic_auth: t.Optional[HttpBasicAuth] = None
     attribute_map: AttributeMapConfig = AttributeMapConfig()
     body_format: BodyFormat = "json"
-    retries: StrictInt = 0
+    retries: int = 0
 
     def __init__(self, **data: t.Any) -> None:
         """Create HTTP Client Configuration Definition."""

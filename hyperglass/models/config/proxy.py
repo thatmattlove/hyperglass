@@ -1,11 +1,11 @@
 """Validate SSH proxy configuration variables."""
 
 # Standard Library
-from typing import Any, Dict, Union
+import typing as t
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
-from pydantic import StrictInt, StrictStr, validator
+from pydantic import field_validator, ValidationInfo
 
 # Project
 from hyperglass.util import resolve_hostname
@@ -20,12 +20,12 @@ from .credential import Credential
 class Proxy(HyperglassModel):
     """Validation model for per-proxy config in devices.yaml."""
 
-    address: Union[IPv4Address, IPv6Address, StrictStr]
-    port: StrictInt = 22
+    address: t.Union[IPv4Address, IPv6Address, str]
+    port: int = 22
     credential: Credential
-    platform: StrictStr = "linux_ssh"
+    platform: str = "linux_ssh"
 
-    def __init__(self: "Proxy", **kwargs: Any) -> None:
+    def __init__(self: "Proxy", **kwargs: t.Any) -> None:
         """Check for legacy fields."""
         kwargs = check_legacy_fields(model="Proxy", data=kwargs)
         super().__init__(**kwargs)
@@ -34,7 +34,7 @@ class Proxy(HyperglassModel):
     def _target(self):
         return str(self.address)
 
-    @validator("address")
+    @field_validator("address")
     def validate_address(cls, value):
         """Ensure a hostname is resolvable."""
 
@@ -46,14 +46,14 @@ class Proxy(HyperglassModel):
                 )
         return value
 
-    @validator("platform", pre=True, always=True)
-    def validate_type(cls: "Proxy", value: Any, values: Dict[str, Any]) -> str:
+    @field_validator("platform", mode="before")
+    def validate_type(cls: "Proxy", value: t.Any, info: ValidationInfo) -> str:
         """Validate device type."""
 
         if value != "linux_ssh":
             raise UnsupportedDevice(
-                "Proxy '{p}' uses platform '{t}', which is currently unsupported.",
-                p=values["address"],
-                t=value,
+                "Proxy '{}' uses platform '{}', which is currently unsupported.",
+                info.data.get("address"),
+                value,
             )
         return value

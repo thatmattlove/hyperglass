@@ -21,7 +21,7 @@ if t.TYPE_CHECKING:
 class MikrotikGarbageOutput(OutputPlugin):
     """Parse Mikrotik output to remove garbage."""
 
-    __hyperglass_builtin__: bool = PrivateAttr(True)
+    _hyperglass_builtin: bool = PrivateAttr(True)
     platforms: t.Sequence[str] = ("mikrotik_routeros", "mikrotik_switchos")
     directives: t.Sequence[str] = (
         "__hyperglass_mikrotik_bgp_aspath__",
@@ -37,7 +37,6 @@ class MikrotikGarbageOutput(OutputPlugin):
         result = ()
 
         for each_output in output:
-
             if each_output.split()[-1] in ("DISTANCE", "STATUS"):
                 # Mikrotik shows the columns with no rows if there is no data.
                 # Rather than send back an empty table, send back an empty

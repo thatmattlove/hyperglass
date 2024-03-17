@@ -21,8 +21,6 @@ from .system_info import cpu_count, check_python, get_system_info, get_node_vers
 
 __all__ = (
     "at_least",
-    # "build_frontend",
-    # "build_ui",
     "check_path",
     "check_python",
     "compare_dicts",

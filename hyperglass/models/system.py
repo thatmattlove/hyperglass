@@ -10,11 +10,13 @@ from pydantic import (
     FilePath,
     RedisDsn,
     SecretStr,
-    BaseSettings,
     DirectoryPath,
     IPvAnyAddress,
-    validator,
+    field_validator,
+    ValidationInfo,
 )
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Project
 from hyperglass.util import at_least, cpu_count
@@ -31,11 +33,7 @@ _default_app_path = Path("/etc/hyperglass")
 class HyperglassSettings(BaseSettings):
     """hyperglass system settings, required to start hyperglass."""
 
-    class Config:
-        """hyperglass system settings configuration."""
-
-        env_prefix = "hyperglass_"
-        underscore_attrs_are_private = True
+    model_config = SettingsConfigDict(env_prefix="hyperglass_")
 
     config_file_names: t.ClassVar[t.Tuple[str, ...]] = ("config", "devices", "directives")
     default_app_path: t.ClassVar[Path] = _default_app_path
@@ -46,12 +44,12 @@ class HyperglassSettings(BaseSettings):
     disable_ui: bool = False
     app_path: DirectoryPath = _default_app_path
     redis_host: str = "localhost"
-    redis_password: t.Optional[SecretStr]
+    redis_password: t.Optional[SecretStr] = None
     redis_db: int = 1
     redis_dsn: RedisDsn = None
     host: IPvAnyAddress = None
     port: int = 8001
-    ca_cert: t.Optional[FilePath]
+    ca_cert: t.Optional[FilePath] = None
     container: bool = False
 
     def __init__(self, **kwargs) -> None:
@@ -88,16 +86,16 @@ class HyperglassSettings(BaseSettings):
 
         yield Panel.fit(table, title="hyperglass settings", border_style="subtle")
 
-    @validator("host", pre=True, always=True)
+    @field_validator("host", mode="before")
     def validate_host(
-        cls: "HyperglassSettings", value: t.Any, values: t.Dict[str, t.Any]
+        cls: "HyperglassSettings", value: t.Any, info: ValidationInfo
     ) -> IPvAnyAddress:
         """Set default host based on debug mode."""
 
         if value is None:
-            if values["debug"] is False:
+            if info.data.get("debug") is False:
                 return ip_address("::1")
-            if values["debug"] is True:
+            if info.data.get("debug") is True:
                 return ip_address("::")
 
         if isinstance(value, str):
@@ -112,20 +110,16 @@ class HyperglassSettings(BaseSettings):
 
         raise ValueError(str(value))
 
-    @validator("redis_dsn", always=True)
-    def validate_redis_dsn(
-        cls: "HyperglassSettings", value: t.Any, values: t.Dict[str, t.Any]
-    ) -> RedisDsn:
+    @field_validator("redis_dsn", mode="before")
+    def validate_redis_dsn(cls, value: t.Any, info: ValidationInfo) -> RedisDsn:
         """Construct a Redis DSN if none is provided."""
         if value is None:
-            dsn = "redis://{}/{!s}".format(values["redis_host"], values["redis_db"])
-            password = values.get("redis_password")
+            host = info.data.get("redis_host")
+            db = info.data.get("redis_db")
+            dsn = "redis://{}/{!s}".format(host, db)
+            password = info.data.get("redis_password")
             if password is not None:
-                dsn = "redis://:{}@{}/{!s}".format(
-                    password.get_secret_value(),
-                    values["redis_host"],
-                    values["redis_db"],
-                )
+                dsn = "redis://:{}@{}/{!s}".format(password.get_secret_value(), host, db)
             return dsn
         return value
 

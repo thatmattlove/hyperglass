@@ -7,7 +7,7 @@ from pathlib import Path
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
-from pydantic import FilePath, StrictInt, StrictStr, StrictBool, validator
+from pydantic import FilePath, field_validator, ValidationInfo
 from netmiko.ssh_dispatcher import CLASS_MAPPER  # type: ignore
 
 # Project
@@ -38,27 +38,27 @@ ALL_DEVICE_TYPES = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
 class DirectiveOptions(HyperglassModel, extra="ignore"):
     """Per-device directive options."""
 
-    builtins: t.Union[StrictBool, t.List[StrictStr]] = True
+    builtins: t.Union[bool, t.List[str]] = True
 
 
 class Device(HyperglassModelWithId, extra="allow"):
     """Validation model for per-router config in devices.yaml."""
 
-    id: StrictStr
-    name: StrictStr
-    description: t.Optional[StrictStr]
-    avatar: t.Optional[FilePath]
-    address: t.Union[IPv4Address, IPv6Address, StrictStr]
-    group: t.Optional[StrictStr]
+    id: str
+    name: str
+    description: t.Optional[str] = None
+    avatar: t.Optional[FilePath] = None
+    address: t.Union[IPv4Address, IPv6Address, str]
+    group: t.Optional[str] = None
     credential: Credential
-    proxy: t.Optional[Proxy]
-    display_name: t.Optional[StrictStr]
-    port: StrictInt = 22
+    proxy: t.Optional[Proxy] = None
+    display_name: t.Optional[str] = None
+    port: int = 22
     http: HttpConfiguration = HttpConfiguration()
-    platform: StrictStr
-    structured_output: t.Optional[StrictBool]
+    platform: str
+    structured_output: t.Optional[bool] = None
     directives: Directives = Directives()
-    driver: t.Optional[SupportedDriver]
+    driver: t.Optional[SupportedDriver] = None
     driver_config: t.Dict[str, t.Any] = {}
     attrs: t.Dict[str, str] = {}
 
@@ -162,7 +162,7 @@ class Device(HyperglassModelWithId, extra="allow"):
                     a=key,
                 )
 
-    @validator("address")
+    @field_validator("address")
     def validate_address(
         cls, value: t.Union[IPv4Address, IPv6Address, str], values: t.Dict[str, t.Any]
     ) -> t.Union[IPv4Address, IPv6Address, str]:
@@ -177,7 +177,7 @@ class Device(HyperglassModelWithId, extra="allow"):
                 )
         return value
 
-    @validator("avatar")
+    @field_validator("avatar")
     def validate_avatar(
         cls, value: t.Union[FilePath, None], values: t.Dict[str, t.Any]
     ) -> t.Union[FilePath, None]:
@@ -199,7 +199,7 @@ class Device(HyperglassModelWithId, extra="allow"):
                     src.save(target)
         return value
 
-    @validator("platform", pre=True, always=True)
+    @field_validator("platform", mode="before")
     def validate_platform(cls: "Device", value: t.Any, values: t.Dict[str, t.Any]) -> str:
         """Validate & rewrite device platform, set default `directives`."""
 
@@ -220,35 +220,35 @@ class Device(HyperglassModelWithId, extra="allow"):
 
         return value
 
-    @validator("structured_output", pre=True, always=True)
-    def validate_structured_output(cls, value: bool, values: t.Dict[str, t.Any]) -> bool:
+    @field_validator("structured_output", mode="before")
+    def validate_structured_output(cls, value: bool, info: ValidationInfo) -> bool:
         """Validate structured output is supported on the device & set a default."""
 
         if value is True:
-            if values["platform"] not in SUPPORTED_STRUCTURED_OUTPUT:
+            if info.data.get("platform") not in SUPPORTED_STRUCTURED_OUTPUT:
                 raise ConfigError(
-                    "The 'structured_output' field is set to 'true' on device '{d}' with "
-                    + "platform '{p}', which does not support structured output",
-                    d=values["name"],
-                    p=values["platform"],
+                    "The 'structured_output' field is set to 'true' on device '{}' with "
+                    + "platform '{}', which does not support structured output",
+                    info.data.get("name"),
+                    info.data.get("platform"),
                 )
             return value
-        if value is None and values["platform"] in SUPPORTED_STRUCTURED_OUTPUT:
+        if value is None and info.data.get("platform") in SUPPORTED_STRUCTURED_OUTPUT:
             value = True
         else:
             value = False
         return value
 
-    @validator("directives", pre=True, always=True)
+    @field_validator("directives", mode="before")
     def validate_directives(
-        cls: "Device", value: t.Optional[t.List[str]], values: t.Dict[str, t.Any]
+        cls: "Device", value: t.Optional[t.List[str]], info: ValidationInfo
     ) -> "Directives":
         """Associate directive IDs to loaded directive objects."""
         directives = use_state("directives")
 
         directive_ids = value or []
-        structured_output = values.get("structured_output", False)
-        platform = values.get("platform")
+        structured_output = info.data.get("structured_output", False)
+        platform = info.data.get("platform")
 
         # Directive options
         directive_options = DirectiveOptions(
@@ -280,10 +280,10 @@ class Device(HyperglassModelWithId, extra="allow"):
 
         return device_directives
 
-    @validator("driver")
-    def validate_driver(cls: "Device", value: t.Optional[str], values: t.Dict[str, t.Any]) -> str:
+    @field_validator("driver")
+    def validate_driver(cls: "Device", value: t.Optional[str], info: ValidationInfo) -> str:
         """Set the correct driver and override if supported."""
-        return get_driver(values["platform"], value)
+        return get_driver(info.data.get("platform"), value)
 
 
 class Devices(MultiModel, model=Device, unique_by="id"):
@@ -305,9 +305,9 @@ class Devices(MultiModel, model=Device, unique_by="id"):
                 return True
         return False
 
-    def directive_plugins(self: "Devices") -> t.Dict[Path, t.Tuple[StrictStr]]:
+    def directive_plugins(self: "Devices") -> t.Dict[Path, t.Tuple[str]]:
         """Get a mapping of plugin paths to associated directive IDs."""
-        result: t.Dict[Path, t.Set[StrictStr]] = {}
+        result: t.Dict[Path, t.Set[str]] = {}
         # Unique set of all directives.
         directives = {directive for device in self for directive in device.directives}
         # Unique set of all plugin file names.

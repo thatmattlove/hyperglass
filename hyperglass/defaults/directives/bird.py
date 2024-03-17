@@ -1,7 +1,13 @@
 """Default BIRD Directives."""
 
 # Project
-from hyperglass.models.directive import Rule, Text, BuiltinDirective
+from hyperglass.models.directive import (
+    RuleWithIPv4,
+    RuleWithIPv6,
+    RuleWithPattern,
+    Text,
+    BuiltinDirective,
+)
 
 __all__ = (
     "BIRD_BGPASPath",
@@ -15,12 +21,12 @@ BIRD_BGPRoute = BuiltinDirective(
     id="__hyperglass_bird_bgp_route__",
     name="BGP Route",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command='birdc "show route all where {target} ~ net"',
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command='birdc "show route all where {target} ~ net"',
@@ -34,7 +40,7 @@ BIRD_BGPASPath = BuiltinDirective(
     id="__hyperglass_bird_bgp_aspath__",
     name="BGP AS Path",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -50,7 +56,7 @@ BIRD_BGPCommunity = BuiltinDirective(
     id="__hyperglass_bird_bgp_community__",
     name="BGP Community",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -66,12 +72,12 @@ BIRD_Ping = BuiltinDirective(
     id="__hyperglass_bird_ping__",
     name="Ping",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="ping -4 -c 5 -I {source4} {target}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="ping -6 -c 5 -I {source6} {target}",
@@ -85,12 +91,12 @@ BIRD_Traceroute = BuiltinDirective(
     id="__hyperglass_bird_traceroute__",
     name="Traceroute",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="traceroute -4 -w 1 -q 1 -s {source4} {target}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="traceroute -6 -w 1 -q 1 -s {source6} {target}",

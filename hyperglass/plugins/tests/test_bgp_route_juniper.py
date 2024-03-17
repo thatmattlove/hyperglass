@@ -10,11 +10,11 @@ import pytest
 # Project
 from hyperglass.log import log
 from hyperglass.models.api.query import Query
-from hyperglass.models.config.devices import Device
 from hyperglass.models.data.bgp_route import BGPRouteTable
 
 # Local
 from .._builtin.bgp_route_juniper import BGPRoutePluginJuniper
+from ._fixtures import MockDevice
 
 DEPENDS_KWARGS = {
     "depends": [
@@ -32,7 +32,7 @@ AS_PATH = Path(__file__).parent.parent.parent.parent / ".samples" / "juniper_rou
 def _tester(sample: str):
     plugin = BGPRoutePluginJuniper()
 
-    device = Device(
+    device = MockDevice(
         name="Test Device",
         address="127.0.0.1",
         group="Test Network",
@@ -42,9 +42,6 @@ def _tester(sample: str):
         directives=[],
         attrs={"source4": "192.0.2.1", "source6": "2001:db8::1"},
     )
-
-    # Override has_directives method for testing.
-    device.has_directives = lambda *x: True
 
     query = type("Query", (), {"device": device})
 

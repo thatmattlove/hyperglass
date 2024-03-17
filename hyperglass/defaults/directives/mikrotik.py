@@ -1,7 +1,13 @@
 """Default Mikrotik Directives."""
 
 # Project
-from hyperglass.models.directive import Rule, Text, BuiltinDirective
+from hyperglass.models.directive import (
+    RuleWithIPv4,
+    RuleWithIPv6,
+    RuleWithPattern,
+    Text,
+    BuiltinDirective,
+)
 
 __all__ = (
     "Mikrotik_BGPASPath",
@@ -15,12 +21,12 @@ Mikrotik_BGPRoute = BuiltinDirective(
     id="__hyperglass_mikrotik_bgp_route__",
     name="BGP Route",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="ip route print where dst-address={target}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="ipv6 route print where dst-address={target}",
@@ -34,7 +40,7 @@ Mikrotik_BGPASPath = BuiltinDirective(
     id="__hyperglass_mikrotik_bgp_aspath__",
     name="BGP AS Path",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -51,7 +57,7 @@ Mikrotik_BGPCommunity = BuiltinDirective(
     id="__hyperglass_mikrotik_bgp_community__",
     name="BGP Community",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -68,12 +74,12 @@ Mikrotik_Ping = BuiltinDirective(
     id="__hyperglass_mikrotik_ping__",
     name="Ping",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="ping src-address={source4} count=5 {target}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="ping src-address={source6} count=5 {target}",
@@ -87,12 +93,12 @@ Mikrotik_Traceroute = BuiltinDirective(
     id="__hyperglass_mikrotik_traceroute__",
     name="Traceroute",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="tool traceroute src-address={source4} timeout=1 duration=5 count=1 {target}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="tool traceroute src-address={source6} timeout=1 duration=5 count=1 {target}",

@@ -22,7 +22,7 @@ SupportedMethod = t.TypeVar("SupportedMethod")
 class HyperglassPlugin(BaseModel, ABC):
     """Plugin to interact with device command output."""
 
-    __hyperglass_builtin__: bool = PrivateAttr(False)
+    _hyperglass_builtin: bool = PrivateAttr(False)
     _type: t.ClassVar[str]
     name: str
     common: bool = False
@@ -76,7 +76,7 @@ class HyperglassPlugin(BaseModel, ABC):
         table = Table.grid(padding=(0, 1), expand=False)
         table.add_column(justify="right")
 
-        data = {"builtin": True if self.__hyperglass_builtin__ else False}
+        data = {"builtin": True if self._hyperglass_builtin else False}
         data.update(
             {
                 attr: getattr(self, attr)

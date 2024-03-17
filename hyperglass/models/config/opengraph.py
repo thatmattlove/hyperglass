@@ -4,7 +4,7 @@
 from pathlib import Path
 
 # Third Party
-from pydantic import FilePath, validator
+from pydantic import FilePath, field_validator
 
 # Local
 from ..main import HyperglassModel
@@ -17,7 +17,7 @@ class OpenGraph(HyperglassModel):
 
     image: FilePath = DEFAULT_IMAGES / "hyperglass-opengraph.jpg"
 
-    @validator("image")
+    @field_validator("image")
     def validate_opengraph(cls, value):
         """Ensure the opengraph image is a supported format."""
         supported_extensions = (".jpg", ".jpeg", ".png")

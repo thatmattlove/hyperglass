@@ -338,6 +338,7 @@ async def build_frontend(  # noqa: C901
     }
 
     build_json = json.dumps(build_data, default=str)
+    log.debug("UI Build Data:\n{}", build_json)
 
     # Create SHA256 hash from all parameters passed to UI, use as
     # build identifier.

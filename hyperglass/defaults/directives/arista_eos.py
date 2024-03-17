@@ -1,7 +1,13 @@
 """Default Arista Directives."""
 
 # Project
-from hyperglass.models.directive import Rule, Text, BuiltinDirective
+from hyperglass.models.directive import (
+    BuiltinDirective,
+    RuleWithIPv4,
+    RuleWithIPv6,
+    RuleWithPattern,
+    Text,
+)
 
 __all__ = (
     "AristaBGPRoute",
@@ -18,12 +24,12 @@ AristaBGPRoute = BuiltinDirective(
     id="__hyperglass_arista_eos_bgp_route__",
     name="BGP Route",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="show ip bgp {target}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="show ipv6 bgp {target}",
@@ -38,7 +44,7 @@ AristaBGPASPath = BuiltinDirective(
     id="__hyperglass_arista_eos_bgp_aspath__",
     name="BGP AS Path",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -56,7 +62,7 @@ AristaBGPCommunity = BuiltinDirective(
     id="__hyperglass_arista_eos_bgp_community__",
     name="BGP Community",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -75,12 +81,12 @@ AristaPing = BuiltinDirective(
     id="__hyperglass_arista_eos_ping__",
     name="Ping",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="ping ip {target} source {source4}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="ping ipv6 {target} source {source6}",
@@ -94,12 +100,12 @@ AristaTraceroute = BuiltinDirective(
     id="__hyperglass_arista_eos_traceroute__",
     name="Traceroute",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="traceroute ip {target} source {source4}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="traceroute ipv6 {target} source {source6}",
@@ -115,12 +121,12 @@ AristaBGPRouteTable = BuiltinDirective(
     id="__hyperglass_arista_eos_bgp_route_table__",
     name="BGP Route",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="show ip bgp {target} | json",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="show ipv6 bgp {target} | json",
@@ -134,7 +140,7 @@ AristaBGPASPathTable = BuiltinDirective(
     id="__hyperglass_arista_eos_bgp_aspath_table__",
     name="BGP AS Path",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -151,7 +157,7 @@ AristaBGPCommunityTable = BuiltinDirective(
     id="__hyperglass_arista_eos_bgp_community_table__",
     name="BGP Community",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[

@@ -1,7 +1,7 @@
 """Model utilities."""
 
 # Standard Library
-from typing import Any, Dict, Tuple
+import typing as t
 
 # Third Party
 from pydantic import BaseModel
@@ -34,7 +34,7 @@ class LegacyField(BaseModel):
     required: bool = True
 
 
-LEGACY_FIELDS: Dict[str, Tuple[LegacyField, ...]] = {
+LEGACY_FIELDS: t.Dict[str, t.Tuple[LegacyField, ...]] = {
     "Device": (
         LegacyField(old="nos", new="platform", overwrite=True),
         LegacyField(old="network", new="group", overwrite=False, required=False),
@@ -43,7 +43,7 @@ LEGACY_FIELDS: Dict[str, Tuple[LegacyField, ...]] = {
 }
 
 
-def check_legacy_fields(*, model: str, data: Dict[str, Any]) -> Dict[str, Any]:
+def check_legacy_fields(*, model: str, data: t.Dict[str, t.Any]) -> t.Dict[str, t.Any]:
     """Check for legacy fields prior to model initialization."""
     if model in LEGACY_FIELDS:
         for field in LEGACY_FIELDS[model]:

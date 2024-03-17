@@ -61,7 +61,7 @@ class PluginManager(t.Generic[PluginT]):
         plugins = self._state.plugins(self._type)
 
         if builtins is False:
-            plugins = [p for p in plugins if p.__hyperglass_builtin__ is False]
+            plugins = [p for p in plugins if p._hyperglass_builtin is False]
 
         # Sort plugins by their name attribute, which is the name of the class by default.
         sorted_by_name = sorted(plugins, key=lambda p: str(p))
@@ -69,7 +69,7 @@ class PluginManager(t.Generic[PluginT]):
         # Sort with built-in plugins last.
         return sorted(
             sorted_by_name,
-            key=lambda p: -1 if p.__hyperglass_builtin__ else 1,
+            key=lambda p: -1 if p._hyperglass_builtin else 1,
             reverse=True,
         )
 
@@ -111,7 +111,7 @@ class PluginManager(t.Generic[PluginT]):
             if issubclass(plugin, HyperglassPlugin):
                 instance = plugin(*args, **kwargs)
                 self._state.add_plugin(self._type, instance)
-                if instance.__hyperglass_builtin__ is True:
+                if instance._hyperglass_builtin is True:
                     log.debug("Registered {} built-in plugin {!r}", self._type, instance.name)
                 else:
                     log.success("Registered {} plugin {!r}", self._type, instance.name)
@@ -182,7 +182,6 @@ class OutputPluginManager(PluginManager[OutputPlugin], type="output"):
         )
         common = (plugin for plugin in self.plugins() if plugin.common is True)
         for plugin in (*directives, *common):
-
             log.debug("Output Plugin {!r} starting with\n{!r}", plugin.name, result)
             result = plugin.process(output=result, query=query)
             log.debug("Output Plugin {!r} completed with\n{!r}", plugin.name, result)

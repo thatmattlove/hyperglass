@@ -119,7 +119,7 @@ def parse_juniper(output: Sequence[str]) -> "OutputDataModel":  # noqa: C901
 class BGPRoutePluginJuniper(OutputPlugin):
     """Coerce a Juniper route table in XML format to a standard BGP Table structure."""
 
-    __hyperglass_builtin__: bool = PrivateAttr(True)
+    _hyperglass_builtin: bool = PrivateAttr(True)
     platforms: Sequence[str] = ("juniper",)
     directives: Sequence[str] = (
         "__hyperglass_juniper_bgp_route_table__",

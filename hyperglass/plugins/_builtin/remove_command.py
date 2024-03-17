@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class RemoveCommand(OutputPlugin):
     """Remove anything before the command if found in output."""
 
-    __hyperglass_builtin__: bool = PrivateAttr(True)
+    _hyperglass_builtin: bool = PrivateAttr(True)
 
     def process(self, *, output: OutputType, query: "Query") -> Sequence[str]:
         """Remove anything before the command if found in output."""

@@ -1,7 +1,13 @@
 """Default Nokia SR-OS Directives."""
 
 # Project
-from hyperglass.models.directive import Rule, Text, BuiltinDirective
+from hyperglass.models.directive import (
+    RuleWithIPv4,
+    RuleWithIPv6,
+    RuleWithPattern,
+    Text,
+    BuiltinDirective,
+)
 
 __all__ = (
     "NokiaSROS_BGPASPath",
@@ -15,12 +21,12 @@ NokiaSROS_BGPRoute = BuiltinDirective(
     id="__hyperglass_nokia_sros_bgp_route__",
     name="BGP Route",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="/show router bgp routes {target} ipv4 hunt",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="/show router bgp routes {target} ipv6 hunt",
@@ -34,7 +40,7 @@ NokiaSROS_BGPASPath = BuiltinDirective(
     id="__hyperglass_nokia_sros_bgp_aspath__",
     name="BGP AS Path",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -50,7 +56,7 @@ NokiaSROS_BGPCommunity = BuiltinDirective(
     id="__hyperglass_nokia_sros_bgp_community__",
     name="BGP Community",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -66,12 +72,12 @@ NokiaSROS_Ping = BuiltinDirective(
     id="__hyperglass_nokia_sros_ping__",
     name="Ping",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="/ping {target} source-address {source4}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="/ping {target} source-address {source6}",
@@ -85,12 +91,12 @@ NokiaSROS_Traceroute = BuiltinDirective(
     id="__hyperglass_nokia_sros_traceroute__",
     name="Traceroute",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="/traceroute {target} source-address {source4} wait 2 seconds",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="/traceroute {target} source-address {source6} wait 2 seconds",

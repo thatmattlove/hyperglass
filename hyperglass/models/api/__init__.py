@@ -12,6 +12,7 @@ from .response import (
 from .cert_import import EncodedRequest
 
 __all__ = (
+    "Query",
     "QueryError",
     "InfoResponse",
     "QueryResponse",

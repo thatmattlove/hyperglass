@@ -13,6 +13,7 @@ from hyperglass.models.data.bgp_route import BGPRouteTable
 
 # Local
 from .._builtin.bgp_route_arista import BGPRoutePluginArista
+from ._fixtures import MockDevice
 
 DEPENDS_KWARGS = {
     "depends": [
@@ -28,19 +29,16 @@ SAMPLE = Path(__file__).parent.parent.parent.parent / ".samples" / "arista_route
 def _tester(sample: str):
     plugin = BGPRoutePluginArista()
 
-    device = Device(
+    device = MockDevice(
         name="Test Device",
         address="127.0.0.1",
         group="Test Network",
         credential={"username": "", "password": ""},
         platform="arista",
         structured_output=True,
-        directives=[],
+        directives=["__hyperglass_arista_eos_bgp_route_table__"],
         attrs={"source4": "192.0.2.1", "source6": "2001:db8::1"},
     )
-
-    # Override has_directives method for testing.
-    device.has_directives = lambda *x: True
 
     query = type("Query", (), {"device": device})
 

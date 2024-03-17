@@ -1,10 +1,10 @@
 """Validation model for Redis cache config."""
 
 # Standard Library
-from typing import Union, Optional
+import typing as t
 
 # Third Party
-from pydantic import SecretStr, StrictInt, StrictStr, StrictBool, IPvAnyAddress
+from pydantic import SecretStr, IPvAnyAddress
 
 # Local
 from ..main import HyperglassModel
@@ -13,30 +13,14 @@ from ..main import HyperglassModel
 class CachePublic(HyperglassModel):
     """Public cache parameters."""
 
-    timeout: StrictInt = 120
-    show_text: StrictBool = True
+    timeout: int = 120
+    show_text: bool = True
 
 
 class Cache(CachePublic):
     """Validation model for params.cache."""
 
-    host: Union[IPvAnyAddress, StrictStr] = "localhost"
-    port: StrictInt = 6379
-    database: StrictInt = 1
-    password: Optional[SecretStr]
-
-    class Config:
-        """Pydantic model configuration."""
-
-        title = "Cache"
-        description = "Redis server & cache timeout configuration."
-        fields = {
-            "host": {"description": "Redis server IP address or hostname."},
-            "port": {"description": "Redis server TCP port."},
-            "database": {"description": "Redis server database ID."},
-            "password": {"description": "Redis authentication password."},
-            "timeout": {
-                "description": "Time in seconds query output will be kept in the Redis cache."
-            },
-            "show_test": {description: "Show the cache text in the hyperglass UI."},
-        }
+    host: t.Union[IPvAnyAddress, str] = "localhost"
+    port: int = 6379
+    database: int = 1
+    password: t.Optional[SecretStr] = None

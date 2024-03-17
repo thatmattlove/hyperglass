@@ -7,7 +7,7 @@ import secrets
 from datetime import datetime
 
 # Third Party
-from pydantic import BaseModel, constr, validator
+from pydantic import BaseModel, constr, field_validator, ConfigDict, Field
 
 # Project
 from hyperglass.log import log
@@ -29,16 +29,11 @@ QueryType = constr(strip_whitespace=True, strict=True, min_length=1)
 class Query(BaseModel):
     """Validation model for input query parameters."""
 
+    model_config = ConfigDict(extra="allow", alias_generator=snake_to_camel, populate_by_name=True)
+
     query_location: QueryLocation  # Device `name` field
     query_target: t.Union[t.List[QueryTarget], QueryTarget]
     query_type: QueryType  # Directive `id` field
-
-    class Config:
-        """Pydantic model configuration."""
-
-        extra = "allow"
-        alias_generator = snake_to_camel
-        allow_population_by_field_name = True
 
     def __init__(self, **data) -> None:
         """Initialize the query with a UTC timestamp at initialization time."""
@@ -96,14 +91,14 @@ class Query(BaseModel):
 
     def dict(self) -> t.Dict[str, t.Union[t.List[str], str]]:
         """Include only public fields."""
-        return super().dict(include={"query_location", "query_target", "query_type"})
+        return super().model_dump(include={"query_location", "query_target", "query_type"})
 
     @property
     def device(self) -> Device:
         """Get this query's device object by query_location."""
         return self._state.devices[self.query_location]
 
-    @validator("query_location")
+    @field_validator("query_location")
     def validate_query_location(cls, value):
         """Ensure query_location is defined."""
 
@@ -114,7 +109,7 @@ class Query(BaseModel):
 
         return value
 
-    @validator("query_type")
+    @field_validator("query_type")
     def validate_query_type(cls, value: t.Any):
         """Ensure a requested query type exists."""
         devices = use_state("devices")

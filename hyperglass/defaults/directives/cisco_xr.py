@@ -1,7 +1,13 @@
 """Default Cisco IOS-XR Directives."""
 
 # Project
-from hyperglass.models.directive import Rule, Text, BuiltinDirective
+from hyperglass.models.directive import (
+    RuleWithIPv4,
+    RuleWithIPv6,
+    RuleWithPattern,
+    Text,
+    BuiltinDirective,
+)
 
 __all__ = (
     "CiscoXR_BGPASPath",
@@ -15,12 +21,12 @@ CiscoXR_BGPRoute = BuiltinDirective(
     id="__hyperglass_cisco_xr_bgp_route__",
     name="BGP Route",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="show bgp ipv4 unicast {target}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="show bgp ipv6 unicast {target}",
@@ -34,7 +40,7 @@ CiscoXR_BGPASPath = BuiltinDirective(
     id="__hyperglass_cisco_xr_bgp_aspath__",
     name="BGP AS Path",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -51,7 +57,7 @@ CiscoXR_BGPCommunity = BuiltinDirective(
     id="__hyperglass_cisco_xr_bgp_community__",
     name="BGP Community",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -68,12 +74,12 @@ CiscoXR_Ping = BuiltinDirective(
     id="__hyperglass_cisco_xr_ping__",
     name="Ping",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="ping ipv4 {target} count 5 source {source4}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="ping ipv6 {target} count 5 source {source6}",
@@ -87,12 +93,12 @@ CiscoXR_Traceroute = BuiltinDirective(
     id="__hyperglass_cisco_xr_traceroute__",
     name="Traceroute",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="traceroute ipv4 {target} timeout 1 probe 2 source {source4}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="traceroute ipv6 {target} timeout 1 probe 2 source {source6}",

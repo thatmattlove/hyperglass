@@ -1,7 +1,13 @@
 """Default VyOS Directives."""
 
 # Project
-from hyperglass.models.directive import Rule, Text, BuiltinDirective
+from hyperglass.models.directive import (
+    RuleWithIPv4,
+    RuleWithIPv6,
+    RuleWithPattern,
+    Text,
+    BuiltinDirective,
+)
 
 __all__ = (
     "VyOS_BGPASPath",
@@ -15,12 +21,12 @@ VyOS_BGPRoute = BuiltinDirective(
     id="__hyperglass_vyos_bgp_route__",
     name="BGP Route",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="show ip bgp {target}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="show ipv6 bgp {target}",
@@ -34,7 +40,7 @@ VyOS_BGPASPath = BuiltinDirective(
     id="__hyperglass_vyos_bgp_aspath__",
     name="BGP AS Path",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -51,7 +57,7 @@ VyOS_BGPCommunity = BuiltinDirective(
     id="__hyperglass_vyos_bgp_community__",
     name="BGP Community",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -68,12 +74,12 @@ VyOS_Ping = BuiltinDirective(
     id="__hyperglass_vyos_ping__",
     name="Ping",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="ping {target} count 5 interface {source4}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="ping {target} count 5 interface {source6}",
@@ -87,12 +93,12 @@ VyOS_Traceroute = BuiltinDirective(
     id="__hyperglass_vyos_traceroute__",
     name="Traceroute",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="mtr -4 -G 1 -c 1 -w -o SAL -a {source4} {target}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="mtr -6 -G 1 -c 1 -w -o SAL -a {source6} {target}",

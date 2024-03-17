@@ -1,23 +1,21 @@
 """Structured data configuration variables."""
 
 # Standard Library
-from typing import List
+import typing as t
 
-# Third Party
-from pydantic import StrictStr, constr
 
 # Local
 from ..main import HyperglassModel
 
-StructuredCommunityMode = constr(regex=r"(permit|deny)")
-StructuredRPKIMode = constr(regex=r"(router|external)")
+StructuredCommunityMode = t.Literal["permit", "deny"]
+StructuredRPKIMode = t.Literal["router", "external"]
 
 
 class StructuredCommunities(HyperglassModel):
     """Control structured data response for BGP communities."""
 
     mode: StructuredCommunityMode = "deny"
-    items: List[StrictStr] = []
+    items: t.List[str] = []
 
 
 class StructuredRpki(HyperglassModel):

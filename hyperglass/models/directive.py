@@ -6,7 +6,15 @@ import typing as t
 from ipaddress import IPv4Network, IPv6Network, ip_network
 
 # Third Party
-from pydantic import Field, FilePath, StrictStr, StrictBool, PrivateAttr, conint, validator
+from pydantic import (
+    Discriminator,
+    field_validator,
+    Field,
+    FilePath,
+    IPvAnyNetwork,
+    PrivateAttr,
+    Tag,
+)
 
 # Project
 from hyperglass.log import log
@@ -18,24 +26,20 @@ from hyperglass.exceptions.private import InputValidationError
 from .main import MultiModel, HyperglassModel, HyperglassUniqueModel
 from .fields import Action
 
-if t.TYPE_CHECKING:
-    # Project
-    from hyperglass.models.api.query import QueryTarget
 
-IPv4PrefixLength = conint(ge=0, le=32)
-IPv6PrefixLength = conint(ge=0, le=128)
-IPNetwork = t.Union[IPv4Network, IPv6Network]
-StringOrArray = t.Union[StrictStr, t.List[StrictStr]]
-Condition = t.Union[IPv4Network, IPv6Network, StrictStr]
+StringOrArray = t.Union[str, t.List[str]]
+Condition = t.Union[IPvAnyNetwork, str]
 RuleValidation = t.Union[t.Literal["ipv4", "ipv6", "pattern"], None]
 PassedValidation = t.Union[bool, None]
+IPFamily = t.Literal["ipv4", "ipv6"]
+RuleTypeAttr = t.Literal["ipv4", "ipv6", "pattern", "none"]
 
 
 class Input(HyperglassModel):
     """Base input field."""
 
     _type: PrivateAttr
-    description: StrictStr
+    description: str
 
     @property
     def is_select(self) -> bool:
@@ -52,15 +56,15 @@ class Text(Input):
     """Text/input field model."""
 
     _type: PrivateAttr = PrivateAttr("text")
-    validation: t.Optional[StrictStr]
+    validation: t.Optional[str] = None
 
 
 class Option(HyperglassModel):
     """Select option model."""
 
-    name: t.Optional[StrictStr]
-    description: t.Optional[StrictStr]
-    value: StrictStr
+    name: t.Optional[str] = None
+    description: t.Optional[str] = None
+    value: str
 
 
 class Select(Input):
@@ -70,16 +74,16 @@ class Select(Input):
     options: t.List[Option]
 
 
-class Rule(HyperglassModel, allow_population_by_field_name=True):
+class Rule(HyperglassModel):
     """Base rule."""
 
-    _validation: RuleValidation = PrivateAttr()
+    _type: RuleTypeAttr = PrivateAttr(Field("none", discriminator="_type"))
     _passed: PassedValidation = PrivateAttr(None)
     condition: Condition
-    action: Action = Action("permit")
+    action: Action = "permit"
     commands: t.List[str] = Field([], alias="command")
 
-    @validator("commands", pre=True, allow_reuse=True)
+    @field_validator("commands", mode="before")
     def validate_commands(cls, value: t.Union[str, t.List[str]]) -> t.List[str]:
         """Ensure commands is a list."""
         if isinstance(value, str):
@@ -89,22 +93,28 @@ class Rule(HyperglassModel, allow_population_by_field_name=True):
     def validate_target(self, target: str, *, multiple: bool) -> bool:
         """Validate a query target (Placeholder signature)."""
         raise NotImplementedError(
-            f"{self._validation} rule does not implement a 'validate_target()' method"
+            f"{self._type} rule does not implement a 'validate_target()' method"
         )
 
 
 class RuleWithIP(Rule):
     """Base IP-based rule."""
 
-    _family: PrivateAttr
-    condition: IPNetwork
-    allow_reserved: StrictBool = False
-    allow_unspecified: StrictBool = False
-    allow_loopback: StrictBool = False
+    condition: IPvAnyNetwork
+    allow_reserved: bool = False
+    allow_unspecified: bool = False
+    allow_loopback: bool = False
     ge: int
     le: int
 
-    def membership(self, target: IPNetwork, network: IPNetwork) -> bool:
+    def __init__(self, **kw) -> None:
+        super().__init__(**kw)
+        if self.condition.network_address.version == 4:
+            self._type = "ipv4"
+        else:
+            self._type = "ipv6"
+
+    def membership(self, target: IPvAnyNetwork, network: IPvAnyNetwork) -> bool:
         """Check if IP address belongs to network."""
         log.debug("Checking membership of {} for {}", str(target), str(network))
         if (
@@ -115,7 +125,7 @@ class RuleWithIP(Rule):
             return True
         return False
 
-    def in_range(self, target: IPNetwork) -> bool:
+    def in_range(self, target: IPvAnyNetwork) -> bool:
         """Verify if target prefix length is within ge/le threshold."""
         if target.prefixlen <= self.le and target.prefixlen >= self.ge:
             log.debug("{} is in range {}-{}", target, self.ge, self.le)
@@ -123,7 +133,7 @@ class RuleWithIP(Rule):
 
         return False
 
-    def validate_target(self, target: "QueryTarget", *, multiple: bool) -> bool:
+    def validate_target(self, target: str, *, multiple: bool) -> bool:
         """Validate an IP address target against this rule's conditions."""
 
         if isinstance(target, t.List):
@@ -169,30 +179,28 @@ class RuleWithIP(Rule):
 class RuleWithIPv4(RuleWithIP):
     """A rule by which to evaluate an IPv4 target."""
 
-    _family: PrivateAttr = PrivateAttr("ipv4")
-    _validation: RuleValidation = PrivateAttr("ipv4")
+    _type: RuleTypeAttr = "ipv4"
     condition: IPv4Network
-    ge: IPv4PrefixLength = 0
-    le: IPv4PrefixLength = 32
+    ge: int = Field(0, ge=0, le=32)
+    le: int = Field(32, ge=0, le=32)
 
 
 class RuleWithIPv6(RuleWithIP):
     """A rule by which to evaluate an IPv6 target."""
 
-    _family: PrivateAttr = PrivateAttr("ipv6")
-    _validation: RuleValidation = PrivateAttr("ipv6")
+    _type: RuleTypeAttr = "ipv6"
     condition: IPv6Network
-    ge: IPv6PrefixLength = 0
-    le: IPv6PrefixLength = 128
+    ge: int = Field(0, ge=0, le=128)
+    le: int = Field(128, ge=0, le=128)
 
 
 class RuleWithPattern(Rule):
     """A rule validated by a regular expression pattern."""
 
-    _validation: RuleValidation = PrivateAttr("pattern")
-    condition: StrictStr
+    _type: RuleTypeAttr = "pattern"
+    condition: str
 
-    def validate_target(self, target: "QueryTarget", *, multiple: bool) -> str:  # noqa: C901
+    def validate_target(self, target: str, *, multiple: bool) -> str:  # noqa: C901
         """Validate a string target against configured regex patterns."""
 
         def validate_single_value(value: str) -> t.Union[bool, BaseException]:
@@ -234,7 +242,7 @@ class RuleWithPattern(Rule):
 class RuleWithoutValidation(Rule):
     """A rule with no validation."""
 
-    _validation: RuleValidation = PrivateAttr(None)
+    _type: RuleTypeAttr = "none"
     condition: None
 
     def validate_target(self, target: str, *, multiple: bool) -> t.Literal[True]:
@@ -243,24 +251,44 @@ class RuleWithoutValidation(Rule):
         return True
 
 
-RuleType = t.Union[RuleWithIPv4, RuleWithIPv6, RuleWithPattern, RuleWithoutValidation]
+RuleWithIPv4Type = t.Annotated[RuleWithIPv4, Tag("ipv4")]
+RuleWithIPv6Type = t.Annotated[RuleWithIPv6, Tag("ipv6")]
+RuleWithPatternType = t.Annotated[RuleWithPattern, Tag("pattern")]
+RuleWithoutValidationType = t.Annotated[RuleWithoutValidation, Tag("none")]
+
+# RuleType = t.Union[RuleWithIPv4, RuleWithIPv6, RuleWithPattern, RuleWithoutValidation]
+RuleType = t.Union[
+    RuleWithIPv4Type,
+    RuleWithIPv6Type,
+    RuleWithPatternType,
+    RuleWithoutValidationType,
+]
+
+
+def type_discriminator(value: t.Any) -> RuleTypeAttr:
+    """Pydantic type discriminator."""
+    if isinstance(value, dict):
+        return value.get("_type")
+    return getattr(value, "_type", None)
 
 
 class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
     """A directive contains commands that can be run on a device, as long as defined rules are met."""
 
-    __hyperglass_builtin__: t.ClassVar[bool] = False
+    _hyperglass_builtin: bool = PrivateAttr(False)
 
-    id: StrictStr
-    name: StrictStr
-    rules: t.List[RuleType] = [RuleWithPattern(condition="*")]
+    id: str
+    name: str
+    rules: t.List[RuleType] = [
+        Field(RuleWithPattern(condition="*"), discriminator=Discriminator(type_discriminator))
+    ]
     field: t.Union[Text, Select]
-    info: t.Optional[FilePath]
-    plugins: t.List[StrictStr] = []
-    table_output: t.Optional[StrictStr]
-    groups: t.List[StrictStr] = []
-    multiple: StrictBool = False
-    multiple_separator: StrictStr = " "
+    info: t.Optional[FilePath] = None
+    plugins: t.List[str] = []
+    table_output: t.Optional[str] = None
+    groups: t.List[str] = []
+    multiple: bool = False
+    multiple_separator: str = " "
 
     def validate_target(self, target: str) -> bool:
         """Validate a target against all configured rules."""
@@ -281,7 +309,7 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
             return "text"
         return None
 
-    @validator("plugins")
+    @field_validator("plugins")
     def validate_plugins(cls: "Directive", plugins: t.List[str]) -> t.List[str]:
         """Validate and register configured plugins."""
         plugin_dir = Settings.app_path / "plugins"
@@ -322,7 +350,7 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
 class BuiltinDirective(Directive, unique_by=("id", "table_output", "platforms")):
     """Natively-supported directive."""
 
-    __hyperglass_builtin__: t.ClassVar[bool] = True
+    _hyperglass_builtin: bool = PrivateAttr(True)
     platforms: Series[str] = []
 
 
@@ -339,7 +367,7 @@ class Directives(MultiModel[Directive], model=Directive, unique_by="id"):
             *(
                 self.table_if_available(directive) if table_output else directive  # noqa: IF100 GFY
                 for directive in self
-                if directive.__hyperglass_builtin__ is True
+                if directive._hyperglass_builtin is True
                 and platform in getattr(directive, "platforms", ())
             )
         )

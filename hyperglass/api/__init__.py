@@ -8,7 +8,7 @@ from pathlib import Path
 # Third Party
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from fastapi.exceptions import ValidationError, RequestValidationError
+from fastapi.exceptions import ValidationException, RequestValidationError
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.openapi.utils import get_openapi
@@ -99,7 +99,7 @@ app.add_exception_handler(HyperglassError, app_handler)
 app.add_exception_handler(RequestValidationError, validation_handler)
 
 # App Validation Error Handler
-app.add_exception_handler(ValidationError, validation_handler)
+app.add_exception_handler(ValidationException, validation_handler)
 
 # Uncaught Error Handler
 app.add_exception_handler(Exception, default_handler)

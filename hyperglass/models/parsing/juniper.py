@@ -1,11 +1,10 @@
 """Data Models for Parsing Juniper XML Response."""
 
 # Standard Library
-from typing import Any, Dict, List
+import typing as t
 
 # Third Party
-from pydantic import validator, root_validator
-from pydantic.types import StrictInt, StrictStr, StrictBool
+from pydantic import field_validator, model_validator, ConfigDict
 
 # Project
 from hyperglass.log import log
@@ -26,7 +25,7 @@ RPKI_STATE_MAP = {
 class JuniperBase(HyperglassModel, extra="ignore"):
     """Base Juniper model."""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: t.Any) -> None:
         """Convert all `-` keys to `_`.
 
         Default camelCase alias generator will still be used.
@@ -38,22 +37,24 @@ class JuniperBase(HyperglassModel, extra="ignore"):
 class JuniperRouteTableEntry(JuniperBase):
     """Parse Juniper rt-entry data."""
 
-    active_tag: StrictBool
+    model_config = ConfigDict(validate_assignment=False)
+
+    active_tag: bool
     preference: int
-    age: StrictInt
+    age: int
     local_preference: int
     metric: int = 0
-    as_path: List[StrictInt] = []
-    validation_state: StrictInt = 3
-    next_hop: StrictStr
-    peer_rid: StrictStr
+    as_path: t.List[int] = []
+    validation_state: int = 3
+    next_hop: str
+    peer_rid: str
     peer_as: int
     source_as: int
-    source_rid: StrictStr
-    communities: List[StrictStr] = None
+    source_rid: str
+    communities: t.List[str] = None
 
-    @root_validator(pre=True)
-    def validate_optional_flags(cls, values):
+    @model_validator(mode="before")
+    def validate_optional_flags(cls, values: t.Dict[str, t.Any]):
         """Flatten & rename keys prior to validation."""
         next_hops = []
         nh = None
@@ -67,7 +68,7 @@ class JuniperRouteTableEntry(JuniperBase):
             nh = values.pop("protocol_nh")
 
         # Force the next hops to be a list
-        if isinstance(nh, Dict):
+        if isinstance(nh, t.Dict):
             nh = [nh]
 
         if nh is not None:
@@ -94,12 +95,12 @@ class JuniperRouteTableEntry(JuniperBase):
 
         return values
 
-    @validator("validation_state", pre=True, always=True)
+    @field_validator("validation_state", mode="before")
     def validate_rpki_state(cls, value):
         """Convert string RPKI state to standard integer mapping."""
         return RPKI_STATE_MAP.get(value, 3)
 
-    @validator("active_tag", pre=True, always=True)
+    @field_validator("active_tag", mode="before")
     def validate_active_tag(cls, value):
         """Convert active-tag from string/null to boolean."""
         if value == "*":
@@ -108,7 +109,7 @@ class JuniperRouteTableEntry(JuniperBase):
             value = False
         return value
 
-    @validator("age", pre=True, always=True)
+    @field_validator("age", mode="before")
     def validate_age(cls, value):
         """Get age as seconds."""
         if not isinstance(value, dict):
@@ -120,13 +121,13 @@ class JuniperRouteTableEntry(JuniperBase):
             value = value.get("@junos:seconds", 0)
         return int(value)
 
-    @validator("as_path", pre=True, always=True)
+    @field_validator("as_path", mode="before")
     def validate_as_path(cls, value):
         """Remove origin flags from AS_PATH."""
         disallowed = ("E", "I", "?")
         return [int(a) for a in value.split() if a not in disallowed]
 
-    @validator("communities", pre=True, always=True)
+    @field_validator("communities", mode="before")
     def validate_communities(cls, value):
         """Flatten community list."""
         if value is not None:
@@ -139,13 +140,13 @@ class JuniperRouteTableEntry(JuniperBase):
 class JuniperRouteTable(JuniperBase):
     """Validation model for Juniper rt data."""
 
-    rt_destination: StrictStr
+    rt_destination: str
     rt_prefix_length: int
     rt_entry_count: int
     rt_announced_count: int
-    rt_entry: List[JuniperRouteTableEntry]
+    rt_entry: t.List[JuniperRouteTableEntry]
 
-    @validator("rt_entry_count", pre=True, always=True)
+    @field_validator("rt_entry_count", mode="before")
     def validate_entry_count(cls, value):
         """Flatten & convert entry-count to integer."""
         return int(value.get("#text"))
@@ -154,12 +155,12 @@ class JuniperRouteTable(JuniperBase):
 class JuniperBGPTable(JuniperBase):
     """Validation model for route-table data."""
 
-    table_name: StrictStr
+    table_name: str
     destination_count: int
     total_route_count: int
     active_route_count: int
     hidden_route_count: int
-    rt: List[JuniperRouteTable]
+    rt: t.List[JuniperRouteTable]
 
     def bgp_table(self: "JuniperBGPTable") -> "BGPRouteTable":
         """Convert the Juniper-specific fields to standard parsed data model."""

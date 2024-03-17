@@ -1,7 +1,13 @@
 """Default Juniper Directives."""
 
 # Project
-from hyperglass.models.directive import Rule, Text, BuiltinDirective
+from hyperglass.models.directive import (
+    RuleWithIPv4,
+    RuleWithIPv6,
+    RuleWithPattern,
+    Text,
+    BuiltinDirective,
+)
 
 __all__ = (
     "JuniperBGPRoute",
@@ -18,12 +24,12 @@ JuniperBGPRoute = BuiltinDirective(
     id="__hyperglass_juniper_bgp_route__",
     name="BGP Route",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="show route protocol bgp table inet.0 {target} detail",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="show route protocol bgp table inet6.0 {target} detail",
@@ -38,7 +44,7 @@ JuniperBGPASPath = BuiltinDirective(
     id="__hyperglass_juniper_bgp_aspath__",
     name="BGP AS Path",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -56,7 +62,7 @@ JuniperBGPCommunity = BuiltinDirective(
     id="__hyperglass_juniper_bgp_community__",
     name="BGP Community",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -75,12 +81,12 @@ JuniperPing = BuiltinDirective(
     id="__hyperglass_juniper_ping__",
     name="Ping",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="ping inet {target} count 5 source {source4}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="ping inet6 {target} count 5 source {source6}",
@@ -94,12 +100,12 @@ JuniperTraceroute = BuiltinDirective(
     id="__hyperglass_juniper_traceroute__",
     name="Traceroute",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="traceroute inet {target} wait 1 source {source4}",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="traceroute inet6 {target} wait 1 source {source6}",
@@ -115,12 +121,12 @@ JuniperBGPRouteTable = BuiltinDirective(
     id="__hyperglass_juniper_bgp_route_table__",
     name="BGP Route",
     rules=[
-        Rule(
+        RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
             command="show route protocol bgp table inet.0 {target} best detail | display xml",
         ),
-        Rule(
+        RuleWithIPv6(
             condition="::/0",
             action="permit",
             command="show route protocol bgp table inet6.0 {target} best detail | display xml",
@@ -134,7 +140,7 @@ JuniperBGPASPathTable = BuiltinDirective(
     id="__hyperglass_juniper_bgp_aspath_table__",
     name="BGP AS Path",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[
@@ -151,7 +157,7 @@ JuniperBGPCommunityTable = BuiltinDirective(
     id="__hyperglass_juniper_bgp_community_table__",
     name="BGP Community",
     rules=[
-        Rule(
+        RuleWithPattern(
             condition="*",
             action="permit",
             commands=[

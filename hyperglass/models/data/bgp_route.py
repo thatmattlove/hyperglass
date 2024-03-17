@@ -2,11 +2,11 @@
 
 # Standard Library
 import re
-from typing import List, Literal
+import typing as t
 from ipaddress import ip_network
 
 # Third Party
-from pydantic import StrictInt, StrictStr, StrictBool, validator
+from pydantic import field_validator
 
 # Project
 from hyperglass.state import use_state
@@ -15,27 +15,27 @@ from hyperglass.external.rpki import rpki_state
 # Local
 from ..main import HyperglassModel
 
-WinningWeight = Literal["low", "high"]
+WinningWeight = t.Literal["low", "high"]
 
 
 class BGPRoute(HyperglassModel):
     """Post-parsed BGP route."""
 
-    prefix: StrictStr
-    active: StrictBool
-    age: StrictInt
-    weight: StrictInt
-    med: StrictInt
-    local_preference: StrictInt
-    as_path: List[StrictInt]
-    communities: List[StrictStr]
-    next_hop: StrictStr
-    source_as: StrictInt
-    source_rid: StrictStr
-    peer_rid: StrictStr
-    rpki_state: StrictInt
+    prefix: str
+    active: bool
+    age: int
+    weight: int
+    med: int
+    local_preference: int
+    as_path: t.List[int]
+    communities: t.List[str]
+    next_hop: str
+    source_as: int
+    source_rid: str
+    peer_rid: str
+    rpki_state: int
 
-    @validator("communities")
+    @field_validator("communities")
     def validate_communities(cls, value):
         """Filter returned communities against configured policy.
 
@@ -69,7 +69,7 @@ class BGPRoute(HyperglassModel):
 
         return [c for c in value if func(c)]
 
-    @validator("rpki_state")
+    @field_validator("rpki_state")
     def validate_rpki_state(cls, value, values):
         """If external RPKI validation is enabled, get validation state."""
 
@@ -106,9 +106,9 @@ class BGPRoute(HyperglassModel):
 class BGPRouteTable(HyperglassModel):
     """Post-parsed BGP route table."""
 
-    vrf: StrictStr
-    count: StrictInt = 0
-    routes: List[BGPRoute]
+    vrf: str
+    count: int = 0
+    routes: t.List[BGPRoute]
     winning_weight: WinningWeight
 
     def __init__(self, **kwargs):

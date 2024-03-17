@@ -93,7 +93,7 @@ def validate_large_community(value: str) -> bool:
 class ValidateBGPCommunity(InputPlugin):
     """Validate a BGP community string."""
 
-    __hyperglass_builtin__: bool = PrivateAttr(True)
+    _hyperglass_builtin: bool = PrivateAttr(True)
 
     def validate(self, query: "Query") -> "InputPluginValidationReturn":
         """Ensure an input query target is a valid BGP community."""

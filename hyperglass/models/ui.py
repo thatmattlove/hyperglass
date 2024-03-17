@@ -1,10 +1,7 @@
 """UI Configuration models."""
 
 # Standard Library
-from typing import Any, Dict, List, Tuple, Union, Literal, Optional
-
-# Third Party
-from pydantic import StrictStr, StrictBool
+import typing as t
 
 # Local
 from .main import HyperglassModel
@@ -13,45 +10,45 @@ from .config.cache import CachePublic
 from .config.params import ParamsPublic
 from .config.messages import Messages
 
-Alignment = Union[Literal["left"], Literal["center"], Literal["right"], None]
-StructuredDataField = Tuple[str, str, Alignment]
+Alignment = t.Union[t.Literal["left"], t.Literal["center"], t.Literal["right"], None]
+StructuredDataField = t.Tuple[str, str, Alignment]
 
 
 class UIDirective(HyperglassModel):
     """UI: Directive."""
 
-    id: StrictStr
-    name: StrictStr
-    field_type: StrictStr
-    groups: List[StrictStr]
-    description: StrictStr
-    info: Optional[str] = None
-    options: Optional[List[Dict[str, Any]]]
+    id: str
+    name: str
+    field_type: str
+    groups: t.List[str]
+    description: str
+    info: t.Optional[str] = None
+    options: t.Optional[t.List[t.Dict[str, t.Any]]] = None
 
 
 class UILocation(HyperglassModel):
     """UI: Location (Device)."""
 
-    id: StrictStr
-    name: StrictStr
-    group: Optional[StrictStr]
-    avatar: Optional[StrictStr]
-    description: Optional[StrictStr]
-    directives: List[UIDirective] = []
+    id: str
+    name: str
+    group: t.Optional[str] = None
+    avatar: t.Optional[str] = None
+    description: t.Optional[str] = None
+    directives: t.List[UIDirective] = []
 
 
 class UIDevices(HyperglassModel):
     """UI: Devices."""
 
-    group: Optional[StrictStr]
-    locations: List[UILocation] = []
+    group: t.Optional[str] = None
+    locations: t.List[UILocation] = []
 
 
 class UIContent(HyperglassModel):
     """UI: Content."""
 
-    credit: StrictStr
-    greeting: StrictStr
+    credit: str
+    greeting: str
 
 
 class UIParameters(ParamsPublic, HyperglassModel):
@@ -60,8 +57,8 @@ class UIParameters(ParamsPublic, HyperglassModel):
     cache: CachePublic
     web: WebPublic
     messages: Messages
-    version: StrictStr
-    devices: List[UIDevices] = []
-    parsed_data_fields: Tuple[StructuredDataField, ...]
+    version: str
+    devices: t.List[UIDevices] = []
+    parsed_data_fields: t.Tuple[StructuredDataField, ...]
     content: UIContent
-    developer_mode: StrictBool
+    developer_mode: bool

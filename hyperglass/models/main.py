@@ -9,8 +9,7 @@ import typing as t
 from pathlib import Path
 
 # Third Party
-from pydantic import HttpUrl, BaseModel, BaseConfig, PrivateAttr
-from pydantic.generics import GenericModel
+from pydantic import HttpUrl, BaseModel, PrivateAttr, RootModel, ConfigDict
 
 # Project
 from hyperglass.log import log
@@ -20,38 +19,30 @@ from hyperglass.types import Series
 MultiModelT = t.TypeVar("MultiModelT", bound=BaseModel)
 
 
+def alias_generator(field: str) -> str:
+    """Remove unsupported characters from field names.
+
+    Converts any "desirable" separators to underscore, then removes all
+    characters that are unsupported in Python class variable names.
+    Also removes leading numbers underscores.
+    """
+    _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", field)
+    _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
+    snake_field = _scrubbed.lower()
+    return snake_to_camel(snake_field)
+
+
 class HyperglassModel(BaseModel):
     """Base model for all hyperglass configuration models."""
 
-    class Config(BaseConfig):
-        """Pydantic model configuration."""
-
-        validate_all = True
-        extra = "forbid"
-        validate_assignment = True
-        allow_population_by_field_name = True
-        json_encoders = {HttpUrl: lambda v: str(v), Path: str}
-
-        @classmethod
-        def alias_generator(cls: "HyperglassModel", field: str) -> str:
-            """Remove unsupported characters from field names.
-
-            Converts any "desirable" separators to underscore, then removes all
-            characters that are unsupported in Python class variable names.
-            Also removes leading numbers underscores.
-            """
-            _replaced = re.sub(r"[\-|\.|\@|\~|\:\/|\s]", "_", field)
-            _scrubbed = "".join(re.findall(r"([a-zA-Z]\w+|\_+)", _replaced))
-            snake_field = _scrubbed.lower()
-            if snake_field != field:
-                log.debug(
-                    "Model field '{}.{}' was converted from {} to {}",
-                    cls.__module__,
-                    snake_field,
-                    repr(field),
-                    repr(snake_field),
-                )
-            return snake_to_camel(snake_field)
+    model_config = ConfigDict(
+        extra="forbid",
+        json_encoders={HttpUrl: lambda v: str(v), Path: str},
+        populate_by_name=True,
+        validate_assignment=True,
+        validate_default=True,
+        alias_generator=alias_generator,
+    )
 
     def convert_paths(self, value: t.Any):
         """Change path to relative to app_path."""
@@ -98,7 +89,7 @@ class HyperglassModel(BaseModel):
         for key in kwargs.keys():
             export_kwargs.pop(key, None)
 
-        return self.json(*args, **export_kwargs, **kwargs)
+        return self.model_dump_json(*args, **export_kwargs, **kwargs)
 
     def export_dict(self, *args, **kwargs):
         """Return instance as dictionary."""
@@ -108,7 +99,7 @@ class HyperglassModel(BaseModel):
         for key in kwargs.keys():
             export_kwargs.pop(key, None)
 
-        return self.dict(*args, **export_kwargs, **kwargs)
+        return self.model_dump(*args, **export_kwargs, **kwargs)
 
     def export_yaml(self, *args, **kwargs):
         """Return instance as YAML."""
@@ -177,22 +168,20 @@ class HyperglassModelWithId(HyperglassModel):
         return hash(self.id)
 
 
-class MultiModel(GenericModel, t.Generic[MultiModelT]):
+class MultiModel(RootModel[MultiModelT]):
     """Extension of HyperglassModel for managing multiple models as a list."""
+
+    model_config = ConfigDict(
+        validate_default=True,
+        validate_assignment=True,
+    )
 
     model: t.ClassVar[MultiModelT]
     unique_by: t.ClassVar[str]
-    model_name: t.ClassVar[str] = "MultiModel"
+    _model_name: t.ClassVar[str] = "MultiModel"
 
-    __root__: t.List[MultiModelT] = []
+    root: t.List[MultiModelT] = []
     _count: int = PrivateAttr()
-
-    class Config(BaseConfig):
-        """Pydantic model configuration."""
-
-        validate_all = True
-        extra = "forbid"
-        validate_assignment = True
 
     def __init__(self, *items: t.Union[MultiModelT, t.Dict[str, t.Any]]) -> None:
         """Validate items."""
@@ -200,24 +189,24 @@ class MultiModel(GenericModel, t.Generic[MultiModelT]):
             if getattr(self, cls_var, None) is None:
                 raise AttributeError(f"MultiModel is missing class variable '{cls_var}'")
         valid = self._valid_items(*items)
-        super().__init__(__root__=valid)
-        self._count = len(self.__root__)
+        super().__init__(root=valid)
+        self._count = len(self.root)
 
     def __init_subclass__(cls, **kw: t.Any) -> None:
         """Add class variables from keyword arguments."""
         model = kw.pop("model", None)
         cls.model = model
         cls.unique_by = kw.pop("unique_by", None)
-        cls.model_name = getattr(model, "__name__", "MultiModel")
+        cls._model_name = getattr(model, "__name__", "MultiModel")
         super().__init_subclass__()
 
     def __repr__(self) -> str:
         """Represent model."""
-        return repr_from_attrs(self, ["_count", "unique_by", "model_name"], strip="_")
+        return repr_from_attrs(self, ["_count", "unique_by", "_model_name"], strip="_")
 
     def __iter__(self) -> t.Iterator[MultiModelT]:
         """Iterate items."""
-        return iter(self.__root__)
+        return iter(self.root)
 
     def __getitem__(self, value: t.Union[int, str]) -> MultiModelT:
         """Get an item by its `unique_by` property."""
@@ -228,7 +217,7 @@ class MultiModel(GenericModel, t.Generic[MultiModelT]):
                 )
             )
         if isinstance(value, int):
-            return self.__root__[value]
+            return self.root[value]
 
         for item in self:
             if hasattr(item, self.unique_by) and getattr(item, self.unique_by) == value:
@@ -265,7 +254,7 @@ class MultiModel(GenericModel, t.Generic[MultiModelT]):
 
     def __len__(self) -> int:
         """Get number of items."""
-        return len(self.__root__)
+        return len(self.root)
 
     @property
     def ids(self) -> t.Tuple[t.Any, ...]:
@@ -283,7 +272,7 @@ class MultiModel(GenericModel, t.Generic[MultiModelT]):
         new = type(name, (cls,), cls.__dict__)
         new.model = model
         new.unique_by = unique_by
-        new.model_name = getattr(model, "__name__", "MultiModel")
+        new._model_name = getattr(model, "__name__", "MultiModel")
         return new
 
     def _valid_items(
@@ -317,7 +306,7 @@ class MultiModel(GenericModel, t.Generic[MultiModelT]):
                 if getattr(o, unique_by) == v
             }
             return tuple(unique_by_objects.values())
-        return (*self.__root__, *to_add)
+        return (*self.root, *to_add)
 
     def filter(self, *properties: str) -> MultiModelT:
         """Get only items with `unique_by` properties matching values in `properties`."""
@@ -345,8 +334,8 @@ class MultiModel(GenericModel, t.Generic[MultiModelT]):
     def add(self, *items, unique_by: t.Optional[str] = None) -> None:
         """Add an item to the model."""
         new = self._merge_with(*items, unique_by=unique_by)
-        self.__root__ = new
-        self._count = len(self.__root__)
+        self.root = new
+        self._count = len(self.root)
         for item in new:
             log.debug(
                 "Added {} '{!s}' to {}",
