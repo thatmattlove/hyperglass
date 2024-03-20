@@ -3,22 +3,25 @@ title: Using Docker
 description: Installing hyperglass with Docker
 ---
 
-import { Button } from "nextra/components";
+import { Card, Cards, Steps } from "nextra/components";
 import { Callout } from "nextra-theme-docs";
-
-## Docker
 
 <Callout type="info">**Docker is the recommended method for running hyperglass.**</Callout>
 
-### 1. Install Docker
+<Steps>
 
-<Button className="nx-my-4 nx-py-2 nx-px-4 nx-font-bold">
-    <a target="_blank" href="https://docs.docker.com/engine/install/">
-        Docker Engine Installation Guide
-    </a>
-</Button>
+### Install Docker
 
-### 2. Download hyperglass
+<Cards>
+    <Card
+        title="Docker Engine Installation Guide"
+        href="https://docs.docker.com/engine/install/"
+        target="_blank"
+        arrow
+    />
+</Cards>
+
+### Download hyperglass
 
 ```shell copy
 mkdir /etc/hyperglass
@@ -38,7 +41,7 @@ docker compose up
 
 Navigate to http://localhost:8001
 
-### 3. Create a `systemd` service
+### Create a `systemd` service
 
 <Callout type="info">
     Before you create and start the hyperglass service, you may want to verify whether or not you
@@ -52,3 +55,5 @@ systemctl daemon-reload
 systemctl enable hyperglass
 systemctl start hyperglass
 ```
+
+</Steps>

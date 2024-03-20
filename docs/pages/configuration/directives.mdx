@@ -2,11 +2,11 @@
 
 A **directive** is a defined configuration for a **command** to run on a device. For example, a BGP Route query is a built-in directive. A directive defines:
 
-- What command to run on the device
-- Type of UI field, text input or select
-- If the field can accept multiple values
-- Help information to show about the directive
-- Validation rules
+-   What command to run on the device
+-   Type of UI field, text input or select
+-   If the field can accept multiple values
+-   Help information to show about the directive
+-   Validation rules
 
 Each directive has the following options:
 
@@ -45,47 +45,51 @@ A rule is a way of saying "if a query target matches the rule's conditions, run 
 
 ##### Require IPv4 Queries between /8 and /24
 
-```yaml filename="directives.yaml"
+```yaml filename="directives.yaml" {5-6} /{target} {mask}/ copy
 your-directive:
-  name: IP Route
-  rules:
-    - condition: 0.0.0.0/0
-      ge: 8
-      le: 24
-      command: 'show ip route {target} {mask}'
+    name: IP Route
+    rules:
+        - condition: 0.0.0.0/0
+          ge: 8
+          le: 24
+          command: "show ip route {target} {mask}"
 ```
 
-Given a query target of 198.18.0.0/15, the command run on the device would be `show ip route 198.18.0.0 255.254.0.0`
+Given a query target of 198.18.0.0/15, the command run on the device would be:
+
+```none /198.18.0.0 255.254.0.0/
+show ip route 198.18.0.0 255.254.0.0
+```
 
 ##### Deny a Specific Prefix
 
-```yaml
+```yaml filename="directives.yaml" {5} copy
 your directive:
-  name: BGP Route
-  rules:
-    - condition: '192.0.2.0/24'
-      action: deny
-    - condition: '0.0.0.0/0'
-      command: 'show ip bgp {target}'
+    name: BGP Route
+    rules:
+        - condition: "192.0.2.0/24"
+          action: deny
+        - condition: "0.0.0.0/0"
+          command: "show ip bgp {target}"
 ```
 
 In this example, a query of any IP address or prefix contained within 192.0.2.0/24 will result in an error.
 
 ##### Run Multiple Commands
 
-```yaml filename="directives.yaml"
+```yaml filename="directives.yaml" /{target}/ {6-7} copy
 your-directive:
-  name: BGP Communities
-  rules:
-    - condition: '65000:[0-9]+'
-      commands:
-        - 'show route table inet.0 community {target} detail'
-        - 'show route table inet6.0 community {target} detail'
+    name: BGP Communities
+    rules:
+        - condition: "65000:[0-9]+"
+          commands:
+              - "show route table inet.0 community {target} detail"
+              - "show route table inet6.0 community {target} detail"
 ```
 
 In this example, a query of `65000:1` would result in the following commands being sent to the device:
 
-```
+```none /65000:1/
 show route table inet.0 community 65000:1 detail
 show route table inet6.0 community 65000:1 detail
 ```
@@ -96,24 +100,28 @@ The output for both commands will be shown as the query result.
 
 To validate input by regex pattern, just specify a regex pattern as the `condition`
 
-```yaml filename="directives.yaml"
+```yaml filename="directives.yaml" copy
 your-directive:
-  name: DNS Query
-  rules:
-    - condition: '^.+\.yourdomain\.com$'
+    name: DNS Query
+    rules:
+        - condition: '^.+\.yourdomain\.com$'
 ```
 
 ### No Validation
 
-```yaml filename="directives.yaml"
+```yaml filename="directives.yaml" /{target}/ copy {4}
 your-directive:
-  name: IP Route
-  rules:
-    - condition: null
-      command: show ip route {target}
+    name: IP Route
+    rules:
+        - condition: null
+          command: show ip route {target}
 ```
 
-In this example, any query would pass, regardless of query input. For instance, if a user selected this directive/query type and queried 'your mom', the real command sent to the device will be `show ip route your mom`.
+In this example, any query would pass, regardless of query input. For instance, if a user selected this directive/query type and queried `your mom`, the real command sent to the device will be:
+
+```none /your mom/
+show ip route your mom
+```
 
 ## Fields
 
@@ -145,28 +153,28 @@ Each select option uses the following schema:
 
 Example of a text directive expecting a string value matching a regex pattern:
 
-```yaml filename="directives.yaml"
+```yaml filename="directives.yaml" copy {6-7}
 your-directive:
-  name: IP Route
-  rules:
-    - condition: null
-      command: show ip route {target}
-  field:
-    validation: '[0-9a-f\.\:]+'
+    name: IP Route
+    rules:
+        - condition: null
+          command: show ip route {target}
+    field:
+        validation: '[0-9a-f\.\:]+'
 ```
 
 Example of a select directive:
 
-```yaml filename="directives.yaml"
+```yaml filename="directives.yaml" copy {6-12}
 your-directive:
-  name: BGP Community
-  rules:
-    - condition: null
-      command: show ip bgp community {target}
-  field:
-    options:
-      - value: '65001:1'
-        description: Provider A Routes
-      - value: '65001:2'
-        description: Provider B Routes
+    name: BGP Community
+    rules:
+        - condition: null
+          command: show ip bgp community {target}
+    field:
+        options:
+            - value: "65001:1"
+              description: Provider A Routes
+            - value: "65001:2"
+              description: Provider B Routes
 ```

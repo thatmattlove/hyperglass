@@ -3,9 +3,13 @@ title: Manual Installation
 description: Installing hyperglass manually
 ---
 
-import { Callout } from 'nextra-theme-docs';
+import { Steps } from "nextra/components";
+import { Callout } from "nextra-theme-docs";
 
-## Install Dependencies
+<Steps>
+
+### Install Dependencies
+
 To install hyperglass manually, you'll need to install the following dependencies:
 
 1. [Python 3.9, 3.10, 3.11, or 3.12](https://www.python.org/downloads/)
@@ -13,11 +17,9 @@ To install hyperglass manually, you'll need to install the following dependencie
 3. [PNPM 8 or later](https://pnpm.io/installation)
 4. [Redis 7.2 or later](https://redis.io/download/)
 
-<Callout type="default">
-Make sure the Redis server is started.
-</Callout>
+<Callout type="warning">Make sure the Redis server is started.</Callout>
 
-## Install hyperglass
+### Install hyperglass
 
 Once these dependencies are installed, install hyperglass via PyPI:
 
@@ -25,17 +27,18 @@ Once these dependencies are installed, install hyperglass via PyPI:
 pip3 install hyperglass
 ```
 
-## Create app directory
+### Create app directory
 
 <Callout type="info">
-If you plan on using a different directory, be sure to set the directory you wish to use in your [environment variables](environment-variables.mdx).
+    If you plan on using a different directory, be sure to set the directory you wish to use in your
+    [environment variables](environment-variables.mdx).
 </Callout>
 
 ```shell copy
 mkdir /etc/hyperglass
 ```
 
-## Optional: Quickstart
+### Optional: Quickstart
 
 Do this if you just want to see the hyperglass page working with default settings and a fake device.
 
@@ -44,7 +47,7 @@ curl -o /etc/hyperglass/devices.yaml https://github.com/thatmattlove/hyperglass/
 hyperglass start
 ```
 
-## Create a `systemd` service
+### Create a `systemd` service
 
 ```shell copy
 curl -o /etc/hyperglass/hyperglass.service https://github.com/thatmattlove/hyperglass/blob/v2.0.0/.samples/hyperglass-manual.service
@@ -55,6 +58,8 @@ systemctl start hyperglass
 ```
 
 <Callout type="info">
-If you used a different app directory from the default `/etc/hyperglass`, change the `EnvironmentFile` value in the `hyperglass.service` file.
+    If you used a different app directory from the default `/etc/hyperglass`, change the
+    `EnvironmentFile` value in the `hyperglass.service` file.
 </Callout>
 
+</Steps>

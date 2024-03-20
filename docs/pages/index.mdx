@@ -3,8 +3,7 @@ title: Introduction
 description: Get started with hyperglass
 ---
 
-import Link from "next/link";
-import { Button } from "nextra/components";
+import { Cards, Card } from "nextra/components";
 import platforms from "~/platforms.json";
 
 export const Platforms = () => (
@@ -41,6 +40,6 @@ hyperglass was created with the lofty goal of benefiting the internet community 
 -   Query multiple devices simultaneously
 -   Browser-based DNS-over-HTTPS resolution of FQDN queries
 
-<Link href="/installation">
-    <Button className="nx-my-2 nx-py-2 nx-px-4">Get Started</Button>
-</Link>
+<Cards>
+    <Card title="Get Started" href="installation/docker" arrow />
+</Cards>

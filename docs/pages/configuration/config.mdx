@@ -39,10 +39,10 @@ hyperglass relies on [Redis](https://redis.io/) as an in-memory key/value store 
 
 ```yaml filename="config.yaml"
 cache:
-  host: localhost
-  port: 6379
-  database: 1
-  password: null
+    host: localhost
+    port: 6379
+    database: 1
+    password: null
 ```
 
 ## Docs
@@ -60,10 +60,10 @@ Behind the scenes, hyperglass uses [FastAPI](https://fastapi.tiangolo.com/), whi
 
 The documentation for API endpoints follow a common schema:
 
-- `devices`
-- `info`
-- `queries`
-- `query`
+-   `devices`
+-   `info`
+-   `queries`
+-   `query`
 
 ### Schema
 
@@ -94,29 +94,29 @@ The documentation for API endpoints follow a common schema:
 
 ```yaml filename="config.yaml"
 docs:
-  base_url: https://lg.example.com
-  enable: true
-  mode: redoc
-  path: /api/docs
-  title: Beloved Hyperglass User Looking Glass API Documentation
-  description: null
-  # API Endpoints ↓
-  devices:
-    title: Devices
-    description: List of all devices/locations with associated identifiers, display names, networks, & VRFs.
-    summary: Devices List
-  info:
-    title: System Information
-    description: General information about this looking glass.
-    summary: System Information
-  queries:
-    title: Supported Queries
-    description: List of supported query types.
-    summary: Query Types
-  query:
-    title: Supported Query
-    description: Request a query response per-location.
-    summary: Query the Looking Glass
+    base_url: https://lg.example.com
+    enable: true
+    mode: redoc
+    path: /api/docs
+    title: Beloved Hyperglass User Looking Glass API Documentation
+    description: null
+    # API Endpoints ↓
+    devices:
+        title: Devices
+        description: List of all devices/locations with associated identifiers, display names, networks, & VRFs.
+        summary: Devices List
+    info:
+        title: System Information
+        description: General information about this looking glass.
+        summary: System Information
+    queries:
+        title: Supported Queries
+        description: List of supported query types.
+        summary: Query Types
+    query:
+        title: Supported Query
+        description: Request a query response per-location.
+        summary: Query the Looking Glass
 ```
 
 ## Messages
@@ -140,15 +140,15 @@ hyperglass provides as much control over user-facing text/messages as possible. 
 
 ```yaml filename="config.yaml"
 message:
-  general: Something with wrong.
+    general: Something with wrong.
 ```
 
 ## Structured
 
 Devices that support responding to a query with structured or easily parsable data can have their response data placed into an easier to read table (or JSON, when using the REST API). Currently, the following platforms have structured data supported in hyperglass:
 
-- Juniper Junos
-- Arista EOS
+-   Juniper Junos
+-   Arista EOS
 
 When structured output is available, hyperglass checks the RPKI state of each BGP prefix returned using one of two methods:
 
@@ -157,38 +157,38 @@ When structured output is available, hyperglass checks the RPKI state of each BG
 
 Additionally, hyperglass provides the ability to control which BGP communities are shown to the end user.
 
-| Parameter                     | Type            | Default Value | Description                                                                                                                   |
-| :---------------------------- | :-------------- | :------------ | :---------------------------------------------------------------------------------------------------------------------------- |
-| `structured.rpki`             | String          | router        | Use `router` to use the router's view of the RPKI state (1 above), or `external` to use Cloudflare's view (2 above).          |
-| `structured.communities.mode` | String          | deny          | Use `deny` to deny any communities listed in `structured.communities.items`, or `permit` to _only_ permit communities listed. |
-| `structured.communities.items | List of Strings |               |                                                                                                                               |
+| Parameter                      | Type            | Default Value | Description                                                                                                                   |
+| :----------------------------- | :-------------- | :------------ | :---------------------------------------------------------------------------------------------------------------------------- |
+| `structured.rpki`              | String          | router        | Use `router` to use the router's view of the RPKI state (1 above), or `external` to use Cloudflare's view (2 above).          |
+| `structured.communities.mode`  | String          | deny          | Use `deny` to deny any communities listed in `structured.communities.items`, or `permit` to _only_ permit communities listed. |
+| `structured.communities.items` | List of Strings |               | List of communities to match.                                                                                                 |
 
 #### Community Filtering Examples
 
 ##### Deny Listed Communities by Regex pattern
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" {5-6}
 structured:
-  communities:
-    mode: deny
-    items:
-      - '^65000:1\d+$' # don't show any communities starting with 65000:1. 65000:1234 would be denied, but 65000:4321 would be permitted.
-      - '65000:2345' # don't show the 65000:2345 community.
+    communities:
+        mode: deny
+        items:
+            - '^65000:1\d+$' # don't show any communities starting with 65000:1. 65000:1234 would be denied, but 65000:4321 would be permitted.
+            - "65000:2345" # don't show the 65000:2345 community.
 ```
 
 ##### Permit only Listed Communities
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" {5-6}
 structured:
-  communities:
-    mode: permit
-    items:
-      - '^65000:.*$' # permit any communities starting with 65000, but no others.
-      - '1234:1' # permit only the 1234:1 community.
+    communities:
+        mode: permit
+        items:
+            - "^65000:.*$" # permit any communities starting with 65000, but no others.
+            - "1234:1" # permit only the 1234:1 community.
 ```
 
 ### Caveats
 
 #### Arista EOS
 
-For whatever reason, Arista EOS does not supply certain details about routes in its JSON output when running commands `show ip bgp regex <pattern>` or `show ip bgp community <community>`. Specifically, the the route's timestamp and any attached communities are not supplied. When these commands are used with Arista EOS, hyperglass sets the timestamp to the current time, and the community to an empty list.
+For whatever reason, the tested version of Arista EOS does not supply certain details about routes in its JSON output when running commands `show ip bgp regex <pattern>` or `show ip bgp community <community>`. Specifically, the the route's timestamp and any attached communities are not supplied. When these commands are used with Arista EOS, hyperglass sets the timestamp to the current time, and the community to an empty list.

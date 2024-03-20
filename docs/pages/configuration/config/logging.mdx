@@ -17,11 +17,11 @@ Console, file, HTTP, and/or syslog logging configuration.
 
 ##### Syslog Example
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" copy
 logging:
-  syslog:
-    host: log.example.com
-    port: 514
+    syslog:
+        host: log.example.com
+        port: 514
 ```
 
 ### HTTP Logging
@@ -52,39 +52,39 @@ Authentication is supported using HTTP basic authentication or an API key.
 
 ##### Generic
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" copy
 logging:
-  http:
-    provider: generic
-    host: https://httpbin.org
-    headers:
-      x-special-header: super special header value
-    params:
-      source: hyperglass
-    verify_ssl: true
-    timeout: 5
-    authentication:
-      mode: basic
-      username: your username
-      password: super secret password
+    http:
+        provider: generic
+        host: https://httpbin.org
+        headers:
+            x-special-header: super special header value
+        params:
+            source: hyperglass
+        verify_ssl: true
+        timeout: 5
+        authentication:
+            mode: basic
+            username: your username
+            password: super secret password
 ```
 
 In the above example, hyperglass will send a `POST` request to `https://httpbin.org?source=hyperglass` with Basic Authentication headers set.
 
 ##### Microsoft Teams Webhook
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" copy
 logging:
-  http:
-    provider: msteams
-    host: <MS Teams webhook URL>
+    http:
+        provider: msteams
+        host: <MS Teams webhook URL>
 ```
 
 ##### Slack
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" copy
 logging:
-  http:
-    provider: slack
-    host: <Slack webhook URL>
+    http:
+        provider: slack
+        host: <Slack webhook URL>
 ```

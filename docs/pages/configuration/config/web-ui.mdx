@@ -1,5 +1,5 @@
-import { Callout } from 'nextra-theme-docs';
-import { Color } from '~/components/color';
+import { Callout } from "nextra-theme-docs";
+import { Color } from "~/components/color";
 
 ## Web UI
 
@@ -31,23 +31,23 @@ hyperglass provides extensive customization options for the look and feel of the
 
 ##### Example
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" copy
 web:
-  logo:
-    light: /path/to/light-logo.svg
-    dark: /path/to/dark-logo.svg
-    favicon: /path/to/favicon.svg
-    width: 100%
-    height: null
+    logo:
+        light: /path/to/light-logo.svg
+        dark: /path/to/dark-logo.svg
+        favicon: /path/to/favicon.svg
+        width: 100%
+        height: null
 ```
 
 ### Greeting
 
 The greeting is an optional modal/popup window that will present itself to users in the Web UI. It can be used for anything you want; for example:
 
-- A data privacy acknowledgement that must be acknowledged prior to proceeding
-- Information about your company
-- Instructions on how to use hyperglass
+-   A data privacy acknowledgement that must be acknowledged prior to proceeding
+-   Information about your company
+-   Instructions on how to use hyperglass
 
 | Parameter               | Type    | Default Value | Description                                                                                          |
 | :---------------------- | :------ | :------------ | :--------------------------------------------------------------------------------------------------- |
@@ -59,14 +59,14 @@ The greeting is an optional modal/popup window that will present itself to users
 
 ##### Example
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" copy
 web:
-  greeting:
-    enable: true
-    file: /path/to/your/file.md
-    title: Welcome
-    button: Continue
-    required: false
+    greeting:
+        enable: true
+        file: /path/to/your/file.md
+        title: Welcome
+        button: Continue
+        required: false
 ```
 
 ### OpenGraph
@@ -91,15 +91,15 @@ Each value you wish to be highlighted is defined with the following schema:
 
 ##### Example
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" copy
 web:
-  highlight:
-    - pattern: '65000:1234'
-      label: Special snowflake community that does a thing
-      color: primary
-    - pattern: '^192\.0\.2\.[0-9]+$'
-      label: Magical IP Address
-      color: blue
+    highlight:
+        - pattern: "65000:1234"
+          label: Special snowflake community that does a thing
+          color: primary
+        - pattern: '^192\.0\.2\.[0-9]+$'
+          label: Magical IP Address
+          color: blue
 ```
 
 ### Menus
@@ -115,7 +115,7 @@ hyperglass can show completely-customizable menus in the footer. Each menu can b
 
 ##### Example
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" copy
 web:
   menus:
     - title: Terms & Conditions
@@ -144,19 +144,19 @@ hyperglass can show customizable links to anything you think your users might fi
 
 ##### Example
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" copy
 web:
-  links:
-    - title: PeeringDB
-      url: https://www.peeringdb.com/65000
-      show_icon: true
-      side: right
-      order: 1
-    - title: Our Website
-      url: https://example.com
-      show_icon: false
-      side: left
-      order: 0
+    links:
+        - title: PeeringDB
+          url: https://www.peeringdb.com/65000
+          show_icon: true
+          side: right
+          order: 1
+        - title: Our Website
+          url: https://example.com
+          show_icon: false
+          side: left
+          order: 0
 ```
 
 ### Credit
@@ -165,12 +165,12 @@ web:
 | :-------- | :-----: | :-----: | :--------------------------------------------------------------------------------------- |
 | `enable`  | Boolean | `true`  | Enable or disable the display of developer credit & link to hyperglass GitHub repository |
 
-<Callout>
-  **Note from the Developer**
-  <br /> If your organization's policy allows, and you don't mind, I request that you keep `credit` enabled.
-  Remember: my goal for this project is get more networks to use looking glasses to make all of our lives
-  easier. Because it's primarily other network operators who will use this tool to begin with, I'd love
-  for any operators that use your looking glass to know where they can get their own.
+<Callout emoji="❤️" type="info">
+    **Note from the Developer**
+    <br /> If your organization's policy allows, and you don't mind, I request that you keep `credit`
+    enabled. Remember: my goal for this project is get more networks to use looking glasses to make all
+    of our lives easier. Because it's primarily other network operators who will use this tool to begin
+    with, I'd love for any operators that use your looking glass to know where they can get their own.
 </Callout>
 
 ### Text
@@ -206,19 +206,21 @@ Most of the text in the hyperglass UI can be overridden to suit your needs.
 
 Available title modes are:
 
-- `logo_only` only the logo is displayed, no title or subtitle will be visible.
-- `text_only` only the title and subtitle are displayed, no logo will be visible.
-- `logo_subtitle` only the logo and subtitle are displayed, no title will be visible.
-- `all` logo, title, and subtitle will all be visible.
+| `title_mode` Value | Action                                                              |
+| :----------------- | :------------------------------------------------------------------ |
+| `logo_only`        | Only the logo is displayed, no title or subtitle will be visible.   |
+| `text_only`        | Only the title and subtitle are displayed, no logo will be visible. |
+| `logo_subtitle`    | Only the logo and subtitle are displayed, no title will be visible. |
+| `all`              | Logo, title, and subtitle will all be visible.                      |
 
 ##### Example
 
 ```yaml filename="config.yaml"
 web:
-  text:
-    title: Our Looking Glass
-    subtitle: Company Name, Inc.
-    title_mode: text_only
+    text:
+        title: Our Looking Glass
+        subtitle: Company Name, Inc.
+        title_mode: text_only
 ```
 
 ### Theme
@@ -267,9 +269,9 @@ To override hyperglass's primary color, it's recommended to override its mapped 
 
 ```yaml filename="config.yaml"
 web:
-  theme:
-    colors:
-      cyan: '#00ffff'
+    theme:
+        colors:
+            cyan: "#00ffff"
 ```
 
 #### Fonts
@@ -285,7 +287,7 @@ hyperglass's fonts are loaded from [Google Fonts](https://fonts.google.com/). An
 
 ```yaml filename="config.yaml"
 web:
-  theme:
-    fonts:
-      body: Inter
+    theme:
+        fonts:
+            body: Inter
 ```

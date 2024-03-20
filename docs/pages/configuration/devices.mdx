@@ -59,49 +59,49 @@ Each configured device may have the following parameters:
 
 ## Simple
 
-```yaml filename="devices.yaml"
+```yaml filename="devices.yaml" copy
 devices:
-  - name: New York, NY
-    address: 192.0.2.1
-    platform: cisco_ios
-    credential:
-      username: you
-      password: your password
-  - name: San Francisco, CA
-    address: 192.0.2.2
-    platform: juniper
-    credential:
-      username: you
-      password: your password
+    - name: New York, NY
+      address: 192.0.2.1
+      platform: cisco_ios
+      credential:
+          username: you
+          password: your password
+    - name: San Francisco, CA
+      address: 192.0.2.2
+      platform: juniper
+      credential:
+          username: you
+          password: your password
 ```
 
 ## With Directives
 
-```yaml filename="devices.yaml"
+```yaml filename="devices.yaml" copy {8-9}
 devices:
-  - name: New York, NY
-    address: 192.0.2.1
-    platform: cisco_ios
-    credential:
-      username: you
-      password: your password
-    directives:
-      - cisco-show-lldp-neighbors
+    - name: New York, NY
+      address: 192.0.2.1
+      platform: cisco_ios
+      credential:
+          username: you
+          password: your password
+      directives:
+          - cisco-show-lldp-neighbors
 ```
 
 ## With an SSH Proxy
 
-```yaml filename="devices.yaml"
+```yaml filename="devices.yaml" copy {8-12}
 devices:
-  - name: New York, NY
-    address: 192.0.2.1
-    platform: cisco_ios
-    credential:
-      username: you
-      password: your password
-    proxy:
-      address: 192.0.0.123
+    - name: New York, NY
+      address: 192.0.2.1
+      platform: cisco_ios
       credential:
-        username: your proxy's username
-        password: your proxy's password
+          username: you
+          password: your password
+      proxy:
+          address: 192.0.0.123
+          credential:
+              username: your proxy's username
+              password: your proxy's password
 ```

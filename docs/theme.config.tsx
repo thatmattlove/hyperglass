@@ -114,6 +114,7 @@ const config: DocsThemeConfig = {
     },
     feedback: { content: null },
     footer: { text: `© ${new Date().getFullYear()} hyperglass` },
+    editLink: { component: null },
     chat: {
         link: "https://netdev.chat/",
         icon: (

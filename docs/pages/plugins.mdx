@@ -1,7 +1,14 @@
+---
+title: Plugins
+description: hyperglass Plugins
+---
+
+import { Cards, Card } from "nextra/components";
+
 Starting in version 2.0, hyperglass supports custom plugins. There are two main types of plugins:
 
-- **Input Plugins**: Apply custom validation logic to or transform user input before the query is sent to a device.
-- **Output Plugins**: Interact with the output from a device before it's displayed to the user.
+-   [**Input Plugins**](#input-plugins): Apply custom validation logic to or transform user input before the query is sent to a device.
+-   [**Output Plugins**](#output-plugins): Interact with the output from a device before it's displayed to the user.
 
 Plugins are associated with a directive.
 
@@ -13,11 +20,11 @@ Plugins are associated with a directive.
 
 In this example, the following query is sent to hyperglass:
 
-```json
+```json filename="Example Query"
 {
-  "query_target": "192.0.2.0/24",
-  "query_location": "your_location",
-  "query_type": "ip_route_directive"
+    "query_target": "192.0.2.0/24",
+    "query_location": "your_location",
+    "query_type": "ip_route_directive"
 }
 ```
 
@@ -39,16 +46,16 @@ class TransformCIDR(InputPlugin):
 
 ```yaml filename="directives.yaml"
 ip_route_directive:
-  name: IP Route
-  plugins:
-    - '/path/to/your/transform_plugin.py'
-  rules:
-    - condition: '0.0.0.0/0'
-      action: permit
-      command: 'show ip route {target}'
-    - condition: '::/0'
-      action: permit
-      command: 'show ipv6 route {target}'
+    name: IP Route
+    plugins:
+        - "/path/to/your/transform_plugin.py"
+    rules:
+        - condition: "0.0.0.0/0"
+          action: permit
+          command: "show ip route {target}"
+        - condition: "::/0"
+          action: permit
+          command: "show ipv6 route {target}"
 ```
 
 When the query is received, the query target is transformed, resulting in this being sent to the device:
