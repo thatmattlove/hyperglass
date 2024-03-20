@@ -17,10 +17,6 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/hyperglass?color=%2340798C&style=for-the-badge)
 [![GitHub Contributors](https://img.shields.io/github/contributors/thatmattlove/hyperglass?color=40798C&style=for-the-badge)](https://github.com/thatmattlove/hyperglass)
 
-[![Frontend Tests](https://img.shields.io/github/workflow/status/thatmattlove/hyperglass/Frontend%20Testing?label=Frontend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions?query=workflow%3A%Frontend+Testing%22)
-[![Backend Tests](https://img.shields.io/github/workflow/status/thatmattlove/hyperglass/Backend%20Testing?label=Backend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions?query=workflow%3A%Backend+Testing%22)
-[![Installer Tests](https://img.shields.io/github/workflow/status/thatmattlove/hyperglass/Installer%20Testing?label=Installer%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions?query=workflow%3A%Installer+Testing%22)
-
 <br/>
 
 hyperglass is intended to make implementing a looking glass too easy not to do, with the lofty goal of improving the internet community at large by making looking glasses more common across autonomous systems of any size.
@@ -29,7 +25,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 
 > :warning: hyperglass is under active development via the [v2.0.0 branch](https://github.com/thatmattlove/hyperglass/tree/v2.0.0). No further changes will be made to the v1.0.0 branch.
 >
-> _Unfortunately, I've been extremely busy in my work and personal life and haven't had a lot of time to dedicate to hyperglass recently. I'm hoping that will change soon, but in the meantime, hyperglass v1.0.0 might be unusable or unstable unless you're running Ubuntu 18.04, Python 3.6, and Node 14, which is probably a bad idea for security reasons. v2.0.0 is almost ready for release, but not quite yet._
+> _Unfortunately, I've been extremely busy in my work and personal life and haven't had a lot of time to dedicate to hyperglass recently. I'm hoping that will change soon, but in the meantime, hyperglass v1.0.0 might be unusable or unstable unless you're running Ubuntu 18.04, Python 3.6, and Node 14, which is probably a bad idea for security reasons. v2.0.0 is almost ready for release, but not quite yet. If you'd like to try it out, [check out the docs](https://v2.hyperglass.dev)_
 
 </div>
 
