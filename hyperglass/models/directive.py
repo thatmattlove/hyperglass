@@ -91,7 +91,7 @@ class Rule(HyperglassModel):
 class RuleWithIP(Rule):
     """Base IP-based rule."""
 
-    condition: IPvAnyNetwork
+    condition: t.Union[IPv4Network, IPv6Network]
     allow_reserved: bool = False
     allow_unspecified: bool = False
     allow_loopback: bool = False
@@ -139,6 +139,10 @@ class RuleWithIP(Rule):
 
         except ValueError as err:
             raise InputValidationError(error=str(err), target=target) from err
+
+        if valid_target.version != self.condition.version:
+            log.debug("{!s} is not the same IP version as {!s}", target, self.condition)
+            return False
 
         is_member = self.membership(valid_target, self.condition)
         in_range = self.in_range(valid_target)
