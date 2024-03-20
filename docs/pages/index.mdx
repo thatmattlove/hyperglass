@@ -3,8 +3,21 @@ title: Introduction
 description: Get started with hyperglass
 ---
 
-import Link from 'next/link';
-import { Button } from 'nextra/components';
+import Link from "next/link";
+import { Button } from "nextra/components";
+import platforms from "~/platforms.json";
+
+export const Platforms = () => (
+    <ul>
+        {platforms.reduce((final, platform) => {
+            if (platform.native) {
+                const element = <li key={platform.name}>{platform.name}</li>;
+                final = [...final, element];
+            }
+            return final;
+        }, [])}
+    </ul>
+);
 
 ## What is hyperglass?
 
@@ -14,31 +27,20 @@ hyperglass was created with the lofty goal of benefiting the internet community 
 
 ## Features
 
-- BGP Route, BGP Community, BGP AS Path, Ping, & Traceroute
-- Full IPv6 support
-- Customizable everything: features, theme, UI/API text, error messages, commands
-- Built in support for:
-  - Arista EOS
-  - BIRD
-  - Cisco IOS-XR
-  - Cisco IOS/IOS-XE
-  - Cisco NX-OS
-  - FRRouting
-  - Huawei
-  - Juniper JunOS
-  - Mikrotik
-  - Nokia SR OS
-  - TNSR
-  - VyOS
-- Configurable support for any other [supported platform](platforms.mdx)
-- Optionally access devices via an SSH proxy/jump server
-- VRF support
-- Access List/prefix-list style query control to whitelist or blacklist query targets on a per-VRF basis
-- REST API with automatic, configurable OpenAPI documentation
-- Modern, responsive UI
-- Query multiple devices simultaneously
-- Browser-based DNS-over-HTTPS resolution of FQDN queries
+-   BGP Route, BGP Community, BGP AS Path, Ping, & Traceroute
+-   Full IPv6 support
+-   Customizable everything: features, theme, UI/API text, error messages, commands
+-   Built in support for:
+    <Platforms />
+-   Configurable support for any other [supported platform](platforms.mdx)
+-   Optionally access devices via an SSH proxy/jump server
+-   VRF support
+-   Access List/prefix-list style query control to whitelist or blacklist query targets on a per-VRF basis
+-   REST API with automatic, configurable OpenAPI documentation
+-   Modern, responsive UI
+-   Query multiple devices simultaneously
+-   Browser-based DNS-over-HTTPS resolution of FQDN queries
 
 <Link href="/installation">
-  <Button>Get Started</Button>
+    <Button className="nx-my-2 nx-py-2 nx-px-4">Get Started</Button>
 </Link>
