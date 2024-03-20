@@ -1,32 +1,33 @@
+import { useDisclosure } from '@chakra-ui/react';
 import { createContext, forwardRef, useContext } from 'react';
 import ReactSelect from 'react-select';
-import { useDisclosure } from '@chakra-ui/react';
 import { useColorMode } from '~/hooks';
 import { Option } from './option';
 import {
-  useRSTheme,
-  useMenuStyle,
-  useMenuPortal,
-  useOptionStyle,
+  useContainerStyle,
   useControlStyle,
+  useIndicatorSeparatorStyle,
   useMenuListStyle,
-  useMultiValueStyle,
-  usePlaceholderStyle,
-  useSingleValueStyle,
+  useMenuPortal,
+  useMenuStyle,
   useMultiValueLabelStyle,
   useMultiValueRemoveStyle,
-  useIndicatorSeparatorStyle,
+  useMultiValueStyle,
+  useOptionStyle,
+  usePlaceholderStyle,
+  useRSTheme,
+  useSingleValueStyle,
 } from './styles';
 import { isSingleValue } from './types';
 
 import type {
-  Props as ReactSelectProps,
   MultiValue,
   OnChangeValue,
+  Props as ReactSelectProps,
   SelectInstance,
 } from 'react-select';
 import type { SingleOption } from '~/types';
-import type { SelectProps, SelectContextProps } from './types';
+import type { SelectContextProps, SelectProps } from './types';
 
 const SelectContext = createContext<SelectContextProps>({} as SelectContextProps);
 export const useSelectContext = (): SelectContextProps => useContext(SelectContext);
@@ -51,6 +52,7 @@ export const Select = forwardRef(
       }
     };
 
+    const container = useContainerStyle<Opt, IsMulti>({ colorMode });
     const menu = useMenuStyle<Opt, IsMulti>({ colorMode });
     const menuList = useMenuListStyle<Opt, IsMulti>({ colorMode });
     const control = useControlStyle<Opt, IsMulti>({ colorMode });
@@ -75,9 +77,10 @@ export const Select = forwardRef(
           isMulti={isMulti}
           theme={rsTheme}
           components={{ Option, ...components }}
-          menuPortalTarget={document?.body ?? undefined}
+          menuPortalTarget={typeof document !== 'undefined' ? document.body : undefined}
           ref={ref}
           styles={{
+            container,
             menu,
             option,
             control,

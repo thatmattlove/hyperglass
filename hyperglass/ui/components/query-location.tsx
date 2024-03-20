@@ -1,13 +1,13 @@
+import { Flex, Stack, Wrap, chakra } from '@chakra-ui/react';
 import { useMemo } from 'react';
-import { Wrap, Stack, Flex, chakra } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
-import { Select, LocationCard } from '~/components';
+import { LocationCard, Select } from '~/components';
+import { isMultiValue, isSingleValue } from '~/components/select';
 import { useConfig } from '~/context';
 import { useFormState } from '~/hooks';
-import { isMultiValue, isSingleValue } from '~/components/select';
 
-import type { DeviceGroup, SingleOption, OptionGroup, FormData, OnChangeArgs } from '~/types';
 import type { SelectOnChange } from '~/components/select';
+import type { DeviceGroup, FormData, OnChangeArgs, OptionGroup, SingleOption } from '~/types';
 
 /** Location option type alias for future extensions. */
 export type LocationOption = SingleOption;
@@ -66,7 +66,7 @@ export const QueryLocation = (props: QueryLocationProps): JSX.Element => {
     }
     const groups = options.length;
     const maxOptionsPerGroup = Math.max(...options.map(opt => opt.options.length));
-    const showCards = groups < 5 && maxOptionsPerGroup < 6;
+    const showCards = groups < 5 && maxOptionsPerGroup < 9;
     return showCards ? 'cards' : 'select';
   }, [options, locationDisplayMode]);
 

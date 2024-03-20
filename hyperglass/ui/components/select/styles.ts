@@ -1,11 +1,11 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback } from 'react';
 import { useToken } from '@chakra-ui/react';
 import { mergeWith } from '@chakra-ui/utils';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useCallback } from 'react';
 import {
-  useMobile,
-  useColorValue,
   useColorToken,
+  useColorValue,
+  useMobile,
   useOpposingColor,
   useOpposingColorCallback,
 } from '~/hooks';
@@ -13,7 +13,15 @@ import { useSelectContext } from './select';
 
 import * as ReactSelect from 'react-select';
 import type { SingleOption } from '~/types';
-import type { RSStyleCallbackProps, RSThemeFunction, RSStyleFunction } from './types';
+import type { RSStyleCallbackProps, RSStyleFunction, RSThemeFunction } from './types';
+
+export const useContainerStyle = <Opt extends SingleOption, IsMulti extends boolean>(
+  props: RSStyleCallbackProps,
+): RSStyleFunction<'container', Opt, IsMulti> => {
+  return useCallback((base, state) => {
+    return { width: '100%' };
+  }, []);
+};
 
 export const useControlStyle = <Opt extends SingleOption, IsMulti extends boolean>(
   props: RSStyleCallbackProps,
