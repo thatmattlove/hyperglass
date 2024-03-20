@@ -17,6 +17,9 @@ __all__ = (
     "Huawei_Traceroute",
 )
 
+NAME = "Huawei VRP"
+PLATFORMS = ["huawei", "huawei_vrpv8"]
+
 Huawei_BGPRoute = BuiltinDirective(
     id="__hyperglass_huawei_bgp_route__",
     name="BGP Route",
@@ -33,7 +36,7 @@ Huawei_BGPRoute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["huawei"],
+    platforms=PLATFORMS,
 )
 
 Huawei_BGPASPath = BuiltinDirective(
@@ -50,7 +53,7 @@ Huawei_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["huawei"],
+    platforms=PLATFORMS,
 )
 
 Huawei_BGPCommunity = BuiltinDirective(
@@ -67,7 +70,7 @@ Huawei_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["huawei"],
+    platforms=PLATFORMS,
 )
 
 Huawei_Ping = BuiltinDirective(
@@ -86,7 +89,7 @@ Huawei_Ping = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["huawei"],
+    platforms=PLATFORMS,
 )
 
 Huawei_Traceroute = BuiltinDirective(
@@ -105,5 +108,5 @@ Huawei_Traceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["huawei"],
+    platforms=PLATFORMS,
 )

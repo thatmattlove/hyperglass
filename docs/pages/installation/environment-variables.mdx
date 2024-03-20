@@ -1,0 +1,22 @@
+---
+title: Environment Variables
+description: hyperglass environment variables
+---
+
+There are some configuration variables that must be supplied before hyperglass can start or read its configuration files. Most of the time, you should not need to modify these.
+
+Environment variables may be overridden at the command line, or by placing them in `${HYPERGLASS_APP_PATH}/hyperglass.env`.
+
+| Variable Name               | Type    | Default           | Description                                                                                                        |
+| :-------------------------- | :------ | :---------------- | :----------------------------------------------------------------------------------------------------------------- |
+| `HYPERGLASS_DEBUG`          | boolean | `false`           | Enable debug logging                                                                                               |
+| `HYPERGLASS_DEV_MODE`       | boolean | `false`           | Enable developer mode. This should only be used if you are developing hyperglass under specific circumstances.     |
+| `HYPERGLASS_DISABLE_UI`     | boolean | `false`           | If set to `true`, the hyperglass UI is not built or served. The only way to access hyperglass is via REST API.     |
+| `HYPERGLASS_APP_PATH`       | string  | `/etc/hyperglass` | Directory where hyperglass configuration files and static web UI files are contained.                              |
+| `HYPERGLASS_REDIS_HOST`     | string  | `localhost`       | Host on which Redis is running.                                                                                    |
+| `HYPERGLASS_REDIS_PASSWORD` | string  | —                 | Redis password, if any.                                                                                            |
+| `HYPERGLASS_REDIS_DB`       | number  | `1`               | Redis database number.                                                                                             |
+| `HYPERGLASS_REDIS_DSN`      | string  | —                 | Redis DSN. If supplied, overrides `HYPERGLASS_REDIS_HOST`, `HYPERGLASS_REDIS_DB`, and `HYPERGLASS_REDIS_PASSWORD`. |
+| `HYPERGLASS_HOST`           | string  | `[::1]`           | Address on which hyperglass listens for requests.                                                                  |
+| `HYPERGLASS_PORT`           | number  | `8001`            | TCP port on which hyperglass listens for requests.                                                                 |
+| `HYPERGLASS_CA_CERT`        | string  | —                 | Path to CA certificate file for validating HTTPS certificates. If not supplied, system CAs are used.               |

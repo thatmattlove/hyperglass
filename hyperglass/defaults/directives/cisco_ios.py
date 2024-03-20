@@ -17,6 +17,9 @@ __all__ = (
     "CiscoIOS_Traceroute",
 )
 
+NAME = "Cisco IOS"
+PLATFORMS = ["cisco_ios"]
+
 CiscoIOS_BGPRoute = BuiltinDirective(
     id="__hyperglass_cisco_ios_bgp_route__",
     name="BGP Route",
@@ -33,7 +36,7 @@ CiscoIOS_BGPRoute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["cisco_ios"],
+    platforms=PLATFORMS,
 )
 
 CiscoIOS_BGPASPath = BuiltinDirective(
@@ -50,7 +53,7 @@ CiscoIOS_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["cisco_ios"],
+    platforms=PLATFORMS,
 )
 
 CiscoIOS_BGPCommunity = BuiltinDirective(
@@ -67,7 +70,7 @@ CiscoIOS_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["cisco_ios"],
+    platforms=PLATFORMS,
 )
 
 CiscoIOS_Ping = BuiltinDirective(
@@ -86,7 +89,7 @@ CiscoIOS_Ping = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["cisco_ios"],
+    platforms=PLATFORMS,
 )
 
 CiscoIOS_Traceroute = BuiltinDirective(
@@ -105,5 +108,5 @@ CiscoIOS_Traceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["cisco_ios"],
+    platforms=PLATFORMS,
 )

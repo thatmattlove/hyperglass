@@ -17,6 +17,9 @@ __all__ = (
     "OpenBGPD_Traceroute",
 )
 
+NAME = "OpenBGPD"
+PLATFORMS = ["openbgpd"]
+
 OpenBGPD_BGPRoute = BuiltinDirective(
     id="__hyperglass_openbgpd_bgp_route__",
     name="BGP Route",
@@ -33,7 +36,7 @@ OpenBGPD_BGPRoute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["openbgpd"],
+    platforms=PLATFORMS,
 )
 
 OpenBGPD_BGPASPath = BuiltinDirective(
@@ -50,7 +53,7 @@ OpenBGPD_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["openbgpd"],
+    platforms=PLATFORMS,
 )
 
 OpenBGPD_BGPCommunity = BuiltinDirective(
@@ -67,7 +70,7 @@ OpenBGPD_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["openbgpd"],
+    platforms=PLATFORMS,
 )
 
 OpenBGPD_Ping = BuiltinDirective(
@@ -86,7 +89,7 @@ OpenBGPD_Ping = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["openbgpd"],
+    platforms=PLATFORMS,
 )
 
 OpenBGPD_Traceroute = BuiltinDirective(
@@ -105,5 +108,5 @@ OpenBGPD_Traceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["openbgpd"],
+    platforms=PLATFORMS,
 )

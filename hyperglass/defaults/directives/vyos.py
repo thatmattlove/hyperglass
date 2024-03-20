@@ -17,6 +17,9 @@ __all__ = (
     "VyOS_Traceroute",
 )
 
+NAME = "VyOS"
+PLATFORMS = ["vyos"]
+
 VyOS_BGPRoute = BuiltinDirective(
     id="__hyperglass_vyos_bgp_route__",
     name="BGP Route",
@@ -33,7 +36,7 @@ VyOS_BGPRoute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["vyos"],
+    platforms=PLATFORMS,
 )
 
 VyOS_BGPASPath = BuiltinDirective(
@@ -50,7 +53,7 @@ VyOS_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["vyos"],
+    platforms=PLATFORMS,
 )
 
 VyOS_BGPCommunity = BuiltinDirective(
@@ -67,7 +70,7 @@ VyOS_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["vyos"],
+    platforms=PLATFORMS,
 )
 
 VyOS_Ping = BuiltinDirective(
@@ -86,7 +89,7 @@ VyOS_Ping = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["vyos"],
+    platforms=PLATFORMS,
 )
 
 VyOS_Traceroute = BuiltinDirective(
@@ -105,5 +108,5 @@ VyOS_Traceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["vyos"],
+    platforms=PLATFORMS,
 )

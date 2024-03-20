@@ -17,6 +17,9 @@ __all__ = (
     "FRRouting_Traceroute",
 )
 
+NAME = "FRRouting"
+PLATFORMS = ["frr"]
+
 FRRouting_BGPRoute = BuiltinDirective(
     id="__hyperglass_frr_bgp_route__",
     name="BGP Route",
@@ -33,7 +36,7 @@ FRRouting_BGPRoute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["frr"],
+    platforms=PLATFORMS,
 )
 
 FRRouting_BGPASPath = BuiltinDirective(
@@ -50,7 +53,7 @@ FRRouting_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["frr"],
+    platforms=PLATFORMS,
 )
 
 FRRouting_BGPCommunity = BuiltinDirective(
@@ -67,7 +70,7 @@ FRRouting_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["frr"],
+    platforms=PLATFORMS,
 )
 
 FRRouting_Ping = BuiltinDirective(
@@ -86,7 +89,7 @@ FRRouting_Ping = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["frr"],
+    platforms=PLATFORMS,
 )
 
 FRRouting_Traceroute = BuiltinDirective(
@@ -105,5 +108,5 @@ FRRouting_Traceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["frr"],
+    platforms=PLATFORMS,
 )

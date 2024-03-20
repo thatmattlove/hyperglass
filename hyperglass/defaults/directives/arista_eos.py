@@ -20,6 +20,9 @@ __all__ = (
     "AristaBGPCommunityTable",
 )
 
+NAME = "Arista EOS"
+PLATFORMS = ["arista_eos"]
+
 AristaBGPRoute = BuiltinDirective(
     id="__hyperglass_arista_eos_bgp_route__",
     name="BGP Route",
@@ -37,7 +40,7 @@ AristaBGPRoute = BuiltinDirective(
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
     table_output="__hyperglass_arista_eos_bgp_route_table__",
-    platforms=["arista_eos"],
+    platforms=PLATFORMS,
 )
 
 AristaBGPASPath = BuiltinDirective(
@@ -55,7 +58,7 @@ AristaBGPASPath = BuiltinDirective(
     ],
     field=Text(description="AS Path Regular Expression"),
     table_output="__hyperglass_arista_eos_bgp_aspath_table__",
-    platforms=["arista_eos"],
+    platforms=PLATFORMS,
 )
 
 AristaBGPCommunity = BuiltinDirective(
@@ -73,7 +76,7 @@ AristaBGPCommunity = BuiltinDirective(
     ],
     field=Text(description="BGP Community String"),
     table_output="__hyperglass_arista_eos_bgp_community_table__",
-    platforms=["arista_eos"],
+    platforms=PLATFORMS,
 )
 
 
@@ -93,7 +96,7 @@ AristaPing = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["arista_eos"],
+    platforms=PLATFORMS,
 )
 
 AristaTraceroute = BuiltinDirective(
@@ -112,7 +115,7 @@ AristaTraceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["arista_eos"],
+    platforms=PLATFORMS,
 )
 
 # Table Output Directives
@@ -133,7 +136,7 @@ AristaBGPRouteTable = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["arista_eos"],
+    platforms=PLATFORMS,
 )
 
 AristaBGPASPathTable = BuiltinDirective(
@@ -150,7 +153,7 @@ AristaBGPASPathTable = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["arista_eos"],
+    platforms=PLATFORMS,
 )
 
 AristaBGPCommunityTable = BuiltinDirective(
@@ -167,5 +170,5 @@ AristaBGPCommunityTable = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["arista_eos"],
+    platforms=PLATFORMS,
 )

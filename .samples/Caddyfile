@@ -1,0 +1,14 @@
+lg.example.com:443 {
+    tls person@example.com
+    file_server {
+            root /etc/hyperglass/static/ui
+            index /etc/hyperglass/static/ui/index.html
+        }
+        file_server /custom {
+            root /etc/hyperglass/static/custom
+        }
+        file_server /images {
+            root /etc/hyperglass/static/images
+        }
+    reverse_proxy localhost:8001
+}

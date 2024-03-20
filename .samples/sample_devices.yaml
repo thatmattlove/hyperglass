@@ -1,0 +1,7 @@
+devices:
+  - name: Example Device
+    address: 127.0.0.1
+    credential:
+      username: test
+      password: test
+    platform: juniper

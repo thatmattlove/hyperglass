@@ -17,6 +17,9 @@ __all__ = (
     "NokiaSROS_Traceroute",
 )
 
+NAME = "Nokia SR OS"
+PLATFORMS = ["nokia_sros"]
+
 NokiaSROS_BGPRoute = BuiltinDirective(
     id="__hyperglass_nokia_sros_bgp_route__",
     name="BGP Route",
@@ -33,7 +36,7 @@ NokiaSROS_BGPRoute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["nokia_sros"],
+    platforms=PLATFORMS,
 )
 
 NokiaSROS_BGPASPath = BuiltinDirective(
@@ -49,7 +52,7 @@ NokiaSROS_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["nokia_sros"],
+    platforms=PLATFORMS,
 )
 
 NokiaSROS_BGPCommunity = BuiltinDirective(
@@ -65,7 +68,7 @@ NokiaSROS_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["nokia_sros"],
+    platforms=PLATFORMS,
 )
 
 NokiaSROS_Ping = BuiltinDirective(
@@ -84,7 +87,7 @@ NokiaSROS_Ping = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["nokia_sros"],
+    platforms=PLATFORMS,
 )
 
 NokiaSROS_Traceroute = BuiltinDirective(
@@ -103,5 +106,5 @@ NokiaSROS_Traceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["nokia_sros"],
+    platforms=PLATFORMS,
 )

@@ -17,6 +17,9 @@ __all__ = (
     "BIRD_Traceroute",
 )
 
+NAME = "BIRD"
+PLATFORMS = ["bird"]
+
 BIRD_BGPRoute = BuiltinDirective(
     id="__hyperglass_bird_bgp_route__",
     name="BGP Route",
@@ -33,7 +36,7 @@ BIRD_BGPRoute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["bird"],
+    platforms=PLATFORMS,
 )
 
 BIRD_BGPASPath = BuiltinDirective(
@@ -49,7 +52,7 @@ BIRD_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["bird"],
+    platforms=PLATFORMS,
 )
 
 BIRD_BGPCommunity = BuiltinDirective(
@@ -65,7 +68,7 @@ BIRD_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["bird"],
+    platforms=PLATFORMS,
 )
 
 BIRD_Ping = BuiltinDirective(
@@ -84,7 +87,7 @@ BIRD_Ping = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["bird"],
+    platforms=PLATFORMS,
 )
 
 BIRD_Traceroute = BuiltinDirective(
@@ -103,5 +106,5 @@ BIRD_Traceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["bird"],
+    platforms=PLATFORMS,
 )

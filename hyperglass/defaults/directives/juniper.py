@@ -20,6 +20,9 @@ __all__ = (
     "JuniperBGPCommunityTable",
 )
 
+NAME = "Juniper Junos"
+PLATFORMS = ["juniper", "juniper_junos"]
+
 JuniperBGPRoute = BuiltinDirective(
     id="__hyperglass_juniper_bgp_route__",
     name="BGP Route",
@@ -37,7 +40,7 @@ JuniperBGPRoute = BuiltinDirective(
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
     table_output="__hyperglass_juniper_bgp_route_table__",
-    platforms=["juniper"],
+    platforms=PLATFORMS,
 )
 
 JuniperBGPASPath = BuiltinDirective(
@@ -55,7 +58,7 @@ JuniperBGPASPath = BuiltinDirective(
     ],
     field=Text(description="AS Path Regular Expression"),
     table_output="__hyperglass_juniper_bgp_aspath_table__",
-    platforms=["juniper"],
+    platforms=PLATFORMS,
 )
 
 JuniperBGPCommunity = BuiltinDirective(
@@ -73,7 +76,7 @@ JuniperBGPCommunity = BuiltinDirective(
     ],
     field=Text(description="BGP Community String"),
     table_output="__hyperglass_juniper_bgp_community_table__",
-    platforms=["juniper"],
+    platforms=PLATFORMS,
 )
 
 
@@ -93,7 +96,7 @@ JuniperPing = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["juniper"],
+    platforms=PLATFORMS,
 )
 
 JuniperTraceroute = BuiltinDirective(
@@ -112,7 +115,7 @@ JuniperTraceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["juniper"],
+    platforms=PLATFORMS,
 )
 
 # Table Output Directives
@@ -133,7 +136,7 @@ JuniperBGPRouteTable = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["juniper"],
+    platforms=PLATFORMS,
 )
 
 JuniperBGPASPathTable = BuiltinDirective(
@@ -150,7 +153,7 @@ JuniperBGPASPathTable = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["juniper"],
+    platforms=PLATFORMS,
 )
 
 JuniperBGPCommunityTable = BuiltinDirective(
@@ -167,5 +170,5 @@ JuniperBGPCommunityTable = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["juniper"],
+    platforms=PLATFORMS,
 )

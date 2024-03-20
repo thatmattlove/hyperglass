@@ -17,6 +17,9 @@ __all__ = (
     "CiscoXR_Traceroute",
 )
 
+NAME = "Cisco IOS-XR"
+PLATFORMS = ["cisco_xr"]
+
 CiscoXR_BGPRoute = BuiltinDirective(
     id="__hyperglass_cisco_xr_bgp_route__",
     name="BGP Route",
@@ -33,7 +36,7 @@ CiscoXR_BGPRoute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["cisco_xr"],
+    platforms=PLATFORMS,
 )
 
 CiscoXR_BGPASPath = BuiltinDirective(
@@ -50,7 +53,7 @@ CiscoXR_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["cisco_xr"],
+    platforms=PLATFORMS,
 )
 
 CiscoXR_BGPCommunity = BuiltinDirective(
@@ -67,7 +70,7 @@ CiscoXR_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["cisco_xr"],
+    platforms=PLATFORMS,
 )
 
 CiscoXR_Ping = BuiltinDirective(
@@ -86,7 +89,7 @@ CiscoXR_Ping = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["cisco_xr"],
+    platforms=PLATFORMS,
 )
 
 CiscoXR_Traceroute = BuiltinDirective(
@@ -105,5 +108,5 @@ CiscoXR_Traceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["cisco_xr"],
+    platforms=PLATFORMS,
 )

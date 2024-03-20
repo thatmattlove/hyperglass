@@ -1,0 +1,15 @@
+[Unit]
+Description=hyperglass
+PartOf=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/opt/hyperglass
+EnvironmentFile=/etc/hyperglass/hyperglass.env
+ExecStart=/usr/bin/docker compose up -d --remove-orphans
+ExecStop=/usr/bin/docker compose down
+
+[Install]
+WantedBy=multi-user.target

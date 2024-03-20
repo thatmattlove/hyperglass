@@ -17,6 +17,9 @@ __all__ = (
     "Mikrotik_Traceroute",
 )
 
+NAME = "Mikrotik"
+PLATFORMS = ["mikrotik_routeros", "mikrotik_switchos"]
+
 Mikrotik_BGPRoute = BuiltinDirective(
     id="__hyperglass_mikrotik_bgp_route__",
     name="BGP Route",
@@ -33,7 +36,7 @@ Mikrotik_BGPRoute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["mikrotik_routeros", "mikrotik_switchos"],
+    platforms=PLATFORMS,
 )
 
 Mikrotik_BGPASPath = BuiltinDirective(
@@ -50,7 +53,7 @@ Mikrotik_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["mikrotik_routeros", "mikrotik_switchos"],
+    platforms=PLATFORMS,
 )
 
 Mikrotik_BGPCommunity = BuiltinDirective(
@@ -67,7 +70,7 @@ Mikrotik_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["mikrotik_routeros", "mikrotik_switchos"],
+    platforms=PLATFORMS,
 )
 
 Mikrotik_Ping = BuiltinDirective(
@@ -86,7 +89,7 @@ Mikrotik_Ping = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["mikrotik_routeros", "mikrotik_switchos"],
+    platforms=PLATFORMS,
 )
 
 Mikrotik_Traceroute = BuiltinDirective(
@@ -105,5 +108,5 @@ Mikrotik_Traceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["mikrotik_routeros", "mikrotik_switchos"],
+    platforms=PLATFORMS,
 )

@@ -17,6 +17,9 @@ __all__ = (
     "CiscoNXOS_Traceroute",
 )
 
+NAME = "Cisco NX-OS"
+PLATFORMS = ["cisco_nxos"]
+
 CiscoNXOS_BGPRoute = BuiltinDirective(
     id="__hyperglass_cisco_nxos_bgp_route__",
     name="BGP Route",
@@ -33,7 +36,7 @@ CiscoNXOS_BGPRoute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["cisco_nxos"],
+    platforms=PLATFORMS,
 )
 
 CiscoNXOS_BGPASPath = BuiltinDirective(
@@ -50,7 +53,7 @@ CiscoNXOS_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["cisco_nxos"],
+    platforms=PLATFORMS,
 )
 
 CiscoNXOS_BGPCommunity = BuiltinDirective(
@@ -67,7 +70,7 @@ CiscoNXOS_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["cisco_nxos"],
+    platforms=PLATFORMS,
 )
 
 CiscoNXOS_Ping = BuiltinDirective(
@@ -86,7 +89,7 @@ CiscoNXOS_Ping = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["cisco_nxos"],
+    platforms=PLATFORMS,
 )
 
 CiscoNXOS_Traceroute = BuiltinDirective(
@@ -105,5 +108,5 @@ CiscoNXOS_Traceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["cisco_nxos"],
+    platforms=PLATFORMS,
 )

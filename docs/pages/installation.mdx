@@ -5,6 +5,64 @@ description: Installing hyperglass
 
 import { Callout, Tab, Tabs } from 'nextra-theme-docs';
 
+## Docker
+<Callout type="info">
+**Docker is the recommended method for running hyperglass.**
+</Callout>
+
+### 1. [Install Docker](https://docs.docker.com/engine/install/)
+
+### 2. Download hyperglass
+
+```shell copy
+mkdir /etc/hyperglass
+cd /opt
+git clone https://github.com/thatmattlove/hyperglass/tree/v2.0.0 --depth=1
+```
+
+### Quickstart (optional)
+
+Do this if you just want to see the hyperglass page working with a fake device.
+
+```shell copy
+cp /opt/hyperglass/.samples/sample_devices.yaml /etc/hyperglass/devices.yaml
+cd /opt/hyperglass
+docker compose up
+```
+
+Navigate to http://localhost:8001
+
+### 3. Setup Reverse Proxy
+
+[Caddy](https://caddyserver.com) is recommended, but any reverse proxy ([NGINX](https://www.nginx.com), [Apache2](https://httpd.apache.org)) will work.
+
+#### Caddy
+
+[**Install Caddy**](https://caddyserver.com/docs/install)
+
+```shell copy
+cp /opt/hyperglass/.samples/Caddyfile /etc/caddy/Caddyfile
+```
+
+Change the `lg.example.com` and `person@example.com` values to match your hyperglass FQDN and email address (the email address is for automatic SSL certificate generation via Let's Encrypt).
+
+<Callout type="info">
+If you prefer to use other Let's Encrypt validation methods or your own SSL certificate, modify your `/etc/hyperglass/Caddyfile` in accordance with the [Caddy docs](https://caddyserver.com/docs/caddyfile-tutorial).
+</Callout>
+
+Restart the Caddy service: `systemctl restart caddy{:shell}`
+
+#### NGINX
+
+```shell copy
+cp /opt/hyperglass/.samples/hyperglass.nginx /etc/nginx/sites-available/hyperglass
+ln -s /etc/nginx/sites-available/hyperglass /etc/nginx/sites-enabled/hyperglass
+```
+
+Change the `lg.example.com` value to match your hyperglass FQDN.
+
+Change the `<path to cert chain>` and `<path to key>` values to match the path to your certificate and private key files.
+
 ## Automatic installation
 
 If your system runs on:

@@ -1,0 +1,13 @@
+[Unit]
+Description=hyperglass
+After=network.target
+Requires=redis-server
+
+[Service]
+User=root
+Group=root
+EnvironmentFile=/etc/hyperglass/hyperglass.env
+ExecStart=python3 -m hyperglass.console start
+
+[Install]
+WantedBy=multi-user.target

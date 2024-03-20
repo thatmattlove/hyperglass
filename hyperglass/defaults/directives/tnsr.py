@@ -17,6 +17,9 @@ __all__ = (
     "TNSR_Traceroute",
 )
 
+NAME = "TNSR"
+PLATFORMS = ["tnsr"]
+
 TNSR_BGPRoute = BuiltinDirective(
     id="__hyperglass_tnsr_bgp_route__",
     name="BGP Route",
@@ -33,7 +36,7 @@ TNSR_BGPRoute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["tnsr"],
+    platforms=PLATFORMS,
 )
 
 TNSR_BGPASPath = BuiltinDirective(
@@ -50,7 +53,7 @@ TNSR_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    platforms=["tnsr"],
+    platforms=PLATFORMS,
 )
 
 TNSR_BGPCommunity = BuiltinDirective(
@@ -67,7 +70,7 @@ TNSR_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    platforms=["tnsr"],
+    platforms=PLATFORMS,
 )
 
 TNSR_Ping = BuiltinDirective(
@@ -86,7 +89,7 @@ TNSR_Ping = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["tnsr"],
+    platforms=PLATFORMS,
 )
 
 TNSR_Traceroute = BuiltinDirective(
@@ -105,5 +108,5 @@ TNSR_Traceroute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
-    platforms=["tnsr"],
+    platforms=PLATFORMS,
 )
