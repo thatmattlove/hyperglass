@@ -130,3 +130,43 @@ routers:
   - name: specialrouter01
     commands: special_commands
 ```
+
+## Adding a Custom Command Set for Linux
+Some distro may be missing traceroute. 
+```shell-session
+#for debian/ubuntu
+$ apt install traceroute
+#for redhat based
+$ yum install traceroute
+```
+
+```yaml title="commands.yaml"
+---
+linux_commands:
+  ipv4_default:
+    bgp_route: "show ip route {target}"
+    bgp_aspath: "show ip bgp as-path {target}"
+    bgp_community: "show ip bgp community {target}"
+    ping: "ping -4 -c 5 -I {source} {target}"
+    traceroute: "traceroute -6 -w 1 -q 1 -s {source} {target}"
+  ipv6_default:
+    bgp_route: "show ipv6 route {target}"
+    bgp_aspath: "show ipv6 bgp as-path {target}"
+    bgp_community: "show ipv6 bgp community {target}"
+    ping: "ping -6 -c 5 -I {source} {target}"
+    traceroute: "traceroute -6 -w 1 -q 1 -s {source} {target}"
+  ipv4_vpn:
+    bgp_route: "show ip route {target} vrf {vrf}"
+    bgp_aspath: "show ip bgp as-path {target} vrf {vrf}"
+    bgp_community: "show ip bgp community {target} vrf {vrf}"
+    ping: "ping -6 -c 5 -I {source} {target}"
+    traceroute: "traceroute -6 -w 1 -q 1 -s {source} {target}"
+  ipv6_vpn:
+    bgp_route: "show ipv6 route {target} vrf {vrf}"
+    bgp_aspath: "show ipv6 bgp as-path {target} vrf {vrf}"
+    bgp_community: "show ipv6 bgp community {target} vrf {vrf}"
+    ping: "ping -6 -c 5 -I {source} {target}"
+    traceroute: "traceroute -6 -w 1 -q 1 -s {source} {target}"
+```
+
+
