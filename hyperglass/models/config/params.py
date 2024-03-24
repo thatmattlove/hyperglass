@@ -3,9 +3,10 @@
 # Standard Library
 import typing as t
 from pathlib import Path
+import urllib.parse
 
 # Third Party
-from pydantic import Field, ConfigDict, ValidationInfo, field_validator
+from pydantic import Field, ConfigDict, ValidationInfo, field_validator, HttpUrl
 
 # Project
 from hyperglass.settings import Settings
@@ -107,6 +108,17 @@ class Params(ParamsPublic, HyperglassModel):
             )
             return [str(f) for f in matching_plugins]
         return []
+
+    @field_validator("web", mode="after")
+    @classmethod
+    def validate_web(cls, web: Web, info: ValidationInfo) -> Web:
+        """String-format Link URLs."""
+        for link in web.links:
+            url = urllib.parse.unquote(str(link.url), encoding="utf-8", errors="replace").format(
+                primary_asn=info.data.get("primary_asn", "65000")
+            )
+            link.url = HttpUrl(url)
+        return web
 
     def common_plugins(self) -> t.Tuple[Path, ...]:
         """Get all validated external common plugins as Path objects."""

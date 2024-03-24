@@ -2,7 +2,7 @@ import { Flex, HStack, useToken } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { useConfig } from '~/context';
 import { DynamicIcon } from '~/elements';
-import { useBreakpointValue, useColorValue, useMobile, useStrf } from '~/hooks';
+import { useBreakpointValue, useColorValue, useMobile } from '~/hooks';
 import { isLink, isMenu } from '~/types';
 import { FooterButton } from './button';
 import { ColorModeToggle } from './color-mode';
@@ -11,7 +11,9 @@ import { FooterLink } from './link';
 import type { ButtonProps, LinkProps } from '@chakra-ui/react';
 import type { Link, Menu } from '~/types';
 
-function buildItems(links: Link[], menus: Menu[]): [(Link | Menu)[], (Link | Menu)[]] {
+type MenuItems = (Link | Menu)[];
+
+function buildItems(links: Link[], menus: Menu[]): [MenuItems, MenuItems] {
   const leftLinks = links.filter(link => link.side === 'left');
   const leftMenus = menus.filter(menu => menu.side === 'left');
   const rightLinks = links.filter(link => link.side === 'right');
@@ -22,8 +24,23 @@ function buildItems(links: Link[], menus: Menu[]): [(Link | Menu)[], (Link | Men
   return [left, right];
 }
 
+const LinkOnSide = (props: { item: ArrayElement<MenuItems>; side: 'left' | 'right' }) => {
+  const { item, side } = props;
+  if (isLink(item)) {
+    const icon: Partial<ButtonProps & LinkProps> = {};
+
+    if (item.showIcon) {
+      icon.rightIcon = <DynamicIcon icon={{ go: 'GoLinkExternal' }} />;
+    }
+    return <FooterLink key={item.title} href={item.url} title={item.title} {...icon} />;
+  }
+  if (isMenu(item)) {
+    return <FooterButton key={item.title} side={side} content={item.content} title={item.title} />;
+  }
+};
+
 export const Footer = (): JSX.Element => {
-  const { web, content, primaryAsn } = useConfig();
+  const { web, content } = useConfig();
 
   const footerBg = useColorValue('blackAlpha.50', 'whiteAlpha.100');
   const footerColor = useColorValue('black', 'white');
@@ -33,8 +50,6 @@ export const Footer = (): JSX.Element => {
   const isMobile = useMobile();
 
   const [left, right] = useMemo(() => buildItems(web.links, web.menus), [web.links, web.menus]);
-
-  const strF = useStrf();
 
   return (
     <HStack
@@ -51,39 +66,13 @@ export const Footer = (): JSX.Element => {
       overflowY={{ base: 'auto', lg: 'unset' }}
       justifyContent={{ base: 'center', lg: 'space-between' }}
     >
-      {left.map(item => {
-        if (isLink(item)) {
-          const url = strF(item.url, { primaryAsn }, '/');
-          const icon: Partial<ButtonProps & LinkProps> = {};
-
-          if (item.showIcon) {
-            icon.rightIcon = <DynamicIcon icon={{ go: 'GoLinkExternal' }} />;
-          }
-          return <FooterLink key={item.title} href={url} title={item.title} {...icon} />;
-        }
-        if (isMenu(item)) {
-          return (
-            <FooterButton key={item.title} side="left" content={item.content} title={item.title} />
-          );
-        }
-      })}
+      {left.map(item => (
+        <LinkOnSide key={item.title} item={item} side="left" />
+      ))}
       {!isMobile && <Flex p={0} flex="1 0 auto" maxWidth="100%" mr="auto" />}
-      {right.map(item => {
-        if (isLink(item)) {
-          const url = strF(item.url, { primaryAsn }, '/');
-          const icon: Partial<ButtonProps & LinkProps> = {};
-
-          if (item.showIcon) {
-            icon.rightIcon = <DynamicIcon icon={{ go: 'GoLinkExternal' }} />;
-          }
-          return <FooterLink key={item.title} href={url} title={item.title} {...icon} />;
-        }
-        if (isMenu(item)) {
-          return (
-            <FooterButton key={item.title} side="right" content={item.content} title={item.title} />
-          );
-        }
-      })}
+      {right.map(item => (
+        <LinkOnSide key={item.title} item={item} side="right" />
+      ))}
       {web.credit.enable && (
         <FooterButton
           key="credit"

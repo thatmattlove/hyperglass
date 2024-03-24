@@ -9,6 +9,9 @@ export declare global {
 
   type Swap<T, K extends keyof T, V> = Record<K, V> & Omit<T, K>;
 
+  type ArrayElement<ArrayType extends readonly unknown[]> =
+    ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+
   type RPKIState = 0 | 1 | 2 | 3;
 
   type ResponseLevel = 'success' | 'warning' | 'error' | 'danger';
