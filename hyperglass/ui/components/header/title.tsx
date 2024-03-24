@@ -1,9 +1,9 @@
-import { Flex, Button, VStack } from '@chakra-ui/react';
+import { Button, Flex, VStack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { isSafari } from 'react-device-detect';
-import { Switch, Case } from 'react-if';
+import { Case, Switch } from 'react-if';
 import { useConfig } from '~/context';
-import { useFormState, useFormInteractive, useMobile } from '~/hooks';
+import { useFormInteractive, useFormState, useMobile } from '~/hooks';
 import { Logo } from './logo';
 import { SubtitleOnly } from './subtitle-only';
 import { TitleOnly } from './title-only';
@@ -13,7 +13,7 @@ import type { MotionProps } from 'framer-motion';
 
 type DWrapperProps = Omit<StackProps, 'transition'> & MotionProps;
 type MWrapperProps = Omit<StackProps, 'transition'> & MotionProps;
-type TextOnlyProps = Partial<MotionProps & Omit<StackProps, 'transition'>>;
+type WrapperProps = Partial<MotionProps & Omit<StackProps, 'transition'>>;
 
 const AnimatedVStack = motion(VStack);
 const AnimatedFlex = motion(Flex);
@@ -28,6 +28,7 @@ const MWrapper = (props: MWrapperProps): JSX.Element => {
       layout
       spacing={1}
       alignItems={formInteractive ? 'center' : 'flex-start'}
+      maxWidth="25%"
       {...props}
     />
   );
@@ -46,6 +47,7 @@ const DWrapper = (props: DWrapperProps): JSX.Element => {
       animate={formInteractive}
       transition={{ damping: 15, type: 'spring', stiffness: 100 }}
       variants={{ results: { scale: 0.5 }, form: { scale: 1 } }}
+      maxWidth="25%"
       {...props}
     />
   );
@@ -71,7 +73,7 @@ const TitleWrapper = (props: DWrapperProps | MWrapperProps): JSX.Element => {
 /**
  * Title sub-component if `title_mode` is set to `text_only`.
  */
-const TextOnly = (props: TextOnlyProps): JSX.Element => {
+const TextOnly = (props: WrapperProps): JSX.Element => {
   return (
     <TitleWrapper {...props}>
       <TitleOnly />
@@ -83,8 +85,8 @@ const TextOnly = (props: TextOnlyProps): JSX.Element => {
 /**
  * Title sub-component if `title_mode` is set to `logo_only`. Renders only the logo.
  */
-const LogoOnly = (): JSX.Element => (
-  <TitleWrapper>
+const LogoOnly = (props: WrapperProps): JSX.Element => (
+  <TitleWrapper {...props}>
     <Logo />
   </TitleWrapper>
 );
@@ -93,8 +95,8 @@ const LogoOnly = (): JSX.Element => (
  * Title sub-component if `title_mode` is set to `logo_subtitle`. Renders the logo with the
  * subtitle underneath.
  */
-const LogoSubtitle = (): JSX.Element => (
-  <TitleWrapper>
+const LogoSubtitle = (props: WrapperProps): JSX.Element => (
+  <TitleWrapper {...props}>
     <Logo />
     <SubtitleOnly />
   </TitleWrapper>
@@ -103,8 +105,8 @@ const LogoSubtitle = (): JSX.Element => (
 /**
  * Title sub-component if `title_mode` is set to `all`. Renders the logo, title, and subtitle.
  */
-const All = (): JSX.Element => (
-  <TitleWrapper>
+const All = (props: WrapperProps): JSX.Element => (
+  <TitleWrapper {...props}>
     <Logo />
     <TextOnly mt={2} />
   </TitleWrapper>
@@ -149,16 +151,16 @@ export const Title = (props: FlexProps): JSX.Element => {
       >
         <Switch>
           <Case condition={titleMode === 'text_only'}>
-            <TextOnly />
+            <TextOnly width={web.logo.width} />
           </Case>
           <Case condition={titleMode === 'logo_only'}>
-            <LogoOnly />
+            <LogoOnly width={web.logo.width} />
           </Case>
           <Case condition={titleMode === 'logo_subtitle'}>
-            <LogoSubtitle />
+            <LogoSubtitle width={web.logo.width} />
           </Case>
           <Case condition={titleMode === 'all'}>
-            <All />
+            <All width={web.logo.width} />
           </Case>
         </Switch>
       </Button>

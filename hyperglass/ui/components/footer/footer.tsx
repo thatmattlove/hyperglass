@@ -1,13 +1,12 @@
-import { useMemo } from 'react';
 import { Flex, HStack, useToken } from '@chakra-ui/react';
-import { If, Then } from 'react-if';
+import { useMemo } from 'react';
 import { useConfig } from '~/context';
 import { DynamicIcon } from '~/elements';
-import { useStrf, useMobile, useColorValue, useBreakpointValue } from '~/hooks';
+import { useBreakpointValue, useColorValue, useMobile, useStrf } from '~/hooks';
+import { isLink, isMenu } from '~/types';
 import { FooterButton } from './button';
 import { ColorModeToggle } from './color-mode';
 import { FooterLink } from './link';
-import { isLink, isMenu } from '~/types';
 
 import type { ButtonProps, LinkProps } from '@chakra-ui/react';
 import type { Link, Menu } from '~/types';
@@ -85,16 +84,15 @@ export const Footer = (): JSX.Element => {
           );
         }
       })}
-      <If condition={web.credit.enable}>
-        <Then>
-          <FooterButton
-            key="credit"
-            side="right"
-            content={content.credit}
-            title={<DynamicIcon icon={{ fi: 'FiCode' }} boxSize={size} />}
-          />
-        </Then>
-      </If>
+      {web.credit.enable && (
+        <FooterButton
+          key="credit"
+          side="right"
+          content={content.credit}
+          title={<DynamicIcon icon={{ fi: 'FiCode' }} boxSize={size} />}
+        />
+      )}
+
       <ColorModeToggle size={size} />
     </HStack>
   );
