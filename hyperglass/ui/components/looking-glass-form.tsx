@@ -149,8 +149,11 @@ export const LookingGlassForm = (): JSX.Element => {
     } else if (e.field === 'queryTarget') {
       if (isString(e.value)) {
         setFormValue('queryTarget', [e.value]);
-      } else if (Array.isArray(e.value)) {
+        setValue('queryTarget', [e.value]);
+      }
+      if (Array.isArray(e.value)) {
         setFormValue('queryTarget', e.value);
+        setValue('queryTarget', e.value);
       }
     }
   }
