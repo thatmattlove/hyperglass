@@ -1,34 +1,16 @@
 import { Code, Table, Td, Th, Tr } from "nextra/components";
 import { Callout } from "nextra-theme-docs";
-import platforms from "~/platforms.json";
-import { Supported } from "./platforms.mdx";
-
-export const Platforms = () => (
-    <ul>
-        {platforms.reduce((final, platform) => {
-            if (platform.native) {
-                const element = (
-                    <li key={platform.name}>
-                        <Supported style={{ display: "inline", marginRight: "0.5rem" }} />
-                        {platform.name}
-                    </li>
-                );
-                final = [...final, element];
-            }
-            return final;
-        }, [])}
-    </ul>
-);
+import { SupportedPlatforms } from "~/components/platforms";
 
 Once you've gotten started with a basic configuration, you'll probably want to customize the look and feel of hyperglass by changing the logo or color scheme. Fortunately, there are _a lot_ ways to customize hyperglass.
 
 ## Configuration Files
 
-| File Name    | Purpose                                                                    |
-| :----------- | :------------------------------------------------------------------------- |
-| `config`     | Application-wide configuration such as logging, web UI customization, etc. |
-| `devices`    | Your devices and their associated configurations.                          |
-| `directives` | Custom [directives](configuration/directives.mdx) (commands).              |
+| File Name    |                         Docs                          | Purpose                                                                    |
+| :----------- | :---------------------------------------------------: | :------------------------------------------------------------------------- |
+| `config`     |     [Config File Docs](/configuration/config.mdx)     | Application-wide configuration such as logging, web UI customization, etc. |
+| `devices`    |    [Devices File Docs](/configuration/devices.mdx)    | Your devices and their associated configurations.                          |
+| `directives` | [Directives File Docs](/configuration/directives.mdx) | Custom directives (commands).                                              |
 
 <Callout type="info">
     **File Extensions** <br />
@@ -78,9 +60,9 @@ main = {
 
 ## Built-in Directives
 
-hyperglass ships with predefined [directives](configuration/directives.mdx) for the following [platforms](platforms.mdx):
+hyperglass ships with predefined [directives](/configuration/directives.mdx) for the following [platforms](platforms.mdx):
 
-<Platforms />
+<SupportedPlatforms />
 
 All built in directives require that the following `attrs` be defined on each device using the directive:
 

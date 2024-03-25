@@ -203,12 +203,22 @@ class Device(HyperglassModelWithId, extra="allow"):
     def validate_platform(cls: "Device", value: t.Any, values: t.Dict[str, t.Any]) -> str:
         """Validate & rewrite device platform, set default `directives`."""
 
+        if value == "http":
+            if values.get("http") is None:
+                raise ConfigError(
+                    "Device '{device}' has platform 'http' configured, but no http parameters are defined.",
+                    device=values["name"],
+                )
+
         if value is None:
-            # Ensure device platform is defined.
-            raise ConfigError(
-                "Device '{device}' is missing a 'platform' (Network Operating System) property",
-                device=values["name"],
-            )
+            if values.get("http") is not None:
+                value = "http"
+            else:
+                # Ensure device platform is defined.
+                raise ConfigError(
+                    "Device '{device}' is missing a 'platform' (Network Operating System) property",
+                    device=values["name"],
+                )
 
         if value in SCRAPE_HELPERS.keys():
             # Rewrite platform to helper value if needed.

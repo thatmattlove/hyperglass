@@ -4,19 +4,7 @@ description: Get started with hyperglass
 ---
 
 import { Cards, Card } from "nextra/components";
-import platforms from "~/platforms.json";
-
-export const Platforms = () => (
-    <ul>
-        {platforms.reduce((final, platform) => {
-            if (platform.native) {
-                const element = <li key={platform.name}>{platform.name}</li>;
-                final = [...final, element];
-            }
-            return final;
-        }, [])}
-    </ul>
-);
+import { SupportedPlatforms } from "~/components/platforms";
 
 ## What is hyperglass?
 
@@ -30,7 +18,7 @@ hyperglass was created with the lofty goal of benefiting the internet community 
 -   Full IPv6 support
 -   Customizable everything: features, theme, UI/API text, error messages, commands
 -   Built in support for:
-    <Platforms />
+    <SupportedPlatforms />
 -   Configurable support for any other [supported platform](platforms.mdx)
 -   Optionally access devices via an SSH proxy/jump server
 -   VRF support

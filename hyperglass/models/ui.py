@@ -6,7 +6,7 @@ import typing as t
 # Local
 from .main import HyperglassModel
 from .config.web import WebPublic
-from .config.cache import CachePublic
+from .config.cache import Cache
 from .config.params import ParamsPublic
 from .config.messages import Messages
 
@@ -54,7 +54,7 @@ class UIContent(HyperglassModel):
 class UIParameters(ParamsPublic, HyperglassModel):
     """UI Configuration Parameters."""
 
-    cache: CachePublic
+    cache: Cache
     web: WebPublic
     messages: Messages
     version: str

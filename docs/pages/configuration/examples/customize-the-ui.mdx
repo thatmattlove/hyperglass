@@ -2,28 +2,47 @@
 description: Customize hyperglass to fit your needs.
 ---
 
-### Change the title and organization name
+import { DocsButton } from "../../../components/docs-button";
+
+### <DocsButton href="/configuration/config" /> Change the Title and Organization Name
 
 ```yaml filename="config.yaml"
 site_title: Our super neat looking glass
 org_name: Cool Company
 ```
 
-### Change the logo
+### <DocsButton href="/configuration/config/web-ui#logo" /> Change the Logo
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" {2-4} copy
 web:
-  logo:
-    light: <path to logo image file to use in light mode>
-    dark: <path to logo image file to use in dark mode>
+    logo:
+        light: <path to logo image file to use in light mode>
+        dark: <path to logo image file to use in dark mode>
 ```
 
-### Change the color scheme
+### <DocsButton href="/configuration/config/web-ui#theme" /> Change the Color Scheme
 
-```yaml filename="config.yaml"
+```yaml filename="config.yaml" copy {3-5}
 web:
-  theme:
-    colors:
-      primary: '#d84b4b'
-      secondary: '#118ab2'
+    theme:
+        colors:
+            primary: "#d84b4b"
+            secondary: "#118ab2"
+```
+
+### <DocsButton href="/configuration/config/web-ui#menus" /> Add a Link to the Footer
+
+```yaml filename="config.yaml" copy
+web:
+    links:
+        - title: PeeringDB
+          url: https://www.peeringdb.com/65000
+          show_icon: true
+          side: right
+          order: 1
+        - title: Our Website
+          url: https://example.com
+          show_icon: false
+          side: left
+          order: 0
 ```
