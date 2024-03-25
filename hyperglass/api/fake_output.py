@@ -6,8 +6,7 @@ import typing as t
 # Project
 from hyperglass.models.data import BGPRouteTable
 
-PLAIN = r"""
-BGP routing table entry for 4.0.0.0/9, version 1017877672
+BGP_PLAIN = r"""BGP routing table entry for 4.0.0.0/9, version 1017877672
 BGP Bestpath: deterministic-med
 Paths: (10 available, best #9, table default)
   Advertised to update-groups:
@@ -54,7 +53,7 @@ Paths: (10 available, best #9, table default)
       Community: 6939:7016 6939:8840 6939:9001
 """  # noqa: W291,E501
 
-ROUTES = [
+BGP_ROUTES = [
     {
         "prefix": "1.1.1.0/24",
         "active": True,
@@ -159,14 +158,44 @@ ROUTES = [
     },
 ]
 
-STRUCTURED = BGPRouteTable(vrf="default", count=len(ROUTES), routes=ROUTES, winning_weight="high")
+STRUCTURED = BGPRouteTable(
+    vrf="default",
+    count=len(BGP_ROUTES),
+    routes=BGP_ROUTES,
+    winning_weight="high",
+)
+
+PING = r"""PING 1.1.1.1 (1.1.1.1): 56 data bytes
+64 bytes from 1.1.1.1: icmp_seq=0 ttl=59 time=4.696 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=59 time=4.699 ms
+64 bytes from 1.1.1.1: icmp_seq=2 ttl=59 time=4.640 ms
+64 bytes from 1.1.1.1: icmp_seq=3 ttl=59 time=4.583 ms
+64 bytes from 1.1.1.1: icmp_seq=4 ttl=59 time=4.640 ms
+
+--- 1.1.1.1 ping statistics ---
+5 packets transmitted, 5 packets received, 0% packet loss
+round-trip min/avg/max/stddev = 4.583/4.652/4.699/0.043 ms
+"""
+
+TRACEROUTE = r"""traceroute to 1.1.1.1 (1.1.1.1), 30 hops max, 52 byte packets
+ 1  157.231.183.50  4.412 ms
+ 2  129.219.10.4  4.612 ms
+ 3  128.249.9.12  4.503 ms
+ 4  139.15.19.3  7.458 ms
+ 5  172.69.68.3  4.814 ms
+ 6  1.1.1.1  4.564 ms
+"""
 
 
-async def fake_output(structured: bool) -> t.Union[str, BGPRouteTable]:
+async def fake_output(query_type: str, structured: bool) -> t.Union[str, BGPRouteTable]:
     """Bypass the standard execution process and return static, fake output."""
-    output = PLAIN
 
-    if structured:
-        output = STRUCTURED
-
-    return output
+    if "ping" in query_type:
+        return PING
+    if "traceroute" in query_type:
+        return TRACEROUTE
+    if "bgp" in query_type:
+        if structured:
+            return STRUCTURED
+        return BGP_PLAIN
+    return BGP_PLAIN
