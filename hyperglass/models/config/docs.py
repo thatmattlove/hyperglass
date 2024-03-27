@@ -48,7 +48,7 @@ class Docs(HyperglassModel):
         description="Base URL used in request samples.",
     )
     path: AnyUri = Field(
-        "/api/docs",
+        "/docs",
         title="URI",
         description="HTTP URI/path where API documentation can be accessed.",
     )

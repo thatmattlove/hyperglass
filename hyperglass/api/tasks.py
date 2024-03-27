@@ -1,55 +1,26 @@
 """Tasks to be executed from web API."""
 
 # Standard Library
-from typing import Dict, Union
-from pathlib import Path
+import typing as t
 from datetime import datetime
 
 # Third Party
 from httpx import Headers
-from starlette.requests import Request
+from litestar import Request
 
 # Project
 from hyperglass.log import log
-from hyperglass.state import use_state
 from hyperglass.external import Webhook, bgptools
 from hyperglass.models.api import Query
 
-__all__ = (
-    "import_public_key",
-    "process_headers",
-    "send_webhook",
-)
+if t.TYPE_CHECKING:
+    # Project
+    from hyperglass.models.config.params import Params
+
+__all__ = ("send_webhook",)
 
 
-def import_public_key(app_path: Union[Path, str], device_name: str, keystring: str) -> bool:
-    """Import a public key for hyperglass-agent."""
-    if not isinstance(app_path, Path):
-        app_path = Path(app_path)
-
-    cert_dir = app_path / "certs"
-
-    if not cert_dir.exists():
-        cert_dir.mkdir()
-
-    if not cert_dir.exists():
-        raise RuntimeError(f"Failed to create certs directory at {str(cert_dir)}")
-
-    filename = f"{device_name}.pem"
-    cert_file = cert_dir / filename
-
-    with cert_file.open("w+") as file:
-        file.write(str(keystring))
-
-    with cert_file.open("r") as file:
-        read_file = file.read().strip()
-        if not keystring == read_file:
-            raise RuntimeError("Wrote key, but written file did not match input key")
-
-    return True
-
-
-async def process_headers(headers: Headers) -> Dict:
+async def process_headers(headers: Headers) -> t.Dict[str, t.Any]:
     """Filter out unwanted headers and return as a dictionary."""
     headers = dict(headers)
     header_keys = (
@@ -64,12 +35,12 @@ async def process_headers(headers: Headers) -> Dict:
 
 
 async def send_webhook(
-    query_data: Query,
+    params: "Params",
+    data: Query,
     request: Request,
     timestamp: datetime,
-):
+) -> t.NoReturn:
     """If webhooks are enabled, get request info and send a webhook."""
-    params = use_state("params")
     try:
         if params.logging.http is not None:
             headers = await process_headers(headers=request.headers)
@@ -84,10 +55,9 @@ async def send_webhook(
             network_info = await bgptools.network_info(host)
 
             async with Webhook(params.logging.http) as hook:
-
                 await hook.send(
                     query={
-                        **query_data.dict(),
+                        **data.dict(),
                         "headers": headers,
                         "source": host,
                         "network": network_info.get(host, {}),
@@ -95,4 +65,4 @@ async def send_webhook(
                     }
                 )
     except Exception as err:
-        log.error("Error sending webhook to {}: {}", params.logging.http.provider, str(err))
+        log.error("Error sending webhook to {}: {!s}", params.logging.http.provider, err)

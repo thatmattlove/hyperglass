@@ -35,6 +35,14 @@ from .http_client import HttpConfiguration
 ALL_DEVICE_TYPES = {*DRIVER_MAP.keys(), *CLASS_MAPPER.keys()}
 
 
+class APIDevice(t.TypedDict):
+    """API Response Model for a device."""
+
+    id: str
+    name: str
+    group: t.Union[str, None]
+
+
 class DirectiveOptions(HyperglassModel, extra="ignore"):
     """Per-device directive options."""
 
@@ -99,7 +107,7 @@ class Device(HyperglassModelWithId, extra="allow"):
 
         return {"id": device_id, "name": display_name, "display_name": None, **values}
 
-    def export_api(self) -> t.Dict[str, t.Any]:
+    def export_api(self) -> APIDevice:
         """Export API-facing device fields."""
         return {
             "id": self.id,
@@ -121,6 +129,11 @@ class Device(HyperglassModelWithId, extra="allow"):
     def directive_ids(self) -> t.List[str]:
         """Get all directive IDs associated with the device."""
         return [directive.id for directive in self.directives]
+
+    @property
+    def directive_names(self) -> t.List[str]:
+        """Get all directive names associated with the device."""
+        return list({directive.name for directive in self.directives})
 
     def has_directives(self, *directive_ids: str) -> bool:
         """Determine if a directive is used on this device."""
@@ -304,7 +317,7 @@ class Devices(MultiModel, model=Device, unique_by="id"):
         with_id = (Device._with_id(item) for item in items)
         super().__init__(*with_id)
 
-    def export_api(self: "Devices") -> t.List[t.Dict[str, t.Any]]:
+    def export_api(self: "Devices") -> t.List[APIDevice]:
         """Export API-facing device fields."""
         return [d.export_api() for d in self]
 
@@ -331,6 +344,10 @@ class Devices(MultiModel, model=Device, unique_by="id"):
                 result[plugin].add(directive.id)
         # Convert the directive set to a tuple.
         return {k: tuple(v) for k, v in result.items()}
+
+    def directive_names(self) -> t.List[str]:
+        """Get all directive names for all devices."""
+        return list({directive.name for device in self for directive in device.directives})
 
     def frontend(self: "Devices") -> t.List[t.Dict[str, t.Any]]:
         """Export grouped devices for UIParameters."""

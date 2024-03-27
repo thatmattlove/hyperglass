@@ -11,7 +11,6 @@ dependencies = [
     "PyYAML>=6.0",
     "aiofiles>=23.2.1",
     "distro==1.8.0",
-    "fastapi>=0.110.0",
     "favicons==0.2.2",
     "gunicorn>=21.2.0",
     "httpx==0.24.0",
@@ -30,6 +29,7 @@ dependencies = [
     "toml>=0.10.2",
     "pydantic-settings>=2.2.1",
     "pydantic-extra-types>=2.6.0",
+    "litestar[standard,brotli]>=2.7.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.11"
@@ -75,7 +75,7 @@ import_heading_stdlib = "Standard Library"
 import_heading_thirdparty = "Third Party"
 include_trailing_comma = true
 indent = '    '
-known_third_party = ["starlette", "fastapi", "inquirer"]
+known_third_party = ["litestar", "inquirer"]
 length_sort = true
 line_length = 100
 multi_line_output = 3

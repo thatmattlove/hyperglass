@@ -2,14 +2,15 @@
 
 # Standard Library
 import typing as t
-from pathlib import Path
 import urllib.parse
+from pathlib import Path
 
 # Third Party
-from pydantic import Field, ConfigDict, ValidationInfo, field_validator, HttpUrl
+from pydantic import Field, HttpUrl, ConfigDict, ValidationInfo, field_validator
 
 # Project
 from hyperglass.settings import Settings
+from hyperglass.constants import __version__
 
 # Local
 from .web import Web
@@ -21,6 +22,15 @@ from .messages import Messages
 from .structured import Structured
 
 Localhost = t.Literal["localhost"]
+
+
+class APIParams(t.TypedDict):
+    """/api/info response model."""
+
+    name: str
+    organization: str
+    primary_asn: int
+    version: str
 
 
 class ParamsPublic(HyperglassModel):
@@ -123,6 +133,15 @@ class Params(ParamsPublic, HyperglassModel):
     def common_plugins(self) -> t.Tuple[Path, ...]:
         """Get all validated external common plugins as Path objects."""
         return tuple(Path(p) for p in self.plugins)
+
+    def export_api(self) -> APIParams:
+        """Export API-specific parameters."""
+        return {
+            "name": self.site_title,
+            "organization": self.org_name,
+            "primary_asn": int(self.primary_asn),
+            "version": __version__,
+        }
 
     def frontend(self) -> t.Dict[str, t.Any]:
         """Export UI-specific parameters."""

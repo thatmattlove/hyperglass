@@ -3,69 +3,77 @@
 # Standard Library
 import time
 import typing as t
-from datetime import datetime
+from datetime import UTC, datetime
 
 # Third Party
-from fastapi import Depends, Request, HTTPException, BackgroundTasks
-from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
+from litestar import Request, Response, get, post
+from litestar.di import Provide
+from litestar.background_tasks import BackgroundTask
 
 # Project
 from hyperglass.log import log
-from hyperglass.state import HyperglassState, use_state
-from hyperglass.constants import __version__
-from hyperglass.models.ui import UIParameters
+from hyperglass.state import HyperglassState
 from hyperglass.exceptions import HyperglassError
 from hyperglass.models.api import Query
 from hyperglass.models.data import OutputDataModel
 from hyperglass.util.typing import is_type
 from hyperglass.execution.main import execute
-from hyperglass.models.config.params import Params
-from hyperglass.models.config.devices import Devices
+from hyperglass.models.api.response import QueryResponse
+from hyperglass.models.config.params import Params, APIParams
+from hyperglass.models.config.devices import Devices, APIDevice
 
 # Local
+from .state import get_state, get_params, get_devices
 from .tasks import send_webhook
 from .fake_output import fake_output
 
-
-def get_state(attr: t.Optional[str] = None):
-    """Get hyperglass state as a FastAPI dependency."""
-    return use_state(attr)
-
-
-def get_params():
-    """Get hyperglass params as FastAPI dependency."""
-    return use_state("params")
+__all__ = (
+    "device",
+    "devices",
+    "queries",
+    "info",
+    "query",
+)
 
 
-def get_devices():
-    """Get hyperglass devices as FastAPI dependency."""
-    return use_state("devices")
+@get("/api/devices/{id:str}", dependencies={"devices": Provide(get_devices)})
+async def device(devices: Devices, id: str) -> APIDevice:
+    """Retrieve a device by ID."""
+    return devices[id].export_api()
 
 
-def get_ui_params():
-    """Get hyperglass ui_params as FastAPI dependency."""
-    return use_state("ui_params")
+@get("/api/devices", dependencies={"devices": Provide(get_devices)})
+async def devices(devices: Devices) -> t.List[APIDevice]:
+    """Retrieve all devices."""
+    return devices.export_api()
 
 
-async def query(
-    query_data: Query,
-    request: Request,
-    background_tasks: BackgroundTasks,
-    state: "HyperglassState" = Depends(get_state),
-):
+@get("/api/queries", dependencies={"devices": Provide(get_devices)})
+async def queries(devices: Devices) -> t.List[str]:
+    """Retrieve all directive names."""
+    return devices.directive_names()
+
+
+@get("/api/info", dependencies={"params": Provide(get_params)})
+async def info(params: Params) -> APIParams:
+    """Retrieve looking glass parameters."""
+    return params.export_api()
+
+
+@post("/api/query", dependencies={"_state": Provide(get_state)})
+async def query(_state: HyperglassState, request: Request, data: Query) -> QueryResponse:
     """Ingest request data pass it to the backend application to perform the query."""
 
-    timestamp = datetime.utcnow()
-    background_tasks.add_task(send_webhook, query_data, request, timestamp)
+    timestamp = datetime.now(UTC)
 
     # Initialize cache
-    cache = state.redis
+    cache = _state.redis
 
-    # Use hashed query_data string as key for for k/v cache store so
+    # Use hashed `data` string as key for for k/v cache store so
     # each command output value is unique.
-    cache_key = f"hyperglass.query.{query_data.digest()}"
+    cache_key = f"hyperglass.query.{data.digest()}"
 
-    log.info("{!r} starting query execution", query_data)
+    log.info("{!r} starting query execution", data)
 
     cache_response = cache.get_map(cache_key, "output")
     json_output = False
@@ -73,38 +81,38 @@ async def query(
     runtime = 65535
 
     if cache_response:
-        log.debug("{!r} cache hit (cache key {!r})", query_data, cache_key)
+        log.debug("{!r} cache hit (cache key {!r})", data, cache_key)
 
         # If a cached response exists, reset the expiration time.
-        cache.expire(cache_key, expire_in=state.params.cache.timeout)
+        cache.expire(cache_key, expire_in=_state.params.cache.timeout)
 
         cached = True
         runtime = 0
         timestamp = cache.get_map(cache_key, "timestamp")
 
     elif not cache_response:
-        log.debug("{!r} cache miss (cache key {!r})", query_data, cache_key)
+        log.debug("{!r} cache miss (cache key {!r})", data, cache_key)
 
-        timestamp = query_data.timestamp
+        timestamp = data.timestamp
 
         starttime = time.time()
 
-        if state.params.fake_output:
+        if _state.params.fake_output:
             # Return fake, static data for development purposes, if enabled.
             output = await fake_output(
-                query_type=query_data.query_type,
-                structured=query_data.device.structured_output or False,
+                query_type=data.query_type,
+                structured=data.device.structured_output or False,
             )
         else:
             # Pass request to execution module
-            output = await execute(query_data)
+            output = await execute(data)
 
         endtime = time.time()
         elapsedtime = round(endtime - starttime, 4)
-        log.debug("{!r} runtime: {!s} seconds", query_data, elapsedtime)
+        log.debug("{!r} runtime: {!s} seconds", data, elapsedtime)
 
         if output is None:
-            raise HyperglassError(message=state.params.messages.general, alert="danger")
+            raise HyperglassError(message=_state.params.messages.general, alert="danger")
 
         json_output = is_type(output, OutputDataModel)
 
@@ -115,9 +123,9 @@ async def query(
 
         cache.set_map_item(cache_key, "output", raw_output)
         cache.set_map_item(cache_key, "timestamp", timestamp)
-        cache.expire(cache_key, expire_in=state.params.cache.timeout)
+        cache.expire(cache_key, expire_in=_state.params.cache.timeout)
 
-        log.debug("{!r} cached for {!s} seconds", query_data, state.params.cache.timeout)
+        log.debug("{!r} cached for {!s} seconds", data, _state.params.cache.timeout)
 
         runtime = int(round(elapsedtime, 0))
 
@@ -130,60 +138,27 @@ async def query(
     if json_output:
         response_format = "application/json"
 
-    log.success("{!r} execution completed", query_data)
+    log.success("{!r} execution completed", data)
 
-    return {
+    response = {
         "output": cache_response,
         "id": cache_key,
         "cached": cached,
         "runtime": runtime,
         "timestamp": timestamp,
         "format": response_format,
-        "random": query_data.random(),
+        "random": data.random(),
         "level": "success",
         "keywords": [],
     }
 
-
-async def docs(params: "Params" = Depends(get_params)):
-    """Serve custom docs."""
-    if params.docs.enable:
-        docs_func_map = {"swagger": get_swagger_ui_html, "redoc": get_redoc_html}
-        docs_func = docs_func_map[params.docs.mode]
-        return docs_func(
-            openapi_url=params.docs.openapi_url, title=params.site_title + " - API Docs"
-        )
-    raise HTTPException(detail="Not found", status_code=404)
-
-
-async def router(id: str, devices: "Devices" = Depends(get_devices)):
-    """Get a device's API-facing attributes."""
-    return devices[id].export_api()
-
-
-async def routers(devices: "Devices" = Depends(get_devices)):
-    """Serve list of configured routers and attributes."""
-    return devices.export_api()
-
-
-async def queries(params: "Params" = Depends(get_params)):
-    """Serve list of enabled query types."""
-    return params.queries.list
-
-
-async def info(params: "Params" = Depends(get_params)):
-    """Serve general information about this instance of hyperglass."""
-    return {
-        "name": params.site_title,
-        "organization": params.org_name,
-        "primary_asn": int(params.primary_asn),
-        "version": __version__,
-    }
-
-
-async def ui_props(ui_params: "UIParameters" = Depends(get_ui_params)):
-    """Serve UI configration."""
-    return ui_params
-
-
-endpoints = [query, docs, routers, info, ui_props]
+    return Response(
+        response,
+        background=BackgroundTask(
+            send_webhook,
+            params=_state.params,
+            data=data,
+            request=request,
+            timestamp=timestamp,
+        ),
+    )
