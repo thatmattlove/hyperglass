@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import copyfiles, check_path, dotenv_to_dict
+from hyperglass.util import copyfiles, check_path, dotenv_to_dict, move_files
 
 if t.TYPE_CHECKING:
     # Project
@@ -108,36 +108,38 @@ async def build_ui(app_path: Path):
 
     ui_dir = Path(__file__).parent.parent / "ui"
     build_dir = app_path / "static" / "ui"
+    out_dir = ui_dir / "out"
 
-    build_command = "node_modules/.bin/next build"
-    export_command = "node_modules/.bin/next export -o {f}".format(f=build_dir)
+    build_command = "node_modules/.bin/next build --no-lint"
 
     all_messages = []
-    for command in (build_command, export_command):
-        try:
-            proc = await asyncio.create_subprocess_shell(
-                cmd=command,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                cwd=ui_dir,
-            )
+    try:
+        proc = await asyncio.create_subprocess_shell(
+            cmd=build_command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=ui_dir,
+        )
 
-            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
-            messages = stdout.decode("utf-8").strip()
-            errors = stderr.decode("utf-8").strip()
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
+        messages = stdout.decode("utf-8").strip()
+        errors = stderr.decode("utf-8").strip()
 
-            if proc.returncode != 0:
-                raise RuntimeError(f"\nMessages:\n{messages}\nErrors:\n{errors}")
+        if proc.returncode != 0:
+            raise RuntimeError(f"\nMessages:\n{messages}\nErrors:\n{errors}")
 
-            await proc.wait()
-            all_messages.append(messages)
+        await proc.wait()
+        all_messages.append(messages)
 
-        except asyncio.TimeoutError as err:
-            raise RuntimeError(f"{timeout} second timeout exceeded while building UI") from err
+    except asyncio.TimeoutError as err:
+        raise RuntimeError(f"{timeout} second timeout exceeded while building UI") from err
 
-        except Exception as err:
-            log.error(err)
-            raise RuntimeError(str(err)) from err
+    except Exception as err:
+        log.error(err)
+        raise RuntimeError(str(err)) from err
+
+    shutil.copytree(out_dir, build_dir)
+    log.bind(src=out_dir, dst=build_dir).debug("Migrated Next.JS build output")
 
     return "\n".join(all_messages)
 

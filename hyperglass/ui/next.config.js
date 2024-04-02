@@ -1,13 +1,3 @@
-const rewrites = async () => {
-  if (process.env.NODE_ENV === 'production') {
-    return [];
-  }
-  return [
-    { source: '/api/query', destination: `${process.env.HYPERGLASS_URL}api/query` },
-    { source: '/images/:image*', destination: `${process.env.HYPERGLASS_URL}images/:image*` },
-  ];
-};
-
 /**
  * @type {import('next').NextConfig}
  */
@@ -19,7 +9,14 @@ const nextConfig = {
   },
   swcMinify: true,
   productionBrowserSourceMaps: true,
-  rewrites,
+  output: 'export',
 };
+
+if (process.env.NODE_ENV === 'development') {
+  nextConfig.rewrites = [
+    { source: '/api/query', destination: `${process.env.HYPERGLASS_URL}api/query` },
+    { source: '/images/:image*', destination: `${process.env.HYPERGLASS_URL}images/:image*` },
+  ];
+}
 
 module.exports = nextConfig;
