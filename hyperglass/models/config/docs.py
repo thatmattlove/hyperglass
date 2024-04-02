@@ -37,18 +37,13 @@ class Docs(HyperglassModel):
     """Validation model for params.docs."""
 
     enable: bool = Field(True, title="Enable", description="Enable or disable API documentation.")
-    mode: DocsMode = Field(
-        "redoc",
-        title="Docs Mode",
-        description="OpenAPI UI library to use for the hyperglass API docs. Currently, the options are [Swagger UI](/fixme) and [Redoc](/fixme).",
-    )
     base_url: HttpUrl = Field(
         "https://lg.example.net",
         title="Base URL",
         description="Base URL used in request samples.",
     )
     path: AnyUri = Field(
-        "/docs",
+        "/api/docs",
         title="URI",
         description="HTTP URI/path where API documentation can be accessed.",
     )
