@@ -25,10 +25,6 @@ QueryTarget = constr(strip_whitespace=True, min_length=1)
 QueryType = constr(strip_whitespace=True, strict=True, min_length=1)
 
 
-def deserialize(kw: t.Dict[str, t.Any]) -> "Query":
-    return Query(**kw)
-
-
 class SimpleQuery(BaseModel):
     """A simple representation of a post-validated query."""
 
