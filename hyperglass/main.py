@@ -1,6 +1,7 @@
-"""Gunicorn Config File."""
+"""Start hyperglass."""
 
 # Standard Library
+import asyncio
 import sys
 import typing as t
 import logging
@@ -89,6 +90,11 @@ def unregister_all_plugins() -> None:
 def start(*, log_level: t.Union[str, int], workers: int) -> None:
     """Start hyperglass via ASGI server."""
 
+    register_all_plugins()
+
+    if not Settings.disable_ui:
+        asyncio.run(build_ui())
+
     uvicorn.run(
         app="hyperglass.api:app",
         host=str(Settings.host),
@@ -173,6 +179,7 @@ def run(workers: int = None):
         unregister_all_plugins()
         raise error
     except (SystemExit, BaseException):
+        unregister_all_plugins()
         sys.exit(4)
 
 
