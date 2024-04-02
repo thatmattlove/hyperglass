@@ -5,3 +5,6 @@ devices:
       username: test
       password: test
     platform: juniper
+    attrs:
+      source4: 127.0.0.1
+      source6: 2001:db8::1
