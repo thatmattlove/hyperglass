@@ -71,30 +71,23 @@ async def node_initial(timeout: int = 180, dev_mode: bool = False) -> str:
     if env_timeout is not None and env_timeout > timeout:
         timeout = env_timeout
 
-    all_messages = ()
+    proc = await asyncio.create_subprocess_shell(
+        cmd="pnpm install",
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+        cwd=ui_path,
+    )
 
-    try:
-        proc = await asyncio.create_subprocess_shell(
-            cmd="pnpm install",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            cwd=ui_path,
-        )
+    stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
+    messages = stdout.decode("utf-8").strip()
+    errors = stderr.decode("utf-8").strip()
 
-        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
-        messages = stdout.decode("utf-8").strip()
-        errors = stderr.decode("utf-8").strip()
+    if proc.returncode != 0:
+        raise RuntimeError(f"\nMessages:\n{messages}\nErrors:\n{errors}")
 
-        if proc.returncode != 0:
-            raise RuntimeError(f"\nMessages:\n{messages}\nErrors:\n{errors}")
+    await proc.wait()
 
-        await proc.wait()
-        all_messages += (messages,)
-
-    except Exception as err:
-        raise RuntimeError(str(err)) from err
-
-    return "\n".join(all_messages)
+    return "\n".join(messages)
 
 
 async def build_ui(app_path: Path):
@@ -110,7 +103,7 @@ async def build_ui(app_path: Path):
     build_dir = app_path / "static" / "ui"
     out_dir = ui_dir / "out"
 
-    build_command = "node_modules/.bin/next build --no-lint"
+    build_command = "node_modules/.bin/next build"
 
     all_messages = []
     try:
