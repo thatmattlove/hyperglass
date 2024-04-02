@@ -122,7 +122,7 @@ def init_logger(level: t.Union[int, str] = logging.INFO):
     # Reset built-in Loguru configurations.
     _loguru_logger.remove()
 
-    if not sys.stdout.isatty():
+    if sys.stdout.isatty():
         # Use Rich for logging if hyperglass started from a TTY.
 
         _loguru_logger.add(
