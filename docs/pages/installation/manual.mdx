@@ -43,14 +43,14 @@ mkdir /etc/hyperglass
 Do this if you just want to see the hyperglass page working with default settings and a fake device.
 
 ```shell copy
-curl -o /etc/hyperglass/devices.yaml https://github.com/thatmattlove/hyperglass/blob/v2.0.0/.samples/sample_devices.yaml
+curl -o /etc/hyperglass/devices.yaml https://raw.githubusercontent.com/thatmattlove/hyperglass/v2.0.0/.samples/sample_devices.yaml
 hyperglass start
 ```
 
 ### Create a `systemd` service
 
 ```shell copy
-curl -o /etc/hyperglass/hyperglass.service https://github.com/thatmattlove/hyperglass/blob/v2.0.0/.samples/hyperglass-manual.service
+curl -o /etc/hyperglass/hyperglass.service https://raw.githubusercontent.com/thatmattlove/hyperglass/v2.0.0/.samples/hyperglass-manual.service
 ln -s /etc/hyperglass/hyperglass.service /etc/systemd/system/hyperglass.service
 systemctl daemon-reload
 systemctl enable hyperglass
