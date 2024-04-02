@@ -25,6 +25,22 @@ QueryTarget = constr(strip_whitespace=True, min_length=1)
 QueryType = constr(strip_whitespace=True, strict=True, min_length=1)
 
 
+def deserialize(kw: t.Dict[str, t.Any]) -> "Query":
+    return Query(**kw)
+
+
+class SimpleQuery(BaseModel):
+    """A simple representation of a post-validated query."""
+
+    query_location: str
+    query_target: t.Union[t.List[str], str]
+    query_type: str
+
+    def __repr_name__(self) -> str:
+        """Alias SimpleQuery to Query for clarity in logging."""
+        return "Query"
+
+
 class Query(BaseModel):
     """Validation model for input query parameters."""
 
@@ -33,10 +49,12 @@ class Query(BaseModel):
     query_location: QueryLocation  # Device `name` field
     query_target: t.Union[t.List[QueryTarget], QueryTarget]
     query_type: QueryType  # Directive `id` field
+    _kwargs: t.Dict[str, t.Any]
 
     def __init__(self, **data) -> None:
         """Initialize the query with a UTC timestamp at initialization time."""
         super().__init__(**data)
+        self._kwargs = data
         self.timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
         state = use_state()
@@ -57,6 +75,14 @@ class Query(BaseModel):
             self.validate_query_target()
         except InputValidationError as err:
             raise InputInvalid(**err.kwargs) from err
+
+    def summary(self) -> SimpleQuery:
+        """Summarized and post-validated model of a Query."""
+        return SimpleQuery(
+            query_location=self.query_location,
+            query_target=self.query_target,
+            query_type=self.query_type,
+        )
 
     def __repr__(self) -> str:
         """Represent only the query fields."""
@@ -82,7 +108,7 @@ class Query(BaseModel):
         self.directive.validate_target(self.query_target)
         # Run plugin-based validations.
         self._input_plugin_manager.validate(query=self)
-        log.debug("Validation passed for query {!r}", self)
+        log.bind(query=self.summary()).debug("Validation passed")
 
     def transform_query_target(self) -> QueryTarget:
         """Transform a query target based on defined plugins."""

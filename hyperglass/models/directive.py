@@ -107,19 +107,22 @@ class RuleWithIP(Rule):
 
     def membership(self, target: IPvAnyNetwork, network: IPvAnyNetwork) -> bool:
         """Check if IP address belongs to network."""
-        log.debug("Checking membership of {} for {}", str(target), str(network))
+        _log = log.bind(target=str(target), network=str(network))
+        _log.debug("Checking target membership")
         if (
             network.network_address <= target.network_address
             and network.broadcast_address >= target.broadcast_address
         ):
-            log.debug("{} is a member of {}", target, network)
+            _log.debug("Target membership verified")
             return True
         return False
 
     def in_range(self, target: IPvAnyNetwork) -> bool:
         """Verify if target prefix length is within ge/le threshold."""
         if target.prefixlen <= self.le and target.prefixlen >= self.ge:
-            log.debug("{} is in range {}-{}", target, self.ge, self.le)
+            log.bind(target=str(target), range=f"{self.ge!s}-{self.le!s}").debug(
+                "Target is in range"
+            )
             return True
 
         return False
@@ -130,7 +133,7 @@ class RuleWithIP(Rule):
         if isinstance(target, t.List):
             if len(target) > 1:
                 self._passed = False
-                raise InputValidationError("Target must be a single value")
+                raise InputValidationError(error="Target must be a single value", target=target)
             target = target[0]
 
         try:
@@ -141,7 +144,9 @@ class RuleWithIP(Rule):
             raise InputValidationError(error=str(err), target=target) from err
 
         if valid_target.version != self.condition.version:
-            log.debug("{!s} is not the same IP version as {!s}", target, self.condition)
+            log.bind(target=str(target), condition=str(self.condition)).debug(
+                "Mismatching IP version"
+            )
             return False
 
         is_member = self.membership(valid_target, self.condition)
@@ -223,7 +228,7 @@ class RuleWithPattern(Rule):
             return True
 
         if isinstance(target, t.List) and not multiple:
-            raise InputValidationError("Target must be a single value")
+            raise InputValidationError(error="Target must be a single value", target=target)
 
         result = validate_single_value(target)
 

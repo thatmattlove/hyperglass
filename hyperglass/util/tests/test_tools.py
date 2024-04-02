@@ -13,6 +13,7 @@ from ..tools import (
     get_fmt_keys,
     compare_dicts,
     compare_lists,
+    dict_to_kwargs,
     snake_to_camel,
     parse_exception,
     repr_from_attrs,
@@ -115,7 +116,6 @@ def test_at_least():
 
 
 def test_compare_dicts():
-
     d1 = {"one": 1, "two": 2}
     d2 = {"one": 1, "two": 2}
     d3 = {"one": 1, "three": 3}
@@ -189,3 +189,25 @@ def test_compare_lists():
     assert compare_lists(list1, list2) is False
     assert compare_lists(list1, list3) is False
     assert compare_lists(list1, list4) is True
+
+
+def test_dict_to_kwargs():
+    class Test:
+        one: int
+        two: int
+
+        def __init__(self, **kw) -> None:
+            for k, v in kw.items():
+                setattr(self, k, v)
+
+        def __repr__(self) -> str:
+            return "Test(one={}, two={})".format(self.one, self.two)
+
+    d1 = {"one": 1, "two": 2}
+    e1 = "one=1 two=2"
+    d2 = {"cls": Test(one=1, two=2), "three": "three"}
+    e2 = "cls=Test(one=1, two=2) three='three'"
+    r1 = dict_to_kwargs(d1)
+    assert r1 == e1
+    r2 = dict_to_kwargs(d2)
+    assert r2 == e2

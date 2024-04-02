@@ -12,7 +12,6 @@ from pathlib import Path
 # Project
 from hyperglass.log import log
 from hyperglass.util import copyfiles, check_path, dotenv_to_dict
-from hyperglass.state import use_state
 
 if t.TYPE_CHECKING:
     # Project
@@ -25,11 +24,7 @@ def get_ui_build_timeout() -> t.Optional[int]:
 
     if "HYPERGLASS_UI_BUILD_TIMEOUT" in os.environ:
         timeout = int(os.environ["HYPERGLASS_UI_BUILD_TIMEOUT"])
-        log.info("Found UI build timeout environment variable: {}", timeout)
-
-    elif "POETRY_HYPERGLASS_UI_BUILD_TIMEOUT" in os.environ:
-        timeout = int(os.environ["POETRY_HYPERGLASS_UI_BUILD_TIMEOUT"])
-        log.info("Found UI build timeout environment variable: {}", timeout)
+        log.bind(timeout=timeout).debug("Found UI build timeout environment variable")
 
     return timeout
 
@@ -61,7 +56,7 @@ async def read_package_json() -> t.Dict[str, t.Any]:
     except Exception as err:
         raise RuntimeError(f"Error reading package.json: {str(err)}") from err
 
-    log.debug("package.json:\n{p}", p=package_json)
+    log.bind(package_json=package_json).debug("package.json value")
 
     return package_json
 
@@ -173,7 +168,7 @@ def generate_opengraph(
 
     # Copy the original image to the target path
     copied = shutil.copy2(image_path, target_path)
-    log.debug("Copied {} to {}", str(image_path), str(target_path))
+    log.bind(source=str(image_path), destination=str(target_path)).debug("Copied OpenGraph image")
 
     with Image.open(copied) as src:
         # Only resize the image if it needs to be resized
@@ -200,8 +195,7 @@ def generate_opengraph(
 
         if not dst_path.exists():
             raise RuntimeError(f"Unable to save resized image to {str(dst_path)}")
-
-        log.debug("Opengraph image ready at {}", str(dst_path))
+        log.bind(path=str(dst_path)).debug("OpenGraph image ready")
 
     return True
 
@@ -327,7 +321,7 @@ async def build_frontend(  # noqa: C901
         base_url="/images/favicons/",
     ) as favicons:
         await favicons.generate()
-        log.debug("Generated {} favicons", favicons.completed)
+        log.bind(count=favicons.completed).debug("Generated favicons")
         write_favicon_formats(favicons.formats())
 
     build_data = {
@@ -337,7 +331,7 @@ async def build_frontend(  # noqa: C901
     }
 
     build_json = json.dumps(build_data, default=str)
-    log.debug("UI Build Data:\n{}", build_json)
+    log.bind(data=build_json).debug("UI Build Data")
 
     # Create SHA256 hash from all parameters passed to UI, use as
     # build identifier.
@@ -348,7 +342,7 @@ async def build_frontend(  # noqa: C901
     if dot_env_file.exists() and not force:
         env_data = dotenv_to_dict(dot_env_file)
         env_build_id = env_data.get("HYPERGLASS_BUILD_ID", "None")
-        log.debug("Previous Build ID: {!r}", env_build_id)
+        log.bind(id=env_build_id).debug("Previous build detected")
 
         if env_build_id == build_id:
             log.debug("UI parameters unchanged since last build, skipping UI build...")
@@ -357,7 +351,7 @@ async def build_frontend(  # noqa: C901
     env_config.update({"HYPERGLASS_BUILD_ID": build_id})
 
     dot_env_file.write_text("\n".join(f"{k}={v}" for k, v in env_config.items()))
-    log.debug("Wrote UI environment file {!r}", str(dot_env_file))
+    log.bind(path=str(dot_env_file)).debug("Wrote UI environment file")
 
     # Initiate Next.JS export process.
     if any((not dev_mode, force, full)):
@@ -371,7 +365,7 @@ async def build_frontend(  # noqa: C901
             log.debug("Re-initialized node_modules")
 
         if build_result:
-            log.success("Completed UI build")
+            log.info("Completed UI build")
     elif dev_mode and not force:
         log.debug("Running in developer mode, did not build new UI files")
 

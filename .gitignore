@@ -6,7 +6,7 @@ TODO*
 test.py
 .DS_Store
 .idea
-old_*.py
+*_old.py
 *.rdb
 #
 # Github Default from https://github.com/martinohanlon/flightlight/issues/1

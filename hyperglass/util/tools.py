@@ -183,3 +183,12 @@ def compare_init(obj_a: object, obj_b: object) -> bool:
         obj_b.__init__.__annotations__.pop("self", None)
         return compare_dicts(obj_a.__init__.__annotations__, obj_b.__init__.__annotations__)
     return False
+
+
+def dict_to_kwargs(in_dict: t.Dict[str, t.Any]) -> str:
+    """Format a dict as a string of key/value pairs."""
+    items = []
+    for key, value in in_dict.items():
+        out_str = f"{key}={value!r}"
+        items = [*items, out_str]
+    return " ".join(items)

@@ -107,6 +107,7 @@ class PublicHyperglassError(HyperglassError):
 
     _level = "warning"
     _message_template = "Something went wrong."
+    _original_template_name: str = ""
 
     def __init_subclass__(
         cls, *, template: Optional[str] = None, level: Optional[ErrorLevel] = None
@@ -115,6 +116,7 @@ class PublicHyperglassError(HyperglassError):
 
         if template is not None:
             cls._message_template = template
+            cls._original_template_name = template
         if level is not None:
             cls._level = level
 
@@ -128,18 +130,16 @@ class PublicHyperglassError(HyperglassError):
             error = self._safe_format(str(error), **kwargs)
             kwargs["error"] = error
 
+        template = self._message_template
+
         (messages := use_state("params").messages)
-        if messages.has(self._message_template):
-            self._message_template = messages[self._message_template]
-        self._message = self._safe_format(self._message_template, **kwargs)
+        if messages.has(self._original_template_name):
+            template = messages[self._original_template_name]
+        if "error" in kwargs and "({error})" not in template:
+            template += " ({error})"
+        self._message = self._safe_format(template, **kwargs)
         self._keywords = list(kwargs.values())
         super().__init__(message=self._message, level=self._level, keywords=self._keywords)
-
-    def handle_error(self, error: Any) -> None:
-        """Add details to the error template, if provided."""
-
-        if error is not None:
-            self._message_template = self._message_template + " ({error})"
 
 
 class PrivateHyperglassError(HyperglassError):
@@ -156,7 +156,7 @@ class PrivateHyperglassError(HyperglassError):
             k: ", ".join(str(loc) for t in errors for loc in t["loc"] if t["type"] == k)
             for k in {e["type"] for e in errors}
         }
-        return ", ".join([f"{k} ({v})" for k, v in parsed.items()])
+        return ", ".join(parsed.values())
 
     def __init_subclass__(cls, *, level: Optional[ErrorLevel] = None) -> None:
         """Override error attributes from subclass."""

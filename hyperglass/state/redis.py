@@ -172,11 +172,12 @@ class RedisManager:
             ) -> None:
                 pipeline_self.instance.execute()
                 if exc_type is not None:
-                    log.error(
-                        "Error in pipeline {!r} from parent instance {!r}:\n{!s}",
-                        pipeline_self,
-                        pipeline_self.parent,
-                        exc_value,
+                    log.bind(
+                        pipeline=repr(pipeline_self),
+                        parent=repr(pipeline_self.parent),
+                        error=exc_value,
+                    ).error(
+                        "Error exiting pipeline",
                     )
 
         return RedisManagerPipeline(

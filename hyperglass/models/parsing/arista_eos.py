@@ -163,5 +163,5 @@ class AristaBGPTable(_AristaBase):
             winning_weight=WINNING_WEIGHT,
         )
 
-        log.debug("Serialized Arista response: {!r}", serialized)
+        log.bind(platform="arista_eos", response=repr(serialized)).debug("Serialized response")
         return serialized

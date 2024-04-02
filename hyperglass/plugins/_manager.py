@@ -111,10 +111,11 @@ class PluginManager(t.Generic[PluginT]):
             if issubclass(plugin, HyperglassPlugin):
                 instance = plugin(*args, **kwargs)
                 self._state.add_plugin(self._type, instance)
+                _log = log.bind(type=self._type, name=instance.name)
                 if instance._hyperglass_builtin is True:
-                    log.debug("Registered {} built-in plugin {!r}", self._type, instance.name)
+                    _log.debug("Registered built-in plugin")
                 else:
-                    log.success("Registered {} plugin {!r}", self._type, instance.name)
+                    _log.info("Registered plugin")
                 return
         except TypeError:
             raise PluginError(  # noqa: B904
@@ -148,7 +149,7 @@ class InputPluginManager(PluginManager[InputPlugin], type="input"):
         for plugin in self._gather_plugins(query):
             result = plugin.validate(query)
             result_test = "valid" if result is True else "invalid" if result is False else "none"
-            log.debug("Input Plugin Validation {!r} result={!r}", plugin.name, result_test)
+            log.bind(name=plugin.name, result=result_test).debug("Input Plugin Validation")
             if result is False:
                 raise InputValidationError(
                     error="No matched validation rules", target=query.query_target
@@ -162,7 +163,7 @@ class InputPluginManager(PluginManager[InputPlugin], type="input"):
         result = query.query_target
         for plugin in self._gather_plugins(query):
             result = plugin.transform(query=query)
-            log.debug("Input Plugin Transform {!r} result={!r}", plugin.name, result)
+            log.bind(name=plugin.name, result=repr(result)).debug("Input Plugin Transform")
         return result
 
 
@@ -182,9 +183,9 @@ class OutputPluginManager(PluginManager[OutputPlugin], type="output"):
         )
         common = (plugin for plugin in self.plugins() if plugin.common is True)
         for plugin in (*directives, *common):
-            log.debug("Output Plugin {!r} starting with\n{!r}", plugin.name, result)
+            log.bind(plugin=plugin.name, value=result).debug("Output Plugin Starting Value")
             result = plugin.process(output=result, query=query)
-            log.debug("Output Plugin {!r} completed with\n{!r}", plugin.name, result)
+            log.bind(plugin=plugin.name, value=result).debug("Output Plugin Ending Value")
 
             if result is False:
                 return result

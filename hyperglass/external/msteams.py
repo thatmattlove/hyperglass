@@ -25,7 +25,6 @@ class MSTeams(BaseExternal, name="MSTeams"):
         """Send an incoming webhook to Microsoft Teams."""
 
         payload = Webhook(**query)
-
-        log.debug("Sending query data to Microsoft Teams:\n{}", payload)
+        log.bind(destination="MS Teams", payload=payload).debug("Sending request")
 
         return await self._apost(endpoint=self.config.host.path, data=payload.msteams())

@@ -108,7 +108,7 @@ class Webhook(HyperglassModel):
                 {"markdown": True, "facts": header_data},
             ],
         }
-        log.debug("Created MS Teams webhook: {}", str(payload))
+        log.bind(type="MS Teams", payload=str(payload)).debug("Created webhook")
 
         return payload
 
@@ -158,5 +158,5 @@ class Webhook(HyperglassModel):
                 },
             ],
         }
-        log.debug("Created Slack webhook: {}", str(payload))
+        log.bind(type="Slack", payload=str(payload)).debug("Created webhook")
         return payload

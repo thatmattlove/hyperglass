@@ -8,8 +8,6 @@ from pathlib import Path
 import pytest
 
 # Project
-from hyperglass.log import log
-from hyperglass.models.api.query import Query
 from hyperglass.models.data.bgp_route import BGPRouteTable
 
 # Local

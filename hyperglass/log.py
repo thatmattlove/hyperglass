@@ -11,9 +11,9 @@ from loguru import logger as _loguru_logger
 from rich.theme import Theme
 from rich.console import Console
 from rich.logging import RichHandler
-from gunicorn.glogging import Logger as GunicornLogger  # type: ignore
 
 # Local
+from .util import dict_to_kwargs
 from .constants import __version__
 
 if t.TYPE_CHECKING:
@@ -21,20 +21,21 @@ if t.TYPE_CHECKING:
     from pathlib import Path
 
     # Third Party
-    from loguru import Logger as LoguruLogger
+    from loguru import Logger as Record
     from pydantic import ByteSize
 
     # Project
     from hyperglass.models.fields import LogFormat
 
-_FMT = (
-    "<lvl><b>[{level}]</b> {time:YYYYMMDD} {time:HH:mm:ss} <lw>|</lw> {name}<lw>:</lw>"
-    "<b>{line}</b> <lw>|</lw> {function}</lvl> <lvl><b>→</b></lvl> {message}"
+_FMT_DEBUG = (
+    "<lvl><b>[{level}]</b> {time:YYYYMMDD} {time:HH:mm:ss} <lw>|</lw>"
+    "<b>{line}</b> <lw>|</lw> {function}</lvl> <lvl><b>→</b></lvl> {message} {extra}"
 )
 
-_FMT_FILE = "[{time:YYYYMMDD} {time:HH:mm:ss}] {message}"
-_DATE_FMT = "%Y%m%d %H:%M:%S"
-_FMT_BASIC = "{message}"
+_FMT = "<lvl><b>[{level}]</b> {time:YYYYMMDD} {time:HH:mm:ss} <lw>|</lw></lvl> {message} {extra}"
+
+_FMT_FILE = "[{time:YYYYMMDD} {time:HH:mm:ss}] {message} {extra}"
+_FMT_BASIC = "{message} {extra}"
 _LOG_LEVELS = [
     {"name": "TRACE", "color": "<m>"},
     {"name": "DEBUG", "color": "<c>"},
@@ -66,6 +67,32 @@ HyperglassConsole = Console(
 log = _loguru_logger
 
 
+def formatter(record: "Record") -> str:
+    """Format log messages with extra data as kwargs string."""
+    msg = record.get("message", "")
+    extra = record.get("extra", {})
+    extra_str = dict_to_kwargs(extra)
+    return " ".join((msg, extra_str))
+
+
+def filter_uvicorn_values(record: "Record") -> bool:
+    """Drop noisy uvicorn messages."""
+    drop = (
+        "Application startup",
+        "Application shutdown",
+        "Finished server process",
+        "Shutting down",
+        "Waiting for application",
+        "Started server process",
+        "Started parent process",
+        "Stopping parent process",
+    )
+    for match in drop:
+        if match in record["message"]:
+            return False
+    return True
+
+
 class LibInterceptHandler(logging.Handler):
     """Custom log handler for integrating third party library logging with hyperglass's logger."""
 
@@ -89,103 +116,50 @@ class LibInterceptHandler(logging.Handler):
         _loguru_logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
 
 
-class CustomGunicornLogger(GunicornLogger):
-    """Custom logger to direct Gunicorn/Uvicorn logs to Loguru.
-
-    See: https://pawamoy.github.io/posts/unify-logging-for-a-gunicorn-uvicorn-app/
-    """
-
-    def setup(self, cfg: t.Any) -> None:
-        """Override Gunicorn setup."""
-        handler = logging.NullHandler()
-        self.error_logger = logging.getLogger("gunicorn.error")
-        self.error_logger.addHandler(handler)
-        self.access_logger = logging.getLogger("gunicorn.access")
-        self.access_logger.addHandler(handler)
-        self.error_logger.setLevel(cfg.loglevel)
-        self.access_logger.setLevel(cfg.loglevel)
-
-
-def setup_lib_logging(log_level: str) -> None:
-    """Override the logging handlers for dependency libraries.
-
-    See: https://pawamoy.github.io/posts/unify-logging-for-a-gunicorn-uvicorn-app/
-    """
-
-    intercept_handler = LibInterceptHandler()
-    names = {
-        name.split(".")[0]
-        for name in (
-            *logging.root.manager.loggerDict.keys(),
-            "gunicorn",
-            "gunicorn.access",
-            "gunicorn.error",
-            "uvicorn",
-            "uvicorn.access",
-            "uvicorn.error",
-            "uvicorn.asgi",
-            "netmiko",
-            "paramiko",
-            "httpx",
-        )
-    }
-    for name in names:
-        logging.getLogger(name).handlers = [intercept_handler]
-
-
-def _log_patcher(record):
-    """Patch for exception handling in logger.
-
-    See: https://github.com/Delgan/loguru/issues/504
-    """
-    exception = record["exception"]
-    if exception is not None:
-        fixed = Exception(str(exception.value))
-        record["exception"] = exception._replace(value=fixed)
-
-
-def init_logger(level: str = "INFO"):
+def init_logger(level: t.Union[int, str] = logging.INFO):
     """Initialize hyperglass logging instance."""
 
     # Reset built-in Loguru configurations.
     _loguru_logger.remove()
 
-    if sys.stdout.isatty():
+    if not sys.stdout.isatty():
         # Use Rich for logging if hyperglass started from a TTY.
 
         _loguru_logger.add(
             sink=RichHandler(
                 console=HyperglassConsole,
                 rich_tracebacks=True,
-                level=level,
-                tracebacks_show_locals=level == "DEBUG",
+                tracebacks_show_locals=level == logging.DEBUG,
                 log_time_format="[%Y%m%d %H:%M:%S]",
             ),
-            format=_FMT_BASIC,
+            format=formatter,
             level=level,
+            filter=filter_uvicorn_values,
             enqueue=True,
         )
     else:
         # Otherwise, use regular format.
-        _loguru_logger.add(sys.stdout, format=_FMT, level=level, enqueue=True)
+        _loguru_logger.add(
+            sink=sys.stdout,
+            enqueue=True,
+            format=_FMT if level == logging.INFO else _FMT_DEBUG,
+            level=level,
+            filter=filter_uvicorn_values,
+        )
 
-    _loguru_logger.configure(levels=_LOG_LEVELS, patcher=_log_patcher)
+    _loguru_logger.configure(levels=_LOG_LEVELS)
 
     return _loguru_logger
 
 
-def _log_success(self: "LoguruLogger", message: str, *a: t.Any, **kw: t.Any) -> None:
-    """Add custom builtin logging handler for the success level."""
-    if self.isEnabledFor(25):
-        self._log(25, message, a, **kw)
-
-
 def enable_file_logging(
-    log_directory: "Path", log_format: "LogFormat", log_max_size: "ByteSize", debug: bool
+    *,
+    directory: "Path",
+    log_format: "LogFormat",
+    max_size: "ByteSize",
+    level: t.Union[str, int],
 ) -> None:
     """Set up file-based logging from configuration parameters."""
-
-    log_level = "DEBUG" if debug else "INFO"
 
     if log_format == "json":
         log_file_name = "hyperglass.log.json"
@@ -194,7 +168,7 @@ def enable_file_logging(
         log_file_name = "hyperglass.log"
         structured = False
 
-    log_file = log_directory / log_file_name
+    log_file = directory / log_file_name
 
     if log_format == "text":
         now_str = datetime.utcnow().strftime("%B %d, %Y beginning at %H:%M:%S UTC")
@@ -203,7 +177,7 @@ def enable_file_logging(
             for line in (
                 f"hyperglass {__version__}",
                 f"Logs for {now_str}",
-                f"Log Level: {log_level}",
+                f"Log Level: {'INFO' if level == logging.INFO else 'DEBUG'}",
             )
         )
         header = "\n" + "\n".join(header_lines) + "\n"
@@ -216,31 +190,22 @@ def enable_file_logging(
         sink=log_file,
         format=_FMT_FILE,
         serialize=structured,
-        level=log_level,
+        level=level,
         encoding="utf8",
-        rotation=log_max_size.human_readable(),
+        rotation=max_size.human_readable(),
     )
-    log.debug("Logging to file {!s}", log_file)
+    _loguru_logger.bind(path=log_file).debug("Logging to file")
 
 
-def enable_syslog_logging(syslog_host: str, syslog_port: int) -> None:
+def enable_syslog_logging(*, host: str, port: int) -> None:
     """Set up syslog logging from configuration parameters."""
 
     # Standard Library
     from logging.handlers import SysLogHandler
 
     _loguru_logger.add(
-        SysLogHandler(address=(str(syslog_host), syslog_port)),
+        SysLogHandler(address=(str(host), port)),
         format=_FMT_BASIC,
         enqueue=True,
     )
-    log.debug(
-        "Logging to syslog target {}:{} enabled",
-        str(syslog_host),
-        str(syslog_port),
-    )
-
-
-# Side Effects
-logging.addLevelName(25, "SUCCESS")
-logging.Logger.success = _log_success
+    _loguru_logger.bind(host=host, port=port).debug("Logging to syslog target")

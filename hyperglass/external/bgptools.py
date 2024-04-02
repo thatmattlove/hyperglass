@@ -82,7 +82,6 @@ def parse_whois(output: str, targets: t.List[str]) -> TargetDetail:
     data = {}
 
     for line in lines(output):
-
         # Unpack each line's parsed values.
         asn, ip, prefix, country, rir, allocated, org = line
 
@@ -98,8 +97,7 @@ def parse_whois(output: str, targets: t.List[str]) -> TargetDetail:
                 "allocated": allocated,
                 "org": org,
             }
-
-    log.debug("Parsed bgp.tools data: {}", data)
+    log.bind(data=data).debug("Parsed bgp.tools data")
     return data
 
 
@@ -151,7 +149,7 @@ async def network_info(*targets: str) -> TargetData:
     for target in (target for target in query_targets if target in cached):
         # Reassign the cached network info to the matching resource.
         query_data[target] = cached[target]
-        log.debug("Using cached network info for {}", target)
+        log.bind(target=target).debug("Using cached network info")
 
     # Remove cached items from the resource list so they're not queried.
     targets = [t for t in query_targets if t not in cached]
@@ -167,10 +165,10 @@ async def network_info(*targets: str) -> TargetData:
                 # Cache the response
                 for target in targets:
                     cache.set_map_item(CACHE_KEY, target, query_data[target])
-                    log.debug("Cached network info for {}", t)
+                    log.bind(target=t).debug("Cached network info")
 
     except Exception as err:
-        log.error(str(err))
+        log.error(err)
 
     return {**default_data, **query_data}
 

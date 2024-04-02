@@ -59,11 +59,9 @@ class InvalidQuery(PublicHyperglassError, template="request_timeout"):
         kwargs = {
             "query_type": query.query_type,
             "target": query.query_target,
+            "error": str(error),
             **kwargs,
         }
-        if error is not None:
-            self.handle_error(error)
-            kwargs["error"] = str(error)
 
         super().__init__(**kwargs)
 
@@ -109,10 +107,7 @@ class InputInvalid(PublicHyperglassError, template="invalid_input"):
     ) -> None:
         """Initialize parent error."""
 
-        kwargs = {"target": target, **kwargs}
-        if error is not None:
-            self.handle_error(error)
-            kwargs["error"] = str(error)
+        kwargs = {"target": target, "error": str(error), **kwargs}
 
         super().__init__(**kwargs)
 
@@ -128,11 +123,9 @@ class InputNotAllowed(PublicHyperglassError, template="target_not_allowed"):
         kwargs = {
             "query_type": query.query_type,
             "target": query.query_target,
+            "error": str(error),
             **kwargs,
         }
-        if error is not None:
-            self.handle_error(error)
-            kwargs["error"] = str(error)
 
         super().__init__(**kwargs)
 
@@ -148,10 +141,8 @@ class ResponseEmpty(PublicHyperglassError, template="no_output"):
         kwargs = {
             "query_type": query.query_type,
             "target": query.query_target,
+            "error": str(error),
             **kwargs,
         }
-        if error is not None:
-            self.handle_error(error)
-            kwargs["error"] = str(error)
 
         super().__init__(**kwargs)

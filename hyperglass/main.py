@@ -2,17 +2,14 @@
 
 # Standard Library
 import sys
-import shutil
 import typing as t
-import asyncio
-import platform
+import logging
 
 # Third Party
-from gunicorn.arbiter import Arbiter  # type: ignore
-from gunicorn.app.base import BaseApplication  # type: ignore
+import uvicorn
 
 # Local
-from .log import log, init_logger, setup_lib_logging
+from .log import LibInterceptHandler, init_logger, enable_file_logging, enable_syslog_logging
 from .util import get_node_version
 from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
 
@@ -34,10 +31,9 @@ from .util import cpu_count
 from .state import use_state
 from .settings import Settings
 
-log_level = "INFO" if Settings.debug is False else "DEBUG"
-
-setup_lib_logging(log_level)
-init_logger(log_level)
+LOG_LEVEL = logging.INFO if Settings.debug is False else logging.DEBUG
+logging.basicConfig(handlers=[LibInterceptHandler()], level=0, force=True)
+log = init_logger(LOG_LEVEL)
 
 
 async def build_ui() -> bool:
@@ -78,10 +74,7 @@ def register_all_plugins() -> None:
         failures += register_plugin(plugin_file, common=True)
 
     for failure in failures:
-        log.warning(
-            "Plugin {!r} is not a valid hyperglass plugin and was not registered",
-            failure,
-        )
+        log.bind(plugin=failure).warning("Invalid hyperglass plugin")
 
 
 def unregister_all_plugins() -> None:
@@ -93,124 +86,93 @@ def unregister_all_plugins() -> None:
         manager().reset()
 
 
-def on_starting(server: "Arbiter") -> None:
-    """Gunicorn pre-start tasks."""
+def start(*, log_level: t.Union[str, int], workers: int) -> None:
+    """Start hyperglass via ASGI server."""
 
-    python_version = platform.python_version()
-    required = ".".join((str(v) for v in MIN_PYTHON_VERSION))
-    log.debug("Python {} detected ({} required)", python_version, required)
-
-    register_all_plugins()
-
-    if not Settings.disable_ui:
-        asyncio.run(build_ui())
-
-
-def when_ready(server: "Arbiter") -> None:
-    """Gunicorn post-start hook."""
-
-    log.success(
-        "Started hyperglass {} on http://{} with {!s} workers",
-        __version__,
-        Settings.bind(),
-        server.app.cfg.settings["workers"].value,
+    uvicorn.run(
+        app="hyperglass.api:app",
+        host=str(Settings.host),
+        port=Settings.port,
+        workers=workers,
+        log_level=log_level,
+        log_config={
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "default": {
+                    "()": "uvicorn.logging.DefaultFormatter",
+                    "format": "%(message)s",
+                },
+                "access": {
+                    "()": "uvicorn.logging.AccessFormatter",
+                    "format": "%(message)s",
+                },
+            },
+            "handlers": {
+                "default": {"formatter": "default", "class": "hyperglass.log.LibInterceptHandler"},
+                "access": {"formatter": "access", "class": "hyperglass.log.LibInterceptHandler"},
+            },
+            "loggers": {
+                "uvicorn.error": {"level": "ERROR", "handlers": ["default"], "propagate": False},
+                "uvicorn.access": {"level": "INFO", "handlers": ["access"], "propagate": False},
+            },
+        },
     )
 
 
-def on_exit(_: t.Any) -> None:
-    """Gunicorn shutdown tasks."""
-
-    state = use_state()
-    if not Settings.dev_mode:
-        state.clear()
-        log.info("Cleared hyperglass state")
-
-    unregister_all_plugins()
-
-    log.critical("Stopping hyperglass {}", __version__)
-
-
-class HyperglassWSGI(BaseApplication):
-    """Custom gunicorn app."""
-
-    def __init__(self: "HyperglassWSGI", app: str, options: t.Dict[str, t.Any]):
-        """Initialize custom WSGI."""
-        self.application = app
-        self.options = options or {}
-        super().__init__()
-
-    def load_config(self: "HyperglassWSGI"):
-        """Load gunicorn config."""
-        config = {
-            key: value
-            for key, value in self.options.items()
-            if key in self.cfg.settings and value is not None
-        }
-
-        for key, value in config.items():
-            self.cfg.set(key.lower(), value)
-
-    def load(self: "HyperglassWSGI"):
-        """Load gunicorn app."""
-        return self.application
-
-
-def start(*, log_level: str, workers: int, **kwargs) -> None:
-    """Start hyperglass via gunicorn."""
-
-    # Local
-    from .log import CustomGunicornLogger
-
-    HyperglassWSGI(
-        app="hyperglass.api:app",
-        options={
-            "preload": True,
-            "errorlog": "-",
-            "accesslog": "-",
-            "workers": workers,
-            "on_exit": on_exit,
-            "loglevel": log_level,
-            "bind": Settings.bind(),
-            "on_starting": on_starting,
-            "when_ready": when_ready,
-            "command": shutil.which("gunicorn"),
-            "logger_class": CustomGunicornLogger,
-            "worker_class": "uvicorn.workers.UvicornWorker",
-            "logconfig_dict": {"formatters": {"generic": {"format": "%(message)s"}}},
-            **kwargs,
-        },
-    ).run()
-
-
-def run(_workers: int = None):
+def run(workers: int = None):
     """Run hyperglass."""
     # Local
     from .configuration import init_user_config
 
     try:
-        log.debug("System settings: {!r}", Settings)
+        log.debug(repr(Settings))
 
         state = use_state()
         state.clear()
 
         init_user_config()
 
-        workers = 1 if Settings.debug else cpu_count(2)
+        enable_file_logging(
+            directory=state.params.logging.directory,
+            max_size=state.params.logging.max_size,
+            log_format=state.params.logging.format,
+            level=LOG_LEVEL,
+        )
 
-        start(log_level=log_level, workers=workers)
+        if state.params.logging.syslog is not None:
+            enable_syslog_logging(
+                host=state.params.logging.syslog.host,
+                port=state.params.logging.syslog.port,
+            )
+        _workers = workers
+
+        if workers is None:
+            if Settings.debug:
+                _workers = 1
+            else:
+                _workers = cpu_count(2)
+
+        log.bind(
+            version=__version__,
+            listening=f"http://{Settings.bind()}",
+            workers=_workers,
+        ).info(
+            "Starting hyperglass",
+        )
+
+        start(log_level=LOG_LEVEL, workers=_workers)
+        log.bind(version=__version__).critical("Stopping hyperglass")
     except Exception as error:
         log.critical(error)
         # Handle app exceptions.
         if not Settings.dev_mode:
             state = use_state()
             state.clear()
-            log.info("Cleared Redis cache")
+            log.debug("Cleared hyperglass state")
         unregister_all_plugins()
         raise error
-    except SystemExit:
-        # Handle Gunicorn exit.
-        sys.exit(4)
-    except BaseException:
+    except (SystemExit, BaseException):
         sys.exit(4)
 
 

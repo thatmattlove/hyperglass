@@ -1,4 +1,6 @@
 """hyperglass API."""
+# Standard Library
+import logging
 
 # Third Party
 from litestar import Litestar
@@ -33,21 +35,28 @@ OPEN_API = OpenAPIConfig(
     root_schema_site="elements",
 )
 
+HANDLERS = [
+    device,
+    devices,
+    queries,
+    info,
+    query,
+]
 
-app = Litestar(
-    route_handlers=[
-        device,
-        devices,
-        queries,
-        info,
-        query,
+if not STATE.settings.disable_ui:
+    HANDLERS = [
+        *HANDLERS,
         create_static_files_router(
             path="/images", directories=[IMAGES_DIR], name="images", include_in_schema=False
         ),
         create_static_files_router(
             path="/", directories=[UI_DIR], name="ui", html_mode=True, include_in_schema=False
         ),
-    ],
+    ]
+
+
+app = Litestar(
+    route_handlers=HANDLERS,
     exception_handlers={
         HTTPException: http_handler,
         HyperglassError: app_handler,

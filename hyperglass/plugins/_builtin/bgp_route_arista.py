@@ -28,11 +28,13 @@ def parse_arista(output: t.Sequence[str]) -> "OutputDataModel":
     """Parse a Arista BGP JSON response."""
     result = None
 
+    _log = log.bind(plugin=BGPRoutePluginArista.__name__)
+
     for response in output:
         try:
             parsed: t.Dict = json.loads(response)
 
-            log.debug("Pre-parsed data:\n{}", parsed)
+            _log.debug("Pre-parsed data", data=parsed)
 
             vrf = list(parsed["vrfs"].keys())[0]
             routes = parsed["vrfs"][vrf]
@@ -46,19 +48,19 @@ def parse_arista(output: t.Sequence[str]) -> "OutputDataModel":
                 result += bgp_table
 
         except json.JSONDecodeError as err:
-            log.critical("Error decoding JSON: {}", str(err))
+            _log.bind(error=str(err)).critical("Failed to decode JSON")
             raise ParsingError("Error parsing response data") from err
 
         except KeyError as err:
-            log.critical("'{}' was not found in the response", str(err))
+            _log.bind(key=str(err)).critical("Missing required key in response")
             raise ParsingError("Error parsing response data") from err
 
         except IndexError as err:
-            log.critical(str(err))
+            _log.critical(err)
             raise ParsingError("Error parsing response data") from err
 
         except ValidationError as err:
-            log.critical(str(err))
+            _log.critical(err)
             raise ParsingError(err.errors()) from err
 
     return result

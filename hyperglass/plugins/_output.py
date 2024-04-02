@@ -25,5 +25,5 @@ class OutputPlugin(HyperglassPlugin, DirectivePlugin, PlatformPlugin):
 
     def process(self, *, output: OutputType, query: "Query") -> OutputType:
         """Process or manipulate output from a device."""
-        log.warning("Output plugin '{}' has not implemented a 'process()' method", self.name)
+        log.warning("Output plugin has not implemented a 'process()' method", plugin=self.name)
         return output

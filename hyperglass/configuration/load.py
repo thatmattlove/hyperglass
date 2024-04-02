@@ -63,7 +63,7 @@ def load_dsl(path: Path, *, empty_allowed: bool) -> LoadedConfig:
             raise ConfigError(
                 "'{!s}' exists, but it is empty and is required to start hyperglass.".format(path),
             )
-    log.debug("Loaded configuration from {!s}", path)
+    log.bind(path=path).debug("Loaded configuration")
     return data or {}
 
 
@@ -101,7 +101,7 @@ def load_python(path: Path, *, empty_allowed: bool) -> LoadedConfig:
     if data is None and empty_allowed is False:
         raise ConfigError(f"'{path!s} exists', but variable or function 'main' is an invalid type")
 
-    log.debug("Loaded configuration from {!s}", path)
+    log.bind(path=path).debug("Loaded configuration")
     return data or {}
 
 

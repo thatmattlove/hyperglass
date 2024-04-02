@@ -56,7 +56,7 @@ def resolve_hostname(
     # Project
     from hyperglass.log import log
 
-    log.debug("Ensuring {!r} is resolvable...", hostname)
+    log.bind(hostname=hostname).debug("Ensuring hostname is resolvable")
 
     ip4 = None
     ip6 = None

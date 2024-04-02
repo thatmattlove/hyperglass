@@ -217,19 +217,11 @@ class _ForwardHandler(socketserver.BaseRequestHandler):
                 data = self.request.recv(1024)
                 if not data:
                     break
-                self.logger.trace(
-                    ">>> OUT {0} send to {1}: {2} >>>".format(
-                        self.info, self.remote_address, hexlify(data)
-                    ),
-                )
                 chan.sendall(data)
             if chan in rqst:  # else
                 if not chan.recv_ready():
                     break
                 data = chan.recv(1024)
-                self.logger.trace(
-                    "<<< IN {0} recv: {1} <<<".format(self.info, hexlify(data)),
-                )
                 self.request.sendall(data)
 
     def handle(self):
@@ -249,10 +241,8 @@ class _ForwardHandler(socketserver.BaseRequestHandler):
             chan = None
         if chan is None:
             msg = "{0} to {1} was rejected by the SSH server".format(self.info, self.remote_address)
-            self.logger.trace(msg)
             raise HandlerSSHTunnelForwarderError(msg)
 
-        self.logger.trace("{0} connected".format(self.info))
         try:
             self._redirect(chan)
         except socket.error:
@@ -260,13 +250,12 @@ class _ForwardHandler(socketserver.BaseRequestHandler):
             # exception. It was seen that a 3way FIN is processed later on, so
             # no need to make an ordered close of the connection here or raise
             # the exception beyond this point...
-            self.logger.trace("{0} sending RST".format(self.info))
-        except Exception as e:
-            self.logger.trace("{0} error: {1}".format(self.info, repr(e)))
+            pass
+        except Exception:
+            pass
         finally:
             chan.close()
             self.request.close()
-            self.logger.trace("{0} connection closed.".format(self.info))
 
 
 class _ForwardServer(socketserver.TCPServer):  # Not Threading
@@ -283,10 +272,7 @@ class _ForwardServer(socketserver.TCPServer):  # Not Threading
 
     def handle_error(self, request, client_address):
         (exc_class, exc, tb) = sys.exc_info()
-        self.logger.error(
-            "Could not establish connection from {0} to remote " "side of the tunnel",
-            request.getsockname(),
-        )
+        self.logger.bind(source=request.getsockname()).error("Could not establish connection to remote side of the tunnel")
         self.tunnel_ok.put(False)
 
     @property
@@ -814,16 +800,13 @@ class SSHTunnelForwarder:
 
         check_host(self.ssh_host)
         check_port(self.ssh_port)
-
-        self.logger.info(
-            "Connecting to gateway: {h}:{p} as user '{u}', timeout {t}",
-            h=self.ssh_host,
-            p=self.ssh_port,
-            u=self.ssh_username,
-            t=self.gateway_timeout,
-        )
-
-        self.logger.debug("Concurrent connections allowed: {0}", self._threaded)
+        self.logger.bind(
+            host=self.ssh_host,
+            port=self.ssh_port,
+            username=self.ssh_username,
+            timeout=self.gateway_timeout,
+        ).info("Connecting to gateway")
+        self.logger.bind(count=self._threaded).debug("Concurrent connections allowed")
 
     @staticmethod
     def _read_ssh_config(
@@ -1154,8 +1137,7 @@ class SSHTunnelForwarder:
         if self.skip_tunnel_checkup:
             self.tunnel_is_up[_srv.local_address] = True
             return
-
-        self.logger.info("Checking tunnel to: {a}", a=_srv.remote_address)
+        self.logger.debug("Checking tunnel", address=_srv.remote_address)
 
         if isinstance(_srv.local_address, str):  # UNIX stream
             s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -1171,13 +1153,13 @@ class SSHTunnelForwarder:
             )
             s.connect(connect_to)
             self.tunnel_is_up[_srv.local_address] = _srv.tunnel_ok.get(timeout=TUNNEL_TIMEOUT * 1.1)
-            self.logger.debug("Tunnel to {0} is DOWN".format(_srv.remote_address))
+            self.logger.bind(status="DOWN", address=_srv.remote_address).debug("Tunnel Status")
         except socket.error:
-            self.logger.debug("Tunnel to {0} is DOWN".format(_srv.remote_address))
+            self.logger.bind(status="DOWN", address=_srv.remote_address).debug("Tunnel Status")
             self.tunnel_is_up[_srv.local_address] = False
 
         except queue.Empty:
-            self.logger.debug("Tunnel to {0} is UP".format(_srv.remote_address))
+            self.logger.bind(status="UP", address=_srv.remote_address).debug("Tunnel Status")
             self.tunnel_is_up[_srv.local_address] = True
         finally:
             s.close()

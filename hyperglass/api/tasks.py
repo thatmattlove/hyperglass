@@ -65,4 +65,6 @@ async def send_webhook(
                     }
                 )
     except Exception as err:
-        log.error("Error sending webhook to {}: {!s}", params.logging.http.provider, err)
+        log.bind(destination=params.logging.http.provider, error=str(err)).error(
+            "Failed to send webhook"
+        )

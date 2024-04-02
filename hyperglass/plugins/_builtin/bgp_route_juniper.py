@@ -69,6 +69,7 @@ def parse_juniper(output: Sequence[str]) -> "OutputDataModel":  # noqa: C901
     """Parse a Juniper BGP XML response."""
     result = None
 
+    _log = log.bind(plugin=BGPRoutePluginJuniper.__name__)
     for response in output:
         cleaned = clean_xml_output(response)
 
@@ -76,8 +77,7 @@ def parse_juniper(output: Sequence[str]) -> "OutputDataModel":  # noqa: C901
             parsed: "OrderedDict" = xmltodict.parse(
                 cleaned, force_list=("rt", "rt-entry", "community")
             )
-
-            log.debug("Initially Parsed Response: \n{}", parsed)
+            _log.debug("Pre-parsed data", data=parsed)
 
             if "rpc-reply" in parsed.keys():
                 if "xnm:error" in parsed["rpc-reply"]:
@@ -105,12 +105,15 @@ def parse_juniper(output: Sequence[str]) -> "OutputDataModel":  # noqa: C901
                 result += bgp_table
 
         except xmltodict.expat.ExpatError as err:
+            _log.bind(error=str(err)).critical("Failed to decode XML")
             raise ParsingError("Error parsing response data") from err
 
         except KeyError as err:
+            _log.bind(key=str(err)).critical("Missing required key in response")
             raise ParsingError("{key} was not found in the response", key=str(err)) from err
 
         except ValidationError as err:
+            _log.critical(err)
             raise ParsingError(err) from err
 
     return result

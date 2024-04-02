@@ -73,7 +73,9 @@ async def query(_state: HyperglassState, request: Request, data: Query) -> Query
     # each command output value is unique.
     cache_key = f"hyperglass.query.{data.digest()}"
 
-    log.info("{!r} starting query execution", data)
+    _log = log.bind(query=data.summary())
+
+    _log.info("Starting query execution")
 
     cache_response = cache.get_map(cache_key, "output")
     json_output = False
@@ -81,7 +83,7 @@ async def query(_state: HyperglassState, request: Request, data: Query) -> Query
     runtime = 65535
 
     if cache_response:
-        log.debug("{!r} cache hit (cache key {!r})", data, cache_key)
+        _log.bind(cache_key=cache_key).debug("Cache hit")
 
         # If a cached response exists, reset the expiration time.
         cache.expire(cache_key, expire_in=_state.params.cache.timeout)
@@ -91,7 +93,7 @@ async def query(_state: HyperglassState, request: Request, data: Query) -> Query
         timestamp = cache.get_map(cache_key, "timestamp")
 
     elif not cache_response:
-        log.debug("{!r} cache miss (cache key {!r})", data, cache_key)
+        _log.bind(cache_key=cache_key).debug("Cache miss")
 
         timestamp = data.timestamp
 
@@ -109,7 +111,7 @@ async def query(_state: HyperglassState, request: Request, data: Query) -> Query
 
         endtime = time.time()
         elapsedtime = round(endtime - starttime, 4)
-        log.debug("{!r} runtime: {!s} seconds", data, elapsedtime)
+        _log.debug("Runtime: {!s} seconds", elapsedtime)
 
         if output is None:
             raise HyperglassError(message=_state.params.messages.general, alert="danger")
@@ -125,7 +127,7 @@ async def query(_state: HyperglassState, request: Request, data: Query) -> Query
         cache.set_map_item(cache_key, "timestamp", timestamp)
         cache.expire(cache_key, expire_in=_state.params.cache.timeout)
 
-        log.debug("{!r} cached for {!s} seconds", data, _state.params.cache.timeout)
+        _log.bind(cache_timeout=_state.params.cache.timeout).debug("Response cached")
 
         runtime = int(round(elapsedtime, 0))
 
@@ -137,8 +139,7 @@ async def query(_state: HyperglassState, request: Request, data: Query) -> Query
 
     if json_output:
         response_format = "application/json"
-
-    log.success("{!r} execution completed", data)
+    _log.info("Execution completed")
 
     response = {
         "output": cache_response,

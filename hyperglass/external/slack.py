@@ -25,7 +25,6 @@ class SlackHook(BaseExternal, name="Slack"):
         """Send an incoming webhook to Slack."""
 
         payload = Webhook(**query)
-
-        log.debug("Sending query data to Slack:\n{}", payload)
+        log.bind(destination="Slack", payload=payload).debug("Sending request")
 
         return await self._apost(endpoint=self.config.host.path, data=payload.slack())

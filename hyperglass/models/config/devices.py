@@ -95,15 +95,8 @@ class Device(HyperglassModelWithId, extra="allow"):
         if name is None:
             raise ValueError("name is required.")
 
-        legacy_display_name = values.pop("display_name", None)
-
-        if legacy_display_name is not None:
-            log.warning("The 'display_name' field is deprecated. Use the 'name' field instead.")
-            device_id = generate_id(legacy_display_name)
-            display_name = legacy_display_name
-        else:
-            device_id = generate_id(name)
-            display_name = name
+        device_id = generate_id(name)
+        display_name = name
 
         return {"id": device_id, "name": display_name, "display_name": None, **values}
 
@@ -204,7 +197,11 @@ class Device(HyperglassModelWithId, extra="allow"):
 
             target = Settings.static_path / "images" / value.name
             copied = shutil.copy2(value, target)
-            log.debug("Copied {} avatar from {!r} to {!r}", values["name"], str(value), str(target))
+            log.bind(
+                device=values["name"],
+                source=str(value),
+                destination=str(target),
+            ).debug("Copied device avatar")
 
             with Image.open(copied) as src:
                 if src.width > 512:

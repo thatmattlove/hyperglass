@@ -85,7 +85,7 @@ class BaseExternal:
         available = await self._atest()
 
         if available:
-            log.debug("Initialized session with {}", self.base_url)
+            log.bind(url=self.base_url).debug("Initialized session")
             return self
         raise self._exception(f"Unable to create session to {self.name}")
 
@@ -96,7 +96,7 @@ class BaseExternal:
         traceback: t.Optional["TracebackType"] = None,
     ) -> True:
         """Close connection on exit."""
-        log.debug("Closing session with {}", self.base_url)
+        log.bind(url=self.base_url).debug("Closing session")
 
         if exc_type is not None:
             log.error(str(exc_value))
@@ -111,7 +111,7 @@ class BaseExternal:
         available = self._test()
 
         if available:
-            log.debug("Initialized session with {}", self.base_url)
+            log.bind(url=self.base_url).debug("Initialized session")
             return self
         raise self._exception(f"Unable to create session to {self.name}")
 
@@ -162,7 +162,7 @@ class BaseExternal:
 
     def _test(self: "BaseExternal") -> bool:
         """Open a low-level connection to the base URL to ensure its port is open."""
-        log.debug("Testing connection to {}", self.base_url)
+        log.bind(url=self.base_url).debug("Testing connection")
 
         try:
             # Parse out just the hostname from a URL string.
@@ -199,9 +199,16 @@ class BaseExternal:
 
         supported_methods = ("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH")
 
-        (method, endpoint, item, headers, params, data, timeout, response_required,) = itemgetter(
-            *kwargs.keys()
-        )(kwargs)
+        (
+            method,
+            endpoint,
+            item,
+            headers,
+            params,
+            data,
+            timeout,
+            response_required,
+        ) = itemgetter(*kwargs.keys())(kwargs)
 
         if method.upper() not in supported_methods:
             raise self._exception(
@@ -245,8 +252,7 @@ class BaseExternal:
                 except TypeError as err:
                     raise self._exception(f"Timeout must be an int, got: {str(timeout)}") from err
             request["timeout"] = timeout
-
-        log.debug("Constructed request parameters {}", request)
+        log.bind(request=request).debug("Constructed request parameters")
         return request
 
     async def _arequest(  # noqa: C901

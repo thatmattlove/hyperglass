@@ -51,8 +51,8 @@ class SSHConnection(Connection):
                 return open_tunnel(proxy._target, proxy.port, **tunnel_kwargs)
 
             except BaseSSHTunnelForwarderError as scrape_proxy_error:
-                log.error(
-                    f"Error connecting to device {self.device.name} via " f"proxy {proxy.name}"
+                log.bind(device=self.device.name, proxy=proxy.name).error(
+                    "Failed to connect to device via proxy"
                 )
                 raise ScrapeError(
                     error=scrape_proxy_error, device=self.device

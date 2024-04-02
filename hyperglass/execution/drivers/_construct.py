@@ -19,6 +19,9 @@ from hyperglass.exceptions.public import InputInvalid
 from hyperglass.exceptions.private import ConfigError
 
 if t.TYPE_CHECKING:
+    # Third Party
+    from loguru import Logger
+
     # Project
     from hyperglass.models.api.query import Query, QueryTarget
     from hyperglass.models.directive import Directive
@@ -35,14 +38,12 @@ class Construct:
     query: "Query"
     transport: str
     target: str
+    _log: "Logger"
 
     def __init__(self, device: "Device", query: "Query"):
         """Initialize command construction."""
-        log.debug(
-            "Constructing '{}' query for '{}'",
-            query.query_type,
-            str(query.query_target),
-        )
+        self._log = log.bind(type=query.query_type, target=query.query_target)
+        self._log.debug("Constructing query")
         self.query = query
         self.device = device
         self.target = self.query.query_target
@@ -75,7 +76,7 @@ class Construct:
 
     def json(self, afi):
         """Return JSON version of validated query for REST devices."""
-        log.debug("Building JSON query for {q}", q=repr(self.query))
+        self._log.debug("Building JSON query")
         return _json.dumps(
             {
                 "query_type": self.query.query_type,
@@ -125,8 +126,7 @@ class Construct:
         for rule in [r for r in self.directive.rules if r._passed is True]:
             for command in rule.commands:
                 query.append(self.format(command))
-
-        log.debug("Constructed query: {}", query)
+        self._log.bind(constructed_query=query).debug("Constructed query")
         return query
 
 
@@ -189,7 +189,7 @@ class Formatter:
 
         if was_modified:
             modified = " ".join(asns)
-            log.debug("Modified target '{}' to '{}'", target, modified)
+            log.bind(original=target, modified=modified).debug("Modified target")
             return modified
 
         return query
@@ -217,7 +217,7 @@ class Formatter:
         result = " ".join(asns)
 
         if was_modified:
-            log.debug("Modified target '{}' to '{}'", target, result)
+            log.bind(original=target, modified=result).debug("Modified target")
 
         return result
 

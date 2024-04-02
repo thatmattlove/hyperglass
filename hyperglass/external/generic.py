@@ -27,8 +27,7 @@ class GenericHook(BaseExternal, name="Generic"):
         """Send an incoming webhook to http endpoint."""
 
         payload = Webhook(**query)
-
-        log.debug("Sending query data to {}:\n{}", self.config.host.host, payload)
+        log.bind(host=self.config.host.host, payload=payload).debug("Sending request")
 
         return await self._apost(
             endpoint=self.config.host.path,

@@ -7,12 +7,12 @@ from queue import Queue
 from pathlib import Path
 from threading import Thread
 
-# Project
-from hyperglass.log import log
-
 
 async def move_files(src: Path, dst: Path, files: t.Iterable[Path]) -> t.Tuple[str]:  # noqa: C901
     """Move iterable of files from source to destination."""
+
+    # Project
+    from hyperglass.log import log
 
     def error(*args, **kwargs):
         msg = ", ".join(args)
@@ -91,6 +91,10 @@ class FileCopy(Thread):
 
 def copyfiles(src_files: t.Iterable[Path], dst_files: t.Iterable[Path]):
     """Copy iterable of files from source to destination with threading."""
+
+    # Project
+    from hyperglass.log import log
+
     queue = Queue()
     threads = ()
     src_files_len = len(src_files)
@@ -113,7 +117,7 @@ def copyfiles(src_files: t.Iterable[Path], dst_files: t.Iterable[Path]):
 
     for _ in src_files:
         copied = queue.get()
-        log.debug("Copied {}", str(copied))
+        log.bind(path=copied).debug("Copied file", path=copied)
 
     for thread in threads:
         thread.join()

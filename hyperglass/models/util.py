@@ -51,13 +51,8 @@ def check_legacy_fields(*, model: str, data: t.Dict[str, t.Any]) -> t.Dict[str, 
             new_value = data.get(field.new)
             if legacy_value is not None and new_value is None:
                 if field.overwrite:
-                    log.warning(
-                        (
-                            "The {!r} field has been deprecated and will be removed in a future release. "
-                            "Use the {!r} field moving forward."
-                        ),
-                        f"{model}.{field.old}",
-                        field.new,
+                    log.bind(old_field=f"{model}.{field.old}", new_field=field.new).warning(
+                        "Deprecated field"
                     )
                     data[field.new] = legacy_value
                 else:

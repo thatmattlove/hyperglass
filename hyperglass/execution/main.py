@@ -47,9 +47,8 @@ async def execute(query: "Query") -> Union["OutputDataModel", str]:
     """Initiate query validation and execution."""
     params = use_state("params")
     output = params.messages.general
-
-    log.debug("Received query {!r}", query)
-    log.debug("Matched device config: {!r}", query.device)
+    _log = log.bind(query=query, device=query.device)
+    _log.debug("")
 
     mapped_driver = map_driver(query.device.driver)
     driver: "Connection" = mapped_driver(query.device, query)
@@ -68,8 +67,7 @@ async def execute(query: "Query") -> Union["OutputDataModel", str]:
         response = await driver.collect()
 
     output = await driver.response(response)
-
-    log.debug("Response for {!r}\n{response}", query, response=response)
+    _log.bind(response=response).debug("Query response")
 
     if is_series(output):
         if len(output) == 0:

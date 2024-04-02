@@ -10,6 +10,12 @@ from ..main import HyperglassModel
 class Messages(HyperglassModel):
     """Validation model for params.messages."""
 
+    model_config = ConfigDict(
+        title="Messages",
+        description="Customize almost all user-facing UI & API messages.",
+        json_schema_extra={"level": 2},
+    )
+
     no_input: str = Field(
         "{field} must be specified.",
         title="No Input",
@@ -85,9 +91,3 @@ class Messages(HyperglassModel):
         if not self.has(attr):
             raise KeyError(f"'{attr}' does not exist on Messages model")
         return getattr(self, attr)
-
-    model_config = ConfigDict(
-        title="Messages",
-        description="Customize almost all user-facing UI & API messages.",
-        json_schema_extra={"level": 2},
-    )

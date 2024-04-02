@@ -47,15 +47,13 @@ class NetmikoConnection(SSHConnection):
         command output.
         """
         params = use_state("params")
-        if host is not None:
-            log.debug(
-                "Connecting to {} via proxy {} [{}]",
-                self.device.name,
-                self.device.proxy.address,
-                f"{host}:{port}",
-            )
-        else:
-            log.debug("Connecting directly to {}", self.device.name)
+        _log = log.bind(
+            device=self.device.name,
+            address=f"{host}:{port}",
+            proxy=str(self.device.proxy.address) if self.device.proxy is not None else None,
+        )
+
+        _log.debug("Connecting to device")
 
         global_args = netmiko_device_globals.get(self.device.platform, {})
 

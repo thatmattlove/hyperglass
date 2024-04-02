@@ -4,7 +4,7 @@
 from pydantic import ValidationError
 
 # Project
-from hyperglass.log import log, enable_file_logging, enable_syslog_logging
+from hyperglass.log import log
 from hyperglass.settings import Settings
 from hyperglass.models.ui import UIParameters
 from hyperglass.models.directive import Directive, Directives
@@ -31,7 +31,7 @@ def init_files() -> None:
         path = Settings.app_path / directory
         if not path.exists():
             path.mkdir(parents=True)
-            log.debug("Created directory {!s}", path)
+            log.debug("Created directory", path=path)
 
 
 def init_params() -> "Params":
@@ -40,20 +40,20 @@ def init_params() -> "Params":
     # Map imported user configuration to expected schema.
     params = Params(**user_config)
 
-    # Set up file logging once configuration parameters are initialized.
-    enable_file_logging(
-        log_directory=params.logging.directory,
-        log_format=params.logging.format,
-        log_max_size=params.logging.max_size,
-        debug=Settings.debug,
-    )
+    # # Set up file logging once configuration parameters are initialized.
+    # enable_file_logging(
+    #     log_directory=params.logging.directory,
+    #     log_format=params.logging.format,
+    #     log_max_size=params.logging.max_size,
+    #     debug=Settings.debug,
+    # )
 
     # Set up syslog logging if enabled.
-    if params.logging.syslog is not None and params.logging.syslog.enable:
-        enable_syslog_logging(
-            syslog_host=params.logging.syslog.host,
-            syslog_port=params.logging.syslog.port,
-        )
+    # if params.logging.syslog is not None and params.logging.syslog.enable:
+    #     enable_syslog_logging(
+    #         syslog_host=params.logging.syslog.host,
+    #         syslog_port=params.logging.syslog.port,
+    #     )
 
     if params.logging.http is not None and params.logging.http.enable:
         log.debug("HTTP logging is enabled")
@@ -103,7 +103,7 @@ def init_devices() -> "Devices":
         raise ConfigError("No devices are defined in devices file")
 
     devices = Devices(*items)
-    log.debug("Initialized devices {!r}", devices)
+    log.debug("Initialized devices", devices=devices)
 
     return devices
 

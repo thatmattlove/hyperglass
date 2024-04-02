@@ -115,5 +115,5 @@ class FRRRoute(_FRRBase):
             winning_weight="high",
         )
 
-        log.info("Serialized FRR response: {}", serialized)
+        log.bind(platform="frr", response=repr(serialized)).debug("Serialized response")
         return serialized

@@ -195,6 +195,5 @@ class JuniperBGPTable(JuniperBase):
                 )
 
         serialized = BGPRouteTable(vrf=vrf, count=count, routes=routes, winning_weight="low")
-
-        log.debug("Serialized Juniper response: {}", repr(serialized))
+        log.bind(platform="juniper", response=repr(serialized)).debug("Serialized response")
         return serialized

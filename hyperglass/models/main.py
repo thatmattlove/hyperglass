@@ -338,8 +338,9 @@ class MultiModel(RootModel[MultiModelT]):
         self._count = len(self.root)
         for item in new:
             log.debug(
-                "Added {} '{!s}' to {}",
-                item.__class__.__name__,
-                getattr(item, self.unique_by),
-                self.__class__.__name__,
+                "Added {} '{!s}' to {}".format(
+                    item.__class__.__name__,
+                    getattr(item, self.unique_by),
+                    self.__class__.__name__,
+                )
             )
