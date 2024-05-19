@@ -131,7 +131,8 @@ async def build_ui(app_path: Path):
         log.error(err)
         raise RuntimeError(str(err)) from err
 
-    shutil.copytree(src=out_dir, dst=build_dir, dirs_exist_ok=True)
+    shutil.rmtree(build_dir)
+    shutil.copytree(src=out_dir, dst=build_dir, dirs_exist_ok=False)
     log.bind(src=out_dir, dst=build_dir).debug("Migrated Next.JS build output")
 
     return "\n".join(all_messages)
