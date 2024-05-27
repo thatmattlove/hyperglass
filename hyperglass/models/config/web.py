@@ -5,7 +5,7 @@ import typing as t
 from pathlib import Path
 
 # Third Party
-from pydantic import HttpUrl, FilePath, ValidationInfo, constr, field_validator, model_validator
+from pydantic import Field, HttpUrl, FilePath, ValidationInfo, field_validator, model_validator
 from pydantic_extra_types.color import Color
 
 # Project
@@ -17,12 +17,12 @@ from ..main import HyperglassModel
 from .opengraph import OpenGraph
 
 DEFAULT_IMAGES = Path(__file__).parent.parent.parent / "images"
+DOH_PROVIDERS_PATTERN = "|".join(DNS_OVER_HTTPS.keys())
+PERCENTAGE_PATTERN = r"^([1-9][0-9]?|100)\%?$"
 
-Percentage = constr(pattern=r"^([1-9][0-9]?|100)\%$")
+Percentage = Field(pattern=r"^([1-9][0-9]?|100)\%$")
 TitleMode = t.Literal["logo_only", "text_only", "logo_subtitle", "all"]
 ColorMode = t.Literal["light", "dark"]
-DOHProvider = constr(pattern="|".join(DNS_OVER_HTTPS.keys()))
-Title = constr(max_length=32)
 Side = t.Literal["left", "right"]
 LocationDisplayMode = t.Literal["auto", "dropdown", "gallery"]
 
@@ -86,8 +86,10 @@ class Logo(HyperglassModel):
     light: FilePath = DEFAULT_IMAGES / "hyperglass-light.svg"
     dark: FilePath = DEFAULT_IMAGES / "hyperglass-dark.svg"
     favicon: FilePath = DEFAULT_IMAGES / "hyperglass-icon.svg"
-    width: t.Optional[t.Union[int, Percentage]] = "100%"
-    height: t.Optional[t.Union[int, Percentage]] = None
+    width: str = Field(default="100%", pattern=PERCENTAGE_PATTERN)
+    # width: t.Optional[t.Union[int, Percentage]] = "100%"
+    height: t.Optional[str] = Field(default=None, pattern=PERCENTAGE_PATTERN)
+    # height: t.Optional[t.Union[int, Percentage]] = None
 
 
 class LogoPublic(Logo):
@@ -101,8 +103,8 @@ class Text(HyperglassModel):
     """Validation model for params.branding.text."""
 
     title_mode: TitleMode = "logo_only"
-    title: Title = "hyperglass"
-    subtitle: Title = "Network Looking Glass"
+    title: str = Field(default="hyperglass", max_length=32)
+    subtitle: str = Field(default="Network Looking Glass", max_length=32)
     query_location: str = "Location"
     query_type: str = "Query Type"
     query_target: str = "Target"
@@ -184,7 +186,7 @@ class Theme(HyperglassModel):
 class DnsOverHttps(HyperglassModel):
     """Validation model for DNS over HTTPS resolution."""
 
-    name: DOHProvider = "cloudflare"
+    name: str = Field(default="cloudflare", pattern=DOH_PROVIDERS_PATTERN)
     url: str = ""
 
     @model_validator(mode="before")

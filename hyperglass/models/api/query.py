@@ -7,7 +7,7 @@ import secrets
 from datetime import datetime
 
 # Third Party
-from pydantic import BaseModel, ConfigDict, constr, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, Field
 
 # Project
 from hyperglass.log import log
@@ -19,10 +19,6 @@ from hyperglass.exceptions.private import InputValidationError
 
 # Local
 from ..config.devices import Device
-
-QueryLocation = constr(strip_whitespace=True, strict=True, min_length=1)
-QueryTarget = constr(strip_whitespace=True, min_length=1)
-QueryType = constr(strip_whitespace=True, strict=True, min_length=1)
 
 
 class SimpleQuery(BaseModel):
@@ -42,9 +38,13 @@ class Query(BaseModel):
 
     model_config = ConfigDict(extra="allow", alias_generator=snake_to_camel, populate_by_name=True)
 
-    query_location: QueryLocation  # Device `name` field
-    query_target: t.Union[t.List[QueryTarget], QueryTarget]
-    query_type: QueryType  # Directive `id` field
+    # Device `name` field
+    query_location: str = Field(strict=True, min_length=1, strip_whitespace=True)
+
+    query_target: t.Union[t.List[str], str] = Field(min_length=1, strip_whitespace=True)
+
+    # Directive `id` field
+    query_type: str = Field(strict=True, min_length=1, strip_whitespace=True)
     _kwargs: t.Dict[str, t.Any]
 
     def __init__(self, **data) -> None:
@@ -106,7 +106,7 @@ class Query(BaseModel):
         self._input_plugin_manager.validate(query=self)
         log.bind(query=self.summary()).debug("Validation passed")
 
-    def transform_query_target(self) -> QueryTarget:
+    def transform_query_target(self) -> t.Union[t.List[str], str]:
         """Transform a query target based on defined plugins."""
         return self._input_plugin_manager.transform(query=self)
 

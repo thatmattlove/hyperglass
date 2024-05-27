@@ -23,11 +23,11 @@ if t.TYPE_CHECKING:
     from loguru import Logger
 
     # Project
-    from hyperglass.models.api.query import Query, QueryTarget
+    from hyperglass.models.api.query import Query
     from hyperglass.models.directive import Directive
     from hyperglass.models.config.devices import Device
 
-FormatterCallback = t.Callable[[str], "QueryTarget"]
+FormatterCallback = t.Callable[[str], t.Union[t.List[str], str]]
 
 
 class Construct:
@@ -61,7 +61,7 @@ class Construct:
         with Formatter(self.query) as formatter:
             self.target = formatter(self.prepare_target())
 
-    def prepare_target(self) -> "QueryTarget":
+    def prepare_target(self) -> t.Union[t.List[str], str]:
         """Format the query target based on directive parameters."""
         if isinstance(self.query.query_target, t.List):
             # Directive can accept multiple values in a single command.

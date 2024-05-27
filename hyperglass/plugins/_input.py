@@ -8,11 +8,11 @@ from ._base import DirectivePlugin, HyperglassPlugin
 
 if t.TYPE_CHECKING:
     # Project
-    from hyperglass.models.api.query import Query, QueryTarget
+    from hyperglass.models.api.query import Query
 
 
 InputPluginValidationReturn = t.Union[None, bool]
-InputPluginTransformReturn = t.Union[t.Sequence["QueryTarget"], "QueryTarget"]
+InputPluginTransformReturn = t.Union[t.Sequence[str], str]
 
 
 class InputPlugin(HyperglassPlugin, DirectivePlugin):
