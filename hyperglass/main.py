@@ -1,9 +1,9 @@
 """Start hyperglass."""
 
 # Standard Library
-import asyncio
 import sys
 import typing as t
+import asyncio
 import logging
 
 # Third Party

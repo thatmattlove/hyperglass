@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Project
 from hyperglass.log import log
-from hyperglass.util import copyfiles, check_path, dotenv_to_dict, move_files
+from hyperglass.util import copyfiles, check_path, move_files, dotenv_to_dict
 
 if t.TYPE_CHECKING:
     # Project
