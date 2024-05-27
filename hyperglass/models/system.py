@@ -36,7 +36,7 @@ class HyperglassSettings(BaseSettings):
 
     config_file_names: t.ClassVar[t.Tuple[str, ...]] = ("config", "devices", "directives")
     default_app_path: t.ClassVar[Path] = _default_app_path
-    _original_app_path: DirectoryPath = _default_app_path
+    original_app_path: Path = _default_app_path
 
     debug: bool = False
     dev_mode: bool = False

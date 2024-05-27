@@ -18,6 +18,8 @@ from hyperglass.types import Series
 
 MultiModelT = t.TypeVar("MultiModelT", bound=BaseModel)
 
+PathTypeT = t.TypeVar("PathTypeT")
+
 
 def alias_generator(field: str) -> str:
     """Remove unsupported characters from field names.
@@ -44,26 +46,28 @@ class HyperglassModel(BaseModel):
         alias_generator=alias_generator,
     )
 
-    def convert_paths(self, value: t.Any):
-        """Change path to relative to app_path."""
+    def convert_paths(self, value: t.Type[PathTypeT]) -> PathTypeT:
+        """Change path to relative to app_path.
+
+        This is required when running hyperglass in a container so that
+        the original app_path on the host system is not passed through
+        to the container.
+        """
         # Project
         from hyperglass.settings import Settings
 
         if isinstance(value, Path):
             if Settings.container:
-                return str(
-                    Settings.default_app_path.joinpath(
-                        *(p for p in value.parts if p not in Settings.app_path.parts)
-                    )
+                return Settings.default_app_path.joinpath(
+                    *(p for p in value.parts if p not in Settings.original_app_path.parts)
                 )
 
         if isinstance(value, str):
-            path = Path(value)
-            if path.exists() and Settings.container:
-                # if path.exists():
+            if Settings.container:
+                path = Path(value)
                 return str(
                     Settings.default_app_path.joinpath(
-                        *(p for p in path.parts if p not in Settings.app_path.parts)
+                        *(p for p in path.parts if p not in Settings.original_app_path.parts)
                     )
                 )
 
