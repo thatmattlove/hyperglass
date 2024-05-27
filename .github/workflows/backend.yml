@@ -28,7 +28,7 @@ jobs:
                   python-version: ${{ matrix.python-version }}
 
             - name: Setup Rye
-              uses: sksat/setup-rye@v0.16.0
+              uses: sksat/setup-rye@v0.23.1
 
             - name: Install Node
               uses: actions/setup-node@v4
