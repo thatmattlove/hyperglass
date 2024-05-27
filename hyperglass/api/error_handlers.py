@@ -1,5 +1,7 @@
 """API Error Handlers."""
 
+import typing as t
+
 # Third Party
 from litestar import Request, Response
 from litestar.exceptions import ValidationException
@@ -14,6 +16,29 @@ __all__ = (
     "app_handler",
     "validation_handler",
 )
+
+
+def get_validation_exception_detail(exc: ValidationException) -> Response:
+    data: dict[str, t.Any] = {
+        "level": "error",
+        "status_code": 422,
+        "keywords": [],
+        "output": repr(exc),
+    }
+    if isinstance(exc.extra, dict):
+        outputs = []
+        kw = []
+        for k, v in exc.extra.values():
+            outputs = [*outputs, f"{k}: {v!r}"]
+            kw = [*kw, k]
+        data["output"] = "\n".join(outputs)
+        data["keywords"] = kw
+
+    if isinstance(exc.extra, list):
+        data["output"] = "\n".join(str(v) for v in exc.extra)
+        data["keywords"] = []
+
+    return Response(data)
 
 
 def default_handler(request: Request, exc: BaseException) -> Response:
@@ -48,11 +73,5 @@ def app_handler(request: Request, exc: BaseException) -> Response:
 
 def validation_handler(request: Request, exc: ValidationException) -> Response:
     """Handle Pydantic validation errors raised by FastAPI."""
-    error = exc.errors()[0]
-    log.bind(method=request.method, path=request.url.path, detail=error["msg"]).critical(
-        "Validation Error"
-    )
-    return Response(
-        {"output": error["msg"], "level": "error", "keywords": error["loc"]},
-        status_code=422,
-    )
+    log.bind(method=request.method, path=request.url.path, detail=exc).critical("Validation Error")
+    return get_validation_exception_detail(exc)
