@@ -1,5 +1,6 @@
 hyperglass/hyperglass/static
-node_modules
+**/node_modules
+**/node_modules/.pnpm
 .DS_Store
 hyperglass/ui/.env*
 hyperglass.json

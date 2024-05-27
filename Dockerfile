@@ -7,10 +7,7 @@ ENV HYPERGLASS_DEBUG=false
 ENV HYPERGLASS_DEV_MODE=false
 ENV HYPERGLASS_REDIS_HOST=redis
 ENV HYPEGLASS_DISABLE_UI=true
-
 COPY . .
-RUN pip3 install .
-
 
 FROM base as ui
 WORKDIR /opt/hyperglass/hyperglass/ui
@@ -21,6 +18,7 @@ RUN pnpm install -P
 
 FROM ui as hyperglass
 WORKDIR /opt/hyperglass
+RUN pip3 install -e .
 
 EXPOSE ${HYPERGLASS_PORT}
 CMD ["python3", "-m", "hyperglass.console", "start"]
