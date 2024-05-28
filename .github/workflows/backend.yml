@@ -3,6 +3,7 @@ on:
     push:
         paths:
             - hyperglass/**
+            - .github/**
     pull_request:
 
 jobs:
