@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# 2.0.0 - 2024-05-28
+
+_v2.0.0 is a major release of hyperglass. Many things have changed, and it is likely best to redeploy hyperglass in a new environment to migrate to v2._
+
+### Added
+
+- Commands are now defined as [directives](https://hyperglass.dev/configuration/directives), which is a configuration definition of one or more commands to run on a device. A directive defines:
+  - What command (or commands) to run on the device
+  - Type of UI field, text input or select
+  - If the field can accept multiple values
+  - Help information to show about the directive
+  - Validation rules
+- hyperglass now supports Docker, and using Docker is the default and recommended method for deployment.
+- The list of locations (devices) is displayed as a gallery when the number of devices is 5 or less. This is a default value and is configurable.
+- hyperglass now supports custom [input or output plugins](https://hyperglass.dev/plugins).
+  - Input Plugins: Apply custom validation logic or transform user input before the query is sent to a device.
+  - Output Plugins: Interact with the output from a device before it's displayed to the user.
+- [#206](https://github.com/thatmattlove/hyperglass/issues/206): OpenBGPD is natively supported by hyperglass.
+- [#176](https://github.com/thatmattlove/hyperglass/issues/176): Custom javascript or HTML can be injected into the web page (for tracking applications such as Google Analytics).
+- [#173](https://github.com/thatmattlove/hyperglass/issues/173): Any output, such as BGP Communities, can be highlighted in the UI by defining [highlight patterns](https://hyperglass.dev/configuration/config/web-ui#highlighting).
+- [#155](https://github.com/thatmattlove/hyperglass/issues/155): A user can now use the "My IP" button to insert their own IP into the query target field.
+- [#143](https://github.com/thatmattlove/hyperglass/issues/143): Any HTTP endpoint may be configured as device from which to collect output.
+
+### Fixed
+- [#229](https://github.com/thatmattlove/hyperglass/issues/229): Fixed an issue where the logo was not visible when using Firefox.
+- [#180](https://github.com/thatmattlove/hyperglass/issues/180): Fixed an issue where certain FQDNs were considered invalid.
+- [#178](https://github.com/thatmattlove/hyperglass/issues/178): Fixed an issue where parsing of Arista EOS routes failed if MED is unset.
+- [#145](https://github.com/thatmattlove/hyperglass/issues/145): Fixed an issue where menu links were improperly generated.
+
 # 1.0.4 - 2021-07-03
 
 ### Fixed
