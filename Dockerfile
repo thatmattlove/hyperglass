@@ -1,4 +1,4 @@
-FROM python:3.12.2-bookworm as base
+FROM python:3.12.3-alpine as base
 WORKDIR /opt/hyperglass
 ENV HYPERGLASS_APP_PATH=/etc/hyperglass
 ENV HYPERGLASS_HOST=0.0.0.0
@@ -12,8 +12,7 @@ COPY . .
 
 FROM base as ui
 WORKDIR /opt/hyperglass/hyperglass/ui
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-RUN apt-get install -y nodejs
+RUN apk add build-base pkgconfig cairo-dev nodejs npm
 RUN npm install -g pnpm
 RUN pnpm install -P
 
