@@ -53,7 +53,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 
 *To request support for a specific platform, please [submit a Github Issue](https://github.com/thatmattlove/hyperglass/issues/new) with the **feature** label.*
 
-### [Get Started →](https://hyperglass.dev/docs/introduction)
+### [Get Started →](https://hyperglass.dev/installation)
 
 ## Community
 
@@ -77,4 +77,4 @@ hyperglass is built entirely on open-source software. Here are some of the aweso
 - [Pydantic](https://docs.pydantic.dev/latest/)
 - [Chakra UI](https://chakra-ui.com/)
 
-[![GitHub](https://img.shields.io/github/license/thatmattlove/hyperglass?color=330036&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/blob/v2.0.0/LICENSE)
+[![GitHub](https://img.shields.io/github/license/thatmattlove/hyperglass?color=330036&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/blob/main/LICENSE)
