@@ -128,6 +128,13 @@ class Params(ParamsPublic, HyperglassModel):
                 primary_asn=info.data.get("primary_asn", "65000")
             )
             link.url = HttpUrl(url)
+
+        for menu in web.menus:
+            menu.content = menu.content.format(
+                site_title=info.data.get("site_title", "hyperglass"),
+                org_name=info.data.get("org_name", "hyperglass"),
+                version=__version__,
+            )
         return web
 
     def common_plugins(self) -> t.Tuple[Path, ...]:
