@@ -1,8 +1,9 @@
 ---
 name: Bug Report
 about: Report a problem or unexpected behavior
-labels: possible-bug
-assignees: checktheroads
+labels: 
+    - possible-bug
+assignees: thatmattlove
 ---
 
 <!-- Please provide a general summary of the issue in the Title. -->
@@ -43,7 +44,7 @@ assignees: checktheroads
 
 ## Server
 
-<!-- Please paste the output from `hyperglass system-info` below: (available in 1.0.0-beta.52+) -->
+<!-- Please paste the output from `hyperglass system-info` below: -->
 
 <!-- If, for some reason, that doesn't work, please include the following:
  - OS:

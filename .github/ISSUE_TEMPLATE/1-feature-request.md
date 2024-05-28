@@ -1,12 +1,13 @@
 ---
 name: Feature Request
 about: Suggest an idea for hyperglass
-labels: feature
+labels: 
+    - feature
 ---
 
 <!--
 If the answer to any of these questions is "no", your feature request will most likely be rejected (but will still be considered).
-- Is the new feature _only_ applicable to one Network Operating System (https://hyperglass.io/docs/platforms)?
+- Is the new feature _only_ applicable to one platform (https://hyperglass.dev/platforms)?
 - Would the new feature work only on mobile, or only on desktop?
 - Would the new feature only support IPv4, or IPv6?
 - Is the new feature something that can be reasonably customized by hyperglass end-users?

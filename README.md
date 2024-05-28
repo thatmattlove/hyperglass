@@ -11,10 +11,10 @@
 
 <div align="center">
 
-[**Documentation**](https://v2.hyperglass.dev)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Live Demo**](https://demo.hyperglass.dev/)
+[**Documentation**](https://hyperglass.dev)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Live Demo**](https://demo.hyperglass.dev/)
 
-[![Frontend Tests](https://img.shields.io/github/actions/workflow/status/thatmattlove/hyperglass/frontend.yml?branch=v2.0.0&label=Frontend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/frontend.yml)
-[![Backend Tests](https://img.shields.io/github/actions/workflow/status/thatmattlove/hyperglass/backend.yml?branch=v2.0.0&label=Backend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/backend.yml)
+[![Frontend Tests](https://img.shields.io/github/actions/workflow/status/thatmattlove/hyperglass/frontend.yml?label=Frontend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/frontend.yml)
+[![Backend Tests](https://img.shields.io/github/actions/workflow/status/thatmattlove/hyperglass/backend.yml?label=Backend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/backend.yml)
 
 <br/>
 
@@ -26,7 +26,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 
 ## Features
 
-- BGP Route, BGP Community, BGP AS Path, Ping, & Traceroute, or [add your own commands](https://v2.hyperglass.dev/configuration/directives).
+- BGP Route, BGP Community, BGP AS Path, Ping, & Traceroute, or [add your own commands](https://hyperglass.dev/configuration/directives).
 - Full IPv6 support
 - Customizable everything: features, theme, UI/API text, error messages, commands
 - Built-in support for:
@@ -43,7 +43,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
   - OpenBGPD
   - TNSR
   - VyOS
-- Configurable support for any other [supported platform](https://v2.hyperglass.dev/platforms)
+- Configurable support for any other [supported platform](https://hyperglass.dev/platforms)
 - Optionally access devices via an SSH proxy/jump server
 - Access-list/prefix-list style query control to whitelist or blacklist query targets
 - REST API with automatic, configurable OpenAPI documentation
