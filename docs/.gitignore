@@ -7,3 +7,4 @@ node_modules/
 fonts/
 .next
 out
+pages/changelog.mdx
