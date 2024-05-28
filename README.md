@@ -13,13 +13,8 @@
 
 [**Documentation**](https://v2.hyperglass.dev)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[**Live Demo**](https://demo.hyperglass.dev/)
 
-[![PyPI](https://img.shields.io/pypi/v/hyperglass?style=for-the-badge)](https://pypi.org/project/hyperglass/)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/hyperglass?color=%2340798C&style=for-the-badge)
-[![GitHub Contributors](https://img.shields.io/github/contributors/thatmattlove/hyperglass?color=40798C&style=for-the-badge)](https://github.com/thatmattlove/hyperglass)
-
-[![Frontend Tests](https://img.shields.io/github/actions/workflow/status/thatmattlove/hyperglass/frontend.yml?label=Frontend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/frontend.yml)
-[![Backend Tests](https://img.shields.io/github/actions/workflow/status/thatmattlove/hyperglass/backend.yml?label=Backend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/backend.yml)
-[![Installer Tests](https://img.shields.io/github/actions/workflow/status/thatmattlove/hyperglass/installer.yml?label=Installer%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/installer.yml)
+[![Frontend Tests](https://img.shields.io/github/actions/workflow/status/thatmattlove/hyperglass/frontend.yml?branch=v2.0.0&label=Frontend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/frontend.yml)
+[![Backend Tests](https://img.shields.io/github/actions/workflow/status/thatmattlove/hyperglass/backend.yml?branch=v2.0.0&label=Backend%20Tests&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/actions/workflows/backend.yml)
 
 <br/>
 
@@ -27,30 +22,30 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 
 </div>
 
-### [Changelog](https://github.com/thatmattlove/hyperglass/blob/v1.0.0/CHANGELOG.md)
+### [Changelog](https://github.com/thatmattlove/hyperglass/blob/v2.0.0/CHANGELOG.md)
 
 ## Features
 
-- BGP Route, BGP Community, BGP AS Path, Ping, & Traceroute
+- BGP Route, BGP Community, BGP AS Path, Ping, & Traceroute, or [add your own commands](https://v2.hyperglass.dev/configuration/directives).
 - Full IPv6 support
 - Customizable everything: features, theme, UI/API text, error messages, commands
-- Built in support for:
-    - Arista EOS
-    - BIRD
-    - Cisco IOS-XR
-    - Cisco IOS/IOS-XE
-    - Cisco NX-OS
-    - FRRouting
-    - Huawei
-    - Juniper JunOS
-    - Mikrotik
-    - Nokia SR OS
-    - TNSR
-    - VyOS
-- Configurable support for any other [supported platform](https://hyperglass.dev/docs/platforms)
+- Built-in support for:
+  - Arista EOS
+  - BIRD
+  - Cisco IOS
+  - Cisco NX-OS
+  - Cisco IOS-XR
+  - FRRouting
+  - Huawei VRP
+  - Juniper Junos
+  - Mikrotik
+  - Nokia SR OS
+  - OpenBGPD
+  - TNSR
+  - VyOS
+- Configurable support for any other [supported platform](https://v2.hyperglass.dev/platforms)
 - Optionally access devices via an SSH proxy/jump server
-- VRF support
-- Access List/prefix-list style query control to whitelist or blacklist query targets on a per-VRF basis
+- Access-list/prefix-list style query control to whitelist or blacklist query targets
 - REST API with automatic, configurable OpenAPI documentation
 - Modern, responsive UI built on [ReactJS](https://reactjs.org/), with [NextJS](https://nextjs.org/) & [Chakra UI](https://chakra-ui.com/), written in [TypeScript](https://www.typescriptlang.org/)
 - Query multiple devices simultaneously
@@ -77,10 +72,9 @@ Any users, potential users, or contributors of hyperglass are welcome to join an
 
 hyperglass is built entirely on open-source software. Here are some of the awesome libraries used, check them out too!
 
-- [FastAPI](https://fastapi.tiangolo.com/)
 - [Netmiko](https://github.com/ktbyers/netmiko)
-- [Scrapli](https://github.com/carlmontanari/scrapli)
-- [Pydantic](https://pydantic-docs.helpmanual.io/)
+- [Litestar](https://litestar.dev)
+- [Pydantic](https://docs.pydantic.dev/latest/)
 - [Chakra UI](https://chakra-ui.com/)
 
-[![GitHub](https://img.shields.io/github/license/thatmattlove/hyperglass?color=330036&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/blob/v1.0.0/LICENSE)
+[![GitHub](https://img.shields.io/github/license/thatmattlove/hyperglass?color=330036&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/blob/v2.0.0/LICENSE)
