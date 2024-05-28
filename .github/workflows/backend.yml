@@ -14,7 +14,7 @@ jobs:
                 node-version: [20.x]
                 pnpm-version: [8]
                 redis-version: [latest]
-                python-version: ["3.9", "3.10", "3.11"]
+                python-version: ["3.11", "3.12"]
                 os: [ubuntu-latest]
         runs-on: ${{ matrix.os }}
 
