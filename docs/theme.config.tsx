@@ -98,9 +98,10 @@ const config: DocsThemeConfig = {
                 <meta property="og:title" content={title} />
                 <meta property="og:description" content={description} />
                 <meta property="og:type" content="website" />
+                <meta property="og:image" content="https://hyperglass.dev/opengraph.jpg" />
                 <meta name="twitter:card" content="summary_large_image" />
-                <meta property="twitter:domain" content="hyperglass.dev" />
-                <meta property="twitter:url" content="https://hyperglass.dev" />
+                <meta name="twitter:domain" content="hyperglass.dev" />
+                <meta name="twitter:url" content="https://hyperglass.dev" />
                 <meta name="twitter:title" content={title} />
                 <meta name="twitter:description" content={description} />
                 <meta name="twitter:image" content="https://hyperglass.dev/opengraph.jpg" />
