@@ -3,8 +3,7 @@ title: Manual Installation
 description: Installing hyperglass manually
 ---
 
-import { Steps } from "nextra/components";
-import { Callout } from "nextra-theme-docs";
+import { Steps, Callout } from "nextra/components";
 
 <Steps>
 
@@ -12,8 +11,8 @@ import { Callout } from "nextra-theme-docs";
 
 To install hyperglass manually, you'll need to install the following dependencies:
 
-1. [Python 3.9, 3.10, 3.11, or 3.12](https://www.python.org/downloads/) and [`pip`](https://pip.pypa.io/en/stable/installation/)
-2. [NodeJS 18.17 or later](https://nodejs.org/en/download)
+1. [Python 3.11, or 3.12](https://www.python.org/downloads/) and [`pip`](https://pip.pypa.io/en/stable/installation/)
+2. [NodeJS 20.14 or later](https://nodejs.org/en/download)
 3. [PNPM 8 or later](https://pnpm.io/installation)
 4. [Redis 7.2 or later](https://redis.io/download/)
 
@@ -24,7 +23,9 @@ To install hyperglass manually, you'll need to install the following dependencie
 Once these dependencies are installed, install hyperglass via PyPI:
 
 ```shell copy
-pip3 install hyperglass
+git clone https://github.com/thatmattlove/hyperglass --depth=1
+cd hyperglass
+pip3 install -e .
 ```
 
 ### Create app directory
@@ -43,14 +44,14 @@ mkdir /etc/hyperglass
 Do this if you just want to see the hyperglass page working with default settings and a fake device.
 
 ```shell copy
-curl -o /etc/hyperglass/devices.yaml https://raw.githubusercontent.com/thatmattlove/hyperglass/v2.0.0/.samples/sample_devices.yaml
+curl -o /etc/hyperglass/devices.yaml https://raw.githubusercontent.com/thatmattlove/hyperglass/main/.samples/sample_devices.yaml
 hyperglass start
 ```
 
 ### Create a `systemd` service
 
 ```shell copy
-curl -o /etc/hyperglass/hyperglass.service https://raw.githubusercontent.com/thatmattlove/hyperglass/v2.0.0/.samples/hyperglass-manual.service
+curl -o /etc/hyperglass/hyperglass.service https://raw.githubusercontent.com/thatmattlove/hyperglass/main/.samples/hyperglass-manual.service
 ln -s /etc/hyperglass/hyperglass.service /etc/systemd/system/hyperglass.service
 systemctl daemon-reload
 systemctl enable hyperglass

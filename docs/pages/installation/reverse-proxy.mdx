@@ -3,15 +3,19 @@ title: Reverse Proxy
 description: Setting up a reverse proxy for hyperglass
 ---
 
-import { Cards, Card } from "nextra/components";
-import { Callout } from "nextra-theme-docs";
+import { Cards, Callout } from "nextra/components";
 
 [Caddy](https://caddyserver.com) is recommended, but any reverse proxy ([NGINX](https://www.nginx.com), [Apache2](https://httpd.apache.org)) will work.
 
 ## Caddy
 
 <Cards>
-    <Card title="Install Caddy" target="_blank" href="https://caddyserver.com/docs/install" arrow />
+    <Cards.Card
+        title="Install Caddy"
+        target="_blank"
+        href="https://caddyserver.com/docs/install"
+        arrow
+    />
 </Cards>
 
 ```shell copy

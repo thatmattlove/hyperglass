@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { type DocsThemeConfig, useConfig } from "nextra-theme-docs";
+import "nextra-theme-docs/style.css";
 import faviconFormats from "./favicon-formats";
 import styles from "./global.module.css";
 
@@ -71,49 +72,53 @@ const config: DocsThemeConfig = {
             </svg>
         </span>
     ),
+    head: () => {
+        const { asPath, locale, defaultLocale } = useRouter();
+        const { frontMatter } = useConfig();
+        const url = `https://hyperglass.dev${
+            defaultLocale === locale ? asPath : `/${locale}${asPath}`
+        }`;
+        let title = frontMatter.title || "hyperglass";
+        if (title !== "hyperglass") {
+            title = `${title} | hyperglass`;
+        }
+        const description = frontMatter.description || "hyperglass Documentation";
+        const index = NO_INDEX_FOLLOW ? "noindex, nofollow" : "index, follow";
+        const favicons = faviconFormats.map((fmt) => {
+            const { image_format, dimensions, prefix, rel } = fmt;
+            const [w, h] = dimensions;
+            const href = `/img/${prefix}-${w}x${h}.${image_format}`;
+            return { rel: rel ?? "", href, type: `image/${image_format}` };
+        });
 
-    useNextSeoProps: () => {
-        const { asPath } = useRouter();
-        const { frontMatter, title } = useConfig();
-        return {
-            titleTemplate: "%s | hyperglass",
-            title: frontMatter.title || title,
-            openGraph: {
-                type: "website",
-                url: `https://hyperglass.dev${asPath}`,
-                title: frontMatter.title || title,
-                description: frontMatter.description || "hyperglass Documentation",
-                images: [
-                    {
-                        url: "https://hyperglass.dev/opengraph.jpg",
-                        width: 1200,
-                        height: 630,
-                        alt: "hyperglass",
-                    },
-                ],
-            },
-            twitter: {
-                handle: "@thatmattlove",
-                site: "@thatmattlove",
-                cardType: "summary_large_image",
-            },
-            noindex: NO_INDEX_FOLLOW,
-            nofollow: NO_INDEX_FOLLOW,
-            additionalLinkTags: faviconFormats.map((fmt) => {
-                const { image_format, dimensions, prefix, rel } = fmt;
-                const [w, h] = dimensions;
-                const href = `/img/${prefix}-${w}x${h}.${image_format}`;
-                return { rel: rel ?? "", href, type: `image/${image_format}` };
-            }),
-        };
+        return (
+            <head>
+                <title>{title}</title>
+                <meta property="og:url" content={url} />
+                <meta property="og:title" content={title} />
+                <meta property="og:description" content={description} />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta property="twitter:domain" content="hyperglass.dev" />
+                <meta property="twitter:url" content="https://hyperglass.dev" />
+                <meta name="twitter:title" content={title} />
+                <meta name="twitter:description" content={description} />
+                <meta name="twitter:image" content="https://hyperglass.dev/opengraph.jpg" />
+                <meta name="robots" content={index} />
+                <link rel="manifest" href="/img/manifest.json" />
+                {favicons.map((props) => (
+                    <link key={props.href} {...props} />
+                ))}
+            </head>
+        );
     },
+    docsRepositoryBase: "https://github.com/thatmattlove/hyperglass/tree/main/docs",
     banner: {
         dismissible: true,
-        // text: "🎉 hyperglass 2.0 is here!",
-        text: "😬 hyperglass 2.0 and its documentation is still in development!",
+        content: "🎉 hyperglass 2.0 is here! This documentation is still in development, though.",
     },
     feedback: { content: null },
-    footer: { text: `© ${new Date().getFullYear()} hyperglass` },
+    footer: { content: `© ${new Date().getFullYear()} hyperglass` },
     editLink: { component: null },
     chat: {
         link: "https://netdev.chat/",

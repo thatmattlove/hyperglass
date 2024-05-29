@@ -121,7 +121,7 @@ class Redact(OutputPlugin):
 
 If the query output was:
 
-```
+```text
 Lorem ipsum dolor sit amet, SuperSecretInfo consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 Viverra suspendisse potenti nullam ac. At elementum eu facilisis sed odio morbi. SuperSecretInfo iaculis urna id volutpat lacus.Nisl nisi
 scelerisque eu ultrices vitae. Accumsan SuperSecretInfo tortor posuere ac ut consequat semper viverra nam libero. Libero id faucibus nisl
@@ -133,7 +133,7 @@ diam in arcu cursus SuperSecretInfo.
 
 The above plugin would transform the output to:
 
-```
+```text
 Lorem ipsum dolor sit amet, <REDACTED> consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 Viverra suspendisse potenti nullam ac. At elementum eu facilisis sed odio morbi. <REDACTED> iaculis urna id volutpat lacus.Nisl nisi
 scelerisque eu ultrices vitae. Accumsan <REDACTED> tortor posuere ac ut consequat semper viverra nam libero. Libero id faucibus nisl

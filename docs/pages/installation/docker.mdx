@@ -3,8 +3,8 @@ title: Using Docker
 description: Installing hyperglass with Docker
 ---
 
-import { Card, Cards, Steps } from "nextra/components";
-import { Callout } from "nextra-theme-docs";
+import { Cards, Steps, Callout } from "nextra/components";
+// import { Callout } from "nextra-theme-docs";
 
 <Callout type="info">**Docker is the recommended method for running hyperglass.**</Callout>
 
@@ -13,7 +13,7 @@ import { Callout } from "nextra-theme-docs";
 ### Install Docker
 
 <Cards>
-    <Card
+    <Cards.Card
         title="Docker Engine Installation Guide"
         href="https://docs.docker.com/engine/install/"
         target="_blank"
@@ -26,9 +26,8 @@ import { Callout } from "nextra-theme-docs";
 ```shell copy
 mkdir /etc/hyperglass
 cd /opt
-git clone https://github.com/thatmattlove/hyperglass.git
+git clone https://github.com/thatmattlove/hyperglass.git --depth=1
 cd /opt/hyperglass
-git checkout v2.0.0
 ```
 
 ### Optional: Quickstart

@@ -1,4 +1,4 @@
-import { Callout } from "nextra-theme-docs";
+import { Callout } from "nextra/components";
 import { SupportedPlatforms } from "~/components/platforms";
 import { DocsButton } from "~/components/docs-button";
 
@@ -76,7 +76,10 @@ devices:
           password: your password
 ```
 
-### <DocsButton href="/configuration/directives.mdx"/> With Directives
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/directives" /> With Directives
+</h3>
 
 In this example, an additional directive `cisco-show-lldp-neighbors` is added to the built-in directives.
 
@@ -92,7 +95,10 @@ devices:
           - cisco-show-lldp-neighbors
 ```
 
-### <DocsButton href="/configuration/directives.mdx"/> Disable Built-in Directives
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/directives" /> Disable Built-in Directives
+</h3>
 
 In this example, _only_ the `cisco-show-lldp-neighbors` directive will be available. Built-in directives are disabled.
 
@@ -109,7 +115,10 @@ devices:
           - cisco-show-lldp-neighbors
 ```
 
-### <DocsButton href="/configuration/directives.mdx"/> Enable Specifc Built-in Directives
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/directives" /> Enable Specifc Built-in Directives
+</h3>
 
 In this example, only specified built-in directives are made available.
 

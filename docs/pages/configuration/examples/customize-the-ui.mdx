@@ -2,16 +2,22 @@
 description: Customize hyperglass to fit your needs.
 ---
 
-import { DocsButton } from "../../../components/docs-button";
+import { DocsButton } from "~/components/docs-button";
 
-### <DocsButton href="/configuration/config" /> Change the Title and Organization Name
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/config" /> Change the Title and Organization Name
+</h3>
 
 ```yaml filename="config.yaml"
 site_title: Our super neat looking glass
 org_name: Cool Company
 ```
 
-### <DocsButton href="/configuration/config/web-ui#logo" /> Change the Logo
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/config/web-ui#logo" /> Change the Logo
+</h3>
 
 ```yaml filename="config.yaml" {2-4} copy
 web:
@@ -20,7 +26,10 @@ web:
         dark: <path to logo image file to use in dark mode>
 ```
 
-### <DocsButton href="/configuration/config/web-ui#theme" /> Change the Color Scheme
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/config/web-ui#theme" /> Change the Color Scheme
+</h3>
 
 ```yaml filename="config.yaml" copy {3-5}
 web:
@@ -30,7 +39,10 @@ web:
             secondary: "#118ab2"
 ```
 
-### <DocsButton href="/configuration/config/web-ui#menus" /> Add a Link to the Footer
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/config/web-ui#menus" /> Add a Link to the Footer
+</h3>
 
 ```yaml filename="config.yaml" copy
 web:
