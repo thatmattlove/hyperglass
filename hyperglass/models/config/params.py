@@ -91,7 +91,9 @@ class Params(ParamsPublic, HyperglassModel):
     web: Web = Web()
 
     def __init__(self, **kw: t.Any) -> None:
-        return super().__init__(**self.convert_paths(kw))
+        if "plugins" in kw:
+            kw["plugins"] = self.convert_paths(kw["plugins"])
+        return super().__init__(**kw)
 
     @field_validator("site_description")
     def validate_site_description(cls: "Params", value: str, info: ValidationInfo) -> str:
