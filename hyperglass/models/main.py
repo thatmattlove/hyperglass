@@ -62,7 +62,7 @@ class HyperglassModel(BaseModel):
                     *(p for p in value.parts if p not in Settings.original_app_path.parts)
                 )
 
-        if isinstance(value, str):
+        if isinstance(value, str) and str(Settings.original_app_path) in value:
             if Settings.container:
                 path = Path(value)
                 return str(
