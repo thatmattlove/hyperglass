@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.1 - 2024-05-31
+
+### Fixed
+- [#244](https://github.com/thatmattlove/hyperglass/issues/244): Fix issue with UI build where UI build directory already existed and therefore could not be created.
+- [#249](https://github.com/thatmattlove/hyperglass/issues/249): Fix issue where configuration values were improperly prepended with the `HYPERGLASS_APP_PATH` value.
+- [#251](https://github.com/thatmattlove/hyperglass/issues/251): Fix issue where browser-based DNS resolution did not show, causing FQDN queries to fail due to validation.
+- Fix issue where logo was improperly sized on small screens.
+
 ## 2.0.0 - 2024-05-28
 
 _v2.0.0 is a major release of hyperglass. Many things have changed, and it is likely best to redeploy hyperglass in a new environment to migrate to v2._

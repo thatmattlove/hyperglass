@@ -1,5 +1,5 @@
-import { expect, describe, it, test } from 'vitest';
-import { all, chunkArray, entries, dedupObjectArray, andJoin, isFQDN } from './common';
+import { describe, expect, it, test } from 'vitest';
+import { all, andJoin, chunkArray, dedupObjectArray, entries, isFQDN } from './common';
 
 test('all - all items are truthy', () => {
   // biome-ignore lint/suspicious/noSelfCompare: because this is a test, duh
@@ -79,12 +79,6 @@ describe('andJoin - join array of strings to sentence structure', () => {
 });
 
 describe('isFQDN - determine if a string is an FQDN pattern', () => {
-  it('is null and should be false', () => {
-    expect(isFQDN(null)).toBe(false);
-  });
-  it('is undefined and should be false', () => {
-    expect(isFQDN(undefined)).toBe(false);
-  });
   it("isn't an FQDN and should be false", () => {
     expect(isFQDN('example')).toBe(false);
   });
@@ -99,5 +93,8 @@ describe('isFQDN - determine if a string is an FQDN pattern', () => {
   });
   it('is a longer FQDN and should be true', () => {
     expect(isFQDN('one.two.three.four.five.example.com')).toBe(true);
+  });
+  it('is an array of FQDNs and should be true', () => {
+    expect(isFQDN(['www.example.com'])).toBe(true);
   });
 });

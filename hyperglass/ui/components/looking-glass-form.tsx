@@ -72,7 +72,9 @@ export const LookingGlassForm = (): JSX.Element => {
 
   const isFqdnQuery = useCallback(
     (target: string | string[], fieldType: Directive['fieldType'] | null): boolean =>
-      typeof target === 'string' && fieldType === 'text' && isFQDN(target),
+      (typeof target === 'string' || Array.isArray(target)) &&
+      fieldType === 'text' &&
+      isFQDN(target),
     [],
   );
 
