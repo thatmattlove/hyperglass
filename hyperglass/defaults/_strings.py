@@ -2,7 +2,7 @@
 
 CREDIT = """
 Powered by [**hyperglass**](https://hyperglass.dev) version {version}. \
-Source code licensed [_BSD 3-Clause Clear_](https://hyperglass.dev/docs/license/).
+Source code licensed [_BSD 3-Clause Clear_](https://hyperglass.dev/license/).
 """
 
 DEFAULT_TERMS = """

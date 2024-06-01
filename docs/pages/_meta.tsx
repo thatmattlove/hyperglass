@@ -27,6 +27,10 @@ export default {
                 title: "Changelog",
                 href: "/changelog",
             },
+            license: {
+                title: "License",
+                href: "/license",
+            },
         },
     },
     demo: {
