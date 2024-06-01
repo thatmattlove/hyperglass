@@ -28,7 +28,6 @@ const MWrapper = (props: MWrapperProps): JSX.Element => {
       layout
       spacing={1}
       alignItems={formInteractive ? 'center' : 'flex-start'}
-      maxWidth="25%"
       {...props}
     />
   );
