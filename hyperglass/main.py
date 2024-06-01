@@ -162,6 +162,9 @@ def run(workers: int = None):
         log.bind(
             version=__version__,
             listening=f"http://{Settings.bind()}",
+            app_path=f"{Settings.app_path.absolute()!s}",
+            container=Settings.container,
+            original_app_path=f"{Settings.original_app_path.absolute()!s}",
             workers=_workers,
         ).info(
             "Starting hyperglass",

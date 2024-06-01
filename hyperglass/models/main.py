@@ -59,15 +59,23 @@ class HyperglassModel(BaseModel):
         if isinstance(value, Path):
             if Settings.container:
                 return Settings.default_app_path.joinpath(
-                    *(p for p in value.parts if p not in Settings.original_app_path.parts)
+                    *(
+                        p
+                        for p in value.parts
+                        if p not in Settings.original_app_path.absolute().parts
+                    )
                 )
 
-        if isinstance(value, str) and str(Settings.original_app_path) in value:
+        if isinstance(value, str) and str(Settings.original_app_path.absolute()) in value:
             if Settings.container:
                 path = Path(value)
                 return str(
                     Settings.default_app_path.joinpath(
-                        *(p for p in path.parts if p not in Settings.original_app_path.parts)
+                        *(
+                            p
+                            for p in path.parts
+                            if p not in Settings.original_app_path.absolute().parts
+                        )
                     )
                 )
 
