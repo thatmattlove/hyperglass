@@ -170,7 +170,7 @@ export const QueryLocation = (props: QueryLocationProps): JSX.Element => {
         options={options}
         aria-label={label}
         name="queryLocation"
-        closeMenuOnSelect={false}
+        closeMenuOnSelect={true}
         onChange={handleSelectChange}
         value={selections.queryLocation}
         isError={typeof errors.queryLocation !== 'undefined'}
