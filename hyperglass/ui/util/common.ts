@@ -130,7 +130,7 @@ export function andJoin(values: string[], options?: AndJoinOptions): string {
  *
  * @param value Input value.
  */
-export function isFQDN(value: unknown): value is string {
+export function isFQDN(value: string | string[]): value is string {
   /**
    * Don't set the global flag on this.
    * @see https://stackoverflow.com/questions/24084926/javascript-regexp-cant-use-twice
@@ -142,5 +142,8 @@ export function isFQDN(value: unknown): value is string {
   const pattern = new RegExp(
     /^(?!:\/\/)([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z-]{2,6}?$/im,
   );
+  if (Array.isArray(value)) {
+    return isFQDN(value[0]);
+  }
   return typeof value === 'string' && pattern.test(value);
 }
