@@ -133,8 +133,6 @@ async def build_ui(app_path: Path):
 
     if build_dir.exists():
         shutil.rmtree(build_dir)
-    else:
-        build_dir.mkdir()
     shutil.copytree(src=out_dir, dst=build_dir, dirs_exist_ok=False)
     log.bind(src=out_dir, dst=build_dir).debug("Migrated Next.JS build output")
 
