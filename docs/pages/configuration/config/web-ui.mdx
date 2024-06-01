@@ -15,9 +15,10 @@ hyperglass provides extensive customization options for the look and feel of the
 
 [DNS over HTTPS](https://www.rfc-editor.org/rfc/rfc8484) is used to look up an FQDN query target from the perspective of the user's browser.
 
-| Parameter           | Type   | Default Value | Description                             |
-| :------------------ | :----- | :------------ | :-------------------------------------- |
-| `dns_provider.name` | String | cloudflare    | Cloudflare or Google DNS are supported. |
+| Parameter           | Type   | Default Value                          | Description                                                                 |
+| :------------------ | :----- | :------------------------------------- | :-------------------------------------------------------------------------- |
+| `dns_provider.name` | String | cloudflare                             | If `cloudflare` or `google` are provided, no URL is necessary.              |
+| `dns_provider.url`  | String | `https://cloudflare-dns.com/dns-query` | Provide a custom DNS over HTTPS URL if you'd like to use your own resolver. |
 
 ### Logo
 
