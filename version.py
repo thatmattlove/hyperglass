@@ -18,10 +18,14 @@ PYPROJECT_PATTERN = re.compile(r"^version\s\=\s\"(.+)\"$")
 CONSTANTS = Path(__file__).parent / "hyperglass" / "constants.py"
 CONSTANT_PATTERN = re.compile(r"^__version__\s\=\s\"(.+)\"$")
 
+UPGRADE_DOC = Path(__file__).parent / "docs" / "pages" / "installation" / "upgrading.mdx"
+UPGRADE_DOC_PATTERN = re.compile(r"^git\scheckout\sv(.+)$")
+
 UPGRADES = (
     ("package.json", PACKAGE_JSON, PACKAGE_JSON_PATTERN),
     ("pyproject.toml", PYPROJECT_TOML, PYPROJECT_PATTERN),
     ("constants.py", CONSTANTS, CONSTANT_PATTERN),
+    ("upgrading.mdx", UPGRADE_DOC, UPGRADE_DOC_PATTERN),
 )
 
 cli = typer.Typer(name="version", no_args_is_help=True)
