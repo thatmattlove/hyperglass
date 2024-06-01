@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.2 - 2024-06-01
+
+### Fixed
+
+- [#257](https://github.com/thatmattlove/hyperglass/issues/257): Fix issue where if `web.location_display_mode` is set to `dropdown` (automatically or otherwise), the menu would remain open but become detached from the main element because the Query Type element came into view.
+- [#253](https://github.com/thatmattlove/hyperglass/issues/253): _Actually_ fix issue where configuration values were improperly prepended with the `HYPERGLASS_APP_PATH` value.
+- [#258](https://github.com/thatmattlove/hyperglass/issues/258): Center logo alignment on small screens.
+- Fix broken license link in default credit menu.
+
+### Added
+
+- Added license to docs.
+- [#254](https://github.com/thatmattlove/hyperglass/issues/254): Users may specify their own DNS over HTTPS provider if desired.
+
 ## 2.0.1 - 2024-05-31
 
 ### Fixed
