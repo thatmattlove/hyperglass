@@ -88,7 +88,7 @@ interface _Highlight {
 
 interface _Web {
   credit: _Credit;
-  dns_provider: { name: string; url: string };
+  dns_provider: { url: string };
   links: _Link[];
   menus: _Menu[];
   greeting: _Greeting;

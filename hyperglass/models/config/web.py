@@ -5,19 +5,18 @@ import typing as t
 from pathlib import Path
 
 # Third Party
-from pydantic import Field, HttpUrl, FilePath, ValidationInfo, field_validator, model_validator
+from pydantic import Field, HttpUrl, FilePath, ValidationInfo, field_validator
 from pydantic_extra_types.color import Color
 
 # Project
 from hyperglass.defaults import DEFAULT_HELP, DEFAULT_TERMS
-from hyperglass.constants import DNS_OVER_HTTPS, FUNC_COLOR_MAP
+from hyperglass.constants import FUNC_COLOR_MAP
 
 # Local
 from ..main import HyperglassModel
 from .opengraph import OpenGraph
 
 DEFAULT_IMAGES = Path(__file__).parent.parent.parent / "images"
-DOH_PROVIDERS_PATTERN = "|".join(DNS_OVER_HTTPS.keys())
 PERCENTAGE_PATTERN = r"^([1-9][0-9]?|100)\%?$"
 
 Percentage = Field(pattern=r"^([1-9][0-9]?|100)\%$")
@@ -186,18 +185,7 @@ class Theme(HyperglassModel):
 class DnsOverHttps(HyperglassModel):
     """Validation model for DNS over HTTPS resolution."""
 
-    name: str = Field(default="cloudflare", pattern=DOH_PROVIDERS_PATTERN)
-    url: str = ""
-
-    @model_validator(mode="before")
-    def validate_dns(cls, data: "DnsOverHttps") -> t.Dict[str, str]:
-        """Assign url field to model based on selected provider."""
-        name = data.get("name", "cloudflare")
-        url = DNS_OVER_HTTPS[name]
-        return {
-            "name": name,
-            "url": url,
-        }
+    url: HttpUrl = "https://cloudflare-dns.com/dns-query"
 
 
 class HighlightPattern(HyperglassModel):

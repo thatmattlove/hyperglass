@@ -25,11 +25,6 @@ CONFIG_EXTENSIONS = ("py", "yaml", "yml", "json", "toml")
 
 STATUS_CODE_MAP = {"warning": 400, "error": 400, "danger": 500}
 
-DNS_OVER_HTTPS = {
-    "google": "https://dns.google/resolve",
-    "cloudflare": "https://cloudflare-dns.com/dns-query",
-}
-
 PARSED_RESPONSE_FIELDS = (
     ("Prefix", "prefix", "left"),
     ("Active", "active", None),
