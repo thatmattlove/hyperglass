@@ -22,7 +22,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 
 </div>
 
-### [Changelog](https://github.com/thatmattlove/hyperglass/blob/v2.0.0/CHANGELOG.md)
+### [Changelog](https://hyperglass.dev/changelog)
 
 ## Features
 
