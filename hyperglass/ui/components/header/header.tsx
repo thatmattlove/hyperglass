@@ -1,6 +1,6 @@
 import { Flex, ScaleFade } from '@chakra-ui/react';
 import { motionChakra } from '~/elements';
-import { useBooleanValue, useFormInteractive, useBreakpointValue } from '~/hooks';
+import { useBooleanValue, useBreakpointValue, useFormInteractive } from '~/hooks';
 import { Title } from './title';
 
 const Wrapper = motionChakra('header', {
@@ -16,8 +16,6 @@ export const Header = (): JSX.Element => {
     { base: '75%', lg: '75%' },
   );
 
-  const justify = useBreakpointValue({ base: 'flex-start', lg: 'center' });
-
   return (
     <Wrapper layout="position">
       <ScaleFade in initialScale={0.5} style={{ width: '100%' }}>
@@ -25,8 +23,8 @@ export const Header = (): JSX.Element => {
           height="100%"
           maxW={titleWidth}
           // This is here for the logo
-          justifyContent={justify}
-          mx={{ base: formInteractive ? 'auto' : 0, lg: 'auto' }}
+          justifyContent="center"
+          mx="auto"
         >
           <Title />
         </Flex>

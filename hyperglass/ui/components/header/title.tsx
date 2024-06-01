@@ -46,7 +46,7 @@ const DWrapper = (props: DWrapperProps): JSX.Element => {
       animate={formInteractive}
       transition={{ damping: 15, type: 'spring', stiffness: 100 }}
       variants={{ results: { scale: 0.5 }, form: { scale: 1 } }}
-      maxWidth="25%"
+      maxWidth="75%"
       {...props}
     />
   );
