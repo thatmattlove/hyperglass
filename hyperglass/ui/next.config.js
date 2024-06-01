@@ -9,11 +9,14 @@ const nextConfig = {
   },
   swcMinify: true,
   productionBrowserSourceMaps: true,
-  output: 'export',
 };
 
+if (process.env.NODE_ENV === 'production') {
+  nextConfig.output = 'export';
+}
+
 if (process.env.NODE_ENV === 'development') {
-  nextConfig.rewrites = [
+  nextConfig.rewrites = async () => [
     { source: '/api/query', destination: `${process.env.HYPERGLASS_URL}api/query` },
     { source: '/images/:image*', destination: `${process.env.HYPERGLASS_URL}images/:image*` },
   ];
