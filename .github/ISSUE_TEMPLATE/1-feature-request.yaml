@@ -1,0 +1,49 @@
+name: Feature Request
+description: Suggest an idea for hyperglass
+labels:
+  - feature
+assignees:
+  - thatmattlove
+body:
+  - type: markdown
+    attributes:
+      value: >
+        If the answer to any of these questions is "no", your feature request will most likely be rejected (but may still be considered).
+          - Is the new feature _only_ applicable to one [platform](https://hyperglass.dev/platforms)?
+          - Would the new feature work only on mobile, or only on desktop?
+          - Would the new feature only support IPv4, or IPv6?
+          - Is the new feature something that can be reasonably customized by hyperglass users?
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of hyperglass are you currently running?
+      placeholder: v2.0.2
+    validations:
+      required: true
+  - type: textarea
+    id: feature-details
+    attributes:
+      label: Feature Details
+      description: Describe the solution or change you would like in detail.
+    validations:
+      required: true
+  - type: dropdown
+    id: feature-type
+    validations:
+      required: true
+    attributes:
+      label: Feature Type
+      multiple: true
+      options:
+        - New Platform
+        - Web UI
+        - New Functionality
+        - Change to Existing Functionality
+  - type: textarea
+    id: use-case
+    validations:
+      required: true
+    attributes:
+      label: Use Case
+      description: How will this feature benefit hyperglass users (providers, end-users, or both)?

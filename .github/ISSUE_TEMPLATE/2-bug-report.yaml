@@ -1,0 +1,98 @@
+name: Bug Report
+description: Report a problem or unexpected behavior
+labels:
+  - possible-bug
+assignees:
+  - thatmattlove
+body:
+  - type: dropdown
+    id: deployment-type
+    validations:
+      required: true
+    attributes:
+      label: Deployment Type
+      description: How are you running hyperglass?
+      multiple: false
+      options:
+        - Docker
+        - Manual
+        - Other (please explain)
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of hyperglass are you currently running?
+      placeholder: v2.0.2
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    validations:
+      required: true
+    attributes:
+      label: Steps to Reproduce
+      description: >
+        Describe in detail the exact steps one can take to reproduce this bug.
+        If reporting a UI bug, be sure to include screenshots, browser version, and operating system and platform.
+        If you've deployed hyperglass manually, be sure to include Python and NodeJS versions.
+      placeholder: |
+        1. Click the thing
+        2. Type the stuff
+        3. See the error
+  - type: textarea
+    id: expected-behavior
+    validations:
+      required: true
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: A thing should have happened.
+  - type: textarea
+    id: observed-behavior
+    validations:
+      required: true
+    attributes:
+      label: Observed Behavior
+      description: What actually happened?
+      placeholder: An error was shown.
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Configuration
+      description: hyperglass [config](https://hyperglass.dev/configuration/config) file in YAML format.
+      placeholder: |
+        org_name: Beloved Hyperglass User
+        plugins: []
+        primary_asn: 65000
+        request_timeout: 90
+        site_description: Beloved Hyperglass User Network Looking Glass
+        site_title: Beloved Hyperglass User
+      render: yaml
+  - type: textarea
+    id: devices
+    attributes:
+      label: Devices
+      description: >
+        hyperglass [devices](https://hyperglass.dev/configuration/devices) file in YAML format
+        **with passwords obfuscated or removed**.
+      placeholder: |
+        devices:
+        - name: New York, NY
+          address: 192.0.2.1
+          platform: cisco_ios
+          credential:
+              username: ***
+              password: ***
+        - name: San Francisco, CA
+          address: 192.0.2.2
+          platform: juniper
+          credential:
+              username: ***
+              password: ***
+      render: yaml
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Include any relevant log messages related to the bug.
+      render: console

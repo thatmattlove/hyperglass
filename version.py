@@ -21,11 +21,20 @@ CONSTANT_PATTERN = re.compile(r"^__version__\s\=\s\"(.+)\"$")
 UPGRADE_DOC = Path(__file__).parent / "docs" / "pages" / "installation" / "upgrading.mdx"
 UPGRADE_DOC_PATTERN = re.compile(r"^git\scheckout\sv(.+)$")
 
+UPGRADE_GH_FEATURE = Path(__file__).parent / ".github" / "ISSUE_TEMPLATE" / "1-feature-request.yaml"
+UPGRADE_GH_FEATURE_PATTERN = re.compile(r"^[\s\t]+placeholder\:\sv(.+)$")
+
+UPGRADE_GH_BUG = Path(__file__).parent / ".github" / "ISSUE_TEMPLATE" / "2-bug-report.yaml"
+
+UPGRADE_GH_BUG_PATTERN = re.compile(r"^[\s\t]+placeholder\:\sv(.+)$")
+
 UPGRADES = (
     ("package.json", PACKAGE_JSON, PACKAGE_JSON_PATTERN),
     ("pyproject.toml", PYPROJECT_TOML, PYPROJECT_PATTERN),
     ("constants.py", CONSTANTS, CONSTANT_PATTERN),
     ("upgrading.mdx", UPGRADE_DOC, UPGRADE_DOC_PATTERN),
+    ("1-feature-request.yaml", UPGRADE_GH_FEATURE, UPGRADE_GH_FEATURE_PATTERN),
+    ("2-bug-report.yaml", UPGRADE_GH_BUG, UPGRADE_GH_BUG_PATTERN),
 )
 
 cli = typer.Typer(name="version", no_args_is_help=True)

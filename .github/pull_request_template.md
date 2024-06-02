@@ -1,4 +1,4 @@
-<!-- PLEASE CONSULT CONTRIBUTING.MD PRIOR TO WORKING ON HYPERGLASS -->
+<!-- PLEASE CONSULT CONTRIBUTING POLICY PRIOR TO WORKING ON HYPERGLASS -->
 
 <!-- Provide a general summary of your changes in the Title. -->
 
