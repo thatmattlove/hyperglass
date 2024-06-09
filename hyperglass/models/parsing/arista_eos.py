@@ -65,7 +65,7 @@ class AristaRouteDetail(_AristaBase):
     origin: str
     label_stack: t.List = []
     ext_community_list: t.List[str] = []
-    ext_community_list_raw: t.List[str] = []
+    ext_community_list_raw: t.List[int] = []
     community_list: t.List[str] = []
     large_community_list: t.List[str] = []
 
