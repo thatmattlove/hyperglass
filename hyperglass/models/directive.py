@@ -216,7 +216,7 @@ class RuleWithPattern(Rule):
                 return InputValidationError(target=value, error="Denied")
             return False
 
-        if isinstance(target, t.List) and multiple:
+        if isinstance(target, t.List):
             for result in (validate_single_value(v) for v in target):
                 if isinstance(result, BaseException):
                     self._passed = False
@@ -226,9 +226,6 @@ class RuleWithPattern(Rule):
                     return result
             self._passed = True
             return True
-
-        if isinstance(target, t.List) and not multiple:
-            raise InputValidationError(error="Target must be a single value", target=target)
 
         result = validate_single_value(target)
 
