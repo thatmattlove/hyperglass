@@ -2,7 +2,7 @@
 
 # Standard Library
 import json as _json
-from typing import Any, Dict, List, Union, Literal, Optional
+from typing import Any, Dict, List, Union, Literal, Optional, Set
 
 # Third Party
 from pydantic import ValidationError
@@ -48,7 +48,7 @@ class HyperglassError(Exception):
         return {
             "message": self._message,
             "level": self._level,
-            "keywords": self._keywords,
+            "keywords": self.keywords,
         }
 
     def json(self) -> str:
@@ -76,6 +76,18 @@ class HyperglassError(Exception):
 
         return "\n".join(errs)
 
+    def _process_keywords(self) -> None:
+        out: Set[str] = set()
+        for val in self._keywords:
+            if isinstance(val, str):
+                out.add(val)
+            elif isinstance(val, list):
+                for v in val:
+                    out.add(v)
+            else:
+                out.add(str(val))
+        self._keywords = list(out)
+
     @property
     def message(self) -> str:
         """Return the instance's `message` attribute."""
@@ -89,6 +101,7 @@ class HyperglassError(Exception):
     @property
     def keywords(self) -> List[str]:
         """Return the instance's `keywords` attribute."""
+        self._process_keywords()
         return self._keywords
 
     @property

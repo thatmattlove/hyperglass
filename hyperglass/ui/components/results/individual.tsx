@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import startCase from 'lodash/startCase';
-import { forwardRef, memo, useEffect, useMemo } from 'react';
+import { forwardRef, memo, useEffect, useMemo, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import { Else, If, Then } from 'react-if';
 import { BGPTable, Path, TextOutput } from '~/components';
@@ -72,24 +72,44 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
 
   const addResponse = useFormState(s => s.addResponse);
   const form = useFormState(s => s.form);
+  const [errorLevel, _setErrorLevel] = useState<ErrorLevels>('error');
 
-  const { data, error, isError, isLoading, refetch, isFetchedAfterMount } = useLGQuery(
-    {
-      queryLocation,
-      queryTarget: form.queryTarget,
-      queryType: form.queryType,
-    },
+  const setErrorLevel = (level: ResponseLevel): void => {
+    let e: ErrorLevels = 'error';
+    switch (level) {
+      case 'success':
+        e = level;
+        break;
+      case 'warning' || 'error':
+        e = 'warning';
+        break;
+    }
+    _setErrorLevel(e);
+  };
+
+  const { data, error, isLoading, refetch, isFetchedAfterMount } = useLGQuery(
+    { queryLocation, queryTarget: form.queryTarget, queryType: form.queryType },
     {
       onSuccess(data) {
         if (device !== null) {
           addResponse(device.id, data);
         }
+        if (isLGOutputOrError(data)) {
+          console.error(data);
+          setErrorLevel(data.level);
+        }
       },
       onError(error) {
-        console.error(error);
+        console.error({ error });
+        if (isLGOutputOrError(error)) {
+          setErrorLevel(error.level);
+        }
       },
     },
   );
+
+  const isError = useMemo(() => isLGOutputOrError(data), [data, error]);
+
   const isCached = useMemo(() => data?.cached || !isFetchedAfterMount, [data, isFetchedAfterMount]);
 
   const strF = useStrf();
@@ -122,23 +142,6 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
     }
     return messages.general;
   }, [error, data, messages.general, messages.requestTimeout]);
-
-  const errorLevel = useMemo<ErrorLevels>(() => {
-    const statusMap = {
-      success: 'success',
-      warning: 'warning',
-      error: 'warning',
-      danger: 'error',
-    } as { [K in ResponseLevel]: 'success' | 'warning' | 'error' };
-
-    let e: ErrorLevels = 'error';
-
-    if (isLGError(error)) {
-      const idx = error.level as ResponseLevel;
-      e = statusMap[idx];
-    }
-    return e;
-  }, [error]);
 
   const tableComponent = useMemo<boolean>(() => {
     let result = false;

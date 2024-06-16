@@ -1,5 +1,5 @@
+import { AccordionIcon, Box, HStack, Spinner, Text, Tooltip } from '@chakra-ui/react';
 import { useMemo } from 'react';
-import { AccordionIcon, Box, Spinner, HStack, Text, Tooltip } from '@chakra-ui/react';
 import { useConfig } from '~/context';
 import { DynamicIcon } from '~/elements';
 import { useColorValue, useOpposingColor, useStrf } from '~/hooks';
@@ -52,7 +52,7 @@ export const ResultHeader = (props: ResultHeaderProps): JSX.Element => {
             <Spinner size="sm" mr={4} color={status} />
           ) : (
             <DynamicIcon
-              icon={isError ? { bi: 'BisError' } : { fa: 'FaCheckCircle' }}
+              icon={isError ? { bi: 'BiError' } : { fa: 'FaCheckCircle' }}
               color={isError ? warning : defaultStatus}
               mr={4}
               boxSize="100%"
