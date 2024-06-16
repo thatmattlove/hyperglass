@@ -1,47 +1,48 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
-  "organizeImports": {
-    "enabled": true
-  },
-  "files": {
-    "ignore": [
-      "node_modules",
-      "dist",
-      ".next/",
-      "favicon-formats.ts",
-      "custom.*[js, html]",
-      "hyperglass.json"
-    ]
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "complexity": {
-        "noUselessTypeConstraint": "off",
-        "noBannedTypes": "off"
-      },
-      "style": {
-        "noInferrableTypes": "off",
-        "noNonNullAssertion": "off"
-      },
-      "correctness": {
-        "useExhaustiveDependencies": "off"
-      }
-    }
-  },
-  "formatter": {
-    "indentStyle": "space",
-    "lineWidth": 100,
-    "indentWidth": 2
-  },
-  "javascript": {
+    "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
+    "organizeImports": {
+        "enabled": true
+    },
+    "files": {
+        "ignore": [
+            "node_modules",
+            "dist",
+            ".next/",
+            "out/",
+            "favicon-formats.ts",
+            "custom.*[js, html]",
+            "hyperglass.json"
+        ]
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true,
+            "complexity": {
+                "noUselessTypeConstraint": "off",
+                "noBannedTypes": "off"
+            },
+            "style": {
+                "noInferrableTypes": "off",
+                "noNonNullAssertion": "off"
+            },
+            "correctness": {
+                "useExhaustiveDependencies": "off"
+            }
+        }
+    },
     "formatter": {
-      "quoteStyle": "single",
-      "bracketSpacing": true,
-      "semicolons": "always",
-      "arrowParentheses": "asNeeded",
-      "trailingComma": "all"
+        "indentStyle": "space",
+        "lineWidth": 100,
+        "indentWidth": 2
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "single",
+            "bracketSpacing": true,
+            "semicolons": "always",
+            "arrowParentheses": "asNeeded",
+            "trailingComma": "all"
+        }
     }
-  }
 }
