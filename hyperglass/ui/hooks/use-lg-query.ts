@@ -55,9 +55,7 @@ export function useLGQuery(
     );
     try {
       const data = await res.json();
-      console.dir(data, { depth: null });
       return data;
-      // return await res.json();
     } catch (err) {
       throw new Error(res.statusText);
     }

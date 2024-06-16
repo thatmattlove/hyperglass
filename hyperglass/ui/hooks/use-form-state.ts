@@ -1,14 +1,14 @@
-import { useMemo } from 'react';
-import create from 'zustand';
 import intersectionWith from 'lodash/intersectionWith';
 import plur from 'plur';
+import { useMemo } from 'react';
 import isEqual from 'react-fast-compare';
+import create from 'zustand';
 import { all, andJoin, dedupObjectArray, withDev } from '~/util';
 
+import type { UseFormClearErrors, UseFormSetError } from 'react-hook-form';
+import type { MultiValue, SingleValue } from 'react-select';
 import type { StateCreator } from 'zustand';
-import type { UseFormSetError, UseFormClearErrors } from 'react-hook-form';
-import type { SingleValue, MultiValue } from 'react-select';
-import type { SingleOption, Directive, FormData, Text, Device } from '~/types';
+import type { Device, Directive, FormData, SingleOption, Text } from '~/types';
 import type { UseDeviceReturn } from './use-device';
 
 type FormStatus = 'form' | 'results';
@@ -61,7 +61,10 @@ interface FormStateType<Opt extends SingleOption = SingleOption> {
   setSelection<
     Opt extends SingleOption,
     K extends keyof FormSelections<Opt> = keyof FormSelections<Opt>,
-  >(field: K, value: FormSelections[K]): void;
+  >(
+    field: K,
+    value: FormSelections[K],
+  ): void;
   setTarget(update: Partial<Target>): void;
   getDirective(): Directive | null;
   reset(): void;
