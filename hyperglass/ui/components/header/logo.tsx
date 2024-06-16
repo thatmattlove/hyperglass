@@ -41,7 +41,8 @@ export const Logo = (props: ImageProps): JSX.Element => {
       src={source}
       alt={web.text.title}
       onError={setFallback}
-      width={width ?? 'auto'}
+      maxW={{ base: '100%', md: width }}
+      width="auto"
       css={{
         userDrag: 'none',
         userSelect: 'none',

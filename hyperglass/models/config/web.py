@@ -86,10 +86,8 @@ class Logo(HyperglassModel):
     light: FilePath = DEFAULT_IMAGES / "hyperglass-light.svg"
     dark: FilePath = DEFAULT_IMAGES / "hyperglass-dark.svg"
     favicon: FilePath = DEFAULT_IMAGES / "hyperglass-icon.svg"
-    width: str = Field(default="100%", pattern=PERCENTAGE_PATTERN)
-    # width: t.Optional[t.Union[int, Percentage]] = "100%"
+    width: str = Field(default="50%", pattern=PERCENTAGE_PATTERN)
     height: t.Optional[str] = Field(default=None, pattern=PERCENTAGE_PATTERN)
-    # height: t.Optional[t.Union[int, Percentage]] = None
 
 
 class LogoPublic(Logo):
