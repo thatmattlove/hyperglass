@@ -117,12 +117,10 @@ class PluginManager(t.Generic[PluginT]):
                 else:
                     _log.info("Registered plugin")
                 return
-        except TypeError:
-            raise PluginError(  # noqa: B904
-                "Plugin '{p}' has not defined a required method. "
-                "Please consult the hyperglass documentation.",
-                p=repr(plugin),
-            )
+        except TypeError as exc:
+            raise PluginError("Plugin '{p}' has not defined a required method. "
+                              "Please consult the hyperglass documentation.",
+                              p=repr(plugin)) from exc
         raise PluginError("Plugin '{p}' is not a valid hyperglass plugin", p=repr(plugin))
 
 

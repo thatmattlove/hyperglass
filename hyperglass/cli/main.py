@@ -311,10 +311,9 @@ def _params(
                 )
             )
             raise typer.Exit(0)
-        except AttributeError:
+        except AttributeError as exc:
             echo.error(f"{'params.'+path!r} does not exist")
-            raise typer.Exit(1)
-
+            raise typer.Exit(1) from exc
     panel = Inspect(
         params,
         title="hyperglass Configuration Parameters",

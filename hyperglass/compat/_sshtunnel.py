@@ -1541,11 +1541,11 @@ def _bindlist(input_str):
         else:
             (_ip, _port) = ip_port
         if not _ip and not _port:
-            raise AssertionError
+            raise AssertionError("Both IP:PORT can't be missing!")
         elif not _port:
             _port = "22"  # default port if not given
         return _ip, int(_port)
-    except ValueError:
-        raise argparse.ArgumentTypeError("Address tuple must be of type IP_ADDRESS:PORT")
-    except AssertionError:
-        raise argparse.ArgumentTypeError("Both IP:PORT can't be missing!")
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("Address tuple must be of type IP_ADDRESS:PORT") from exc
+    except AssertionError as exc:
+        raise argparse.ArgumentTypeError("Both IP:PORT can't be missing!") from exc
