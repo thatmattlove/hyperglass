@@ -62,10 +62,7 @@ interface FormStateType<Opt extends SingleOption = SingleOption> {
   setSelection<
     Opt extends SingleOption,
     K extends keyof FormSelections<Opt> = keyof FormSelections<Opt>,
-  >(
-    field: K,
-    value: FormSelections[K],
-  ): void;
+  >(field: K, value: FormSelections[K]): void;
   setTarget(update: Partial<Target>): void;
   getDirective(): Directive | null;
   reset(): Promise<void>;
