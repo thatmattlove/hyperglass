@@ -138,6 +138,8 @@ async def query(_state: HyperglassState, request: Request, data: Query) -> Query
     response_format = "text/plain"
 
     if json_output:
+        if cache_response.get("level") != "success":
+            cache.delete(cache_key)
         response_format = "application/json"
     _log.info("Execution completed")
 
