@@ -111,7 +111,7 @@ JuniperTraceroute = BuiltinDirective(
         RuleWithIPv6(
             condition="::/0",
             action="permit",
-            command="traceroute inet6 {target} wait 1 source {source6}",
+            command="traceroute inet6 {target} wait 2 source {source6}",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
