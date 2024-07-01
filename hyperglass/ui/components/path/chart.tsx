@@ -11,7 +11,7 @@ import ReactFlow, {
 import { useConfig } from '~/context';
 import { useASNDetail, useColorToken, useColorValue } from '~/hooks';
 import { Controls } from './controls';
-import { useElements } from './useElements';
+import { useElements } from './use-elements';
 
 import type { NodeProps as ReactFlowNodeProps } from 'reactflow';
 
