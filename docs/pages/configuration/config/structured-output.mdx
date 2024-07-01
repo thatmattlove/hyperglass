@@ -14,7 +14,7 @@ Additionally, hyperglass provides the ability to control which BGP communities a
 
 | Parameter                      | Type            | Default Value | Description                                                                                                                   |
 | :----------------------------- | :-------------- | :------------ | :---------------------------------------------------------------------------------------------------------------------------- |
-| `structured.rpki`              | String          | router        | Use `router` to use the router's view of the RPKI state (1 above), or `external` to use Cloudflare's view (2 above).          |
+| `structured.rpki.mode`         | String          | router        | Use `router` to use the router's view of the RPKI state (1 above), or `external` to use Cloudflare's view (2 above).          |
 | `structured.communities.mode`  | String          | deny          | Use `deny` to deny any communities listed in `structured.communities.items`, or `permit` to _only_ permit communities listed. |
 | `structured.communities.items` | List of Strings |               | List of communities to match.                                                                                                 |
 
@@ -24,14 +24,16 @@ Additionally, hyperglass provides the ability to control which BGP communities a
 
 ```yaml filename="config.yaml" copy {2}
 structured:
-    rpki: router
+    rpki:
+        mode: router
 ```
 
 #### Show RPKI State from a Public/External Perspective
 
 ```yaml filename="config.yaml" copy {2}
 structured:
-    rpki: external
+    rpki:
+        mode: external
 ```
 
 ### Community Filtering Examples
