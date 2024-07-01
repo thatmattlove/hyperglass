@@ -1,6 +1,6 @@
-import { createContext, useContext, useMemo } from 'react';
 import { ChakraProvider, localStorageManager } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createContext, useContext, useMemo } from 'react';
 import { makeTheme } from '~/util';
 
 import type { Config } from '~/types';
@@ -12,7 +12,7 @@ interface HyperglassProviderProps {
 
 export const HyperglassContext = createContext<Config>({} as Config);
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export const HyperglassProvider = (props: HyperglassProviderProps): JSX.Element => {
   const { config, children } = props;

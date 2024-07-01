@@ -144,7 +144,7 @@ export const Title = (props: FlexProps): JSX.Element => {
         variant="link"
         flexWrap="wrap"
         flexDir="column"
-        onClick={() => reset()}
+        onClick={async () => await reset()}
         _focus={{ boxShadow: 'none' }}
         _hover={{ textDecoration: 'none' }}
       >

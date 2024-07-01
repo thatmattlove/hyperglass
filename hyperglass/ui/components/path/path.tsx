@@ -40,7 +40,9 @@ export const Path = (props: PathProps): JSX.Element => {
           <ModalHeader>{`Path to ${displayTarget}`}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {response !== null ? <Chart data={output} /> : <Skeleton w="500px" h="300px" />}
+            <Skeleton isLoaded={response != null}>
+              <Chart data={output} />
+            </Skeleton>
           </ModalBody>
         </ModalContent>
       </Modal>

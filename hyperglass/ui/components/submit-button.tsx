@@ -1,23 +1,23 @@
-import { forwardRef } from 'react';
 import {
-  Modal,
-  Popover,
-  ModalBody,
   IconButton,
-  PopoverBody,
-  ModalOverlay,
-  ModalContent,
-  PopoverArrow,
-  PopoverTrigger,
-  PopoverContent,
+  Modal,
+  ModalBody,
   ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
   PopoverCloseButton,
+  PopoverContent,
+  PopoverTrigger,
 } from '@chakra-ui/react';
+import { forwardRef } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { If, Then, Else } from 'react-if';
+import { Else, If, Then } from 'react-if';
 import { ResolvedTarget } from '~/components';
 import { DynamicIcon } from '~/elements';
-import { useFormState, useMobile, useColorValue } from '~/hooks';
+import { useColorValue, useFormState, useMobile } from '~/hooks';
 
 import type { IconButtonProps } from '@chakra-ui/react';
 
@@ -114,7 +114,7 @@ export const SubmitButton = (props: SubmitButtonProps): JSX.Element => {
 
   const { reset } = useFormContext();
 
-  function handleClose(): void {
+  async function handleClose() {
     reset();
     resetForm();
     resolvedClose();

@@ -1,8 +1,8 @@
-import { useCallback, useRef } from 'react';
 import { Flex } from '@chakra-ui/react';
+import { useCallback, useRef } from 'react';
 import { isSafari } from 'react-device-detect';
 import { If, Then } from 'react-if';
-import { Debugger, Greeting, Footer, Header, ResetButton } from '~/components';
+import { Debugger, Footer, Greeting, Header, ResetButton } from '~/components';
 import { useConfig } from '~/context';
 import { motionChakra } from '~/elements';
 import { useFormState } from '~/hooks';
@@ -31,7 +31,7 @@ export const Layout = (props: FlexProps): JSX.Element => {
 
   const containerRef = useRef<HTMLDivElement>({} as HTMLDivElement);
 
-  function handleReset(): void {
+  async function handleReset() {
     containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setStatus('form');
     reset();
