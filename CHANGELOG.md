@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- [#264](https://github.com/thatmattlove/hyperglass/issues/264): Fixed issue where IPv6 traceroutes fail on Juniper devices due to `traceroute: wait must be >1 sec.` error. Thanks @renatoornelas!
 - [#267](https://github.com/thatmattlove/hyperglass/issues/267): Fixed issue where responses were incorrectly cached, resulting in no data being shown in the AS Path viewer.
 - [#268](https://github.com/thatmattlove/hyperglass/issues/268): Fixed issue where some Mikrotik commands failed to execute properly.
 - [#269](https://github.com/thatmattlove/hyperglass/issues/269): Updated documentation regarding `structured.rpki.mode`.
