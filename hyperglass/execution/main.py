@@ -47,7 +47,7 @@ async def execute(query: "Query") -> Union["OutputDataModel", str]:
     """Initiate query validation and execution."""
     params = use_state("params")
     output = params.messages.general
-    _log = log.bind(query=query.summary(), device=query.device)
+    _log = log.bind(query=query.summary(), device=query.device.id)
     _log.debug("")
 
     mapped_driver = map_driver(query.device.driver)

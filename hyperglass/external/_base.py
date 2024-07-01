@@ -252,7 +252,6 @@ class BaseExternal:
                 except TypeError as err:
                     raise self._exception(f"Timeout must be an int, got: {str(timeout)}") from err
             request["timeout"] = timeout
-        log.bind(request=request).debug("Constructed request parameters")
         return request
 
     async def _arequest(  # noqa: C901

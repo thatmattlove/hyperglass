@@ -49,6 +49,7 @@ _LOG_LEVELS = [
 _EXCLUDE_MODULES = (
     "PIL",
     "svglib",
+    "paramiko.transport",
 )
 
 HyperglassConsole = Console(
