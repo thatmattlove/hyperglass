@@ -162,7 +162,7 @@ class InputPluginManager(PluginManager[InputPlugin], type="input"):
         """Execute all input transformation plugins."""
         result = query.query_target
         for plugin in self._gather_plugins(query):
-            result = plugin.transform(query=query)
+            result = plugin.transform(query=query.summary())
             log.bind(name=plugin.name, result=repr(result)).debug("Input Plugin Transform")
         return result
 

@@ -56,8 +56,6 @@ async def read_package_json() -> t.Dict[str, t.Any]:
     except Exception as err:
         raise RuntimeError(f"Error reading package.json: {str(err)}") from err
 
-    log.bind(package_json=package_json).debug("package.json value")
-
     return package_json
 
 
@@ -328,7 +326,6 @@ async def build_frontend(  # noqa: C901
     }
 
     build_json = json.dumps(build_data, default=str)
-    log.bind(data=build_json).debug("UI Build Data")
 
     # Create SHA256 hash from all parameters passed to UI, use as
     # build identifier.

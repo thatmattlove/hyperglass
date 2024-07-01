@@ -46,6 +46,11 @@ _LOG_LEVELS = [
     {"name": "CRITICAL", "color": "<r>"},
 ]
 
+_EXCLUDE_MODULES = (
+    "PIL",
+    "svglib",
+)
+
 HyperglassConsole = Console(
     theme=Theme(
         {
@@ -119,6 +124,9 @@ class LibInterceptHandler(logging.Handler):
 def init_logger(level: t.Union[int, str] = logging.INFO):
     """Initialize hyperglass logging instance."""
 
+    for mod in _EXCLUDE_MODULES:
+        logging.getLogger(mod).propagate = False
+
     # Reset built-in Loguru configurations.
     _loguru_logger.remove()
 
@@ -133,6 +141,7 @@ def init_logger(level: t.Union[int, str] = logging.INFO):
                 log_time_format="[%Y%m%d %H:%M:%S]",
             ),
             format=formatter,
+            colorize=False,
             level=level,
             filter=filter_uvicorn_values,
             enqueue=True,
@@ -144,6 +153,7 @@ def init_logger(level: t.Union[int, str] = logging.INFO):
             enqueue=True,
             format=_FMT if level == logging.INFO else _FMT_DEBUG,
             level=level,
+            colorize=False,
             filter=filter_uvicorn_values,
         )
 
@@ -192,6 +202,7 @@ def enable_file_logging(
         serialize=structured,
         level=level,
         encoding="utf8",
+        colorize=False,
         rotation=max_size.human_readable(),
     )
     _loguru_logger.bind(path=log_file).debug("Logging to file")
@@ -207,5 +218,6 @@ def enable_syslog_logging(*, host: str, port: int) -> None:
         SysLogHandler(address=(str(host), port)),
         format=_FMT_BASIC,
         enqueue=True,
+        colorize=False,
     )
     _loguru_logger.bind(host=host, port=port).debug("Logging to syslog target")

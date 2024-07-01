@@ -77,8 +77,6 @@ def parse_juniper(output: Sequence[str]) -> "OutputDataModel":  # noqa: C901
             parsed: "OrderedDict" = xmltodict.parse(
                 cleaned, force_list=("rt", "rt-entry", "community")
             )
-            _log.debug("Pre-parsed data", data=parsed)
-
             if "rpc-reply" in parsed.keys():
                 if "xnm:error" in parsed["rpc-reply"]:
                     if "message" in parsed["rpc-reply"]["xnm:error"]:
