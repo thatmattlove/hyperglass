@@ -29,12 +29,7 @@ netmiko_device_globals = {
     "mikrotik_switchos": {"global_cmd_verify": False},
 }
 
-netmiko_device_send_args = {
-    # Netmiko doesn't currently handle the Mikrotik prompt properly, see
-    # ktbyers/netmiko#1956
-    "mikrotik_routeros": {"expect_string": r"\S+\s\>\s$"},
-    "mikrotik_switchos": {"expect_string": r"\S+\s\>\s$"},
-}
+netmiko_device_send_args = {}
 
 
 class NetmikoConnection(SSHConnection):
