@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.4 - 2024-06-30
+
+### Fixed
+
+- [#267](https://github.com/thatmattlove/hyperglass/issues/267): Fixed issue where responses were incorrectly cached, resulting in no data being shown in the AS Path viewer.
+- [#268](https://github.com/thatmattlove/hyperglass/issues/268): Fixed issue where some Mikrotik commands failed to execute properly.
+- [#269](https://github.com/thatmattlove/hyperglass/issues/269): Updated documentation regarding `structured.rpki.mode`.
+- Removed unnecessary logging statements which caused logging errors.
+- Fixed issue where validation of structured BGP route data may have failed under certain conditions.
+
+### Changed
+- Error responses are no longer cached.
+
 ## 2.0.3 - 2024-06-16
 
 ### Fixed

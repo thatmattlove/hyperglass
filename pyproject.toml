@@ -1,6 +1,6 @@
 [project]
 name = "hyperglass"
-version = "2.0.3"
+version = "2.0.4"
 description = "hyperglass is the modern network looking glass that tries to make the internet better."
 authors = [
     { name = "thatmattlove", email = "matt@hyperglass.dev" }
