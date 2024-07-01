@@ -158,13 +158,6 @@ BGP_ROUTES = [
     },
 ]
 
-STRUCTURED = BGPRouteTable(
-    vrf="default",
-    count=len(BGP_ROUTES),
-    routes=BGP_ROUTES,
-    winning_weight="high",
-)
-
 PING = r"""PING 1.1.1.1 (1.1.1.1): 56 data bytes
 64 bytes from 1.1.1.1: icmp_seq=0 ttl=59 time=4.696 ms
 64 bytes from 1.1.1.1: icmp_seq=1 ttl=59 time=4.699 ms
@@ -196,6 +189,11 @@ async def fake_output(query_type: str, structured: bool) -> t.Union[str, BGPRout
         return TRACEROUTE
     if "bgp" in query_type:
         if structured:
-            return STRUCTURED
+            return BGPRouteTable(
+                vrf="default",
+                count=len(BGP_ROUTES),
+                routes=BGP_ROUTES,
+                winning_weight="high",
+            )
         return BGP_PLAIN
     return BGP_PLAIN

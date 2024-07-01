@@ -6,7 +6,7 @@ import typing as t
 from ipaddress import ip_network
 
 # Third Party
-from pydantic import field_validator
+from pydantic import field_validator, ValidationInfo
 
 # Project
 from hyperglass.state import use_state
@@ -70,7 +70,7 @@ class BGPRoute(HyperglassModel):
         return [c for c in value if func(c)]
 
     @field_validator("rpki_state")
-    def validate_rpki_state(cls, value, values):
+    def validate_rpki_state(cls, value, info: ValidationInfo):
         """If external RPKI validation is enabled, get validation state."""
 
         (structured := use_state("params").structured)
@@ -82,7 +82,7 @@ class BGPRoute(HyperglassModel):
         if structured.rpki.mode == "external":
             # If external validation is enabled, validate the prefix
             # & asn with Cloudflare's RPKI API.
-            as_path = values["as_path"]
+            as_path = info.data.get("as_path", [])
 
             if len(as_path) == 0:
                 # If the AS_PATH length is 0, i.e. for an internal route,
@@ -92,13 +92,13 @@ class BGPRoute(HyperglassModel):
             asn = as_path[-1]
 
         try:
-            net = ip_network(values["prefix"])
+            net = ip_network(info.data["prefix"])
         except ValueError:
             return 3
 
         # Only do external RPKI lookups for global prefixes.
         if net.is_global:
-            return rpki_state(prefix=values["prefix"], asn=asn)
+            return rpki_state(prefix=info.data["prefix"], asn=asn)
 
         return value
 
