@@ -1,4 +1,4 @@
-FROM python:3.12.3-alpine as base
+FROM python:3.12.3-alpine AS base
 # UI dependencies
 RUN apk add build-base pkgconfig cairo-dev nodejs npm
 # Setup rootless image
@@ -17,7 +17,7 @@ ENV HYPERGLASS_REDIS_HOST=redis
 ENV HYPEGLASS_DISABLE_UI=true
 ENV HYPERGLASS_CONTAINER=true
 
-FROM base as ui
+FROM base AS ui
 # Set NPM global install path to the home directory so permissions are correct
 RUN mkdir ~/.npm-global ~/.npm-store
 RUN npm config set prefix "~/.npm-global"
@@ -26,7 +26,7 @@ WORKDIR /opt/hyperglass/hyperglass/ui
 RUN npm install -g pnpm
 RUN pnpm install -P
 
-FROM ui as hyperglass
+FROM ui AS hyperglass
 WORKDIR /opt/hyperglass
 RUN pip3 install --user --no-cache-dir -e .
 
