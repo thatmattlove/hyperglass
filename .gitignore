@@ -35,6 +35,8 @@ __pycache__/
 .Python
 env/
 build/
+# keep hyperglass ui/build
+!**/ui/build/
 develop-eggs/
 dist/
 downloads/
