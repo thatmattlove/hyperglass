@@ -9,7 +9,7 @@ const nextConfig = {
   },
   swcMinify: true,
   productionBrowserSourceMaps: true,
-  distDir: "build/out",
+  distDir: 'build/out',
 };
 
 if (process.env.NODE_ENV === 'production') {
