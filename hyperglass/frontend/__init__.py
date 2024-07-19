@@ -99,7 +99,7 @@ async def build_ui(app_path: Path):
 
     ui_dir = Path(__file__).parent.parent / "ui"
     build_dir = app_path / "static" / "ui"
-    out_dir = ui_dir / "out"
+    out_dir = ui_dir / "build" / "out"
 
     build_command = "node_modules/.bin/next build"
 
@@ -273,6 +273,7 @@ async def build_frontend(  # noqa: C901
     # Create temporary file. json file extension is added for easy
     # webpack JSON parsing.
     dot_env_file = Path(__file__).parent.parent / "ui" / ".env"
+    build_id_dot_env_file = Path(__file__).parent.parent / "ui" / "build" / ".env"
     env_config = {}
 
     ui_config_file = Path(__file__).parent.parent / "ui" / "hyperglass.json"
@@ -320,7 +321,7 @@ async def build_frontend(  # noqa: C901
         write_favicon_formats(favicons.formats())
 
     build_data = {
-        "params": params.export_dict(),
+        "params": sorted(params.export_dict()),
         "version": __version__,
         "package_json": package_json,
     }
@@ -333,8 +334,8 @@ async def build_frontend(  # noqa: C901
 
     # Read hard-coded environment file from last build. If build ID
     # matches this build's ID, don't run a new build.
-    if dot_env_file.exists() and not force:
-        env_data = dotenv_to_dict(dot_env_file)
+    if build_id_dot_env_file.exists() and not force:
+        env_data = dotenv_to_dict(build_id_dot_env_file)
         env_build_id = env_data.get("HYPERGLASS_BUILD_ID", "None")
         log.bind(id=env_build_id).debug("Previous build detected")
 
@@ -342,10 +343,10 @@ async def build_frontend(  # noqa: C901
             log.debug("UI parameters unchanged since last build, skipping UI build...")
             return True
 
-    env_config.update({"HYPERGLASS_BUILD_ID": build_id})
-
     dot_env_file.write_text("\n".join(f"{k}={v}" for k, v in env_config.items()))
     log.bind(path=str(dot_env_file)).debug("Wrote UI environment file")
+    build_id_dot_env_file.write_text(f"HYPERGLASS_BUILD_ID={build_id}")
+    log.bind(path=str(build_id_dot_env_file)).debug("Wrote UI build environment file")
 
     # Initiate Next.JS export process.
     if any((not dev_mode, force, full)):

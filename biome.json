@@ -8,7 +8,7 @@
             "node_modules",
             "dist",
             ".next/",
-            "out/",
+            "build/",
             "favicon-formats.ts",
             "custom.*[js, html]",
             "hyperglass.json"

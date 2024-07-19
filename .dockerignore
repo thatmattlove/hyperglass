@@ -6,7 +6,6 @@ hyperglass/ui/.env*
 hyperglass.json
 custom.*[js, html]
 .next
-out/
 fonts/
 __pycache__
 .python-version
