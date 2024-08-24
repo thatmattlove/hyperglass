@@ -99,12 +99,12 @@ VyOS_Traceroute = BuiltinDirective(
         RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
-            command="mtr {target} gracetime 1 report-cycles 1 report-wide address {source4}",
+            command="mtr {target} gracetime 1 report-cycles 1 report-wide address {source4} raw",
         ),
         RuleWithIPv6(
             condition="::/0",
             action="permit",
-            command="mtr {target} gracetime 1 report-cycles 1 report-wide address {source6}",
+            command="mtr {target} gracetime 1 report-cycles 1 report-wide address {source6} raw",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
