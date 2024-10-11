@@ -27,12 +27,12 @@ Mikrotik_BGPRoute = BuiltinDirective(
         RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
-            command="ip route print where dst-address={target}",
+            command="ip route print where {target} in dst-address",
         ),
         RuleWithIPv6(
             condition="::/0",
             action="permit",
-            command="ipv6 route print where dst-address={target}",
+            command="ipv6 route print where {target} in dst-address",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
