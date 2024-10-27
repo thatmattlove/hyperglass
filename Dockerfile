@@ -1,24 +1,31 @@
-FROM python:3.12.3-alpine AS base
-WORKDIR /opt/hyperglass
-ENV HYPERGLASS_APP_PATH=/etc/hyperglass
-ENV HYPERGLASS_HOST=0.0.0.0
-ENV HYPERGLASS_PORT=8001
-ENV HYPERGLASS_DEBUG=false
-ENV HYPERGLASS_DEV_MODE=false
-ENV HYPERGLASS_REDIS_HOST=redis
-ENV HYPEGLASS_DISABLE_UI=true
-ENV HYPERGLASS_CONTAINER=true
-COPY . .
-
-FROM base AS ui
-WORKDIR /opt/hyperglass/hyperglass/ui
+FROM python:3.12.3-alpine AS tools
 RUN apk add build-base pkgconfig cairo-dev nodejs npm
 RUN npm install -g pnpm
+
+FROM tools AS base
+ENV HYPERGLASS_APP_PATH=/etc/hyperglass \
+    HYPERGLASS_HOST=0.0.0.0 \
+    HYPERGLASS_PORT=8001 \
+    HYPERGLASS_DEBUG=false \
+    HYPERGLASS_DEV_MODE=false \
+    HYPERGLASS_REDIS_HOST=redis \
+    HYPEGLASS_DISABLE_UI=true \
+    HYPERGLASS_CONTAINER=true
+
+FROM base AS deps
+# JS Dependencies for UI
+WORKDIR /opt/hyperglass/hyperglass/ui
+COPY hyperglass/ui/package.json .
+COPY hyperglass/ui/pnpm-lock.yaml .
 RUN pnpm install -P
 
-FROM ui AS hyperglass
+# Python Dependencies for Backend
 WORKDIR /opt/hyperglass
-RUN pip3 install -e .
+COPY README.md .
+COPY pyproject.toml .
+RUN pip install -e .
 
+FROM deps AS hyperglass
+COPY . .
 EXPOSE ${HYPERGLASS_PORT}
 CMD ["python3", "-m", "hyperglass.console", "start"]
