@@ -4,6 +4,7 @@ services:
 
     hyperglass:
         image: ghcr.io/thatmattlove/hyperglass:main
+        restart: unless-stopped
         depends_on:
             - kv-storage
         environment:
