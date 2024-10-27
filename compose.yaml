@@ -1,9 +1,10 @@
 services:
-    redis:
-        image: "redis:alpine"
+    kv-storage:
+        image: "valkey/valkey:8-alpine"
+
     hyperglass:
         depends_on:
-            - redis
+            - kv-storage
         environment:
             - HYPERGLASS_APP_PATH=/etc/hyperglass
             - HYPERGLASS_HOST=${HYPERGLASS_HOST-0.0.0.0}
