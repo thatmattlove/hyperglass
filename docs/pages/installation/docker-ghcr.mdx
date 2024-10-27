@@ -1,0 +1,49 @@
+---
+title: Using Docker
+description: Installing hyperglass with Docker
+---
+
+import { Cards, Steps, Callout } from "nextra/components";
+// import { Callout } from "nextra-theme-docs";
+
+<Callout type="info">**Docker is the recommended method for running hyperglass.**</Callout>
+
+<Steps>
+
+### Install Docker
+
+<Cards>
+    <Cards.Card
+        title="Docker Engine Installation Guide"
+        href="https://docs.docker.com/engine/install/"
+        target="_blank"
+        arrow
+    />
+</Cards>
+
+### Download hyperglass
+
+```shell copy
+mkdir /home/hyperglass
+cd /home/hyperglass
+wget "https://github.com/thatmattlove/hyperglass/blob/main/compose.yaml"
+```
+
+### Optional: Quickstart
+
+Do this if you just want to see the hyperglass page working with a fake device.
+
+```shell copy
+mkdir data
+wget -O ./data/devices.yaml "https://raw.githubusercontent.com/thatmattlove/hyperglass/refs/heads/main/.samples/sample_devices.yaml"
+docker compose up
+```
+
+Navigate to http://IPADDRESS:8001
+
+### Enable auto-restart
+
+You may want to ensure that Hyperglass stays running even after a reboot.
+To do this, you can easily change the "restart" parameter in `compose.yaml` to `always`.
+
+</Steps>
