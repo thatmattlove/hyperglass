@@ -79,7 +79,14 @@ export const LookingGlassForm = (): JSX.Element => {
   );
 
   const directive = useMemo<Directive | null>(
-    () => getDirective(),
+    () => {
+      const tmp = getDirective();
+      if (tmp !== null && tmp.fieldType === null) {
+        setFormValue('queryTarget', ['null']);
+        setValue('queryTarget', ['null']);
+      }
+      return tmp;
+    },
     [form.queryType, form.queryLocation, getDirective],
   );
 
@@ -200,7 +207,7 @@ export const LookingGlassForm = (): JSX.Element => {
               <QueryType onChange={handleChange} label={web.text.queryType} />
             </FormField>
           </SlideFade>
-          <SlideFade offsetX={100} in={directive !== null} unmountOnExit>
+          <SlideFade offsetX={100} in={directive !== null && directive.fieldType !== null} unmountOnExit>
             {directive !== null && (
               <FormField name="queryTarget" label={web.text.queryTarget}>
                 <QueryTarget
