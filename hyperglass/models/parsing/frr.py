@@ -14,7 +14,7 @@ from hyperglass.models.data import BGPRouteTable
 # Local
 from ..main import HyperglassModel
 
-FRRPeerType = t.Literal["internal", "external"]
+FRRPeerType = t.Literal["internal", "external", "confed-internal", "confed-external"]
 
 
 def _alias_generator(field):
@@ -48,11 +48,12 @@ class FRRPath(_FRRBase):
     """FRR Path Model."""
 
     aspath: t.List[int]
-    aggregator_as: int
-    aggregator_id: str
+    aggregator_as: int = 0
+    aggregator_id: str = ""
+    loc_prf: int = 100 # 100 is the default value for local preference
+    metric: int = 0
     med: int = 0
-    localpref: int
-    weight: int
+    weight: int = 0
     valid: bool
     last_update: int
     bestpath: bool
@@ -60,25 +61,26 @@ class FRRPath(_FRRBase):
     nexthops: t.List[FRRNextHop]
     peer: FRRPeer
 
-    @model_validator(pre=True)
+    @model_validator(mode="before")
     def validate_path(cls, values):
         """Extract meaningful data from FRR response."""
         new = values.copy()
         new["aspath"] = values["aspath"]["segments"][0]["list"]
-        new["community"] = values["community"]["list"]
+        community = values.get("community", {'list': []})
+        new["community"] = community["list"]
         new["lastUpdate"] = values["lastUpdate"]["epoch"]
         bestpath = values.get("bestpath", {})
         new["bestpath"] = bestpath.get("overall", False)
         return new
 
 
-class FRRRoute(_FRRBase):
+class FRRBGPTable(_FRRBase):
     """FRR Route Model."""
 
     prefix: str
     paths: t.List[FRRPath] = []
 
-    def serialize(self):
+    def bgp_table(self):
         """Convert the FRR-specific fields to standard parsed data model."""
 
         # TODO: somehow, get the actual VRF
@@ -96,7 +98,7 @@ class FRRRoute(_FRRBase):
                     "age": age,
                     "weight": route.weight,
                     "med": route.med,
-                    "local_preference": route.localpref,
+                    "local_preference": route.loc_prf,
                     "as_path": route.aspath,
                     "communities": route.community,
                     "next_hop": route.nexthops[0].ip,
@@ -104,6 +106,7 @@ class FRRRoute(_FRRBase):
                     "source_rid": route.aggregator_id,
                     "peer_rid": route.peer.peer_id,
                     # TODO: somehow, get the actual RPKI state
+                    # This depends on whether or not the RPKI module is enabled in FRR
                     "rpki_state": 3,
                 }
             )
