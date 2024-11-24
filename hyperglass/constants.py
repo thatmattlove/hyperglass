@@ -19,7 +19,7 @@ TARGET_FORMAT_SPACE = ("huawei", "huawei_vrpv8")
 
 TARGET_JUNIPER_ASPATH = ("juniper", "juniper_junos")
 
-SUPPORTED_STRUCTURED_OUTPUT = ("juniper", "arista_eos")
+SUPPORTED_STRUCTURED_OUTPUT = ("frr", "juniper", "arista_eos")
 
 CONFIG_EXTENSIONS = ("py", "yaml", "yml", "json", "toml")
 
