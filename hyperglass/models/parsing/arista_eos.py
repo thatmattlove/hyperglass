@@ -2,6 +2,7 @@
 
 # Standard Library
 import typing as t
+from typing import Union
 from datetime import datetime
 
 # Third Party
@@ -64,7 +65,7 @@ class AristaRouteDetail(_AristaBase):
 
     origin: str
     label_stack: t.List = []
-    ext_community_list: t.List[str] = []
+    ext_community_list_raw: t.List[Union[str, int]] = []
     ext_community_list_raw: t.List[str] = []
     community_list: t.List[str] = []
     large_community_list: t.List[str] = []
