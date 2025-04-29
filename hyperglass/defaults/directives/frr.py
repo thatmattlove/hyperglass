@@ -15,6 +15,7 @@ __all__ = (
     "FRRouting_BGPRoute",
     "FRRouting_Ping",
     "FRRouting_Traceroute",
+    "FRRouting_BGPRouteTable",
 )
 
 NAME = "FRRouting"
@@ -36,6 +37,7 @@ FRRouting_BGPRoute = BuiltinDirective(
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
+    table_output="__hyperglass_frr_bgp_route_table__",
     platforms=PLATFORMS,
 )
 
@@ -105,6 +107,27 @@ FRRouting_Traceroute = BuiltinDirective(
             condition="::/0",
             action="permit",
             command="traceroute -6 -w 1 -q 1 -s {source6} {target}",
+        ),
+    ],
+    field=Text(description="IP Address, Prefix, or Hostname"),
+    platforms=PLATFORMS,
+)
+
+# Table Output Directives
+
+FRRouting_BGPRouteTable = BuiltinDirective(
+    id="__hyperglass_frr_bgp_route_table__",
+    name="BGP Route",
+    rules=[
+        RuleWithIPv4(
+            condition="0.0.0.0/0",
+            action="permit",
+            command='vtysh -c "show bgp ipv4 unicast {target} json"',
+        ),
+        RuleWithIPv6(
+            condition="::/0",
+            action="permit",
+            command='vtysh -c "show bgp ipv6 unicast {target} json"',
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
