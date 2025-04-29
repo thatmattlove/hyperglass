@@ -2,8 +2,6 @@ name: Bug Report
 description: Report a problem or unexpected behavior
 labels:
   - possible-bug
-assignees:
-  - thatmattlove
 body:
   - type: dropdown
     id: deployment-type

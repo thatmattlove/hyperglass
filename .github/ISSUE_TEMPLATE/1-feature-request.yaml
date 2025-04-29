@@ -2,8 +2,6 @@ name: Feature Request
 description: Suggest an idea for hyperglass
 labels:
   - feature
-assignees:
-  - thatmattlove
 body:
   - type: markdown
     attributes:
