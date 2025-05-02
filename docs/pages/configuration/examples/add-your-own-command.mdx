@@ -1,0 +1,60 @@
+import { Steps } from "nextra/components";
+
+## Add Your Own Command
+
+While hyperglass does come with several built-in [directives](/configuration/configuration/directives.mdx) (commands), you can also add your own. For example, say you want to add a command that shows the BGP summary from a device:
+
+<Steps>
+
+### Create the Directive
+
+```yaml filename="directives.yaml" copy
+show-bgp-summary:
+    name: BGP Summary
+    rules:
+        - condition: null
+          command: show bgp all summary
+    field: null
+```
+
+### Associate the Directive with the Device
+
+```yaml filename="devices.yaml" {5-6} copy
+devices:
+    - name: Your Router
+      address: 192.0.2.1
+      platform: cisco_ios
+      directives:
+          - show-bgp-summary
+```
+
+</Steps>
+
+## Default Directives
+
+By default, all built-in directives are _also_ enabled. If you wish to _only_ enable directives you specify, you can use `builtins: false` as a directive:
+
+```yaml filename="devices.yaml" {6-7} copy
+devices:
+    - name: Your Router
+      address: 192.0.2.1
+      platform: cisco_ios
+      directives:
+          - builtins: false
+          - show-bgp-summary
+```
+
+In the above example, _only_ the `show-bgp-summary` directive will be enabled.
+
+You can also selectively enable certain built-in directives:
+
+```yaml filename="devices.yaml" {6} copy
+devices:
+    - name: Your Router
+      address: 192.0.2.1
+      platform: cisco_ios
+      directives:
+          - builtins: [bgp_route, traceroute]
+```
+
+In the above example, _only_ the BGP Route and Traceroute built-in directives will be enabled.

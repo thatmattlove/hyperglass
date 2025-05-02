@@ -1,14 +1,14 @@
 import type { CellProps } from 'react-table';
 
-export interface TColumn {
+export interface TableColumn {
   Header: string;
-  accessor: keyof TRoute;
+  accessor: keyof Route;
   align: string;
   hidden: boolean;
 }
 
-export type TCellRender = {
-  column: CellProps<TRouteField>['column'];
-  row: CellProps<TRouteField>['row'];
-  value: CellProps<TRouteField>['value'];
+export type CellRenderProps = {
+  column: CellProps<RouteField>['column'];
+  row: CellProps<RouteField>['row'];
+  value: CellProps<RouteField>['value'];
 };

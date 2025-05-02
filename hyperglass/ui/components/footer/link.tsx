@@ -1,8 +1,11 @@
-import { Button, Link, useBreakpointValue } from '@chakra-ui/react';
+import { Button, Link } from '@chakra-ui/react';
+import { useBreakpointValue } from '~/hooks';
 
-import type { TFooterLink } from './types';
+import type { ButtonProps, LinkProps } from '@chakra-ui/react';
 
-export const FooterLink: React.FC<TFooterLink> = (props: TFooterLink) => {
+type FooterLinkProps = ButtonProps & LinkProps & { title: string };
+
+export const FooterLink = (props: FooterLinkProps): JSX.Element => {
   const { title } = props;
   const btnSize = useBreakpointValue({ base: 'xs', lg: 'sm' });
   return (

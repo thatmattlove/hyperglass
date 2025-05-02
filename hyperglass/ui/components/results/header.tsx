@@ -1,11 +1,19 @@
+import { AccordionIcon, Box, HStack, Spinner, Text, Tooltip } from '@chakra-ui/react';
 import { useMemo } from 'react';
-import { AccordionIcon, Box, Spinner, HStack, Text, Tooltip } from '@chakra-ui/react';
-import { BisError as Warning } from '@meronex/icons/bi';
-import { FaCheckCircle as Check } from '@meronex/icons/fa';
-import { useConfig, useColorValue } from '~/context';
-import { useOpposingColor, useStrf } from '~/hooks';
+import { useConfig } from '~/context';
+import { DynamicIcon } from '~/elements';
+import { useColorValue, useOpposingColor, useStrf } from '~/hooks';
 
-import type { TResultHeader } from './types';
+import type { ErrorLevels } from '~/types';
+
+interface ResultHeaderProps {
+  title: string;
+  loading: boolean;
+  isError?: boolean;
+  errorMsg: string;
+  errorLevel: ErrorLevels;
+  runtime: number;
+}
 
 const runtimeText = (runtime: number, text: string): string => {
   let unit = 'seconds';
@@ -15,7 +23,7 @@ const runtimeText = (runtime: number, text: string): string => {
   return `${text} ${unit}`;
 };
 
-export const ResultHeader: React.FC<TResultHeader> = (props: TResultHeader) => {
+export const ResultHeader = (props: ResultHeaderProps): JSX.Element => {
   const { title, loading, isError, errorMsg, errorLevel, runtime } = props;
 
   const status = useColorValue('primary.500', 'primary.300');
@@ -23,8 +31,9 @@ export const ResultHeader: React.FC<TResultHeader> = (props: TResultHeader) => {
   const defaultStatus = useColorValue('success.500', 'success.300');
 
   const { web } = useConfig();
-  const text = useStrf(web.text.complete_time, { seconds: runtime }, [runtime]);
-  const label = useMemo(() => runtimeText(runtime, text), [runtime]);
+  const strF = useStrf();
+  const text = strF(web.text.completeTime, { seconds: runtime });
+  const label = useMemo(() => runtimeText(runtime, text), [runtime, text]);
 
   const color = useOpposingColor(isError ? warning : defaultStatus);
 
@@ -42,8 +51,8 @@ export const ResultHeader: React.FC<TResultHeader> = (props: TResultHeader) => {
           {loading ? (
             <Spinner size="sm" mr={4} color={status} />
           ) : (
-            <Box
-              as={isError ? Warning : Check}
+            <DynamicIcon
+              icon={isError ? { bi: 'BiError' } : { fa: 'FaCheckCircle' }}
               color={isError ? warning : defaultStatus}
               mr={4}
               boxSize="100%"

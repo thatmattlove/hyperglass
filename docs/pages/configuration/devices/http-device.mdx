@@ -1,0 +1,85 @@
+hyperglass supports collecting output from a generic HTTP endpoint.
+
+## HTTP Configuration
+
+| Parameter               | Type    | Default Value | Description                                                                                                            |
+| :---------------------- | :------ | :------------ | :--------------------------------------------------------------------------------------------------------------------- |
+| `http.attribute_map`    | Mapping |               | Mapping/dict of hyperglass query fields as keys, and hyperglass query field replacements as values.                    |
+| `http.basic_auth`       | Mapping |               | If basic authentication is required, provide a mapping/dict containing the basic authentication username and password. |
+| `http.body_format`      | String  | json          | Body format, options are `json` `yaml` `xml` `text`                                                                    |
+| `http.follow_redirects` | Boolean | `false`       | Follow HTTP redirects from server.                                                                                     |
+| `http.headers`          | Mapping |               | Mapping/dict of http headers to append to requests.                                                                    |
+| `http.method`           | String  | GET           | HTTP method to use for requests.                                                                                       |
+| `http.path`             | String  | /             | HTTP URI/Path.                                                                                                         |
+| `http.query`            | Mapping |               | Mapping/Dict of URL Query Parameters.                                                                                  |
+| `http.retries`          | Number  | 0             | Number of retries to perform before request failure.                                                                   |
+| `http.scheme`           | String  | https         | HTTP schema, must be `http` or `https`                                                                                 |
+| `http.source`           | String  |               | Request source IP address.                                                                                             |
+| `http.ssl_ca`           | String  |               | Path to SSL CA certificate file for SSL validation.                                                                    |
+| `http.ssl_client`       | String  |               | Path to client SSL certificates for request.                                                                           |
+| `http.timeout`          | Number  | 5             | Request timeout in seconds.                                                                                            |
+| `http.verify_ssl`       | Boolean | `true`        | If `false`, invalid certificates for HTTPS hosts will be ignored.                                                      |
+
+### Example
+
+#### Basic
+
+The following example will send an HTTP POST request to `https://192.0.2/path/to/query/device` with HTTP basic authentication, and will not verify the SSL certificate.
+
+```yaml filename="devices.yaml" copy
+devices:
+    - name: New York, NY
+      address: 192.0.2.1
+      http:
+          path: /path/to/query/device
+          method: POST
+          verify_ssl: false
+          basic_auth:
+              username: you
+              password: your password
+```
+
+Given the following hyperglass query:
+
+| Field          | Value               |
+| :------------- | :------------------ |
+| Query Target   | `192.0.2.0/24`      |
+| Query Location | `your_location`     |
+| Query Type     | `example_directive` |
+
+The body of the request will be:
+
+```json
+{
+    "query_target": "192.0.2.0/24",
+    "query_location": "your_location",
+    "query_type": "example_directive"
+}
+```
+
+#### Non-HTTPS Request
+
+The following example will send an HTTP GET request to `http://192.0.2.1/path/to/query/device`:
+
+```yaml filename="devices.yaml" {6} copy
+devices:
+    - name: New York, NY
+      address: 192.0.2.1
+      http:
+          path: /path/to/query/device
+          scheme: http
+```
+
+#### Header Authentication
+
+The following example will send an HTTP GET request to `https://192.0.2.1/path/to/query/device` with an `Authorization` header:
+
+```yaml filename="devices.yaml" {6-7} copy
+devices:
+    - name: New York, NY
+      address: 192.0.2.1
+      http:
+          path: /path/to/query/device
+          headers:
+              Authorization: your special token
+```

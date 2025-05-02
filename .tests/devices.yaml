@@ -1,0 +1,12 @@
+---
+routers:
+  - name: Example Device
+    address: 127.0.0.1
+    group: Test
+    credential:
+      username: test
+      password: test
+    platform: juniper
+    directives:
+      - builtins: false
+      - juniper_bgp_route

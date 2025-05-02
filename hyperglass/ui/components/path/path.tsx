@@ -1,27 +1,29 @@
 import {
   Modal,
-  Skeleton,
   ModalBody,
+  ModalCloseButton,
+  ModalContent,
   ModalHeader,
   ModalOverlay,
-  ModalContent,
+  Skeleton,
   useDisclosure,
-  ModalCloseButton,
 } from '@chakra-ui/react';
-import { useColorValue, useBreakpointValue } from '~/context';
-import { useLGState, useLGMethods } from '~/hooks';
-import { PathButton } from './button';
+import 'reactflow/dist/style.css';
+import { useBreakpointValue, useColorValue, useFormState } from '~/hooks';
 import { Chart } from './chart';
+import { PathButton } from './path-button';
 
-import type { TPath } from './types';
+interface PathProps {
+  device: string;
+}
 
-export const Path: React.FC<TPath> = (props: TPath) => {
+export const Path = (props: PathProps): JSX.Element => {
   const { device } = props;
-  const { displayTarget } = useLGState();
-  const { getResponse } = useLGMethods();
+  const displayTarget = useFormState(s => s.target.display);
+  const getResponse = useFormState(s => s.response);
   const { isOpen, onClose, onOpen } = useDisclosure();
   const response = getResponse(device);
-  const output = response?.output as TStructuredResponse;
+  const output = response?.output as StructuredResponse;
   const bg = useColorValue('light.50', 'dark.900');
   const centered = useBreakpointValue({ base: false, lg: true }) ?? true;
   return (
@@ -35,10 +37,12 @@ export const Path: React.FC<TPath> = (props: TPath) => {
           maxH={{ base: '80%', lg: '60%' }}
           maxW={{ base: '100%', lg: '80%' }}
         >
-          <ModalHeader>{`Path to ${displayTarget.value}`}</ModalHeader>
+          <ModalHeader>{`Path to ${displayTarget}`}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {response !== null ? <Chart data={output} /> : <Skeleton w="500px" h="300px" />}
+            <Skeleton isLoaded={response != null}>
+              <Chart data={output} />
+            </Skeleton>
           </ModalBody>
         </ModalContent>
       </Modal>

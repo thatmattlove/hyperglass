@@ -1,10 +1,15 @@
 import { MonoField, Active, Weight, Age, Communities, RPKIState, ASPath } from './fields';
 
-import type { TCell } from './types';
+import type { CellRenderProps } from '~/types';
 
-export const Cell: React.FC<TCell> = (props: TCell) => {
+interface CellProps {
+  data: CellRenderProps;
+  rawData: StructuredResponse;
+}
+
+export const Cell = (props: CellProps): JSX.Element => {
   const { data, rawData } = props;
-  const cellId = data.column.id as keyof TRoute;
+  const cellId = data.column.id as keyof Route;
   const component = {
     med: <MonoField v={data.value} />,
     age: <Age inSeconds={data.value} />,
@@ -20,5 +25,5 @@ export const Cell: React.FC<TCell> = (props: TCell) => {
     rpki_state: <RPKIState state={data.value} active={data.row.values.active} />,
     weight: <Weight weight={data.value} winningWeight={rawData.winning_weight} />,
   };
-  return component[cellId] ?? <> </>;
+  return component[cellId] ?? '';
 };

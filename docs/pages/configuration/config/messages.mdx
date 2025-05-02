@@ -1,0 +1,23 @@
+## Message Customization
+
+hyperglass provides as much control over user-facing text/messages as possible. The following messages may be adjusted as needed:
+
+| Parameter                       | Type   | Default Value                                            | Description                                                                                                                                                                                                                                                             |
+| :------------------------------ | :----- | :------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `messages.authentication_error` | String | Authentication error occurred.                           | Displayed when hyperglass is unable to authenticate to a device. Usually, this indicates a configuration error.                                                                                                                                                         |
+| `messages.connection_error`     | String | Error connecting to \{device_name\}: \{error\}           | Displayed when hyperglass is unable to connect to a device. Usually, this indicates a configuration error. `{device_name}` and `{error}` will be used to display the device in question and the specific connection error.                                              |
+| `messages.general`              | String | Something went wrong.                                    | Displayed when errors occur that hyperglass didn't anticipate or handle correctly. Seeing this error message may indicate a bug in hyperglass. If you see this in the wild, try enabling [debug mode](#global) and review the logs to pinpoint the source of the error. |
+| `messages.invalid_input`        | String | \{target\} is not valid.                                 | Displayed when a query target's value is invalid in relation to the corresponding query type. `{target}` will be used to display the invalid target.                                                                                                                    |
+| `messages.invalid_query`        | String | \{target\} is not a valid \{query_type\} target.         | Displayed when a query target's value is invalid in relation to the corresponding query type. `{target}` and `{query_type}` may be used to display the invalid target and corresponding query type.                                                                     |
+| `messages.no_input`             | String | \{field\} must be specified.                             | Displayed when a required field is not specified. `{field}` will be used to display the name of the field that was omitted.                                                                                                                                             |
+| `messages.no_output`            | String | The query completed, but no matching results were found. | Displayed when hyperglass can connect to a device and execute a query, but the response is empty.                                                                                                                                                                       |
+| `messages.not_found`            | String | \{type\} '\{name\}' not found.                           | Displayed when an object property does not exist in the configuration. `{type}` corresponds to a user-friendly name of the object type (for example, 'Device'), `{name}` corresponds to the object name that was not found.                                             |
+| `messages.request_timeout`      | String | Request timed out.                                       | Displayed when the [`request_timeout`](#global) time expires.                                                                                                                                                                                                           |
+| `messages.target_not_allowed`   | String | \{target\} is not allowed.                               | Displayed when a query target is implicitly denied by a configured rule. `{target}` will be used to display the denied query target.                                                                                                                                    |
+
+##### Example
+
+```yaml filename="config.yaml"
+message:
+    general: Something with wrong.
+```

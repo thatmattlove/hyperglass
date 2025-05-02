@@ -1,230 +1,140 @@
 """Input query validation model."""
 
 # Standard Library
-import json
+import typing as t
 import hashlib
 import secrets
 from datetime import datetime
 
 # Third Party
-from pydantic import BaseModel, StrictStr, constr, validator
+from pydantic import Field, BaseModel, ConfigDict, field_validator
 
 # Project
-from hyperglass.exceptions import InputInvalid
-from hyperglass.configuration import params, devices
+from hyperglass.log import log
+from hyperglass.util import snake_to_camel, repr_from_attrs
+from hyperglass.state import use_state
+from hyperglass.plugins import InputPluginManager
+from hyperglass.exceptions.public import InputInvalid, QueryTypeNotFound, QueryLocationNotFound
+from hyperglass.exceptions.private import InputValidationError
 
 # Local
-from .types import SupportedQuery
-from .validators import (
-    validate_ip,
-    validate_aspath,
-    validate_community_input,
-    validate_community_select,
-)
-from ..config.vrf import Vrf
+from ..config.devices import Device
 
 
-def get_vrf_object(vrf_name: str) -> Vrf:
-    """Match VRF object from VRF name."""
+class SimpleQuery(BaseModel):
+    """A simple representation of a post-validated query."""
 
-    for vrf_obj in devices.vrf_objects:
-        if vrf_name is not None:
-            if vrf_name == vrf_obj._id or vrf_name == vrf_obj.display_name:
-                return vrf_obj
+    query_location: str
+    query_target: t.Union[t.List[str], str]
+    query_type: str
 
-            elif vrf_name == "__hyperglass_default" and vrf_obj.default:
-                return vrf_obj
-        elif vrf_name is None:
-            if vrf_obj.default:
-                return vrf_obj
-
-    raise InputInvalid(params.messages.vrf_not_found, vrf_name=vrf_name)
+    def __repr_name__(self) -> str:
+        """Alias SimpleQuery to Query for clarity in logging."""
+        return "Query"
 
 
 class Query(BaseModel):
     """Validation model for input query parameters."""
 
-    query_location: StrictStr
-    query_type: SupportedQuery
-    query_vrf: StrictStr
-    query_target: constr(strip_whitespace=True, min_length=1)
+    model_config = ConfigDict(extra="allow", alias_generator=snake_to_camel, populate_by_name=True)
 
-    class Config:
-        """Pydantic model configuration."""
+    # Device `name` field
+    query_location: str = Field(strict=True, min_length=1, strip_whitespace=True)
 
-        extra = "allow"
-        fields = {
-            "query_location": {
-                "title": params.web.text.query_location,
-                "description": "Router/Location Name",
-                "example": "router01",
-            },
-            "query_type": {
-                "title": params.web.text.query_type,
-                "description": "Type of Query to Execute",
-                "example": "bgp_route",
-            },
-            "query_vrf": {
-                "title": params.web.text.query_vrf,
-                "description": "Routing Table/VRF",
-                "example": "default",
-            },
-            "query_target": {
-                "title": params.web.text.query_target,
-                "description": "IP Address, Community, or AS Path",
-                "example": "1.1.1.0/24",
-            },
-        }
-        schema_extra = {
-            "x-code-samples": [{"lang": "Python", "source": "print('stuff')"}]
-        }
+    query_target: t.Union[t.List[str], str] = Field(min_length=1, strip_whitespace=True)
 
-    def __init__(self, **kwargs):
+    # Directive `id` field
+    query_type: str = Field(strict=True, min_length=1, strip_whitespace=True)
+    _kwargs: t.Dict[str, t.Any]
+
+    def __init__(self, **data) -> None:
         """Initialize the query with a UTC timestamp at initialization time."""
-        super().__init__(**kwargs)
+        super().__init__(**data)
+        self._kwargs = data
         self.timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
-    def __repr__(self):
-        """Represent only the query fields."""
-        return (
-            f"Query(query_location={str(self.query_location)}, "
-            f"query_type={str(self.query_type)}, query_vrf={str(self.query_vrf)}, "
-            f"query_target={str(self.query_target)})"
+        state = use_state()
+        self._state = state
+
+        query_directives = self.device.directives.matching(self.query_type)
+
+        if len(query_directives) < 1:
+            raise QueryTypeNotFound(query_type=self.query_type)
+
+        self.directive = query_directives[0]
+
+        self._input_plugin_manager = InputPluginManager()
+
+        self.query_target = self.transform_query_target()
+
+        try:
+            self.validate_query_target()
+        except InputValidationError as err:
+            raise InputInvalid(**err.kwargs) from err
+
+    def summary(self) -> SimpleQuery:
+        """Summarized and post-validated model of a Query."""
+        return SimpleQuery(
+            query_location=self.query_location,
+            query_target=self.query_target,
+            query_type=self.query_type,
         )
 
-    def digest(self):
+    def __repr__(self) -> str:
+        """Represent only the query fields."""
+        return repr_from_attrs(self, ("query_location", "query_type", "query_target"))
+
+    def __str__(self) -> str:
+        """Alias __str__ to __repr__."""
+        return repr(self)
+
+    def digest(self) -> str:
         """Create SHA256 hash digest of model representation."""
         return hashlib.sha256(repr(self).encode()).hexdigest()
 
-    def random(self):
+    def random(self) -> str:
         """Create a random string to prevent client or proxy caching."""
         return hashlib.sha256(
             secrets.token_bytes(8) + repr(self).encode() + secrets.token_bytes(8)
         ).hexdigest()
 
-    @property
-    def summary(self):
-        """Create abbreviated representation of instance."""
-        items = (
-            f"query_location={self.query_location}",
-            f"query_type={self.query_type}",
-            f"query_vrf={self.query_vrf.name}",
-            f"query_target={str(self.query_target)}",
-        )
-        return f'Query({", ".join(items)})'
+    def validate_query_target(self) -> None:
+        """Validate a query target after all fields/relationships have been initialized."""
+        # Run config/rule-based validations.
+        self.directive.validate_target(self.query_target)
+        # Run plugin-based validations.
+        self._input_plugin_manager.validate(query=self)
+        log.bind(query=self.summary()).debug("Validation passed")
+
+    def transform_query_target(self) -> t.Union[t.List[str], str]:
+        """Transform a query target based on defined plugins."""
+        return self._input_plugin_manager.transform(query=self)
+
+    def dict(self) -> t.Dict[str, t.Union[t.List[str], str]]:
+        """Include only public fields."""
+        return super().model_dump(include={"query_location", "query_target", "query_type"})
 
     @property
-    def device(self):
+    def device(self) -> Device:
         """Get this query's device object by query_location."""
-        return devices[self.query_location]
+        return self._state.devices[self.query_location]
 
-    @property
-    def query(self):
-        """Get this query's configuration object."""
-        return params.queries[self.query_type]
-
-    def export_dict(self, pretty=False):
-        """Create dictionary representation of instance."""
-
-        if pretty:
-            items = {
-                "query_location": self.device.name,
-                "query_type": self.query.display_name,
-                "query_vrf": self.query_vrf.display_name,
-                "query_target": str(self.query_target),
-            }
-        else:
-            items = {
-                "query_location": self.query_location,
-                "query_type": self.query_type,
-                "query_vrf": self.query_vrf._id,
-                "query_target": str(self.query_target),
-            }
-        return items
-
-    def export_json(self):
-        """Create JSON representation of instance."""
-        return json.dumps(self.export_dict(), default=str)
-
-    @validator("query_type")
-    def validate_query_type(cls, value):
-        """Ensure query_type is enabled."""
-
-        query = params.queries[value]
-
-        if not query.enable:
-            raise InputInvalid(
-                params.messages.feature_not_enabled,
-                level="warning",
-                feature=query.display_name,
-            )
-
-        return value
-
-    @validator("query_location")
+    @field_validator("query_location")
     def validate_query_location(cls, value):
         """Ensure query_location is defined."""
 
-        valid_id = value in devices._ids
-        valid_hostname = value in devices.hostnames
+        devices = use_state("devices")
 
-        if not any((valid_id, valid_hostname)):
-            raise InputInvalid(
-                params.messages.invalid_field,
-                level="warning",
-                input=value,
-                field=params.web.text.query_location,
-            )
+        if not devices.valid_id_or_name(value):
+            raise QueryLocationNotFound(location=value)
+
         return value
 
-    @validator("query_vrf")
-    def validate_query_vrf(cls, value, values):
-        """Ensure query_vrf is defined."""
+    @field_validator("query_type")
+    def validate_query_type(cls, value: t.Any):
+        """Ensure a requested query type exists."""
+        devices = use_state("devices")
+        if any((device.has_directives(value) for device in devices)):
+            return value
 
-        vrf_object = get_vrf_object(value)
-        device = devices[values["query_location"]]
-        device_vrf = None
-
-        for vrf in device.vrfs:
-            if vrf == vrf_object:
-                device_vrf = vrf
-                break
-
-        if device_vrf is None:
-            raise InputInvalid(
-                params.messages.vrf_not_associated,
-                vrf_name=vrf_object.display_name,
-                device_name=device.name,
-            )
-        return device_vrf
-
-    @validator("query_target")
-    def validate_query_target(cls, value, values):
-        """Validate query target value based on query_type."""
-
-        query_type = values["query_type"]
-        value = value.strip()
-
-        # Use relevant function based on query_type.
-        validator_map = {
-            "bgp_aspath": validate_aspath,
-            "bgp_community": validate_community_input,
-            "bgp_route": validate_ip,
-            "ping": validate_ip,
-            "traceroute": validate_ip,
-        }
-        validator_args_map = {
-            "bgp_aspath": (value,),
-            "bgp_community": (value,),
-            "bgp_route": (value, values["query_type"], values["query_vrf"]),
-            "ping": (value, values["query_type"], values["query_vrf"]),
-            "traceroute": (value, values["query_type"], values["query_vrf"]),
-        }
-
-        if params.queries.bgp_community.mode == "select":
-            validator_map["bgp_community"] = validate_community_select
-
-        validate_func = validator_map[query_type]
-        validate_args = validator_args_map[query_type]
-
-        return validate_func(*validate_args)
+        raise QueryTypeNotFound(query_type=value)

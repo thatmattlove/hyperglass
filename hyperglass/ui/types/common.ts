@@ -1,22 +1,19 @@
-import { State } from '@hookstate/core';
-
-export type TSelectOptionBase = {
+interface AnyOption {
   label: string;
+}
+
+export interface SingleOption<T extends Record<string, unknown> = Record<string, unknown>>
+  extends AnyOption {
   value: string;
   group?: string;
-};
+  tags?: string[];
+  data?: T;
+}
 
-export type TSelectOption = TSelectOptionBase | null;
+export interface OptionGroup<Opt extends SingleOption> extends AnyOption {
+  options: Opt[];
+}
 
-export type TSelectOptionMulti = TSelectOptionBase[] | null;
-
-export type TSelectOptionState = State<TSelectOption>;
-
-export type TSelectOptionGroup = {
-  label: string;
-  options: TSelectOption[];
-};
+export type OptionsOrGroup<Opt extends SingleOption> = Array<Opt | OptionGroup<Opt>>;
 
 export type OnChangeArgs = { field: string; value: string | string[] };
-
-export type Families = [4] | [6] | [4, 6] | [];

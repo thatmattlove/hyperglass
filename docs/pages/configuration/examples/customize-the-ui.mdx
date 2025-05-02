@@ -1,0 +1,60 @@
+---
+description: Customize hyperglass to fit your needs.
+---
+
+import { DocsButton } from "~/components/docs-button";
+
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/config" /> Change the Title and Organization Name
+</h3>
+
+```yaml filename="config.yaml"
+site_title: Our super neat looking glass
+org_name: Cool Company
+```
+
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/config/web-ui#logo" /> Change the Logo
+</h3>
+
+```yaml filename="config.yaml" {2-4} copy
+web:
+    logo:
+        light: <path to logo image file to use in light mode>
+        dark: <path to logo image file to use in dark mode>
+```
+
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/config/web-ui#theme" /> Change the Color Scheme
+</h3>
+
+```yaml filename="config.yaml" copy {3-5}
+web:
+    theme:
+        colors:
+            primary: "#d84b4b"
+            secondary: "#118ab2"
+```
+
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/config/web-ui#menus" /> Add a Link to the Footer
+</h3>
+
+```yaml filename="config.yaml" copy
+web:
+    links:
+        - title: PeeringDB
+          url: https://www.peeringdb.com/65000
+          show_icon: true
+          side: right
+          order: 1
+        - title: Our Website
+          url: https://example.com
+          show_icon: false
+          side: left
+          order: 0
+```

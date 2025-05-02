@@ -1,0 +1,7 @@
+.logo {
+    color: #d84b4b;
+}
+
+html[class~=dark] .logo {
+    color: #fff;
+}

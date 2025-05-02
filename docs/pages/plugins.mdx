@@ -1,0 +1,144 @@
+---
+title: Plugins
+description: hyperglass Plugins
+---
+
+import { Cards, Card } from "nextra/components";
+
+Starting in version 2.0, hyperglass supports custom plugins. There are two main types of plugins:
+
+-   [**Input Plugins**](#input-plugins): Apply custom validation logic to or transform user input before the query is sent to a device.
+-   [**Output Plugins**](#output-plugins): Interact with the output from a device before it's displayed to the user.
+
+Plugins are associated with a directive.
+
+## Examples
+
+### Input Plugins
+
+#### Convert a CIDR Prefix to Network and Mask
+
+In this example, the following query is sent to hyperglass:
+
+```json filename="Example Query"
+{
+    "query_target": "192.0.2.0/24",
+    "query_location": "your_location",
+    "query_type": "ip_route_directive"
+}
+```
+
+The below plugin is defined and referenced by a directive:
+
+```python filename="/path/to/your/transform_plugin.py"
+from ipaddress import ip_network
+from hyperglass.plugins import InputPlugin
+
+
+class TransformCIDR(InputPlugin):
+    def transform(self, query):
+        (target := query.query_target)
+        target_network = ip_network(target)
+        if target_network.version == 4:
+            return f"{target_network.network_address!s} {target_network.netmask!s}"
+        return target
+```
+
+```yaml filename="directives.yaml"
+ip_route_directive:
+    name: IP Route
+    plugins:
+        - "/path/to/your/transform_plugin.py"
+    rules:
+        - condition: "0.0.0.0/0"
+          action: permit
+          command: "show ip route {target}"
+        - condition: "::/0"
+          action: permit
+          command: "show ipv6 route {target}"
+```
+
+When the query is received, the query target is transformed, resulting in this being sent to the device:
+
+```
+show ip route 192.0.2.0 255.255.255.0
+```
+
+instead of:
+
+```
+show ip route 192.0.2.0/24
+```
+
+#### Validate User Input
+
+In this example, we want to perform some custom validation not available via the directives `condition` API. For instance, say you wanted to ensure a query target isn't contained within a dynamic list of [bogon prefixes from Team Cymru](https://www.team-cymru.com/bogon-networks).
+
+```python filename="/path/to/your/validation_plugin.py"
+from ipaddress import ip_network
+
+from hyperglass.plugins import InputPlugin
+from hyperglass.external import HTTPClient
+
+class BogonPlugin(InputPlugin):
+    def validate(self, query):
+        target = ip_network(query.query_target)
+
+        with HTTPClient(base_url="https://team-cymru.org") as client:
+            response = client.get("/Services/Bogons/fullbogons-ipv4.txt")
+
+        bogon_strings = [line.strip() for line in response.text.split("\n") if not line.startswith("#")]
+        bogons = [ip_network(bogon) for bogon in bogon_strings]
+
+        for bogon in bogons:
+            if target in bogon or target == bogon:
+                return False # Return false to fail validation.
+        return True
+```
+
+This isn't the best real-world example, since the above plugin would be run on every request, likely resulting in slow query responses, but it illustrates the power of plugins.
+
+### Output Plugins
+
+#### Redact Sensitive Information
+
+Say one of your directives might show some sensitive information in the query output. Using an output plugin, we can replace any text matching a pattern (or multiple patterns) with some other text.
+
+```python
+import re
+from hyperglass.plugins import OutputPlugin
+
+SENSITIVE_PATTERN = re.compile("SuperSecretInfo")
+
+class Redact(OutputPlugin):
+    def process(self, output, query):
+        result = []
+        for each_output in output:
+            redacted = SENSITIVE_PATTERN.sub("<REDACTED>", each_output)
+            result.append(redacted)
+        return result
+```
+
+If the query output was:
+
+```text
+Lorem ipsum dolor sit amet, SuperSecretInfo consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Viverra suspendisse potenti nullam ac. At elementum eu facilisis sed odio morbi. SuperSecretInfo iaculis urna id volutpat lacus.Nisl nisi
+scelerisque eu ultrices vitae. Accumsan SuperSecretInfo tortor posuere ac ut consequat semper viverra nam libero. Libero id faucibus nisl
+tincidunt eget nullam non nisi. Et ligula ullamcorper malesuada SuperSecretInfo proin libero nunc. Et malesuada fames ac turpis egestas sed.
+Nulla facilisi cras fermentum odio eu. SuperSecretInfo condimentum mattis pellentesque id nibh tortor id aliquet lectus proin. Nisl rhoncus
+mattis rhoncus urna neque. Tortor aliquam nulla facilisi cras SuperSecretInfo fermentum odio eu feugiat. Neque egestas congue quisque egestas
+diam in arcu cursus SuperSecretInfo.
+```
+
+The above plugin would transform the output to:
+
+```text
+Lorem ipsum dolor sit amet, <REDACTED> consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Viverra suspendisse potenti nullam ac. At elementum eu facilisis sed odio morbi. <REDACTED> iaculis urna id volutpat lacus.Nisl nisi
+scelerisque eu ultrices vitae. Accumsan <REDACTED> tortor posuere ac ut consequat semper viverra nam libero. Libero id faucibus nisl
+tincidunt eget nullam non nisi. Et ligula ullamcorper malesuada <REDACTED> proin libero nunc. Et malesuada fames ac turpis egestas sed.
+Nulla facilisi cras fermentum odio eu. <REDACTED> condimentum mattis pellentesque id nibh tortor id aliquet lectus proin. Nisl rhoncus
+mattis rhoncus urna neque. Tortor aliquam nulla facilisi cras <REDACTED> fermentum odio eu feugiat. Neque egestas congue quisque egestas
+diam in arcu cursus <REDACTED>.
+```

@@ -1,40 +1,33 @@
-import { useMemo, useState } from 'react';
 import { Image, Skeleton } from '@chakra-ui/react';
-import { useColorValue, useConfig, useColorMode } from '~/context';
+import { useCallback, useMemo, useState } from 'react';
+import { useConfig } from '~/context';
+import { useColorValue } from '~/hooks';
 
-import type { TLogo } from './types';
+import type { ImageProps } from '@chakra-ui/react';
 
 /**
  * Custom hook to handle loading the user's logo, errors loading the logo, and color mode changes.
  */
 function useLogo(): [string, () => void] {
   const { web } = useConfig();
-  const { dark_format, light_format } = web.logo;
-  const { colorMode } = useColorMode();
+  const { darkFormat, lightFormat } = web.logo;
 
-  const src = useColorValue(`/images/dark${dark_format}`, `/images/light${light_format}`);
+  const src = useColorValue(`/images/light${darkFormat}`, `/images/dark${lightFormat}`);
 
   // Use the hyperglass logo if the user's logo can't be loaded for whatever reason.
-  const fallbackSrc = useColorValue(
-    'https://res.cloudinary.com/hyperglass/image/upload/v1593916013/logo-dark.svg',
-    'https://res.cloudinary.com/hyperglass/image/upload/v1593916013/logo-light.svg',
-  );
-
   const [fallback, setSource] = useState<string | null>(null);
 
-  /**
-   * If the user image cannot be loaded, log an error to the console and set the fallback image.
-   */
-  function setFallback() {
+  // If the user image cannot be loaded, log an error to the console and set the fallback image.
+  const setFallback = useCallback(() => {
     console.warn(`Error loading image from '${src}'`);
-    setSource(fallbackSrc);
-  }
+    setSource('https://res.cloudinary.com/hyperglass/image/upload/v1593916013/logo-light.svg');
+  }, [src]);
 
   // Only return the fallback image if it's been set.
-  return useMemo(() => [fallback ?? src, setFallback], [colorMode]);
+  return useMemo(() => [fallback ?? src, setFallback], [fallback, setFallback, src]);
 }
 
-export const Logo: React.FC<TLogo> = (props: TLogo) => {
+export const Logo = (props: ImageProps): JSX.Element => {
   const { web } = useConfig();
   const { width } = web.logo;
 
@@ -48,7 +41,8 @@ export const Logo: React.FC<TLogo> = (props: TLogo) => {
       src={source}
       alt={web.text.title}
       onError={setFallback}
-      width={width ?? 'auto'}
+      maxW={{ base: '100%', md: width }}
+      width="auto"
       css={{
         userDrag: 'none',
         userSelect: 'none',

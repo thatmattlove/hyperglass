@@ -1,73 +1,58 @@
 """Validate logging configuration."""
 
 # Standard Library
-import base64
-from ast import literal_eval
-from typing import Dict, Union, Optional
+import typing as t
 from pathlib import Path
 
 # Third Party
-from pydantic import (
-    ByteSize,
-    SecretStr,
-    StrictInt,
-    StrictStr,
-    AnyHttpUrl,
-    StrictBool,
-    StrictFloat,
-    DirectoryPath,
-    constr,
-    validator,
-)
+from pydantic import ByteSize, SecretStr, AnyHttpUrl, DirectoryPath, field_validator
 
 # Project
 from hyperglass.constants import __version__
 
 # Local
-from ..main import HyperglassModel, HyperglassModelExtra
-
-HttpAuthMode = constr(regex=r"(basic|api_key)")
-HttpProvider = constr(regex=r"(msteams|slack|generic)")
-LogFormat = constr(regex=r"(text|json)")
+from ..main import HyperglassModel
+from ..fields import LogFormat, HttpAuthMode, HttpProvider
 
 
 class Syslog(HyperglassModel):
     """Validation model for syslog configuration."""
 
-    enable: StrictBool = True
-    host: StrictStr
-    port: StrictInt = 514
+    enable: bool = True
+    host: str
+    port: int = 514
 
 
 class HttpAuth(HyperglassModel):
     """HTTP hook authentication parameters."""
 
     mode: HttpAuthMode = "basic"
-    username: Optional[StrictStr]
+    username: t.Optional[str] = None
     password: SecretStr
+    header: str = "x-api-key"
 
-    def api_key(self, header_name="X-API-Key"):
+    def api_key(self):
         """Represent authentication as an API key header."""
-        return {header_name: self.password.get_secret_value()}
+        return {self.header: self.password.get_secret_value()}
 
     def basic(self):
         """Represent HTTP basic authentication."""
         return (self.username, self.password.get_secret_value())
 
 
-class Http(HyperglassModelExtra):
+class Http(HyperglassModel, extra="allow"):
     """HTTP logging parameters."""
 
-    enable: StrictBool = True
+    enable: bool = True
     provider: HttpProvider = "generic"
     host: AnyHttpUrl
-    authentication: Optional[HttpAuth]
-    headers: Dict[StrictStr, Union[StrictStr, StrictInt, StrictBool, None]] = {}
-    params: Dict[StrictStr, Union[StrictStr, StrictInt, StrictBool, None]] = {}
-    verify_ssl: StrictBool = True
-    timeout: Union[StrictFloat, StrictInt] = 5.0
+    authentication: t.Optional[HttpAuth] = None
+    headers: t.Dict[str, t.Union[str, int, bool, None]] = {}
+    params: t.Dict[str, t.Union[str, int, bool, None]] = {}
+    verify_ssl: bool = True
+    timeout: t.Union[float, int] = 5.0
 
-    @validator("headers", "params")
+    @field_validator("headers", "params")
     def stringify_headers_params(cls, value):
         """Ensure headers and URL parameters are strings."""
         for k, v in value.items():
@@ -92,12 +77,6 @@ class Http(HyperglassModelExtra):
             else:
                 dumped["auth"] = self.authentication.basic()
 
-        self._obscured_params = base64.encodestring(str(dumped).encode())
-
-    def decoded(self):
-        """Decode connection details."""
-        return literal_eval(base64.decodestring(self._obscured_params).decode())
-
 
 class Logging(HyperglassModel):
     """Validation model for logging configuration."""
@@ -105,5 +84,5 @@ class Logging(HyperglassModel):
     directory: DirectoryPath = Path("/tmp")  # noqa: S108
     format: LogFormat = "text"
     max_size: ByteSize = "50MB"
-    syslog: Optional[Syslog]
-    http: Optional[Http]
+    syslog: t.Optional[Syslog] = None
+    http: t.Optional[Http] = None

@@ -1,31 +1,46 @@
-import { forwardRef, useEffect, useMemo } from 'react';
 import {
-  Box,
-  Flex,
-  chakra,
-  Icon,
-  Alert,
-  HStack,
-  Tooltip,
+  AccordionButton,
   AccordionItem,
   AccordionPanel,
+  Alert,
+  Box,
+  Flex,
+  HStack,
+  Tooltip,
+  chakra,
   useAccordionContext,
-  AccordionButton,
+  useToast,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { BsLightningFill } from '@meronex/icons/bs';
-import { startCase } from 'lodash';
-import { BGPTable, Countdown, TextOutput, If, Path } from '~/components';
-import { useColorValue, useConfig, useMobile } from '~/context';
-import { useStrf, useLGQuery, useLGState, useTableToString } from '~/hooks';
-import { isStructuredOutput, isStringOutput } from '~/types';
-import { isStackError, isFetchError, isLGError, isLGOutputOrError } from './guards';
-import { RequeryButton } from './requeryButton';
-import { CopyButton } from './copyButton';
-import { FormattedError } from './error';
+import startCase from 'lodash/startCase';
+import { forwardRef, memo, useEffect, useMemo, useState } from 'react';
+import isEqual from 'react-fast-compare';
+import { Else, If, Then } from 'react-if';
+import { BGPTable, Path, TextOutput } from '~/components';
+import { useConfig } from '~/context';
+import { Countdown, DynamicIcon } from '~/elements';
+import {
+  useColorValue,
+  useDevice,
+  useFormState,
+  useLGQuery,
+  useMobile,
+  useStrf,
+  useTableToString,
+} from '~/hooks';
+import { isStringOutput, isStructuredOutput } from '~/types';
+import { CopyButton } from './copy-button';
+import { FormattedError } from './formatted-error';
+import { isFetchError, isLGError, isLGOutputOrError, isStackError } from './guards';
 import { ResultHeader } from './header';
+import { RequeryButton } from './requery-button';
 
-import type { TResult, TErrorLevels } from './types';
+import type { ErrorLevels } from '~/types';
+
+interface ResultProps {
+  index: number;
+  queryLocation: string;
+}
 
 const AnimatedAccordionItem = motion(AccordionItem);
 
@@ -38,11 +53,16 @@ const AccordionHeaderWrapper = chakra('div', {
   },
 });
 
-const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props: TResult, ref) => {
-  const { index, device, queryVrf, queryType, queryTarget, queryLocation } = props;
-
+const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
+  props: ResultProps,
+  ref,
+) => {
+  const { index, queryLocation } = props;
+  const toast = useToast();
   const { web, cache, messages } = useConfig();
   const { index: indices, setIndex } = useAccordionContext();
+  const getDevice = useDevice();
+  const device = getDevice(queryLocation);
 
   const isMobile = useMobile();
   const color = useColorValue('black', 'white');
@@ -50,26 +70,50 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
   const scrollbarHover = useColorValue('blackAlpha.400', 'whiteAlpha.400');
   const scrollbarBg = useColorValue('blackAlpha.50', 'whiteAlpha.50');
 
-  const { responses } = useLGState();
+  const addResponse = useFormState(s => s.addResponse);
+  const form = useFormState(s => s.form);
+  const [errorLevel, _setErrorLevel] = useState<ErrorLevels>('error');
 
-  const { data, error, isError, isLoading, refetch, isFetching, isFetchedAfterMount } = useLGQuery({
-    queryLocation,
-    queryTarget,
-    queryType,
-    queryVrf,
-  });
+  const setErrorLevel = (level: ResponseLevel): void => {
+    let e: ErrorLevels = 'error';
+    switch (level) {
+      case 'success':
+        e = level;
+        break;
+      case 'warning' || 'error':
+        e = 'warning';
+        break;
+    }
+    _setErrorLevel(e);
+  };
 
-  const isCached = useMemo(() => data?.cached || !isFetchedAfterMount, [
-    data,
-    isLoading,
-    isFetching,
-  ]);
+  const { data, error, isLoading, refetch, isFetchedAfterMount } = useLGQuery(
+    { queryLocation, queryTarget: form.queryTarget, queryType: form.queryType },
+    {
+      onSuccess(data) {
+        if (device !== null) {
+          addResponse(device.id, data);
+        }
+        if (isLGOutputOrError(data)) {
+          console.error(data);
+          setErrorLevel(data.level);
+        }
+      },
+      onError(error) {
+        console.error({ error });
+        if (isLGOutputOrError(error)) {
+          setErrorLevel(error.level);
+        }
+      },
+    },
+  );
 
-  if (typeof data !== 'undefined') {
-    responses.merge({ [device._id]: data });
-  }
+  const isError = useMemo(() => isLGOutputOrError(data), [data, error]);
 
-  const cacheLabel = useStrf(web.text.cache_icon, { time: data?.timestamp }, [data?.timestamp]);
+  const isCached = useMemo(() => data?.cached || !isFetchedAfterMount, [data, isFetchedAfterMount]);
+
+  const strF = useStrf();
+  const cacheLabel = strF(web.text.cacheIcon, { time: data?.timestamp });
 
   const errorKeywords = useMemo(() => {
     let kw = [] as string[];
@@ -83,49 +127,33 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
   const errorMsg = useMemo(() => {
     if (isLGError(error)) {
       return error.output as string;
-    } else if (isLGOutputOrError(data)) {
+    }
+    if (isLGOutputOrError(data)) {
       return data.output as string;
-    } else if (isFetchError(error)) {
+    }
+    if (isFetchError(error)) {
       return startCase(error.statusText);
-    } else if (isStackError(error) && error.message.toLowerCase().startsWith('timeout')) {
-      return messages.request_timeout;
-    } else if (isStackError(error)) {
+    }
+    if (isStackError(error) && error.message.toLowerCase().startsWith('timeout')) {
+      return messages.requestTimeout;
+    }
+    if (isStackError(error)) {
       return startCase(error.message);
-    } else {
-      return messages.general;
     }
-  }, [isError, error, data]);
-
-  isError && console.error(error);
-
-  const errorLevel = useMemo<TErrorLevels>(() => {
-    const statusMap = {
-      success: 'success',
-      warning: 'warning',
-      error: 'warning',
-      danger: 'error',
-    } as { [k in TResponseLevel]: 'success' | 'warning' | 'error' };
-
-    let e: TErrorLevels = 'error';
-
-    if (isLGError(error)) {
-      const idx = error.level as TResponseLevel;
-      e = statusMap[idx];
-    }
-    return e;
-  }, [isError, isLoading, data]);
+    return messages.general;
+  }, [error, data, messages.general, messages.requestTimeout]);
 
   const tableComponent = useMemo<boolean>(() => {
     let result = false;
-    if (typeof queryType.match(/^bgp_\w+$/) !== null && data?.format === 'application/json') {
+    if (data?.format === 'application/json') {
       result = true;
     }
     return result;
-  }, [queryType, data?.format]);
+  }, [data?.format]);
 
   let copyValue = data?.output as string;
 
-  const formatData = useTableToString(queryTarget, data, [data?.format]);
+  const formatData = useTableToString(form.queryTarget, data, [data?.format]);
 
   if (data?.format === 'application/json') {
     copyValue = formatData();
@@ -144,12 +172,26 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
         setIndex([index]);
       }
     }
-  }, [data, isError]);
+  }, [data, index, indices, isLoading, isError, setIndex]);
+
+  if (device === null) {
+    const id = `toast-queryLocation-${index}-${queryLocation}`;
+    if (!toast.isActive(id)) {
+      toast({
+        id,
+        title: messages.general,
+        description: `Configuration for device with ID '${queryLocation}' not found.`,
+        status: 'error',
+        isClosable: true,
+      });
+    }
+    return <></>;
+  }
 
   return (
     <AnimatedAccordionItem
       ref={ref}
-      id={device._id}
+      id={device.id}
       isDisabled={isLoading}
       exit={{ opacity: 0, y: 300 }}
       animate={{ opacity: 1, y: 0 }}
@@ -160,99 +202,106 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, TResult> = (props:
         '&:last-of-type': { borderBottom: 'none' },
       }}
     >
-      <>
-        <AccordionHeaderWrapper>
-          <AccordionButton py={2} w="unset" _hover={{}} _focus={{}} flex="1 0 auto">
-            <ResultHeader
-              // isError={isLGOutputOrError(data)}
-              isError={isError}
-              loading={isLoading}
-              errorMsg={errorMsg}
-              errorLevel={errorLevel}
-              runtime={data?.runtime ?? 0}
-              title={device.name}
-            />
-          </AccordionButton>
-          <HStack py={2} spacing={1}>
-            {isStructuredOutput(data) && data.level === 'success' && tableComponent && (
-              <Path device={device._id} />
-            )}
-            <CopyButton copyValue={copyValue} isDisabled={isLoading} />
-            <RequeryButton requery={refetch} isDisabled={isLoading} />
-          </HStack>
-        </AccordionHeaderWrapper>
-        <AccordionPanel
-          pb={4}
-          overflowX="auto"
-          css={{
-            WebkitOverflowScrolling: 'touch',
-            '&::-webkit-scrollbar': { height: '5px' },
-            '&::-webkit-scrollbar-track': {
-              backgroundColor: scrollbarBg,
-            },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: scrollbar,
-            },
-            '&::-webkit-scrollbar-thumb:hover': {
-              backgroundColor: scrollbarHover,
-            },
+      <AccordionHeaderWrapper>
+        <AccordionButton py={2} w="unset" _hover={{}} _focus={{}} flex="1 0 auto">
+          <ResultHeader
+            isError={isError}
+            loading={isLoading}
+            errorMsg={errorMsg}
+            errorLevel={errorLevel}
+            runtime={data?.runtime ?? 0}
+            title={device.name}
+          />
+        </AccordionButton>
+        <HStack py={2} spacing={1}>
+          {isStructuredOutput(data) && data.level === 'success' && tableComponent && (
+            <Path device={device.id} />
+          )}
+          <CopyButton copyValue={copyValue} isDisabled={isLoading} />
+          <RequeryButton requery={refetch} isDisabled={isLoading} />
+        </HStack>
+      </AccordionHeaderWrapper>
+      <AccordionPanel
+        pb={4}
+        overflowX="auto"
+        css={{
+          WebkitOverflowScrolling: 'touch',
+          '&::-webkit-scrollbar': { height: '5px' },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: scrollbarBg,
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: scrollbar,
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            backgroundColor: scrollbarHover,
+          },
 
-            '-ms-overflow-style': { display: 'none' },
-          }}
-        >
-          <Box>
-            <Flex direction="column" flex="1 0 auto" maxW={error ? '100%' : undefined}>
-              {!isError && typeof data !== 'undefined' ? (
-                <>
-                  {isStructuredOutput(data) && data.level === 'success' && tableComponent ? (
-                    <BGPTable>{data.output}</BGPTable>
-                  ) : isStringOutput(data) && data.level === 'success' && !tableComponent ? (
-                    <TextOutput>{data.output}</TextOutput>
-                  ) : isStringOutput(data) && data.level !== 'success' ? (
-                    <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
-                      <FormattedError message={data.output} keywords={errorKeywords} />
-                    </Alert>
-                  ) : (
-                    <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
-                      <FormattedError message={errorMsg} keywords={errorKeywords} />
-                    </Alert>
-                  )}
-                </>
-              ) : (
+          '-ms-overflow-style': { display: 'none' },
+        }}
+      >
+        <Box>
+          <Flex direction="column" flex="1 0 auto" maxW={error ? '100%' : undefined}>
+            <If condition={!isError && typeof data !== 'undefined'}>
+              <Then>
+                {isStructuredOutput(data) && data.level === 'success' && tableComponent ? (
+                  <BGPTable>{data.output}</BGPTable>
+                ) : isStringOutput(data) && data.level === 'success' && !tableComponent ? (
+                  <TextOutput>{data.output}</TextOutput>
+                ) : isStringOutput(data) && data.level !== 'success' ? (
+                  <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
+                    <FormattedError message={data.output} keywords={errorKeywords} />
+                  </Alert>
+                ) : (
+                  <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
+                    <FormattedError message={errorMsg} keywords={errorKeywords} />
+                  </Alert>
+                )}
+              </Then>
+              <Else>
                 <Alert rounded="lg" my={2} py={4} status={errorLevel} variant="solid">
                   <FormattedError message={errorMsg} keywords={errorKeywords} />
                 </Alert>
-              )}
-            </Flex>
-          </Box>
-
-          <Flex direction="row" flexWrap="wrap">
-            <HStack
-              px={3}
-              mt={2}
-              spacing={1}
-              flex="1 0 auto"
-              justifyContent={{ base: 'flex-start', lg: 'flex-end' }}
-            >
-              <If c={cache.show_text && !isError && isCached}>
-                <If c={!isMobile}>
-                  <Countdown timeout={cache.timeout} text={web.text.cache_prefix} />
-                </If>
-                <Tooltip hasArrow label={cacheLabel} placement="top">
-                  <Box>
-                    <Icon as={BsLightningFill} color={color} />
-                  </Box>
-                </Tooltip>
-                <If c={isMobile}>
-                  <Countdown timeout={cache.timeout} text={web.text.cache_prefix} />
-                </If>
-              </If>
-            </HStack>
+              </Else>
+            </If>
           </Flex>
-        </AccordionPanel>
-      </>
+        </Box>
+
+        <Flex direction="row" flexWrap="wrap">
+          <HStack
+            px={3}
+            mt={2}
+            spacing={1}
+            flex="1 0 auto"
+            justifyContent={{ base: 'flex-start', lg: 'flex-end' }}
+          >
+            <If condition={cache.showText && !isError && isCached}>
+              <Then>
+                <If condition={isMobile}>
+                  <Then>
+                    <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
+                    <Tooltip hasArrow label={cacheLabel} placement="top">
+                      <Box>
+                        <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
+                      </Box>
+                    </Tooltip>
+                  </Then>
+                  <Else>
+                    <Tooltip hasArrow label={cacheLabel} placement="top">
+                      <Box>
+                        <DynamicIcon icon={{ bs: 'BsLightningFill' }} color={color} />
+                      </Box>
+                    </Tooltip>
+                    <Countdown timeout={cache.timeout} text={web.text.cachePrefix} />
+                  </Else>
+                </If>
+              </Then>
+            </If>
+          </HStack>
+        </Flex>
+      </AccordionPanel>
     </AnimatedAccordionItem>
   );
 };
 
-export const Result = forwardRef<HTMLDivElement, TResult>(_Result);
+export const Result = memo(forwardRef<HTMLDivElement, ResultProps>(_Result), isEqual);

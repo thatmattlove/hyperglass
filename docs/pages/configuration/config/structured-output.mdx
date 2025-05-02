@@ -1,0 +1,61 @@
+## Structured
+
+Devices that support responding to a query with structured or easily parsable data can have their response data placed into an easier to read table (or JSON, when using the REST API). Currently, the following platforms have structured data supported in hyperglass:
+
+-   Arista EOS
+-   Juniper Junos
+
+When structured output is available, hyperglass checks the RPKI state of each BGP prefix returned using one of two methods:
+
+1. From the router's perspective
+2. From the perspective of [Cloudflare's RPKI Service](https://rpki.cloudflare.com/)
+
+Additionally, hyperglass provides the ability to control which BGP communities are shown to the end user.
+
+| Parameter                      | Type            | Default Value | Description                                                                                                                   |
+| :----------------------------- | :-------------- | :------------ | :---------------------------------------------------------------------------------------------------------------------------- |
+| `structured.rpki.mode`         | String          | router        | Use `router` to use the router's view of the RPKI state (1 above), or `external` to use Cloudflare's view (2 above).          |
+| `structured.communities.mode`  | String          | deny          | Use `deny` to deny any communities listed in `structured.communities.items`, or `permit` to _only_ permit communities listed. |
+| `structured.communities.items` | List of Strings |               | List of communities to match.                                                                                                 |
+
+### RPKI Examples
+
+#### Show RPKI State from the Device's Perspective
+
+```yaml filename="config.yaml" copy {2}
+structured:
+    rpki:
+        mode: router
+```
+
+#### Show RPKI State from a Public/External Perspective
+
+```yaml filename="config.yaml" copy {2}
+structured:
+    rpki:
+        mode: external
+```
+
+### Community Filtering Examples
+
+#### Deny Listed Communities by Regex pattern
+
+```yaml filename="config.yaml" {5-6}
+structured:
+    communities:
+        mode: deny
+        items:
+            - '^65000:1\d+$' # don't show any communities starting with 65000:1. 65000:1234 would be denied, but 65000:4321 would be permitted.
+            - "65000:2345" # don't show the 65000:2345 community.
+```
+
+#### Permit only Listed Communities
+
+```yaml filename="config.yaml" {5-6}
+structured:
+    communities:
+        mode: permit
+        items:
+            - "^65000:.*$" # permit any communities starting with 65000, but no others.
+            - "1234:1" # permit only the 1234:1 community.
+```

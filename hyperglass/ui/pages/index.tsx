@@ -1,48 +1,36 @@
-import Head from 'next/head';
 import dynamic from 'next/dynamic';
-import { Meta, Loading } from '~/components';
+import { AnimatePresence } from 'framer-motion';
+import { If, Then, Else } from 'react-if';
+import { Loading } from '~/elements';
+import { useView } from '~/hooks';
 
-import type { GetStaticProps } from 'next';
-import type { Favicon, FaviconComponent } from '~/types';
+import type { NextPage } from 'next';
 
-const Layout = dynamic<Dict>(() => import('~/components').then(i => i.Layout), {
+const LookingGlassForm = dynamic<Dict>(
+  () => import('~/components/looking-glass-form').then(i => i.LookingGlassForm),
+  {
+    loading: Loading,
+  },
+);
+
+const Results = dynamic<Dict>(() => import('~/components/results').then(i => i.Results), {
   loading: Loading,
 });
 
-interface TIndex {
-  favicons: FaviconComponent[];
-}
-
-const Index: React.FC<TIndex> = (props: TIndex) => {
-  const { favicons } = props;
+const Index: NextPage = () => {
+  const view = useView();
   return (
-    <>
-      <Head>
-        {favicons.map((icon, idx) => {
-          const { rel, href, type } = icon;
-          return <link rel={rel} href={href} type={type} key={idx} />;
-        })}
-      </Head>
-      <Meta />
-      <Layout />
-    </>
+    <If condition={view === 'results'}>
+      <Then>
+        <Results />
+      </Then>
+      <Else>
+        <AnimatePresence>
+          <LookingGlassForm />
+        </AnimatePresence>
+      </Else>
+    </If>
   );
-};
-
-export const getStaticProps: GetStaticProps<TIndex> = async () => {
-  const faviconConfig = (process.env._HYPERGLASS_FAVICONS_ as unknown) as Favicon[];
-  const favicons = faviconConfig.map(icon => {
-    const { image_format, dimensions, prefix } = icon;
-    let { rel } = icon;
-    if (rel === null) {
-      rel = '';
-    }
-    const src = `/images/favicons/${prefix}-${dimensions[0]}x${dimensions[1]}.${image_format}`;
-    return { rel, href: src, type: `image/${image_format}` };
-  });
-  return {
-    props: { favicons },
-  };
 };
 
 export default Index;

@@ -3,12 +3,12 @@
 # Standard Library
 # flake8: noqa
 import math
+import typing as t
 import secrets
-from typing import List, Union, Optional
 from datetime import datetime
 
 # Third Party
-from pydantic import BaseModel, StrictInt, StrictStr, StrictFloat, constr, validator
+from pydantic import Field, BaseModel, ConfigDict, field_validator
 
 """Patterns:
 GET /.well-known/looking-glass/v1/ping/2001:DB8::35?protocol=2,1
@@ -22,55 +22,49 @@ GET /.well-known/looking-glass/v1/routers/1
 GET /.well-known/looking-glass/v1/cmd
 """
 
+QueryFormat = t.Literal[r"text/plain", r"application/json"]
+
 
 class _HyperglassQuery(BaseModel):
-    class Config:
-        validate_all = True
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True, validate_default=True)
 
 
 class BaseQuery(_HyperglassQuery):
-    protocol: StrictStr = "1,1"
-    router: StrictStr
-    routerindex: StrictInt
-    random: StrictStr = secrets.token_urlsafe(16)
-    vrf: Optional[StrictStr]
-    runtime: StrictInt = 30
-    query_format: constr(regex=r"(text\/plain|application\/json)") = "text/plain"
+    protocol: str = "1,1"
+    router: str
+    routerindex: int
+    random: str = secrets.token_urlsafe(16)
+    runtime: int = 30
+    query_format: QueryFormat = Field("text/plain", alias="format")
 
-    @validator("runtime")
+    @field_validator("runtime")
     def validate_runtime(cls, value):
         if isinstance(value, float) and math.modf(value)[0] == 0:
             value = math.ceil(value)
         return value
-
-    class Config:
-        fields = {"query_format": "format"}
 
 
 class BaseData(_HyperglassQuery):
-    router: StrictStr
-    performed_at: datetime
-    runtime: Union[StrictFloat, StrictInt]
-    output: List[StrictStr]
-    data_format: StrictStr
+    model_config = ConfigDict(extra="allow")
 
-    @validator("runtime")
+    router: str
+    performed_at: datetime
+    runtime: t.Union[float, int]
+    output: t.List[str]
+    data_format: str = Field(alias="format")
+
+    @field_validator("runtime")
     def validate_runtime(cls, value):
         if isinstance(value, float) and math.modf(value)[0] == 0:
             value = math.ceil(value)
         return value
 
-    class Config:
-        fields = {"data_format": "format"}
-        extra = "allow"
-
 
 class QueryError(_HyperglassQuery):
-    status: constr(regex=r"error")
-    message: StrictStr
+    status: t.Literal["error"]
+    message: str
 
 
 class QueryResponse(_HyperglassQuery):
-    status: constr(regex=r"success|fail")
+    status: t.Literal["success", "fail"]
     data: BaseData

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES5",
-    "module": "esnext",
+    "target": "ESNext",
+    "module": "ESNext",
     "downlevelIteration": true,
     "strict": true,
     "baseUrl": "." /* Base directory to resolve non-absolute module names. */,
@@ -10,6 +10,8 @@
       "~/components/*": ["components/*"],
       "~/context": ["context/index"],
       "~/context/*": ["context/*"],
+      "~/elements": ["elements/index"],
+      "~/elements/*": ["elements/*"],
       "~/hooks": ["hooks/index"],
       "~/hooks/*": ["hooks/*"],
       "~/state": ["state/index"],
@@ -28,15 +30,17 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "incremental": true
   },
   "exclude": ["node_modules", ".next"],
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "types/globals.d.ts",
+    "types/*.d.ts",
     "next.config.js",
-    "nextdev.js"
+    "nextdev.js",
+    "hyperglass.json"
   ]
 }

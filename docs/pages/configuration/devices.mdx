@@ -1,0 +1,135 @@
+import { Callout } from "nextra/components";
+import { SupportedPlatforms } from "~/components/platforms";
+import { DocsButton } from "~/components/docs-button";
+
+## Device Configuration Parameters
+
+Each configured device may have the following parameters:
+
+| Parameter           | Type            | Default Value | Description                                                                                                                                |
+| :------------------ | :-------------- | :------------ | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`              | String          |               | Display name of the device.                                                                                                                |
+| `description`       | String          |               | Description of the device, displayed as a subtle label.                                                                                    |
+| `avatar`            | String          |               | Path to an avatar/logo image for this site. Used when [`web.location_display_mode`](/configuration/config/web-ui.mdx) is set to `gallery`. |
+| `address`           | String          |               | IPv4 address, IPv6 address, or hostname of the device.                                                                                     |
+| `group`             | String          |               | Group name, used to visually group devices in the UI.                                                                                      |
+| `port`              | Number          |               | TCP port on which to connect to the device.                                                                                                |
+| `platform`          | String          |               | Device platform/OS. Must be a [supported platform](/platforms.mdx).                                                                        |
+| `structured_output` | Boolean         | True          | Disable structured output for a device that supports it.                                                                                   |
+| `directives`        | List of Strings |               | Enable referenced directives configured in the [directives config file](/configuration/directives.mdx).                                    |
+| `driver`            | String          | netmiko       | Specify which driver to use for this device. Currently, only `netmiko` is supported.                                                       |
+| `driver_config`     | Mapping         |               | Mapping/dict of options to pass to the connection driver.                                                                                  |
+| `attrs`             | Mapping         |               | Mapping/dict of variables, as referenced in configured directives.                                                                         |
+| `credential`        | Mapping         |               | Mapping/dict of a [credential configuration](/configuration/devices/credentials.mdx).                                                      |
+| `http`              | Mapping         |               | Mapping/dict of [HTTP client options](/configuration/devices/http-device.mdx), if this device is connected via HTTP.                       |
+| `proxy`             | Mapping         |               | Mapping/dict of [SSH proxy config](/configuration/devices/ssh-proxy.mdx) to use for this device's requests.                                |
+
+<Callout type="tip">
+
+hyperglass ships with predefined [directives](/configuration/directives.mdx) (commands) for the following [platforms](platforms.mdx):
+
+<SupportedPlatforms />
+
+All built in directives require that the following `attrs` be defined on each device using the directive:
+
+| Attribute | Value                                                     |
+| :-------- | :-------------------------------------------------------- |
+| `source4` | IPv4 address used to source Ping and Traceroute commands. |
+| `source6` | IPv6 address used to source Ping and Traceroute commands. |
+
+**Example**
+
+```yaml filename="devices.yaml" {5-7} copy
+devices:
+    - name: New York, NY
+      address: 192.0.2.1
+      platform: cisco_ios
+      attrs:
+          source4: 192.0.2.1
+          source6: "2001:db8::1"
+```
+
+</Callout>
+
+<Callout type="warning">
+    If you do not utilize IPv6 in your network, you'll need to create your own directive that only
+    has IPv4 commands.
+</Callout>
+
+## Examples
+
+### Simple
+
+```yaml filename="devices.yaml" copy
+devices:
+    - name: New York, NY
+      address: 192.0.2.1
+      platform: cisco_ios
+      credential:
+          username: you
+          password: your password
+    - name: San Francisco, CA
+      address: 192.0.2.2
+      platform: juniper
+      credential:
+          username: you
+          password: your password
+```
+
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/directives" /> With Directives
+</h3>
+
+In this example, an additional directive `cisco-show-lldp-neighbors` is added to the built-in directives.
+
+```yaml filename="devices.yaml" copy {8-9}
+devices:
+    - name: New York, NY
+      address: 192.0.2.1
+      platform: cisco_ios
+      credential:
+          username: you
+          password: your password
+      directives:
+          - cisco-show-lldp-neighbors
+```
+
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/directives" /> Disable Built-in Directives
+</h3>
+
+In this example, _only_ the `cisco-show-lldp-neighbors` directive will be available. Built-in directives are disabled.
+
+```yaml filename="devices.yaml" copy {8-10}
+devices:
+    - name: New York, NY
+      address: 192.0.2.1
+      platform: cisco_ios
+      credential:
+          username: you
+          password: your password
+      directives:
+          - builtin: false
+          - cisco-show-lldp-neighbors
+```
+
+<h3 className="_font-semibold _tracking-tight _text-slate-900 dark:_text-slate-100 _mt-8 _text-2xl">
+    {" "}
+    <DocsButton href="/configuration/directives" /> Enable Specifc Built-in Directives
+</h3>
+
+In this example, only specified built-in directives are made available.
+
+```yaml filename="devices.yaml" copy {8-9}
+devices:
+    - name: New York, NY
+      address: 192.0.2.1
+      platform: cisco_ios
+      credential:
+          username: you
+          password: your password
+      directives:
+          - builtin: [bgp_route, traceroute]
+```

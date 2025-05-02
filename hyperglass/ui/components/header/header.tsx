@@ -1,43 +1,34 @@
-import { useRef } from 'react';
 import { Flex, ScaleFade } from '@chakra-ui/react';
-import { AnimatedDiv } from '~/components';
-import { useBreakpointValue } from '~/context';
-import { useBooleanValue, useLGState } from '~/hooks';
+import { motionChakra } from '~/elements';
+import { useBooleanValue, useBreakpointValue, useFormInteractive } from '~/hooks';
 import { Title } from './title';
 
-import type { THeader } from './types';
+const Wrapper = motionChakra('header', {
+  baseStyle: { display: 'flex', px: 4, pt: 6, minH: 16, w: 'full', flex: '0 1 auto' },
+});
 
-export const Header: React.FC<THeader> = (props: THeader) => {
-  const { resetForm, ...rest } = props;
-
-  const { isSubmitting } = useLGState();
-
-  const titleRef = useRef({} as HTMLDivElement);
+export const Header = (): JSX.Element => {
+  const formInteractive = useFormInteractive();
 
   const titleWidth = useBooleanValue(
-    isSubmitting.value,
+    formInteractive,
     { base: '75%', lg: '50%' },
     { base: '75%', lg: '75%' },
   );
 
-  const justify = useBreakpointValue({ base: 'flex-start', lg: 'center' });
-
   return (
-    <Flex px={4} pt={6} minH={16} zIndex={4} as="header" width="full" flex="0 1 auto" {...rest}>
+    <Wrapper layout="position">
       <ScaleFade in initialScale={0.5} style={{ width: '100%' }}>
-        <AnimatedDiv
-          layout
+        <Flex
           height="100%"
-          display="flex"
-          ref={titleRef}
           maxW={titleWidth}
           // This is here for the logo
-          justifyContent={justify}
-          mx={{ base: isSubmitting.value ? 'auto' : 0, lg: 'auto' }}
+          justifyContent="center"
+          mx="auto"
         >
           <Title />
-        </AnimatedDiv>
+        </Flex>
       </ScaleFade>
-    </Flex>
+    </Wrapper>
   );
 };

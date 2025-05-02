@@ -1,14 +1,22 @@
-import type { MotionProps } from 'framer-motion';
-
-declare global {
+export declare global {
   type Dict<T = string> = Record<string, T>;
+
   type ValueOf<T> = T[keyof T];
 
-  type TRPKIStates = 0 | 1 | 2 | 3;
+  type Nullable<T> = T | null;
 
-  type TResponseLevel = 'success' | 'warning' | 'error' | 'danger';
+  type Get<T, K extends keyof T> = T[K];
 
-  interface IRoute {
+  type Swap<T, K extends keyof T, V> = Record<K, V> & Omit<T, K>;
+
+  type ArrayElement<ArrayType extends readonly unknown[]> =
+    ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+
+  type RPKIState = 0 | 1 | 2 | 3;
+
+  type ResponseLevel = 'success' | 'warning' | 'error' | 'danger';
+
+  type Route = {
     prefix: string;
     active: boolean;
     age: number;
@@ -21,46 +29,49 @@ declare global {
     source_as: number;
     source_rid: string;
     peer_rid: string;
-    rpki_state: TRPKIStates;
-  }
-
-  type TRoute = {
-    prefix: string;
-    active: boolean;
-    age: number;
-    weight: number;
-    med: number;
-    local_preference: number;
-    as_path: number[];
-    communities: string[];
-    next_hop: string;
-    source_as: number;
-    source_rid: string;
-    peer_rid: string;
-    rpki_state: TRPKIStates;
+    rpki_state: RPKIState;
   };
-  type TRouteField = { [k in keyof TRoute]: ValueOf<TRoute> };
 
-  type TStructuredResponse = {
+  type RouteField = { [K in keyof Route]: Route[K] };
+
+  type StructuredResponse = {
     vrf: string;
     count: number;
-    routes: TRoute[];
+    routes: Route[];
     winning_weight: 'high' | 'low';
   };
-  type TQueryResponse = {
+
+  type QueryResponse = {
     random: string;
     cached: boolean;
     runtime: number;
-    level: TResponseLevel;
+    level: ResponseLevel;
     timestamp: string;
     keywords: string[];
-    output: string | TStructuredResponse;
+    output: string | StructuredResponse;
     format: 'text/plain' | 'application/json';
   };
-  type ReactRef<T = HTMLElement> = MutableRefObject<T>;
 
-  type Animated<T> = Omit<T, keyof MotionProps> &
-    Omit<MotionProps, keyof T> & { transition?: MotionProps['transition'] };
+  type RequiredProps<T> = { [P in keyof T]-?: Exclude<T[P], undefined> };
 
-  type MeronexIcon = import('@meronex/icons').IconBaseProps;
+  declare namespace NodeJS {
+    export interface ProcessEnv {
+      hyperglass: { favicons: import('./config').Favicon[]; version: string };
+      buildId: string;
+      UI_PARAMS: import('./config').Config;
+    }
+  }
+}
+
+declare module 'hyperglass.json' {
+  type Config = import('./config').Config;
+  export default Config;
+}
+
+declare module 'react' {
+  // Enable generic typing with forwardRef.
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  function forwardRef<T, P = {}>(
+    render: (props: P, ref: React.Ref<T>) => React.ReactElement | null,
+  ): (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 }

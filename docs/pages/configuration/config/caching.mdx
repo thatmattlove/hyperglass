@@ -1,0 +1,16 @@
+## Cache
+
+hyperglass automatically caches responses to reduce the number of times devices are queried for the same information.
+
+| Parameter         | Type    | Default Value | Description                                                                     |
+| :---------------- | :------ | :------------ | :------------------------------------------------------------------------------ |
+| `cache.timeout`   | Number  | 120           | Number of seconds for which to cache device responses.                          |
+| `cache.show_text` | Boolean | True          | If true, an indication that a user is viewing cached information will be shown. |
+
+### Example with Defaults
+
+```yaml filename="config.yaml"
+cache:
+    timeout: 120
+    show_text: true
+```

@@ -1,15 +1,18 @@
 """Data Models for Parsing Arista JSON Response."""
 
 # Standard Library
-from typing import Dict, List, Optional
+import typing as t
 from datetime import datetime
+
+# Third Party
+from pydantic import ConfigDict
 
 # Project
 from hyperglass.log import log
+from hyperglass.models.data import BGPRouteTable
 
 # Local
 from ..main import HyperglassModel
-from .serialized import ParsedRoutes
 
 RPKI_STATE_MAP = {
     "invalid": 0,
@@ -29,16 +32,14 @@ def _alias_generator(field: str) -> str:
 class _AristaBase(HyperglassModel):
     """Base Model for Arista validation."""
 
-    class Config:
-        extra = "ignore"
-        alias_generator = _alias_generator
+    model_config = ConfigDict(extra="ignore", alias_generator=_alias_generator)
 
 
 class AristaAsPathEntry(_AristaBase):
     """Validation model for Arista asPathEntry."""
 
     as_path_type: str = "External"
-    as_path: Optional[str] = ""
+    as_path: t.Optional[str] = ""
 
 
 class AristaPeerEntry(_AristaBase):
@@ -55,25 +56,25 @@ class AristaRouteType(_AristaBase):
     suppressed: bool
     valid: bool
     active: bool
-    origin_validity: Optional[str] = "notVerified"
+    origin_validity: t.Optional[str] = "notVerified"
 
 
 class AristaRouteDetail(_AristaBase):
     """Validation for Arista routeDetail."""
 
     origin: str
-    label_stack: List = []
-    ext_community_list: List[str] = []
-    ext_community_list_raw: List[str] = []
-    community_list: List[str] = []
-    large_community_list: List[str] = []
+    label_stack: t.List = []
+    ext_community_list: t.List[str] = []
+    ext_community_list_raw: t.List[str] = []
+    community_list: t.List[str] = []
+    large_community_list: t.List[str] = []
 
 
 class AristaRoutePath(_AristaBase):
     """Validation model for Arista bgpRoutePaths."""
 
     as_path_entry: AristaAsPathEntry
-    med: int
+    med: int = 0
     local_preference: int
     weight: int
     peer_entry: AristaPeerEntry
@@ -81,24 +82,24 @@ class AristaRoutePath(_AristaBase):
     timestamp: int = int(datetime.utcnow().timestamp())
     next_hop: str
     route_type: AristaRouteType
-    route_detail: Optional[AristaRouteDetail]
+    route_detail: t.Optional[AristaRouteDetail]
 
 
 class AristaRouteEntry(_AristaBase):
     """Validation model for Arista bgpRouteEntries."""
 
     total_paths: int = 0
-    bgp_advertised_peer_groups: Dict = {}
+    bgp_advertised_peer_groups: t.Dict = {}
     mask_length: int
-    bgp_route_paths: List[AristaRoutePath] = []
+    bgp_route_paths: t.List[AristaRoutePath] = []
 
 
-class AristaRoute(_AristaBase):
+class AristaBGPTable(_AristaBase):
     """Validation model for Arista bgpRouteEntries data."""
 
     router_id: str
     vrf: str
-    bgp_route_entries: Dict[str, AristaRouteEntry]
+    bgp_route_entries: t.Dict[str, AristaRouteEntry]
     # The raw value is really a string, but `int` will convert it.
     asn: int
 
@@ -109,21 +110,19 @@ class AristaRoute(_AristaBase):
         return now_timestamp - timestamp
 
     @staticmethod
-    def _get_as_path(as_path: str) -> List[str]:
+    def _get_as_path(as_path: str) -> t.List[str]:
         if as_path == "":
             return []
         return [int(p) for p in as_path.split() if p.isdecimal()]
 
-    def serialize(self):
+    def bgp_table(self: "AristaBGPTable") -> "BGPRouteTable":
         """Convert the Arista-formatted fields to standard parsed data model."""
         routes = []
         count = 0
         for prefix, entries in self.bgp_route_entries.items():
-
             count += entries.total_paths
 
             for route in entries.bgp_route_paths:
-
                 as_path = self._get_as_path(route.as_path_entry.as_path)
                 rpki_state = RPKI_STATE_MAP.get(route.route_type.origin_validity, 3)
 
@@ -157,9 +156,12 @@ class AristaRoute(_AristaBase):
                     }
                 )
 
-        serialized = ParsedRoutes(
-            vrf=self.vrf, count=count, routes=routes, winning_weight=WINNING_WEIGHT,
+        serialized = BGPRouteTable(
+            vrf=self.vrf,
+            count=count,
+            routes=routes,
+            winning_weight=WINNING_WEIGHT,
         )
 
-        log.debug("Serialized Arista response: {}", serialized)
+        log.bind(platform="arista_eos", response=repr(serialized)).debug("Serialized response")
         return serialized

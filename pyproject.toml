@@ -1,84 +1,161 @@
-[build-system]
-build-backend = "poetry.masonry.api"
-requires = ["poetry>=0.12"]
-
-[tool.poetry]
-authors = ["Matt Love <matt@hyperglass.dev>"]
-classifiers = [
-  "Development Status :: 5 - Production/Stable",
-  "Intended Audience :: Information Technology",
-  "Operating System :: POSIX :: Linux",
-  "Programming Language :: JavaScript",
-  "Programming Language :: Python :: 3.6",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
-  "Topic :: Internet",
-  "Topic :: System :: Networking",
-]
-description = "hyperglass is the modern network looking glass that tries to make the internet better."
-documentation = "https://hyperglass.dev"
-homepage = "https://hyperglass.dev"
-keywords = ["looking glass", "network automation", "isp", "bgp", "routing"]
-license = "BSD-3-Clause-Clear"
+[project]
 name = "hyperglass"
+version = "2.0.4"
+description = "hyperglass is the modern network looking glass that tries to make the internet better."
+authors = [
+    { name = "thatmattlove", email = "matt@hyperglass.dev" }
+]
+dependencies = [
+    "Pillow==10.2.0",
+    "PyJWT==2.6.0",
+    "PyYAML>=6.0",
+    "aiofiles>=23.2.1",
+    "distro==1.8.0",
+    "favicons==0.2.2",
+    "httpx==0.24.0",
+    "loguru>=0.7.2",
+    "netmiko==4.1.2",
+    "paramiko==3.4.0",
+    "psutil==5.9.4",
+    "py-cpuinfo==9.0.0",
+    "pydantic>=2.6.3",
+    "redis==4.5.4",
+    "rich>=13.7.0",
+    "typer>=0.9.0",
+    "uvicorn==0.21.1",
+    "uvloop>=0.17.0",
+    "xmltodict==0.13.0",
+    "toml>=0.10.2",
+    "pydantic-settings>=2.2.1",
+    "pydantic-extra-types>=2.6.0",
+    "litestar[standard,brotli]>=2.7.1",
+]
 readme = "README.md"
-repository = "https://github.com/thatmattlove/hyperglass"
-version = "1.0.4"
+requires-python = ">= 3.11"
 
-[tool.poetry.scripts]
-hyperglass = "hyperglass.console:CLI"
+[project.scripts]
+hyperglass = "hyperglass.console:run"
 
-[tool.poetry.dependencies]
-Pillow = "^7.2"
-PyJWT = "^2.0.1"
-PyYAML = "^5.4.1"
-aiofiles = "^0.6.0"
-aredis = "^1.1.8"
-click = "^7.1.2"
-cryptography = "3.0.0"
-distro = "^1.5.0"
-fastapi = "^0.63.0"
-favicons = "^0.0.9"
-gunicorn = "^20.1.0"
-httpx = "^0.17.1"
-inquirer = "^2.6.3"
-loguru = "^0.5.3"
-netmiko = "^3.4.0"
-paramiko = "^2.7.2"
-psutil = "^5.7.2"
-py-cpuinfo = "^7.0.0"
-pydantic = "^1.8.1"
-python = ">=3.6.1,<4.0"
-redis = "^3.5.3"
-scrapli = {extras = ["asyncssh"], version = "^2021.1.30"}
-uvicorn = {extras = ["standard"], version = "^0.13.4"}
-uvloop = "^0.14.0"
-xmltodict = "^0.12.0"
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry.dev-dependencies]
-bandit = "^1.6.2"
-black = "^19.10b0"
-flake8 = "^3.8"
-flake8-bandit = "^2.1.2"
-flake8-black = "^0.1.1"
-flake8-breakpoint = "^1.1.0"
-flake8-bugbear = "^20.1.0"
-flake8-builtins = "^1.4.2"
-flake8-comprehensions = "^3.1.4"
-flake8-deprecated = "^1.3"
-flake8-docstrings = "^1.5.0"
-flake8-eradicate = "^0.2.4"
-flake8-if-expr = "^1.0.0"
-flake8-isort = "^4.0.0"
-flake8-pie = "^0.4.2"
-flake8-plugin-utils = "^1.3.1"
-flake8-polyfill = "^1.0.2"
-flake8-print = "^3.1.4"
-isort = "^5.5.3"
-mccabe = "^0.6.1"
-pep8-naming = "^0.9.1"
-pre-commit = "^1.21.0"
-stackprinter = "^0.2.3"
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "bandit>=1.7.7",
+    "black>=24.2.0",
+    "isort>=5.13.2",
+    "pep8-naming>=0.13.3",
+    "pre-commit>=3.6.1",
+    "pytest>=8.0.1",
+    "pytest-asyncio>=0.23.5",
+    "pytest-dependency>=0.6.0",
+    "ruff>=0.2.1",
+    "stackprinter>=0.2.11",
+    "taskipy>=1.12.2",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["hyperglass"]
 
 [tool.black]
-line-length = 88
+line-length = 100
+
+[tool.isort]
+balanced_wrapping = true
+force_single_line = false
+import_heading_firstparty = "Project"
+import_heading_localfolder = "Local"
+import_heading_stdlib = "Standard Library"
+import_heading_thirdparty = "Third Party"
+include_trailing_comma = true
+indent = '    '
+known_third_party = ["litestar", "inquirer"]
+length_sort = true
+line_length = 100
+multi_line_output = 3
+profile = "black"
+skip_glob = "hyperglass/api/examples/*.py"
+
+[tool.taskipy.tasks]
+check = {cmd = "task lint && task ui-lint", help = "Run all lint checks"}
+docs-platforms = {cmd = "python3 -c 'from hyperglass.util.docs import create_platform_list;print(create_platform_list())'"}
+format = {cmd = "black hyperglass", help = "Run Black"}
+lint = {cmd = "ruff hyperglass", help = "Run Ruff Linter"}
+sort = {cmd = "isort hyperglass", help = "Run iSort"}
+start = {cmd = "python3 -m hyperglass.main", help = "Start hyperglass"}
+start-asgi = {cmd = "uvicorn hyperglass.api:app", help = "Start hyperglass via Uvicorn"}
+test = {cmd = "pytest hyperglass --ignore hyperglass/plugins/external", help = "Run hyperglass tests"}
+ui-build = {cmd = "python3 -m hyperglass.console build-ui", help = "Run a UI Build"}
+ui-dev = {cmd = "pnpm run --dir ./hyperglass/ui/ dev", help = "Start the Next.JS dev server"}
+ui-format = {cmd = "pnpm run --dir ./hyperglass/ui/ format", help = "Run Prettier"}
+ui-lint = {cmd = "pnpm run --dir ./hyperglass/ui/ lint", help = "Run ESLint"}
+ui-typecheck = {cmd = "pnpm run --dir ./hyperglass/ui/ typecheck", help = "Run TypeScript Check"}
+upgrade = {cmd = "python3 version.py", help = "Upgrade hyperglass version"}
+pnpm = {cmd = "pnpm run --dir ./hyperglass/ui/", help = "Run a yarn command from the UI directory"}
+
+[tool.ruff]
+exclude = [
+  ".git",
+  "__pycache__",
+  "hyperglass/ui",
+  "hyperglass/plugins/external",
+  "hyperglass/api/examples/*.py",
+  "hyperglass/compat/_sshtunnel.py",
+]
+ignore = [
+  # "W503",
+  "RET504",
+  "D202", # "S403",
+  # "S301",
+  # "S404",
+  "E731",
+  "D203", # Blank line before docstring.
+  "D213", # Multiline docstring summary on second line.
+  "D107", # Don't require docstrings for __init__ functions.
+  "D402",
+  "D406",
+  "D407",
+  "B008",
+  "I001",
+  "D418", # No docstring on overloaded functions.
+  "N818", # Error suffix on custom exceptions.
+  "RET501", # Explicitly return None
+  "B905", # zip without `strict`
+  "W293", # blank line contains whitespace
+]
+line-length = 100
+select = ["B", "C", "D", "E", "F", "I", "N", "S", "RET", "W"]
+
+[tool.ruff.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"hyperglass/main.py" = ["E402"]
+# Disable classmethod warning for validator decorat
+"hyperglass/configuration/models/*.py" = ["N805"]
+"hyperglass/defaults/*/*.py" = ["E501"]
+"hyperglass/models/*.py" = ["N805", "E501"]
+"hyperglass/models/api/*.py" = ["N805", "E501"]
+"hyperglass/models/commands/*.py" = ["N805", "E5"]
+"hyperglass/parsing/models/*.py" = ["N805"]
+# Disable unused import warning for modules
+"hyperglass/*/__init__.py" = ["F401"]
+"hyperglass/models/*/__init__.py" = ["F401"]
+# Disable assertion and docstring checks on tests.
+"hyperglass/**/test_*.py" = ["S101", "D103", "D100", "D104"]
+"hyperglass/**/tests/*.py" = ["S101", "D103", "D100", "D104"]
+"hyperglass/**/tests/__init__.py" = ["D103", "D100", "D104"]
+"hyperglass/state/hooks.py" = ["F811"]
+# Ignore whitespace in docstrings
+"hyperglass/cli/static.py" = []
+# Ignore docstring standards
+"hyperglass/cli/*.py" = ["B904"]
+"hyperglass/cli/main.py" = ["D400", "D403", "D415"]

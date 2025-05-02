@@ -1,0 +1,28 @@
+---
+description: Platforms supported by hyperglass
+---
+
+import { Callout } from "nextra/components";
+import { PlatformTable } from "~/components/platforms";
+
+hyperglass uses [Netmiko](https://github.com/ktbyers/netmiko) to interact with devices via SSH/telnet. [All platforms supported by Netmiko](https://github.com/ktbyers/netmiko/blob/develop/PLATFORMS.md) are supported by hyperglass.
+
+## Netmiko Platforms
+
+<Callout type="info">
+    Just because Netmiko supports a given platform doesn't mean it will automatically work with
+    hyperglass. hyperglass has a limited number of built in directives (listed below). Any platforms
+    other than the ones listed below will require you to [add a custom
+    directive](configuration/examples/add-your-own-command.mdx) for each command you wish to make
+    available.
+</Callout>
+
+<br />
+
+<PlatformTable />
+
+## Other Platforms
+
+| Platform          | Key    |                          Natively Supported                          |
+| :---------------- | :----- | :------------------------------------------------------------------: |
+| Any HTTP Endpoint | `http` | [See HTTP Device Docs](configuration/devices.mdx#http-configuration) |

@@ -1,20 +1,20 @@
 """Data Models for Parsing FRRouting JSON Response."""
 
 # Standard Library
-from typing import List
+import typing as t
 from datetime import datetime
 
 # Third Party
-from pydantic import StrictInt, StrictStr, StrictBool, constr, root_validator
+from pydantic import ConfigDict, model_validator
 
 # Project
 from hyperglass.log import log
+from hyperglass.models.data import BGPRouteTable
 
 # Local
 from ..main import HyperglassModel
-from .serialized import ParsedRoutes
 
-FRRPeerType = constr(regex=r"(internal|external)")
+FRRPeerType = t.Literal["internal", "external"]
 
 
 def _alias_generator(field):
@@ -23,46 +23,44 @@ def _alias_generator(field):
 
 
 class _FRRBase(HyperglassModel):
-    class Config:
-        alias_generator = _alias_generator
-        extra = "ignore"
+    model_config = ConfigDict(alias_generator=_alias_generator, extra="ignore")
 
 
 class FRRNextHop(_FRRBase):
     """FRR Next Hop Model."""
 
-    ip: StrictStr
-    afi: StrictStr
-    metric: StrictInt
-    accessible: StrictBool
-    used: StrictBool
+    ip: str
+    afi: str
+    metric: int
+    accessible: bool
+    used: bool
 
 
 class FRRPeer(_FRRBase):
     """FRR Peer Model."""
 
-    peer_id: StrictStr
-    router_id: StrictStr
+    peer_id: str
+    router_id: str
     type: FRRPeerType
 
 
 class FRRPath(_FRRBase):
     """FRR Path Model."""
 
-    aspath: List[StrictInt]
-    aggregator_as: StrictInt
-    aggregator_id: StrictStr
-    med: StrictInt = 0
-    localpref: StrictInt
-    weight: StrictInt
-    valid: StrictBool
-    last_update: StrictInt
-    bestpath: StrictBool
-    community: List[StrictStr]
-    nexthops: List[FRRNextHop]
+    aspath: t.List[int]
+    aggregator_as: int
+    aggregator_id: str
+    med: int = 0
+    localpref: int
+    weight: int
+    valid: bool
+    last_update: int
+    bestpath: bool
+    community: t.List[str]
+    nexthops: t.List[FRRNextHop]
     peer: FRRPeer
 
-    @root_validator(pre=True)
+    @model_validator(pre=True)
     def validate_path(cls, values):
         """Extract meaningful data from FRR response."""
         new = values.copy()
@@ -77,8 +75,8 @@ class FRRPath(_FRRBase):
 class FRRRoute(_FRRBase):
     """FRR Route Model."""
 
-    prefix: StrictStr
-    paths: List[FRRPath] = []
+    prefix: str
+    paths: t.List[FRRPath] = []
 
     def serialize(self):
         """Convert the FRR-specific fields to standard parsed data model."""
@@ -110,9 +108,12 @@ class FRRRoute(_FRRBase):
                 }
             )
 
-        serialized = ParsedRoutes(
-            vrf=vrf, count=len(routes), routes=routes, winning_weight="high",
+        serialized = BGPRouteTable(
+            vrf=vrf,
+            count=len(routes),
+            routes=routes,
+            winning_weight="high",
         )
 
-        log.info("Serialized FRR response: {}", serialized)
+        log.bind(platform="frr", response=repr(serialized)).debug("Serialized response")
         return serialized

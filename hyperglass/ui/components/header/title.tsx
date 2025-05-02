@@ -1,27 +1,33 @@
-import { Flex, Button, VStack } from '@chakra-ui/react';
+import { Button, Flex, VStack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { isSafari } from 'react-device-detect';
-import { If } from '~/components';
-import { useConfig, useMobile } from '~/context';
-import { useBooleanValue, useLGState, useLGMethods } from '~/hooks';
-import { SubtitleOnly } from './subtitleOnly';
-import { TitleOnly } from './titleOnly';
+import { Case, Switch } from 'react-if';
+import { useConfig } from '~/context';
+import { useFormInteractive, useFormState, useMobile } from '~/hooks';
 import { Logo } from './logo';
+import { SubtitleOnly } from './subtitle-only';
+import { TitleOnly } from './title-only';
 
-import type { TTitle, TTitleWrapper, TDWrapper, TMWrapper } from './types';
+import type { FlexProps, StackProps } from '@chakra-ui/react';
+import type { MotionProps } from 'framer-motion';
+
+type DWrapperProps = Omit<StackProps, 'transition'> & MotionProps;
+type MWrapperProps = Omit<StackProps, 'transition'> & MotionProps;
+type WrapperProps = Partial<MotionProps & Omit<StackProps, 'transition'>>;
 
 const AnimatedVStack = motion(VStack);
+const AnimatedFlex = motion(Flex);
 
 /**
  * Title wrapper for mobile devices, breakpoints sm & md.
  */
-const MWrapper: React.FC<TMWrapper> = (props: TMWrapper) => {
-  const { isSubmitting } = useLGState();
+const MWrapper = (props: MWrapperProps): JSX.Element => {
+  const formInteractive = useFormInteractive();
   return (
     <AnimatedVStack
       layout
       spacing={1}
-      alignItems={isSubmitting.value ? 'center' : 'flex-start'}
+      alignItems={formInteractive ? 'center' : 'flex-start'}
       {...props}
     />
   );
@@ -30,16 +36,17 @@ const MWrapper: React.FC<TMWrapper> = (props: TMWrapper) => {
 /**
  * Title wrapper for desktop devices, breakpoints lg & xl.
  */
-const DWrapper: React.FC<TDWrapper> = (props: TDWrapper) => {
-  const { isSubmitting } = useLGState();
+const DWrapper = (props: DWrapperProps): JSX.Element => {
+  const formInteractive = useFormInteractive();
   return (
     <AnimatedVStack
       spacing={1}
       initial="main"
       alignItems="center"
-      animate={isSubmitting.value ? 'submitting' : 'main'}
+      animate={formInteractive}
       transition={{ damping: 15, type: 'spring', stiffness: 100 }}
-      variants={{ submitting: { scale: 0.5 }, main: { scale: 1 } }}
+      variants={{ results: { scale: 0.5 }, form: { scale: 1 } }}
+      maxWidth="75%"
       {...props}
     />
   );
@@ -49,11 +56,15 @@ const DWrapper: React.FC<TDWrapper> = (props: TDWrapper) => {
  * Universal wrapper for title sub-components, which will be different depending on the
  * `title_mode` configuration variable.
  */
-const TitleWrapper: React.FC<TDWrapper | TMWrapper> = (props: TDWrapper | TMWrapper) => {
+const TitleWrapper = (props: DWrapperProps | MWrapperProps): JSX.Element => {
   const isMobile = useMobile();
   return (
     <>
-      {isMobile ? <MWrapper {...(props as TMWrapper)} /> : <DWrapper {...(props as TDWrapper)} />}
+      {isMobile ? (
+        <MWrapper {...(props as MWrapperProps)} />
+      ) : (
+        <DWrapper {...(props as DWrapperProps)} />
+      )}
     </>
   );
 };
@@ -61,7 +72,7 @@ const TitleWrapper: React.FC<TDWrapper | TMWrapper> = (props: TDWrapper | TMWrap
 /**
  * Title sub-component if `title_mode` is set to `text_only`.
  */
-const TextOnly: React.FC<TTitleWrapper> = (props: TTitleWrapper) => {
+const TextOnly = (props: WrapperProps): JSX.Element => {
   return (
     <TitleWrapper {...props}>
       <TitleOnly />
@@ -73,8 +84,8 @@ const TextOnly: React.FC<TTitleWrapper> = (props: TTitleWrapper) => {
 /**
  * Title sub-component if `title_mode` is set to `logo_only`. Renders only the logo.
  */
-const LogoOnly: React.FC = () => (
-  <TitleWrapper>
+const LogoOnly = (props: WrapperProps): JSX.Element => (
+  <TitleWrapper {...props}>
     <Logo />
   </TitleWrapper>
 );
@@ -83,8 +94,8 @@ const LogoOnly: React.FC = () => (
  * Title sub-component if `title_mode` is set to `logo_subtitle`. Renders the logo with the
  * subtitle underneath.
  */
-const LogoSubtitle: React.FC = () => (
-  <TitleWrapper>
+const LogoSubtitle = (props: WrapperProps): JSX.Element => (
+  <TitleWrapper {...props}>
     <Logo />
     <SubtitleOnly />
   </TitleWrapper>
@@ -93,8 +104,8 @@ const LogoSubtitle: React.FC = () => (
 /**
  * Title sub-component if `title_mode` is set to `all`. Renders the logo, title, and subtitle.
  */
-const All: React.FC = () => (
-  <TitleWrapper>
+const All = (props: WrapperProps): JSX.Element => (
+  <TitleWrapper {...props}>
     <Logo />
     <TextOnly mt={2} />
   </TitleWrapper>
@@ -103,27 +114,20 @@ const All: React.FC = () => (
 /**
  * Title component which renders sub-components based on the `title_mode` configuration variable.
  */
-export const Title: React.FC<TTitle> = (props: TTitle) => {
+export const Title = (props: FlexProps): JSX.Element => {
   const { fontSize, ...rest } = props;
   const { web } = useConfig();
-  const titleMode = web.text.title_mode;
+  const { titleMode } = web.text;
 
-  const { isSubmitting } = useLGState();
-  const { resetForm } = useLGMethods();
-
-  const titleHeight = useBooleanValue(isSubmitting.value, undefined, { md: '20vh' });
-
-  function handleClick(): void {
-    isSubmitting.set(false);
-    resetForm();
-  }
+  const reset = useFormState(s => s.reset);
+  const formInteractive = useFormInteractive();
 
   return (
-    <Flex
+    <AnimatedFlex
       px={0}
       flexWrap="wrap"
       flexDir="column"
-      minH={titleHeight}
+      animate={{ height: formInteractive ? undefined : '20vh' }}
       justifyContent="center"
       /* flexBasis
         This is a fix for Safari specifically. LMGTFY: Safari flex-basis width. Nutshell: Safari
@@ -132,7 +136,7 @@ export const Title: React.FC<TTitle> = (props: TTitle) => {
         div up to the parent's max-width. The fix is to hard-code a flex-basis width.
        */
       flexBasis={{ base: '100%', lg: isSafari ? '33%' : '100%' }}
-      mt={[null, isSubmitting.value ? null : 'auto']}
+      mt={{ md: formInteractive ? undefined : 'auto' }}
       {...rest}
     >
       <Button
@@ -140,23 +144,25 @@ export const Title: React.FC<TTitle> = (props: TTitle) => {
         variant="link"
         flexWrap="wrap"
         flexDir="column"
-        onClick={handleClick}
+        onClick={async () => await reset()}
         _focus={{ boxShadow: 'none' }}
         _hover={{ textDecoration: 'none' }}
       >
-        <If c={titleMode === 'text_only'}>
-          <TextOnly />
-        </If>
-        <If c={titleMode === 'logo_only'}>
-          <LogoOnly />
-        </If>
-        <If c={titleMode === 'logo_subtitle'}>
-          <LogoSubtitle />
-        </If>
-        <If c={titleMode === 'all'}>
-          <All />
-        </If>
+        <Switch>
+          <Case condition={titleMode === 'text_only'}>
+            <TextOnly width={web.logo.width} />
+          </Case>
+          <Case condition={titleMode === 'logo_only'}>
+            <LogoOnly width={web.logo.width} />
+          </Case>
+          <Case condition={titleMode === 'logo_subtitle'}>
+            <LogoSubtitle width={web.logo.width} />
+          </Case>
+          <Case condition={titleMode === 'all'}>
+            <All width={web.logo.width} />
+          </Case>
+        </Switch>
       </Button>
-    </Flex>
+    </AnimatedFlex>
   );
 };

@@ -4,22 +4,24 @@
 from datetime import datetime
 
 __name__ = "hyperglass"
-__version__ = "1.0.4"
+__version__ = "2.0.4"
 __author__ = "Matt Love"
 __copyright__ = f"Copyright {datetime.now().year} Matthew Love"
 __license__ = "BSD 3-Clause Clear License"
 
 METADATA = (__name__, __version__, __author__, __copyright__, __license__)
 
-MIN_PYTHON_VERSION = (3, 6)
+MIN_PYTHON_VERSION = (3, 8)
 
-MIN_NODE_VERSION = 14
+MIN_NODE_VERSION = 18
 
 TARGET_FORMAT_SPACE = ("huawei", "huawei_vrpv8")
 
 TARGET_JUNIPER_ASPATH = ("juniper", "juniper_junos")
 
 SUPPORTED_STRUCTURED_OUTPUT = ("juniper", "arista_eos")
+
+CONFIG_EXTENSIONS = ("py", "yaml", "yml", "json", "toml")
 
 STATUS_CODE_MAP = {"warning": 400, "error": 400, "danger": 500}
 
@@ -74,16 +76,14 @@ SCRAPE_HELPERS = {
 }
 
 DRIVER_MAP = {
-    # TODO: Troubleshoot Arista with Scrapli, broken after upgrading to 2021.1.30.
-    # "arista_eos": "scrapli", # noqa: E800
-    "bird": "scrapli",
-    "cisco_ios": "scrapli",
-    "cisco_xe": "scrapli",
-    "cisco_xr": "scrapli",
-    "cisco_nxos": "scrapli",
-    "juniper": "scrapli",
-    "tnsr": "scrapli",
-    "frr": "scrapli",
-    "frr_legacy": "hyperglass_agent",
-    "bird_legacy": "hyperglass_agent",
+    "bird": "netmiko",
+    "frr": "netmiko",
+    "openbgpd": "netmiko",
+    "http": "hyperglass_http_client",
 }
+
+LINUX_PLATFORMS = (
+    "frr",
+    "bird",
+    "openbgpd",
+)

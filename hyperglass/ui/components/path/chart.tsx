@@ -1,30 +1,59 @@
-import { Box, Flex, SkeletonText, Badge, VStack } from '@chakra-ui/react';
-import ReactFlow from 'react-flow-renderer';
-import { Background, ReactFlowProvider } from 'react-flow-renderer';
-import { Handle, Position } from 'react-flow-renderer';
-import { useConfig, useColorValue, useColorToken } from '~/context';
-import { useASNDetail } from '~/hooks';
+import { Badge, Box, Flex, SkeletonText, VStack } from '@chakra-ui/react';
+import { useMemo } from 'react';
+import ReactFlow, {
+  Background,
+  ReactFlowProvider,
+  Handle,
+  Position,
+  isNode,
+  isEdge,
+} from 'reactflow';
+import { useConfig } from '~/context';
+import { useASNDetail, useColorToken, useColorValue } from '~/hooks';
 import { Controls } from './controls';
-import { useElements } from './useElements';
+import { useElements } from './use-elements';
 
-import type { TChart, TNode, TNodeData } from './types';
+import type { NodeProps as ReactFlowNodeProps } from 'reactflow';
 
-export const Chart: React.FC<TChart> = (props: TChart) => {
+interface ChartProps {
+  data: StructuredResponse;
+}
+
+interface NodeProps<D extends unknown> extends Omit<ReactFlowNodeProps, 'data'> {
+  data: D;
+}
+
+export interface NodeData {
+  asn: string;
+  name: string;
+  hasChildren: boolean;
+  hasParents?: boolean;
+}
+
+export const Chart = (props: ChartProps): JSX.Element => {
   const { data } = props;
-  const { primary_asn, org_name } = useConfig();
+  const { primaryAsn, orgName } = useConfig();
 
   const dots = useColorToken('colors', 'blackAlpha.500', 'whiteAlpha.400');
 
-  const elements = useElements({ asn: primary_asn, name: org_name }, data);
+  const elements = useElements({ asn: primaryAsn, name: orgName }, data);
+
+  const nodes = useMemo(() => elements.filter(isNode), [elements]);
+  const edges = useMemo(() => elements.filter(isEdge), [elements]);
 
   return (
     <ReactFlowProvider>
       <Box w="100%" h={{ base: '100vh', lg: '70vh' }} zIndex={1}>
         <ReactFlow
           snapToGrid
-          elements={elements}
+          nodes={nodes}
+          edges={edges}
           nodeTypes={{ ASNode }}
-          onLoad={inst => setTimeout(() => inst.fitView(), 0)}
+          edgesUpdatable={false}
+          nodesDraggable={false}
+          nodesConnectable={false}
+          onInit={inst => setTimeout(() => inst.fitView(), 0)}
+          proOptions={{ hideAttribution: true }}
         >
           <Background color={dots} />
           <Controls />
@@ -34,20 +63,20 @@ export const Chart: React.FC<TChart> = (props: TChart) => {
   );
 };
 
-const ASNode: React.FC<TNode<TNodeData>> = (props: TNode<TNodeData>) => {
+const ASNode = (props: NodeProps<NodeData>): JSX.Element => {
   const { data } = props;
   const { asn, name, hasChildren, hasParents } = data;
 
   const color = useColorValue('black', 'white');
-  const bg = useColorValue('white', 'whiteAlpha.100');
+  const bg = useColorValue('white', 'whiteAlpha.200');
 
   const { data: asnData, isError, isLoading } = useASNDetail(String(asn));
 
   return (
     <>
       {hasChildren && <Handle type="source" position={Position.Top} />}
-      <Box py={3} px={4} bg={bg} minW={40} minH={12} color={color} boxShadow="md" borderRadius="md">
-        <VStack spacing={4}>
+      <Box py={2} px={3} bg={bg} minW={32} minH={8} color={color} boxShadow="md" borderRadius="md">
+        <VStack spacing={2}>
           <Flex fontSize="lg">
             {isLoading ? (
               <Box h={2} w={24}>

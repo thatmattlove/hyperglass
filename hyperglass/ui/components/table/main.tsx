@@ -1,43 +1,34 @@
 // This rule isn't needed because react-table does this for us, for better or worse.
 /* eslint react/jsx-key: 0 */
-
-import dynamic from 'next/dynamic';
-import { Flex, Icon, Text } from '@chakra-ui/react';
+import { Flex, Text } from '@chakra-ui/react';
 import { usePagination, useSortBy, useTable } from 'react-table';
-import { useMobile } from '~/context';
-import { CardBody, CardFooter, CardHeader, If } from '~/components';
+import { If, Then, Else } from 'react-if';
+import { CardBody, CardFooter, CardHeader, DynamicIcon } from '~/elements';
+import { useMobile } from '~/hooks';
 import { TableMain } from './table';
 import { TableCell } from './cell';
 import { TableHead } from './head';
 import { TableRow } from './row';
 import { TableBody } from './body';
 import { TableIconButton } from './button';
-import { TableSelectShow } from './pageSelect';
+import { PageSelect } from './page-select';
 
 import type { TableOptions, PluginHook } from 'react-table';
-import type { TCellRender } from '~/types';
-import type { TTable } from './types';
+import type { Theme, TableColumn, CellRenderProps } from '~/types';
 
-const ChevronRight = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/fa').then(i => i.FaChevronRight),
-);
+interface TableProps {
+  data: Route[];
+  striped?: boolean;
+  columns: TableColumn[];
+  heading?: React.ReactNode;
+  bordersVertical?: boolean;
+  bordersHorizontal?: boolean;
+  Cell?: React.FC<CellRenderProps>;
+  rowHighlightProp?: keyof Route;
+  rowHighlightBg?: Theme.ColorNames;
+}
 
-const ChevronLeft = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/fa').then(i => i.FaChevronLeft),
-);
-
-const ChevronDown = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/fa').then(i => i.FaChevronDown),
-);
-
-const DoubleChevronRight = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/fi').then(i => i.FiChevronsRight),
-);
-const DoubleChevronLeft = dynamic<MeronexIcon>(() =>
-  import('@meronex/icons/fi').then(i => i.FiChevronsLeft),
-);
-
-export const Table: React.FC<TTable> = (props: TTable) => {
+export const Table = (props: TableProps): JSX.Element => {
   const {
     data,
     columns,
@@ -71,11 +62,11 @@ export const Table: React.FC<TTable> = (props: TTable) => {
     defaultColumn,
     data,
     initialState: { hiddenColumns },
-  } as TableOptions<TRoute>;
+  } as TableOptions<Route>;
 
-  const plugins = [useSortBy, usePagination] as PluginHook<TRoute>[];
+  const plugins = [useSortBy, usePagination] as PluginHook<Route>[];
 
-  const instance = useTable<TRoute>(options, ...plugins);
+  const instance = useTable<Route>(options, ...plugins);
 
   const {
     page,
@@ -108,17 +99,21 @@ export const Table: React.FC<TTable> = (props: TTable) => {
                   {...column.getSortByToggleProps()}
                 >
                   <Text fontSize="sm" fontWeight="bold" display="inline-block">
-                    {column.render('Header')}
+                    {column.render('Header') as React.ReactNode}
                   </Text>
-                  <If c={column.isSorted}>
-                    <If c={typeof column.isSortedDesc !== 'undefined'}>
-                      <Icon as={ChevronDown} boxSize={4} ml={1} />
-                    </If>
-                    <If c={!column.isSortedDesc}>
-                      <Icon as={ChevronRight} boxSize={4} ml={1} />
-                    </If>
+                  <If condition={column.isSorted}>
+                    <Then>
+                      <If condition={column.isSortedDesc}>
+                        <Then>
+                          <DynamicIcon icon={{ fa: 'FaChevronDown' }} boxSize={4} ml={1} />
+                        </Then>
+                        <Else>
+                          <DynamicIcon icon={{ fa: 'FaChevronRight' }} boxSize={4} ml={1} />
+                        </Else>
+                      </If>
+                    </Then>
+                    <Else>{''}</Else>
                   </If>
-                  <If c={!column.isSorted}>{''}</If>
                 </TableCell>
               ))}
             </TableRow>
@@ -137,7 +132,7 @@ export const Table: React.FC<TTable> = (props: TTable) => {
                 {...row.getRowProps()}
               >
                 {row.cells.map((cell, i) => {
-                  const { column, row, value } = cell as TCellRender;
+                  const { column, row, value } = cell as CellRenderProps;
                   return (
                     <TableCell
                       align={cell.column.align}
@@ -147,7 +142,7 @@ export const Table: React.FC<TTable> = (props: TTable) => {
                       {typeof Cell !== 'undefined' ? (
                         <Cell column={column} row={row} value={value} />
                       ) : (
-                        cell.render('Cell')
+                        (cell.render('Cell') as React.ReactNode)
                       )}
                     </TableCell>
                   );
@@ -163,13 +158,13 @@ export const Table: React.FC<TTable> = (props: TTable) => {
             mr={2}
             onClick={() => gotoPage(0)}
             isDisabled={!canPreviousPage}
-            icon={<Icon as={DoubleChevronLeft} boxSize={4} />}
+            icon={<DynamicIcon icon={{ fi: 'FiChevronsLeft' }} boxSize={4} />}
           />
           <TableIconButton
             mr={2}
             onClick={() => previousPage()}
             isDisabled={!canPreviousPage}
-            icon={<Icon as={ChevronLeft} boxSize={3} />}
+            icon={<DynamicIcon icon={{ fa: 'FaChevronLeft' }} boxSize={3} />}
           />
         </Flex>
         <Flex justifyContent="center" alignItems="center">
@@ -180,7 +175,7 @@ export const Table: React.FC<TTable> = (props: TTable) => {
             </strong>{' '}
           </Text>
           {!isMobile && (
-            <TableSelectShow
+            <PageSelect
               value={pageSize}
               onChange={e => {
                 setPageSize(Number(e.target.value));
@@ -193,12 +188,12 @@ export const Table: React.FC<TTable> = (props: TTable) => {
             ml={2}
             onClick={nextPage}
             isDisabled={!canNextPage}
-            icon={<Icon as={ChevronRight} boxSize={3} />}
+            icon={<DynamicIcon icon={{ fa: 'FaChevronRight' }} boxSize={3} />}
           />
           <TableIconButton
             ml={2}
             isDisabled={!canNextPage}
-            icon={<Icon as={DoubleChevronRight} boxSize={4} />}
+            icon={<DynamicIcon icon={{ fi: 'FiChevronsRight' }} boxSize={4} />}
             onClick={() => gotoPage(pageCount ? pageCount - 1 : 1)}
           />
         </Flex>

@@ -8,117 +8,136 @@ hyperglass API modules.
 # Standard Library
 import re
 import json as _json
-from operator import attrgetter
+import typing as t
+import ipaddress
 
 # Project
 from hyperglass.log import log
+from hyperglass.util import get_fmt_keys
 from hyperglass.constants import TRANSPORT_REST, TARGET_FORMAT_SPACE
-from hyperglass.configuration import commands
+from hyperglass.exceptions.public import InputInvalid
+from hyperglass.exceptions.private import ConfigError
+
+if t.TYPE_CHECKING:
+    # Third Party
+    from loguru import Logger
+
+    # Project
+    from hyperglass.models.api.query import Query
+    from hyperglass.models.directive import Directive
+    from hyperglass.models.config.devices import Device
+
+FormatterCallback = t.Callable[[str], t.Union[t.List[str], str]]
 
 
 class Construct:
     """Construct SSH commands/REST API parameters from validated query data."""
 
-    def __init__(self, device, query_data):
+    directive: "Directive"
+    device: "Device"
+    query: "Query"
+    transport: str
+    target: str
+    _log: "Logger"
+
+    def __init__(self, device: "Device", query: "Query"):
         """Initialize command construction."""
-        log.debug(
-            "Constructing {} query for '{}'",
-            query_data.query_type,
-            str(query_data.query_target),
-        )
+        self._log = log.bind(type=query.query_type, target=query.query_target)
+        self._log.debug("Constructing query")
+        self.query = query
         self.device = device
-        self.query_data = query_data
-        self.target = self.query_data.query_target
+        self.target = self.query.query_target
+        self.directive = query.directive
 
         # Set transport method based on NOS type
         self.transport = "scrape"
-        if self.device.nos in TRANSPORT_REST:
+        if self.device.platform in TRANSPORT_REST:
             self.transport = "rest"
 
         # Remove slashes from target for required platforms
-        if self.device.nos in TARGET_FORMAT_SPACE:
-            self.target = re.sub(r"\/", r" ", str(self.query_data.query_target))
+        if self.device.platform in TARGET_FORMAT_SPACE:
+            self.target = re.sub(r"\/", r" ", str(self.query.query_target))
 
-        # Set AFIs for based on query type
-        if self.query_data.query_type in ("bgp_route", "ping", "traceroute"):
-            # For IP queries, AFIs are enabled (not null/None) VRF -> AFI definitions
-            # where the IP version matches the IP version of the target.
-            self.afis = [
-                v
-                for v in (
-                    self.query_data.query_vrf.ipv4,
-                    self.query_data.query_vrf.ipv6,
-                )
-                if v is not None and self.query_data.query_target.version == v.version
-            ]
-        elif self.query_data.query_type in ("bgp_aspath", "bgp_community"):
-            # For AS Path/Community queries, AFIs are just enabled VRF -> AFI
-            # definitions, no IP version checking is performed (since there is no IP).
-            self.afis = [
-                v
-                for v in (
-                    self.query_data.query_vrf.ipv4,
-                    self.query_data.query_vrf.ipv6,
-                )
-                if v is not None
-            ]
+        with Formatter(self.query) as formatter:
+            self.target = formatter(self.prepare_target())
 
-        with Formatter(self.device.nos, self.query_data.query_type) as formatter:
-            self.target = formatter(self.query_data.query_target)
+    def prepare_target(self) -> t.Union[t.List[str], str]:
+        """Format the query target based on directive parameters."""
+        if isinstance(self.query.query_target, t.List):
+            # Directive can accept multiple values in a single command.
+            if self.directive.multiple:
+                return self.directive.multiple_separator.join(self.query.query_target)
+            # Target is an array of one, return single item.
+            if len(self.query.query_target) == 1:
+                return self.query.query_target[0]
+            # Directive commands should be run once for each item in the target.
+
+        return self.query.query_target
 
     def json(self, afi):
         """Return JSON version of validated query for REST devices."""
-        log.debug("Building JSON query for {q}", q=repr(self.query_data))
+        self._log.debug("Building JSON query")
         return _json.dumps(
             {
-                "query_type": self.query_data.query_type,
-                "vrf": self.query_data.query_vrf.name,
+                "query_type": self.query.query_type,
+                "vrf": self.query.query_vrf.name,
                 "afi": afi.protocol,
                 "source": str(afi.source_address),
                 "target": str(self.target),
             }
         )
 
-    def scrape(self, afi):
+    def format(self, command: str) -> str:
         """Return formatted command for 'Scrape' endpoints (SSH)."""
-        if self.device.structured_output:
-            cmd_paths = (
-                self.device.nos,
-                "structured",
-                afi.protocol,
-                self.query_data.query_type,
-            )
-        else:
-            cmd_paths = (self.device.commands, afi.protocol, self.query_data.query_type)
+        keys = get_fmt_keys(command)
+        attrs = {k: v for k, v in self.device.attrs.items() if k in keys}
+        for key in [k for k in keys if k != "target" and k != "mask"]:
+            if key not in attrs:
+                raise ConfigError(
+                    ("Command '{c}' has attribute '{k}', " "which is missing from device '{d}'"),
+                    level="danger",
+                    c=self.directive.name,
+                    k=key,
+                    d=self.device.name,
+                )
 
-        command = attrgetter(".".join(cmd_paths))(commands)
-        return command.format(
-            target=self.target,
-            source=str(afi.source_address),
-            vrf=self.query_data.query_vrf.name,
-        )
+        mask = ipaddress.ip_address("255.255.255.255")
+        try:
+            network = ipaddress.ip_network(self.target)
+            if network.version == 4 and network.network_address != network.broadcast_address:
+                # Network is an IPv4 network with more than one host.
+                mask = network.netmask
+        except ValueError:
+            pass
+
+        return command.format(target=self.target, mask=mask, **attrs)
 
     def queries(self):
         """Return queries for each enabled AFI."""
         query = []
 
-        for afi in self.afis:
-            if self.transport == "rest":
-                query.append(self.json(afi=afi))
-            else:
-                query.append(self.scrape(afi=afi))
+        rules = [r for r in self.directive.rules if r._passed is True]
+        if len(rules) < 1:
+            raise InputInvalid(
+                error="No validation rules matched target '{target}'",
+                target=self.query.query_target,
+            )
 
-        log.debug("Constructed query: {}", query)
+        for rule in [r for r in self.directive.rules if r._passed is True]:
+            for command in rule.commands:
+                query.append(self.format(command))
+        self._log.bind(constructed_query=query).debug("Constructed query")
         return query
 
 
 class Formatter:
     """Modify query target based on the device's NOS requirements and the query type."""
 
-    def __init__(self, nos: str, query_type: str) -> None:
+    def __init__(self, query: "Query") -> None:
         """Initialize target formatting."""
-        self.nos = nos
-        self.query_type = query_type
+        self.query = query
+        self.platform = query.device.platform
+        self.query_type = query.query_type
 
     def __enter__(self):
         """Get the relevant formatter."""
@@ -131,19 +150,26 @@ class Formatter:
         pass
 
     def _get_formatter(self):
-        if self.nos in ("juniper", "juniper_junos"):
+        if self.platform in ("juniper", "juniper_junos"):
             if self.query_type == "bgp_aspath":
-                return self._juniper_bgp_aspath
-        if self.nos in ("bird", "bird_ssh"):
+                return self._with_formatter(self._juniper_bgp_aspath)
+        if self.platform in ("bird", "bird_ssh"):
             if self.query_type == "bgp_aspath":
-                return self._bird_bgp_aspath
-            elif self.query_type == "bgp_community":
-                return self._bird_bgp_community
-        return self._default
+                return self._with_formatter(self._bird_bgp_aspath)
+            if self.query_type == "bgp_community":
+                return self._with_formatter(self._bird_bgp_community)
+        return self._with_formatter(self._default)
 
     def _default(self, target: str) -> str:
         """Don't format targets by default."""
         return target
+
+    def _with_formatter(self, formatter: t.Callable[[str], str]) -> FormatterCallback:
+        result: FormatterCallback
+        if isinstance(self.query.query_target, t.List):
+            result = lambda s: [formatter(i) for i in s]
+        result = lambda s: formatter(s)
+        return result
 
     def _juniper_bgp_aspath(self, target: str) -> str:
         """Convert from Cisco AS_PATH format to Juniper format."""
@@ -163,7 +189,7 @@ class Formatter:
 
         if was_modified:
             modified = " ".join(asns)
-            log.debug("Modified target '{}' to '{}'", target, modified)
+            log.bind(original=target, modified=modified).debug("Modified target")
             return modified
 
         return query
@@ -191,7 +217,7 @@ class Formatter:
         result = " ".join(asns)
 
         if was_modified:
-            log.debug("Modified target '{}' to '{}'", target, result)
+            log.bind(original=target, modified=result).debug("Modified target")
 
         return result
 

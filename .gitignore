@@ -1,20 +1,32 @@
 # Project
 hyperglass/hyperglass/static
+TODO*
+.env
 
 test.py
 .DS_Store
 .idea
-.vscode
-old_*.py
+*_old.py
 *.rdb
 #
 # Github Default from https://github.com/martinohanlon/flightlight/issues/1
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+.ipynb*
 
 # Pyenv
 .python-version
+.venv
+
+# MyPy
+.mypy_cache
+
+# Pytest
+.pytest_cache
+
+# Ruff
+.ruff_cache
 
 # C extensions
 *.so

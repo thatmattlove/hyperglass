@@ -1,1 +1,5 @@
 blank_issues_enabled: false
+contact_links:
+  - name: Contributing Policy
+    url: https://github.com/thatmattlove/hyperglass/blob/main/CONTRIBUTING.md
+    about: Please read through the contributing policy before opening an issue or pull request.

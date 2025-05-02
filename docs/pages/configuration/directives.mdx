@@ -1,0 +1,186 @@
+import { Callout } from "nextra/components";
+
+## What is a directive?
+
+<Callout type="tip">
+
+A <strong style={{color: "#ff5e5b"}}>directive</strong> is a defined configuration for one or more **commands** to run on a device. For example, a BGP Route query is a built-in directive. A directive defines:
+
+-   What command (or commands) to run on the device
+-   Type of UI field, text input or select
+-   If the field can accept multiple values
+-   Help information to show about the directive
+-   Validation rules
+
+</Callout>
+
+Each directive has the following options:
+
+| Parameter            | Type            | Default Value | Description                                                                                                                                                                |
+| :------------------- | :-------------- | :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`               | String          |               | Display name of the directive.                                                                                                                                             |
+| `rules`              | List of Rules   |               | List of [rule configs](#rules)                                                                                                                                             |
+| `field`              | Mapping         |               | Mapping/dict of [fields config](#fields)                                                                                                                                   |
+| `info`               | String          |               | File path to markdown-formatted help information about the directive.                                                                                                      |
+| `plugins`            | List of Strings |               | List of plugin names to use with this directive.                                                                                                                           |
+| `groups`             | List of Strings |               | List of names by which directives are grouped in the UI.                                                                                                                   |
+| `multiple`           | Boolean         | `false`       | Command supports receiving multiple values. For example, Cisco IOS's `show ip bgp community` accepts multiple communities as arguments.                                    |
+| `multiple_separator` | String          | `" "`         | String by which multiple values are separated. For example, a list of values `[65001, 65002, 65003]` would be rendered as `65001 65002 65003` for when the command is run. |
+
+## Rules
+
+A rule is a way of saying "if a query target matches the rule's conditions, run this command".
+
+| Parameter   | Type            | Default Value | Description                                                                                    |
+| :---------- | :-------------- | :------------ | :--------------------------------------------------------------------------------------------- |
+| `condition` | String          |               | Regular expression to match or IP prefix in which the value being evaluated must be contained. |
+| `action`    | String          | permit        | `permit` or `deny` the directive target when this rule is matched.                             |
+| `commands`  | List of Strings |               | Commands to run when this rule matches. `{target}` is replaced with the query target.          |
+
+### IP Rule
+
+| Parameter           | Type    | Default Value | Description                                                                                                                                                                                                       |
+| :------------------ | :------ | :------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ge`                | Number  | 0             | Prefix length greater than defined will be matched.                                                                                                                                                               |
+| `le`                | Number  | 32,128        | `32` for IPv4 evaluations, `128` for IPv6 evaluations. Prefix length less than defined will be matched.                                                                                                           |
+| `allow_reserved`    | Boolean | `false`       | Allow reserved ([RFC1918](https://www.rfc-editor.org/rfc/rfc1918), [RFC5735](https://www.rfc-editor.org/rfc/rfc5735), [RFC5737](https://www.rfc-editor.org/rfc/rfc5737.html), etc.) addresses to pass validation. |
+| `allow_unspecified` | Boolean | `false`       | Allow unspecified addresses (`0.0.0.0` `::`) to pass validation.                                                                                                                                                  |
+| `allow_loopback`    | Boolean | `false`       | Allow [loopback addresses](https://www.rfc-editor.org/rfc/rfc1700.html) (`127.0.0.0/8` `::1`) to pass validation.                                                                                                 |
+
+#### Examples
+
+##### Require IPv4 Queries between /8 and /24
+
+```yaml filename="directives.yaml" {5-6} /{target} {mask}/ copy
+your-directive:
+    name: IP Route
+    rules:
+        - condition: 0.0.0.0/0
+          ge: 8
+          le: 24
+          command: "show ip route {target} {mask}"
+```
+
+Given a query target of 198.18.0.0/15, the command run on the device would be:
+
+```none /198.18.0.0 255.254.0.0/
+show ip route 198.18.0.0 255.254.0.0
+```
+
+##### Deny a Specific Prefix
+
+```yaml filename="directives.yaml" {5} copy
+your directive:
+    name: BGP Route
+    rules:
+        - condition: "192.0.2.0/24"
+          action: deny
+        - condition: "0.0.0.0/0"
+          command: "show ip bgp {target}"
+```
+
+In this example, a query of any IP address or prefix contained within 192.0.2.0/24 will result in an error.
+
+##### Run Multiple Commands
+
+```yaml filename="directives.yaml" /{target}/ {6-7} copy
+your-directive:
+    name: BGP Communities
+    rules:
+        - condition: "65000:[0-9]+"
+          commands:
+              - "show route table inet.0 community {target} detail"
+              - "show route table inet6.0 community {target} detail"
+```
+
+In this example, a query of `65000:1` would result in the following commands being sent to the device:
+
+```none /65000:1/
+show route table inet.0 community 65000:1 detail
+show route table inet6.0 community 65000:1 detail
+```
+
+The output for both commands will be shown as the query result.
+
+### Regex Validation
+
+To validate input by regex pattern, just specify a regex pattern as the `condition`
+
+```yaml filename="directives.yaml" copy
+your-directive:
+    name: DNS Query
+    rules:
+        - condition: '^.+\.yourdomain\.com$'
+```
+
+### No Validation
+
+```yaml filename="directives.yaml" /{target}/ copy {4}
+your-directive:
+    name: IP Route
+    rules:
+        - condition: null
+          command: show ip route {target}
+```
+
+In this example, any query would pass, regardless of query input. For instance, if a user selected this directive/query type and queried `your mom`, the real command sent to the device will be:
+
+```none /your mom/
+show ip route your mom
+```
+
+## Fields
+
+### Text Input
+
+| Parameter     | Type   | Default Value | Description                                           |
+| :------------ | :----- | :------------ | :---------------------------------------------------- |
+| `description` | String |               | Field description, displayed as a label or help text. |
+| `validation`  | String |               | Regex pattern to validate text input.                 |
+
+### Select
+
+| Parameter     | Type            | Default Value | Description                                           |
+| :------------ | :-------------- | :------------ | :---------------------------------------------------- |
+| `description` | String          |               | Field description, displayed as a label or help text. |
+| `options`     | List of Options |               |                                                       |
+
+#### Options
+
+Each select option uses the following schema:
+
+| Parameter     | Type   | Default Value | Description                                              |
+| :------------ | :----- | :------------ | :------------------------------------------------------- |
+| `description` | String |               | Field description, displayed as a label or help text.    |
+| `name`        | String |               | If specified, will be used as the option's display name. |
+| `value`       | String |               | Option value sent to the device.                         |
+
+### Examples
+
+Example of a text directive expecting a string value matching a regex pattern:
+
+```yaml filename="directives.yaml" copy {6-7}
+your-directive:
+    name: IP Route
+    rules:
+        - condition: null
+          command: show ip route {target}
+    field:
+        validation: '[0-9a-f\.\:]+'
+```
+
+Example of a select directive:
+
+```yaml filename="directives.yaml" copy {6-12}
+your-directive:
+    name: BGP Community
+    rules:
+        - condition: null
+          command: show ip bgp community {target}
+    field:
+        options:
+            - value: "65001:1"
+              description: Provider A Routes
+            - value: "65001:2"
+              description: Provider B Routes
+```

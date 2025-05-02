@@ -3,17 +3,23 @@ import {
   Modal,
   HStack,
   Button,
-  useTheme,
   ModalBody,
   ModalHeader,
   ModalOverlay,
   ModalContent,
-  useColorMode,
   useDisclosure,
   ModalCloseButton,
 } from '@chakra-ui/react';
-import { useConfig, useColorValue, useBreakpointValue } from '~/context';
-import { CodeBlock } from '~/components';
+import { useConfig } from '~/context';
+import { CodeBlock, DynamicIcon } from '~/elements';
+import {
+  useTheme,
+  useColorMode,
+  useColorValue,
+  useBreakpointValue,
+  // useHyperglassConfig,
+} from '~/hooks';
+
 import type { UseDisclosureReturn } from '@chakra-ui/react';
 
 interface TViewer extends Pick<UseDisclosureReturn, 'isOpen' | 'onClose'> {
@@ -21,14 +27,14 @@ interface TViewer extends Pick<UseDisclosureReturn, 'isOpen' | 'onClose'> {
   children: React.ReactNode;
 }
 
-const Viewer: React.FC<TViewer> = (props: TViewer) => {
+const Viewer = (props: TViewer): JSX.Element => {
   const { title, isOpen, onClose, children } = props;
-  const bg = useColorValue('white', 'black');
+  const bg = useColorValue('white', 'blackSolid.700');
   const color = useColorValue('black', 'white');
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="full" scrollBehavior="inside">
       <ModalOverlay />
-      <ModalContent bg={bg} color={color} py={4} borderRadius="md" maxW="90%">
+      <ModalContent bg={bg} color={color} py={4} borderRadius="md" maxW="90%" minH="90vh">
         <ModalHeader>{title}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
@@ -39,7 +45,7 @@ const Viewer: React.FC<TViewer> = (props: TViewer) => {
   );
 };
 
-export const Debugger: React.FC = () => {
+export const Debugger = (): JSX.Element => {
   const { isOpen: configOpen, onOpen: onConfigOpen, onClose: configClose } = useDisclosure();
   const { isOpen: themeOpen, onOpen: onThemeOpen, onClose: themeClose } = useDisclosure();
   const { colorMode } = useColorMode();
@@ -50,6 +56,7 @@ export const Debugger: React.FC = () => {
     useBreakpointValue({ base: 'SMALL', md: 'MEDIUM', lg: 'LARGE', xl: 'X-LARGE' }) ?? 'UNKNOWN';
   const tagSize = useBreakpointValue({ base: 'sm', lg: 'lg' }) ?? 'lg';
   const btnSize = useBreakpointValue({ base: 'xs', lg: 'sm' }) ?? 'sm';
+  // const { refetch } = useHyperglassConfig();
   return (
     <>
       <HStack
@@ -69,12 +76,30 @@ export const Debugger: React.FC = () => {
         <Tag size={tagSize} colorScheme="gray">
           {colorMode.toUpperCase()}
         </Tag>
-        <Button size={btnSize} colorScheme="blue" onClick={onConfigOpen}>
+        <Button
+          size={btnSize}
+          colorScheme="cyan"
+          onClick={onConfigOpen}
+          leftIcon={<DynamicIcon icon={{ bs: 'BsBraces' }} />}
+        >
           View Config
         </Button>
-        <Button size={btnSize} colorScheme="red" onClick={onThemeOpen}>
+        <Button
+          size={btnSize}
+          leftIcon={<DynamicIcon icon={{ io: 'IoIosColorPalette' }} />}
+          colorScheme="blue"
+          onClick={onThemeOpen}
+        >
           View Theme
         </Button>
+        {/* <Button
+          size={btnSize}
+          colorScheme="purple"
+          leftIcon={<DynamicIcon icon={{ hi: 'HiOutlineDownload' }} />}
+          onClick={() => refetch()}
+        >
+          Reload Config
+        </Button> */}
         <Tag size={tagSize} colorScheme="teal">
           {mediaSize}
         </Tag>

@@ -1,0 +1,21 @@
+services:
+    redis:
+        image: "redis:alpine"
+    hyperglass:
+        depends_on:
+            - redis
+        environment:
+            - HYPERGLASS_APP_PATH=/etc/hyperglass
+            - HYPERGLASS_HOST=${HYPERGLASS_HOST-0.0.0.0}
+            - HYPERGLASS_PORT=${HYPERGLASS_PORT-8001}
+            - HYPERGLASS_DEBUG=${HYPERGLASS_DEBUG-false}
+            - HYPERGLASS_DEV_MODE=${HYPERGLASS_DEV_MODE-false}
+            - HYPERGLASS_REDIS_HOST=${HYPERGLASS_REDIS_HOST-redis}
+            - HYPEGLASS_DISABLE_UI=${HYPEGLASS_DISABLE_UI-false}
+            - HYPERGLASS_CONTAINER=${HYPERGLASS_CONTAINER-true}
+            - HYPERGLASS_ORIGINAL_APP_PATH=${HYPERGLASS_APP_PATH}
+        build: .
+        ports:
+            - "${HYPERGLASS_PORT-8001}:${HYPERGLASS_PORT-8001}"
+        volumes:
+            - ${HYPERGLASS_APP_PATH-/etc/hyperglass}:/etc/hyperglass

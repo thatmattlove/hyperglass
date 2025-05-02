@@ -1,15 +1,13 @@
-import { useEffect } from 'react';
 import { Accordion } from '@chakra-ui/react';
 import { AnimatePresence } from 'framer-motion';
-import { AnimatedDiv } from '~/components';
-import { useDevice, useLGState } from '~/hooks';
+import { useEffect } from 'react';
+import { AnimatedDiv } from '~/elements';
+import { useFormState } from '~/hooks';
 import { Result } from './individual';
 import { Tags } from './tags';
 
-export const Results: React.FC = () => {
-  const { queryLocation, queryTarget, queryType, queryVrf } = useLGState();
-
-  const getDevice = useDevice();
+export const Results = (): JSX.Element => {
+  const { queryLocation } = useFormState(s => s.form);
 
   // Scroll to the top of the page when results load - primarily for mobile.
   useEffect(() => {
@@ -36,22 +34,11 @@ export const Results: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         maxW={{ base: '100%', md: '75%' }}
       >
-        <Accordion allowMultiple allowToggle>
+        <Accordion allowMultiple>
           <AnimatePresence>
-            {queryLocation.value &&
-              queryLocation.map((loc, i) => {
-                const device = getDevice(loc.value);
-                return (
-                  <Result
-                    index={i}
-                    device={device}
-                    key={device._id}
-                    queryLocation={loc.value}
-                    queryVrf={queryVrf.value}
-                    queryType={queryType.value}
-                    queryTarget={queryTarget.value}
-                  />
-                );
+            {queryLocation.length > 0 &&
+              queryLocation.map((location, index) => {
+                return <Result index={index} key={location} queryLocation={location} />;
               })}
           </AnimatePresence>
         </Accordion>

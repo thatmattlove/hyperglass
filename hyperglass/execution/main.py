@@ -3,31 +3,33 @@
 Accepts input from front end application, validates the input and
 returns errors if input is invalid. Passes validated parameters to
 construct.py, which is used to build & run the Netmiko connections or
-hyperglass-frr API calls, returns the output back to the front end.
+http client API calls, returns the output back to the front end.
 """
 
 # Standard Library
 import signal
-from typing import Any, Dict, Union, Callable, Sequence
+from typing import TYPE_CHECKING, Any, Dict, Union, Callable
 
 # Project
 from hyperglass.log import log
-from hyperglass.exceptions import DeviceTimeout, ResponseEmpty
-from hyperglass.models.api import Query
-from hyperglass.configuration import params
+from hyperglass.state import use_state
+from hyperglass.util.typing import is_series
+from hyperglass.exceptions.public import DeviceTimeout, ResponseEmpty
+
+if TYPE_CHECKING:
+    from hyperglass.models.api import Query
+    from .drivers import Connection
+    from hyperglass.models.data import OutputDataModel
 
 # Local
-from .drivers import Connection, AgentConnection, NetmikoConnection, ScrapliConnection
+from .drivers import HttpClient, NetmikoConnection
 
 
-def map_driver(driver_name: str) -> Connection:
+def map_driver(driver_name: str) -> "Connection":
     """Get the correct driver class based on the driver name."""
 
-    if driver_name == "scrapli":
-        return ScrapliConnection
-
-    elif driver_name == "hyperglass_agent":
-        return AgentConnection
+    if driver_name == "hyperglass_http_client":
+        return HttpClient
 
     return NetmikoConnection
 
@@ -41,56 +43,48 @@ def handle_timeout(**exc_args: Any) -> Callable:
     return handler
 
 
-async def execute(query: Query) -> Union[str, Sequence[Dict]]:
+async def execute(query: "Query") -> Union["OutputDataModel", str]:
     """Initiate query validation and execution."""
-
+    params = use_state("params")
     output = params.messages.general
-
-    log.debug("Received query for {}", query.json())
-    log.debug("Matched device config: {}", query.device)
+    _log = log.bind(query=query.summary(), device=query.device.id)
+    _log.debug("")
 
     mapped_driver = map_driver(query.device.driver)
-    driver = mapped_driver(query.device, query)
+    driver: "Connection" = mapped_driver(query.device, query)
 
-    timeout_args = {
-        "unformatted_msg": params.messages.connection_error,
-        "device_name": query.device.name,
-        "error": params.messages.request_timeout,
-    }
-
-    if query.device.proxy:
-        timeout_args["proxy"] = query.device.proxy.name
-
-    signal.signal(signal.SIGALRM, handle_timeout(**timeout_args))
+    signal.signal(
+        signal.SIGALRM,
+        handle_timeout(error=TimeoutError("Connection timed out"), device=query.device),
+    )
     signal.alarm(params.request_timeout - 1)
 
     if query.device.proxy:
         proxy = driver.setup_proxy()
         with proxy() as tunnel:
-            response = await driver.collect(
-                tunnel.local_bind_host, tunnel.local_bind_port
-            )
+            response = await driver.collect(tunnel.local_bind_host, tunnel.local_bind_port)
     else:
         response = await driver.collect()
 
-    output = await driver.parsed_response(response)
+    output = await driver.response(response)
 
-    if isinstance(output, str):
+    if is_series(output):
+        if len(output) == 0:
+            raise ResponseEmpty(query=query)
+        output = "\n\n".join(output)
+
+    elif isinstance(output, str):
         # If the output is a string (not structured) and is empty,
         # produce an error.
         if output == "" or output == "\n":
-            raise ResponseEmpty(
-                params.messages.no_output, device_name=query.device.name
-            )
+            raise ResponseEmpty(query=query)
+
     elif isinstance(output, Dict):
         # If the output an empty dict, responses have data, produce an
         # error.
         if not output:
-            raise ResponseEmpty(
-                params.messages.no_output, device_name=query.device.name
-            )
+            raise ResponseEmpty(query=query)
 
-    log.debug("Output for query: {}:\n{}", query.json(), repr(output))
     signal.alarm(0)
 
     return output

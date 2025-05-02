@@ -1,58 +1,59 @@
 """Validate SSH proxy configuration variables."""
 
 # Standard Library
-from typing import Union
+import typing as t
 from ipaddress import IPv4Address, IPv6Address
 
 # Third Party
-from pydantic import StrictInt, StrictStr, validator
+from pydantic import ValidationInfo, field_validator
 
 # Project
 from hyperglass.util import resolve_hostname
-from hyperglass.exceptions import ConfigError, UnsupportedDevice
+from hyperglass.exceptions.private import ConfigError, UnsupportedDevice
 
 # Local
 from ..main import HyperglassModel
+from ..util import check_legacy_fields
 from .credential import Credential
 
 
 class Proxy(HyperglassModel):
     """Validation model for per-proxy config in devices.yaml."""
 
-    name: StrictStr
-    address: Union[IPv4Address, IPv6Address, StrictStr]
-    port: StrictInt = 22
+    address: t.Union[IPv4Address, IPv6Address, str]
+    port: int = 22
     credential: Credential
-    nos: StrictStr = "linux_ssh"
+    platform: str = "linux_ssh"
+
+    def __init__(self: "Proxy", **kwargs: t.Any) -> None:
+        """Check for legacy fields."""
+        kwargs = check_legacy_fields(model="Proxy", data=kwargs)
+        super().__init__(**kwargs)
 
     @property
     def _target(self):
         return str(self.address)
 
-    @validator("address")
-    def validate_address(cls, value, values):
+    @field_validator("address")
+    def validate_address(cls, value):
         """Ensure a hostname is resolvable."""
+
         if not isinstance(value, (IPv4Address, IPv6Address)):
             if not any(resolve_hostname(value)):
                 raise ConfigError(
-                    "Device '{d}' has an address of '{a}', which is not resolvable.",
-                    d=values["name"],
+                    "Proxy '{a}' is not resolvable.",
                     a=value,
                 )
         return value
 
-    @validator("nos")
-    def supported_nos(cls, value, values):
-        """Verify NOS is supported by hyperglass.
+    @field_validator("platform", mode="before")
+    def validate_type(cls: "Proxy", value: t.Any, info: ValidationInfo) -> str:
+        """Validate device type."""
 
-        Raises:
-            UnsupportedDevice: Raised if NOS is not supported.
-
-        Returns:
-            {str} -- Valid NOS name
-        """
-        if not value == "linux_ssh":
+        if value != "linux_ssh":
             raise UnsupportedDevice(
-                f"Proxy '{values['name']}' uses NOS '{value}', which is currently unsupported."
+                "Proxy '{}' uses platform '{}', which is currently unsupported.",
+                info.data.get("address"),
+                value,
             )
         return value

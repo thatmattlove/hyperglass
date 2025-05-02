@@ -1,21 +1,18 @@
-"""Gunicorn Config File."""
+"""Start hyperglass."""
 
 # Standard Library
 import sys
-import math
-import shutil
+import typing as t
+import asyncio
 import logging
-import platform
 
 # Third Party
-from gunicorn.arbiter import Arbiter
-from gunicorn.app.base import BaseApplication
-from gunicorn.glogging import Logger
+import uvicorn
 
 # Local
-from .log import log, setup_lib_logging
+from .log import LibInterceptHandler, init_logger, enable_file_logging, enable_syslog_logging
+from .util import get_node_version
 from .constants import MIN_NODE_VERSION, MIN_PYTHON_VERSION, __version__
-from .util.frontend import get_node_version
 
 # Ensure the Python version meets the minimum requirements.
 pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
@@ -23,187 +20,171 @@ if sys.version_info < MIN_PYTHON_VERSION:
     raise RuntimeError(f"Python {pretty_version}+ is required.")
 
 # Ensure the NodeJS version meets the minimum requirements.
-node_major, _, __ = get_node_version()
+node_major, node_minor, node_patch = get_node_version()
 
-if node_major != MIN_NODE_VERSION:
-    raise RuntimeError(f"NodeJS {MIN_NODE_VERSION}+ is required.")
+if node_major < MIN_NODE_VERSION:
+    installed = ".".join(str(v) for v in (node_major, node_minor, node_patch))
+    raise RuntimeError(f"NodeJS {MIN_NODE_VERSION!s}+ is required (version {installed} installed)")
 
-
-# Project
-from hyperglass.compat._asyncio import aiorun
 
 # Local
-from .util import cpu_count, clear_redis_cache, format_listen_address
-from .cache import SyncCache
-from .configuration import (
-    URL_DEV,
-    URL_PROD,
-    CONFIG_PATH,
-    REDIS_CONFIG,
-    params,
-    frontend_params,
-)
-from .util.frontend import build_frontend
+from .util import cpu_count
+from .state import use_state
+from .settings import Settings
 
-if params.debug:
-    workers = 1
-    loglevel = "DEBUG"
-else:
-    workers = cpu_count(2)
-    loglevel = "WARNING"
-
-
-class StubbedGunicornLogger(Logger):
-    """Custom logging to direct Gunicorn/Uvicorn logs to Loguru/Rich.
-
-    See: https://pawamoy.github.io/posts/unify-logging-for-a-gunicorn-uvicorn-app/
-    """
-
-    def setup(self, cfg):
-        """Override Gunicorn setup."""
-        handler = logging.NullHandler()
-        self.error_logger = logging.getLogger("gunicorn.error")
-        self.error_logger.addHandler(handler)
-        self.access_logger = logging.getLogger("gunicorn.access")
-        self.access_logger.addHandler(handler)
-        self.error_logger.setLevel(loglevel)
-        self.access_logger.setLevel(loglevel)
-
-
-def check_redis_instance() -> bool:
-    """Ensure Redis is running before starting server."""
-
-    cache = SyncCache(db=params.cache.database, **REDIS_CONFIG)
-    cache.test()
-    log.debug("Redis is running at: {}:{}", REDIS_CONFIG["host"], REDIS_CONFIG["port"])
-    return True
+LOG_LEVEL = logging.INFO if Settings.debug is False else logging.DEBUG
+logging.basicConfig(handlers=[LibInterceptHandler()], level=0, force=True)
+log = init_logger(LOG_LEVEL)
 
 
 async def build_ui() -> bool:
     """Perform a UI build prior to starting the application."""
+    # Local
+    from .frontend import build_frontend
+
+    state = use_state()
     await build_frontend(
-        dev_mode=params.developer_mode,
-        dev_url=URL_DEV,
-        prod_url=URL_PROD,
-        params=frontend_params,
-        app_path=CONFIG_PATH,
+        dev_mode=Settings.dev_mode,
+        dev_url=Settings.dev_url,
+        prod_url=Settings.prod_url,
+        params=state.ui_params,
+        app_path=Settings.app_path,
     )
     return True
 
 
-async def clear_cache():
-    """Clear the Redis cache on shutdown."""
-    try:
-        await clear_redis_cache(db=params.cache.database, config=REDIS_CONFIG)
-    except RuntimeError as e:
-        log.error(str(e))
-        pass
+def register_all_plugins() -> None:
+    """Validate and register configured plugins."""
+
+    # Local
+    from .plugins import register_plugin, init_builtin_plugins
+
+    state = use_state()
+
+    # Register built-in plugins.
+    init_builtin_plugins()
+
+    failures = ()
+
+    # Register external directive-based plugins (defined in directives).
+    for plugin_file, directives in state.devices.directive_plugins().items():
+        failures += register_plugin(plugin_file, directives=directives)
+
+    # Register external global/common plugins (defined in config).
+    for plugin_file in state.params.common_plugins():
+        failures += register_plugin(plugin_file, common=True)
+
+    for failure in failures:
+        log.bind(plugin=failure).warning("Invalid hyperglass plugin")
 
 
-def cache_config() -> bool:
-    """Add configuration to Redis cache as a pickled object."""
-    # Standard Library
-    import pickle
+def unregister_all_plugins() -> None:
+    """Unregister all plugins."""
+    # Local
+    from .plugins import InputPluginManager, OutputPluginManager
 
-    cache = SyncCache(db=params.cache.database, **REDIS_CONFIG)
-    cache.set("HYPERGLASS_CONFIG", pickle.dumps(params))
-
-    return True
+    for manager in (InputPluginManager, OutputPluginManager):
+        manager().reset()
 
 
-def on_starting(server: Arbiter):
-    """Gunicorn pre-start tasks."""
+def start(*, log_level: t.Union[str, int], workers: int) -> None:
+    """Start hyperglass via ASGI server."""
 
-    setup_lib_logging()
+    register_all_plugins()
 
-    python_version = platform.python_version()
-    required = ".".join((str(v) for v in MIN_PYTHON_VERSION))
-    log.info("Python {} detected ({} required)", python_version, required)
+    if not Settings.disable_ui:
+        asyncio.run(build_ui())
 
-    async def runner():
-        # Standard Library
-        from asyncio import gather
-
-        await gather(build_ui(), cache_config())
-
-    check_redis_instance()
-    aiorun(build_ui())
-    cache_config()
-
-    log.success(
-        "Started hyperglass {v} on http://{h}:{p} with {w} workers",
-        v=__version__,
-        h=format_listen_address(params.listen_address),
-        p=str(params.listen_port),
-        w=server.app.cfg.settings["workers"].value,
-    )
-
-
-def on_exit(server: Arbiter):
-    """Gunicorn shutdown tasks."""
-
-    log.critical("Stopping hyperglass {}", __version__)
-
-    async def runner():
-        if not params.developer_mode:
-            await clear_cache()
-
-    aiorun(runner())
-
-
-class HyperglassWSGI(BaseApplication):
-    """Custom gunicorn app."""
-
-    def __init__(self, app, options):
-        """Initialize custom WSGI."""
-        self.application = app
-        self.options = options or {}
-        super().__init__()
-
-    def load_config(self):
-        """Load gunicorn config."""
-        config = {
-            key: value
-            for key, value in self.options.items()
-            if key in self.cfg.settings and value is not None
-        }
-
-        for key, value in config.items():
-            self.cfg.set(key.lower(), value)
-
-    def load(self):
-        """Load gunicorn app."""
-        return self.application
-
-
-def start(**kwargs):
-    """Start hyperglass via gunicorn."""
-    # Project
-    from hyperglass.api import app
-
-    HyperglassWSGI(
-        app=app,
-        options={
-            "worker_class": "uvicorn.workers.UvicornWorker",
-            "preload": True,
-            "keepalive": 10,
-            "command": shutil.which("gunicorn"),
-            "bind": ":".join(
-                (format_listen_address(params.listen_address), str(params.listen_port))
-            ),
-            "workers": workers,
-            "loglevel": loglevel,
-            "timeout": math.ceil(params.request_timeout * 1.25),
-            "on_starting": on_starting,
-            "on_exit": on_exit,
-            "logger_class": StubbedGunicornLogger,
-            "accesslog": "-",
-            "errorlog": "-",
-            "logconfig_dict": {"formatters": {"generic": {"format": "%(message)s"}}},
-            **kwargs,
+    uvicorn.run(
+        app="hyperglass.api:app",
+        host=str(Settings.host),
+        port=Settings.port,
+        workers=workers,
+        log_level=log_level,
+        log_config={
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "default": {
+                    "()": "uvicorn.logging.DefaultFormatter",
+                    "format": "%(message)s",
+                },
+                "access": {
+                    "()": "uvicorn.logging.AccessFormatter",
+                    "format": "%(message)s",
+                },
+            },
+            "handlers": {
+                "default": {"formatter": "default", "class": "hyperglass.log.LibInterceptHandler"},
+                "access": {"formatter": "access", "class": "hyperglass.log.LibInterceptHandler"},
+            },
+            "loggers": {
+                "uvicorn.error": {"level": "ERROR", "handlers": ["default"], "propagate": False},
+                "uvicorn.access": {"level": "INFO", "handlers": ["access"], "propagate": False},
+            },
         },
-    ).run()
+    )
+
+
+def run(workers: int = None):
+    """Run hyperglass."""
+    # Local
+    from .configuration import init_user_config
+
+    try:
+        log.debug(repr(Settings))
+
+        state = use_state()
+        state.clear()
+
+        init_user_config()
+
+        enable_file_logging(
+            directory=state.params.logging.directory,
+            max_size=state.params.logging.max_size,
+            log_format=state.params.logging.format,
+            level=LOG_LEVEL,
+        )
+
+        if state.params.logging.syslog is not None:
+            enable_syslog_logging(
+                host=state.params.logging.syslog.host,
+                port=state.params.logging.syslog.port,
+            )
+        _workers = workers
+
+        if workers is None:
+            if Settings.debug:
+                _workers = 1
+            else:
+                _workers = cpu_count(2)
+
+        log.bind(
+            version=__version__,
+            listening=f"http://{Settings.bind()}",
+            app_path=f"{Settings.app_path.absolute()!s}",
+            container=Settings.container,
+            original_app_path=f"{Settings.original_app_path.absolute()!s}",
+            workers=_workers,
+        ).info(
+            "Starting hyperglass",
+        )
+
+        start(log_level=LOG_LEVEL, workers=_workers)
+        log.bind(version=__version__).critical("Stopping hyperglass")
+    except Exception as error:
+        log.critical(error)
+        # Handle app exceptions.
+        if not Settings.dev_mode:
+            state = use_state()
+            state.clear()
+            log.debug("Cleared hyperglass state")
+        unregister_all_plugins()
+        raise error
+    except (SystemExit, BaseException):
+        unregister_all_plugins()
+        sys.exit(4)
 
 
 if __name__ == "__main__":
-    start()
+    run()

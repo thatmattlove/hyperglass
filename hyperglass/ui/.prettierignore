@@ -6,3 +6,5 @@ package-lock.json
 .eslintrc
 tsconfig.json
 .next/
+favicon-formats.ts
+custom.*[js, html]

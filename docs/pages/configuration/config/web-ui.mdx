@@ -1,0 +1,294 @@
+import { Callout } from "nextra/components";
+import { Color } from "~/components/color";
+
+## Web UI
+
+hyperglass provides extensive customization options for the look and feel of the web UI.
+
+| Parameter                   | Type   | Default Value | Description                                                                                                                                |
+| :-------------------------- | :----- | :------------ | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| `web.location_display_mode` | String | auto          | Show the locations field as a `dropdown`, `gallery`. When using `auto`, if there are more than 5 location groups, `dropdown` will be used. |
+| `web.custom_javascript`     | String |               | Path to a javascript file that will be loaded with the website.                                                                            |
+| `web.custom_html`           | String |               | Path to a custom HTML file that will be loaded with the website and rendered beneath the app.                                              |
+
+### DNS over HTTPS
+
+[DNS over HTTPS](https://www.rfc-editor.org/rfc/rfc8484) is used to look up an FQDN query target from the perspective of the user's browser.
+
+| Parameter           | Type   | Default Value                          | Description                                                                 |
+| :------------------ | :----- | :------------------------------------- | :-------------------------------------------------------------------------- |
+| `dns_provider.name` | String | cloudflare                             | If `cloudflare` or `google` are provided, no URL is necessary.              |
+| `dns_provider.url`  | String | `https://cloudflare-dns.com/dns-query` | Provide a custom DNS over HTTPS URL if you'd like to use your own resolver. |
+
+### Logo
+
+| Parameter          | Type             | Default Value | Description                                        |
+| :----------------- | :--------------- | :------------ | :------------------------------------------------- |
+| `web.logo.light`   | String           |               | Path to logo to show in light mode.                |
+| `web.logo.dark`    | String           |               | Path to logo to show in dark mode.                 |
+| `web.logo.favicon` | String           |               | Path to icon/logo from which to generate favicons. |
+| `web.logo.width`   | Number or String | 100%          | Width of logo, either as pixels or a percentage.   |
+| `web.logo.height`  | Number or String |               | Height of logo, either as pixels or a percentage.  |
+
+##### Example
+
+```yaml filename="config.yaml" copy
+web:
+    logo:
+        light: /path/to/light-logo.svg
+        dark: /path/to/dark-logo.svg
+        favicon: /path/to/favicon.svg
+        width: 100%
+        height: null
+```
+
+### Greeting
+
+The greeting is an optional modal/popup window that will present itself to users in the Web UI. It can be used for anything you want; for example:
+
+-   A data privacy acknowledgement that must be acknowledged prior to proceeding
+-   Information about your company
+-   Instructions on how to use hyperglass
+
+| Parameter               | Type    | Default Value | Description                                                                                          |
+| :---------------------- | :------ | :------------ | :--------------------------------------------------------------------------------------------------- |
+| `web.greeting.enable`   | Boolean | False         | Enable or disable the greeting.                                                                      |
+| `web.greeting.file`     | String  |               | Path to markdown or plain text file that contains greeting content.                                  |
+| `web.greeting.title`    | String  | Welcome       | Text to be used as the greeting title.                                                               |
+| `web.greeting.button`   | String  | Continue      | Text to be used for the button that acknowledges/closes the greeting.                                |
+| `web.greeting.required` | Boolean | False         | If `true`, users cannot close the modal or run any queries until the greeting has been acknowledged. |
+
+##### Example
+
+```yaml filename="config.yaml" copy
+web:
+    greeting:
+        enable: true
+        file: /path/to/your/file.md
+        title: Welcome
+        button: Continue
+        required: false
+```
+
+### OpenGraph
+
+[OpenGraph](https://ogp.me/) is the thing that generates the pretty pictures, titles, and descriptions for links when you post them to sites/tools such as Facebook, Twitter, Slack, etc. By default, [this Opengraph image](/opengraph.jpg) is used, but you can provide your own image. You don't need to worry about sizing or formatting it properly, hyperglass will handle this for you.
+
+| Parameter             | Type   | Default Value | Description                   |
+| :-------------------- | :----- | :------------ | :---------------------------- |
+| `web.opengraph.image` | String |               | Path to your OpenGraph image. |
+
+### Highlighting
+
+hyperglass can highlight special values in your router output and provide users with additional information about the content. For example, your organization's BGP communities or IP address space can be visually highlighted, and a tooltip can be shown when a user hovers over the highlighted value.
+
+Each value you wish to be highlighted is defined with the following schema:
+
+| Parameter | Type   | Default Value | Description                                             |
+| :-------- | :----- | :------------ | :------------------------------------------------------ |
+| `pattern` | String |               | RegEx pattern or string to match against router output. |
+| `label`   | String |               | Tooltip value when the highlighted text is hovered.     |
+| `color`   | String |               | Color name from [`web.theme.colors`](#colors).          |
+
+##### Example
+
+```yaml filename="config.yaml" copy
+web:
+    highlight:
+        - pattern: "65000:1234"
+          label: Special snowflake community that does a thing
+          color: primary
+        - pattern: '^192\.0\.2\.[0-9]+$'
+          label: Magical IP Address
+          color: blue
+```
+
+### Menus
+
+hyperglass can show completely-customizable menus in the footer. Each menu can be configured with the following schema:
+
+| Parameter | Type   | Default Value | Description                                                                                                                |
+| :-------- | :----- | :------------ | :------------------------------------------------------------------------------------------------------------------------- |
+| `title`   | String |               | Menu title, will be the text that shows on footer.                                                                         |
+| `content` | String |               | Plain text or markdown content of the menu or path to a file that contains plain text or markdown content.                 |
+| `side`    | String | left          | Side of the footer with which the menu will be grouped.                                                                    |
+| `order`   | Number | 0             | Optionally specify an order for each menu item. If not specified, menus will be rendered in the order they are configured. |
+
+##### Example
+
+```yaml filename="config.yaml" copy
+web:
+  menus:
+    - title: Terms & Conditions
+      content:
+        | **Don't** break stuff!
+          _please_
+      side: right
+      order: 1
+    - title: Help
+      content: /path/to/help/file.md
+      side: left
+      order: 0
+```
+
+### Links
+
+hyperglass can show customizable links to anything you think your users might find helpful. Each link can be configured with the following schema:
+
+| Parameter   | Type    | Default Value | Description                                                                                                           |
+| :---------- | :------ | :------------ | :-------------------------------------------------------------------------------------------------------------------- |
+| `title`     | String  |               | Link text.                                                                                                            |
+| `url`       | String  |               | Link URL.                                                                                                             |
+| `show_icon` | Boolean | True          | If `true`, an icon indicating the link is an external link is shown.                                                  |
+| `side`      | String  | left          | Side of the footer with which the link will be grouped.                                                               |
+| `order`     | Number  | 0             | Optionally specify an order for each link. If not specified, links will be rendered in the order they are configured. |
+
+##### Example
+
+```yaml filename="config.yaml" copy
+web:
+    links:
+        - title: PeeringDB
+          url: https://www.peeringdb.com/65000
+          show_icon: true
+          side: right
+          order: 1
+        - title: Our Website
+          url: https://example.com
+          show_icon: false
+          side: left
+          order: 0
+```
+
+### Credit
+
+| Parameter |  Type   | Default | Description                                                                              |
+| :-------- | :-----: | :-----: | :--------------------------------------------------------------------------------------- |
+| `enable`  | Boolean | `true`  | Enable or disable the display of developer credit & link to hyperglass GitHub repository |
+
+<Callout emoji="❤️" type="info">
+    **Note from the Developer**
+    <br /> If your organization's policy allows, and you don't mind, I request that you keep `credit`
+    enabled. Remember: my goal for this project is get more networks to use looking glasses to make all
+    of our lives easier. Because it's primarily other network operators who will use this tool to begin
+    with, I'd love for any operators that use your looking glass to know where they can get their own.
+</Callout>
+
+### Text
+
+Most of the text in the hyperglass UI can be overridden to suit your needs.
+
+| Parameter                    | Type   | Default Value                         | Description                                                                                                                                                             |
+| :--------------------------- | :----- | :------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `web.text.title_mode`        | String | logo_only                             | See [title mode section](#title-mode)                                                                                                                                   |
+| `web.text.title`             | String | hyperglass                            | Title text.                                                                                                                                                             |
+| `web.text.subtitle`          | String | Network Looking Glass                 | Subtitle text.                                                                                                                                                          |
+| `web.text.query_location`    | String | Location                              | Text used to label the query location (router) field.                                                                                                                   |
+| `web.text.query_type`        | String | Query Type                            | Text used to label the query type (directive) field.                                                                                                                    |
+| `web.text.query_target`      | String | Target                                | Text used to label the query target field.                                                                                                                              |
+| `web.text.fqdn_tooltip`      | String | Use \{protocol\}                      | Tooltip text used when a user hovers over the FQDN tooltip.                                                                                                             |
+| `web.text.fqdn_message`      | String | Your browser has resolved \{fqdn\} to | Text used when prompting a user to select a resolve IPv4 or IPv6 address for an FQDN query.                                                                             |
+| `web.text.fqdn_error`        | String | Unable to resolve \{fqdn\}            | Text used when an FQDN is not resolvable.                                                                                                                               |
+| `web.text.fqdn_error_button` | String | Try Again                             | Button text used when an FQDN is not resolvable.                                                                                                                        |
+| `web.text.cache_prefix`      | String | Results cached for                    | Text displayed with the cache timeout countdown.                                                                                                                        |
+| `web.text.cache_icon`        | String | Cached from \{time\} UTC              | Text used when a user hovers over the cache icon, which is displayed when a response was a cached response. `{time}` is replaced with the _original_ query's timestamp. |
+| `web.text.complete_time`     | String | Completed in \{seconds\}              | Text used when a user hovers over the success icon for a query result. `{seconds}` will be replaced with 'n seconds' where n is the time a query took to complete.      |
+| `web.text.rpki_invalid`      | String | Invalid                               | Text used in table output when a route's RPKI status is invalid.                                                                                                        |
+| `web.text.rpki_valid`        | String | Valid                                 | Text used in table output when a route's RPKI status is valid.                                                                                                          |
+| `web.text.rpki_unknown`      | String | No ROAs Exist                         | Text used in table output when a route's RPKI status is unknown.                                                                                                        |
+| `web.text.rpki_unverified`   | String | Not Verified                          | Text used in table output when a route's RPKI status is unverified.                                                                                                     |
+| `web.text.no_communities`    | String | No Communities                        | Text used in table output when a route has no communities.                                                                                                              |
+| `web.text.ip_error`          | String | Unable to determine IP Address        | Error displayed if hyperglass is unable to determine the user's IP.                                                                                                     |
+| `web.text.no_ip`             | String | No \{protocol\} Address               | Text displayed if the user doesn't have an IP address of \{protocol\} (IPv4 or IPv6).                                                                                   |
+| `web.text.ip_select`         | String | Select an IP Address                  | Text used to label the IP Address selection for the user's IP.                                                                                                          |
+| `web.text.ip_button`         | String | My IP                                 | Text used for the user IP button.                                                                                                                                       |
+
+#### Title Mode
+
+Available title modes are:
+
+| `title_mode` Value | Action                                                              |
+| :----------------- | :------------------------------------------------------------------ |
+| `logo_only`        | Only the logo is displayed, no title or subtitle will be visible.   |
+| `text_only`        | Only the title and subtitle are displayed, no logo will be visible. |
+| `logo_subtitle`    | Only the logo and subtitle are displayed, no title will be visible. |
+| `all`              | Logo, title, and subtitle will all be visible.                      |
+
+##### Example
+
+```yaml filename="config.yaml"
+web:
+    text:
+        title: Our Looking Glass
+        subtitle: Company Name, Inc.
+        title_mode: text_only
+```
+
+### Theme
+
+hyperglass allows you to customize the colors and fonts used in the Web UI.
+
+| Parameter                      | Type   | Default Value | Description                                                                                                      |
+| :----------------------------- | :----- | :------------ | :--------------------------------------------------------------------------------------------------------------- |
+| `web.theme.default_color_mode` | String |               | Set hyperglass's default color mode. By default, the user's system preference is used. Must be `light` or `dark` |
+
+#### Colors
+
+##### Intrinsic Colors
+
+| Parameter                 | Default Value           |
+| :------------------------ | :---------------------- |
+| `web.theme.colors.black`  | <Color hex="#000000" /> |
+| `web.theme.colors.white`  | <Color hex="#ffffff" /> |
+| `web.theme.colors.dark`   | <Color hex="#010101"/>  |
+| `web.theme.colors.light`  | <Color hex="#f5f6f7"/>  |
+| `web.theme.colors.gray`   | <Color hex="#c1c7cc"/>  |
+| `web.theme.colors.red`    | <Color hex="#d84b4b"/>  |
+| `web.theme.colors.orange` | <Color hex="#ff6b35"/>  |
+| `web.theme.colors.yellow` | <Color hex="#edae49"/>  |
+| `web.theme.colors.green`  | <Color hex="#35b246"/>  |
+| `web.theme.colors.blue`   | <Color hex="#314cb6"/>  |
+| `web.theme.colors.teal`   | <Color hex="#35b299"/>  |
+| `web.theme.colors.cyan`   | <Color hex="#118ab2"/>  |
+| `web.theme.colors.pink`   | <Color hex="#f2607d"/>  |
+| `web.theme.colors.purple` | <Color hex="#8d30b5"/>  |
+
+##### Functional Colors
+
+| Parameter                    | Default Value          |
+| :--------------------------- | :--------------------- |
+| `web.theme.colors.primary`   | <Color hex="#118ab2"/> |
+| `web.theme.colors.secondary` | <Color hex="#314cb6"/> |
+| `web.theme.colors.success`   | <Color hex="#35b246"/> |
+| `web.theme.colors.warning`   | <Color hex="#edae49"/> |
+| `web.theme.colors.error`     | <Color hex="#ff6b35"/> |
+| `web.theme.colors.danger`    | <Color hex="#d84b4b"/> |
+
+###### Example
+
+To override hyperglass's primary color, it's recommended to override its mapped intrinsic color. For example, to override the default primary color to <Color hex="#00ffff" noText /> cyan:
+
+```yaml filename="config.yaml"
+web:
+    theme:
+        colors:
+            cyan: "#00ffff"
+```
+
+#### Fonts
+
+hyperglass's fonts are loaded from [Google Fonts](https://fonts.google.com/). Any Google font name may be specified to override the default fonts.
+
+| Parameter              | Type   | Default Value | Description                                                                              |
+| :--------------------- | :----- | :------------ | :--------------------------------------------------------------------------------------- |
+| `web.theme.fonts.body` | String | Nunito        | Font for all standard body text, including headings.                                     |
+| `web.theme.fonts.mono` | String | Fire Code     | Font for all monospace text such as inline code or code blocks, including device output. |
+
+##### Example
+
+```yaml filename="config.yaml"
+web:
+    theme:
+        fonts:
+            body: Inter
+```

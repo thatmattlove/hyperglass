@@ -1,0 +1,44 @@
+---
+title: Configuration File
+description: hyperglass config.yaml file reference
+---
+
+The `config.yaml` file is broken into multiple sections:
+
+## Top Level Parameters
+
+| Parameter          | Type            | Default Value                    | Description                                                   |
+| :----------------- | :-------------- | :------------------------------- | :------------------------------------------------------------ |
+| `org_name`         | String          | Beloved Hyperglass User          | Your organization's name.                                     |
+| `plugins`          | List of Strings |                                  | List of hyperglass [plugins](/plugins) to load.               |
+| `primary_asn`      | String          | 65000                            | Your organization's primary ASN. Used to set default UI text. |
+| `request_timeout`  | Number          | 90                               | Global timeout in seconds for all requests.                   |
+| `site_description` | String          | `org_name` Network Looking Glass | `<meta>` description, also used in the API documentation.     |
+| `site_title`       | String          | `org_name`                       | Browser title, also used in the default terms & conditions.   |
+
+#### Example with Defaults
+
+```yaml filename="config.yaml"
+org_name: Beloved Hyperglass User
+plugins: []
+primary_asn: 65000
+request_timeout: 90
+site_description: Beloved Hyperglass User Network Looking Glass
+site_title: Beloved Hyperglass User
+```
+
+## Other Configuration Sections
+
+| Parameter    | Docs                                                                   | Description                                                      |
+| :----------- | :--------------------------------------------------------------------- | :--------------------------------------------------------------- |
+| `cache`      | [Caching Docs](/configuration/config/caching.mdx)                      | Customize how hyperglass caches responses.                       |
+| `logging`    | [Logging Docs](/configuration/config/logging.mdx)                      | Customize file logging, syslog, webhooks, etc.                   |
+| `messages`   | [Messages Docs](/configuration/config/messages.mdx)                    | Customize messages shown to users.                               |
+| `structured` | [Structured Output Docs](/configuration/config/structured-ouptput.mdx) | Customize how hyperglass handles structured output from devices. |
+| `web`        | [Web UI Docs](/configuration/config/web-ui.mdx)                        | Customize the look and feel of hyperglass's web UI.              |
+
+## Caveats
+
+### Arista EOS
+
+For whatever reason, the tested version of Arista EOS does not supply certain details about routes in its JSON output when running commands `show ip bgp regex <pattern>` or `show ip bgp community <community>`. Specifically, the the route's timestamp and any attached communities are not supplied. When these commands are used with Arista EOS, hyperglass sets the timestamp to the current time, and the community to an empty list.

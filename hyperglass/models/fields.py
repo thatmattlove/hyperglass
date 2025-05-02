@@ -2,80 +2,56 @@
 
 # Standard Library
 import re
-from typing import TypeVar
+import typing as t
 
 # Third Party
-from pydantic import StrictInt, StrictFloat, constr
+from pydantic import AfterValidator, BeforeValidator
 
-IntFloat = TypeVar("IntFloat", StrictInt, StrictFloat)
+IntFloat = t.TypeVar("IntFloat", int, float)
+J = t.TypeVar("J")
 
-SupportedDriver = constr(regex=r"(scrapli|netmiko|hyperglass_agent)")
-
-
-class StrictBytes(bytes):
-    """Custom data type for a strict byte string.
-
-    Used for validating the encoded JWT request payload.
-    """
-
-    @classmethod
-    def __get_validators__(cls):
-        """Yield Pydantic validator function.
-
-        See: https://pydantic-docs.helpmanual.io/usage/types/#custom-data-types
-
-        Yields:
-            {function} -- Validator
-        """
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, value):
-        """Validate type.
-
-        Arguments:
-            value {Any} -- Pre-validated input
-
-        Raises:
-            TypeError: Raised if value is not bytes
-
-        Returns:
-            {object} -- Instantiated class
-        """
-        if not isinstance(value, bytes):
-            raise TypeError("bytes required")
-        return cls()
-
-    def __repr__(self):
-        """Return representation of object.
-
-        Returns:
-            {str} -- Representation
-        """
-        return f"StrictBytes({super().__repr__()})"
+SupportedDriver = t.Literal["netmiko", "hyperglass_agent"]
+HttpAuthMode = t.Literal["basic", "api_key"]
+HttpProvider = t.Literal["msteams", "slack", "generic"]
+LogFormat = t.Literal["text", "json"]
+Primitives = t.Union[None, float, int, bool, str]
+JsonValue = t.Union[J, t.Sequence[J], t.Dict[str, J]]
+ActionValue = t.Literal["permit", "deny"]
+HttpMethodValue = t.Literal[
+    "CONNECT",
+    "DELETE",
+    "GET",
+    "HEAD",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+    "TRACE",
+]
 
 
-class AnyUri(str):
-    """Custom field type for HTTP URI, e.g. /example."""
+def validate_uri(value: str) -> str:
+    """Ensure URI string contains a leading forward-slash."""
+    uri_regex = re.compile(r"^(\/.*)$")
+    match = uri_regex.fullmatch(value)
+    if not match:
+        raise ValueError("Invalid format. A URI must begin with a forward slash, e.g. '/example'")
+    return match.group()
 
-    @classmethod
-    def __get_validators__(cls):
-        """Pydantic custim field method."""
-        yield cls.validate
 
-    @classmethod
-    def validate(cls, value):
-        """Ensure URI string contains a leading forward-slash."""
-        uri_regex = re.compile(r"^(\/.*)$")
-        if not isinstance(value, str):
-            raise TypeError("AnyUri type must be a string")
-        match = uri_regex.fullmatch(value)
-        if not match:
-            raise ValueError(
-                "Invalid format. A URI must begin with a forward slash, e.g. '/example'"
-            )
-        return cls(match.group())
+def validate_action(value: str) -> ActionValue:
+    """Ensure action is an allowed value or acceptable alias."""
+    permits = ("permit", "allow", "accept")
+    denies = ("deny", "block", "reject")
+    value = value.strip().lower()
+    if value in permits:
+        return "permit"
+    if value in denies:
+        return "deny"
 
-    def __repr__(self):
-        """Stringify custom field representation."""
-        return f"AnyUri({super().__repr__()})"
+    raise ValueError("Action must be one of '{}'".format(", ".join((*permits, *denies))))
+
+
+AnyUri = t.Annotated[str, AfterValidator(validate_uri)]
+Action = t.Annotated[ActionValue, AfterValidator(validate_action)]
+HttpMethod = t.Annotated[HttpMethodValue, BeforeValidator(str.upper)]

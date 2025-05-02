@@ -2,25 +2,17 @@
 
 # Standard Library
 import shutil
+import typing as t
 from queue import Queue
-from typing import List, Tuple, Union, Iterable, Optional, Generator
 from pathlib import Path
 from threading import Thread
 
-# Project
-from hyperglass.log import log
 
+async def move_files(src: Path, dst: Path, files: t.Iterable[Path]) -> t.Tuple[str]:  # noqa: C901
+    """Move iterable of files from source to destination."""
 
-async def move_files(  # noqa: C901
-    src: Path, dst: Path, files: Iterable[Path]
-) -> Tuple[str]:
-    """Move iterable of files from source to destination.
-
-    Arguments:
-        src {Path} -- Current directory of files
-        dst {Path} -- Target destination directory
-        files {Iterable} -- Iterable of files
-    """
+    # Project
+    from hyperglass.log import log
 
     def error(*args, **kwargs):
         msg = ", ".join(args)
@@ -32,16 +24,16 @@ async def move_files(  # noqa: C901
     if not isinstance(src, Path):
         try:
             src = Path(src)
-        except TypeError:
-            raise error("{p} is not a valid path", p=src)
+        except TypeError as err:
+            raise error("{p} is not a valid path", p=src) from err
 
     if not isinstance(dst, Path):
         try:
             dst = Path(dst)
-        except TypeError:
-            raise error("{p} is not a valid path", p=dst)
+        except TypeError as err:
+            raise error("{p} is not a valid path", p=dst) from err
 
-    if not isinstance(files, (List, Tuple, Generator)):
+    if not isinstance(files, (t.List, t.Tuple, t.Generator)):
         raise error(
             "{fa} must be an iterable (list, tuple, or generator). Received {f}",
             fa="Files argument",
@@ -65,7 +57,7 @@ async def move_files(  # noqa: C901
                 shutil.copyfile(file, dst_file)
                 migrated += (str(dst_file),)
         except Exception as e:
-            raise error("Failed to migrate {f}: {e}", f=dst_file, e=e)
+            raise error("Failed to migrate {f}: {e}", f=dst_file, e=e) from e
 
     return migrated
 
@@ -97,8 +89,12 @@ class FileCopy(Thread):
             pass
 
 
-def copyfiles(src_files: Iterable[Path], dst_files: Iterable[Path]):
+def copyfiles(src_files: t.Iterable[Path], dst_files: t.Iterable[Path]):
     """Copy iterable of files from source to destination with threading."""
+
+    # Project
+    from hyperglass.log import log
+
     queue = Queue()
     threads = ()
     src_files_len = len(src_files)
@@ -112,52 +108,78 @@ def copyfiles(src_files: Iterable[Path], dst_files: Iterable[Path]):
             )
         )
 
-    for i, file in enumerate(src_files):
-        file_thread = FileCopy(src=file, dst=dst_files[i], queue=queue)
+    for i, file_ in enumerate(src_files):
+        file_thread = FileCopy(src=file_, dst=dst_files[i], queue=queue)
         threads += (file_thread,)
 
     for thread in threads:
         thread.start()
 
-    for _file in src_files:
+    for _ in src_files:
         copied = queue.get()
-        log.debug("Copied {}", str(copied))
+        log.bind(path=copied).debug("Copied file", path=copied)
 
     for thread in threads:
         thread.join()
 
-    for i, file in enumerate(dst_files):
-        if not file.exists():
-            raise RuntimeError("{} was not copied to {}", str(src_files[i]), str(file))
+    for i, file_ in enumerate(dst_files):
+        if not file_.exists():
+            raise RuntimeError("{!s} was not copied to {!s}", src_files[i], file_)
 
     return True
 
 
 def check_path(
-    path: Union[Path, str], mode: str = "r", create: bool = False
-) -> Optional[Path]:
+    path: t.Union[Path, str], *, mode: str = "r", create: bool = False
+) -> t.Optional[Path]:
     """Verify if a path exists and is accessible."""
 
     result = None
 
-    try:
-        if not isinstance(path, Path):
-            path = Path(path)
+    if not isinstance(path, Path):
+        path = Path(path)
 
-        if not path.exists():
-            if create:
-                if path.is_file():
-                    path.parent.mkdir(parents=True)
-                else:
-                    path.mkdir(parents=True)
+    if not path.exists():
+        if create:
+            if path.is_file():
+                path.parent.mkdir(parents=True)
             else:
-                raise FileNotFoundError(f"{str(path)} does not exist.")
+                path.mkdir(parents=True)
+        else:
+            raise FileNotFoundError(f"{str(path)} does not exist.")
 
-        if path.exists():
+    if path.exists():
+        if path.is_file():
             with path.open(mode):
                 result = path
+        else:
+            result = path
 
-    except Exception:  # noqa: S110
-        pass
+    return result
+
+
+def dotenv_to_dict(dotenv: t.Union[Path, str]) -> t.Dict[str, str]:
+    """Convert a .env file to a Python dict."""
+    if not isinstance(dotenv, (Path, str)):
+        raise TypeError("Argument 'file' must be a Path object or string")
+    result = {}
+    data = ""
+    if isinstance(dotenv, Path):
+        if not dotenv.exists():
+            raise FileNotFoundError("{!r} does not exist", str(dotenv))
+        with dotenv.open("r") as f:
+            data = f.read()
+    else:
+        data = dotenv
+
+    for line in (line for line in (line.strip() for line in data.splitlines()) if line):
+        parts = line.split("=")
+        if len(parts) != 2:
+            raise TypeError(
+                f"Line {line!r} is improperly formatted. "
+                "Expected a key/value pair such as 'key=value'"
+            )
+        key, value = line.split("=")
+        result[key.strip()] = value.strip()
 
     return result

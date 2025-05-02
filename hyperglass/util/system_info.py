@@ -2,20 +2,18 @@
 
 # Standard Library
 import os
+import sys
+import typing as t
 import platform
-from typing import Dict, Tuple, Union
 
 # Third Party
 import psutil as _psutil
-from cpuinfo import get_cpu_info as _get_cpu_info
+from cpuinfo import get_cpu_info as _get_cpu_info  # type: ignore
 
 # Project
 from hyperglass.constants import __version__
 
-# Local
-from .frontend import get_node_version
-
-SystemData = Dict[str, Tuple[Union[str, int], str]]
+SystemData = t.Dict[str, t.Tuple[t.Union[str, int], str]]
 
 
 def _cpu() -> SystemData:
@@ -24,6 +22,7 @@ def _cpu() -> SystemData:
     brand = cpu_info.get("brand_raw", "")
     cores_logical = _psutil.cpu_count()
     cores_raw = _psutil.cpu_count(logical=False)
+    # TODO: this is currently broken for M1 Macs, check status of: https://github.com/giampaolo/psutil/issues/1892
     cpu_ghz = _psutil.cpu_freq().current / 1000
     return (brand, cores_logical, cores_raw, cpu_ghz)
 
@@ -42,6 +41,48 @@ def _disk() -> SystemData:
     total_gb = round(disk_info.total / 1e9, 2)
     usage_percent = disk_info.percent
     return (total_gb, usage_percent)
+
+
+def get_node_version() -> t.Tuple[int, int, int]:
+    """Get the system's NodeJS version."""
+
+    # Standard Library
+    import shutil
+    import subprocess
+
+    node_path = shutil.which("node")
+
+    raw_version = subprocess.check_output([node_path, "--version"]).decode()  # noqa: S603
+
+    # Node returns the version as 'v14.5.0', for example. Remove the v.
+    version = raw_version.replace("v", "")
+    # Parse the version parts.
+    return tuple((int(v) for v in version.split(".")))
+
+
+def cpu_count(multiplier: int = 0) -> int:
+    """Get server's CPU core count.
+
+    Used to determine the number of web server workers.
+    """
+    # Standard Library
+    import multiprocessing
+
+    return multiprocessing.cpu_count() * multiplier
+
+
+def check_python() -> str:
+    """Verify Python Version."""
+    # Project
+    from hyperglass.constants import MIN_PYTHON_VERSION
+
+    pretty_version = ".".join(tuple(str(v) for v in MIN_PYTHON_VERSION))
+    running_version = ".".join(
+        str(v) for v in (sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
+    )
+    if sys.version_info < MIN_PYTHON_VERSION:
+        raise RuntimeError(f"Python {pretty_version}+ is required (Running {running_version})")
+    return running_version
 
 
 def get_system_info() -> SystemData:

@@ -1,15 +1,14 @@
-import { Box } from '@chakra-ui/react';
-import { useColorValue } from '~/context';
+import { chakra } from '@chakra-ui/react';
+import { useColorValue } from '~/hooks';
 
 import type { BoxProps } from '@chakra-ui/react';
 
-export const TableMain: React.FC<BoxProps> = (props: BoxProps) => {
+export const TableMain = (props: BoxProps): JSX.Element => {
   const scrollbar = useColorValue('blackAlpha.300', 'whiteAlpha.300');
   const scrollbarHover = useColorValue('blackAlpha.400', 'whiteAlpha.400');
   const scrollbarBg = useColorValue('blackAlpha.50', 'whiteAlpha.50');
   return (
-    <Box
-      as="table"
+    <chakra.table
       display="block"
       overflowX="auto"
       borderRadius="md"

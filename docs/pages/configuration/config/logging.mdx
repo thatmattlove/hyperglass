@@ -1,0 +1,90 @@
+## Logging
+
+Console, file, HTTP, and/or syslog logging configuration.
+
+| Parameter   | Type   | Default Value | Description                                     |
+| :---------- | :----- | :------------ | :---------------------------------------------- |
+| `directory` | String | /tmp          | Path to directory where logs will be created.   |
+| `format`    | String | text          | Log text format, must be `text` or `json`.      |
+| `max_size`  | String | 50MB          | Maximum log file size before being overwritten. |
+
+### Syslog
+
+| Parameter | Type   | Default Value | Description             |
+| :-------- | :----- | :------------ | :---------------------- |
+| `host`    | String |               | Syslog target host.     |
+| `port`    | Number | 514           | Syslog target UDP port. |
+
+##### Syslog Example
+
+```yaml filename="config.yaml" copy
+logging:
+    syslog:
+        host: log.example.com
+        port: 514
+```
+
+### HTTP Logging
+
+If enabled, logs will be sent by HTTP `POST` method.
+
+| Parameter    | Type    | Default Value | Description                                     |
+| :----------- | :------ | :------------ | :---------------------------------------------- |
+| `provider`   | String  | generic       | Must be `generic`, `msteams`, or `slack`.       |
+| `host`       | String  |               | URL                                             |
+| `headers`    | Map     |               |                                                 |
+| `params`     | Map     |               |                                                 |
+| `verify_ssl` | Boolean | true          | Enable or disable SSL certificate verification. |
+| `timeout`    | Number  | 5             | HTTP connection timeout in seconds.             |
+
+#### Authentication
+
+Authentication is supported using HTTP basic authentication or an API key.
+
+| Parameter                      | Type   | Default Value | Description                                                                                                |
+| :----------------------------- | :----- | :------------ | :--------------------------------------------------------------------------------------------------------- |
+| `http.authentication.mode`     | String | basic         | Must be `basic` or `api_key`.                                                                              |
+| `http.authentication.username` | String |               | Basic authentication username if `mode` is set to `basic`.                                                 |
+| `http.authentication.password` | String |               | Basic authentication password if `mode` is set to `basic`, or API key value if `mode` is set to `api_key`. |
+| `http.authentication.header`   | String | X-API-Key     | Header name if `mode` is set to `api_key`.                                                                 |
+
+#### Examples
+
+##### Generic
+
+```yaml filename="config.yaml" copy
+logging:
+    http:
+        provider: generic
+        host: https://httpbin.org
+        headers:
+            x-special-header: super special header value
+        params:
+            source: hyperglass
+        verify_ssl: true
+        timeout: 5
+        authentication:
+            mode: basic
+            username: your username
+            password: super secret password
+```
+
+In the above example, hyperglass will send a `POST` request to `https://httpbin.org?source=hyperglass` with Basic Authentication headers set.
+
+##### Microsoft Teams Webhook
+
+```yaml filename="config.yaml" copy
+logging:
+    http:
+        provider: msteams
+        host: <MS Teams webhook URL>
+```
+
+##### Slack
+
+```yaml filename="config.yaml" copy
+logging:
+    http:
+        provider: slack
+        host: <Slack webhook URL>
+```

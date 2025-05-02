@@ -1,4 +1,8 @@
 .DS_Store
+.env*
+hyperglass.json
+custom.*[js, html]
+*.tsbuildinfo
 # dev/test files
 TODO.txt
 *.tmp*

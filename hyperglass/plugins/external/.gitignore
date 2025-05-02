@@ -1,0 +1,4 @@
+# Ignore all files as they're imported at runtime.
+*
+!__init__.py
+!.gitignore

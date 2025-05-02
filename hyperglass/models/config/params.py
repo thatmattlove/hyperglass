@@ -1,185 +1,168 @@
 """Configuration validation entry point."""
 
 # Standard Library
-from typing import List, Union, Optional
-from ipaddress import ip_address
+import typing as t
+import urllib.parse
+from pathlib import Path
 
 # Third Party
-from pydantic import (
-    Field,
-    StrictInt,
-    StrictStr,
-    StrictBool,
-    IPvAnyAddress,
-    constr,
-    validator,
-)
+from pydantic import Field, HttpUrl, ConfigDict, ValidationInfo, field_validator
+
+# Project
+from hyperglass.settings import Settings
+from hyperglass.constants import __version__
 
 # Local
 from .web import Web
 from .docs import Docs
 from ..main import HyperglassModel
 from .cache import Cache
-from ..fields import IntFloat
 from .logging import Logging
-from .queries import Queries
 from .messages import Messages
 from .structured import Structured
 
-Localhost = constr(regex=r"localhost")
+Localhost = t.Literal["localhost"]
 
 
-class Params(HyperglassModel):
-    """Validation model for all configuration variables."""
+class APIParams(t.TypedDict):
+    """/api/info response model."""
 
-    # Top Level Params
-    debug: StrictBool = Field(
-        False,
-        title="Debug",
-        description="Enable debug mode. Warning: this will generate a *lot* of log output.",
-    )
-    developer_mode: StrictBool = Field(
-        False,
-        title="Developer Mode",
-        description='Enable developer mode. If enabled, the hyperglass backend (Python) and frontend (React/Javascript) applications are "unlinked", so that React tools can be used for front end development. A `<Debugger />` convenience component is also displayed in the UI for easier UI development.',
-    )
-    fake_output: StrictBool = Field(
-        False,
-        title="Fake Output",
-        description="If enabled, the hyperglass backend will return static fake output for development/testing purposes.",
-    )
-    primary_asn: Union[StrictInt, StrictStr] = Field(
-        "65001",
-        title="Primary ASN",
-        description="Your network's primary ASN. This field is used to set some useful defaults such as the subtitle and PeeringDB URL.",
-    )
-    org_name: StrictStr = Field(
-        "Beloved Hyperglass User",
-        title="Organization Name",
-        description="Your organization's name. This field is used in the UI & API documentation to set fields such as `<meta/>` HTML tags for SEO and the terms & conditions footer component.",
-    )
-    site_title: StrictStr = Field(
-        "hyperglass",
-        title="Site Title",
-        description="The name of your hyperglass site. This field is used in the UI & API documentation to set fields such as the `<title/>` HTML tag, and the terms & conditions footer component.",
-    )
-    site_description: StrictStr = Field(
-        "{org_name} Network Looking Glass",
-        title="Site Description",
-        description='A short description of your hyperglass site. This field is used in th UI & API documentation to set the `<meta name="description"/>` tag. `{org_name}` may be used to insert the value of the `org_name` field.',
-    )
-    site_keywords: List[StrictStr] = Field(
-        [
-            "hyperglass",
-            "looking glass",
-            "lg",
-            "peer",
-            "peering",
-            "ip",
-            "ipv4",
-            "ipv6",
-            "transit",
-            "community",
-            "communities",
-            "bgp",
-            "routing",
-            "network",
-            "isp",
-            "internet service provider",
-        ],
-        title="Site Keywords",
-        description='Keywords pertaining to your hyperglass site. This field is used to generate `<meta name="keywords"/>` HTML tags, which helps tremendously with SEO.',
-    )
-    request_timeout: StrictInt = Field(
+    name: str
+    organization: str
+    primary_asn: int
+    version: str
+
+
+class ParamsPublic(HyperglassModel):
+    """Public configuration parameters."""
+
+    request_timeout: int = Field(
         90,
         title="Request Timeout",
         description="Global timeout in seconds for all requests. The frontend application (UI) uses this field's exact value when submitting queries. The backend application uses this field's value, minus one second, for its own timeout handling. This is to ensure a contextual timeout error is presented to the end user in the event of a backend application timeout.",
     )
-    listen_address: Optional[Union[IPvAnyAddress, Localhost]] = Field(
-        None,
-        title="Listen Address",
-        description="Local IP Address or hostname the hyperglass application listens on to serve web traffic.",
+    primary_asn: t.Union[int, str] = Field(
+        "65001",
+        title="Primary ASN",
+        description="Your network's primary ASN. This field is used to set some useful defaults such as the subtitle and PeeringDB URL.",
     )
-    listen_port: StrictInt = Field(
-        8001,
-        title="Listen Port",
-        description="Local TCP port the hyperglass application listens on to serve web traffic.",
+    org_name: str = Field(
+        "Beloved Hyperglass User",
+        title="Organization Name",
+        description="Your organization's name. This field is used in the UI & API documentation to set fields such as `<meta/>` HTML tags for SEO and the terms & conditions footer component.",
     )
-    cors_origins: List[StrictStr] = Field(
+    site_title: str = Field(
+        "hyperglass",
+        title="Site Title",
+        description="The name of your hyperglass site. This field is used in the UI & API documentation to set fields such as the `<title/>` HTML tag, and the terms & conditions footer component.",
+    )
+    site_description: str = Field(
+        "{org_name} Network Looking Glass",
+        title="Site Description",
+        description='A short description of your hyperglass site. This field is used in th UI & API documentation to set the `<meta name="description"/>` tag. `{org_name}` may be used to insert the value of the `org_name` field.',
+    )
+
+
+class Params(ParamsPublic, HyperglassModel):
+    """Validation model for all configuration variables."""
+
+    model_config = ConfigDict(json_schema_extra={"level": 1})
+
+    # Top Level Params
+
+    fake_output: bool = Field(
+        False,
+        title="Fake Output",
+        description="If enabled, the hyperglass backend will return static fake output for development/testing purposes.",
+    )
+    cors_origins: t.List[str] = Field(
         [],
         title="Cross-Origin Resource Sharing",
         description="Allowed CORS hosts. By default, no CORS hosts are allowed.",
     )
-    netmiko_delay_factor: IntFloat = Field(
-        0.1,
-        title="Netmiko Delay Factor",
-        description="Override the netmiko global delay factor.",
-    )
-    google_analytics: Optional[StrictStr]
+    plugins: t.List[str] = []
 
     # Sub Level Params
     cache: Cache = Cache()
     docs: Docs = Docs()
     logging: Logging = Logging()
     messages: Messages = Messages()
-    queries: Queries = Queries()
     structured: Structured = Structured()
     web: Web = Web()
 
-    class Config:
-        """Pydantic model configuration."""
+    def __init__(self, **kw: t.Any) -> None:
+        return super().__init__(**self.convert_paths(kw))
 
-        schema_extra = {"level": 1}
+    @field_validator("site_description")
+    def validate_site_description(cls: "Params", value: str, info: ValidationInfo) -> str:
+        """Format the site description with the org_name field."""
+        return value.format(org_name=info.data.get("org_name"))
 
-    @validator("listen_address", pre=True, always=True)
-    def validate_listen_address(cls, value, values):
-        """Set default listen_address based on debug mode.
+    @field_validator("primary_asn")
+    def validate_primary_asn(cls: "Params", value: t.Union[int, str]) -> str:
+        """Stringify primary_asn if passed as an integer."""
+        return str(value)
 
-        Arguments:
-            value {str|IPvAnyAddress|None} -- listen_address
-            values {dict} -- already-validated entries before listen_address
+    @field_validator("plugins")
+    def validate_plugins(cls: "Params", value: t.List[str]) -> t.List[str]:
+        """Validate and register configured plugins."""
+        plugin_dir = Settings.app_path / "plugins"
 
-        Returns:
-            {str} -- Validated listen_address
-        """
-        if value is None and not values["debug"]:
-            listen_address = ip_address("127.0.0.1")
-        elif value is None and values["debug"]:
-            listen_address = ip_address("0.0.0.0")  # noqa: S104
-        elif isinstance(value, str) and value != "localhost":
-            try:
-                listen_address = ip_address(value)
-            except ValueError:
-                raise ValueError(str(value))
-        elif isinstance(value, str) and value == "localhost":
-            listen_address = ip_address("127.0.0.1")
-        else:
-            raise ValueError(str(value))
-        return listen_address
+        if plugin_dir.exists():
+            # Path objects whose file names match configured file names, should work
+            # whether or not file extension is specified.
+            matching_plugins = (
+                f
+                for f in plugin_dir.iterdir()
+                if f.name.split(".")[0] in (p.split(".")[0] for p in value)
+            )
+            return [str(f) for f in matching_plugins]
+        return []
 
-    @validator("site_description")
-    def validate_site_description(cls, value, values):
-        """Format the site descripion with the org_name field.
+    @field_validator("web", mode="after")
+    @classmethod
+    def validate_web(cls, web: Web, info: ValidationInfo) -> Web:
+        """String-format Link URLs."""
+        for link in web.links:
+            url = urllib.parse.unquote(str(link.url), encoding="utf-8", errors="replace").format(
+                primary_asn=info.data.get("primary_asn", "65000")
+            )
+            link.url = HttpUrl(url)
 
-        Arguments:
-            value {str} -- site_description
-            values {str} -- Values before site_description
+        for menu in web.menus:
+            menu.content = menu.content.format(
+                site_title=info.data.get("site_title", "hyperglass"),
+                org_name=info.data.get("org_name", "hyperglass"),
+                version=__version__,
+            )
+        return web
 
-        Returns:
-            {str} -- Formatted description
-        """
-        return value.format(org_name=values["org_name"])
+    def common_plugins(self) -> t.Tuple[Path, ...]:
+        """Get all validated external common plugins as Path objects."""
+        return tuple(Path(p) for p in self.plugins)
 
-    @validator("primary_asn")
-    def validate_primary_asn(cls, value):
-        """Stringify primary_asn if passed as an integer.
+    def export_api(self) -> APIParams:
+        """Export API-specific parameters."""
+        return {
+            "name": self.site_title,
+            "organization": self.org_name,
+            "primary_asn": int(self.primary_asn),
+            "version": __version__,
+        }
 
-        Arguments:
-            value {str|int} -- Unvalidated Primary ASN
+    def frontend(self) -> t.Dict[str, t.Any]:
+        """Export UI-specific parameters."""
 
-        Returns:
-            {str} -- Stringified Primary ASN.
-        """
-        if not isinstance(value, str):
-            value = str(value)
-        return value
+        return self.export_dict(
+            include={
+                "cache": {"show_text", "timeout"},
+                "developer_mode": ...,
+                "primary_asn": ...,
+                "request_timeout": ...,
+                "org_name": ...,
+                "site_title": ...,
+                "site_description": ...,
+                "web": ...,
+                "messages": ...,
+            }
+        )

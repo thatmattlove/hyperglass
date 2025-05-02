@@ -1,0 +1,76 @@
+import { Code, Table, Td, Th, Tr, Callout } from "nextra/components";
+import { SupportedPlatforms } from "~/components/platforms";
+
+Once you've gotten started with a basic configuration, you'll probably want to customize the look and feel of hyperglass by changing the logo or color scheme. Fortunately, there are _a lot_ ways to customize hyperglass.
+
+## Configuration Files
+
+| File Name    |                         Docs                          | Purpose                                                                    |
+| :----------- | :---------------------------------------------------: | :------------------------------------------------------------------------- |
+| `config`     |     [Config File Docs](/configuration/config.mdx)     | Application-wide configuration such as logging, web UI customization, etc. |
+| `devices`    |    [Devices File Docs](/configuration/devices.mdx)    | Your devices and their associated configurations.                          |
+| `directives` | [Directives File Docs](/configuration/directives.mdx) | Custom directives (commands).                                              |
+
+<Callout type="info">
+    **File Extensions** <br />
+    All the examples in the docs are provided in [YAML](https://yaml.org/) format, but [TOML](https://toml.io/),
+    JSON, and Python files are also supported.
+</Callout>
+
+### Using a Python File
+
+When using a Python file for a hyperglass configuration, one of the following methods may be used:
+
+#### Define a Function Named `main`
+
+```python filename="Example: Using a Python function to define configuration parameters"
+def main():
+  return {
+    "org_name": "Your Organization Name",
+    "web": {
+      "theme": {
+        "colors": {
+          "blue": "#0000ff",
+        }
+      }
+    }
+  }
+
+# The main function can also be an async function.
+async def main():
+  config = await some_function_to_fetch_config()
+  return config
+```
+
+#### Define a Dictionary Named `main`
+
+```python filename="Example: Using a Python dictionary to define configuration parameters"
+main = {
+    "org_name": "Your Organization Name",
+    "web": {
+      "theme": {
+        "colors": {
+          "blue": "#0000ff",
+        }
+      }
+    }
+  }
+```
+
+## Built-in Directives
+
+hyperglass ships with predefined [directives](/configuration/directives.mdx) for the following [platforms](platforms.mdx):
+
+<SupportedPlatforms />
+
+All built in directives require that the following `attrs` be defined on each device using the directive:
+
+| Attribute | Value                                                     |
+| :-------- | :-------------------------------------------------------- |
+| `source4` | IPv4 address used to source Ping and Traceroute commands. |
+| `source6` | IPv6 address used to source Ping and Traceroute commands. |
+
+<Callout type="warning">
+    If you do not utilize IPv6 in your network, you'll need to create your own directive that only
+    has IPv4 commands.
+</Callout>

@@ -1,32 +1,54 @@
-import { forwardRef } from 'react';
-import { Icon, Text, Box, Tooltip, Menu, MenuButton, MenuList, Link } from '@chakra-ui/react';
-import { CgMoreO as More } from '@meronex/icons/cg';
-import { BisError as Warning } from '@meronex/icons/bi';
-import { MdCancel as NotAllowed } from '@meronex/icons/md';
-import { RiHome2Fill as End } from '@meronex/icons/ri';
-import { BsQuestionCircleFill as Question } from '@meronex/icons/bs';
-import { FaCheckCircle as Check, FaChevronRight as ChevronRight } from '@meronex/icons/fa';
+import { Box, Flex, Link, Menu, MenuButton, MenuList, Text, Tooltip } from '@chakra-ui/react';
 import dayjs from 'dayjs';
 import relativeTimePlugin from 'dayjs/plugin/relativeTime';
 import utcPlugin from 'dayjs/plugin/utc';
-import { If } from '~/components';
-import { useConfig, useColorValue } from '~/context';
-import { useOpposingColor } from '~/hooks';
+import { forwardRef } from 'react';
+import { Else, If, Then } from 'react-if';
+import { useConfig } from '~/context';
+import { DynamicIcon } from '~/elements';
+import { useColorValue, useOpposingColor } from '~/hooks';
 
-import type {
-  TAge,
-  TActive,
-  TWeight,
-  TASPath,
-  TMonoField,
-  TRPKIState,
-  TCommunities,
-} from './types';
+import type { TextProps } from '@chakra-ui/react';
+
+interface ActiveProps {
+  isActive: boolean;
+}
+
+interface MonoFieldProps extends TextProps {
+  v: React.ReactNode;
+}
+
+interface AgeProps extends TextProps {
+  inSeconds: number;
+}
+
+interface WeightProps extends TextProps {
+  weight: number;
+  winningWeight: 'low' | 'high';
+}
+
+interface ASPathProps {
+  path: number[];
+  active: boolean;
+}
+
+interface CommunitiesProps {
+  communities: string[];
+}
+
+interface RPKIStateProps {
+  state:
+    | 0 // Invalid
+    | 1 // Valid
+    | 2 // Unknown
+    | 3; // Unverified
+  active: boolean;
+}
 
 dayjs.extend(relativeTimePlugin);
 dayjs.extend(utcPlugin);
 
-export const MonoField: React.FC<TMonoField> = (props: TMonoField) => {
+export const MonoField = (props: MonoFieldProps): JSX.Element => {
   const { v, ...rest } = props;
   return (
     <Text as="span" fontSize="sm" fontFamily="mono" {...rest}>
@@ -35,22 +57,22 @@ export const MonoField: React.FC<TMonoField> = (props: TMonoField) => {
   );
 };
 
-export const Active: React.FC<TActive> = (props: TActive) => {
+export const Active = (props: ActiveProps): JSX.Element => {
   const { isActive } = props;
   const color = useColorValue(['gray.500', 'green.500'], ['whiteAlpha.300', 'blackAlpha.500']);
   return (
-    <>
-      <If c={isActive}>
-        <Icon color={color[+isActive]} as={Check} />
-      </If>
-      <If c={!isActive}>
-        <Icon color={color[+isActive]} as={NotAllowed} />
-      </If>
-    </>
+    <If condition={isActive}>
+      <Then>
+        <DynamicIcon color={color[+isActive]} icon={{ fa: 'FaCheckCircle' }} />
+      </Then>
+      <Else>
+        <DynamicIcon color={color[+isActive]} icon={{ md: 'MdCancel' }} />
+      </Else>
+    </If>
   );
 };
 
-export const Age: React.FC<TAge> = (props: TAge) => {
+export const Age = (props: AgeProps): JSX.Element => {
   const { inSeconds, ...rest } = props;
   const now = dayjs.utc();
   const then = now.subtract(inSeconds, 'second');
@@ -63,7 +85,7 @@ export const Age: React.FC<TAge> = (props: TAge) => {
   );
 };
 
-export const Weight: React.FC<TWeight> = (props: TWeight) => {
+export const Weight = (props: WeightProps): JSX.Element => {
   const { weight, winningWeight, ...rest } = props;
   const fixMeText =
     winningWeight === 'low' ? 'Lower Weight is Preferred' : 'Higher Weight is Preferred';
@@ -76,7 +98,7 @@ export const Weight: React.FC<TWeight> = (props: TWeight) => {
   );
 };
 
-export const ASPath: React.FC<TASPath> = (props: TASPath) => {
+export const ASPath = (props: ASPathProps): JSX.Element => {
   const { path, active } = props;
   const color = useColorValue(
     // light: inactive, active
@@ -86,7 +108,13 @@ export const ASPath: React.FC<TASPath> = (props: TASPath) => {
   );
 
   if (path.length === 0) {
-    return <Icon as={End} />;
+    return (
+      <Tooltip hasArrow label="Internal" placement="right">
+        <Link>
+          <DynamicIcon icon={{ ri: 'RiHome2Fill' }} />
+        </Link>
+      </Tooltip>
+    );
   }
 
   const paths = [] as JSX.Element[];
@@ -95,36 +123,45 @@ export const ASPath: React.FC<TASPath> = (props: TASPath) => {
     const asnStr = String(asn);
     i !== 0 &&
       paths.push(
-        <Icon as={ChevronRight} key={`separator-${i}`} color={color[+active]} boxSize={5} px={2} />,
+        <DynamicIcon
+          icon={{ fa: 'FaChevronRight' }}
+          // biome-ignore lint/suspicious/noArrayIndexKey: index makes sense in this case.
+          key={`separator-${i}`}
+          color={color[+active]}
+          boxSize={5}
+          px={2}
+          display="inline-flex"
+        />,
       );
     paths.push(
+      // biome-ignore lint/suspicious/noArrayIndexKey: index makes sense in this case.
       <Text fontSize="sm" as="span" whiteSpace="pre" fontFamily="mono" key={`as-${asnStr}-${i}`}>
         {asnStr}
       </Text>,
     );
   });
 
-  return <>{paths}</>;
+  return <Flex>{paths}</Flex>;
 };
 
-export const Communities: React.FC<TCommunities> = (props: TCommunities) => {
+export const Communities = (props: CommunitiesProps): JSX.Element => {
   const { communities } = props;
   const { web } = useConfig();
   const bg = useColorValue('white', 'gray.900');
   const color = useOpposingColor(bg);
   return (
-    <>
-      <If c={communities.length === 0}>
-        <Tooltip placement="right" hasArrow label={web.text.no_communities}>
+    <If condition={communities.length === 0}>
+      <Then>
+        <Tooltip placement="right" hasArrow label={web.text.noCommunities}>
           <Link>
-            <Icon as={Question} />
+            <DynamicIcon icon={{ bs: 'BsQuestionCircleFill' }} />
           </Link>
         </Tooltip>
-      </If>
-      <If c={communities.length !== 0}>
+      </Then>
+      <Else>
         <Menu preventOverflow>
           <MenuButton>
-            <Icon as={More} />
+            <DynamicIcon icon={{ cg: 'CgMoreO' }} />
           </MenuButton>
           <MenuList
             p={3}
@@ -141,13 +178,13 @@ export const Communities: React.FC<TCommunities> = (props: TCommunities) => {
             {communities.join('\n')}
           </MenuList>
         </Menu>
-      </If>
-    </>
+      </Else>
+    </If>
   );
 };
 
-const _RPKIState: React.ForwardRefRenderFunction<HTMLDivElement, TRPKIState> = (
-  props: TRPKIState,
+const _RPKIState: React.ForwardRefRenderFunction<HTMLDivElement, RPKIStateProps> = (
+  props: RPKIStateProps,
   ref,
 ) => {
   const { state, active } = props;
@@ -163,13 +200,19 @@ const _RPKIState: React.ForwardRefRenderFunction<HTMLDivElement, TRPKIState> = (
     ],
   );
   const color = useOpposingColor(bg[+active][state]);
-  const icon = [NotAllowed, Check, Warning, Question];
+
+  const icon = [
+    { md: 'MdCancel' },
+    { fa: 'FaCheckCircle' },
+    { bi: 'BiError' },
+    { bs: 'BsQuestionCircleFill' },
+  ] as Record<string, string>[];
 
   const text = [
-    web.text.rpki_invalid,
-    web.text.rpki_valid,
-    web.text.rpki_unknown,
-    web.text.rpki_unverified,
+    web.text.rpkiInvalid,
+    web.text.rpkiValid,
+    web.text.rpkiUnknown,
+    web.text.rpkiUnverified,
   ];
 
   return (
@@ -181,10 +224,10 @@ const _RPKIState: React.ForwardRefRenderFunction<HTMLDivElement, TRPKIState> = (
       color={color}
     >
       <Box ref={ref} boxSize={5}>
-        <Box as={icon[state]} color={bg[+active][state]} />
+        <DynamicIcon icon={icon[state]} color={bg[+active][state]} />
       </Box>
     </Tooltip>
   );
 };
 
-export const RPKIState = forwardRef<HTMLDivElement, TRPKIState>(_RPKIState);
+export const RPKIState = forwardRef<HTMLDivElement, RPKIStateProps>(_RPKIState);

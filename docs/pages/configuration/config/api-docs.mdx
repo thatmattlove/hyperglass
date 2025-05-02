@@ -1,0 +1,72 @@
+## API Docs
+
+hyperglass automatically generates documentation for the REST API. The `docs` section allows users to customize the look, feel, and text used for the REST API documentation.
+
+| Parameter          | Type    | Default Value                  | Description                                                                                     |
+| :----------------- | :------ | :----------------------------- | :---------------------------------------------------------------------------------------------- |
+| `docs.base_url`    | String  | https://lg.example.com         | Used for REST API samples. See the [demo](https://demo.hyperglass.dev/api/docs) for an example. |
+| `docs.enable`      | Boolean | `true`                         | Enable or disable the REST API documentation.                                                   |
+| `docs.path`        | String  | /api/docs                      | Path to the REST API documentation.                                                             |
+| `docs.title`       | String  | `site_title` API Documentation | API docs title. Uses the `site_title` parameter from the [global](#global) parameters.          |
+| `docs.description` | String  |                                | API docs description. Appears below the title.                                                  |
+
+The documentation for API endpoints follow a common schema:
+
+-   `devices`
+-   `info`
+-   `queries`
+-   `query`
+
+### Schema
+
+| Parameter     | Type   | Description                                                                      |
+| :------------ | :----- | :------------------------------------------------------------------------------- |
+| `title`       | String | API endpoint title, displayed as the header text above the API endpoint section. |
+| `description` | String | API endpoint description, displayed inside each API endpoint section.            |
+| `summary`     | String | API endpoint summary, displayed beside the API endpoint path.                    |
+
+### Parameters
+
+| Parameter                  | Default Value                                                                               |
+| :------------------------- | :------------------------------------------------------------------------------------------ |
+| `docs.devices.title`       | Devices                                                                                     |
+| `docs.devices.description` | List of all devices/locations with associated identifiers, display names, networks, & VRFs. |
+| `docs.devices.summary`     | Devices List                                                                                |
+| `docs.info.title`          | System Information                                                                          |
+| `docs.info.description`    | General information about this looking glass.                                               |
+| `docs.info.summary`        | System Information                                                                          |
+| `docs.queries.title`       | Supported Queries                                                                           |
+| `docs.queries.description` | List of supported query types.                                                              |
+| `docs.queries.summary`     | Query Types                                                                                 |
+| `docs.query.title`         | Supported Query                                                                             |
+| `docs.query.description`   | Request a query response per-location.                                                      |
+| `docs.query.summary`       | Query the Looking Glass                                                                     |
+
+#### Example with Defaults
+
+```yaml filename="config.yaml"
+docs:
+    base_url: https://lg.example.com
+    enable: true
+    mode: redoc
+    path: /api/docs
+    title: Beloved Hyperglass User Looking Glass API Documentation
+    description: null
+    # API Endpoints ↓
+    devices:
+        title: Devices
+        description: List of all devices/locations with associated identifiers, display names, networks, & VRFs.
+        summary: Devices List
+    info:
+        title: System Information
+        description: General information about this looking glass.
+        summary: System Information
+    queries:
+        title: Supported Queries
+        description: List of supported query types.
+        summary: Query Types
+    query:
+        title: Supported Query
+        description: Request a query response per-location.
+        summary: Query the Looking Glass
+```

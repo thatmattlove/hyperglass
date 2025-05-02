@@ -1,40 +1,78 @@
 """API Error Handlers."""
 
+# Standard Library
+import typing as t
+
 # Third Party
-from starlette.responses import JSONResponse
+from litestar import Request, Response
+from litestar.exceptions import ValidationException
 
 # Project
-from hyperglass.configuration import params
+from hyperglass.log import log
+from hyperglass.state import use_state
+
+__all__ = (
+    "default_handler",
+    "http_handler",
+    "app_handler",
+    "validation_handler",
+)
 
 
-async def default_handler(request, exc):
+def get_validation_exception_detail(exc: ValidationException) -> Response:
+    data: dict[str, t.Any] = {
+        "level": "error",
+        "status_code": 422,
+        "keywords": [],
+        "output": repr(exc),
+    }
+    if isinstance(exc.extra, dict):
+        outputs = []
+        kw = []
+        for k, v in exc.extra.values():
+            outputs = [*outputs, f"{k}: {v!r}"]
+            kw = [*kw, k]
+        data["output"] = "\n".join(outputs)
+        data["keywords"] = kw
+
+    if isinstance(exc.extra, list):
+        data["output"] = "\n".join(str(v) for v in exc.extra)
+        data["keywords"] = []
+
+    return Response(data)
+
+
+def default_handler(request: Request, exc: BaseException) -> Response:
     """Handle uncaught errors."""
-    return JSONResponse(
-        {"output": params.messages.general, "level": "danger", "keywords": []},
+    state = use_state()
+    log.bind(method=request.method, path=request.url.path, detail=str(exc)).critical("Error")
+    return Response(
+        {"output": state.params.messages.general, "level": "danger", "keywords": []},
         status_code=500,
     )
 
 
-async def http_handler(request, exc):
+def http_handler(request: Request, exc: BaseException) -> Response:
     """Handle web server errors."""
-    return JSONResponse(
+    log.bind(method=request.method, path=request.url.path, detail=exc.detail).critical("HTTP Error")
+    return Response(
         {"output": exc.detail, "level": "danger", "keywords": []},
         status_code=exc.status_code,
     )
 
 
-async def app_handler(request, exc):
+def app_handler(request: Request, exc: BaseException) -> Response:
     """Handle application errors."""
-    return JSONResponse(
+    log.bind(method=request.method, path=request.url.path, detail=exc.message).critical(
+        "hyperglass Error"
+    )
+    return Response(
         {"output": exc.message, "level": exc.level, "keywords": exc.keywords},
         status_code=exc.status_code,
     )
 
 
-async def validation_handler(request, exc):
+def validation_handler(request: Request, exc: ValidationException) -> Response:
     """Handle Pydantic validation errors raised by FastAPI."""
-    error = exc.errors()[0]
-    return JSONResponse(
-        {"output": error["msg"], "level": "error", "keywords": error["loc"]},
-        status_code=422,
-    )
+    log.bind(method=request.method, path=request.url.path, detail=exc).critical("Validation Error")
+    return get_validation_exception_detail(exc)

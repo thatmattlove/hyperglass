@@ -1,17 +1,25 @@
-const envVars = require('/tmp/hyperglass.env.json');
-const { configFile } = envVars;
-const config = require(String(configFile));
-
-module.exports = {
+/**
+ * @type {import('next').NextConfig}
+ */
+const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  env: {
-    _NODE_ENV_: config.NODE_ENV,
-    _HYPERGLASS_URL_: config._HYPERGLASS_URL_,
-    _HYPERGLASS_CONFIG_: config._HYPERGLASS_CONFIG_,
-    _HYPERGLASS_FAVICONS_: config._HYPERGLASS_FAVICONS_,
+  typescript: {
+    ignoreBuildErrors: true,
   },
-  future: {
-    webpack5: true,
-  },
+  swcMinify: true,
+  productionBrowserSourceMaps: true,
 };
+
+if (process.env.NODE_ENV === 'production') {
+  nextConfig.output = 'export';
+}
+
+if (process.env.NODE_ENV === 'development') {
+  nextConfig.rewrites = async () => [
+    { source: '/api/query', destination: `${process.env.HYPERGLASS_URL}api/query` },
+    { source: '/images/:image*', destination: `${process.env.HYPERGLASS_URL}images/:image*` },
+  ];
+}
+
+module.exports = nextConfig;

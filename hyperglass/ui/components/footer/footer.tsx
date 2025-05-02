@@ -1,21 +1,19 @@
+import { Flex, HStack, useToken } from '@chakra-ui/react';
 import { useMemo } from 'react';
-import dynamic from 'next/dynamic';
-import { Flex, Icon, HStack, useToken } from '@chakra-ui/react';
-import { If } from '~/components';
-import { useConfig, useMobile, useColorValue, useBreakpointValue } from '~/context';
-import { useStrf } from '~/hooks';
+import { useConfig } from '~/context';
+import { DynamicIcon } from '~/elements';
+import { useBreakpointValue, useColorValue, useMobile } from '~/hooks';
+import { isLink, isMenu } from '~/types';
 import { FooterButton } from './button';
-import { ColorModeToggle } from './colorMode';
+import { ColorModeToggle } from './color-mode';
 import { FooterLink } from './link';
-import { isLink, isMenu } from './types';
 
 import type { ButtonProps, LinkProps } from '@chakra-ui/react';
-import type { TLink, TMenu } from '~/types';
+import type { Link, Menu } from '~/types';
 
-const CodeIcon = dynamic<MeronexIcon>(() => import('@meronex/icons/fi').then(i => i.FiCode));
-const ExtIcon = dynamic<MeronexIcon>(() => import('@meronex/icons/go').then(i => i.GoLinkExternal));
+type MenuItems = (Link | Menu)[];
 
-function buildItems(links: TLink[], menus: TMenu[]): [(TLink | TMenu)[], (TLink | TMenu)[]] {
+function buildItems(links: Link[], menus: Menu[]): [MenuItems, MenuItems] {
   const leftLinks = links.filter(link => link.side === 'left');
   const leftMenus = menus.filter(menu => menu.side === 'left');
   const rightLinks = links.filter(link => link.side === 'right');
@@ -26,8 +24,23 @@ function buildItems(links: TLink[], menus: TMenu[]): [(TLink | TMenu)[], (TLink 
   return [left, right];
 }
 
-export const Footer: React.FC = () => {
-  const { web, content, primary_asn } = useConfig();
+const LinkOnSide = (props: { item: ArrayElement<MenuItems>; side: 'left' | 'right' }) => {
+  const { item, side } = props;
+  if (isLink(item)) {
+    const icon: Partial<ButtonProps & LinkProps> = {};
+
+    if (item.showIcon) {
+      icon.rightIcon = <DynamicIcon icon={{ go: 'GoLinkExternal' }} />;
+    }
+    return <FooterLink key={item.title} href={item.url} title={item.title} {...icon} />;
+  }
+  if (isMenu(item)) {
+    return <FooterButton key={item.title} side={side} content={item.content} title={item.title} />;
+  }
+};
+
+export const Footer = (): JSX.Element => {
+  const { web, content } = useConfig();
 
   const footerBg = useColorValue('blackAlpha.50', 'whiteAlpha.100');
   const footerColor = useColorValue('black', 'white');
@@ -36,7 +49,7 @@ export const Footer: React.FC = () => {
 
   const isMobile = useMobile();
 
-  const [left, right] = useMemo(() => buildItems(web.links, web.menus), []);
+  const [left, right] = useMemo(() => buildItems(web.links, web.menus), [web.links, web.menus]);
 
   return (
     <HStack
@@ -49,46 +62,26 @@ export const Footer: React.FC = () => {
       whiteSpace="nowrap"
       color={footerColor}
       spacing={{ base: 8, lg: 6 }}
-      d={{ base: 'inline-block', lg: 'flex' }}
+      display={{ base: 'inline-block', lg: 'flex' }}
       overflowY={{ base: 'auto', lg: 'unset' }}
       justifyContent={{ base: 'center', lg: 'space-between' }}
     >
-      {left.map(item => {
-        if (isLink(item)) {
-          const url = useStrf(item.url, { primary_asn }) ?? '/';
-          const icon: Partial<ButtonProps & LinkProps> = {};
-
-          if (item.show_icon) {
-            icon.rightIcon = <ExtIcon />;
-          }
-          return <FooterLink key={item.title} href={url} title={item.title} {...icon} />;
-        } else if (isMenu(item)) {
-          return (
-            <FooterButton key={item.title} side="left" content={item.content} title={item.title} />
-          );
-        }
-      })}
+      {left.map(item => (
+        <LinkOnSide key={item.title} item={item} side="left" />
+      ))}
       {!isMobile && <Flex p={0} flex="1 0 auto" maxWidth="100%" mr="auto" />}
-      {right.map(item => {
-        if (isLink(item)) {
-          const url = useStrf(item.url, { primary_asn }) ?? '/';
-          const icon: Partial<ButtonProps & LinkProps> = {};
-
-          if (item.show_icon) {
-            icon.rightIcon = <ExtIcon />;
-          }
-          return <FooterLink href={url} title={item.title} {...icon} />;
-        } else if (isMenu(item)) {
-          return <FooterButton side="right" content={item.content} title={item.title} />;
-        }
-      })}
-      <If c={web.credit.enable}>
+      {right.map(item => (
+        <LinkOnSide key={item.title} item={item} side="right" />
+      ))}
+      {web.credit.enable && (
         <FooterButton
+          key="credit"
           side="right"
           content={content.credit}
-          title={<Icon as={CodeIcon} boxSize={size} />}
+          title={<DynamicIcon icon={{ fi: 'FiCode' }} boxSize={size} />}
         />
-      </If>
+      )}
+
       <ColorModeToggle size={size} />
     </HStack>
   );

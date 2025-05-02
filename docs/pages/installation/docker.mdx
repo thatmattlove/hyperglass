@@ -1,0 +1,60 @@
+---
+title: Using Docker
+description: Installing hyperglass with Docker
+---
+
+import { Cards, Steps, Callout } from "nextra/components";
+// import { Callout } from "nextra-theme-docs";
+
+<Callout type="info">**Docker is the recommended method for running hyperglass.**</Callout>
+
+<Steps>
+
+### Install Docker
+
+<Cards>
+    <Cards.Card
+        title="Docker Engine Installation Guide"
+        href="https://docs.docker.com/engine/install/"
+        target="_blank"
+        arrow
+    />
+</Cards>
+
+### Download hyperglass
+
+```shell copy
+mkdir /etc/hyperglass
+cd /opt
+git clone https://github.com/thatmattlove/hyperglass.git --depth=1
+cd /opt/hyperglass
+```
+
+### Optional: Quickstart
+
+Do this if you just want to see the hyperglass page working with a fake device.
+
+```shell copy
+cp /opt/hyperglass/.samples/sample_devices.yaml /etc/hyperglass/devices.yaml
+cd /opt/hyperglass
+docker compose up
+```
+
+Navigate to http://localhost:8001
+
+### Create a `systemd` service
+
+<Callout type="info">
+    Before you create and start the hyperglass service, you may want to verify whether or not you
+    intend to change any [environment variables](environment-variables.mdx) and change them first.
+</Callout>
+
+```shell copy
+cp /opt/hyperglass/.samples/hyperglass-docker.service /etc/hyperglass/hyperglass.service
+ln -s /etc/hyperglass/hyperglass.service /etc/systemd/system/hyperglass.service
+systemctl daemon-reload
+systemctl enable hyperglass
+systemctl start hyperglass
+```
+
+</Steps>

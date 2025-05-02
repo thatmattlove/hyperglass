@@ -1,34 +1,32 @@
+import { useMemo } from 'react';
 import { Box, Stack, useToken } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Label } from '~/components';
-import { useConfig, useBreakpointValue } from '~/context';
-import { useLGState, useVrf } from '~/hooks';
-import { isQueryType } from '~/types';
+import { useConfig } from '~/context';
+import { Label } from '~/elements';
+import { useFormState, useBreakpointValue } from '~/hooks';
 
 import type { Transition } from 'framer-motion';
 
 const transition = { duration: 0.3, delay: 0.5 } as Transition;
 
-export const Tags: React.FC = () => {
-  const { queries, web } = useConfig();
-  const { queryLocation, queryTarget, queryType, queryVrf } = useLGState();
+export const Tags = (): JSX.Element => {
+  const { web } = useConfig();
+  const form = useFormState(s => s.form);
+  const getDirective = useFormState(s => s.getDirective);
+
+  const selectedDirective = useMemo(() => {
+    return getDirective();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.queryType, getDirective]);
 
   const targetBg = useToken('colors', 'teal.600');
   const queryBg = useToken('colors', 'cyan.500');
-  const vrfBg = useToken('colors', 'blue.500');
 
   const animateLeft = useBreakpointValue({
     base: { opacity: 1, x: 0 },
     md: { opacity: 1, x: 0 },
     lg: { opacity: 1, x: 0 },
     xl: { opacity: 1, x: 0 },
-  });
-
-  const animateCenter = useBreakpointValue({
-    base: { opacity: 1 },
-    md: { opacity: 1 },
-    lg: { opacity: 1 },
-    xl: { opacity: 1 },
   });
 
   const animateRight = useBreakpointValue({
@@ -45,27 +43,12 @@ export const Tags: React.FC = () => {
     xl: { opacity: 0, x: '-100%' },
   });
 
-  const initialCenter = useBreakpointValue({
-    base: { opacity: 0 },
-    md: { opacity: 0 },
-    lg: { opacity: 0 },
-    xl: { opacity: 0 },
-  });
-
   const initialRight = useBreakpointValue({
     base: { opacity: 0, x: '100%' },
     md: { opacity: 0, x: '100%' },
     lg: { opacity: 0, x: '100%' },
     xl: { opacity: 0, x: '100%' },
   });
-
-  let queryTypeLabel = '';
-  if (isQueryType(queryType.value)) {
-    queryTypeLabel = queries[queryType.value].display_name;
-  }
-
-  const getVrf = useVrf();
-  const vrf = getVrf(queryVrf.value);
 
   return (
     <Box
@@ -78,7 +61,7 @@ export const Tags: React.FC = () => {
     >
       <Stack isInline align="center" justify="center" mt={4} flexWrap="wrap">
         <AnimatePresence>
-          {queryLocation.value && (
+          {form.queryLocation.length > 0 && (
             <>
               <motion.div
                 initial={initialLeft}
@@ -88,34 +71,21 @@ export const Tags: React.FC = () => {
               >
                 <Label
                   bg={queryBg}
-                  label={web.text.query_type}
+                  label={web.text.queryType}
                   fontSize={{ base: 'xs', md: 'sm' }}
-                  value={queryTypeLabel}
-                />
-              </motion.div>
-              <motion.div
-                initial={initialCenter}
-                animate={animateCenter}
-                exit={{ opacity: 0, scale: 0.5 }}
-                transition={transition}
-              >
-                <Label
-                  bg={targetBg}
-                  value={queryTarget.value}
-                  label={web.text.query_target}
-                  fontSize={{ base: 'xs', md: 'sm' }}
+                  value={selectedDirective?.name ?? 'None'}
                 />
               </motion.div>
               <motion.div
                 initial={initialRight}
                 animate={animateRight}
-                exit={{ opacity: 0, x: '100%' }}
+                exit={{ opacity: 0, scale: 0.5 }}
                 transition={transition}
               >
                 <Label
-                  bg={vrfBg}
-                  label={web.text.query_vrf}
-                  value={vrf.display_name}
+                  bg={targetBg}
+                  value={form.queryTarget.join(', ')}
+                  label={web.text.queryTarget}
                   fontSize={{ base: 'xs', md: 'sm' }}
                 />
               </motion.div>

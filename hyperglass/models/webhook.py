@@ -1,82 +1,78 @@
 """Data models used throughout hyperglass."""
 
 # Standard Library
-from typing import Optional
+import typing as t
 from datetime import datetime
 
 # Third Party
-from pydantic import StrictStr, root_validator
+from pydantic import ConfigDict, model_validator
 
 # Project
 from hyperglass.log import log
 
 # Local
-from .main import HyperglassModel, HyperglassModelExtra
+from .main import HyperglassModel
 
 _WEBHOOK_TITLE = "hyperglass received a valid query with the following data"
 _ICON_URL = "https://res.cloudinary.com/hyperglass/image/upload/v1593192484/icon.png"
 
 
+def to_snake_case(value: str) -> str:
+    """Convert string to snake case."""
+    return value.replace("_", "-")
+
+
 class WebhookHeaders(HyperglassModel):
     """Webhook data model."""
 
-    user_agent: Optional[StrictStr]
-    referer: Optional[StrictStr]
-    accept_encoding: Optional[StrictStr]
-    accept_language: Optional[StrictStr]
-    x_real_ip: Optional[StrictStr]
-    x_forwarded_for: Optional[StrictStr]
+    model_config = ConfigDict(alias_generator=to_snake_case)
 
-    class Config:
-        """Pydantic model config."""
-
-        fields = {
-            "user_agent": "user-agent",
-            "accept_encoding": "accept-encoding",
-            "accept_language": "accept-language",
-            "x_real_ip": "x-real-ip",
-            "x_forwarded_for": "x-forwarded-for",
-        }
+    user_agent: t.Optional[str] = None
+    referer: t.Optional[str] = None
+    accept_encoding: t.Optional[str] = None
+    accept_language: t.Optional[str] = None
+    x_real_ip: t.Optional[str] = None
+    x_forwarded_for: t.Optional[str] = None
 
 
-class WebhookNetwork(HyperglassModelExtra):
+class WebhookNetwork(HyperglassModel):
     """Webhook data model."""
 
-    prefix: StrictStr = "Unknown"
-    asn: StrictStr = "Unknown"
-    org: StrictStr = "Unknown"
-    country: StrictStr = "Unknown"
+    model_config = ConfigDict(extra="allow")
+
+    prefix: str = "Unknown"
+    asn: str = "Unknown"
+    org: str = "Unknown"
+    country: str = "Unknown"
 
 
 class Webhook(HyperglassModel):
     """Webhook data model."""
 
-    query_location: StrictStr
-    query_type: StrictStr
-    query_vrf: StrictStr
-    query_target: StrictStr
+    query_location: str
+    query_type: str
+    query_target: t.Union[t.List[str], str]
     headers: WebhookHeaders
-    source: StrictStr = "Unknown"
+    source: str = "Unknown"
     network: WebhookNetwork
     timestamp: datetime
 
-    @root_validator(pre=True)
-    def validate_webhook(cls, values):
+    @model_validator(mode="before")
+    def validate_webhook(cls, model: "Webhook") -> "Webhook":
         """Reset network attributes if the source is localhost."""
-        if values.get("source") in ("127.0.0.1", "::1"):
-            values["network"] = {}
-        return values
+        if model.source in ("127.0.0.1", "::1"):
+            model.network = {}
+        return model
 
-    def msteams(self):
+    def msteams(self) -> t.Dict[str, t.Any]:
         """Format the webhook data as a Microsoft Teams card."""
 
-        def code(value):
+        def code(value: t.Any) -> str:
             """Wrap argument in backticks for markdown inline code formatting."""
             return f"`{str(value)}`"
 
         header_data = [
-            {"name": k, "value": code(v)}
-            for k, v in self.headers.dict(by_alias=True).items()
+            {"name": k, "value": code(v)} for k, v in self.headers.model_dump(by_alias=True).items()
         ]
         time_fmt = self.timestamp.strftime("%Y %m %d %H:%M:%S")
         payload = {
@@ -93,7 +89,6 @@ class Webhook(HyperglassModel):
                         {"name": "Query Location", "value": self.query_location},
                         {"name": "Query Target", "value": code(self.query_target)},
                         {"name": "Query Type", "value": self.query_type},
-                        {"name": "Query VRF", "value": self.query_vrf},
                     ],
                 },
                 {"markdown": True, "text": "**Source Information**"},
@@ -113,11 +108,11 @@ class Webhook(HyperglassModel):
                 {"markdown": True, "facts": header_data},
             ],
         }
-        log.debug("Created MS Teams webhook: {}", str(payload))
+        log.bind(type="MS Teams", payload=str(payload)).debug("Created webhook")
 
         return payload
 
-    def slack(self):
+    def slack(self) -> t.Dict[str, t.Any]:
         """Format the webhook data as a Slack message."""
 
         def make_field(key, value, code=False):
@@ -126,44 +121,25 @@ class Webhook(HyperglassModel):
             return f"*{key}*\n{value}"
 
         header_data = []
-        for k, v in self.headers.dict(by_alias=True).items():
+        for k, v in self.headers.model_dump(by_alias=True).items():
             field = make_field(k, v, code=True)
             header_data.append(field)
 
         query_data = [
-            {
-                "type": "mrkdwn",
-                "text": make_field("Query Location", self.query_location),
-            },
-            {
-                "type": "mrkdwn",
-                "text": make_field("Query Target", self.query_target, code=True),
-            },
+            {"type": "mrkdwn", "text": make_field("Query Location", self.query_location)},
+            {"type": "mrkdwn", "text": make_field("Query Target", self.query_target, code=True)},
             {"type": "mrkdwn", "text": make_field("Query Type", self.query_type)},
-            {"type": "mrkdwn", "text": make_field("Query VRF", self.query_vrf)},
         ]
 
         source_data = [
-            {
-                "type": "mrkdwn",
-                "text": make_field("Source IP", self.source, code=True),
-            },
+            {"type": "mrkdwn", "text": make_field("Source IP", self.source, code=True)},
             {
                 "type": "mrkdwn",
                 "text": make_field("Source Prefix", self.network.prefix, code=True),
             },
-            {
-                "type": "mrkdwn",
-                "text": make_field("Source ASN", self.network.asn, code=True),
-            },
-            {
-                "type": "mrkdwn",
-                "text": make_field("Source Country", self.network.country),
-            },
-            {
-                "type": "mrkdwn",
-                "text": make_field("Source Organization", self.network.org),
-            },
+            {"type": "mrkdwn", "text": make_field("Source ASN", self.network.asn, code=True)},
+            {"type": "mrkdwn", "text": make_field("Source Country", self.network.country)},
+            {"type": "mrkdwn", "text": make_field("Source Organization", self.network.org)},
         ]
 
         time_fmt = self.timestamp.strftime("%Y %m %d %H:%M:%S")
@@ -171,22 +147,16 @@ class Webhook(HyperglassModel):
         payload = {
             "text": _WEBHOOK_TITLE,
             "blocks": [
-                {
-                    "type": "section",
-                    "text": {"type": "mrkdwn", "text": f"*{time_fmt} UTC*"},
-                },
+                {"type": "section", "text": {"type": "mrkdwn", "text": f"*{time_fmt} UTC*"}},
                 {"type": "section", "fields": query_data},
                 {"type": "divider"},
                 {"type": "section", "fields": source_data},
                 {"type": "divider"},
                 {
                     "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": "*Headers*\n" + "\n".join(header_data),
-                    },
+                    "text": {"type": "mrkdwn", "text": "*Headers*\n" + "\n".join(header_data)},
                 },
             ],
         }
-        log.debug("Created Slack webhook: {}", str(payload))
+        log.bind(type="Slack", payload=str(payload)).debug("Created webhook")
         return payload

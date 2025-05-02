@@ -1,16 +1,22 @@
 import { useMemo } from 'react';
 import { Button, Menu, MenuButton, MenuList } from '@chakra-ui/react';
-import { Markdown } from '~/components';
-import { useColorValue, useBreakpointValue, useConfig } from '~/context';
-import { useOpposingColor, useStrf } from '~/hooks';
+import { useConfig } from '~/context';
+import { Markdown } from '~/elements';
+import { useColorValue, useBreakpointValue, useOpposingColor, useStrf } from '~/hooks';
 
-import type { IConfig } from '~/types';
-import type { TFooterButton } from './types';
+import type { MenuListProps } from '@chakra-ui/react';
+import type { Config } from '~/types';
+
+interface FooterButtonProps extends Omit<MenuListProps, 'title'> {
+  side: 'left' | 'right';
+  title?: MenuListProps['children'];
+  content: string;
+}
 
 /**
  * Filter the configuration object based on values that are strings for formatting.
  */
-function getConfigFmt(config: IConfig): Record<string, string> {
+function getConfigFmt(config: Config): Record<string, string> {
   const fmt = {} as Record<string, string>;
   for (const [k, v] of Object.entries(config)) {
     if (typeof v === 'string') {
@@ -20,12 +26,13 @@ function getConfigFmt(config: IConfig): Record<string, string> {
   return fmt;
 }
 
-export const FooterButton: React.FC<TFooterButton> = (props: TFooterButton) => {
+export const FooterButton = (props: FooterButtonProps): JSX.Element => {
   const { content, title, side, ...rest } = props;
 
   const config = useConfig();
-  const fmt = useMemo(() => getConfigFmt(config), []);
-  const fmtContent = useStrf(content, fmt);
+  const strF = useStrf();
+  const fmt = useMemo(() => getConfigFmt(config), [config]);
+  const fmtContent = useMemo(() => strF(content, fmt), [fmt, content, strF]);
 
   const placement = side === 'left' ? 'top' : side === 'right' ? 'top-end' : undefined;
   const bg = useColorValue('white', 'gray.900');
@@ -39,6 +46,7 @@ export const FooterButton: React.FC<TFooterButton> = (props: TFooterButton) => {
         as={Button}
         size={size}
         variant="ghost"
+        lineHeight={0}
         aria-label={typeof title === 'string' ? title : undefined}
       >
         {title}

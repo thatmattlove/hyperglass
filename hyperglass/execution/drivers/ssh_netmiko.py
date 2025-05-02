@@ -8,7 +8,7 @@ import math
 from typing import Iterable
 
 # Third Party
-from netmiko import (
+from netmiko import (  # type: ignore
     ConnectHandler,
     NetMikoTimeoutException,
     NetMikoAuthenticationException,
@@ -16,25 +16,20 @@ from netmiko import (
 
 # Project
 from hyperglass.log import log
-from hyperglass.exceptions import AuthError, ScrapeError, DeviceTimeout
-from hyperglass.configuration import params
+from hyperglass.state import use_state
+from hyperglass.exceptions.public import AuthError, DeviceTimeout, ResponseEmpty
 
 # Local
 from .ssh import SSHConnection
 
-netmiko_nos_globals = {
+netmiko_device_globals = {
     # Netmiko doesn't currently handle Mikrotik echo verification well,
     # see ktbyers/netmiko#1600
     "mikrotik_routeros": {"global_cmd_verify": False},
     "mikrotik_switchos": {"global_cmd_verify": False},
 }
 
-netmiko_nos_send_args = {
-    # Netmiko doesn't currently handle the Mikrotik prompt properly, see
-    # ktbyers/netmiko#1956
-    "mikrotik_routeros": {"expect_string": r"\S+\s\>\s$"},
-    "mikrotik_switchos": {"expect_string": r"\S+\s\>\s$"},
-}
+netmiko_device_send_args = {}
 
 
 class NetmikoConnection(SSHConnection):
@@ -46,41 +41,39 @@ class NetmikoConnection(SSHConnection):
         Directly connects to the router via Netmiko library, returns the
         command output.
         """
-        if host is not None:
-            log.debug(
-                "Connecting to {} via proxy {} [{}]",
-                self.device.name,
-                self.device.proxy.name,
-                f"{host}:{port}",
-            )
-        else:
-            log.debug("Connecting directly to {}", self.device.name)
+        params = use_state("params")
+        _log = log.bind(
+            device=self.device.name,
+            address=f"{host}:{port}",
+            proxy=str(self.device.proxy.address) if self.device.proxy is not None else None,
+        )
 
-        global_args = netmiko_nos_globals.get(self.device.nos, {})
+        _log.debug("Connecting to device")
 
-        send_args = netmiko_nos_send_args.get(self.device.nos, {})
+        global_args = netmiko_device_globals.get(self.device.platform, {})
+
+        send_args = netmiko_device_send_args.get(self.device.platform, {})
 
         driver_kwargs = {
             "host": host or self.device._target,
             "port": port or self.device.port,
-            "device_type": self.device.nos,
+            "device_type": self.device.get_device_type(),
             "username": self.device.credential.username,
-            "global_delay_factor": params.netmiko_delay_factor,
+            "global_delay_factor": 0.1,
             "timeout": math.floor(params.request_timeout * 1.25),
             "session_timeout": math.ceil(params.request_timeout - 1),
             **global_args,
+            **self.device.driver_config,
         }
 
-        if "_telnet" in self.device.nos:
+        if "_telnet" in self.device.platform:
             # Telnet devices with a low delay factor (default) tend to
             # throw login errors.
             driver_kwargs["global_delay_factor"] = 2
 
         if self.device.credential._method == "password":
             # Use password auth if no key is defined.
-            driver_kwargs[
-                "password"
-            ] = self.device.credential.password.get_secret_value()
+            driver_kwargs["password"] = self.device.credential.password.get_secret_value()
         else:
             # Otherwise, use key auth.
             driver_kwargs["use_keys"] = True
@@ -88,9 +81,7 @@ class NetmikoConnection(SSHConnection):
             if self.device.credential._method == "encrypted_key":
                 # If the key is encrypted, use the password field as the
                 # private key password.
-                driver_kwargs[
-                    "passphrase"
-                ] = self.device.credential.password.get_secret_value()
+                driver_kwargs["passphrase"] = self.device.credential.password.get_secret_value()
 
         try:
             nm_connect_direct = ConnectHandler(**driver_kwargs)
@@ -100,37 +91,16 @@ class NetmikoConnection(SSHConnection):
             for query in self.query:
                 raw = nm_connect_direct.send_command(query, **send_args)
                 responses += (raw,)
-                log.debug(f'Raw response for command "{query}":\n{raw}')
 
             nm_connect_direct.disconnect()
 
         except NetMikoTimeoutException as scrape_error:
-            log.error(str(scrape_error))
-            raise DeviceTimeout(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                proxy=None,
-                error=params.messages.request_timeout,
-            )
-        except NetMikoAuthenticationException as auth_error:
-            log.error(
-                "Error authenticating to device {loc}: {e}",
-                loc=self.device.name,
-                e=str(auth_error),
-            )
+            raise DeviceTimeout(error=scrape_error, device=self.device) from scrape_error
 
-            raise AuthError(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                proxy=None,
-                error=params.messages.authentication_error,
-            )
+        except NetMikoAuthenticationException as auth_error:
+            raise AuthError(error=auth_error, device=self.device) from auth_error
+
         if not responses:
-            raise ScrapeError(
-                params.messages.connection_error,
-                device_name=self.device.name,
-                proxy=None,
-                error=params.messages.no_response,
-            )
+            raise ResponseEmpty(query=self.query_data)
 
         return responses

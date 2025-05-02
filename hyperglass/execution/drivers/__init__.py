@@ -1,7 +1,12 @@
 """Individual transport driver classes & subclasses."""
 
 # Local
-from .agent import AgentConnection
 from ._common import Connection
+from .http_client import HttpClient
 from .ssh_netmiko import NetmikoConnection
-from .ssh_scrapli import ScrapliConnection
+
+__all__ = (
+    "Connection",
+    "HttpClient",
+    "NetmikoConnection",
+)

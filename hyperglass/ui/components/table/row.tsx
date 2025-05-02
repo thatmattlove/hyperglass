@@ -1,10 +1,18 @@
-import { Box } from '@chakra-ui/react';
-import { useColorValue } from '~/context';
-import { useOpposingColor } from '~/hooks';
+import { chakra } from '@chakra-ui/react';
+import { useColorValue, useOpposingColor } from '~/hooks';
 
-import type { TTableRow } from './types';
+import type { BoxProps } from '@chakra-ui/react';
+import type { Theme } from '~/types';
 
-export const TableRow: React.FC<TTableRow> = (props: TTableRow) => {
+interface TableRowProps extends BoxProps {
+  highlightBg?: Theme.ColorNames;
+  doHorizontalBorders?: boolean;
+  highlight?: boolean;
+  doStripe?: boolean;
+  index: number;
+}
+
+export const TableRow = (props: TableRowProps): JSX.Element => {
   const {
     index = 0,
     doStripe = false,
@@ -22,7 +30,7 @@ export const TableRow: React.FC<TTableRow> = (props: TTableRow) => {
     { borderTop: '1px', borderTopColor: 'blackAlpha.100' },
     { borderTop: '1px', borderTopColor: 'whiteAlpha.100' },
   );
-  let bg;
+  let bg = undefined;
 
   if (highlight) {
     bg = `${String(highlightBg)}.${alpha}`;
@@ -35,8 +43,7 @@ export const TableRow: React.FC<TTableRow> = (props: TTableRow) => {
   const borderProps = doHorizontalBorders && index !== 0 ? rowBorder : {};
 
   return (
-    <Box
-      as="tr"
+    <chakra.tr
       bg={bg}
       css={{ '& > td': { color } }}
       fontWeight={highlight ? 'bold' : undefined}
