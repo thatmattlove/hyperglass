@@ -9,7 +9,7 @@ import { useDNSQuery } from './use-dns-query';
 import type { Config } from '~/types';
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: false, cacheTime: Infinity } },
+  defaultOptions: { queries: { retry: false, cacheTime: Number.POSITIVE_INFINITY } },
 });
 
 const CloudflareWrapper = (props: React.PropsWithChildren<Dict<JSX.Element>>) => {
