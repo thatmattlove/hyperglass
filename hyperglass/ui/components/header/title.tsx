@@ -14,6 +14,7 @@ import type { MotionProps } from 'framer-motion';
 type DWrapperProps = Omit<StackProps, 'transition'> & MotionProps;
 type MWrapperProps = Omit<StackProps, 'transition'> & MotionProps;
 type WrapperProps = Partial<MotionProps & Omit<StackProps, 'transition'>>;
+type AnimatedFlexProps = Partial<FlexProps & MotionProps>;
 
 const AnimatedVStack = motion(VStack);
 const AnimatedFlex = motion(Flex);
@@ -114,7 +115,7 @@ const All = (props: WrapperProps): JSX.Element => (
 /**
  * Title component which renders sub-components based on the `title_mode` configuration variable.
  */
-export const Title = (props: FlexProps): JSX.Element => {
+export const Title = (props: AnimatedFlexProps): JSX.Element => {
   const { fontSize, ...rest } = props;
   const { web } = useConfig();
   const { titleMode } = web.text;
