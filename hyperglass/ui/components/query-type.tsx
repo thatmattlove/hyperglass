@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import create from 'zustand';
-import { Box, Button, HStack, useRadio, useRadioGroup } from '@chakra-ui/react';
+import { Box, Button, HStack, useCheckbox, useRadio, useRadioGroup } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import { components } from 'react-select';
 import { Select } from '~/components';
@@ -90,7 +90,7 @@ const GroupFilter = (props: React.PropsWithChildren<UseRadioProps>): JSX.Element
     getLabelProps,
     htmlProps,
     state: { isChecked },
-  } = useRadio(rest);
+  } = useCheckbox(rest);
   const label = getLabelProps();
   const input = getInputProps();
   const checkbox = getCheckboxProps();
