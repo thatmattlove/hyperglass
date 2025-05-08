@@ -114,8 +114,9 @@ def check_address(address):
             raise ValueError("ADDRESS not a valid socket domain socket ({0})".format(address))
     else:
         raise ValueError(
-            "ADDRESS is not a tuple, string, or character buffer "
-            "({0})".format(type(address).__name__)
+            "ADDRESS is not a tuple, string, or character buffer ({0})".format(
+                type(address).__name__
+            )
         )
 
 
@@ -147,7 +148,7 @@ def check_addresses(address_list, is_remote=False):
     """
     assert all(isinstance(x, (tuple, str)) for x in address_list)
     if is_remote and any(isinstance(x, str) for x in address_list):
-        raise AssertionError("UNIX domain sockets not allowed for remote" "addresses")
+        raise AssertionError("UNIX domain sockets not allowed for remoteaddresses")
 
     for address in address_list:
         check_address(address)
@@ -272,7 +273,9 @@ class _ForwardServer(socketserver.TCPServer):  # Not Threading
 
     def handle_error(self, request, client_address):
         (exc_class, exc, tb) = sys.exc_info()
-        self.logger.bind(source=request.getsockname()).error("Could not establish connection to remote side of the tunnel")
+        self.logger.bind(source=request.getsockname()).error(
+            "Could not establish connection to remote side of the tunnel"
+        )
         self.tunnel_ok.put(False)
 
     @property
@@ -937,7 +940,7 @@ class SSHTunnelForwarder:
         count = len(remote_binds) - len(local_binds)
         if count < 0:
             raise ValueError(
-                "Too many local bind addresses " "(local_bind_addresses > remote_bind_addresses)"
+                "Too many local bind addresses (local_bind_addresses > remote_bind_addresses)"
             )
         local_binds.extend([("0.0.0.0", 0) for x in range(count)])
         return local_binds
@@ -1023,7 +1026,7 @@ class SSHTunnelForwarder:
                 msg = template.format(self.ssh_host, self.ssh_port, e.args[0])
                 self.logger.error(msg)
                 return
-        for (rem, loc) in zip(self._remote_binds, self._local_binds):
+        for rem, loc in zip(self._remote_binds, self._local_binds):
             try:
                 self._make_ssh_forward_server(rem, loc)
             except BaseSSHTunnelForwarderError as e:
@@ -1053,7 +1056,7 @@ class SSHTunnelForwarder:
             bind_addresses = [bind_address]
         if not is_remote:
             # Add random port if missing in local bind
-            for (i, local_bind) in enumerate(bind_addresses):
+            for i, local_bind in enumerate(bind_addresses):
                 if isinstance(local_bind, tuple) and len(local_bind) == 1:
                     bind_addresses[i] = (local_bind[0], 0)
         check_addresses(bind_addresses, is_remote)
@@ -1074,8 +1077,7 @@ class SSHTunnelForwarder:
             )
             if attrib:
                 raise ValueError(
-                    "You can't use both '{0}' and '{1}'. "
-                    "Please only use one of them".format(
+                    "You can't use both '{0}' and '{1}'. Please only use one of them".format(
                         deprecated_attrib, DEPRECATIONS[deprecated_attrib]
                     )
                 )
@@ -1119,7 +1121,6 @@ class SSHTunnelForwarder:
 
                 break
             except paramiko.PasswordRequiredException:
-
                 logger.error("Password is required for key {k}", k=pkey_file)
 
                 break
@@ -1319,7 +1320,6 @@ class SSHTunnelForwarder:
 
     @property
     def local_bind_port(self):
-
         # BACKWARDS COMPATIBILITY
         self._check_is_started()
         if len(self._server_list) != 1:
@@ -1330,7 +1330,6 @@ class SSHTunnelForwarder:
 
     @property
     def local_bind_host(self):
-
         # BACKWARDS COMPATIBILITY
         self._check_is_started()
         if len(self._server_list) != 1:
@@ -1341,7 +1340,6 @@ class SSHTunnelForwarder:
 
     @property
     def local_bind_address(self):
-
         # BACKWARDS COMPATIBILITY
         self._check_is_started()
         if len(self._server_list) != 1:

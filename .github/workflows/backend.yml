@@ -12,39 +12,56 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                node-version: [20.x]
-                pnpm-version: [8]
+                node-version: [20, 22]
+                pnpm-version: [9, 10]
                 redis-version: [latest]
-                python-version: ["3.11", "3.12"]
+                python-version: ["3.11", "3.12", "3.13"]
                 os: [ubuntu-latest]
         runs-on: ${{ matrix.os }}
+
+        services:
+            redis:
+                image: redis
+                options: >-
+                  --health-cmd "redis-cli ping"
+                  --health-interval 10s
+                  --health-timeout 5s
+                  --health-retries 5
+                ports:
+                  - 6379:6379
+            httpbin:
+                image: kennethreitz/httpbin
+                ports:
+                  - 8080:80
 
         steps:
             - name: Git Checkout
               uses: actions/checkout@v3
+
+            - name: Install OS dependencies
+              run: |
+                    sudo apt-get install libcairo2-dev clang curl -y
 
             - name: Install Python
               uses: actions/setup-python@v5
               with:
                   python-version: ${{ matrix.python-version }}
 
-            - name: Setup Rye
-              uses: sksat/setup-rye@v0.23.1
-
-            - name: Install Node
-              uses: actions/setup-node@v4
+            - name: Install the latest version of rye
+              uses: eifinger/setup-rye@v4
               with:
-                  node-version: ${{ matrix.node-version }}
+                enable-cache: true
 
             - name: Install PNPM
               uses: pnpm/action-setup@v3
               with:
                   version: ${{ matrix.pnpm-version }}
+                  run_install: false
 
-            - name: Start Redis
-              uses: supercharge/redis-github-action@1.7.0
+            - name: Install Node
+              uses: actions/setup-node@v4
               with:
-                  redis-version: ${{ matrix.redis-version }}
+                  node-version: ${{ matrix.node-version }}
 
             - name: Prepare
               run: |
@@ -56,7 +73,7 @@ jobs:
             - name: Install
               run: rye sync
 
-            - name: Activate virtualenv
+            - name: Activate virtual environment
               run: |
                   . .venv/bin/activate
                   echo PATH=$PATH >> $GITHUB_ENV
@@ -64,8 +81,16 @@ jobs:
             - name: Lint (Rye)
               run: rye lint
 
+            - name: Format (Rye)
+              run: rye format -- --check
+
             - name: Tests (PyTest)
               run: pytest hyperglass --ignore hyperglass/plugins/external
+              env:
+                HYPERGLASS_HTTPBIN_HOST: localhost
+                HYPERGLASS_HTTPBIN_PROTOCOL: http
+                HYPERGLASS_HTTPBIN_PORT: 8080
+                HYPERGLASS_REDIS_HOST: localhost
 
             - name: Run hyperglass
               run: ".tests/ga-backend-app.sh"

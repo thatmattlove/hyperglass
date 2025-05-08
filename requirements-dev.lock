@@ -6,6 +6,8 @@
 #   features: []
 #   all-features: false
 #   with-sources: false
+#   generate-hashes: false
+#   universal: false
 
 -e file:.
 aiofiles==23.2.1
@@ -201,7 +203,7 @@ rich-click==1.7.4
     # via litestar
 rlpycairo==0.3.0
     # via favicons
-ruff==0.2.2
+ruff==0.11.8
 scp==0.14.5
     # via netmiko
 setuptools==69.1.0

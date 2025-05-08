@@ -72,7 +72,7 @@ class HyperglassError(Exception):
 
         for err in errors:
             loc = " → ".join(str(loc) for loc in err["loc"])
-            errs += (f'Field: {loc}\n  Error: {err["msg"]}\n',)
+            errs += (f"Field: {loc}\n  Error: {err['msg']}\n",)
 
         return "\n".join(errs)
 

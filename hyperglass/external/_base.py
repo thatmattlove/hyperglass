@@ -1,7 +1,7 @@
 """Session handler for external http data sources."""
 
 # Standard Library
-import re
+from urllib.parse import urlparse
 import json as _json
 import socket
 import typing as t
@@ -167,14 +167,25 @@ class BaseExternal:
         try:
             # Parse out just the hostname from a URL string.
             # E.g. `https://www.example.com` becomes `www.example.com`
-            test_host = re.sub(r"http(s)?\:\/\/", "", self.base_url)
+            parsed = urlparse(self.base_url)
+            host_parts = parsed.netloc.split(":")
+            try:
+                test_host, test_port = host_parts
+                test_port = int(test_port)
+            except ValueError:
+                test_host = host_parts[0]
+                match parsed.scheme:
+                    case "http":
+                        test_port = 80
+                    case "https":
+                        test_port = 443
 
             # Create a generic socket object
             test_socket = socket.socket()
 
             # Try opening a low-level socket to make sure it's even
             # listening on the port prior to trying to use it.
-            test_socket.connect((test_host, 443))
+            test_socket.connect((test_host, test_port))
 
             # Properly shutdown & close the socket.
             test_socket.shutdown(1)
@@ -212,7 +223,7 @@ class BaseExternal:
 
         if method.upper() not in supported_methods:
             raise self._exception(
-                f'Method must be one of {", ".join(supported_methods)}. ' f"Got: {str(method)}"
+                f"Method must be one of {', '.join(supported_methods)}. Got: {str(method)}"
             )
 
         endpoint = "/".join(
@@ -284,7 +295,7 @@ class BaseExternal:
                 status = httpx.codes(response.status_code)
                 error = self._parse_response(response)
                 raise self._exception(
-                    f'{status.name.replace("_", " ")}: {error}', level="danger"
+                    f"{status.name.replace('_', ' ')}: {error}", level="danger"
                 ) from None
 
         except httpx.HTTPError as http_err:
@@ -340,7 +351,7 @@ class BaseExternal:
                 status = httpx.codes(response.status_code)
                 error = self._parse_response(response)
                 raise self._exception(
-                    f'{status.name.replace("_", " ")}: {error}', level="danger"
+                    f"{status.name.replace('_', ' ')}: {error}", level="danger"
                 ) from None
 
         except httpx.HTTPError as http_err:

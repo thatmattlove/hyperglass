@@ -51,7 +51,7 @@ dev-dependencies = [
     "pytest>=8.0.1",
     "pytest-asyncio>=0.23.5",
     "pytest-dependency>=0.6.0",
-    "ruff>=0.2.1",
+    "ruff>=0.11",
     "stackprinter>=0.2.11",
     "taskipy>=1.12.2",
 ]
@@ -99,6 +99,9 @@ upgrade = {cmd = "python3 version.py", help = "Upgrade hyperglass version"}
 pnpm = {cmd = "pnpm run --dir ./hyperglass/ui/", help = "Run a yarn command from the UI directory"}
 
 [tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
 exclude = [
   ".git",
   "__pycache__",
@@ -128,13 +131,12 @@ ignore = [
   "B905", # zip without `strict`
   "W293", # blank line contains whitespace
 ]
-line-length = 100
 select = ["B", "C", "D", "E", "F", "I", "N", "S", "RET", "W"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "pep257"
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 max-complexity = 10
 
 [tool.ruff.lint.per-file-ignores]

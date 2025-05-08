@@ -1,4 +1,5 @@
 """hyperglass API."""
+
 # Standard Library
 import logging
 
