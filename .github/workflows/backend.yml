@@ -69,9 +69,13 @@ jobs:
                   echo "HYPERGLASS_APP_PATH=$HOME/hyperglass" >> $GITHUB_ENV
                   echo "HYPERGLASS_HOST=127.0.0.1" >> $GITHUB_ENV
                   echo "HYPERGLASS_PORT=8001" >> $GITHUB_ENV
+                  echo "PYTHON3_PATH=$(which python3)" >> $GITHUB_ENV
 
             - name: Install
-              run: rye sync
+              run: |
+                  rye toolchain register $PYTHON_PATH
+                  rye pin ${{ matrix.python-version }}
+                  rye sync
 
             - name: Activate virtual environment
               run: |
