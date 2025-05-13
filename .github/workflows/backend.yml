@@ -73,7 +73,7 @@ jobs:
 
             - name: Install
               run: |
-                  rye toolchain register $PYTHON_PATH
+                  rye toolchain register $PYTHON3_PATH
                   rye pin ${{ matrix.python-version }}
                   rye sync
 
