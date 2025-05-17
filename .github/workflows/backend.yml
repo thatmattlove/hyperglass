@@ -48,6 +48,7 @@ jobs:
 
             - name: Prepare
               run: |
+                  sudo apt-get install libcairo2-dev -y
                   mkdir -p "$HOME/hyperglass"
                   echo "HYPERGLASS_APP_PATH=$HOME/hyperglass" >> $GITHUB_ENV
                   echo "HYPERGLASS_HOST=127.0.0.1" >> $GITHUB_ENV
