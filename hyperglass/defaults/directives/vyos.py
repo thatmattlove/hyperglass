@@ -27,12 +27,12 @@ VyOS_BGPRoute = BuiltinDirective(
         RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
-            command="show ip bgp {target}",
+            command="show bgp ipv4 {target}",
         ),
         RuleWithIPv6(
             condition="::/0",
             action="permit",
-            command="show ipv6 bgp {target}",
+            command="show bgp ipv6 {target}",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
@@ -47,8 +47,8 @@ VyOS_BGPASPath = BuiltinDirective(
             condition="*",
             action="permit",
             commands=[
-                'show ip bgp regexp "{target}"',
-                'show ipv6 bgp regexp "{target}"',
+                'show bgp ipv4 regexp "{target}"',
+                'show bgp ipv6 regexp "{target}"',
             ],
         )
     ],
@@ -64,8 +64,8 @@ VyOS_BGPCommunity = BuiltinDirective(
             condition="*",
             action="permit",
             commands=[
-                "show ip bgp community {target}",
-                "show ipv6 bgp community {target}",
+                "show bgp ipv4 community {target}",
+                "show bgp ipv6 community {target}",
             ],
         )
     ],
@@ -99,12 +99,12 @@ VyOS_Traceroute = BuiltinDirective(
         RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
-            command="mtr -4 -G 1 -c 1 -w -o SAL -a {source4} {target}",
+            command="traceroute {target} source-address {source4} icmp",
         ),
         RuleWithIPv6(
             condition="::/0",
             action="permit",
-            command="mtr -6 -G 1 -c 1 -w -o SAL -a {source6} {target}",
+            command="traceroute {target} source-address {source6} icmp",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
