@@ -42,3 +42,58 @@ ln -s /etc/nginx/sites-available/hyperglass /etc/nginx/sites-enabled/hyperglass
 Change the `lg.example.com` value to match your hyperglass FQDN.
 
 Change the `<path to cert chain>` and `<path to key>` values to match the path to your certificate and private key files.
+
+```nginx {4,9,10,17,19} title="NGINX"
+server {
+  listen 80;
+  listen [::]:80;
+  server_name lg.example.com;
+  return 301 https://$host$request_uri;
+}
+server {
+  listen [::]:443 ssl ipv6only=on;
+  listen 443 ssl;
+  ssl_certificate <path to cert chain>
+  ssl_certificate_key <path to key>
+
+  client_max_body_size 2M;
+
+  server_name lg.example.com;
+
+  root /etc/hyperglass/static;
+
+  location / {
+    try_files $uri $uri/ /ui /ui/$uri =404;
+    index /ui/index.html;
+  }
+
+  location /openapi.json {
+      try_files $uri @proxy_to_app;
+  }
+
+  location /custom/ {
+      try_files $uri $uri/ /custom;
+  }
+
+  location /images/ {
+      try_files $uri $uri/ /images;
+  }
+
+  location /api {
+      try_files $uri @proxy_to_app;
+  }
+
+  location @proxy_to_app {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    # for ipv6
+    proxy_pass http://[::1]:8001;
+    # for ipv4
+    # proxy_pass http://127.0.0.1:8001;
+  }
+
+}
+```
