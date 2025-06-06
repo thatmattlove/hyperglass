@@ -27,15 +27,16 @@ Huawei_BGPRoute = BuiltinDirective(
         RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
-            command="display bgp routing-table {target}",
+            command="display bgp routing-table {target} | no-more",
         ),
         RuleWithIPv6(
             condition="::/0",
             action="permit",
-            command="display bgp ipv6 routing-table {target}",
+            command="display bgp ipv6 routing-table {target} | no-more",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
+    plugins=["bgp_route_huawei"],
     platforms=PLATFORMS,
 )
 
