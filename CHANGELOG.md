@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- [#305](https://github.com/thatmattlove/hyperglass/issues/264): Fix: allow integer values in ext_community_list_raw field for Arista BGP - @cooperwinser
+
 ## 2.0.4 - 2024-06-30
 
 ### Fixed
