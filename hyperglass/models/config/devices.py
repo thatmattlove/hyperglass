@@ -170,7 +170,7 @@ class Device(HyperglassModelWithId, extra="allow"):
 
     @field_validator("address")
     def validate_address(
-        cls, value: t.Union[IPv4Address, IPv6Address, str], values: t.Dict[str, t.Any]
+        cls, value: t.Union[IPv4Address, IPv6Address, str], info: ValidationInfo
     ) -> t.Union[IPv4Address, IPv6Address, str]:
         """Ensure a hostname is resolvable."""
 
@@ -178,14 +178,14 @@ class Device(HyperglassModelWithId, extra="allow"):
             if not any(resolve_hostname(value)):
                 raise ConfigError(
                     "Device '{d}' has an address of '{a}', which is not resolvable.",
-                    d=values["name"],
+                    d=info.data["name"],
                     a=value,
                 )
         return value
 
     @field_validator("avatar")
     def validate_avatar(
-        cls, value: t.Union[FilePath, None], values: t.Dict[str, t.Any]
+        cls, value: t.Union[FilePath, None], info: ValidationInfo
     ) -> t.Union[FilePath, None]:
         """Migrate avatar to static directory."""
         if value is not None:
@@ -198,7 +198,7 @@ class Device(HyperglassModelWithId, extra="allow"):
             target = Settings.static_path / "images" / value.name
             copied = shutil.copy2(value, target)
             log.bind(
-                device=values["name"],
+                device=info.data["name"],
                 source=str(value),
                 destination=str(target),
             ).debug("Copied device avatar")
@@ -210,24 +210,24 @@ class Device(HyperglassModelWithId, extra="allow"):
         return value
 
     @field_validator("platform", mode="before")
-    def validate_platform(cls: "Device", value: t.Any, values: t.Dict[str, t.Any]) -> str:
+    def validate_platform(cls: "Device", value: t.Any, info: ValidationInfo) -> str:
         """Validate & rewrite device platform, set default `directives`."""
 
         if value == "http":
-            if values.get("http") is None:
+            if info.data.get("http") is None:
                 raise ConfigError(
                     "Device '{device}' has platform 'http' configured, but no http parameters are defined.",
-                    device=values["name"],
+                    device=info.data["name"],
                 )
 
         if value is None:
-            if values.get("http") is not None:
+            if info.data.get("http") is not None:
                 value = "http"
             else:
                 # Ensure device platform is defined.
                 raise ConfigError(
                     "Device '{device}' is missing a 'platform' (Network Operating System) property",
-                    device=values["name"],
+                    device=info.data["name"],
                 )
 
         if value in SCRAPE_HELPERS.keys():

@@ -282,14 +282,15 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
                 condition = rule.get("condition")
                 if condition is None:
                     out_rules.append(RuleWithoutValidation(**rule))
-                try:
-                    condition_net = ip_network(condition)
-                    if condition_net.version == 4:
-                        out_rules.append(RuleWithIPv4(**rule))
-                    if condition_net.version == 6:
-                        out_rules.append(RuleWithIPv6(**rule))
-                except ValueError:
-                    out_rules.append(RuleWithPattern(**rule))
+                else:
+                    try:
+                        condition_net = ip_network(condition)
+                        if condition_net.version == 4:
+                            out_rules.append(RuleWithIPv4(**rule))
+                        if condition_net.version == 6:
+                            out_rules.append(RuleWithIPv6(**rule))
+                    except ValueError:
+                        out_rules.append(RuleWithPattern(**rule))
             if isinstance(rule, Rule):
                 out_rules.append(rule)
         return out_rules

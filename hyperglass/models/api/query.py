@@ -7,7 +7,8 @@ import secrets
 from datetime import datetime
 
 # Third Party
-from pydantic import Field, BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, StringConstraints
+from typing_extensions import Annotated
 
 # Project
 from hyperglass.log import log
@@ -19,6 +20,11 @@ from hyperglass.exceptions.private import InputValidationError
 
 # Local
 from ..config.devices import Device
+
+
+QueryLocation = Annotated[str, StringConstraints(strict=True, min_length=1, strip_whitespace=True)]
+QueryTarget = Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)]
+QueryType = Annotated[str, StringConstraints(strict=True, min_length=1, strip_whitespace=True)]
 
 
 class SimpleQuery(BaseModel):
@@ -39,12 +45,12 @@ class Query(BaseModel):
     model_config = ConfigDict(extra="allow", alias_generator=snake_to_camel, populate_by_name=True)
 
     # Device `name` field
-    query_location: str = Field(strict=True, min_length=1, strip_whitespace=True)
+    query_location: QueryLocation
 
-    query_target: t.Union[t.List[str], str] = Field(min_length=1, strip_whitespace=True)
+    query_target: t.Union[t.List[QueryTarget], QueryTarget]
 
     # Directive `id` field
-    query_type: str = Field(strict=True, min_length=1, strip_whitespace=True)
+    query_type: QueryType
     _kwargs: t.Dict[str, t.Any]
 
     def __init__(self, **data) -> None:
