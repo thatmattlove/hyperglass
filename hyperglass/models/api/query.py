@@ -69,7 +69,7 @@ class Query(BaseModel):
             self.validate_query_target()
         except InputValidationError as err:
             raise InputInvalid(**err.kwargs) from err
-        
+
         self.query_target = self.transform_query_target()
 
     def summary(self) -> SimpleQuery:

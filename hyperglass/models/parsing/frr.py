@@ -50,7 +50,7 @@ class FRRPath(_FRRBase):
     aspath: t.List[int]
     aggregator_as: int = 0
     aggregator_id: str = ""
-    loc_prf: int = 100 # 100 is the default value for local preference
+    loc_prf: int = 100  # 100 is the default value for local preference
     metric: int = 0
     med: int = 0
     weight: int = 0
@@ -66,7 +66,7 @@ class FRRPath(_FRRBase):
         """Extract meaningful data from FRR response."""
         new = values.copy()
         new["aspath"] = values["aspath"]["segments"][0]["list"]
-        community = values.get("community", {'list': []})
+        community = values.get("community", {"list": []})
         new["community"] = community["list"]
         new["lastUpdate"] = values["lastUpdate"]["epoch"]
         bestpath = values.get("bestpath", {})

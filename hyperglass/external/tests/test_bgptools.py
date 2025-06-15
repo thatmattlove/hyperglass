@@ -16,7 +16,6 @@ WHOIS_OUTPUT = """AS    | IP      | BGP Prefix | CC | Registry | Allocated  | AS
 # Ignore asyncio deprecation warning about loop
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_network_info():
-
     checks = (
         ("192.0.2.1", {"asn": "None", "rir": "Private Address"}),
         ("127.0.0.1", {"asn": "None", "rir": "Loopback Address"}),

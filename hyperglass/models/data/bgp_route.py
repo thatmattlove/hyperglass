@@ -6,7 +6,7 @@ import typing as t
 from ipaddress import ip_network
 
 # Third Party
-from pydantic import field_validator, ValidationInfo
+from pydantic import ValidationInfo, field_validator
 
 # Project
 from hyperglass.state import use_state

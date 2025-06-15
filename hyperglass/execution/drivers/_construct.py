@@ -94,7 +94,7 @@ class Construct:
         for key in [k for k in keys if k != "target" and k != "mask"]:
             if key not in attrs:
                 raise ConfigError(
-                    ("Command '{c}' has attribute '{k}', " "which is missing from device '{d}'"),
+                    ("Command '{c}' has attribute '{k}', which is missing from device '{d}'"),
                     level="danger",
                     c=self.directive.name,
                     k=key,
@@ -224,4 +224,4 @@ class Formatter:
     def _bird_bgp_community(self, target: str) -> str:
         """Convert from standard community format to BIRD format."""
         parts = target.split(":")
-        return f'({",".join(parts)})'
+        return f"({','.join(parts)})"

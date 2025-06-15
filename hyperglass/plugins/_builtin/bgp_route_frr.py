@@ -62,14 +62,13 @@ def parse_frr(output: t.Sequence[str]) -> "OutputDataModel":
 
     return result
 
+
 class BGPRoutePluginFrr(OutputPlugin):
     """Coerce a FRR route table in JSON format to a standard BGP Table structure."""
 
     _hyperglass_builtin: bool = PrivateAttr(True)
     platforms: t.Sequence[str] = ("frr",)
-    directives: t.Sequence[str] = (
-        "__hyperglass_frr_bgp_route_table__",
-    )
+    directives: t.Sequence[str] = ("__hyperglass_frr_bgp_route_table__",)
 
     def process(self, *, output: "OutputType", query: "Query") -> "OutputType":
         """Parse FRR response if data is a string (and is therefore unparsed)."""

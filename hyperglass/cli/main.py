@@ -33,7 +33,7 @@ def run():
 def _version(
     version: t.Optional[bool] = typer.Option(
         None, "--version", help="hyperglass version", callback=_version
-    )
+    ),
 ) -> None:
     """hyperglass"""
     pass
@@ -77,7 +77,6 @@ def _build_ui(timeout: int = typer.Option(180, help="Timeout in seconds")) -> No
     with echo._console.status(
         f"Starting new UI build with a {timeout} second timeout...", spinner="aesthetic"
     ):
-
         _build_ui(timeout=120)
 
 
@@ -140,7 +139,7 @@ def _clear_cache():
 
 @cli.command(name="devices")
 def _devices(
-    search: t.Optional[str] = typer.Argument(None, help="Device ID or Name Search Pattern")
+    search: t.Optional[str] = typer.Argument(None, help="Device ID or Name Search Pattern"),
 ):
     """Show all configured devices"""
     # Third Party
@@ -189,7 +188,7 @@ def _devices(
 
 @cli.command(name="directives")
 def _directives(
-    search: t.Optional[str] = typer.Argument(None, help="Directive ID or Name Search Pattern")
+    search: t.Optional[str] = typer.Argument(None, help="Directive ID or Name Search Pattern"),
 ):
     """Show all configured devices"""
     # Third Party
@@ -280,7 +279,7 @@ def _plugins(
 def _params(
     path: t.Optional[str] = typer.Argument(
         None, help="Parameter Object Path, for example 'messages.no_input'"
-    )
+    ),
 ):
     """Show configuration parameters"""
     # Standard Library
@@ -312,7 +311,7 @@ def _params(
             )
             raise typer.Exit(0)
         except AttributeError:
-            echo.error(f"{'params.'+path!r} does not exist")
+            echo.error(f"{'params.' + path!r} does not exist")
             raise typer.Exit(1)
 
     panel = Inspect(

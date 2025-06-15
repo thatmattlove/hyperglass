@@ -212,7 +212,7 @@ class BaseExternal:
 
         if method.upper() not in supported_methods:
             raise self._exception(
-                f'Method must be one of {", ".join(supported_methods)}. ' f"Got: {str(method)}"
+                f"Method must be one of {', '.join(supported_methods)}. Got: {str(method)}"
             )
 
         endpoint = "/".join(
@@ -284,7 +284,7 @@ class BaseExternal:
                 status = httpx.codes(response.status_code)
                 error = self._parse_response(response)
                 raise self._exception(
-                    f'{status.name.replace("_", " ")}: {error}', level="danger"
+                    f"{status.name.replace('_', ' ')}: {error}", level="danger"
                 ) from None
 
         except httpx.HTTPError as http_err:
@@ -340,7 +340,7 @@ class BaseExternal:
                 status = httpx.codes(response.status_code)
                 error = self._parse_response(response)
                 raise self._exception(
-                    f'{status.name.replace("_", " ")}: {error}', level="danger"
+                    f"{status.name.replace('_', ' ')}: {error}", level="danger"
                 ) from None
 
         except httpx.HTTPError as http_err:

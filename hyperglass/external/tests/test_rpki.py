@@ -1,4 +1,5 @@
 """Test RPKI data fetching."""
+
 # Third Party
 import pytest
 
@@ -18,8 +19,8 @@ def test_rpki():
         result = rpki_state(prefix, asn)
         result_name = RPKI_NAME_MAP.get(result, "No Name")
         expected_name = RPKI_NAME_MAP.get(expected, "No Name")
-        assert (
-            result == expected
-        ), "RPKI State for '{}' via AS{!s} '{}' ({}) instead of '{}' ({})".format(
-            prefix, asn, result, result_name, expected, expected_name
+        assert result == expected, (
+            "RPKI State for '{}' via AS{!s} '{}' ({}) instead of '{}' ({})".format(
+                prefix, asn, result, result_name, expected, expected_name
+            )
         )
