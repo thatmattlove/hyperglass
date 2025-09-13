@@ -34,6 +34,34 @@ cp /opt/hyperglass/.samples/sample_directives_mikrotik /etc/hyperglass/directive
 
 cp /opt/hyperglass/.samples/sample_hyperglass /etc/hyperglass/hyperglass.env
 
+
+You also need to add your AS prefixes to deny queries if you don't want others to look up your own prefixes from your hyperglass instance.
+
+In the directives file, there is a field that is usually commented out. This configuration is meant for devices like Huawei or MikroTik, but it is currently still using the default option from the directives. From what I've tested, putting the rules in the configuration folder (/etc/hyperglass/...) didn't work. If it works later, we can do everything within the directives file in /etc/hyperglass, but for now, it's okay to use the default.
+
+It's possible to create or use the ENTRYPOINT in the Dockerfile to change this at build time when starting the service, but I don't have time right now to stop and implement this.
+
+The code snippet, originally commented, should be modified to something like this:
+
+         # DENY RULE FOR AS PREFIX - IPv4
+         RuleWithIPv4(
+            condition="172.16.0.0/22",
+            ge="22",
+            le="32",
+            action="deny",
+            command="",
+        ),
+
+        # DENY RULE FOR AS PREFIX - IPv6
+        RuleWithIPv6(
+            condition="fd00:2::/32",
+            ge="32",
+            le="128",
+            action="deny",
+            command="",
+        ),
+
+
 "### Optional: Quickstart"
 
 cd /opt/hyperglass
