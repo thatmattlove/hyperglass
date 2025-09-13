@@ -40,7 +40,7 @@ JuniperTraceroute:
       ge: 32
       le: 32
       action: permit
-      command: 'traceroute {target} interface lo0 wait 1'
+      command: 'traceroute inet {target} wait 1 source {source4}'
       # REGRA DENY SITE LOCAL DEPRECIADO RFC 3879
     - condition: 'fec0::/10'
       ge: 10
@@ -75,7 +75,7 @@ JuniperTraceroute:
       ge: 128
       le: 128
       action: permit
-      command: 'traceroute {target} interface lo0 wait 1'
+      command: 'traceroute inet6 {target} wait 2 source {source6}'
   field:
     description: IP Address, or Hostname
 JuniperPing:
@@ -119,7 +119,7 @@ JuniperPing:
     - condition: '0.0.0.0/0'
       ge: 32
       le: 32
-      command: 'ping count 5 rapid {target} interface lo0'
+      command: 'ping inet {target} count 5 source {source4}'
       # REGRA DENY SITE LOCAL DEPRECIADO RFC 3879
     - condition: 'fec0::/10'
       ge: 10
@@ -154,6 +154,6 @@ JuniperPing:
       ge: 128
       le: 128
       action: permit
-      command: 'ping count 5 rapid {target} interface lo0'
+      command: 'ping inet6 {target} count 5 source {source6}'
   field:
     description: IP Address, or Hostname
