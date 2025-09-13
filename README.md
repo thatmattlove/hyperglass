@@ -10,19 +10,19 @@ mv hyperglass_structured hyperglass
 
 cd /opt/hyperglass
 
-"### https://hyperglass.dev/configuration/overview "
+"### https://hyperglass.dev/configuration/overview"
 
-"### https://hyperglass.dev/configuration/config"
+"### https://hyperglass.dev/configuration/config Change the files in the /etc/hyperglass folder after copying with your information or add something following the official doc"
 
 cp /opt/hyperglass/.samples/sample_config.yaml /etc/hyperglass/config.yaml
 
 cp /opt/hyperglass/.samples/sample_terms-and-conditions.md /etc/hyperglass/terms-and-conditions.md
 
-"### https://hyperglass.dev/configuration/devices"
+"### https://hyperglass.dev/configuration/devices Change the files in the /etc/hyperglass folder after copying with your information or add something following the official doc"
 
 cp /opt/hyperglass/.samples/sample_devices.yaml /etc/hyperglass/devices.yaml
 
-"### https://hyperglass.dev/configuration/directives"
+"### https://hyperglass.dev/configuration/directives Change the files in the /etc/hyperglass folder after copying with your information or add something following the official doc"
 
 cp /opt/hyperglass/.samples/sample_directives_huawei.yaml /etc/hyperglass/directives.yaml
 
