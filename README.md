@@ -43,7 +43,9 @@ In the directives file, there is a field that is usually commented out. This con
 
 It's possible to create or use the ENTRYPOINT in the Dockerfile to change this at build time when starting the service, but I don't have time right now to stop and implement this.
 
-The code snippet, originally commented, should be modified to something like this: /opt/hyperglass/hyperglass/defaults/directives/huawei.py | /opt/hyperglass_structured/hyperglass/defaults/directives/mikrotik.py
+/opt/hyperglass/hyperglass/defaults/directives/huawei.py | /opt/hyperglass_structured/hyperglass/defaults/directives/mikrotik.py
+
+The code snippet, originally commented, should be modified to something like this: 
 
          # DENY RULE FOR AS PREFIX - IPv4
          RuleWithIPv4(
