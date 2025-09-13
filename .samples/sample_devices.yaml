@@ -1,5 +1,5 @@
 devices:
-  - name: AS-Example Device
+  - name: AS1234_Example Device
     address: 127.0.0.1
     credential:
       username: test
@@ -15,7 +15,7 @@ devices:
       source4: 127.0.0.1
       source6: 2001:db8::1
       
-  - name: AS-Example Device
+  - name: AS1234_Example Device
     address: 127.0.0.1
     credential:
       username: test
@@ -31,7 +31,7 @@ devices:
       source4: 127.0.0.1
       source6: 2001:db8::1
       
-  - name: AS-Example Device
+  - name: AS1234_Example Device
     driver_args:
       global_delay_factor: 3
     address: 127.0.0.1
