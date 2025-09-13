@@ -10,18 +10,32 @@ mv hyperglass_structured hyperglass
 
 cd /opt/hyperglass
 
-### https://hyperglass.dev/configuration/config
+"### https://hyperglass.dev/configuration/overview "
 
+"### https://hyperglass.dev/configuration/config"
+
+cp /opt/hyperglass/.samples/sample_config.yaml /etc/hyperglass/config.yaml
+
+cp /opt/hyperglass/.samples/sample_terms-and-conditions.md /etc/hyperglass/terms-and-conditions.md
+
+"### https://hyperglass.dev/configuration/devices"
 
 cp /opt/hyperglass/.samples/sample_devices.yaml /etc/hyperglass/devices.yaml
 
+"### https://hyperglass.dev/configuration/directives"
 
-### test
+cp /opt/hyperglass/.samples/sample_directives_huawei.yaml /etc/hyperglass/directives.yaml
+
+cp /opt/hyperglass/.samples/sample_directives_juniper.yaml /etc/hyperglass/directives.yaml
+
+cp /opt/hyperglass/.samples/sample_directives_mikrotik.yaml /etc/hyperglass/directives.yaml
+
+"### test"
 cd /opt/hyperglass
 
 docker compose up
 
-### Create a systemd service
+"### Create a systemd service"
 
 cp /opt/hyperglass/.samples/hyperglass-docker.service /etc/hyperglass/hyperglass.service
 
@@ -32,6 +46,7 @@ systemctl daemon-reload
 systemctl enable hyperglass
 
 systemctl start hyperglass
+
 
 <div align="center">
   <br/>
