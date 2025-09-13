@@ -32,6 +32,8 @@ cp /opt/hyperglass/.samples/sample_directives_mikrotik.yaml /etc/hyperglass/dire
 
 "### Environment Variables https://hyperglass.dev/installation/environment-variables"
 
+cp /opt/hyperglass/.samples/sample_hyperglass.env /etc/hyperglass/hyperglass.env
+
 "### Optional: Quickstart"
 
 cd /opt/hyperglass
