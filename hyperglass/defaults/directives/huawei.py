@@ -176,7 +176,7 @@ HuaweiBGPRouteTable = BuiltinDirective(
             action="deny",
             command="",
         ),
-        # Regra DENY ASN PREFIXO
+        # Regra DENY AS PREFIXO
         #RuleWithIPv4(
         #    condition="x.x.x.x/xx",
         #    ge="xx",
@@ -232,7 +232,7 @@ HuaweiBGPRouteTable = BuiltinDirective(
             action="deny",
             command="",
         ),
-        # REGRA DENY ASN PREFIXO
+        # REGRA DENY AS PREFIXO
         #RuleWithIPv6(
         #   condition="x.x.x.x/xx",
         #   ge="XX",
