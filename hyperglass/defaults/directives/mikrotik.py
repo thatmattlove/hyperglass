@@ -176,7 +176,7 @@ MikrotikBGPRouteTable = BuiltinDirective(
             action="deny",
             command="",
         ),
-        # Regra DENY ASN PREFIXO
+        # Regra DENY AS PREFIXO
         #RuleWithIPv4(
         #    condition="x.x.x.x/x",
         #    ge="xx",
@@ -231,7 +231,7 @@ MikrotikBGPRouteTable = BuiltinDirective(
             action="deny",
             command="",
         ),
-        # REGRA DENY ASN PREFIXO
+        # REGRA DENY AS PREFIXO
         #RuleWithIPv6(
         #    condition="xxxx:xxxx::/xx",
         #    ge="xx",
