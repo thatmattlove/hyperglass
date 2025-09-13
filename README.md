@@ -35,6 +35,8 @@ cp /opt/hyperglass/.samples/sample_directives_mikrotik /etc/hyperglass/directive
 cp /opt/hyperglass/.samples/sample_hyperglass /etc/hyperglass/hyperglass.env
 
 
+"###"
+
 You also need to add your AS prefixes to deny queries if you don't want others to look up your own prefixes from your hyperglass instance.
 
 In the directives file, there is a field that is usually commented out. This configuration is meant for devices like Huawei or MikroTik, but it is currently still using the default option from the directives. From what I've tested, putting the rules in the configuration folder (/etc/hyperglass/...) didn't work. If it works later, we can do everything within the directives file in /etc/hyperglass, but for now, it's okay to use the default.
@@ -61,6 +63,8 @@ The code snippet, originally commented, should be modified to something like thi
             command="",
         ),
 
+
+"###"
 
 "### Optional: Quickstart"
 
