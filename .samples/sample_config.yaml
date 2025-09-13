@@ -1,0 +1,118 @@
+org_name: EXEMPLO_EMPRESA
+primary_asn: 12345
+request_timeout: 30
+site_title: Looking Glass EXEMPLO_EMPRESA
+site_description: "{org_name} Network Looking Glass"
+structured:
+   rpki:
+     mode: external
+web:
+  location_display_mode: gallery
+  opengraph:
+        image: /etc/hyperglass/svg/logo.png
+  theme:
+        colors:
+             primary: #118ab2
+        default_color_mode: dark
+  logo:
+        light: /etc/hyperglass/svg/logo.png
+        dark: /etc/hyperglass/svg/logo.png
+        #favicon: /etc/hyperglass/svg/logo.svg
+        width: 50%
+        height: null
+  text:
+        title_mode: logo_subtitle
+        cache_icon: Cached from {time} UTC
+        cache_prefix: "Results cached for "
+        complete_time: Completed in {seconds}
+        fqdn_error: Unable to resolve {fqdn}
+        fqdn_error_button: Try Again
+        fqdn_message: Your browser has resolved {fqdn} to
+        fqdn_tooltip: Use {protocol}
+        no_communities: No Communities
+        query_location: Location
+        query_target: Target
+        query_type: Query Type
+        rpki_invalid: Invalid
+        rpki_unknown: No ROAs Exist
+        rpki_unverified: Not Verified
+        rpki_valid: Valid
+        subtitle: Network Looking Glass
+        title: hyperglass
+  links:
+    - title: PeeringDB
+      url: https://www.peeringdb.com/asn/65000
+      show_icon: true
+      side: left
+      order: 1
+    - title: Qrator
+      url: https://radar.qrator.net/AS65000
+      show_icon: true
+      side: left
+      order: 2
+    - title: RADb
+      url: https://www.radb.net/query?advanced_query=&keywords=AS65000
+      show_icon: true
+      side: left
+      order: 3
+    - title: IRR Explorer
+      url: https://irrexplorer.nlnog.net/asn/AS65000
+      show_icon: true
+      side: left
+      order: 4
+    - title: RDAP
+      url: https://rdap.registro.br/autnum/65000
+      show_icon: true
+      side: left
+      order: 5
+    - title: BGP VIEW
+      url: https://bgpview.io/asn/65000#graph
+      side: left
+      order: 6
+    - title: BGP HE
+      url: https://bgp.he.net/AS65000#_prefixes
+      show_icon: true
+      side: left
+      order: 7
+    - title: BGP TOOLS
+      url: https://bgp.tools/as/65000#connectivity
+      side: left
+      order: 8
+    - title: BGP PLAY
+      url: https://stat.ripe.net/widget/bgplay#w.resource=65000
+      side: left
+      order: 9
+    - title: UPX TOOLS
+      url: https://upx.tools/bgp-overview/65000
+      side: left
+      order: 10
+    - title: My Site
+      url: https://www.mysite.com.br
+      show_icon: true
+      side: right
+      order: 0
+  menus:
+    - title: Contato
+      content: "- Por favor entre em contato [teste@teste.com.br](mailto:teste@teste.com.br) para suporte."
+      side: right
+    - title: Termos e Condições
+      content: /etc/hyperglass/terms-and-conditions.md
+      side: right
+  credit:
+    enable: true
+messages:
+  authentication_error: "-Authentication error occurred."
+  connection_error: "- Error connecting to {device_name}: {error}"
+  target_not_allowed: "- {target} is not allowed."
+  general: "- Something went wrong."
+  invalid_field: "- {input} is an invalid {field}."
+  invalid_input: "- {target} is not a valid {query_type} target."
+  no_input: "- {field} must be specified."
+  no_output: "- The query completed, but no matching results were found."
+  request_timeout: "- Request timed out."
+logging:
+    directory: /var/log/
+    format: text
+cache:
+    timeout: 120
+    show_text: true
