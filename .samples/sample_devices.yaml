@@ -43,8 +43,8 @@ devices:
     structured_output: true
     directives:
       - builtins: [BGP_Route]
-      - Huawei_Traceroute
-      - Huawei_Ping
+      - MikroTik_Traceroute
+      - MikroTik_Ping
     attrs:
       source4: 127.0.0.1
       source6: 2001:db8::1
