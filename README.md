@@ -4,7 +4,7 @@ mkdir -p /etc/hyperglass/svg
 
 cd /opt
 
-git clone https://github.com/thatmattlove/hyperglass.git --depth=1
+git clone https://github.com/CarlosSuporteISP/hyperglass_structured.git --depth=1
 
 mv hyperglass_structured hyperglass
 
