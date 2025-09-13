@@ -85,7 +85,10 @@ systemctl enable hyperglass
 systemctl start hyperglass
 
 
-Acknowledgments:
+
+"###"
+
+ Acknowledgments:
 
     To thatmatt for this incredible project that I really like. Nothing against other Looking Glass (LG) projects. https://github.com/thatmattlove/hyperglass
 
@@ -104,6 +107,10 @@ I also adjusted the official plugin (which wasn't working) for Huawei.
 The issue was the format in which the prefix was being passed to the device. Huawei expects the format 192.0.2.0 24 (with a space), but the official plugin was sending it in the 192.0.2.0/24 format (with a slash).
 
 The fix was made to adapt to the format that Huawei accepts for queries.
+
+
+
+"###"
 
 
 <div align="center">
