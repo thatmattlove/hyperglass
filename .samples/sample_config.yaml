@@ -14,12 +14,12 @@ web:
         colors:
              primary: #118ab2
         default_color_mode: dark
-  logo:
-        light: /etc/hyperglass/svg/logo.png
-        dark: /etc/hyperglass/svg/logo.png
+  #logo:
+        #light: /etc/hyperglass/svg/logo.png
+        #dark: /etc/hyperglass/svg/logo.png
         #favicon: /etc/hyperglass/svg/logo.svg
-        width: 50%
-        height: null
+        #width: 50%
+        #height: null
   text:
         title_mode: logo_subtitle
         cache_icon: Cached from {time} UTC
