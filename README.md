@@ -63,6 +63,17 @@ The code snippet, originally commented, should be modified to something like thi
             command="",
         ),
 
+mikrotik v6
+
+command="ip route print detail without-paging where {target} in dst-address bgp and dst-address !=0.0.0.0/0",
+command="ipv6 route print detail without-paging where {target} in dst-address bgp and dst-address !=::/0",
+
+mikrotik v7
+
+command="routing route print detail without-paging where {target} in dst-address bgp and dst-address !=0.0.0.0/0",
+command="routing route print detail without-paging where {target} in dst-address bgp and dst-address !=::/0",
+
+
 
 "###"
 
