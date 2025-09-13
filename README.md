@@ -14,25 +14,25 @@ cd /opt/hyperglass
 
 "### https://hyperglass.dev/configuration/config Change the files in the /etc/hyperglass folder after copying with your information or add something following the official doc"
 
-cp /opt/hyperglass/.samples/sample_config.yaml /etc/hyperglass/config.yaml
+cp /opt/hyperglass/.samples/sample_config /etc/hyperglass/config.yaml
 
-cp /opt/hyperglass/.samples/sample_terms-and-conditions.md /etc/hyperglass/terms-and-conditions.md
+cp /opt/hyperglass/.samples/sample_terms-and-conditions /etc/hyperglass/terms-and-conditions.md
 
 "### https://hyperglass.dev/configuration/devices Change the files in the /etc/hyperglass folder after copying with your information or add something following the official doc"
 
-cp /opt/hyperglass/.samples/sample_devices.yaml /etc/hyperglass/devices.yaml
+cp /opt/hyperglass/.samples/sample_devices2 /etc/hyperglass/devices.yaml
 
 "### https://hyperglass.dev/configuration/directives Change the files in the /etc/hyperglass folder after copying with your information or add something following the official doc"
 
-cp /opt/hyperglass/.samples/sample_directives_huawei.yaml /etc/hyperglass/directives.yaml
+cp /opt/hyperglass/.samples/sample_directives_huawei /etc/hyperglass/directives.yaml
 
-cp /opt/hyperglass/.samples/sample_directives_juniper.yaml /etc/hyperglass/directives.yaml
+cp /opt/hyperglass/.samples/sample_directives_juniper /etc/hyperglass/directives.yaml
 
-cp /opt/hyperglass/.samples/sample_directives_mikrotik.yaml /etc/hyperglass/directives.yaml
+cp /opt/hyperglass/.samples/sample_directives_mikrotik /etc/hyperglass/directives.yaml
 
 "### Environment Variables https://hyperglass.dev/installation/environment-variables"
 
-cp /opt/hyperglass/.samples/sample_hyperglass.env /etc/hyperglass/hyperglass.env
+cp /opt/hyperglass/.samples/sample_hyperglass /etc/hyperglass/hyperglass.env
 
 "### Optional: Quickstart"
 
