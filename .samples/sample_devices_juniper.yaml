@@ -1,10 +1,16 @@
 devices:
-  - name: Example Device
+  - name: AS-Example Device
     address: 127.0.0.1
     credential:
       username: test
       password: test
     platform: juniper
+    structured_output: True
+    directives:
+      - builtins: false
+      - JuniperBGPRouteTable
+      - JuniperTraceroute
+      - JuniperPing
     attrs:
       source4: 127.0.0.1
       source6: 2001:db8::1
