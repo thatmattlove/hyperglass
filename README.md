@@ -1,3 +1,35 @@
+Install 
+
+mkdir -p /etc/hyperglass/svg
+
+cd /opt
+
+git clone https://github.com/thatmattlove/hyperglass.git --depth=1
+
+mv hyperglass_structured hyperglass
+
+cd /opt/hyperglass
+
+cp /opt/hyperglass/.samples/sample_devices.yaml /etc/hyperglass/devices.yaml
+
+
+# test
+cd /opt/hyperglass
+
+docker compose up
+
+# Create a systemd service
+
+cp /opt/hyperglass/.samples/hyperglass-docker.service /etc/hyperglass/hyperglass.service
+
+ln -s /etc/hyperglass/hyperglass.service /etc/systemd/system/hyperglass.service
+
+systemctl daemon-reload
+
+systemctl enable hyperglass
+
+systemctl start hyperglass
+
 <div align="center">
   <br/>
   <img src="https://res.cloudinary.com/hyperglass/image/upload/v1593916013/logo-light.svg" width=300></img>
