@@ -85,6 +85,27 @@ systemctl enable hyperglass
 systemctl start hyperglass
 
 
+Acknowledgments:
+
+    To thatmatt for this incredible project that I really like. Nothing against other Looking Glass (LG) projects. https://github.com/thatmattlove/hyperglass
+
+    To remotti for the tips on Telegram, his attention, and for his fork https://github.com/remontti/hyperglass/tree/main, https://blog.remontti.com.br/7201, which is already quite deprecated due to its age (Node 14, etc.) and not being in Docker. This is why I decided to move to the official version.
+
+    To the user \邪萬教教我/ @Yukaphoenix572 好呆. Thanks to a message from him in the Telegram group, my mind was opened to the solution after I searched through the conversations.
+
+    To issue https://github.com/thatmattlove/hyperglass/issues/318 for the solution to queries that also weren't working on Tik-Tik (for those who use Claro).
+
+    And of course, last but not least: to AIs. My apologies to those who don't like the "code vibe," but they help a lot. I used many of the six main AIs on the market, but only Manus truly managed to help me, contributing about 45% of the development, testing, adjustments, and descriptions.
+
+The total development time took over three weeks to get everything adjusted. Yes, I know I'm not that great at development, but I'm studying and improving. As I always say, in life and professionally, we always have something to learn; we never know everything.
+
+I also adjusted the official plugin (which wasn't working) for Huawei.
+
+The issue was the format in which the prefix was being passed to the device. Huawei expects the format 192.0.2.0 24 (with a space), but the official plugin was sending it in the 192.0.2.0/24 format (with a slash).
+
+The fix was made to adapt to the format that Huawei accepts for queries.
+
+
 <div align="center">
   <br/>
   <img src="https://res.cloudinary.com/hyperglass/image/upload/v1593916013/logo-light.svg" width=300></img>
