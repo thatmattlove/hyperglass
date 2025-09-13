@@ -30,7 +30,7 @@ cp /opt/hyperglass/.samples/sample_directives_juniper.yaml /etc/hyperglass/direc
 
 cp /opt/hyperglass/.samples/sample_directives_mikrotik.yaml /etc/hyperglass/directives.yaml
 
-"### test"
+"### Optional: Quickstart"
 
 cd /opt/hyperglass
 
