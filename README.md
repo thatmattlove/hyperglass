@@ -1,4 +1,4 @@
-# Install https://hyperglass.dev/installation/docker
+### Install https://hyperglass.dev/installation/docker
 
 mkdir -p /etc/hyperglass/svg
 
@@ -10,15 +10,18 @@ mv hyperglass_structured hyperglass
 
 cd /opt/hyperglass
 
+### https://hyperglass.dev/configuration/config
+
+
 cp /opt/hyperglass/.samples/sample_devices.yaml /etc/hyperglass/devices.yaml
 
 
-# test
+### test
 cd /opt/hyperglass
 
 docker compose up
 
-# Create a systemd service
+### Create a systemd service
 
 cp /opt/hyperglass/.samples/hyperglass-docker.service /etc/hyperglass/hyperglass.service
 
