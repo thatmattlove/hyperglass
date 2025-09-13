@@ -168,18 +168,18 @@ MikrotikBGPRouteTable = BuiltinDirective(
             action="deny",
             command="",
         ),
-        # Regra DENY ASN PREFIXO
-        RuleWithIPv4(
-            condition="${ASN-IPv4}",
-            ge="${mask}",
-            le="32",
-            action="deny",
-            command="",
-        ),
         # Regra DENY DEFAULT
         RuleWithIPv4(
             condition="0.0.0.0/8",
             ge="8",
+            le="32",
+            action="deny",
+            command="",
+        ),
+        # Regra DENY ASN PREFIXO
+        RuleWithIPv4(
+            condition="${ASN-IPv4}",
+            ge="${mask}",
             le="32",
             action="deny",
             command="",
