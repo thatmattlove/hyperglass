@@ -29,6 +29,6 @@ services:
             - HYPERGLASS_ORIGINAL_APP_PATH=${HYPERGLASS_APP_PATH}
         build: .
         ports:
-            - "${IP-ESPECIFICO-MAQUINA-HOST}:${HYPERGLASS_PORT-8001}:${HYPERGLASS_PORT-8001}"
+            - "${IP_HOST_VM_VPS_DOCKER}:${HYPERGLASS_PORT-8001}:${HYPERGLASS_PORT-8001}"
         volumes:
             - ${HYPERGLASS_APP_PATH-/etc/hyperglass}:/etc/hyperglass
