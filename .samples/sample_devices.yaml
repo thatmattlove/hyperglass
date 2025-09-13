@@ -8,8 +8,7 @@ devices:
     port: 22 #PORTA de EXEMPLO APENAS TIRA ESSE COMENTARIO MUDA A PORTA NO EQUIPAMENTO PARA DE USAR PORTA PADRAO E IMPLEMENTA SEGURANÇA ACL SEJA O QUE FOR.
     structured_output: True
     directives:
-      - builtins: false
-      - JuniperBGPRouteTable
+      - builtins: [JuniperBGPRoute]
       - JuniperTraceroute
       - JuniperPing
     attrs:
