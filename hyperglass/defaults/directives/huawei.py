@@ -184,7 +184,6 @@ HuaweiBGPRouteTable = BuiltinDirective(
         #    action="deny",
         #    command="",
         #),
-
         RuleWithIPv4(
             condition="0.0.0.0/0",
             ge="8",
