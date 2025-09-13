@@ -30,6 +30,8 @@ cp /opt/hyperglass/.samples/sample_directives_juniper.yaml /etc/hyperglass/direc
 
 cp /opt/hyperglass/.samples/sample_directives_mikrotik.yaml /etc/hyperglass/directives.yaml
 
+"### Environment Variables https://hyperglass.dev/installation/environment-variables"
+
 "### Optional: Quickstart"
 
 cd /opt/hyperglass
