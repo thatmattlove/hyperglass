@@ -63,6 +63,7 @@ class MikrotikRouteEntry(MikrotikBase):
     is_active: bool = False
     is_best: bool = False
     is_valid: bool = False
+    rpki_state: int = RPKI_STATE_MAP.get("unknown", 2)
 
     @property
     def next_hop(self) -> str:
@@ -114,6 +115,7 @@ def _extract_paths(lines: t.List[str]) -> MikrotikPaths:
     return MikrotikPaths(available=available, best=best, select=best)
 
 def _process_kv(route: dict, key: str, val: str):
+    _log = log.bind(parser="MikrotikBGPTable")
     """Process a key-value pair and update the route dictionary."""
     # Normalize quoted values
     if val.startswith('"') and val.endswith('"'):
@@ -141,17 +143,21 @@ def _process_kv(route: dict, key: str, val: str):
         route["origin"] = val
     elif key in (".med", "med", "bgp-med"):
         route["metric"] = int(val) if val.isdigit() else 0
-    elif key == "bgp-local-pref":
+    elif key in (".local-pref", "local-pref", "bgp-local-pref"):
         route["local_preference"] = int(val) if val.isdigit() else 100
-    elif key == "bgp-communities":
+    elif key in (".communities", "communities", "bgp-communities"):
         if val and val.lower() != "none":
             route["communities"] = [c.strip() for c in val.split(",") if c.strip()]
-    elif key == "bgp-large-communities":
+    elif key in (".large-communities", "large-communities", "bgp-large-communities"):
         if val and val.lower() != "none":
             route["large_communities"] = [c.strip() for c in val.split(",") if c.strip()]
     elif key == "bgp-ext-communities":
         if val and val.lower() != "none":
             route["ext_communities"] = [c.strip() for c in val.split(",") if c.strip()]
+    elif key == "rpki":
+        #_log.debug(f"RPKI raw value: {val!r}")
+        clean_val = val.strip().strip('"').lower()
+        route["rpki_state"] = RPKI_STATE_MAP.get(clean_val, 2)
 
 def _extract_route_entries(lines: t.List[str]) -> t.List[MikrotikRouteEntry]:
     """Extract route entries from a list of lines."""
@@ -200,6 +206,7 @@ def _parse_route_block(block: t.List[str]) -> t.Optional[MikrotikRouteEntry]:
         "as_path": [], "communities": [], "large_communities": [], "ext_communities": [],
         "local_preference": 100, "metric": 0, "origin": "",
         "is_active": False, "is_best": False, "is_valid": False,
+        "rpki_state": RPKI_STATE_MAP.get("unknown", 2),
     }
 
     # Check for 'A' (active) flag in the first line
@@ -274,7 +281,7 @@ class MikrotikBGPTable(MikrotikBase):
                     "source_as": r.source_as,
                     "source_rid": r.source_rid,
                     "peer_rid": r.peer_rid,
-                    "rpki_state": RPKI_STATE_MAP.get("unknown", 2),
+                    "rpki_state": r.rpki_state,
                 }
             )
         return MikrotikBGPRouteTable(
