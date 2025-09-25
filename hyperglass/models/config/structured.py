@@ -21,7 +21,8 @@ class StructuredRpki(HyperglassModel):
     """Control structured data response for RPKI state."""
 
     mode: StructuredRPKIMode = "router"
-
+    backend: str = "cloudflare"
+    rpki_server_url: str = ""
 
 class Structured(HyperglassModel):
     """Control structured data responses."""
