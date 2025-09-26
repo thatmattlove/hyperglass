@@ -99,13 +99,17 @@ class MikrotikGarbageOutput(OutputPlugin):
         """
 
         # If output is already processed/structured (not raw strings), pass it through unchanged
-        if not isinstance(output, (tuple, list)) or (output and not isinstance(output[0], str)):
+        if not isinstance(output, (tuple, list)):
+            return output
+            
+        # Check if the tuple/list contains non-string objects (structured data)
+        if output and not isinstance(output[0], str):
             return output
 
         cleaned_outputs = []
 
         for raw_output in output:
-            # Handle non-string outputs (already processed by other plugins)
+            # Handle non-string outputs (already processed by other plugins) - double check
             if not isinstance(raw_output, str):
                 cleaned_outputs.append(raw_output)
                 continue
