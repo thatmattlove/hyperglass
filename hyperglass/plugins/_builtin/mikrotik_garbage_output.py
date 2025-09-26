@@ -98,9 +98,18 @@ class MikrotikGarbageOutput(OutputPlugin):
         This plugin removes command echoes, prompts, flag legends, and interactive help text.
         """
 
+        # If output is already processed/structured (not raw strings), pass it through unchanged
+        if not isinstance(output, (tuple, list)) or (output and not isinstance(output[0], str)):
+            return output
+
         cleaned_outputs = []
 
         for raw_output in output:
+            # Handle non-string outputs (already processed by other plugins)
+            if not isinstance(raw_output, str):
+                cleaned_outputs.append(raw_output)
+                continue
+                
             # Se a saída já estiver vazia, não há nada a fazer.
             if not raw_output or not raw_output.strip():
                 cleaned_outputs.append("")
