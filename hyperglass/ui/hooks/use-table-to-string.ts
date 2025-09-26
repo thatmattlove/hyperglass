@@ -102,6 +102,15 @@ export function useTableToString(
             const [header, accessor, align] = field;
             if (align !== null) {
               let value = route[accessor];
+              
+              // Handle fields that should be hidden when empty/not available
+              if ((accessor === 'source_rid' || accessor === 'age') && 
+                  (value === null || value === undefined || 
+                   (typeof value === 'string' && value.trim() === '') ||
+                   (accessor === 'age' && value === -1))) {
+                continue; // Skip this field entirely
+              }
+              
               const fmtFunc = getFmtFunc(accessor) as (v: typeof value) => string;
               value = fmtFunc(value);
               if (accessor === 'prefix') {

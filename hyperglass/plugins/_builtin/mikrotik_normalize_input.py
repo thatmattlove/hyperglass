@@ -7,6 +7,7 @@ from pydantic import PrivateAttr
 
 # Project
 from hyperglass.log import log
+
 # REMOVIDA a importação direta de Query para evitar o erro circular
 # from hyperglass.models.api.query import Query
 
@@ -20,6 +21,7 @@ class MikrotikTargetNormalizerInput(InputPlugin):
     This ensures that queries for different IPs within the same subnet
     resolve to the same cache key.
     """
+
     _hyperglass_builtin: bool = PrivateAttr(False)
     name: str = "mikrotik_normalizer"
     platforms: t.Sequence[str] = ("mikrotik_routeros", "mikrotik_switchos", "mikrotik")
@@ -28,27 +30,27 @@ class MikrotikTargetNormalizerInput(InputPlugin):
     # INÍCIO DA MODIFICAÇÃO: Usar 't.Any' em vez de 'Query'
     # #############################################################
     def validate(self, query: t.Any) -> InputPluginValidationReturn:
-    # #############################################################
-    # FIM DA MODIFICAÇÃO
-    # #############################################################
+        # #############################################################
+        # FIM DA MODIFICAÇÃO
+        # #############################################################
         """
         Takes the query object and modifies the target if it's a BGP Route query.
         """
-        
+
         # Acessamos os atributos normalmente, pois sabemos que o objeto 'query' os terá.
         if query.query_type != "bgp_route":
             return True, None
 
         try:
             target_ip = ip_address(query.target)
-            
+
             if target_ip.version == 4:
                 prefix_len = 24
             else:
                 prefix_len = 48
-            
+
             network = ip_network(f"{str(target_ip)}/{prefix_len}", strict=False)
-            
+
             normalized_target = str(network.with_prefixlen)
 
             if query.target != normalized_target:
@@ -57,7 +59,7 @@ class MikrotikTargetNormalizerInput(InputPlugin):
                     f"'{normalized_target}' for MikroTik cache key."
                 )
                 query.target = normalized_target
-                
+
         except ValueError:
             pass
 

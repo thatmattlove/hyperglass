@@ -202,3 +202,5 @@ websockets==12.0
     # via uvicorn
 xmltodict==1.0.2
     # via hyperglass
+requests>=2.26.0
+    # via hyperglass

@@ -21,10 +21,11 @@ RPKI_STATE_MAP = {
     "unverified": 3,
 }
 
+
 def remove_prefix(text: str, prefix: str) -> str:
     """Remove prefix from text if it exists."""
     if text.startswith(prefix):
-        return text[len(prefix):]
+        return text[len(prefix) :]
     return text
 
 
@@ -38,6 +39,7 @@ class HuaweiBase(HyperglassModel, extra="ignore"):
 
 class HuaweiPaths(HuaweiBase):
     """BGP paths information."""
+
     available: int = 0
     best: int = 0
     select: int = 0
@@ -117,7 +119,8 @@ class HuaweiRouteEntry(HuaweiBase):
     def peer_rid(self) -> str:
         """Get peer router ID."""
         return self.from_addr
-    
+
+
 def _extract_paths(line: str) -> HuaweiPaths:
     """Extract paths information from line like 'Paths: 3 available, 1 best, 1 select, 0 best-external, 0 add-path'."""
     paths_data = {
@@ -127,7 +130,7 @@ def _extract_paths(line: str) -> HuaweiPaths:
         "best_external": 0,
         "add_path": 0,
     }
-    
+
     try:
         values = remove_prefix(line.strip(), "Paths:").strip().split(",")
         for value in values:
@@ -139,23 +142,30 @@ def _extract_paths(line: str) -> HuaweiPaths:
                     paths_data[name] = count
     except (ValueError, IndexError):
         log.warning(f"Failed to parse paths line: {line}")
-    
+
     return HuaweiPaths(**paths_data)
 
 
 def _extract_route_entries(lines: t.List[str]) -> t.List[HuaweiRouteEntry]:
     """Extract route entries from lines."""
     routes = []
-    
+
     # Split lines into route blocks using empty lines as separators
     size = len(lines)
     idx_list = [idx + 1 for idx, val in enumerate(lines) if val.strip() == ""]
-    entries = [lines[i:j] for i, j in zip([0] + idx_list, idx_list + ([size] if idx_list[-1] != size else []))] if idx_list else [lines]
-    
+    entries = (
+        [
+            lines[i:j]
+            for i, j in zip([0] + idx_list, idx_list + ([size] if idx_list[-1] != size else []))
+        ]
+        if idx_list
+        else [lines]
+    )
+
     for route_entry in entries:
         if not route_entry:
             continue
-            
+
         # Initialize route data
         route_data = {
             "prefix": "",
@@ -181,14 +191,16 @@ def _extract_route_entries(lines: t.List[str]) -> t.List[HuaweiRouteEntry]:
             "is_selected": False,
             "preference": 0,
         }
-        
+
         for info in route_entry:
             info = info.strip()
             if not info:
                 continue
-                
+
             if info.startswith("BGP routing table entry information of"):
-                route_data["prefix"] = remove_prefix(info, "BGP routing table entry information of ").rstrip(":")
+                route_data["prefix"] = remove_prefix(
+                    info, "BGP routing table entry information of "
+                ).rstrip(":")
             elif info.startswith("From:"):
                 route_data["from_addr"] = remove_prefix(info, "From: ").split(" (")[0]
             elif info.startswith("Route Duration:"):
@@ -199,13 +211,15 @@ def _extract_route_entries(lines: t.List[str]) -> t.List[HuaweiRouteEntry]:
                     h_match = re.search(r"(\d+)h", duration_str)
                     m_match = re.search(r"(\d+)m", duration_str)
                     s_match = re.search(r"(\d+)s", duration_str)
-                    
+
                     days = int(d_match.group(1)) if d_match else 0
                     hours = int(h_match.group(1)) if h_match else 0
                     minutes = int(m_match.group(1)) if m_match else 0
                     seconds = int(s_match.group(1)) if s_match else 0
-                    
-                    route_data["duration"] = days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds
+
+                    route_data["duration"] = (
+                        days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds
+                    )
                 except:
                     route_data["duration"] = 0
             elif info.startswith("Direct Out-interface:"):
@@ -215,23 +229,34 @@ def _extract_route_entries(lines: t.List[str]) -> t.List[HuaweiRouteEntry]:
             elif info.startswith("Relay IP Nexthop:"):
                 route_data["relay_ip_next_hop"] = remove_prefix(info, "Relay IP Nexthop: ")
             elif info.startswith("Relay IP Out-Interface:"):
-                route_data["relay_ip_out_interface"] = remove_prefix(info, "Relay IP Out-Interface: ")
+                route_data["relay_ip_out_interface"] = remove_prefix(
+                    info, "Relay IP Out-Interface: "
+                )
             elif info.startswith("Qos information :"):
                 route_data["qos"] = remove_prefix(info, "Qos information : ")
             elif info.startswith("Community:"):
                 communities_str = remove_prefix(info, "Community: ")
                 if communities_str and communities_str.lower() != "none":
-                    communities = [c.strip().replace("<", "").replace(">", "") for c in communities_str.split(", ")]
+                    communities = [
+                        c.strip().replace("<", "").replace(">", "")
+                        for c in communities_str.split(", ")
+                    ]
                     route_data["communities"] = [c for c in communities if c]
             elif info.startswith("Large-Community:"):
                 large_communities_str = remove_prefix(info, "Large-Community: ")
                 if large_communities_str and large_communities_str.lower() != "none":
-                    large_communities = [c.strip().replace("<", "").replace(">", "") for c in large_communities_str.split(", ")]
+                    large_communities = [
+                        c.strip().replace("<", "").replace(">", "")
+                        for c in large_communities_str.split(", ")
+                    ]
                     route_data["large_communities"] = [c for c in large_communities if c]
             elif info.startswith("Ext-Community:"):
                 ext_communities_str = remove_prefix(info, "Ext-Community: ")
                 if ext_communities_str and ext_communities_str.lower() != "none":
-                    ext_communities = [c.strip().replace("<", "").replace(">", "") for c in ext_communities_str.split(", ")]
+                    ext_communities = [
+                        c.strip().replace("<", "").replace(">", "")
+                        for c in ext_communities_str.split(", ")
+                    ]
                     route_data["ext_communities"] = [c for c in ext_communities if c]
             elif info.startswith("AS-path"):
                 values = info.split(",")
@@ -240,7 +265,9 @@ def _extract_route_entries(lines: t.List[str]) -> t.List[HuaweiRouteEntry]:
                     if v.startswith("AS-path"):
                         as_path_str = remove_prefix(v, "AS-path ")
                         try:
-                            route_data["as_path"] = [int(a) for a in as_path_str.split() if a.isdigit()]
+                            route_data["as_path"] = [
+                                int(a) for a in as_path_str.split() if a.isdigit()
+                            ]
                         except ValueError:
                             route_data["as_path"] = []
                     elif v.startswith("origin"):
@@ -275,22 +302,24 @@ def _extract_route_entries(lines: t.List[str]) -> t.List[HuaweiRouteEntry]:
                         route_data["is_best"] = True
                     elif v.strip() == "select":
                         route_data["is_selected"] = True
-        
+
         # Only add route if we have a valid prefix
         if route_data["prefix"]:
             try:
                 route = HuaweiRouteEntry(**route_data)
                 routes.append(route)
             except Exception as e:
-                log.warning(f'Failed to create route entry for prefix {{route_data.get("prefix", "unknown")}}: {{e}}')
+                log.warning(
+                    f'Failed to create route entry for prefix {{route_data.get("prefix", "unknown")}}: {{e}}'
+                )
                 continue
-    
+
     return routes
 
 
 class HuaweiBGPRouteTable(BGPRouteTable):
     """Custom BGP Route Table for Huawei that bypasses validation."""
-    
+
     def __init__(self, **kwargs):
         """Initialize without calling parent validation."""
         # Set attributes directly without validation using object.__setattr__
@@ -312,33 +341,35 @@ class HuaweiBGPTable(HuaweiBase):
     def parse_text(cls, text: str) -> "HuaweiBGPTable":
         """Parse Huawei BGP text output."""
         _log = log.bind(parser="HuaweiBGPTable")
-        
+
         instance = cls()
-        
+
         lines = text.split("\n")
-        
+
         # Extract general information
         for line in lines:
             if "BGP local router ID" in line:
                 instance.local_router_id = remove_prefix(line, "BGP local router ID : ").strip()
             elif "Local AS number" in line:
                 try:
-                    instance.local_as_number = int(remove_prefix(line, "Local AS number : ").strip())
+                    instance.local_as_number = int(
+                        remove_prefix(line, "Local AS number : ").strip()
+                    )
                 except ValueError:
                     instance.local_as_number = 0
             elif line.strip().startswith("Paths:"):
                 instance.paths = _extract_paths(line)
-        
+
         # Extract route entries
         instance.routes = _extract_route_entries(lines)
-        
+
         _log.debug(f"Parsed {len(instance.routes)} Huawei routes")
         return instance
 
     def bgp_table(self) -> BGPRouteTable:
         """Convert to standard BGP table format."""
         routes = []
-        
+
         for route in self.routes:
             route_data = {
                 "prefix": route.prefix,
@@ -353,7 +384,9 @@ class HuaweiBGPTable(HuaweiBase):
                 "source_as": route.source_as,
                 "source_rid": route.source_rid,
                 "peer_rid": route.peer_rid,
-                "rpki_state": RPKI_STATE_MAP.get("unknown") if route.is_valid else RPKI_STATE_MAP.get("valid"),
+                "rpki_state": (
+                    RPKI_STATE_MAP.get("unknown") if route.is_valid else RPKI_STATE_MAP.get("valid")
+                ),
             }
             routes.append(route_data)
 
@@ -363,4 +396,3 @@ class HuaweiBGPTable(HuaweiBase):
             routes=routes,
             winning_weight="high",
         )
-

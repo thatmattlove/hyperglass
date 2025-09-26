@@ -30,6 +30,7 @@ dependencies = [
     "pydantic-extra-types>=2.10.5",
     "litestar[standard,brotli]>=2.17.0",
     "click<=8.1.7",
+    "requests>=2.26.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.13,<4.0"

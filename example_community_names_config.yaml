@@ -1,0 +1,21 @@
+# Example configuration using the new 'name' mode for BGP communities
+# This would typically go in your main config.yaml file
+
+structured:
+    communities:
+        mode: name
+        names:
+            "65000:1000:0": "Upstream Any"
+            "65000:1001:0": "Upstream A (all locations)"
+            "65000:1101:0": "Upstream A Location 1"
+            "65000:1201:0": "Upstream A Location 2"
+            "65000:1002:0": "Upstream B (all locations)"
+            "65000:1102:0": "Upstream B Location 1"
+            "65000:2000:0": "IXP Any"
+
+# With this configuration:
+# - BGP communities that appear in the output and match the keys in 'names' 
+#   will be displayed with friendly names appended
+# - For example: "65000:1000:0" becomes "65000:1000:0,Upstream Any"
+# - Communities without mappings remain unchanged
+# - The frontend will display them as "65000:1000:0 - Upstream Any"

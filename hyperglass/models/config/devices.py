@@ -357,9 +357,9 @@ class Devices(MultiModel, model=Device, unique_by="id"):
                         "group": group,
                         "id": device.id,
                         "name": device.name,
-                        "avatar": f"/images/{device.avatar.name}"
-                        if device.avatar is not None
-                        else None,
+                        "avatar": (
+                            f"/images/{device.avatar.name}" if device.avatar is not None else None
+                        ),
                         "description": device.description,
                         "directives": [d.frontend() for d in device.directives],
                     }

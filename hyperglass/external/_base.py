@@ -208,7 +208,9 @@ class BaseExternal:
             data,
             timeout,
             response_required,
-        ) = itemgetter(*kwargs.keys())(kwargs)
+        ) = itemgetter(
+            *kwargs.keys()
+        )(kwargs)
 
         if method.upper() not in supported_methods:
             raise self._exception(
