@@ -250,6 +250,7 @@ def _parse_route_block(block: t.List[str]) -> t.Optional[MikrotikRouteEntry]:
 
 class MikrotikBGPRouteTable(BGPRouteTable):
     """Canonical MikroTik BGP Route Table."""
+
     # No custom __init__ needed; inherit from BGPRouteTable (which should be a Pydantic model)
 
 

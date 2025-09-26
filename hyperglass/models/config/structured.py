@@ -24,7 +24,9 @@ class StructuredCommunities(HyperglassModel):
     def validate_names(cls, value: t.Dict[str, str], info: ValidationInfo) -> t.Dict[str, str]:
         """Validate that names are provided when mode is 'name'."""
         if info.data and info.data.get("mode") == "name" and not value:
-            raise ValueError("When using mode 'name', at least one community mapping must be provided in 'names'")
+            raise ValueError(
+                "When using mode 'name', at least one community mapping must be provided in 'names'"
+            )
         return value
 
 
