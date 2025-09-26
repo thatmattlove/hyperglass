@@ -76,9 +76,9 @@ class MikrotikRouteEntry(MikrotikBase):
         return self.gateway
 
     @property
-    def age(self) -> str:
-        # MikroTik output does not provide route age, returning 0 as a placeholder.
-        return "0"
+    def age(self) -> int:
+        # MikroTik output does not provide route age, returning -1 to indicate unavailable.
+        return -1
 
     @property
     def weight(self) -> int:
@@ -102,6 +102,7 @@ class MikrotikRouteEntry(MikrotikBase):
 
     @property
     def source_rid(self) -> str:
+        # MikroTik output does not provide source RID, returning empty string.
         return ""
 
     @property

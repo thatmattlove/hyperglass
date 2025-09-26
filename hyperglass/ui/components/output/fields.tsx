@@ -50,6 +50,16 @@ dayjs.extend(utcPlugin);
 
 export const MonoField = (props: MonoFieldProps): JSX.Element => {
   const { v, ...rest } = props;
+  
+  // Handle empty or undefined values
+  if (!v || (typeof v === 'string' && v.trim() === '')) {
+    return (
+      <Text as="span" fontSize="sm" fontFamily="mono" color="gray.500" {...rest}>
+        N/A
+      </Text>
+    );
+  }
+  
   return (
     <Text as="span" fontSize="sm" fontFamily="mono" {...rest}>
       {v}
@@ -74,6 +84,18 @@ export const Active = (props: ActiveProps): JSX.Element => {
 
 export const Age = (props: AgeProps): JSX.Element => {
   const { inSeconds, ...rest } = props;
+  
+  // Handle case where age is not available (e.g., MikroTik)
+  if (inSeconds === -1) {
+    return (
+      <Tooltip hasArrow label="Age information not available" placement="right">
+        <Text fontSize="sm" color="gray.500" {...rest}>
+          N/A
+        </Text>
+      </Tooltip>
+    );
+  }
+  
   const now = dayjs.utc();
   const then = now.subtract(inSeconds, 'second');
   return (
