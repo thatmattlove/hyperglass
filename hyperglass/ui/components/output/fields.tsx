@@ -51,8 +51,8 @@ dayjs.extend(utcPlugin);
 export const MonoField = (props: MonoFieldProps): JSX.Element => {
   const { v, ...rest } = props;
   
-  // Handle empty or undefined values
-  if (!v || (typeof v === 'string' && v.trim() === '')) {
+  // Handle empty or undefined values, but not zero values
+  if (v === null || v === undefined || (typeof v === 'string' && v.trim() === '')) {
     return (
       <Text as="span" fontSize="sm" fontFamily="mono" color="gray.500" {...rest}>
         N/A
@@ -85,15 +85,9 @@ export const Active = (props: ActiveProps): JSX.Element => {
 export const Age = (props: AgeProps): JSX.Element => {
   const { inSeconds, ...rest } = props;
   
-  // Handle case where age is not available (e.g., MikroTik)
+  // Handle case where age is not available (e.g., MikroTik) - hide the field entirely
   if (inSeconds === -1) {
-    return (
-      <Tooltip hasArrow label="Age information not available" placement="right">
-        <Text fontSize="sm" color="gray.500" {...rest}>
-          N/A
-        </Text>
-      </Tooltip>
-    );
+    return <></>;
   }
   
   const now = dayjs.utc();
@@ -265,3 +259,18 @@ const _RPKIState: React.ForwardRefRenderFunction<HTMLDivElement, RPKIStateProps>
 };
 
 export const RPKIState = forwardRef<HTMLDivElement, RPKIStateProps>(_RPKIState);
+
+export const HideableField = (props: MonoFieldProps): JSX.Element => {
+  const { v, ...rest } = props;
+  
+  // Hide the field entirely if value is empty or undefined
+  if (v === null || v === undefined || (typeof v === 'string' && v.trim() === '')) {
+    return <></>;
+  }
+  
+  return (
+    <Text as="span" fontSize="sm" fontFamily="mono" {...rest}>
+      {v}
+    </Text>
+  );
+};
