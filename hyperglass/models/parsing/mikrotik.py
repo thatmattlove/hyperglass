@@ -9,7 +9,7 @@ from pydantic import ConfigDict
 
 # Project
 from hyperglass.log import log
-from hyperglass.models.data.bgp_route import BGPRouteTable
+from hyperglass.models.data.bgp_route import BGPRoute, BGPRouteTable  # Add BGPRoute import
 
 # Local
 from ..main import HyperglassModel
@@ -249,13 +249,8 @@ def _parse_route_block(block: t.List[str]) -> t.Optional[MikrotikRouteEntry]:
 
 
 class MikrotikBGPRouteTable(BGPRouteTable):
-    """Bypass validation to align with Huawei parser."""
-
-    def __init__(self, **kwargs):
-        object.__setattr__(self, "vrf", kwargs.get("vrf", "default"))
-        object.__setattr__(self, "count", kwargs.get("count", 0))
-        object.__setattr__(self, "routes", kwargs.get("routes", []))
-        object.__setattr__(self, "winning_weight", kwargs.get("winning_weight", "low"))
+    """Canonical MikroTik BGP Route Table."""
+    # No custom __init__ needed; inherit from BGPRouteTable (which should be a Pydantic model)
 
 
 class MikrotikBGPTable(MikrotikBase):
@@ -287,23 +282,23 @@ class MikrotikBGPTable(MikrotikBase):
     def bgp_table(self) -> BGPRouteTable:
         out = []
         for r in self.routes:
-            out.append(
-                {
-                    "prefix": r.prefix,
-                    "active": r.active,
-                    "age": r.age,
-                    "weight": r.weight,
-                    "med": r.med,
-                    "local_preference": r.local_preference,
-                    "as_path": r.as_path,
-                    "communities": r.all_communities,
-                    "next_hop": r.next_hop,
-                    "source_as": r.source_as,
-                    "source_rid": r.source_rid,
-                    "peer_rid": r.peer_rid,
-                    "rpki_state": r.rpki_state,
-                }
-            )
+            route_dict = {
+                "prefix": r.prefix,
+                "active": r.active,
+                "age": r.age,
+                "weight": r.weight,
+                "med": r.med,
+                "local_preference": r.local_preference,
+                "as_path": r.as_path,
+                "communities": r.all_communities,
+                "next_hop": r.next_hop,
+                "source_as": r.source_as,
+                "source_rid": r.source_rid,
+                "peer_rid": r.peer_rid,
+                "rpki_state": r.rpki_state,
+            }
+            # Instantiate BGPRoute to trigger validation (including external RPKI)
+            out.append(BGPRoute(**route_dict))
         return MikrotikBGPRouteTable(
             vrf="default",
             count=len(out),
