@@ -19,7 +19,7 @@ class UIDirective(HyperglassModel):
 
     id: str
     name: str
-    field_type: str
+    field_type: t.Union[str, None]
     groups: t.List[str]
     description: str
     info: t.Optional[str] = None

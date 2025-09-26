@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Fixed
-
+- [#280](https://github.com/thatmattlove/hyperglass/issues/280): Fix: `condition: None` caused error in directive
 - [#306](https://github.com/thatmattlove/hyperglass/issues/306): Fix: allow integer values in ext_community_list_raw field for Arista BGP - @cooperwinser
 - [#325](https://github.com/thatmattlove/hyperglass/pull/325): Fix code block padding in the documentation - @jagardaniel
 - [#327](https://github.com/thatmattlove/hyperglass/pull/327): Fix huawei bgp route and plugin validation/transform order - @JelsonRodrigues 
