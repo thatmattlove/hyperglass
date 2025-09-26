@@ -2,6 +2,8 @@
 hyperglass/hyperglass/static
 TODO*
 .env
+dev-build.sh
+dev-docker/
 
 test.py
 .DS_Store
