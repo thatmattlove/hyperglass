@@ -42,6 +42,7 @@ class BGPRoute(HyperglassModel):
         Actions:
             permit: only permit matches
             deny: only deny matches
+            name: append friendly names to matching communities
         """
 
         (structured := use_state("params").structured)
@@ -64,10 +65,21 @@ class BGPRoute(HyperglassModel):
                     break
             return valid
 
-        func_map = {"permit": _permit, "deny": _deny}
-        func = func_map[structured.communities.mode]
+        def _name(comm):
+            """Append friendly names to matching communities."""
+            # Check if this community has a friendly name mapping
+            if comm in structured.communities.names:
+                return f"{comm},{structured.communities.names[comm]}"
+            return comm
 
-        return [c for c in value if func(c)]
+        if structured.communities.mode == "name":
+            # For name mode, transform communities to include friendly names
+            return [_name(c) for c in value]
+        else:
+            # For permit/deny modes, use existing filtering logic
+            func_map = {"permit": _permit, "deny": _deny}
+            func = func_map[structured.communities.mode]
+            return [c for c in value if func(c)]
 
     @field_validator("rpki_state")
     def validate_rpki_state(cls, value, info: ValidationInfo):

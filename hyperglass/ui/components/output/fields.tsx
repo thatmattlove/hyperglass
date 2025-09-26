@@ -149,6 +149,16 @@ export const Communities = (props: CommunitiesProps): JSX.Element => {
   const { web } = useConfig();
   const bg = useColorValue('white', 'gray.900');
   const color = useOpposingColor(bg);
+  
+  // Parse communities to separate code and name if present
+  const parsedCommunities = communities.map(community => {
+    if (community.includes(',')) {
+      const [code, name] = community.split(',', 2);
+      return { code, name, display: `${code} - ${name}` };
+    }
+    return { code: community, name: null, display: community };
+  });
+  
   return (
     <If condition={communities.length === 0}>
       <Then>
@@ -175,7 +185,9 @@ export const Communities = (props: CommunitiesProps): JSX.Element => {
             fontWeight="normal"
             whiteSpace="pre-wrap"
           >
-            {communities.join('\n')}
+            {parsedCommunities.map(({ display }, index) => (
+              <Text key={index} as="div">{display}</Text>
+            ))}
           </MenuList>
         </Menu>
       </Else>
