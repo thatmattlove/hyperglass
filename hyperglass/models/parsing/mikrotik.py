@@ -282,28 +282,28 @@ class MikrotikBGPTable(MikrotikBase):
         return inst
 
     def bgp_table(self) -> BGPRouteTable:
-        out = []
-        for r in self.routes:
-            route_dict = {
-                "prefix": r.prefix,
-                "active": r.active,
-                "age": r.age,
-                "weight": r.weight,
-                "med": r.med,
-                "local_preference": r.local_preference,
-                "as_path": r.as_path,
-                "communities": r.all_communities,
-                "next_hop": r.next_hop,
-                "source_as": r.source_as,
-                "source_rid": r.source_rid,
-                "peer_rid": r.peer_rid,
-                "rpki_state": r.rpki_state,
+        routes = []
+        for route in self.routes:
+            route_data = {
+                "prefix": route.prefix,
+                "active": route.active,
+                "age": route.age,
+                "weight": route.weight,
+                "med": route.med,
+                "local_preference": route.local_preference,
+                "as_path": route.as_path,
+                "communities": route.all_communities,
+                "next_hop": route.next_hop,
+                "source_as": route.source_as,
+                "source_rid": route.source_rid,
+                "peer_rid": route.peer_rid,
+                "rpki_state": route.rpki_state,
             }
             # Instantiate BGPRoute to trigger validation (including external RPKI)
-            out.append(BGPRoute(**route_dict))
+            routes.append(BGPRoute(**route_data))
         return MikrotikBGPRouteTable(
             vrf="default",
-            count=len(out),
-            routes=out,
+            count=len(routes),
+            routes=routes,
             winning_weight="low",
         )
