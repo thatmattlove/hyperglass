@@ -9,7 +9,7 @@ from pydantic import ConfigDict, field_validator, model_validator
 
 # Project
 from hyperglass.log import log
-from hyperglass.models.data.bgp_route import BGPRouteTable
+from hyperglass.models.data.bgp_route import BGPRoute, BGPRouteTable
 
 # Local
 from ..main import HyperglassModel
@@ -318,15 +318,9 @@ def _extract_route_entries(lines: t.List[str]) -> t.List[HuaweiRouteEntry]:
 
 
 class HuaweiBGPRouteTable(BGPRouteTable):
-    """Custom BGP Route Table for Huawei that bypasses validation."""
+    """Canonical Huawei BGP Route Table."""
 
-    def __init__(self, **kwargs):
-        """Initialize without calling parent validation."""
-        # Set attributes directly without validation using object.__setattr__
-        object.__setattr__(self, "vrf", kwargs.get("vrf", "default"))
-        object.__setattr__(self, "count", kwargs.get("count", 0))
-        object.__setattr__(self, "routes", kwargs.get("routes", []))
-        object.__setattr__(self, "winning_weight", kwargs.get("winning_weight", "low"))
+    # No custom __init__ needed; inherit from BGPRouteTable (which should be a Pydantic model)
 
 
 class HuaweiBGPTable(HuaweiBase):
@@ -388,7 +382,7 @@ class HuaweiBGPTable(HuaweiBase):
                     RPKI_STATE_MAP.get("unknown") if route.is_valid else RPKI_STATE_MAP.get("valid")
                 ),
             }
-            routes.append(route_data)
+            routes.append(BGPRoute(**route_data))
 
         return HuaweiBGPRouteTable(
             vrf="default",
