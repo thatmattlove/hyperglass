@@ -96,7 +96,7 @@ def test_use_state_caching(state):
             instance = use_state(attr)
             if i == 0:
                 first = instance
-            assert isinstance(instance, model), (
-                f"{instance!r} is not an instance of '{model.__name__}'"
-            )
+            assert isinstance(
+                instance, model
+            ), f"{instance!r} is not an instance of '{model.__name__}'"
             assert instance == first, f"{instance!r} is not equal to {first!r}"

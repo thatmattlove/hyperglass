@@ -1,9 +1,21 @@
+networks:
+    Rede-LG-Hyperglass:
+        name: Rede-LG-Hyperglass
+        driver: bridge
+        ipam:
+            config:
+            - subnet: "172.29.1.24/29"
+              gateway: "172.29.1.25"
 services:
     redis:
         image: "redis:alpine"
+        networks:
+            Rede-LG-Hyperglass:
     hyperglass:
         depends_on:
             - redis
+        networks:
+            Rede-LG-Hyperglass:
         environment:
             - HYPERGLASS_APP_PATH=/etc/hyperglass
             - HYPERGLASS_HOST=${HYPERGLASS_HOST-0.0.0.0}
@@ -16,6 +28,6 @@ services:
             - HYPERGLASS_ORIGINAL_APP_PATH=${HYPERGLASS_APP_PATH}
         build: .
         ports:
-            - "${HYPERGLASS_PORT-8001}:${HYPERGLASS_PORT-8001}"
+            - "${IP_HOST_VM_VPS_DOCKER-0.0.0.0}:${HYPERGLASS_PORT-8001}:${HYPERGLASS_PORT-8001}"
         volumes:
             - ${HYPERGLASS_APP_PATH-/etc/hyperglass}:/etc/hyperglass

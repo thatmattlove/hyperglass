@@ -1,3 +1,133 @@
+"### Install https://hyperglass.dev/installation/docker"
+
+mkdir -p /etc/hyperglass/svg
+
+cd /opt
+
+git clone https://github.com/CarlosSuporteISP/hyperglass_structured.git --depth=1
+
+mv hyperglass_structured hyperglass
+
+cd /opt/hyperglass
+
+"### https://hyperglass.dev/configuration/overview"
+
+"### https://hyperglass.dev/configuration/config Change the files in the /etc/hyperglass folder after copying with your information or add something following the official doc"
+
+cp /opt/hyperglass/.samples/sample_config /etc/hyperglass/config.yaml
+
+cp /opt/hyperglass/.samples/sample_terms-and-conditions /etc/hyperglass/terms-and-conditions.md
+
+"### https://hyperglass.dev/configuration/devices Change the files in the /etc/hyperglass folder after copying with your information or add something following the official doc"
+
+cp /opt/hyperglass/.samples/sample_devices2 /etc/hyperglass/devices.yaml
+
+"### https://hyperglass.dev/configuration/directives Change the files in the /etc/hyperglass folder after copying with your information or add something following the official doc"
+
+cp /opt/hyperglass/.samples/sample_directives_huawei /etc/hyperglass/directives.yaml
+
+cp /opt/hyperglass/.samples/sample_directives_juniper /etc/hyperglass/directives.yaml
+
+cp /opt/hyperglass/.samples/sample_directives_mikrotik /etc/hyperglass/directives.yaml
+
+"### Environment Variables https://hyperglass.dev/installation/environment-variables"
+
+cp /opt/hyperglass/.samples/sample_hyperglass /etc/hyperglass/hyperglass.env
+
+
+"###"
+
+You also need to add your AS prefixes to deny queries if you don't want others to look up your own prefixes from your hyperglass instance.
+
+In the directives file, there is a field that is usually commented out. This configuration is meant for devices like Huawei or MikroTik, but it is currently still using the default option from the directives. From what I've tested, putting the rules in the configuration folder (/etc/hyperglass/...) didn't work. If it works later, we can do everything within the directives file in /etc/hyperglass, but for now, it's okay to use the default.
+
+It's possible to create or use the ENTRYPOINT in the Dockerfile to change this at build time when starting the service, but I don't have time right now to stop and implement this.
+
+/opt/hyperglass/hyperglass/defaults/directives/huawei.py | /opt/hyperglass_structured/hyperglass/defaults/directives/mikrotik.py
+
+The code snippet, originally commented, should be modified to something like this: 
+
+         # DENY RULE FOR AS PREFIX - IPv4
+         RuleWithIPv4(
+            condition="172.16.0.0/22",
+            ge="22",
+            le="32",
+            action="deny",
+            command="",
+        ),
+
+        # DENY RULE FOR AS PREFIX - IPv6
+        RuleWithIPv6(
+            condition="fd00:2::/32",
+            ge="32",
+            le="128",
+            action="deny",
+            command="",
+        ),
+
+mikrotik v6
+
+command="ip route print detail without-paging where {target} in dst-address bgp and dst-address !=0.0.0.0/0",
+
+command="ipv6 route print detail without-paging where {target} in dst-address bgp and dst-address !=::/0",
+
+mikrotik v7
+
+command="routing route print detail without-paging where {target} in dst-address bgp and dst-address !=0.0.0.0/0",
+
+command="routing route print detail without-paging where {target} in dst-address bgp and dst-address !=::/0",
+
+
+
+"###"
+
+"### Optional: Quickstart"
+
+cd /opt/hyperglass
+
+docker compose up
+
+"### Create a systemd service"
+
+cp /opt/hyperglass/.samples/hyperglass-docker.service /etc/hyperglass/hyperglass.service
+
+ln -s /etc/hyperglass/hyperglass.service /etc/systemd/system/hyperglass.service
+
+systemctl daemon-reload
+
+systemctl enable hyperglass
+
+systemctl start hyperglass
+
+
+
+"###"
+
+ Acknowledgments:
+
+    To thatmatt for this incredible project that I really like. Nothing against other Looking Glass (LG) projects. https://github.com/thatmattlove/hyperglass
+
+    To remotti for the tips on Telegram, his attention, and for his fork https://github.com/remontti/hyperglass/tree/main, https://blog.remontti.com.br/7201, which is already quite deprecated due to its age (Node 14, etc.) and not being in Docker. This is why I decided to move to the official version.
+
+    To the user \邪萬教教我/ @Yukaphoenix572 好呆. Thanks to a message from him in the Telegram group, my mind was opened to the solution after I searched through the conversations.
+
+    To issue https://github.com/thatmattlove/hyperglass/issues/318 for the solution to queries that also weren't working on Tik-Tik (for those who use Claro).
+
+    And of course, last but not least: to AIs. My apologies to those who don't like the "code vibe," but they help a lot. I used many of the six main AIs on the market, but only Manus truly managed to help me, contributing about 45% of the development, testing, adjustments, and descriptions.
+
+The total development time took over three weeks to get everything adjusted. Yes, I know I'm not that great at development, but I'm studying and improving. As I always say, in life and professionally, we always have something to learn; we never know everything.
+
+I also adjusted the official plugin (which wasn't working) for Huawei.
+
+The issue was the format in which the prefix was being passed to the device. Huawei expects the format 192.0.2.0 24 (with a space), but the official plugin was sending it in the 192.0.2.0/24 format (with a slash).
+
+The fix was made to adapt to the format that Huawei accepts for queries.
+
+
+
+"###"
+
+
 <div align="center">
   <br/>
   <img src="https://res.cloudinary.com/hyperglass/image/upload/v1593916013/logo-light.svg" width=300></img>

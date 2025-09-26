@@ -1,22 +1,34 @@
+import { Callout } from "nextra/components";
+
 ## Structured
 
 Devices that support responding to a query with structured or easily parsable data can have their response data placed into an easier to read table (or JSON, when using the REST API). Currently, the following platforms have structured data supported in hyperglass:
 
 -   Arista EOS
+-   FRRouting
+-   Huawei VRP
 -   Juniper Junos
+-   Mikrotik RouterOS/SwitchOS
 
 When structured output is available, hyperglass checks the RPKI state of each BGP prefix returned using one of two methods:
 
-1. From the router's perspective
-2. From the perspective of [Cloudflare's RPKI Service](https://rpki.cloudflare.com/)
+1. **From the router's perspective** - Uses the RPKI validation state as determined by the router itself
+2. **From an external RPKI validation service** - Queries an external service to determine RPKI state independently
+
+For external validation, hyperglass supports two backends:
+- **Cloudflare**: Uses [Cloudflare's public RPKI service](https://rpki.cloudflare.com/) via GraphQL API
+- **Routinator**: Connects to your own [Routinator](https://github.com/NLnetLabs/routinator) RPKI validator instance
 
 Additionally, hyperglass provides the ability to control which BGP communities are shown to the end user.
 
-| Parameter                      | Type            | Default Value | Description                                                                                                                   |
-| :----------------------------- | :-------------- | :------------ | :---------------------------------------------------------------------------------------------------------------------------- |
-| `structured.rpki.mode`         | String          | router        | Use `router` to use the router's view of the RPKI state (1 above), or `external` to use Cloudflare's view (2 above).          |
-| `structured.communities.mode`  | String          | deny          | Use `deny` to deny any communities listed in `structured.communities.items`, or `permit` to _only_ permit communities listed. |
-| `structured.communities.items` | List of Strings |               | List of communities to match.                                                                                                 |
+| Parameter                      | Type            | Default Value | Description                                                                                                                            |
+| :----------------------------- | :-------------- | :------------ | :------------------------------------------------------------------------------------------------------------------------------------- |
+| `structured.rpki.mode`         | String          | router        | Use `router` to use the router's view of the RPKI state, or `external` to use an external validation service.                        |
+| `structured.rpki.backend`      | String          | cloudflare    | When using `external` mode, choose `cloudflare` or `routinator` as the validation backend.                                           |
+| `structured.rpki.rpki_server_url` | String       |               | When using `routinator` backend, specify the base URL of your Routinator server (e.g., `http://rpki.example.com:3323`).             |
+| `structured.communities.mode`  | String          | deny          | Use `deny` to deny any communities listed, `permit` to _only_ permit communities listed, or `name` to append friendly names.         |
+| `structured.communities.items` | List of Strings |               | List of communities to match (used by `deny` and `permit` modes).                                                                     |
+| `structured.communities.names` | Dict            |               | Dictionary mapping BGP community codes to friendly names (used by `name` mode).                                                       |
 
 ### RPKI Examples
 
@@ -28,13 +40,30 @@ structured:
         mode: router
 ```
 
-#### Show RPKI State from a Public/External Perspective
+#### Show RPKI State from Cloudflare's Public Service
 
-```yaml filename="config.yaml" copy {2}
+```yaml filename="config.yaml" copy {2-4}
 structured:
     rpki:
         mode: external
+        backend: cloudflare
 ```
+
+#### Show RPKI State from a Custom Routinator Server
+
+```yaml filename="config.yaml" copy {2-5}
+structured:
+    rpki:
+        mode: external
+        backend: routinator
+        rpki_server_url: "http://rpki.example.com:8080"
+```
+
+<Callout type="info" emoji="ℹ️">
+    **Routinator URL Format**
+    
+    The `rpki_server_url` should be the base URL of your Routinator HTTP web API endpoint. This is typically different from the RTR port (3323). The URL should not include the `/validity` path as hyperglass will append this automatically.
+</Callout>
 
 ### Community Filtering Examples
 
@@ -58,4 +87,20 @@ structured:
         items:
             - "^65000:.*$" # permit any communities starting with 65000, but no others.
             - "1234:1" # permit only the 1234:1 community.
+```
+
+#### Append Friendly Names to Communities
+
+```yaml filename="config.yaml" {2-10}
+structured:
+    communities:
+        mode: name
+        names:
+            "65000:1000": "Upstream Any"
+            "65000:1001": "Upstream A (all locations)"
+            "65000:1101": "Upstream A Location 1"
+            "65000:1201": "Upstream A Location 2"
+            "65000:1002": "Upstream B (all locations)"
+            "65000:1102": "Upstream B Location 1"
+            "65000:2000": "IXP Any"
 ```

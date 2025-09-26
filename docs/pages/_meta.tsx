@@ -3,6 +3,7 @@ export default {
     "---": {
         type: "separator",
     },
+    "user-guide": "User Guide",
     installation: "Installation",
     configuration: "Configuration",
     platforms: "Platforms",

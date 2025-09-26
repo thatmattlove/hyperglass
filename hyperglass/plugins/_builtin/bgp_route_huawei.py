@@ -21,7 +21,10 @@ class BGPRoutePluginHuawei(InputPlugin):
         "huawei",
         "huawei_vrpv8",
     )
-    directives: t.Sequence[str] = ("__hyperglass_huawei_bgp_route__",)
+    directives: t.Sequence[str] = (
+        "__hyperglass_huawei_bgp_route__",
+        "__hyperglass_huawei_bgp_route_table__",
+    )
     """
     Huawei BGP Route Input Plugin
 
@@ -33,15 +36,25 @@ class BGPRoutePluginHuawei(InputPlugin):
     def transform(self, query: "Query") -> InputPluginTransformReturn:
         target = query.query_target
 
-        if not target or not isinstance(target, list) or len(target) == 0:
+        if not target:
             return None
 
-        target = target[0].strip()
+        if isinstance(target, list):
+            if len(target) == 0:
+                return None
+            target = target[0].strip()
+        elif isinstance(target, str):
+            target = target.strip()
+        else:
+            return None
 
         # Check for the / in the query target
         if target.find("/") == -1:
             return target
 
-        target_network = ip_network(target)
-
-        return f"{target_network.network_address!s} {target_network.prefixlen!s}"
+        try:
+            target_network = ip_network(target)
+            return f"{target_network.network_address!s} {target_network.prefixlen!s}"
+        except ValueError:
+            # Retorna o target original se for inválido
+            return target

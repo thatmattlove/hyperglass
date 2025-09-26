@@ -1,4 +1,5 @@
 """Test typing utilities."""
+
 # flake8: noqa
 
 # Standard Library

@@ -9,7 +9,7 @@ from pydantic import ConfigDict, field_validator, model_validator
 # Project
 from hyperglass.log import log
 from hyperglass.util import deep_convert_keys
-from hyperglass.models.data.bgp_route import BGPRouteTable
+from hyperglass.models.data.bgp_route import BGPRoute, BGPRouteTable
 
 # Local
 from ..main import HyperglassModel
@@ -176,23 +176,22 @@ class JuniperBGPTable(JuniperBase):
             count += table.rt_entry_count
             prefix = "/".join(str(i) for i in (table.rt_destination, table.rt_prefix_length))
             for route in table.rt_entry:
-                routes.append(
-                    {
-                        "prefix": prefix,
-                        "active": route.active_tag,
-                        "age": route.age,
-                        "weight": route.preference,
-                        "med": route.metric,
-                        "local_preference": route.local_preference,
-                        "as_path": route.as_path,
-                        "communities": route.communities,
-                        "next_hop": route.next_hop,
-                        "source_as": route.source_as,
-                        "source_rid": route.source_rid,
-                        "peer_rid": route.peer_rid,
-                        "rpki_state": route.validation_state,
-                    }
-                )
+                route_data = {
+                    "prefix": prefix,
+                    "active": route.active_tag,
+                    "age": route.age,
+                    "weight": route.preference,
+                    "med": route.metric,
+                    "local_preference": route.local_preference,
+                    "as_path": route.as_path,
+                    "communities": route.communities,
+                    "next_hop": route.next_hop,
+                    "source_as": route.source_as,
+                    "source_rid": route.source_rid,
+                    "peer_rid": route.peer_rid,
+                    "rpki_state": route.validation_state,
+                }
+                routes.append(BGPRoute(**route_data))
 
         serialized = BGPRouteTable(vrf=vrf, count=count, routes=routes, winning_weight="low")
         log.bind(platform="juniper", response=repr(serialized)).debug("Serialized response")
