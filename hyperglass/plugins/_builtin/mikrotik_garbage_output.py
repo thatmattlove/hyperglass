@@ -35,8 +35,7 @@ class MikrotikGarbageOutput(OutputPlugin):
         lines = raw_output.splitlines()
         cleaned_lines = []
         found_header = False
-        unique_hops = {}
-        hop_order = []
+        hop_data = {}  # IP -> (line, sent_count)
         
         for line in lines:
             stripped = line.strip()
@@ -60,34 +59,47 @@ class MikrotikGarbageOutput(OutputPlugin):
                     found_header = True
                 continue
             
-            # Only include data lines after we've found the header
+            # Only process data lines after we've found the header
             if found_header and stripped:
-                # Try to extract IP address from the line to deduplicate
-                ip_match = re.match(r'^(\d+\.\d+\.\d+\.\d+)', stripped)
-                if ip_match:
-                    ip = ip_match.group(1)
-                    if ip not in unique_hops:
-                        unique_hops[ip] = line
-                        hop_order.append(ip)
-                    else:
-                        # Keep the line with better data (non-timeout over timeout)
-                        if "timeout" not in stripped and "timeout" in unique_hops[ip]:
-                            unique_hops[ip] = line
+                # Try to extract IP address (IPv4 or IPv6) from the line
+                ipv4_match = re.match(r'^(\d+\.\d+\.\d+\.\d+)', stripped)
+                ipv6_match = re.match(r'^([0-9a-fA-F:]+)', stripped) if not ipv4_match else None
+                
+                if ipv4_match or ipv6_match:
+                    ip = ipv4_match.group(1) if ipv4_match else ipv6_match.group(1)
+                    
+                    # Extract the SENT count from the line (look for pattern like "0% 3" or "100% 2")
+                    sent_match = re.search(r'\s+(\d+)%\s+(\d+)\s+', stripped)
+                    sent_count = int(sent_match.group(2)) if sent_match else 0
+                    
+                    # Keep the line with the highest SENT count (most complete data)
+                    if ip not in hop_data or sent_count > hop_data[ip][1]:
+                        hop_data[ip] = (line, sent_count)
+                    elif sent_count == hop_data[ip][1] and "timeout" not in stripped and "timeout" in hop_data[ip][0]:
+                        # If SENT counts are equal, prefer non-timeout over timeout
+                        hop_data[ip] = (line, sent_count)
                 elif "100%" in stripped and "timeout" in stripped:
-                    # This is likely a timeout line without IP - skip standalone timeout lines
+                    # Skip standalone timeout lines without IP
                     continue
-                else:
-                    # Keep any other data lines that might be relevant
-                    cleaned_lines.append(line)
         
-        # Reconstruct the output
-        if found_header and (unique_hops or any("timeout" not in line for line in cleaned_lines[1:] if line.strip())):
+        # Reconstruct the output with only the best results
+        if found_header and hop_data:
             result_lines = [cleaned_lines[0]]  # Header
-            result_lines.extend(unique_hops[ip] for ip in hop_order)
-            # Add any non-IP lines that weren't already included
-            for line in cleaned_lines[1:]:
-                if line not in result_lines and not any(ip in line for ip in hop_order):
-                    result_lines.append(line)
+            
+            # Sort by the order IPs first appeared, but use the best data for each
+            seen_ips = []
+            for line in lines:
+                stripped = line.strip()
+                if found_header:
+                    ipv4_match = re.match(r'^(\d+\.\d+\.\d+\.\d+)', stripped)
+                    ipv6_match = re.match(r'^([0-9a-fA-F:]+)', stripped) if not ipv4_match else None
+                    
+                    if ipv4_match or ipv6_match:
+                        ip = ipv4_match.group(1) if ipv4_match else ipv6_match.group(1)
+                        if ip not in seen_ips and ip in hop_data:
+                            seen_ips.append(ip)
+                            result_lines.append(hop_data[ip][0])
+            
             return "\n".join(result_lines)
         
         return raw_output
