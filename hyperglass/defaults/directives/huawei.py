@@ -177,13 +177,13 @@ HuaweiBGPRouteTable = BuiltinDirective(
             command="",
         ),
         # Regra DENY AS PREFIXO
-        #RuleWithIPv4(
+        # RuleWithIPv4(
         #    condition="x.x.x.x/xx",
         #    ge="xx",
         #    le="32",
         #    action="deny",
         #    command="",
-        #),
+        # ),
         RuleWithIPv4(
             condition="0.0.0.0/0",
             ge="8",
@@ -232,13 +232,13 @@ HuaweiBGPRouteTable = BuiltinDirective(
             command="",
         ),
         # REGRA DENY AS PREFIXO
-        #RuleWithIPv6(
+        # RuleWithIPv6(
         #   condition="x.x.x.x/xx",
         #   ge="XX",
         #   le="128",
         #   action="deny",
         #   command="",
-        #),
+        # ),
         RuleWithIPv6(
             condition="::/0",
             ge="10",

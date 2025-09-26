@@ -21,21 +21,25 @@ RPKI_STATE_MAP = {
     "unverified": 3,
 }
 
+
 def remove_prefix(text: str, prefix: str) -> str:
     if text.startswith(prefix):
-        return text[len(prefix):]
+        return text[len(prefix) :]
     return text
+
 
 # Regex to find key=value pairs. The key can contain dots and hyphens.
 # The value can be quoted or a single word.
 TOKEN_RE = re.compile(r'([a-zA-Z0-9_.-]+)=(".*?"|\S+)')
 
 # Regex to find flags at the beginning of a line (e.g., "Ab   dst-address=...")
-FLAGS_RE = re.compile(r'^\s*([DXIAcmsroivmyH\+b]+)\s+')
+FLAGS_RE = re.compile(r"^\s*([DXIAcmsroivmyH\+b]+)\s+")
+
 
 class MikrotikBase(HyperglassModel, extra="ignore"):
     def __init__(self, **kwargs: t.Any) -> None:
         super().__init__(**kwargs)
+
 
 class MikrotikPaths(MikrotikBase):
     available: int = 0
@@ -44,8 +48,10 @@ class MikrotikPaths(MikrotikBase):
     best_external: int = 0
     add_path: int = 0
 
+
 class MikrotikRouteEntry(MikrotikBase):
     """MikroTik Route Entry."""
+
     model_config = ConfigDict(validate_assignment=False)
 
     prefix: str
@@ -102,6 +108,7 @@ class MikrotikRouteEntry(MikrotikBase):
     def peer_rid(self) -> str:
         return self.gateway
 
+
 def _extract_paths(lines: t.List[str]) -> MikrotikPaths:
     """Simple count based on lines with dst/dst-address and 'A' flag."""
     available = 0
@@ -114,6 +121,7 @@ def _extract_paths(lines: t.List[str]) -> MikrotikPaths:
                 best += 1
     return MikrotikPaths(available=available, best=best, select=best)
 
+
 def _process_kv(route: dict, key: str, val: str):
     _log = log.bind(parser="MikrotikBGPTable")
     """Process a key-value pair and update the route dictionary."""
@@ -125,7 +133,7 @@ def _process_kv(route: dict, key: str, val: str):
         route["prefix"] = val
     elif key in ("gateway", "nexthop"):
         # Extract only the IP from gateway (e.g., 168.254.0.2%vlan-2000)
-        route["gateway"] = val.split('%')[0]
+        route["gateway"] = val.split("%")[0]
     elif key == "distance":
         route["distance"] = int(val) if val.isdigit() else route.get("distance", 0)
     elif key == "scope":
@@ -155,9 +163,10 @@ def _process_kv(route: dict, key: str, val: str):
         if val and val.lower() != "none":
             route["ext_communities"] = [c.strip() for c in val.split(",") if c.strip()]
     elif key == "rpki":
-        #_log.debug(f"RPKI raw value: {val!r}")
+        # _log.debug(f"RPKI raw value: {val!r}")
         clean_val = val.strip().strip('"').lower()
         route["rpki_state"] = RPKI_STATE_MAP.get(clean_val, 2)
+
 
 def _extract_route_entries(lines: t.List[str]) -> t.List[MikrotikRouteEntry]:
     """Extract route entries from a list of lines."""
@@ -192,6 +201,7 @@ def _extract_route_entries(lines: t.List[str]) -> t.List[MikrotikRouteEntry]:
 
     return routes
 
+
 def _parse_route_block(block: t.List[str]) -> t.Optional[MikrotikRouteEntry]:
     """Parse a single route block and return a MikrotikRouteEntry."""
     if not block:
@@ -202,10 +212,21 @@ def _parse_route_block(block: t.List[str]) -> t.Optional[MikrotikRouteEntry]:
         return None
 
     rd = {
-        "prefix": "", "gateway": "", "distance": 20, "scope": 30, "target_scope": 10,
-        "as_path": [], "communities": [], "large_communities": [], "ext_communities": [],
-        "local_preference": 100, "metric": 0, "origin": "",
-        "is_active": False, "is_best": False, "is_valid": False,
+        "prefix": "",
+        "gateway": "",
+        "distance": 20,
+        "scope": 30,
+        "target_scope": 10,
+        "as_path": [],
+        "communities": [],
+        "large_communities": [],
+        "ext_communities": [],
+        "local_preference": 100,
+        "metric": 0,
+        "origin": "",
+        "is_active": False,
+        "is_best": False,
+        "is_valid": False,
         "rpki_state": RPKI_STATE_MAP.get("unknown", 2),
     }
 
@@ -229,11 +250,13 @@ def _parse_route_block(block: t.List[str]) -> t.Optional[MikrotikRouteEntry]:
 
 class MikrotikBGPRouteTable(BGPRouteTable):
     """Bypass validation to align with Huawei parser."""
+
     def __init__(self, **kwargs):
         object.__setattr__(self, "vrf", kwargs.get("vrf", "default"))
         object.__setattr__(self, "count", kwargs.get("count", 0))
         object.__setattr__(self, "routes", kwargs.get("routes", []))
         object.__setattr__(self, "winning_weight", kwargs.get("winning_weight", "low"))
+
 
 class MikrotikBGPTable(MikrotikBase):
     """MikroTik BGP Table in canonical format."""
@@ -253,10 +276,7 @@ class MikrotikBGPTable(MikrotikBase):
             return inst
 
         # Filter out command echoes and header lines
-        lines = [
-            ln for ln in lines
-            if not ln.strip().startswith((">", "Flags:", "[", "#"))
-        ]
+        lines = [ln for ln in lines if not ln.strip().startswith((">", "Flags:", "[", "#"))]
 
         inst.paths = _extract_paths(lines)
         inst.routes = _extract_route_entries(lines)

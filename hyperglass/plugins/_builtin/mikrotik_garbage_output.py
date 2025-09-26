@@ -38,13 +38,13 @@ class MikrotikGarbageOutput(OutputPlugin):
         Clean raw output from a MikroTik device.
         This plugin removes command echoes, prompts, flag legends, and interactive help text.
         """
-        
+
         # O 'output' é uma tupla de strings, onde cada string é a saída de um comando.
         # Vamos processar cada uma delas.
         cleaned_outputs = []
 
         for raw_output in output:
-            
+
             # Se a saída já estiver vazia, não há nada a fazer.
             if not raw_output or not raw_output.strip():
                 cleaned_outputs.append("")
@@ -52,7 +52,7 @@ class MikrotikGarbageOutput(OutputPlugin):
 
             # 1. Dividir a saída em linhas para processamento individual.
             lines = raw_output.splitlines()
-            
+
             # 2. Filtrar as linhas de "lixo" conhecidas.
             filtered_lines = []
             in_flags_section = False
@@ -62,7 +62,7 @@ class MikrotikGarbageOutput(OutputPlugin):
                 # Ignorar prompts e ecos de comando
                 if stripped_line.startswith("@") and stripped_line.endswith("] >"):
                     continue
-                
+
                 # Ignorar a linha de ajuda interativa
                 if "[Q quit|D dump|C-z pause]" in stripped_line:
                     continue
@@ -70,7 +70,7 @@ class MikrotikGarbageOutput(OutputPlugin):
                 # Iniciar a detecção da seção de Flags
                 if stripped_line.startswith("Flags:"):
                     in_flags_section = True
-                    continue # Pula a própria linha "Flags:"
+                    continue  # Pula a própria linha "Flags:"
 
                 # Se estivermos na seção de flags, verificar se a linha ainda é parte dela.
                 # Uma linha de dados de rota real geralmente começa com flags (ex: "Ab") ou é indentada.
@@ -84,7 +84,7 @@ class MikrotikGarbageOutput(OutputPlugin):
                     if "=" in stripped_line:
                         in_flags_section = False
                     else:
-                        continue # Pula as linhas da legenda de flags
+                        continue  # Pula as linhas da legenda de flags
 
                 filtered_lines.append(line)
 
@@ -94,4 +94,3 @@ class MikrotikGarbageOutput(OutputPlugin):
 
         log.debug(f"MikrotikGarbageOutput cleaned {len(output)} output blocks.")
         return tuple(cleaned_outputs)
-

@@ -29,21 +29,21 @@ def parse_huawei(output: Sequence[str]) -> "OutputDataModel":
     result = None
 
     _log = log.bind(plugin=BGPSTRRoutePluginHuawei.__name__)
-    
+
     # Combine all output into a single string
     combined_output = "\n".join(output)
     _log.debug(f"Combined output length: {len(combined_output)}")
-    
+
     # Debug: log the first few lines to understand the format
-    lines = combined_output.split('\n')[:10]
+    lines = combined_output.split("\n")[:10]
     _log.debug(f"First 10 lines: {lines}")
-    
+
     for response in output:
         try:
             # Parse the text output using the Huawei parser
             validated = HuaweiBGPTable.parse_text(response)
             bgp_table = validated.bgp_table()
-            
+
             _log.debug(f"Successfully parsed {len(validated.routes)} routes")
 
             if result is None:
@@ -76,7 +76,7 @@ class BGPSTRRoutePluginHuawei(OutputPlugin):
         """Parse Huawei response if data is a string (and is therefore unparsed)."""
         _log = log.bind(plugin=self.__class__.__name__)
         _log.debug("Processing Huawei output with structured parser")
-        
+
         should_process = all(
             (
                 isinstance(output, (list, tuple)),

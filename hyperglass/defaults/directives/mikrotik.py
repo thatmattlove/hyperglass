@@ -35,7 +35,7 @@ Mikrotik_BGPRoute = BuiltinDirective(
             # v7
             command="routing route print detail without-paging where {target} in dst-address bgp and dst-address !=0.0.0.0/0",
             # v6
-            #command="ip route print detail without-paging where {target} in dst-address bgp and dst-address !=0.0.0.0/0",
+            # command="ip route print detail without-paging where {target} in dst-address bgp and dst-address !=0.0.0.0/0",
         ),
         RuleWithIPv6(
             condition="::/0",
@@ -43,7 +43,7 @@ Mikrotik_BGPRoute = BuiltinDirective(
             # v7
             command="routing route print detail without-paging where {target} in dst-address bgp and dst-address !=::/0",
             # v6
-            #command="ipv6 route print detail without-paging where {target} in dst-address bgp and dst-address !=::/0",
+            # command="ipv6 route print detail without-paging where {target} in dst-address bgp and dst-address !=::/0",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
@@ -66,7 +66,7 @@ Mikrotik_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
-    plugins=["mikrotik_normalize_input","mikrotik_garbage_output", "bgp_routestr_mikrotik"],
+    plugins=["mikrotik_normalize_input", "mikrotik_garbage_output", "bgp_routestr_mikrotik"],
     table_output="__hyperglass_mikrotik_bgp_aspath_table__",
     platforms=PLATFORMS,
 )
@@ -85,7 +85,7 @@ Mikrotik_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
-    plugins=["mikrotik_normalize_input","mikrotik_garbage_output", "bgp_routestr_mikrotik"],
+    plugins=["mikrotik_normalize_input", "mikrotik_garbage_output", "bgp_routestr_mikrotik"],
     table_output="__hyperglass_mikrotik_bgp_community_table__",
     platforms=PLATFORMS,
 )
@@ -183,13 +183,13 @@ MikrotikBGPRouteTable = BuiltinDirective(
             command="",
         ),
         # Regra DENY AS PREFIXO
-        #RuleWithIPv4(
+        # RuleWithIPv4(
         #    condition="x.x.x.x/x",
         #    ge="xx",
         #    le="32",
         #    action="deny",
         #    command="",
-        #),
+        # ),
         RuleWithIPv4(
             condition="0.0.0.0/0",
             ge="8",
@@ -198,7 +198,7 @@ MikrotikBGPRouteTable = BuiltinDirective(
             # v7
             command="routing route print detail without-paging where {target} in dst-address bgp and dst-address !=0.0.0.0/0",
             # v6
-            #command="ip route print detail without-paging where {target} in dst-address bgp and dst-address !=0.0.0.0/0",
+            # command="ip route print detail without-paging where {target} in dst-address bgp and dst-address !=0.0.0.0/0",
         ),
         # REGRA DENY SITE LOCAL DEPRECIADO RFC 3879
         RuleWithIPv6(
@@ -241,20 +241,20 @@ MikrotikBGPRouteTable = BuiltinDirective(
             command="",
         ),
         # REGRA DENY AS PREFIXO
-        #RuleWithIPv6(
+        # RuleWithIPv6(
         #    condition="xxxx:xxxx::/xx",
         #    ge="xx",
         #    le="128",
         #    action="deny",
         #    command="",
-        #),
+        # ),
         RuleWithIPv6(
             condition="::/0",
             action="permit",
             # v7
             command="routing route print detail without-paging where {target} in dst-address bgp and dst-address !=::/0",
             # v6
-            #command="ipv6 route print detail without-paging where {target} in dst-address bgp and dst-address !=::/0",
+            # command="ipv6 route print detail without-paging where {target} in dst-address bgp and dst-address !=::/0",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),

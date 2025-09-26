@@ -13,25 +13,32 @@ if t.TYPE_CHECKING:
     from ipaddress import IPv4Address, IPv6Address
 
 RPKI_STATE_MAP = {
-    "Invalid": 0, "invalid": 0,
-    "Valid": 1, "valid": 1,
-    "NotFound": 2, "notfound": 2, "not_found": 2, "not-found": 2,
-    "Unknown": 2, "unknown": 2,
-    "DEFAULT": 3
+    "Invalid": 0,
+    "invalid": 0,
+    "Valid": 1,
+    "valid": 1,
+    "NotFound": 2,
+    "notfound": 2,
+    "not_found": 2,
+    "not-found": 2,
+    "Unknown": 2,
+    "unknown": 2,
+    "DEFAULT": 3,
 }
 RPKI_NAME_MAP = {v: k for k, v in RPKI_STATE_MAP.items()}
 CACHE_KEY = "hyperglass.external.rpki"
+
 
 def rpki_state(
     prefix: t.Union["IPv4Address", "IPv6Address", str],
     asn: t.Union[int, str],
     backend: str = "cloudflare",
-    rpki_server_url: str = ""
+    rpki_server_url: str = "",
 ) -> int:
     """Get RPKI state and map to expected integer."""
     _log = log.bind(prefix=prefix, asn=asn)
     _log.debug("Validating RPKI State")
-    
+
     cache = use_state("cache")
     state = 3
     ro = f"{prefix!s}@{asn!s}"
