@@ -19,6 +19,14 @@ export function isStructuredOutput(data: unknown): data is StringTableData {
   return isObject(data) && 'output' in data;
 }
 
+export function isBGPStructuredOutput(data: unknown): data is StringTableData & { output: StructuredResponse } {
+  return isStructuredOutput(data) && isObject((data as StringTableData).output) && 'routes' in (data as StringTableData).output;
+}
+
+export function isTracerouteStructuredOutput(data: unknown): data is StringTableData & { output: TracerouteResult } {
+  return isStructuredOutput(data) && isObject((data as StringTableData).output) && 'hops' in (data as StringTableData).output;
+}
+
 export function isStringOutput(data: unknown): data is StringQueryResponse {
   return (
     isObject(data) && 'output' in data && typeof (data as { output: unknown }).output === 'string'

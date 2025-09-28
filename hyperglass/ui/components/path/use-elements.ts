@@ -15,10 +15,24 @@ type FlowElement<T> = Node<T> | Edge<T>;
 const NODE_WIDTH = 128;
 const NODE_HEIGHT = 48;
 
-export function useElements(base: BasePath, data: StructuredResponse): FlowElement<NodeData>[] {
+export function useElements(base: BasePath, data: AllStructuredResponses): FlowElement<NodeData>[] {
   return useMemo(() => {
     return [...buildElements(base, data)];
   }, [base, data]);
+}
+
+/**
+ * Check if data contains BGP routes
+ */
+function isBGPData(data: AllStructuredResponses): data is BGPStructuredOutput {
+  return 'routes' in data && Array.isArray(data.routes);
+}
+
+/**
+ * Check if data contains traceroute hops
+ */
+function isTracerouteData(data: AllStructuredResponses): data is TracerouteStructuredOutput {
+  return 'hops' in data && Array.isArray(data.hops);
 }
 
 /**
@@ -27,11 +41,66 @@ export function useElements(base: BasePath, data: StructuredResponse): FlowEleme
  */
 function* buildElements(
   base: BasePath,
-  data: StructuredResponse,
+  data: AllStructuredResponses,
 ): Generator<FlowElement<NodeData>> {
-  const { routes } = data;
-  // Eliminate empty AS paths & deduplicate non-empty AS paths. Length should be same as count minus empty paths.
-  const asPaths = routes.filter(r => r.as_path.length !== 0).map(r => [...new Set(r.as_path)]);
+  let asPaths: string[][] = [];
+  let asnOrgs: Record<string, { name: string; country: string }> = {};
+
+  if (isBGPData(data)) {
+    // Handle BGP routes with AS paths
+    const { routes } = data;
+    asPaths = routes
+      .filter(r => r.as_path.length !== 0)
+      .map(r => {
+        const uniqueAsns = [...new Set(r.as_path.map(asn => String(asn)))];
+        // Remove the base ASN if it's the first hop to avoid duplication
+        return uniqueAsns[0] === base.asn ? uniqueAsns.slice(1) : uniqueAsns;
+      })
+      .filter(path => path.length > 0); // Remove empty paths
+    
+    // Get ASN organization mapping if available
+    asnOrgs = (data as any).asn_organizations || {};
+    
+    // Debug: Log BGP ASN organization data
+    if (Object.keys(asnOrgs).length > 0) {
+      console.debug('BGP ASN organizations loaded:', asnOrgs);
+    } else {
+      console.warn('BGP ASN organizations not found or empty');
+    }
+  } else if (isTracerouteData(data)) {
+    // Handle traceroute hops - build AS path from hop ASNs
+    const hopAsns: string[] = [];
+    let currentAsn = '';
+    
+    for (const hop of data.hops) {
+      if (hop.asn && hop.asn !== 'None' && hop.asn !== currentAsn) {
+        currentAsn = hop.asn;
+        hopAsns.push(hop.asn);
+      }
+    }
+    
+    if (hopAsns.length > 0) {
+      // Remove the base ASN if it's the first hop to avoid duplication
+      const filteredAsns = hopAsns[0] === base.asn ? hopAsns.slice(1) : hopAsns;
+      if (filteredAsns.length > 0) {
+        asPaths = [filteredAsns];
+      }
+    }
+    
+    // Get ASN organization mapping if available
+    asnOrgs = (data as any).asn_organizations || {};
+    
+    // Debug: Log traceroute ASN organization data
+    if (Object.keys(asnOrgs).length > 0) {
+      console.debug('Traceroute ASN organizations loaded:', asnOrgs);
+    } else {
+      console.warn('Traceroute ASN organizations not found or empty');
+    }
+  }
+
+  if (asPaths.length === 0) {
+    return;
+  }
 
   const totalPaths = asPaths.length - 1;
 
@@ -95,7 +164,12 @@ function* buildElements(
     id: base.asn,
     type: 'ASNode',
     position: { x, y },
-    data: { asn: base.asn, name: base.name, hasChildren: true, hasParents: false },
+    data: { 
+      asn: base.asn, 
+      name: asnOrgs[base.asn]?.name || base.name, 
+      hasChildren: true, 
+      hasParents: false 
+    },
   };
 
   for (const [groupIdx, pathGroup] of asPaths.entries()) {
@@ -114,7 +188,7 @@ function* buildElements(
           position: { x, y },
           data: {
             asn: `${asn}`,
-            name: `AS${asn}`,
+            name: asn === 'IXP' ? 'IXP' : asnOrgs[asn]?.name || (asn === '0' ? 'Private/Unknown' : `AS${asn}`),
             hasChildren: idx < endIdx,
             hasParents: true,
           },

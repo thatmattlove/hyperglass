@@ -24,18 +24,26 @@ class MikrotikGarbageOutput(OutputPlugin):
 
     _hyperglass_builtin: bool = PrivateAttr(True)
     platforms: t.Sequence[str] = ("mikrotik_routeros", "mikrotik_switchos", "mikrotik")
-    # Apply to ALL commands on MikroTik platforms
-    common: bool = True
+    # Only apply to MikroTik platforms, not all devices
+    common: bool = False
 
     def _clean_traceroute_output(self, raw_output: str) -> str:
-        """Clean MikroTik traceroute output specifically."""
+        """Clean MikroTik traceroute output specifically.
+
+        Important: Traceroute hops are sequential - each line represents a unique hop position.
+        We should NOT deduplicate by IP address as the same IP can appear at different hops.
+        Order matters for traceroute results.
+
+        However, we can aggregate consecutive timeout lines at the END of the traceroute
+        to avoid showing 10+ meaningless timeout entries.
+        """
         if not raw_output or not raw_output.strip():
             return ""
 
         lines = raw_output.splitlines()
         cleaned_lines = []
         found_header = False
-        hop_data = {}  # IP -> (line, sent_count)
+        data_lines = []
 
         for line in lines:
             stripped = line.strip()
@@ -59,54 +67,52 @@ class MikrotikGarbageOutput(OutputPlugin):
                     found_header = True
                 continue
 
-            # Only process data lines after we've found the header
+            # After finding header, collect all data lines
             if found_header and stripped:
-                # Try to extract IP address (IPv4 or IPv6) from the line
-                ipv4_match = re.match(r"^(\d+\.\d+\.\d+\.\d+)", stripped)
-                ipv6_match = re.match(r"^([0-9a-fA-F:]+)", stripped) if not ipv4_match else None
+                data_lines.append(line)
 
-                if ipv4_match or ipv6_match:
-                    ip = ipv4_match.group(1) if ipv4_match else ipv6_match.group(1)
+        # Process data lines to aggregate trailing timeouts
+        if data_lines:
+            processed_lines = []
+            trailing_timeout_count = 0
 
-                    # Extract the SENT count from the line (look for pattern like "0% 3" or "100% 2")
-                    sent_match = re.search(r"\s+(\d+)%\s+(\d+)\s+", stripped)
-                    sent_count = int(sent_match.group(2)) if sent_match else 0
+            # Work backwards to count trailing timeouts
+            for i in range(len(data_lines) - 1, -1, -1):
+                line = data_lines[i]
+                if (
+                    "100%" in line.strip()
+                    and "timeout" in line.strip()
+                    and not line.strip().startswith(
+                        ("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
+                    )
+                ):
+                    # This is a timeout line (no IP address at start)
+                    trailing_timeout_count += 1
+                else:
+                    # Found a non-timeout line, stop counting
+                    break
 
-                    # Keep the line with the highest SENT count (most complete data)
-                    if ip not in hop_data or sent_count > hop_data[ip][1]:
-                        hop_data[ip] = (line, sent_count)
-                    elif (
-                        sent_count == hop_data[ip][1]
-                        and "timeout" not in stripped
-                        and "timeout" in hop_data[ip][0]
-                    ):
-                        # If SENT counts are equal, prefer non-timeout over timeout
-                        hop_data[ip] = (line, sent_count)
-                elif "100%" in stripped and "timeout" in stripped:
-                    # Skip standalone timeout lines without IP
-                    continue
+            # Add non-trailing lines as-is
+            non_trailing_count = len(data_lines) - trailing_timeout_count
+            processed_lines.extend(data_lines[:non_trailing_count])
 
-        # Reconstruct the output with only the best results
-        if found_header and hop_data:
-            result_lines = [cleaned_lines[0]]  # Header
+            # Handle trailing timeouts
+            if trailing_timeout_count > 0:
+                if trailing_timeout_count <= 3:
+                    # If 3 or fewer trailing timeouts, show them all
+                    processed_lines.extend(data_lines[non_trailing_count:])
+                else:
+                    # If more than 3 trailing timeouts, show first 2 and aggregate the rest
+                    processed_lines.extend(data_lines[non_trailing_count : non_trailing_count + 2])
+                    remaining_timeouts = trailing_timeout_count - 2
+                    # Add an aggregation line
+                    processed_lines.append(
+                        f"                                 ... ({remaining_timeouts} more timeout hops)"
+                    )
 
-            # Sort by the order IPs first appeared, but use the best data for each
-            seen_ips = []
-            for line in lines:
-                stripped = line.strip()
-                if found_header:
-                    ipv4_match = re.match(r"^(\d+\.\d+\.\d+\.\d+)", stripped)
-                    ipv6_match = re.match(r"^([0-9a-fA-F:]+)", stripped) if not ipv4_match else None
+            cleaned_lines.extend(processed_lines)
 
-                    if ipv4_match or ipv6_match:
-                        ip = ipv4_match.group(1) if ipv4_match else ipv6_match.group(1)
-                        if ip not in seen_ips and ip in hop_data:
-                            seen_ips.append(ip)
-                            result_lines.append(hop_data[ip][0])
-
-            return "\n".join(result_lines)
-
-        return raw_output
+        return "\n".join(cleaned_lines)
 
     def process(self, *, output: OutputType, query: "Query") -> Series[str]:
         """

@@ -32,7 +32,40 @@ export declare global {
     rpki_state: RPKIState;
   };
 
+  type TracerouteHop = {
+    hop_number: number;
+    ip_address: string | null;
+    display_ip: string | null;
+    hostname: string | null;
+    rtt1: number | null;
+    rtt2: number | null;
+    rtt3: number | null;
+    loss_pct: number | null;
+    sent_count: number | null;
+    last_rtt: number | null;
+    avg_rtt: number | null;
+    best_rtt: number | null;
+    worst_rtt: number | null;
+    asn: string | null;
+    org: string | null;
+    prefix: string | null;
+    country: string | null;
+    rir: string | null;
+    allocated: string | null;
+  };
+
+  type TracerouteResult = {
+    target: string;
+    source: string;
+    hops: TracerouteHop[];
+    max_hops: number;
+    packet_size: number;
+    raw_output: string | null;
+  };
+
   type RouteField = { [K in keyof Route]: Route[K] };
+  
+  type TracerouteHopField = { [K in keyof TracerouteHop]: TracerouteHop[K] };
 
   type StructuredResponse = {
     vrf: string;
@@ -40,6 +73,20 @@ export declare global {
     routes: Route[];
     winning_weight: 'high' | 'low';
   };
+
+  type TracerouteStructuredOutput = {
+    vrf: string;
+    target: string;
+    source: string;
+    hops: TracerouteHop[];
+    max_hops: number;
+    packet_size: number;
+    raw_output: string | null;
+  };
+
+  type BGPStructuredOutput = StructuredResponse;
+
+  type AllStructuredResponses = BGPStructuredOutput | TracerouteStructuredOutput;
 
   type QueryResponse = {
     random: string;

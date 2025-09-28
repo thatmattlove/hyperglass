@@ -94,6 +94,24 @@ Mikrotik_Ping = BuiltinDirective(
     id="__hyperglass_mikrotik_ping__",
     name="Ping",
     rules=[
+        # Deny RFC4193 ULA (Unique Local IPv6 Addresses)
+        RuleWithIPv6(
+            condition="fc00::/7",
+            action="deny",
+            command="",
+        ),
+        # Deny RFC4291 Link-Local IPv6
+        RuleWithIPv6(
+            condition="fe80::/10",
+            action="deny",
+            command="",
+        ),
+        # Deny RFC4291 IPv6 Loopback
+        RuleWithIPv6(
+            condition="::1/128",
+            action="deny",
+            command="",
+        ),
         RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
@@ -113,15 +131,33 @@ Mikrotik_Traceroute = BuiltinDirective(
     id="__hyperglass_mikrotik_traceroute__",
     name="Traceroute",
     rules=[
+        # Deny RFC4193 ULA (Unique Local IPv6 Addresses)
+        RuleWithIPv6(
+            condition="fc00::/7",
+            action="deny",
+            command="",
+        ),
+        # Deny RFC4291 Link-Local IPv6
+        RuleWithIPv6(
+            condition="fe80::/10",
+            action="deny",
+            command="",
+        ),
+        # Deny RFC4291 IPv6 Loopback
+        RuleWithIPv6(
+            condition="::1/128",
+            action="deny",
+            command="",
+        ),
         RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
-            command="tool traceroute src-address={source4} timeout=1 duration=5 count=1 {target}",
+            command="tool traceroute src-address={source4} timeout=1 duration=30 count=3 {target}",
         ),
         RuleWithIPv6(
             condition="::/0",
             action="permit",
-            command="tool traceroute src-address={source6} timeout=1 duration=5 count=1 {target}",
+            command="tool traceroute src-address={source6} timeout=1 duration=30 count=3 {target}",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),

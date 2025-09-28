@@ -110,12 +110,12 @@ Huawei_Traceroute = BuiltinDirective(
         RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
-            command="tracert -q 2 -f 1 -a {source4} {target}",
+            command="tracert -w 500 -q 1 -f 1 -a {source4} {target}",
         ),
         RuleWithIPv6(
             condition="::/0",
             action="permit",
-            command="tracert -q 2 -f 1 -a {source6} {target}",
+            command="tracert ipv6 -w 500 -q 1 -f 1 -a {source6} {target}",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),

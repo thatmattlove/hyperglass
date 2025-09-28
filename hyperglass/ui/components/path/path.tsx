@@ -23,7 +23,7 @@ export const Path = (props: PathProps): JSX.Element => {
   const getResponse = useFormState(s => s.response);
   const { isOpen, onClose, onOpen } = useDisclosure();
   const response = getResponse(device);
-  const output = response?.output as StructuredResponse;
+  const output = response?.output as AllStructuredResponses;
   const bg = useColorValue('light.50', 'dark.900');
   const centered = useBreakpointValue({ base: false, lg: true }) ?? true;
   return (
