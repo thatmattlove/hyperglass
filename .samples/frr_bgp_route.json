@@ -12,13 +12,8 @@
         ],
         "length": 2
       },
-      "aggregatorAs": 13335,
-      "aggregatorId": "108.162.239.1",
       "origin": "IGP",
-      "med": 25090,
-      "metric": 25090,
-      "localpref": 100,
-      "weight": 100,
+      "locPrf": 100,
       "valid": true,
       "community": {
         "string": "174:21001 174:22003 14525:0 14525:40 14525:1021 14525:2840 14525:3003 14525:4004 14525:9001",
@@ -70,7 +65,7 @@
       "origin": "IGP",
       "med": 0,
       "metric": 0,
-      "localpref": 150,
+      "locPrf": 150,
       "weight": 200,
       "valid": true,
       "bestpath": {
@@ -124,7 +119,7 @@
       "origin": "IGP",
       "med": 0,
       "metric": 0,
-      "localpref": 100,
+      "locPrf": 100,
       "weight": 100,
       "valid": true,
       "bestpath": {
@@ -180,7 +175,7 @@
       "origin": "IGP",
       "med": 2020,
       "metric": 2020,
-      "localpref": 150,
+      "locPrf": 150,
       "weight": 200,
       "valid": true,
       "bestpath": {

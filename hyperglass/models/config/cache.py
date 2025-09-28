@@ -1,6 +1,5 @@
 """Validation model for cache config."""
 
-
 # Local
 from ..main import HyperglassModel
 

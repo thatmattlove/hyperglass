@@ -1,4 +1,5 @@
 """Test BGP Community validation."""
+
 # Standard Library
 import typing as t
 

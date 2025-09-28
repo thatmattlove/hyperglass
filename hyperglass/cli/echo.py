@@ -1,4 +1,5 @@
 """Helper functions for CLI message printing."""
+
 # Standard Library
 import typing as t
 

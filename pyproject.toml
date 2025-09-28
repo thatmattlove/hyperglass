@@ -107,6 +107,24 @@ exclude = [
   "hyperglass/api/examples/*.py",
   "hyperglass/compat/_sshtunnel.py",
 ]
+line-length = 100
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint]
+fixable=["ALL"]
+unfixable=[]
+select = ["B", "C", "D", "E", "F", "I", "N", "S", "RET", "W"]
 ignore = [
   # "W503",
   "RET504",
@@ -128,14 +146,6 @@ ignore = [
   "B905", # zip without `strict`
   "W293", # blank line contains whitespace
 ]
-line-length = 100
-select = ["B", "C", "D", "E", "F", "I", "N", "S", "RET", "W"]
-
-[tool.ruff.pydocstyle]
-convention = "pep257"
-
-[tool.ruff.mccabe]
-max-complexity = 10
 
 [tool.ruff.lint.per-file-ignores]
 "hyperglass/main.py" = ["E402"]

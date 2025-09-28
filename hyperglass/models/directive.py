@@ -19,7 +19,7 @@ from .main import MultiModel, HyperglassModel, HyperglassUniqueModel
 from .fields import Action
 
 StringOrArray = t.Union[str, t.List[str]]
-Condition = t.Union[IPvAnyNetwork, str]
+Condition = t.Union[str, None]
 RuleValidation = t.Union[t.Literal["ipv4", "ipv6", "pattern"], None]
 PassedValidation = t.Union[bool, None]
 IPFamily = t.Literal["ipv4", "ipv6"]
@@ -264,7 +264,7 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
     id: str
     name: str
     rules: t.List[RuleType] = [RuleWithoutValidation()]
-    field: t.Union[Text, Select]
+    field: t.Union[Text, Select, None]
     info: t.Optional[FilePath] = None
     plugins: t.List[str] = []
     table_output: t.Optional[str] = None
@@ -291,7 +291,7 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
                             out_rules.append(RuleWithIPv6(**rule))
                     except ValueError:
                         out_rules.append(RuleWithPattern(**rule))
-            if isinstance(rule, Rule):
+            elif isinstance(rule, Rule):
                 out_rules.append(rule)
         return out_rules
 
@@ -307,7 +307,8 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
     @property
     def field_type(self) -> t.Literal["text", "select", None]:
         """Get the linked field type."""
-
+        if self.field is None:
+            return None
         if self.field.is_select:
             return "select"
         if self.field.is_text or self.field.is_ip:
@@ -338,7 +339,7 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
             "name": self.name,
             "field_type": self.field_type,
             "groups": self.groups,
-            "description": self.field.description,
+            "description": self.field.description if self.field is not None else '',
             "info": None,
         }
 
@@ -346,7 +347,7 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
             with self.info.open() as md:
                 value["info"] = md.read()
 
-        if self.field.is_select:
+        if self.field is not None and self.field.is_select:
             value["options"] = [o.export_dict() for o in self.field.options if o is not None]
 
         return value

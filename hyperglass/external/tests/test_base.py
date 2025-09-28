@@ -1,4 +1,5 @@
 """Test external http client."""
+
 # Standard Library
 import asyncio
 

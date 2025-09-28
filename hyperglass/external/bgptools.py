@@ -35,7 +35,7 @@ def default_ip_targets(*targets: str) -> t.Tuple[TargetData, t.Tuple[str, ...]]:
     default_data = {}
     query = ()
     for target in targets:
-        detail: TargetDetail = {k: "None" for k in DEFAULT_KEYS}
+        detail: TargetDetail = dict.fromkeys(DEFAULT_KEYS, "None")
         try:
             valid: t.Union[IPv4Address, IPv6Address] = ip_address(target)
 
@@ -139,7 +139,7 @@ async def network_info(*targets: str) -> TargetData:
     cache = use_state("cache")
 
     # Set default data structure.
-    query_data = {t: {k: "" for k in DEFAULT_KEYS} for t in query_targets}
+    query_data = {t: dict.fromkeys(DEFAULT_KEYS, "") for t in query_targets}
 
     # Get all cached bgp.tools data.
     cached = cache.get_map(CACHE_KEY) or {}

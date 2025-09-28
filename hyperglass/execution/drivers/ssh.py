@@ -44,9 +44,9 @@ class SSHConnection(Connection):
                 if proxy.credential._method == "encrypted_key":
                     # If the key is encrypted, use the password field as the
                     # private key password.
-                    tunnel_kwargs[
-                        "ssh_private_key_password"
-                    ] = proxy.credential.password.get_secret_value()
+                    tunnel_kwargs["ssh_private_key_password"] = (
+                        proxy.credential.password.get_secret_value()
+                    )
             try:
                 return open_tunnel(proxy._target, proxy.port, **tunnel_kwargs)
 
