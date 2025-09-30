@@ -1,0 +1,17 @@
+# IP DA MAQUINA DOCKER ONDE ESTA INSTALADO O SERVICO DOCKER DEVIDO A TER IP DE LO OU MAIS DE UM IP NA MAQUINA 
+# E VC NAO QUERER EXPOR PRA TODAS AS PORTAS ATE RECOMENDO QUE FAÇA COM LO E APONTE SEU PROXY NGINX OU QUALQUER PROXY 
+# PARA UMA CAMADA A MAIS DE SEGURANÇA E ETC ALEM DE PODER DEIXA O COMPOSE APENAS COM PRIVADO IPv4 RFC 1918 E NO NGINX TER IPv4 e IPv6 publicos no lugar de 0.0.0.0 coloque o ip que deseja expor seu container
+# o compose eu modifiquei para diminuir a rede padrao que cria que e um /16 la esta com a rede 172.29.1.24/29 que vai subir no docker abaixo sao as variaveis
+
+IP_HOST_VM_VPS_DOCKER=0.0.0.0
+
+# Porta que o servico usa varivel padrao do sistema abaixo link https://hyperglass.dev/installation/environment-variables
+
+HYPERGLASS_PORT=8001
+
+# Pasta que o hyperglass vai usar para puxar as config para o hypeglass pradrao do projeto como no link acima se mudar a pasta os arquivos tem que ir para a nova pasta 
+
+HYPERGLASS_APP_PATH=/etc/hyperglass
+
+
+# No sistema tem outras variaveis usem caso queiram e por favor leiam a documentacao oficial

@@ -272,7 +272,9 @@ class _ForwardServer(socketserver.TCPServer):  # Not Threading
 
     def handle_error(self, request, client_address):
         (exc_class, exc, tb) = sys.exc_info()
-        self.logger.bind(source=request.getsockname()).error("Could not establish connection to remote side of the tunnel")
+        self.logger.bind(source=request.getsockname()).error(
+            "Could not establish connection to remote side of the tunnel"
+        )
         self.tunnel_ok.put(False)
 
     @property
@@ -1023,7 +1025,7 @@ class SSHTunnelForwarder:
                 msg = template.format(self.ssh_host, self.ssh_port, e.args[0])
                 self.logger.error(msg)
                 return
-        for (rem, loc) in zip(self._remote_binds, self._local_binds):
+        for rem, loc in zip(self._remote_binds, self._local_binds):
             try:
                 self._make_ssh_forward_server(rem, loc)
             except BaseSSHTunnelForwarderError as e:
@@ -1053,7 +1055,7 @@ class SSHTunnelForwarder:
             bind_addresses = [bind_address]
         if not is_remote:
             # Add random port if missing in local bind
-            for (i, local_bind) in enumerate(bind_addresses):
+            for i, local_bind in enumerate(bind_addresses):
                 if isinstance(local_bind, tuple) and len(local_bind) == 1:
                     bind_addresses[i] = (local_bind[0], 0)
         check_addresses(bind_addresses, is_remote)
@@ -1400,9 +1402,11 @@ class SSHTunnelForwarder:
     def __str__(self) -> str:
         credentials = {
             "password": self.ssh_password,
-            "pkeys": [(key.get_name(), hexlify(key.get_fingerprint())) for key in self.ssh_pkeys]
-            if any(self.ssh_pkeys)
-            else None,
+            "pkeys": (
+                [(key.get_name(), hexlify(key.get_fingerprint())) for key in self.ssh_pkeys]
+                if any(self.ssh_pkeys)
+                else None
+            ),
         }
         _remove_none_values(credentials)
         template = os.linesep.join(

@@ -89,7 +89,7 @@ class NetmikoConnection(SSHConnection):
             responses = ()
 
             for query in self.query:
-                raw = nm_connect_direct.send_command(query, **send_args)
+                raw = nm_connect_direct.send_command_timing(query, **send_args)
                 responses += (raw,)
 
             nm_connect_direct.disconnect()

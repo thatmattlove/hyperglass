@@ -19,9 +19,9 @@ def test_check_legacy_fields():
         test1_expected.keys()
     ), "legacy field not replaced"
 
-    assert set(check_legacy_fields(model="Device", data=test2).keys()) == set(test2.keys()), (
-        "new field not left unmodified"
-    )
+    assert set(check_legacy_fields(model="Device", data=test2).keys()) == set(
+        test2.keys()
+    ), "new field not left unmodified"
 
     with pytest.raises(ValueError):
         check_legacy_fields(model="Device", data=test3)
