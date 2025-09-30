@@ -7,10 +7,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Fixed
-- [#280](https://github.com/thatmattlove/hyperglass/issues/280): Fix: `condition: None` caused error in directive
+- [#280](https://github.com/thatmattlove/hyperglass/issues/280): Fix: `condition: None` caused error in directive @Jimmy01240397
 - [#306](https://github.com/thatmattlove/hyperglass/issues/306): Fix: allow integer values in ext_community_list_raw field for Arista BGP - @cooperwinser
+- [#311](https://github.com/thatmattlove/hyperglass/issues/311): Fix: device and directive errors.
+- [#315](https://github.com/thatmattlove/hyperglass/issues/315): Impossibile to use command "BGP Route" with Huawei NetEngine 8000 
+- [#315](https://github.com/thatmattlove/hyperglass/issues/187): Error in bgp_router query on Huawei
 - [#325](https://github.com/thatmattlove/hyperglass/pull/325): Fix code block padding in the documentation - @jagardaniel
-- [#327](https://github.com/thatmattlove/hyperglass/pull/327): Fix huawei bgp route and plugin validation/transform order - @JelsonRodrigues 
+- [#332](https://github.com/thatmattlove/hyperglass/pull/332): Fix custom proxy port support in SSH proxy tunnels @jessiebryan 
 
 ### Updated
 
