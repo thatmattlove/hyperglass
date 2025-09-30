@@ -11,6 +11,7 @@ from pydantic import PrivateAttr
 from hyperglass.log import log
 from hyperglass.exceptions.private import ParsingError
 from hyperglass.models.data.traceroute import TracerouteResult, TracerouteHop
+from hyperglass.state import use_state
 
 # Local
 from .._output import OutputPlugin
@@ -245,6 +246,30 @@ class TraceroutePluginHuawei(OutputPlugin):
             source = getattr(query.device, "display_name", None) or getattr(
                 query.device, "name", "unknown"
             )
+
+        device = getattr(query, "device", None)
+        if device is not None:
+            if not getattr(device, "structured_output", False):
+                return output
+            try:
+                _params = use_state("params")
+            except Exception:
+                _params = None
+            if (
+                _params
+                and getattr(_params, "structured", None)
+                and getattr(_params.structured, "enable_for_traceroute", None) is False
+            ):
+                return output
+        else:
+            try:
+                params = use_state("params")
+            except Exception:
+                params = None
+            if not (params and getattr(params, "structured", None)):
+                return output
+            if getattr(params.structured, "enable_for_traceroute", None) is False:
+                return output
 
         return parse_huawei_traceroute(
             output=output,

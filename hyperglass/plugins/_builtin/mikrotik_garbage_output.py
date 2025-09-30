@@ -41,78 +41,132 @@ class MikrotikGarbageOutput(OutputPlugin):
             return ""
 
         lines = raw_output.splitlines()
-        cleaned_lines = []
-        found_header = False
-        data_lines = []
+        # Remove command echoes and paging, keep only header markers and data lines
+        # We'll split the output into discrete tables (each table begins at a header)
+        tables: t.List[t.List[str]] = []
+        current_table: t.List[str] = []
+        header_line: t.Optional[str] = None
 
         for line in lines:
             stripped = line.strip()
 
-            # Skip empty lines
-            if not stripped:
-                continue
-
-            # Skip interactive paging prompts
-            if "-- [Q quit|C-z pause]" in stripped or "-- [Q quit|D dump|C-z pause]" in stripped:
+            # Skip empty lines and interactive paging prompts
+            if not stripped or "-- [Q quit|C-z pause]" in stripped or "-- [Q quit|D dump|C-z pause]" in stripped:
                 continue
 
             # Skip command echo lines
             if "tool traceroute" in stripped:
                 continue
 
-            # Look for the header line (ADDRESS LOSS SENT LAST AVG BEST WORST)
+            # If this is a header line, start a new table
             if "ADDRESS" in stripped and "LOSS" in stripped and "SENT" in stripped:
-                if not found_header:
-                    cleaned_lines.append(line)
-                    found_header = True
+                header_line = line
+                # If we were collecting a table, push it
+                if current_table:
+                    tables.append(current_table)
+                    current_table = []
+                # Start collecting after header
                 continue
 
-            # After finding header, collect all data lines
-            if found_header and stripped:
-                data_lines.append(line)
+            # Collect data lines (will be associated with the most recent header)
+            if header_line is not None:
+                current_table.append(line)
 
-        # Process data lines to aggregate trailing timeouts
-        if data_lines:
-            processed_lines = []
-            trailing_timeout_count = 0
+        # Push the last collected table if any
+        if current_table:
+            tables.append(current_table)
 
-            # Work backwards to count trailing timeouts
-            for i in range(len(data_lines) - 1, -1, -1):
-                line = data_lines[i]
-                if (
-                    "100%" in line.strip()
-                    and "timeout" in line.strip()
-                    and not line.strip().startswith(
-                        ("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
-                    )
-                ):
-                    # This is a timeout line (no IP address at start)
-                    trailing_timeout_count += 1
+        # If we didn't find any header/data, return cleaned minimal output
+        if not tables:
+            # Fallback to previous behavior: remove prompts and flags
+            filtered_lines: t.List[str] = []
+            in_flags_section = False
+            for line in lines:
+                stripped_line = line.strip()
+                if stripped_line.startswith("@") and stripped_line.endswith("] >"):
+                    continue
+                if "[Q quit|D dump|C-z pause]" in stripped_line:
+                    continue
+                if stripped_line.startswith("Flags:"):
+                    in_flags_section = True
+                    continue
+                if in_flags_section:
+                    if "=" in stripped_line:
+                        in_flags_section = False
+                    else:
+                        continue
+                filtered_lines.append(line)
+            return "\n".join(filtered_lines)
+
+        # Aggregate tables by hop index. For each hop position, pick the row with the
+        # highest SENT count. If SENT ties, prefer non-timeout rows and the later table.
+        processed_lines: t.List[str] = []
+
+        # Regex to extract LOSS% and SENT count following it: e.g. '0%    3'
+        sent_re = re.compile(r"(\d+)%\s+(\d+)\b")
+
+        max_rows = max(len(t) for t in tables)
+
+        for i in range(max_rows):
+            best_row = None
+            best_sent = -1
+            best_is_timeout = True
+            best_table_index = -1
+
+            for ti, table in enumerate(tables):
+                if i >= len(table):
+                    continue
+                row = table[i]
+                m = sent_re.search(row)
+                if m:
+                    try:
+                        sent = int(m.group(2))
+                    except Exception:
+                        sent = 0
                 else:
-                    # Found a non-timeout line, stop counting
-                    break
+                    sent = 0
 
-            # Add non-trailing lines as-is
-            non_trailing_count = len(data_lines) - trailing_timeout_count
-            processed_lines.extend(data_lines[:non_trailing_count])
+                is_timeout = "timeout" in row.lower() or ("100%" in row and "timeout" in row.lower())
 
-            # Handle trailing timeouts
-            if trailing_timeout_count > 0:
-                if trailing_timeout_count <= 3:
-                    # If 3 or fewer trailing timeouts, show them all
-                    processed_lines.extend(data_lines[non_trailing_count:])
-                else:
-                    # If more than 3 trailing timeouts, show first 2 and aggregate the rest
-                    processed_lines.extend(data_lines[non_trailing_count : non_trailing_count + 2])
-                    remaining_timeouts = trailing_timeout_count - 2
-                    # Add an aggregation line
-                    processed_lines.append(
-                        f"                                 ... ({remaining_timeouts} more timeout hops)"
-                    )
+                # Prefer higher SENT, then prefer non-timeout, then later table (higher ti)
+                pick = False
+                if sent > best_sent:
+                    pick = True
+                elif sent == best_sent:
+                    if best_is_timeout and not is_timeout:
+                        pick = True
+                    elif (best_is_timeout == is_timeout) and ti > best_table_index:
+                        pick = True
 
-            cleaned_lines.extend(processed_lines)
+                if pick:
+                    best_row = row
+                    best_sent = sent
+                    best_is_timeout = is_timeout
+                    best_table_index = ti
 
-        return "\n".join(cleaned_lines)
+            if best_row is not None:
+                processed_lines.append(best_row)
+
+        # Collapse excessive trailing timeouts into an aggregation line
+        trailing_timeouts = 0
+        for line in reversed(processed_lines):
+            if ("timeout" in line.lower()) or (sent_re.search(line) and sent_re.search(line).group(1) == "100"):
+                trailing_timeouts += 1
+            else:
+                break
+
+        if trailing_timeouts > 3:
+            non_trailing = len(processed_lines) - trailing_timeouts
+            # Keep first 2 of trailing timeouts and aggregate the rest
+            aggregated = processed_lines[:non_trailing] + processed_lines[non_trailing:non_trailing + 2]
+            remaining = trailing_timeouts - 2
+            aggregated.append(f"                                 ... ({remaining} more timeout hops)")
+            processed_lines = aggregated
+
+        # Prepend header line if we have one
+        header_to_use = header_line or "ADDRESS                          LOSS SENT    LAST     AVG    BEST   WORST STD-DEV STATUS"
+        cleaned = [header_to_use] + processed_lines
+        return "\n".join(cleaned)
 
     def process(self, *, output: OutputType, query: "Query") -> Series[str]:
         """
@@ -185,5 +239,12 @@ class MikrotikGarbageOutput(OutputPlugin):
             cleaned_output = "\n".join(filtered_lines)
             cleaned_outputs.append(cleaned_output)
 
-        log.debug(f"MikrotikGarbageOutput cleaned {len(output)} output blocks.")
+        # Minimal debug logging: log number of cleaned blocks and if any aggregation occurred
+        if len(output) > 0:
+            log.debug(f"MikrotikGarbageOutput processed {len(output)} output blocks.")
+        # If any aggregation line was added, log that event
+        for cleaned in cleaned_outputs:
+            if "... (" in cleaned:
+                log.debug("Aggregated excessive trailing timeout hops in traceroute output.")
+                break
         return tuple(cleaned_outputs)

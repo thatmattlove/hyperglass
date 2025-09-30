@@ -32,6 +32,7 @@ if node_major < MIN_NODE_VERSION:
 from .util import cpu_count
 from .state import use_state
 from .settings import Settings
+import os
 
 LOG_LEVEL = logging.INFO if Settings.debug is False else logging.DEBUG
 logging.basicConfig(handlers=[LibInterceptHandler()], level=0, force=True)
@@ -155,10 +156,20 @@ def run(workers: int = None):
         _workers = workers
 
         if workers is None:
-            if Settings.debug:
-                _workers = 1
+            # Allow environment override (useful for Docker Compose):
+            # HYPERGLASS_WORKERS=n
+            env_workers = os.getenv("HYPERGLASS_WORKERS")
+            if env_workers:
+                try:
+                    _workers = max(1, int(env_workers))
+                except Exception:
+                    # Fall back to defaults on parse error
+                    _workers = 1 if Settings.debug else cpu_count(2)
             else:
-                _workers = cpu_count(2)
+                if Settings.debug:
+                    _workers = 1
+                else:
+                    _workers = cpu_count(2)
 
         log.bind(
             version=__version__,

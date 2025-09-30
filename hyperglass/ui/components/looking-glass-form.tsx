@@ -87,7 +87,7 @@ export const LookingGlassForm = (): JSX.Element => {
     return tmp;
   }, [form.queryType, form.queryLocation, getDirective]);
 
-  function submitHandler(): void {
+  async function submitHandler(): Promise<void> {
     if (process.env.NODE_ENV === 'development') {
       console.table({
         'Query Location': form.queryLocation.toString(),
@@ -96,6 +96,11 @@ export const LookingGlassForm = (): JSX.Element => {
         'Selected Directive': directive?.name ?? null,
       });
     }
+
+    // Note: IP enrichment refresh is now handled server-side on query
+    // submission when enabled. Removing client-side best-effort refresh
+    // to centralize refresh logic and avoid redundant requests from many
+    // clients.
 
     // Before submitting a query, make sure the greeting is acknowledged if required. This should
     // be handled before loading the app, but people be sneaky.

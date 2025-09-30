@@ -39,12 +39,14 @@ class StructuredRpki(HyperglassModel):
 
 
 class StructuredIpEnrichment(HyperglassModel):
-    """Control IP enrichment for structured data responses."""
+    """Control IP enrichment for structured data responses.
 
-    enabled: bool = False
+    Two tri-state flags are provided to allow the presence of a `structured:`
+    config block to imply the features are enabled, while still allowing users
+    to explicitly disable them.
+    """
+
     cache_timeout: int = 86400  # 24 hours in seconds (minimum)
-    enrich_next_hop: bool = False
-    enrich_traceroute: bool = True
 
     @field_validator("cache_timeout")
     def validate_cache_timeout(cls, value: int) -> int:
@@ -53,6 +55,14 @@ class StructuredIpEnrichment(HyperglassModel):
             return 86400
         return value
 
+    enrich_traceroute: bool = True
+    """Enable ASN/org/IP enrichment for traceroute hops.
+
+    This option remains under `structured.ip_enrichment` per-user request and
+    must be True (in addition to top-level structured presence and
+    `structured.enable_for_traceroute` not being False) for enrichment to run.
+    """
+
 
 class Structured(HyperglassModel):
     """Control structured data responses."""
@@ -60,3 +70,10 @@ class Structured(HyperglassModel):
     communities: StructuredCommunities = StructuredCommunities()
     rpki: StructuredRpki = StructuredRpki()
     ip_enrichment: StructuredIpEnrichment = StructuredIpEnrichment()
+
+    # Top-level structured enable/disable flags. If `structured:` is present in
+    # the user's config and these are not set (None), the structured table
+    # output is considered enabled by default. Setting them to False disables
+    # the structured table output even when a `structured:` block exists.
+    enable_for_traceroute: t.Optional[bool] = None
+    enable_for_bgp_route: t.Optional[bool] = None

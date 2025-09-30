@@ -14,6 +14,9 @@ from .traceroute_ip_enrichment import ZTracerouteIpEnrichment
 from .bgp_route_ip_enrichment import ZBgpRouteIpEnrichment
 from .trace_route_mikrotik import TraceroutePluginMikrotik
 from .trace_route_huawei import TraceroutePluginHuawei
+from .trace_route_arista import TraceroutePluginArista
+from .trace_route_frr import TraceroutePluginFrr
+from .trace_route_juniper import TraceroutePluginJuniper
 
 __all__ = (
     "BGPRoutePluginArista",
@@ -28,5 +31,8 @@ __all__ = (
     "ZBgpRouteIpEnrichment",
     "TraceroutePluginMikrotik",
     "TraceroutePluginHuawei",
+    "TraceroutePluginArista",
+    "TraceroutePluginFrr",
+    "TraceroutePluginJuniper",
     "RemoveCommand",
 )

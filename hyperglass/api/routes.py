@@ -60,6 +60,27 @@ __all__ = (
 )
 
 
+@post("/api/aspath/enrich")
+async def aspath_enrich(data: dict) -> dict:
+    """Enrich a list of ASNs with organization names on demand.
+
+    Expected JSON payload: { "as_path": [123, 456, ...] }
+    """
+    try:
+        as_path = data.get("as_path", []) if isinstance(data, dict) else []
+        if not as_path:
+            return {"success": False, "error": "No as_path provided"}
+
+        # Convert to strings and call the existing bulk lookup
+        from hyperglass.external.ip_enrichment import lookup_asns_bulk
+
+        asn_strings = [str(a) for a in as_path]
+        results = await lookup_asns_bulk(asn_strings)
+        return {"success": True, "asn_organizations": results}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
 @get("/api/devices/{id:str}", dependencies={"devices": Provide(get_devices)})
 async def device(devices: Devices, id: str) -> APIDevice:
     """Retrieve a device by ID."""
@@ -163,6 +184,39 @@ async def query(_state: HyperglassState, request: Request, data: Query) -> Query
                         structured=data.device.structured_output or False,
                     )
                 else:
+                    # Best-effort: if IP enrichment is enabled, schedule a
+                    # non-blocking background refresh so the service can
+                    # update PeeringDB caches without relying on the client.
+                    try:
+                        from hyperglass.state import use_state
+
+                        params = use_state("params")
+                        if (
+                            getattr(params, "structured", None)
+                            and params.structured.ip_enrichment.enrich_traceroute
+                            and getattr(params.structured, "enable_for_traceroute", None)
+                            is not False
+                        ):
+                            try:
+                                from hyperglass.external.ip_enrichment import (
+                                    refresh_ip_enrichment_data,
+                                )
+
+                                async def _bg_refresh():
+                                    try:
+                                        await refresh_ip_enrichment_data(force=False)
+                                    except Exception as e:
+                                        _log.debug("Background IP enrichment refresh failed: {}", e)
+
+                                # Schedule background refresh and don't await it.
+                                asyncio.create_task(_bg_refresh())
+                            except Exception:
+                                # If import or scheduling fails, proceed without refresh
+                                pass
+                    except Exception:
+                        # If we can't access params, skip background refresh
+                        pass
+
                     # Pass request to execution module
                     output = await execute(data)
 
@@ -183,18 +237,43 @@ async def query(_state: HyperglassState, request: Request, data: Query) -> Query
                 else:
                     raw_output = str(output)
 
-                # Only cache successful results
-                await loop.run_in_executor(
-                    None, partial(cache.set_map_item, cache_key, "output", raw_output)
-                )
-                await loop.run_in_executor(
-                    None, partial(cache.set_map_item, cache_key, "timestamp", timestamp)
-                )
-                await loop.run_in_executor(
-                    None, partial(cache.expire, cache_key, expire_in=_state.params.cache.timeout)
-                )
+                # Detect semantically-empty structured outputs and avoid caching them.
+                # Examples:
+                # - BGPRouteTable: {'count': 0, 'routes': []}
+                # - TracerouteResult: {'hops': []}
+                skip_cache_empty = False
+                try:
+                    if json_output and isinstance(raw_output, dict):
+                        # BGP route table empty
+                        if "count" in raw_output and "routes" in raw_output:
+                            if raw_output.get("count", 0) == 0 or not raw_output.get("routes"):
+                                skip_cache_empty = True
+                        # Traceroute result empty
+                        if "hops" in raw_output and (not raw_output.get("hops")):
+                            skip_cache_empty = True
+                except Exception:
+                    # If any unexpected shape is encountered, don't skip caching by
+                    # accident — fall back to normal behavior.
+                    skip_cache_empty = False
 
-                _log.bind(cache_timeout=_state.params.cache.timeout).debug("Response cached")
+                if not skip_cache_empty:
+                    # Only cache successful, non-empty results
+                    await loop.run_in_executor(
+                        None, partial(cache.set_map_item, cache_key, "output", raw_output)
+                    )
+                    await loop.run_in_executor(
+                        None, partial(cache.set_map_item, cache_key, "timestamp", timestamp)
+                    )
+                    await loop.run_in_executor(
+                        None,
+                        partial(cache.expire, cache_key, expire_in=_state.params.cache.timeout),
+                    )
+
+                    _log.bind(cache_timeout=_state.params.cache.timeout).debug("Response cached")
+                else:
+                    _log.bind(cache_key=cache_key).warning(
+                        "Structured output was empty (e.g. 0 routes / 0 hops) - skipping cache to allow immediate retry"
+                    )
 
                 runtime = int(round(elapsedtime, 0))
 
@@ -262,6 +341,21 @@ async def ip_enrichment_refresh(force: bool = False) -> dict:
     """Manually refresh IP enrichment data."""
     try:
         from hyperglass.external.ip_enrichment import refresh_ip_enrichment_data
+
+        # If enrichment is disabled in config, return a clear message
+        try:
+            from hyperglass.state import use_state
+
+            params = use_state("params")
+            if (
+                not getattr(params, "structured", None)
+                or not params.structured.ip_enrichment.enrich_traceroute
+                or getattr(params.structured, "enable_for_traceroute", None) is False
+            ):
+                return {"success": False, "message": "IP enrichment for traceroute is not enabled"}
+        except Exception:
+            # If config can't be read, proceed with refresh call and let it decide
+            pass
 
         success = await refresh_ip_enrichment_data(force=force)
         return {

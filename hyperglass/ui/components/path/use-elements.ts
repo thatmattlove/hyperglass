@@ -45,6 +45,11 @@ function* buildElements(
 ): Generator<FlowElement<NodeData>> {
   let asPaths: string[][] = [];
   let asnOrgs: Record<string, { name: string; country: string }> = {};
+  // For traceroute data we may have IXPs represented as asn === 'IXP' with
+  // the IXP name stored per-hop in hop.org. Collect per-path org arrays so
+  // nodes for IXPs can show the proper IXP name instead of the generic
+  // "IXP" label.
+  const pathGroupOrgs: Record<number, Array<string | undefined>> = {};
 
   if (isBGPData(data)) {
     // Handle BGP routes with AS paths
@@ -70,20 +75,25 @@ function* buildElements(
   } else if (isTracerouteData(data)) {
     // Handle traceroute hops - build AS path from hop ASNs
     const hopAsns: string[] = [];
+    const hopOrgs: Array<string | undefined> = [];
     let currentAsn = '';
-    
+
     for (const hop of data.hops) {
       if (hop.asn && hop.asn !== 'None' && hop.asn !== currentAsn) {
         currentAsn = hop.asn;
         hopAsns.push(hop.asn);
+  hopOrgs.push(hop.org ?? undefined);
       }
     }
-    
+
     if (hopAsns.length > 0) {
       // Remove the base ASN if it's the first hop to avoid duplication
-      const filteredAsns = hopAsns[0] === base.asn ? hopAsns.slice(1) : hopAsns;
+      const removeBase = hopAsns[0] === base.asn;
+      const filteredAsns = removeBase ? hopAsns.slice(1) : hopAsns;
+      const filteredOrgs = removeBase ? hopOrgs.slice(1) : hopOrgs;
       if (filteredAsns.length > 0) {
         asPaths = [filteredAsns];
+        pathGroupOrgs[0] = filteredOrgs;
       }
     }
     
@@ -182,13 +192,25 @@ function* buildElements(
         const y = g.node(node).y - NODE_HEIGHT * (idx * 6);
 
         // Get each ASN's positions.
+        // Determine display name for this node. Prefer ASN org mapping, but
+        // for traceroute IXPs prefer the per-hop IXP name if present.
+        let nodeName = asnOrgs[asn]?.name || (asn === '0' ? 'Private/Unknown' : `AS${asn}`);
+        if (asn === 'IXP') {
+          const ixpName = pathGroupOrgs[groupIdx]?.[idx];
+          if (ixpName && ixpName !== 'None') {
+            nodeName = ixpName;
+          } else {
+            nodeName = 'IXP';
+          }
+        }
+
         yield {
           id: node,
           type: 'ASNode',
           position: { x, y },
           data: {
             asn: `${asn}`,
-            name: asn === 'IXP' ? 'IXP' : asnOrgs[asn]?.name || (asn === '0' ? 'Private/Unknown' : `AS${asn}`),
+            name: nodeName,
             hasChildren: idx < endIdx,
             hasParents: true,
           },

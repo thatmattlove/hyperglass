@@ -66,8 +66,14 @@ class ZTracerouteIpEnrichment(OutputPlugin):
             from hyperglass.state import use_state
 
             params = use_state("params")
-            if not params.structured.ip_enrichment.enabled:
-                _log.debug("IP enrichment disabled in configuration")
+            # If structured config missing or traceroute enrichment disabled, skip
+            # IP enrichment but still perform reverse DNS lookups.
+            if (
+                not getattr(params, "structured", None)
+                or not params.structured.ip_enrichment.enrich_traceroute
+                or getattr(params.structured, "enable_for_traceroute", None) is False
+            ):
+                _log.debug("IP enrichment for traceroute disabled in configuration")
                 # Still do reverse DNS if enrichment is disabled
                 for hop in output.hops:
                     if hop.ip_address and hop.hostname is None:

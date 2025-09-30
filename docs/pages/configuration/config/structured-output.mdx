@@ -21,14 +21,20 @@ For external validation, hyperglass supports two backends:
 
 Additionally, hyperglass provides the ability to control which BGP communities are shown to the end user.
 
-| Parameter                      | Type            | Default Value | Description                                                                                                                            |
-| :----------------------------- | :-------------- | :------------ | :------------------------------------------------------------------------------------------------------------------------------------- |
-| `structured.rpki.mode`         | String          | router        | Use `router` to use the router's view of the RPKI state, or `external` to use an external validation service.                        |
-| `structured.rpki.backend`      | String          | cloudflare    | When using `external` mode, choose `cloudflare` or `routinator` as the validation backend.                                           |
-| `structured.rpki.rpki_server_url` | String       |               | When using `routinator` backend, specify the base URL of your Routinator server (e.g., `http://rpki.example.com:3323`).             |
-| `structured.communities.mode`  | String          | deny          | Use `deny` to deny any communities listed, `permit` to _only_ permit communities listed, or `name` to append friendly names.         |
-| `structured.communities.items` | List of Strings |               | List of communities to match (used by `deny` and `permit` modes).                                                                     |
-| `structured.communities.names` | Dict            |               | Dictionary mapping BGP community codes to friendly names (used by `name` mode).                                                       |
+For devices with structured traceroute support (Arista EOS, FRRouting, Huawei VRP, Juniper Junos, and MikroTik RouterOS), hyperglass can enhance the output with IP enrichment data including ASN information, organization names, country codes, and IXP detection using offline data from BGP.tools and PeeringDB.
+
+| Parameter                         | Type            | Default Value | Description                                                                                                                            |
+| :-------------------------------- | :-------------- | :------------ | :------------------------------------------------------------------------------------------------------------------------------------- |
+| `structured.rpki.mode`            | String          | router        | Use `router` to use the router's view of the RPKI state, or `external` to use an external validation service.                        |
+| `structured.rpki.backend`         | String          | cloudflare    | When using `external` mode, choose `cloudflare` or `routinator` as the validation backend.                                           |
+| `structured.rpki.rpki_server_url` | String          |               | When using `routinator` backend, specify the base URL of your Routinator server (e.g., `http://rpki.example.com:3323`).             |
+| `structured.communities.mode`     | String          | deny          | Use `deny` to deny any communities listed, `permit` to _only_ permit communities listed, or `name` to append friendly names.         |
+| `structured.communities.items`    | List of Strings |               | List of communities to match (used by `deny` and `permit` modes).                                                                     |
+| `structured.communities.names`    | Dict            |               | Dictionary mapping BGP community codes to friendly names (used by `name` mode).                                                       |
+| `structured.ip_enrichment.cache_timeout`    | Integer         | 86400         | Cache timeout in seconds for IP enrichment data (minimum 24 hours/86400 seconds).                                                   |
+| `structured.ip_enrichment.enrich_traceroute`| Boolean         | true          | When `structured:` is present, enable IP enrichment of traceroute hops (ASN, org, IXP). This must be true for enrichment to run.   |
+| `structured.enable_for_traceroute`| Boolean         | (when structured present) true | When `structured:` is present this controls whether the structured traceroute table output is shown. Set to false to force raw router output. |
+| `structured.enable_for_bgp_route`| Boolean         | (when structured present) true | When `structured:` is present this controls whether the structured BGP route table output is shown. Set to false to force raw router output. |
 
 ### RPKI Examples
 
@@ -104,3 +110,115 @@ structured:
             "65000:1102": "Upstream B Location 1"
             "65000:2000": "IXP Any"
 ```
+
+### IP Enrichment Examples
+
+<Callout type="info" emoji="ℹ️">
+    **IP Enrichment Requirements**
+    
+    IP enrichment is currently supported for traceroute outputs on supported platforms.
+    
+    The system uses offline data from BGP.tools (1.3M+ CIDR entries) and PeeringDB for maximum performance and reliability.
+</Callout>
+
+#### Enable IP Enrichment for Traceroute
+
+```yaml filename="config.yaml" copy {2-4}
+structured:
+    # Ensure `structured:` exists to enable structured output. By default the
+    # structured table output is enabled when this block is present. To disable
+    # the structured traceroute table, set `structured.enable_for_traceroute: false`.
+    ip_enrichment:
+        enrich_traceroute: true
+```
+
+#### Enable IP Enrichment with Custom Cache Timeout
+
+```yaml filename="config.yaml" copy {2-5}
+structured:
+    ip_enrichment:
+        enrich_traceroute: true
+        cache_timeout: 172800  # 48 hours
+```
+
+#### Enable IP Enrichment for Traceroute
+
+```yaml filename="config.yaml" copy {2-4}
+structured:
+    ip_enrichment:
+        enrich_traceroute: true
+        cache_timeout: 86400  # 24 hours (minimum)
+```
+
+<Callout type="warning" emoji="⚠️">
+    **Performance Considerations**
+    
+    - Initial cache loading may take 30-60 seconds on first startup
+    - Data is cached locally using pickle format for ultra-fast subsequent loads
+    - Cache files are stored in `/etc/hyperglass/ip_enrichment/`
+    - Minimum cache timeout is 24 hours (86400 seconds) to prevent excessive API usage
+</Callout>
+
+### Structured Traceroute Configuration
+
+<Callout type="info" emoji="ℹ️">
+    **Structured Traceroute Support**
+    
+    Structured traceroute with rich metadata is available for:
+    - **Arista EOS**: Parses Unix-style traceroute output with hostname, multiple RTT support, and MPLS labels
+    - **FRRouting**: Parses Unix-style traceroute output with load balancing and multi-path support
+    - **Huawei VRP**: Parses Unix-style traceroute output
+    - **Juniper Junos**: Parses traceroute output with MPLS labels, multipath, and partial timeouts
+    - **MikroTik RouterOS/SwitchOS**: Parses multi-table format with statistics
+    
+    When IP enrichment is enabled, traceroute hops are enhanced with ASN numbers, organization names, country codes, prefixes, and IXP detection.
+</Callout>
+
+#### Complete Structured Traceroute Setup
+
+```yaml filename="config.yaml" copy {2-12}
+structured:
+    rpki:
+        mode: external
+        backend: routinator
+        rpki_server_url: "https://rpki.example.com"
+    communities:
+        mode: name
+        names:
+            "65000:1000": "Transit Routes"
+            "65000:2000": "Peer Routes"
+    ip_enrichment:
+        enrich_traceroute: true
+        cache_timeout: 86400
+```
+
+#### Structured Traceroute with Cloudflare RPKI
+
+```yaml filename="config.yaml" copy {2-9}
+structured:
+    rpki:
+        mode: external
+        backend: cloudflare
+    ip_enrichment:
+        enrich_traceroute: true
+```
+
+#### Minimal Structured Traceroute (No IP Enrichment)
+
+```yaml filename="config.yaml" copy {2-4}
+structured:
+    ip_enrichment:
+        enrich_traceroute: false  # Traceroute will show basic hop info without ASN/org data
+```
+
+<Callout type="warning" emoji="⚠️">
+    **IP Enrichment Dependency**
+    
+    Without IP enrichment enabled:
+    - Traceroute hops will only show IP addresses and RTT values
+    - No ASN, organization names, or country information will be displayed
+    - AS path visualization will be limited or unavailable
+    - IXP detection will not function
+    
+    For the full structured traceroute experience with rich metadata, `ip_enrichment.enrich_traceroute: true` is required.
+</Callout>

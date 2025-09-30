@@ -13,25 +13,28 @@ async def enrich_output_with_ip_enrichment(output: OutputDataModel) -> OutputDat
     """Enrich output data with IP enrichment information."""
     params = use_state("params")
 
-    # Check if IP enrichment is enabled in configuration
-    if not params.structured.ip_enrichment.enabled:
-        log.debug("IP enrichment disabled in configuration, skipping")
+    # If structured block isn't present or traceroute enrichment explicitly disabled,
+    # skip enrichment entirely.
+    if (
+        not getattr(params, "structured", None)
+        or not params.structured.ip_enrichment.enrich_traceroute
+        or getattr(params.structured, "enable_for_traceroute", None) is False
+    ):
+        log.debug("IP enrichment for traceroute disabled or structured config missing, skipping")
         return output
 
     _log = log.bind(enrichment="ip_enrichment")
     _log.debug("Starting IP enrichment")
 
     try:
-        if isinstance(output, BGPRouteTable):
-            if params.structured.ip_enrichment.enrich_next_hop:
-                _log.debug("Enriching BGP route table with next-hop information")
-                await output.enrich_with_ip_enrichment()
-                _log.info(f"Enriched {len(output.routes)} BGP routes with next-hop data")
-            else:
-                _log.debug("Next-hop enrichment disabled, skipping BGP enrichment")
-
-        elif isinstance(output, TracerouteResult):
-            if params.structured.ip_enrichment.enrich_traceroute:
+        if isinstance(output, TracerouteResult):
+            # Only enrich traceroute results when structured config exists,
+            # per-feature top-level flag isn't False, and ip_enrichment is enabled.
+            if (
+                getattr(params, "structured", None)
+                and params.structured.ip_enrichment.enrich_traceroute
+                and getattr(params.structured, "enable_for_traceroute", None) is not False
+            ):
                 _log.debug("Enriching traceroute hops with ASN information")
                 await output.enrich_with_ip_enrichment()
 

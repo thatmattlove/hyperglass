@@ -5,7 +5,7 @@ import typing as t
 from ipaddress import ip_address, AddressValueError
 
 # Third Party
-from pydantic import field_validator
+from pydantic import field_validator, computed_field
 
 # Project
 from hyperglass.external.ip_enrichment import TargetDetail
@@ -58,6 +58,7 @@ class TracerouteHop(HyperglassModel):
         """Get the IP address for display purposes (may be truncated)."""
         return self.display_ip or self.ip_address
 
+    @computed_field
     @property
     def avg_rtt(self) -> t.Optional[float]:
         """Calculate average RTT from available measurements."""

@@ -21,6 +21,9 @@ __pycache__/
 .python-version
 .venv
 
+# Local virtualenv freeze for this workspace
+venv-requirements.txt
+
 # MyPy
 .mypy_cache
 
@@ -84,3 +87,4 @@ docs/_build/
 # PyBuilder
 target/
 assets/
+venv-requirements.txt
