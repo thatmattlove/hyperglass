@@ -48,7 +48,9 @@ class SSHConnection(Connection):
                         proxy.credential.password.get_secret_value()
                     )
             try:
-                return open_tunnel(proxy._target, proxy.port, **tunnel_kwargs)
+                return open_tunnel(
+                    ssh_address_or_host=proxy._target, ssh_port=proxy.port, **tunnel_kwargs
+                )
 
             except BaseSSHTunnelForwarderError as scrape_proxy_error:
                 log.bind(device=self.device.name, proxy=proxy.name).error(

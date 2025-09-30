@@ -166,6 +166,7 @@ your-directive:
         - condition: null
           command: show ip route {target}
     field:
+        description: IP of target
         validation: '[0-9a-f\.\:]+'
 ```
 
@@ -178,6 +179,7 @@ your-directive:
         - condition: null
           command: show ip bgp community {target}
     field:
+        description: BGP community to show
         options:
             - value: "65001:1"
               description: Provider A Routes
