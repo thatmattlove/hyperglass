@@ -5,7 +5,13 @@ from .rpki import rpki_state
 from .slack import SlackHook
 from .generic import BaseExternal
 from .msteams import MSTeams
-from .bgptools import network_info, network_info_sync
+from .ip_enrichment import (
+    network_info,
+    network_info_sync,
+    lookup_ip,
+    lookup_asn_name,
+    lookup_asn_country,
+)
 from .webhooks import Webhook
 from .http_client import HTTPClient
 

@@ -339,7 +339,7 @@ class Directive(HyperglassUniqueModel, unique_by=("id", "table_output")):
             "name": self.name,
             "field_type": self.field_type,
             "groups": self.groups,
-            "description": self.field.description if self.field is not None else '',
+            "description": self.field.description if self.field is not None else "",
             "info": None,
         }
 

@@ -83,22 +83,37 @@ class NetmikoConnection(SSHConnection):
                 # private key password.
                 driver_kwargs["passphrase"] = self.device.credential.password.get_secret_value()
 
+        # Run blocking netmiko operations in thread executor to prevent blocking the event loop
+        import asyncio
+        import functools
+
+        def _netmiko_connect():
+            """Execute blocking netmiko operations in a separate thread."""
+            try:
+                nm_connect_direct = ConnectHandler(**driver_kwargs)
+
+                responses = ()
+
+                for query in self.query:
+                    raw = nm_connect_direct.send_command_timing(query, **send_args)
+                    responses += (raw,)
+
+                nm_connect_direct.disconnect()
+                return responses
+
+            except NetMikoTimeoutException as scrape_error:
+                raise DeviceTimeout(error=scrape_error, device=self.device) from scrape_error
+
+            except NetMikoAuthenticationException as auth_error:
+                raise AuthError(error=auth_error, device=self.device) from auth_error
+
         try:
-            nm_connect_direct = ConnectHandler(**driver_kwargs)
-
-            responses = ()
-
-            for query in self.query:
-                raw = nm_connect_direct.send_command(query, **send_args)
-                responses += (raw,)
-
-            nm_connect_direct.disconnect()
-
-        except NetMikoTimeoutException as scrape_error:
-            raise DeviceTimeout(error=scrape_error, device=self.device) from scrape_error
-
-        except NetMikoAuthenticationException as auth_error:
-            raise AuthError(error=auth_error, device=self.device) from auth_error
+            # Execute blocking netmiko operations in thread pool
+            loop = asyncio.get_event_loop()
+            responses = await loop.run_in_executor(None, _netmiko_connect)
+        except (DeviceTimeout, AuthError):
+            # Re-raise our custom exceptions as-is
+            raise
 
         if not responses:
             raise ResponseEmpty(query=self.query_data)

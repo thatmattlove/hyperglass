@@ -16,7 +16,7 @@ import startCase from 'lodash/startCase';
 import { forwardRef, memo, useEffect, useMemo, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import { Else, If, Then } from 'react-if';
-import { BGPTable, Path, TextOutput } from '~/components';
+import { BGPTable, TracerouteTable, Path, TextOutput } from '~/components';
 import { useConfig } from '~/context';
 import { Countdown, DynamicIcon } from '~/elements';
 import {
@@ -28,7 +28,7 @@ import {
   useStrf,
   useTableToString,
 } from '~/hooks';
-import { isStringOutput, isStructuredOutput } from '~/types';
+import { isStringOutput, isStructuredOutput, isBGPStructuredOutput, isTracerouteStructuredOutput } from '~/types';
 import { CopyButton } from './copy-button';
 import { FormattedError } from './formatted-error';
 import { isFetchError, isLGError, isLGOutputOrError, isStackError } from './guards';
@@ -153,9 +153,15 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
 
   let copyValue = data?.output as string;
 
+  // Always create formatData hook for both BGP and Traceroute outputs
   const formatData = useTableToString(form.queryTarget, data, [data?.format]);
+  const isBGPData = isBGPStructuredOutput(data);
+  const isTracerouteData = isTracerouteStructuredOutput(data);
 
-  if (data?.format === 'application/json') {
+  if (data?.format === 'application/json' && isBGPData) {
+    copyValue = formatData();
+  } else if (data?.format === 'application/json' && isTracerouteData) {
+    // For structured traceroute, use formatted table output for copy functionality
     copyValue = formatData();
   }
 
@@ -244,8 +250,10 @@ const _Result: React.ForwardRefRenderFunction<HTMLDivElement, ResultProps> = (
           <Flex direction="column" flex="1 0 auto" maxW={error ? '100%' : undefined}>
             <If condition={!isError && typeof data !== 'undefined'}>
               <Then>
-                {isStructuredOutput(data) && data.level === 'success' && tableComponent ? (
+                {isBGPStructuredOutput(data) && data.level === 'success' && tableComponent ? (
                   <BGPTable>{data.output}</BGPTable>
+                ) : isTracerouteStructuredOutput(data) && data.level === 'success' && tableComponent ? (
+                  <TracerouteTable>{data.output}</TracerouteTable>
                 ) : isStringOutput(data) && data.level === 'success' && !tableComponent ? (
                   <TextOutput>{data.output}</TextOutput>
                 ) : isStringOutput(data) && data.level !== 'success' ? (

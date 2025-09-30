@@ -15,10 +15,24 @@ type FlowElement<T> = Node<T> | Edge<T>;
 const NODE_WIDTH = 128;
 const NODE_HEIGHT = 48;
 
-export function useElements(base: BasePath, data: StructuredResponse): FlowElement<NodeData>[] {
+export function useElements(base: BasePath, data: AllStructuredResponses): FlowElement<NodeData>[] {
   return useMemo(() => {
     return [...buildElements(base, data)];
   }, [base, data]);
+}
+
+/**
+ * Check if data contains BGP routes
+ */
+function isBGPData(data: AllStructuredResponses): data is BGPStructuredOutput {
+  return 'routes' in data && Array.isArray(data.routes);
+}
+
+/**
+ * Check if data contains traceroute hops
+ */
+function isTracerouteData(data: AllStructuredResponses): data is TracerouteStructuredOutput {
+  return 'hops' in data && Array.isArray(data.hops);
 }
 
 /**
@@ -27,11 +41,76 @@ export function useElements(base: BasePath, data: StructuredResponse): FlowEleme
  */
 function* buildElements(
   base: BasePath,
-  data: StructuredResponse,
+  data: AllStructuredResponses,
 ): Generator<FlowElement<NodeData>> {
-  const { routes } = data;
-  // Eliminate empty AS paths & deduplicate non-empty AS paths. Length should be same as count minus empty paths.
-  const asPaths = routes.filter(r => r.as_path.length !== 0).map(r => [...new Set(r.as_path)]);
+  let asPaths: string[][] = [];
+  let asnOrgs: Record<string, { name: string; country: string }> = {};
+  // For traceroute data we may have IXPs represented as asn === 'IXP' with
+  // the IXP name stored per-hop in hop.org. Collect per-path org arrays so
+  // nodes for IXPs can show the proper IXP name instead of the generic
+  // "IXP" label.
+  const pathGroupOrgs: Record<number, Array<string | undefined>> = {};
+
+  if (isBGPData(data)) {
+    // Handle BGP routes with AS paths
+    const { routes } = data;
+    asPaths = routes
+      .filter(r => r.as_path.length !== 0)
+      .map(r => {
+        const uniqueAsns = [...new Set(r.as_path.map(asn => String(asn)))];
+        // Remove the base ASN if it's the first hop to avoid duplication
+        return uniqueAsns[0] === base.asn ? uniqueAsns.slice(1) : uniqueAsns;
+      })
+      .filter(path => path.length > 0); // Remove empty paths
+    
+    // Get ASN organization mapping if available
+    asnOrgs = (data as any).asn_organizations || {};
+    
+    // Debug: Log BGP ASN organization data
+    if (Object.keys(asnOrgs).length > 0) {
+      console.debug('BGP ASN organizations loaded:', asnOrgs);
+    } else {
+      console.warn('BGP ASN organizations not found or empty');
+    }
+  } else if (isTracerouteData(data)) {
+    // Handle traceroute hops - build AS path from hop ASNs
+    const hopAsns: string[] = [];
+    const hopOrgs: Array<string | undefined> = [];
+    let currentAsn = '';
+
+    for (const hop of data.hops) {
+      if (hop.asn && hop.asn !== 'None' && hop.asn !== currentAsn) {
+        currentAsn = hop.asn;
+        hopAsns.push(hop.asn);
+  hopOrgs.push(hop.org ?? undefined);
+      }
+    }
+
+    if (hopAsns.length > 0) {
+      // Remove the base ASN if it's the first hop to avoid duplication
+      const removeBase = hopAsns[0] === base.asn;
+      const filteredAsns = removeBase ? hopAsns.slice(1) : hopAsns;
+      const filteredOrgs = removeBase ? hopOrgs.slice(1) : hopOrgs;
+      if (filteredAsns.length > 0) {
+        asPaths = [filteredAsns];
+        pathGroupOrgs[0] = filteredOrgs;
+      }
+    }
+    
+    // Get ASN organization mapping if available
+    asnOrgs = (data as any).asn_organizations || {};
+    
+    // Debug: Log traceroute ASN organization data
+    if (Object.keys(asnOrgs).length > 0) {
+      console.debug('Traceroute ASN organizations loaded:', asnOrgs);
+    } else {
+      console.warn('Traceroute ASN organizations not found or empty');
+    }
+  }
+
+  if (asPaths.length === 0) {
+    return;
+  }
 
   const totalPaths = asPaths.length - 1;
 
@@ -95,7 +174,12 @@ function* buildElements(
     id: base.asn,
     type: 'ASNode',
     position: { x, y },
-    data: { asn: base.asn, name: base.name, hasChildren: true, hasParents: false },
+    data: { 
+      asn: base.asn, 
+      name: asnOrgs[base.asn]?.name || base.name, 
+      hasChildren: true, 
+      hasParents: false 
+    },
   };
 
   for (const [groupIdx, pathGroup] of asPaths.entries()) {
@@ -108,13 +192,25 @@ function* buildElements(
         const y = g.node(node).y - NODE_HEIGHT * (idx * 6);
 
         // Get each ASN's positions.
+        // Determine display name for this node. Prefer ASN org mapping, but
+        // for traceroute IXPs prefer the per-hop IXP name if present.
+        let nodeName = asnOrgs[asn]?.name || (asn === '0' ? 'Private/Unknown' : `AS${asn}`);
+        if (asn === 'IXP') {
+          const ixpName = pathGroupOrgs[groupIdx]?.[idx];
+          if (ixpName && ixpName !== 'None') {
+            nodeName = ixpName;
+          } else {
+            nodeName = 'IXP';
+          }
+        }
+
         yield {
           id: node,
           type: 'ASNode',
           position: { x, y },
           data: {
             asn: `${asn}`,
-            name: `AS${asn}`,
+            name: nodeName,
             hasChildren: idx < endIdx,
             hasParents: true,
           },

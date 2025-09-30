@@ -1,0 +1,159 @@
+JuniperTraceroute:
+  name: Traceroute
+  rules:
+      # REGRA DENY RFC 6598
+    - condition: '100.64.0.0/10'
+      ge: 10
+      le: 32
+      action: deny
+      # REGRA DENY RFC 1918 CLASSE A
+    - condition: '10.0.0.0/8'
+      ge: 8
+      le: 32
+      action: deny
+      # REGRA DENY RFC 1918 CLASSE B
+    - condition: '172.16.0.0/12'
+      ge: 12
+      le: 32
+      action: deny
+      # REGRA DENY RFC 1918 CLASSE C
+    - condition: '192.168.0.0/16'
+      ge: 16
+      le: 32
+      action: deny
+      # REGRA DENY LO
+    - condition: '127.0.0.0/8'
+      ge: 8
+      le: 32
+      action: deny
+      # REGRA DENY ASN PREFIXO
+    - condition: 'SEU_PREFIXO_IPv4_AGORA'
+      ge: 22
+      le: 32
+      action: deny
+      # REGRA DENY DEFAULT ROUTE
+    - condition: '0.0.0.0/8'
+      ge: 8
+      le: 32
+      action: deny
+    - condition: '0.0.0.0/0'
+      ge: 32
+      le: 32
+      action: permit
+      command: 'traceroute inet {target} wait 1 source {source4}'
+      # REGRA DENY SITE LOCAL DEPRECIADO RFC 3879
+    - condition: 'fec0::/10'
+      ge: 10
+      le: 128
+      action: deny
+      # REGRA DENY ULA RFC 4193
+    - condition: 'fc00::/7'
+      ge: 7
+      le: 128
+      action: deny
+      # REGRA DENY LINK LOCAL RFC 4291
+    - condition: 'fe80::/10'
+      ge: 10
+      le: 128
+      action: deny
+      # REGRA DENY Unspecified RFC 4291
+    - condition: '::/128'
+      ge: 128
+      le: 128
+      action: deny
+      # REGRA DENY LO RFC 4291
+    - condition: '::1/128'
+      ge: 128
+      le: 128
+      action: deny
+      # REGRA DENY ASN PREFIXO
+    - condition: 'SEU_PREFIXO_IPv6_AGORA'
+      ge: 32
+      le: 128
+      action: deny
+    - condition: '::/0'
+      ge: 128
+      le: 128
+      action: permit
+      command: 'traceroute inet6 {target} wait 2 source {source6}'
+  field:
+    description: IP Address, or Hostname
+JuniperPing:
+  name: Ping
+  rules:
+      # REGRA DENY RFC 6598
+    - condition: '100.64.0.0/10'
+      ge: 10
+      le: 32
+      action: deny
+      # REGRA DENY RFC 1918 CLASSE A
+    - condition: '10.0.0.0/8'
+      ge: 8
+      le: 32
+      action: deny
+      # REGRA DENY RFC 1918 CLASSE B
+    - condition: '172.16.0.0/12'
+      ge: 12
+      le: 32
+      action: deny
+      # REGRA DENY RFC 1918 CLASSE C
+    - condition: '192.168.0.0/16'
+      ge: 16
+      le: 32
+      action: deny
+      # REGRA DENY LO
+    - condition: '127.0.0.0/8'
+      ge: 8
+      le: 32
+      action: deny
+      # REGRA DENY ASN PREFIXO
+    - condition: 'SEU_PREFIXO_IPv4_AGORA'
+      ge: 22
+      le: 32
+      action: deny
+      # REGRA DENY DEFAULT ROUTE
+    - condition: '0.0.0.0/8'
+      ge: 8
+      le: 32
+      action: deny
+    - condition: '0.0.0.0/0'
+      ge: 32
+      le: 32
+      command: 'ping inet {target} count 5 source {source4}'
+      # REGRA DENY SITE LOCAL DEPRECIADO RFC 3879
+    - condition: 'fec0::/10'
+      ge: 10
+      le: 128
+      action: deny
+      # REGRA DENY ULA RFC 4193
+    - condition: 'fc00::/7'
+      ge: 7
+      le: 128
+      action: deny
+      # REGRA DENY LINK LOCAL RFC 4291
+    - condition: 'fe80::/10'
+      ge: 10
+      le: 128
+      action: deny
+      # REGRA DENY Unspecified RFC 4291
+    - condition: '::/128'
+      ge: 128
+      le: 128
+      action: deny
+      # REGRA DENY LO RFC 4291
+    - condition: '::1/128'
+      ge: 128
+      le: 128
+      action: deny
+      # REGRA DENY ASN PREFIXO
+    - condition: 'SEU_PREFIXO_IPv6_AGORA'
+      ge: 32
+      le: 128
+      action: deny
+    - condition: '::/0'
+      ge: 128
+      le: 128
+      action: permit
+      command: 'ping inet6 {target} count 5 source {source6}'
+  field:
+    description: IP Address, or Hostname

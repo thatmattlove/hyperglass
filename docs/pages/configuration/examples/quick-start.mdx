@@ -1,0 +1,453 @@
+---
+title: Quick Start Configuration Examples
+description: Common configuration patterns and examples to get started quickly
+---
+
+import { Callout } from 'nextra/components'
+
+# Quick Start Configuration Examples
+
+Here are the most common configuration patterns to get you started with hyperglass quickly. For complete documentation, see the [Complete Configuration Reference](/configuration/config/complete-config).
+
+## Minimal Configuration
+
+The absolute minimum configuration needed:
+
+```yaml filename="config.yaml"
+site_title: "My Network Looking Glass"
+org_name: "My Company"
+primary_asn: 65000
+```
+
+## Basic Corporate Setup
+
+A typical corporate setup with branding and terms of service:
+
+```yaml filename="config.yaml"
+# Basic info
+site_title: "ACME Networks Looking Glass"
+org_name: "ACME Networks Inc."
+primary_asn: 65000
+site_description: "Network diagnostic tools for ACME Networks"
+
+# Performance
+request_timeout: 120
+cache:
+  timeout: 300  # 5 minutes
+
+# Web interface
+web:
+  # Custom branding
+  logo:
+    light: "/etc/hyperglass/images/company-logo-light.svg"
+    dark: "/etc/hyperglass/images/company-logo-dark.svg"
+    
+  # Welcome message with terms
+  greeting:
+    enable: true
+    title: "Terms of Service"
+    file: "/etc/hyperglass/terms.md"
+    required: true
+    button: "I Agree"
+    
+  # Interface customization
+  text:
+    title: "Network Operations Center"
+    subtitle: "AS65000 Looking Glass"
+    
+  # Footer links
+  links:
+    - title: "Company Website"
+      url: "https://acmenetworks.com"
+      show_icon: false
+      side: "left"
+    - title: "Network Status"
+      url: "https://status.acmenetworks.com"
+      side: "right"
+```
+
+## Privacy-Focused Setup
+
+Emphasizing user privacy and security:
+
+```yaml filename="config.yaml"
+site_title: "Privacy-First Looking Glass"
+org_name: "SecureNet"
+primary_asn: 65001
+
+web:
+  # Use privacy-focused DNS
+  dns_provider:
+    name: "cloudflare"  # More privacy-focused than Google
+    
+  # Informative text about privacy
+  text:
+    ip_button: "Detect My IP (Private)"
+    fqdn_message: "Securely resolved {fqdn} to"
+    
+  # Privacy-focused greeting
+  greeting:
+    enable: true
+    title: "Your Privacy Matters"
+    content: |
+      ## Privacy Notice
+      
+      - DNS queries use encrypted DNS-over-HTTPS
+      - Your IP detection happens in your browser
+      - We don't log sensitive query details
+      - All connections use HTTPS encryption
+    required: false
+    button: "I Understand"
+
+# Minimal logging
+logging:
+  format: "text"
+  # No HTTP webhooks for privacy
+```
+
+## High-Performance Setup
+
+Optimized for performance with extended caching:
+
+```yaml filename="config.yaml"
+site_title: "High-Performance Looking Glass"
+org_name: "FastNet ISP"
+primary_asn: 65002
+
+# Performance optimizations
+request_timeout: 60      # Faster timeouts
+cache:
+  timeout: 600          # Cache for 10 minutes
+  show_text: true       # Show cache status
+
+web:
+  # Optimized text
+  text:
+    cache_prefix: "Cached result expires in "
+    complete_time: "⚡ Completed in {seconds}"
+    
+  # Performance theme
+  theme:
+    colors:
+      primary: "#059669"    # Fast green
+      secondary: "#0ea5e9"  # Speed blue
+    default_color_mode: "dark"  # Easier on eyes
+
+# Structured output for faster parsing
+structured:
+  rpki:
+    mode: "external"
+    backend: "cloudflare"  # Fast RPKI validation
+```
+
+## ISP/Service Provider Setup
+
+Configuration for internet service providers:
+
+```yaml filename="config.yaml"
+site_title: "GlobalNet Looking Glass"
+org_name: "GlobalNet Internet Services"
+primary_asn: 64500
+site_description: "Network diagnostics for GlobalNet AS64500 customers and peers"
+
+web:
+  # Professional branding
+  logo:
+    light: "/etc/hyperglass/branding/globalnet-light.svg"
+    dark: "/etc/hyperglass/branding/globalnet-dark.svg"
+    width: "250px"
+    
+  # Comprehensive footer
+  links:
+    - title: "PeeringDB"
+      url: "https://www.peeringdb.com/asn/{primary_asn}"
+      side: "right"
+      order: 1
+    - title: "Peering Policy"
+      url: "https://globalnet.com/peering"
+      side: "right" 
+      order: 2
+    - title: "Customer Portal"
+      url: "https://portal.globalnet.com"
+      side: "left"
+      order: 1
+    - title: "Network Status"
+      url: "https://status.globalnet.com"
+      side: "left"
+      order: 2
+      
+  menus:
+    - title: "Peering Information"
+      content: |
+        ## Peering with GlobalNet
+        
+        - **ASN**: AS64500
+        - **IPv4 Prefix**: 203.0.113.0/24  
+        - **IPv6 Prefix**: 2001:db8::/32
+        - **NOC**: noc@globalnet.com
+        - **Peering**: peering@globalnet.com
+        
+        We maintain an open peering policy and welcome new peers.
+      side: "right"
+      
+  # ISP-focused text
+  text:
+    title: "Network Operations Center"
+    subtitle: "Peering & Transit Services"
+    query_location: "Point of Presence"
+
+# BGP-focused structured output
+structured:
+  communities:
+    mode: "name"
+    names:
+      "64500:100": "Customer Routes"
+      "64500:200": "Peer Routes"
+      "64500:300": "Transit Routes" 
+      "64500:400": "Internal Routes"
+      "64500:666": "Blackhole"
+      "64500:777": "No Export"
+  rpki:
+    mode: "external"
+    backend: "cloudflare"
+
+# Comprehensive API docs for automation
+docs:
+  enable: true
+  title: "GlobalNet Looking Glass API"
+  description: "Programmatic access to network diagnostic tools"
+  base_url: "https://lg.globalnet.com"
+```
+
+## Enterprise Internal Setup
+
+For internal corporate networks:
+
+```yaml filename="config.yaml"
+site_title: "ACME Internal Network Tools"  
+org_name: "ACME Corporation"
+primary_asn: 65000
+
+web:
+  # Internal-focused interface
+  text:
+    title_mode: "all"
+    title: "IT Network Diagnostics"
+    subtitle: "Internal Use Only"
+    query_location: "Network Segment"
+    ip_button: "My Internal IP"
+    
+  # Corporate theme
+  theme:
+    colors:
+      primary: "#1e40af"     # Corporate blue
+      secondary: "#059669"   # Corporate green
+    fonts:
+      body: "Inter"
+      mono: "JetBrains Mono"
+      
+  # Internal policies
+  greeting:
+    enable: true
+    title: "IT Policy Reminder"
+    content: |
+      ## Network Diagnostic Tools
+      
+      These tools are for authorized IT personnel only.
+      
+      - Use responsibly and only for legitimate troubleshooting
+      - Do not test external targets without approval
+      - Report any suspicious network activity
+      - Contact IT Security for questions: security@acme.com
+    required: true
+    button: "I Acknowledge"
+    
+  links:
+    - title: "IT Helpdesk"
+      url: "https://helpdesk.acme.local"
+      side: "left"
+    - title: "Network Documentation"
+      url: "https://wiki.acme.local/network"
+      side: "left"
+
+# Detailed logging for internal audit
+logging:
+  directory: "/var/log/hyperglass"
+  format: "json"
+  max_size: "200MB"
+  
+  # Log to internal SIEM
+  http:
+    enable: true
+    provider: "generic"
+    host: "https://siem.acme.local/api/logs"
+    authentication:
+      mode: "api_key"
+      password: "your-siem-api-key"
+      header: "X-API-Key"
+```
+
+## Development/Testing Setup
+
+For development and testing environments:
+
+```yaml filename="config.yaml"
+site_title: "Development Looking Glass"
+org_name: "DevNet Testing"
+primary_asn: 65999
+
+# Development settings
+fake_output: true        # Use fake data for testing
+request_timeout: 30      # Shorter timeouts for dev
+cors_origins:           # Allow local development
+  - "http://localhost:3000"
+  - "http://127.0.0.1:3000"
+
+cache:
+  timeout: 30           # Short cache for testing
+  show_text: true
+
+web:
+  # Development theme
+  theme:
+    default_color_mode: "dark"
+    colors:
+      primary: "#f59e0b"    # Warning amber for dev
+      secondary: "#8b5cf6"  # Purple for distinction
+      
+  # Development notices
+  text:
+    title: "🔧 Development Environment"
+    subtitle: "Testing & Development Only"
+    
+  greeting:
+    enable: true
+    title: "Development Environment"
+    content: |
+      ## ⚠️ Development Environment
+      
+      This is a development/testing instance of hyperglass.
+      
+      - Data may be fake or simulated
+      - Configuration changes frequently
+      - Not suitable for production use
+      - Contact developers: dev@example.com
+    required: false
+    button: "Continue to Testing"
+
+# Extensive logging for debugging
+logging:
+  format: "json"
+  directory: "/tmp/hyperglass-dev"
+  
+# Enable all structured features for testing
+structured:
+  communities:
+    mode: "name"
+    names:
+      "65999:1": "Test Community 1"
+      "65999:2": "Test Community 2"
+  rpki:
+    mode: "external"
+    backend: "cloudflare"
+
+# Full API documentation for testing
+docs:
+  enable: true
+  title: "Development API Docs"
+  description: "API documentation for testing and development"
+```
+
+## Monitoring Integration
+
+With comprehensive monitoring and alerting:
+
+```yaml filename="config.yaml"
+site_title: "MonitorNet Looking Glass"
+org_name: "MonitorNet Services"
+primary_asn: 65100
+
+# Monitoring-optimized settings
+cache:
+  timeout: 180          # 3 minutes for monitoring
+  show_text: true
+
+logging:
+  directory: "/var/log/hyperglass"
+  format: "json"        # Structured logs for monitoring
+  max_size: "500MB"
+  
+  # Multiple monitoring integrations
+  http:
+    enable: true
+    provider: "slack"
+    host: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+    timeout: 5.0
+    
+    # Custom headers for monitoring context
+    headers:
+      "X-Environment": "production"
+      "X-Service": "hyperglass"
+
+web:
+  # Monitoring-friendly highlighting
+  highlight:
+    - pattern: "100% loss"
+      label: "Total Packet Loss"
+      color: "error"
+    - pattern: "[5-9][0-9]% loss"
+      label: "High Packet Loss" 
+      color: "warning"
+    - pattern: "timeout"
+      label: "Timeout"
+      color: "error"
+    - pattern: "65100"
+      label: "Our Network"
+      color: "primary"
+      
+  text:
+    complete_time: "⏱ Query time: {seconds}"
+    cache_prefix: "📊 Cached for "
+    rpki_invalid: "❌ RPKI Invalid"
+    rpki_valid: "✅ RPKI Valid"
+
+# Detailed structured output for monitoring
+structured:
+  communities:
+    mode: "name"
+    names:
+      "65100:911": "🚨 Emergency Routes"
+      "65100:999": "🚫 Blackhole"
+  rpki:
+    mode: "external"
+    backend: "cloudflare"
+```
+
+---
+
+<Callout type="info">
+**Next Steps**: Once you have a basic configuration working, see the [Complete Configuration Reference](/configuration/config/complete-config) for all available options and detailed examples.
+</Callout>
+
+## Configuration File Location
+
+Place your `config.yaml` file in the hyperglass configuration directory:
+
+- **Docker**: Mount to `/etc/hyperglass/config.yaml`
+- **System Install**: `/etc/hyperglass/config.yaml`
+- **Development**: `./config.yaml` in your project directory
+
+## Validation
+
+After creating your configuration, validate it with:
+
+```bash
+# Check configuration syntax
+hyperglass --validate-config
+
+# Test with fake output
+hyperglass --fake-output
+
+# Full startup test
+hyperglass --debug
+```

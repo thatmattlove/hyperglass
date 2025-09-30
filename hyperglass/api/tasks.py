@@ -10,7 +10,7 @@ from litestar import Request
 
 # Project
 from hyperglass.log import log
-from hyperglass.external import Webhook, bgptools
+from hyperglass.external import Webhook, network_info
 from hyperglass.models.api import Query
 
 if t.TYPE_CHECKING:
@@ -52,7 +52,7 @@ async def send_webhook(
             else:
                 host = request.client.host
 
-            network_info = await bgptools.network_info(host)
+            network_result = await network_info(host)
 
             async with Webhook(params.logging.http) as hook:
                 await hook.send(
@@ -60,7 +60,7 @@ async def send_webhook(
                         **data.dict(),
                         "headers": headers,
                         "source": host,
-                        "network": network_info.get(host, {}),
+                        "network": network_result.get(host, {}),
                         "timestamp": timestamp,
                     }
                 )

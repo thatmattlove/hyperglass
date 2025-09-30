@@ -87,7 +87,7 @@ class Params(ParamsPublic, HyperglassModel):
     docs: Docs = Docs()
     logging: Logging = Logging()
     messages: Messages = Messages()
-    structured: Structured = Structured()
+    structured: t.Optional[Structured] = None
     web: Web = Web()
 
     def __init__(self, **kw: t.Any) -> None:

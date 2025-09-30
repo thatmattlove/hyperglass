@@ -1,4 +1,4 @@
-import { Badge, Box, Flex, SkeletonText, VStack } from '@chakra-ui/react';
+import { Badge, Box, Flex, VStack } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import ReactFlow, {
   Background,
@@ -9,14 +9,14 @@ import ReactFlow, {
   isEdge,
 } from 'reactflow';
 import { useConfig } from '~/context';
-import { useASNDetail, useColorToken, useColorValue } from '~/hooks';
+import { useColorToken, useColorValue } from '~/hooks';
 import { Controls } from './controls';
 import { useElements } from './use-elements';
 
 import type { NodeProps as ReactFlowNodeProps } from 'reactflow';
 
 interface ChartProps {
-  data: StructuredResponse;
+  data: AllStructuredResponses;
 }
 
 interface NodeProps<D extends unknown> extends Omit<ReactFlowNodeProps, 'data'> {
@@ -70,23 +70,13 @@ const ASNode = (props: NodeProps<NodeData>): JSX.Element => {
   const color = useColorValue('black', 'white');
   const bg = useColorValue('white', 'whiteAlpha.200');
 
-  const { data: asnData, isError, isLoading } = useASNDetail(String(asn));
-
   return (
     <>
       {hasChildren && <Handle type="source" position={Position.Top} />}
       <Box py={2} px={3} bg={bg} minW={32} minH={8} color={color} boxShadow="md" borderRadius="md">
         <VStack spacing={2}>
           <Flex fontSize="lg">
-            {isLoading ? (
-              <Box h={2} w={24}>
-                <SkeletonText noOfLines={1} color={color} />
-              </Box>
-            ) : !isError && asnData?.data?.asn.organization?.orgName ? (
-              asnData.data.asn.organization.orgName
-            ) : (
-              name
-            )}
+            {name}
           </Flex>
           <Badge fontFamily="mono" fontWeight="normal" fontSize="sm" colorScheme="primary">
             {asn}

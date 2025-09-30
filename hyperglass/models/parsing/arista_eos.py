@@ -9,7 +9,7 @@ from pydantic import ConfigDict
 
 # Project
 from hyperglass.log import log
-from hyperglass.models.data import BGPRouteTable
+from hyperglass.models.data import BGPRoute, BGPRouteTable
 
 # Local
 from ..main import HyperglassModel
@@ -138,23 +138,22 @@ class AristaBGPTable(_AristaBase):
                 if len(as_path) != 0:
                     source_as = as_path[0]
 
-                routes.append(
-                    {
-                        "prefix": prefix,
-                        "active": route.route_type.active,
-                        "age": self._get_route_age(route.timestamp),
-                        "weight": route.weight,
-                        "med": route.med,
-                        "local_preference": route.local_preference,
-                        "as_path": as_path,
-                        "communities": communities,
-                        "next_hop": route.next_hop,
-                        "source_as": source_as,
-                        "source_rid": route.peer_entry.peer_router_id,
-                        "peer_rid": route.peer_entry.peer_router_id,
-                        "rpki_state": rpki_state,
-                    }
-                )
+                route_data = {
+                    "prefix": prefix,
+                    "active": route.route_type.active,
+                    "age": self._get_route_age(route.timestamp),
+                    "weight": route.weight,
+                    "med": route.med,
+                    "local_preference": route.local_preference,
+                    "as_path": as_path,
+                    "communities": communities,
+                    "next_hop": route.next_hop,
+                    "source_as": source_as,
+                    "source_rid": route.peer_entry.peer_router_id,
+                    "peer_rid": route.peer_entry.peer_router_id,
+                    "rpki_state": rpki_state,
+                }
+                routes.append(BGPRoute(**route_data))
 
         serialized = BGPRouteTable(
             vrf=self.vrf,

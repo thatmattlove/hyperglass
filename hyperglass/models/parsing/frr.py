@@ -9,7 +9,7 @@ from pydantic import ConfigDict, model_validator
 
 # Project
 from hyperglass.log import log
-from hyperglass.models.data import BGPRouteTable
+from hyperglass.models.data import BGPRoute, BGPRouteTable
 
 # Local
 from ..main import HyperglassModel
@@ -91,25 +91,24 @@ class FRRBGPTable(_FRRBase):
             now = datetime.utcnow().timestamp()
             then = datetime.utcfromtimestamp(route.last_update).timestamp()
             age = int(now - then)
-            routes.append(
-                {
-                    "prefix": self.prefix,
-                    "active": route.bestpath,
-                    "age": age,
-                    "weight": route.weight,
-                    "med": route.med,
-                    "local_preference": route.loc_prf,
-                    "as_path": route.aspath,
-                    "communities": route.community,
-                    "next_hop": route.nexthops[0].ip,
-                    "source_as": route.aggregator_as,
-                    "source_rid": route.aggregator_id,
-                    "peer_rid": route.peer.peer_id,
-                    # TODO: somehow, get the actual RPKI state
-                    # This depends on whether or not the RPKI module is enabled in FRR
-                    "rpki_state": 3,
-                }
-            )
+            route_data = {
+                "prefix": self.prefix,
+                "active": route.bestpath,
+                "age": age,
+                "weight": route.weight,
+                "med": route.med,
+                "local_preference": route.loc_prf,
+                "as_path": route.aspath,
+                "communities": route.community,
+                "next_hop": route.nexthops[0].ip,
+                "source_as": route.aggregator_as,
+                "source_rid": route.aggregator_id,
+                "peer_rid": route.peer.peer_id,
+                # TODO: somehow, get the actual RPKI state
+                # This depends on whether or not the RPKI module is enabled in FRR
+                "rpki_state": 3,
+            }
+            routes.append(BGPRoute(**route_data))
 
         serialized = BGPRouteTable(
             vrf=vrf,

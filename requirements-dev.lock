@@ -10,7 +10,7 @@
 #   universal: false
 
 -e file:.
-aiofiles==23.2.1
+aiofiles==24.1.0
     # via hyperglass
 annotated-types==0.6.0
     # via pydantic
@@ -50,7 +50,7 @@ cssselect2==0.7.0
     # via svglib
 distlib==0.3.8
     # via virtualenv
-distro==1.8.0
+distro==1.9.0
     # via hyperglass
 editorconfig==0.12.4
     # via jsbeautifier
@@ -75,7 +75,7 @@ httpcore==0.17.3
     # via httpx
 httptools==0.6.1
     # via uvicorn
-httpx==0.24.0
+httpx==0.28.1
     # via hyperglass
     # via litestar
 identify==2.5.35
@@ -90,9 +90,9 @@ jinja2==3.1.3
     # via litestar
 jsbeautifier==1.15.1
     # via litestar
-litestar==2.7.1
+litestar==2.17.0
     # via hyperglass
-loguru==0.7.2
+loguru==0.7.3
     # via hyperglass
 lxml==5.1.0
     # via svglib
@@ -110,7 +110,7 @@ multidict==6.0.5
     # via litestar
 mypy-extensions==1.0.0
     # via black
-netmiko==4.1.2
+netmiko==4.6.0
     # via hyperglass
 nodeenv==1.8.0
     # via pre-commit
@@ -119,7 +119,7 @@ ntc-templates==4.3.0
 packaging==23.2
     # via black
     # via pytest
-paramiko==3.4.0
+paramiko==4.0.0
     # via hyperglass
     # via netmiko
     # via scp
@@ -128,7 +128,7 @@ pathspec==0.12.1
 pbr==6.0.0
     # via stevedore
 pep8-naming==0.13.3
-pillow==10.2.0
+pillow==10.4.0
     # via favicons
     # via hyperglass
     # via reportlab
@@ -140,7 +140,7 @@ pluggy==1.4.0
 polyfactory==2.15.0
     # via litestar
 pre-commit==3.6.2
-psutil==5.9.4
+psutil==7.1.0
     # via hyperglass
     # via taskipy
 py-cpuinfo==9.0.0
@@ -151,21 +151,21 @@ pycodestyle==2.11.1
     # via flake8
 pycparser==2.21
     # via cffi
-pydantic==2.6.3
+pydantic==2.11.9
     # via hyperglass
     # via pydantic-extra-types
     # via pydantic-settings
 pydantic-core==2.16.3
     # via pydantic
-pydantic-extra-types==2.6.0
+pydantic-extra-types==2.10.5
     # via hyperglass
-pydantic-settings==2.2.1
+pydantic-settings==2.11.0
     # via hyperglass
 pyflakes==3.2.0
     # via flake8
 pygments==2.17.2
     # via rich
-pyjwt==2.6.0
+pyjwt==2.10.1
     # via hyperglass
 pynacl==1.5.0
     # via paramiko
@@ -181,19 +181,19 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
     # via pydantic-settings
     # via uvicorn
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via bandit
     # via hyperglass
     # via litestar
     # via netmiko
     # via pre-commit
     # via uvicorn
-redis==4.5.4
+redis==6.4.0
     # via hyperglass
 reportlab==4.1.0
     # via favicons
     # via svglib
-rich==13.7.0
+rich==13.9.4
     # via bandit
     # via favicons
     # via hyperglass
@@ -236,7 +236,7 @@ toml==0.10.2
     # via hyperglass
 tomli==2.0.1
     # via taskipy
-typer==0.9.0
+typer==0.9.4
     # via favicons
     # via hyperglass
 typing-extensions==4.9.0
@@ -246,10 +246,10 @@ typing-extensions==4.9.0
     # via pydantic-core
     # via rich-click
     # via typer
-uvicorn==0.21.1
+uvicorn==0.37.0
     # via hyperglass
     # via litestar
-uvloop==0.18.0
+uvloop==0.21.0
     # via hyperglass
     # via litestar
     # via uvicorn
@@ -262,5 +262,5 @@ webencodings==0.5.1
     # via tinycss2
 websockets==12.0
     # via uvicorn
-xmltodict==0.13.0
+xmltodict==1.0.2
     # via hyperglass
