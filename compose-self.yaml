@@ -3,8 +3,7 @@ services:
         image: "valkey/valkey:8-alpine"
 
     hyperglass:
-        image: ghcr.io/thatmattlove/hyperglass:main
-        restart: unless-stopped
+        build: .
         depends_on:
             - kv-storage
         environment:
@@ -20,4 +19,4 @@ services:
         ports:
             - "${HYPERGLASS_PORT-8001}:${HYPERGLASS_PORT-8001}"
         volumes:
-            - ./data:/etc/hyperglass
+            - ${HYPERGLASS_APP_PATH-/etc/hyperglass}:/etc/hyperglass
