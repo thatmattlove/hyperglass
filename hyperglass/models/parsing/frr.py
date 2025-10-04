@@ -31,9 +31,9 @@ class FRRNextHop(_FRRBase):
 
     ip: str
     afi: str
-    metric: int
+    metric: int = 0
     accessible: bool
-    used: bool
+    used: bool = False
 
 
 class FRRPeer(_FRRBase):
