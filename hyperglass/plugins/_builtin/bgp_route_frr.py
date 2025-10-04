@@ -36,6 +36,10 @@ def parse_frr(output: t.Sequence[str]) -> "OutputDataModel":
 
             _log.debug("Pre-parsed data", data=parsed)
 
+            # If empty (i.e. no route found), skip
+            if not parsed:
+                continue
+
             validated = FRRBGPTable(**parsed)
             bgp_table = validated.bgp_table()
 

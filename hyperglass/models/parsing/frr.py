@@ -31,9 +31,9 @@ class FRRNextHop(_FRRBase):
 
     ip: str
     afi: str
-    metric: int
+    metric: int = 0
     accessible: bool
-    used: bool
+    used: bool = False
 
 
 class FRRPeer(_FRRBase):
@@ -65,7 +65,15 @@ class FRRPath(_FRRBase):
     def validate_path(cls, values):
         """Extract meaningful data from FRR response."""
         new = values.copy()
-        new["aspath"] = values["aspath"]["segments"][0]["list"]
+        # Local prefixes (i.e. those in the same ASN) usually have
+        # no AS_PATH.
+        # Set AS_PATH to AS0 for now as we cannot ensure that the
+        # ASN for the prefix is the primary ASN.
+        if values["aspath"]["length"] != 0:
+            new["aspath"] = values["aspath"]["segments"][0]["list"]
+        else:
+            # TODO: Get an ASN that is reasonable (e.g. primary ASN)
+            new["aspath"] = [0]
         community = values.get("community", {"list": []})
         new["community"] = community["list"]
         new["lastUpdate"] = values["lastUpdate"]["epoch"]
