@@ -204,7 +204,7 @@ async def query(_state: HyperglassState, request: Request, data: Query) -> Query
 
                                 async def _bg_refresh():
                                     try:
-                                        await refresh_ip_enrichment_data(force=False)
+                                        await refresh_ip_enrichment_data()
                                     except Exception as e:
                                         _log.debug("Background IP enrichment refresh failed: {}", e)
 
@@ -337,7 +337,7 @@ async def ip_enrichment_status() -> dict:
 
 
 @post("/api/admin/ip-enrichment/refresh")
-async def ip_enrichment_refresh(force: bool = False) -> dict:
+async def ip_enrichment_refresh() -> dict:
     """Manually refresh IP enrichment data."""
     try:
         from hyperglass.external.ip_enrichment import refresh_ip_enrichment_data
@@ -357,7 +357,7 @@ async def ip_enrichment_refresh(force: bool = False) -> dict:
             # If config can't be read, proceed with refresh call and let it decide
             pass
 
-        success = await refresh_ip_enrichment_data(force=force)
+        success = await refresh_ip_enrichment_data()
         return {
             "success": success,
             "message": (

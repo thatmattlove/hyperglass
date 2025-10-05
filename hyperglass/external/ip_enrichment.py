@@ -18,82 +18,68 @@ import socket
 
 from hyperglass.log import log
 from hyperglass.state import use_state
+from hyperglass.settings import Settings
 
-# Process-wide lock to coordinate downloads across worker processes.
-# Uses an on-disk lock directory so separate processes don't simultaneously
-# download enrichment data and cause rate limits.
+# Process-wide lock to coordinate downloads across worker processes
+_download_lock: t.Optional["_ProcessFileLock"] = None
 
 
 class _ProcessFileLock:
-    """Async-friendly, process-wide filesystem lock.
-
-    Provides an async context manager that runs blocking mkdir/remove
-    operations in an executor so multiple processes can coordinate.
-    """
+    """Async-friendly, process-wide filesystem lock."""
 
     def __init__(self, lock_path: Path, timeout: int = 300, poll_interval: float = 0.1):
         self.lock_path = lock_path
         self.timeout = timeout
         self.poll_interval = poll_interval
         self._lock_dir: t.Optional[str] = None
-        # Small startup jitter (seconds) to reduce thundering herd on many
-        # worker processes starting at the same time.
-        self._startup_jitter = 0.25
+        self._startup_jitter = 0.25  # Reduce thundering herd on startup
 
     def _acquire_blocking(self) -> None:
-        # Use atomic mkdir on a .lck directory as the lock primitive.
+        """Acquire lock using atomic mkdir."""
         import os
         import random
         import json
         import shutil
 
         lock_dir = str(self.lock_path) + ".lck"
-
-        # Small jitter before first attempt to reduce concurrent mkdirs
         time.sleep(random.uniform(0, self._startup_jitter))
         start = time.time()
 
+        if Settings.debug:
+            log.debug(f"Attempting to acquire process lock {lock_dir}")
+
         while True:
             try:
-                # Try to create the lock directory atomically; on success we
-                # hold the lock. If it exists, retry until timeout.
-                os.mkdir(lock_dir)
+                os.mkdir(lock_dir)  # Atomic lock acquisition
 
-                # Write a small owner metadata file to help debugging stale locks
+                # Write metadata for debugging
                 try:
                     owner = {"pid": os.getpid(), "created": datetime.now().isoformat()}
                     with open(os.path.join(lock_dir, "owner.json"), "w") as f:
                         json.dump(owner, f)
                 except Exception:
-                    # Not critical; proceed even if writing metadata fails
-                    pass
+                    pass  # Not critical
 
                 self._lock_dir = lock_dir
-                log.debug(f"Acquired process lock {lock_dir} (pid={os.getpid()})")
+                if Settings.debug:
+                    log.debug(f"Acquired process lock {lock_dir} (pid={os.getpid()})")
                 return
+
             except FileExistsError:
-                # If the lock appears stale (older than timeout), try cleanup.
+                # Check for stale locks
                 try:
                     owner_file = os.path.join(lock_dir, "owner.json")
-                    mtime = None
-                    if os.path.exists(owner_file):
-                        mtime = os.path.getmtime(owner_file)
-                    else:
-                        mtime = os.path.getmtime(lock_dir)
+                    mtime = os.path.getmtime(owner_file if os.path.exists(owner_file) else lock_dir)
 
-                    # If owner file/dir mtime is older than timeout, remove it
                     if (time.time() - mtime) >= self.timeout:
-                        log.warning(f"Removing stale lock directory {lock_dir}")
+                        if Settings.debug:
+                            log.debug(f"Removing stale lock directory {lock_dir}")
                         try:
                             shutil.rmtree(lock_dir)
                         except Exception:
-                            # If we can't remove it, we'll continue to wait until
-                            # the timeout is reached by this acquisition attempt.
                             pass
-                        # After attempted cleanup, loop and try mkdir again
-                        continue
+                        continue  # Try again after cleanup
                 except Exception:
-                    # Ignore issues during stale-check and continue waiting
                     pass
 
                 if (time.time() - start) >= self.timeout:
@@ -101,41 +87,43 @@ class _ProcessFileLock:
                 time.sleep(self.poll_interval)
 
     def _release_blocking(self) -> None:
+        """Release the lock by removing the lock directory."""
         import os
         import shutil
 
+        if not self._lock_dir:
+            return
+
         try:
-            if self._lock_dir:
+            # Clean up metadata file
+            owner_file = os.path.join(self._lock_dir, "owner.json")
+            if os.path.exists(owner_file):
                 try:
-                    owner_file = os.path.join(self._lock_dir, "owner.json")
-                    if os.path.exists(owner_file):
-                        try:
-                            os.remove(owner_file)
-                        except Exception:
-                            pass
-
-                    # Attempt to remove the directory. If it's empty, rmdir will
-                    # succeed; if not, fall back to recursive removal as a best-effort.
-                    try:
-                        os.rmdir(self._lock_dir)
-                    except Exception:
-                        try:
-                            shutil.rmtree(self._lock_dir)
-                        except Exception:
-                            log.debug(f"Failed to fully remove lock dir {self._lock_dir}")
-
-                    log.debug(f"Released process lock {self._lock_dir}")
-                    self._lock_dir = None
+                    os.remove(owner_file)
                 except Exception:
-                    # Best-effort; ignore errors removing the lock dir
                     pass
+
+            # Remove lock directory
+            try:
+                os.rmdir(self._lock_dir)
+            except Exception:
+                try:
+                    shutil.rmtree(self._lock_dir)
+                except Exception:
+                    if Settings.debug:
+                        log.debug(f"Failed to remove lock dir {self._lock_dir}")
+
+            if Settings.debug:
+                log.debug(f"Released process lock {self._lock_dir}")
+            self._lock_dir = None
+
         except Exception:
-            # Nothing we can do on release failure
+            if Settings.debug:
+                log.debug(f"Error releasing lock {self._lock_dir}")
             pass
 
     async def __aenter__(self):
         loop = asyncio.get_running_loop()
-        # Run blocking acquire in executor
         await loop.run_in_executor(None, self._acquire_blocking)
         return self
 
@@ -144,11 +132,7 @@ class _ProcessFileLock:
         await loop.run_in_executor(None, self._release_blocking)
 
 
-# Instantiate a process-global lock file in the data dir. The data dir may not yet
-# exist at import time; the constant path is defined below and we'll initialize
-# the actual _download_lock after the paths are declared. (See below.)
-
-# Optional dependencies - graceful fallback if not available
+# Optional dependencies
 try:
     import httpx
 except ImportError:
@@ -161,24 +145,18 @@ except ImportError:
     log.warning("aiofiles not available - IP enrichment will use slower sync I/O")
     aiofiles = None
 
-# File paths for persistent storage
+# File paths and constants
 IP_ENRICHMENT_DATA_DIR = Path("/etc/hyperglass/ip_enrichment")
 IXP_PICKLE_FILE = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle"
 LAST_UPDATE_FILE = IP_ENRICHMENT_DATA_DIR / "last_update.txt"
+DEFAULT_CACHE_DURATION = 7 * 24 * 60 * 60  # 7 days
 
-# Cache duration (seconds). Default: 24 hours. Can be overridden in config.
-DEFAULT_CACHE_DURATION = 24 * 60 * 60
-
-
-# Lazily-created process-wide download lock. Create this after the data
-# directory is ensured to exist to avoid open() failing due to a missing
-# parent directory and to ensure the lock file lives under the same path
-# for all workers.
+# Global download lock (initialized when data directory exists)
 _download_lock: t.Optional[_ProcessFileLock] = None
 
 
 def get_cache_duration() -> int:
-    """Get cache duration from config, ensuring minimum of 24 hours."""
+    """Get cache duration from config, ensuring minimum of 7 days."""
     try:
         from hyperglass.state import use_state
 
@@ -190,46 +168,34 @@ def get_cache_duration() -> int:
         return DEFAULT_CACHE_DURATION
 
 
-def should_refresh_data(force_refresh: bool = False) -> tuple[bool, str]:
-    """Decide whether to refresh IXP data. Only PeeringDB IXP prefixes are
-    considered relevant for startup refresh; BGP.tools bulk files are not used.
-    """
-    if force_refresh:
-        return True, "Force refresh requested"
-
-    # No persistent backoff marker; decide refresh purely by file age / config
-    # and any transient network errors will be handled by the downloader's
-    # retry logic.
-
-    # If an IXP file exists, prefer it and do not perform automatic refreshes
-    # unless the caller explicitly requested a force refresh.
-    if IXP_PICKLE_FILE.exists() and not force_refresh:
-        return False, "ixp_data.json exists; skipping automatic refresh"
-
-    # If IXP file is missing, refresh is needed
+def should_refresh_data() -> tuple[bool, str]:
+    """Check if IXP data needs refreshing based on cache age."""
     if not IXP_PICKLE_FILE.exists():
-        return True, "No ixp_data.json present"
+        return True, "No ixp_data.pickle present"
 
-    # Otherwise check timestamp age
     try:
         with open(LAST_UPDATE_FILE, "r") as f:
             cached_time = datetime.fromisoformat(f.read().strip())
         age_seconds = (datetime.now() - cached_time).total_seconds()
         cache_duration = get_cache_duration()
+
         if age_seconds >= cache_duration:
             age_hours = age_seconds / 3600
-            return True, f"Data expired (age: {age_hours:.1f}h, max: {cache_duration/3600:.1f}h)"
+            reason = f"Data expired (age: {age_hours:.1f}h, max: {cache_duration/3600:.1f}h)"
+            if Settings.debug:
+                log.debug(f"IP enrichment cache check: {reason}")
+            return True, reason
+
     except Exception as e:
-        # If reading timestamp fails, prefer a refresh so we don't rely on stale data
+        if Settings.debug:
+            log.debug(f"Failed to read cache timestamp: {e}")
         return True, f"Failed to read timestamp: {e}"
 
+    if Settings.debug:
+        log.debug("IP enrichment cache is fresh")
     return False, "Data is fresh"
 
 
-# validate_data_files removed - legacy BGP.tools bulk files are no longer used
-
-
-# Simple result classes
 class IPInfo:
     """Result of IP lookup."""
 
@@ -274,23 +240,21 @@ class IPEnrichmentService:
         )  # (net_int, mask_bits, asn, cidr)
         self._lookup_optimized = False
 
-        # Combined cache for ultra-fast loading
+        # Runtime caches
         self._combined_cache: t.Optional[t.Dict[str, t.Any]] = None
-        # Per-IP in-memory cache for bgp.tools lookups: ip -> (asn, asn_name, prefix, expires_at)
         self._per_ip_cache: t.Dict[
             str, t.Tuple[t.Optional[int], t.Optional[str], t.Optional[str], float]
         ] = {}
-        # Small in-memory cache for per-IP lookups to avoid repeated websocket
-        # queries during runtime. Maps ip_str -> (asn, asn_name, prefix)
         self._ip_cache: t.Dict[str, t.Tuple[t.Optional[int], t.Optional[str], t.Optional[str]]] = {}
-        # Lock to serialize data load so concurrent callers don't duplicate work
         self._ensure_lock = asyncio.Lock()
 
     def _optimize_lookups(self):
         """Convert IP networks to integer format for faster lookups."""
         if self._lookup_optimized:
             return
-        log.debug("Optimizing IP lookup structures...")
+
+        if Settings.debug:
+            log.debug("Optimizing IP lookup structures...")
         optimize_start = datetime.now()
 
         self._ipv4_networks = []
@@ -310,182 +274,82 @@ class IPEnrichmentService:
         self._ipv6_networks.sort(key=lambda x: x[1])
 
         optimize_time = (datetime.now() - optimize_start).total_seconds()
-        log.debug(
-            f"Optimized lookups: {len(self._ipv4_networks)} IPv4, {len(self._ipv6_networks)} IPv6 (took {optimize_time:.2f}s)"
-        )
+        if Settings.debug:
+            log.debug(
+                f"Optimized lookups: {len(self._ipv4_networks)} IPv4, {len(self._ipv6_networks)} IPv6 (took {optimize_time:.2f}s)"
+            )
         self._lookup_optimized = True
 
     def _try_load_pickle(self) -> bool:
-        """Attempt to load the optimized pickle from disk without triggering downloads.
-
-        This is a best-effort, non-blocking load used during runtime lookups so
-        we don't attempt network refreshes or acquire process locks while
-        serving user requests.
-        """
+        """Best-effort load of IXP data from pickle without blocking."""
         try:
             pickle_path = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle"
             if pickle_path.exists():
-                try:
-                    with open(pickle_path, "rb") as f:
-                        parsed = pickle.load(f)
-                    if parsed and isinstance(parsed, list) and len(parsed) > 0:
-                        self.ixp_networks = [
-                            (ip_address(net), prefixlen, name) for net, prefixlen, name in parsed
-                        ]
+                with open(pickle_path, "rb") as f:
+                    parsed = pickle.load(f)
+                if parsed and isinstance(parsed, list) and len(parsed) > 0:
+                    self.ixp_networks = [
+                        (ip_address(net), prefixlen, name) for net, prefixlen, name in parsed
+                    ]
+                    if Settings.debug:
                         log.debug(
-                            "Loaded {} IXP prefixes from optimized pickle (non-blocking)",
-                            len(self.ixp_networks),
+                            f"Loaded {len(self.ixp_networks)} IXP prefixes from pickle (non-blocking)"
                         )
-                        return True
-                except Exception as e:
-                    log.debug("Non-blocking pickle load failed: {}", e)
-        except Exception:
-            pass
+                    return True
+        except Exception as e:
+            if Settings.debug:
+                log.debug(f"Non-blocking pickle load failed: {e}")
         return False
 
-    async def ensure_data_loaded(self, force_refresh: bool = False) -> bool:
-        """Ensure data is loaded and fresh from persistent files.
-
-        New behavior: only load PeeringDB IXP prefixes at startup. Do NOT bulk
-        download BGP.tools CIDR or ASN data. Per-IP ASN lookups will query the
-        bgp.tools API (websocket preferred) on-demand.
-        """
-
-        # Create data directory if it doesn't exist
+    async def ensure_data_loaded(self) -> bool:
+        """Ensure IXP data is loaded. Downloads from PeeringDB if needed."""
         IP_ENRICHMENT_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-        # Lazily instantiate the process-wide download lock now that the
-        # data directory exists and is guaranteed to be the same path for
-        # all worker processes.
+        # Initialize download lock
         global _download_lock
         if _download_lock is None:
             _download_lock = _ProcessFileLock(IP_ENRICHMENT_DATA_DIR / "download.lock")
 
-        # Fast-path: if already loaded in memory, return immediately
         if self.ixp_networks:
             return True
 
-        # Serialize loads to avoid duplicate file reads when multiple callers
-        # call ensure_data_loaded concurrently.
         async with self._ensure_lock:
-            # Double-check after acquiring the lock
             if self.ixp_networks:
                 return True
 
-            # Fast-path: if an optimized pickle exists and the caller did not
-            # request a forced refresh, load it (fastest). Fall back to the
-            # legacy JSON IXP file or downloads if the pickle is missing or
-            # invalid. This ensures the pickle is the preferred on-disk cache
-            # for faster startup.
-            try:
-                pickle_path = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle"
-                if pickle_path.exists() and not force_refresh:
-                    try:
-                        with open(pickle_path, "rb") as f:
-                            parsed = pickle.load(f)
-                        if parsed and isinstance(parsed, list) and len(parsed) > 0:
-                            self.ixp_networks = [
-                                (ip_address(net), prefixlen, name)
-                                for net, prefixlen, name in parsed
-                            ]
-                            log.info(
-                                f"Loaded {len(self.ixp_networks)} IXP prefixes from optimized pickle (fast-path)"
-                            )
-                            return True
-                        else:
-                            log.warning(
-                                "Optimized pickle exists but appears empty or invalid; falling back to JSON/load or refresh"
-                            )
-                    except Exception as e:
-                        log.warning(
-                            f"Failed to load optimized pickle {pickle_path}: {e}; falling back"
-                        )
-            except Exception:
-                # Non-fatal; continue to JSON/download logic
-                pass
+            # Check if refresh is needed first
+            should_refresh, reason = should_refresh_data()
 
-            # Immediate guard: if an optimized pickle exists on disk and the
-            # caller did not request a forced refresh, prefer it and skip any
-            # network downloads. This keeps startup fast by loading the already
-            # generated optimized mapping.
-            try:
-                pickle_path = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle"
-                if pickle_path.exists() and not force_refresh:
-                    try:
-                        with open(pickle_path, "rb") as f:
-                            parsed = pickle.load(f)
-                        if parsed and isinstance(parsed, list) and len(parsed) > 0:
-                            self.ixp_networks = [
-                                (ip_address(net), prefixlen, name)
-                                for net, prefixlen, name in parsed
-                            ]
-                            log.info(
-                                f"Loaded {len(self.ixp_networks)} IXP prefixes from optimized pickle (early guard)"
-                            )
-                            return True
-                        else:
-                            log.warning(
-                                "Optimized pickle exists but appears empty or invalid; will attempt to refresh"
-                            )
-                    except Exception as e:
-                        log.warning(
-                            f"Failed to read optimized pickle: {e}; will attempt to refresh"
-                        )
-            except Exception:
-                # Ignore filesystem errors and continue to refresh logic
-                pass
-
-        # No operator raw-dump conversion: rely on endpoint JSON files (ixpfx.json,
-        # ixlan.json, ix.json) in the data directory or download them from
-        # PeeringDB when a refresh is required. Determine whether we should
-        # refresh based on the backoff marker / cache duration.
-        should_refresh, reason = should_refresh_data(force_refresh)
-
-        # If an optimized pickle exists, prefer it and avoid downloads unless forced.
-        try:
-            pickle_path = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle"
-            if pickle_path.exists():
+            if not should_refresh:
+                # Try to load existing pickle file if data is fresh
                 try:
-                    st = pickle_path.stat()
-                    size = getattr(st, "st_size", None)
-                except Exception:
-                    size = None
-
-                # If file size indicates non-empty file try to load
-                if size is not None and size > 0:
-                    try:
+                    pickle_path = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle"
+                    if pickle_path.exists():
                         with open(pickle_path, "rb") as f:
                             parsed = pickle.load(f)
-                    except Exception as e:
-                        log.warning(f"Failed to parse existing optimized IXP pickle: {e}")
-                        parsed = None
+                        if parsed and isinstance(parsed, list) and len(parsed) > 0:
+                            self.ixp_networks = [
+                                (ip_address(net), prefixlen, name)
+                                for net, prefixlen, name in parsed
+                            ]
+                            if Settings.debug:
+                                log.debug(
+                                    f"Loaded {len(self.ixp_networks)} IXP prefixes from pickle"
+                                )
+                            return True
+                        else:
+                            if Settings.debug:
+                                log.debug("Pickle exists but appears empty, will refresh")
+                            should_refresh = True
+                            reason = "Pickle file is empty"
+                except Exception as e:
+                    if Settings.debug:
+                        log.debug(f"Failed to load pickle: {e}")
+                    should_refresh = True
+                    reason = f"Failed to load pickle: {e}"
 
-                    if parsed and isinstance(parsed, list) and len(parsed) > 0:
-                        self.ixp_networks = [
-                            (ip_address(net), prefixlen, name) for net, prefixlen, name in parsed
-                        ]
-                        log.info(
-                            f"Loaded {len(self.ixp_networks)} IXP prefixes from optimized pickle (size={size})"
-                        )
-                        return True
-                    else:
-                        log.warning(
-                            "Existing optimized pickle appears empty or invalid (size={}) ; will attempt to refresh",
-                            size,
-                        )
-                else:
-                    log.debug(
-                        f"Optimized pickle exists but size indicates empty or very small (size={size})"
-                    )
-        except Exception as e:
-            log.warning(f"Failed to load existing optimized IXP data: {e}")
-
-        # If we're currently under a backoff or refresh is not required, skip downloading
         if not should_refresh:
-            # If the optimized pickle is missing but the raw PeeringDB JSON files
-            # are present and the last_update timestamp is still within the
-            # configured cache duration, attempt to build the optimized pickle
-            # from the existing JSON files instead of downloading.
+            # Try to build pickle from existing JSON files
             try:
                 pickle_path = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle"
                 json_paths = [
@@ -496,73 +360,65 @@ class IPEnrichmentService:
 
                 have_all_json = all(p.exists() for p in json_paths)
                 if not pickle_path.exists() and have_all_json and LAST_UPDATE_FILE.exists():
-                    try:
-                        with open(LAST_UPDATE_FILE, "r") as f:
-                            cached_time = datetime.fromisoformat(f.read().strip())
-                        age_seconds = (datetime.now() - cached_time).total_seconds()
-                        cache_duration = get_cache_duration()
-                        if age_seconds < cache_duration:
-                            log.info("Building optimized pickle from existing PeeringDB JSON files")
-                            loop = asyncio.get_running_loop()
-                            ok = await loop.run_in_executor(None, self._combine_peeringdb_files)
-                            if ok and pickle_path.exists():
-                                # Load the generated pickle into memory
-                                try:
-                                    with open(pickle_path, "rb") as f:
-                                        parsed = pickle.load(f)
-                                    self.ixp_networks = [
-                                        (ip_address(net), prefixlen, name)
-                                        for net, prefixlen, name in parsed
-                                    ]
-                                    log.info(
-                                        "Loaded %d IXP prefixes from generated pickle",
-                                        len(self.ixp_networks),
-                                    )
-                                    return True
-                                except Exception as e:
-                                    log.warning(f"Failed to load generated pickle: {e}")
-                    except Exception:
-                        # If reading last_update fails, fall through to skipping refresh
-                        pass
+                    with open(LAST_UPDATE_FILE, "r") as f:
+                        cached_time = datetime.fromisoformat(f.read().strip())
+                    age_seconds = (datetime.now() - cached_time).total_seconds()
+                    cache_duration = get_cache_duration()
+                    if age_seconds < cache_duration:
+                        if Settings.debug:
+                            log.debug("Building pickle from existing JSON files")
+                        loop = asyncio.get_running_loop()
+                        ok = await loop.run_in_executor(None, self._combine_peeringdb_files)
+                        if ok and pickle_path.exists():
+                            with open(pickle_path, "rb") as f:
+                                parsed = pickle.load(f)
+                            self.ixp_networks = [
+                                (ip_address(net), prefixlen, name)
+                                for net, prefixlen, name in parsed
+                            ]
+                            if Settings.debug:
+                                log.debug(
+                                    f"Loaded {len(self.ixp_networks)} IXP prefixes from generated pickle"
+                                )
+                            return True
+            except Exception as e:
+                if Settings.debug:
+                    log.debug(f"Failed to build pickle from JSON: {e}")
 
-            except Exception:
-                # Non-fatal; proceed to skip refresh
-                pass
-
-            log.info("Skipping IXP refresh: {}", reason)
+            if Settings.debug:
+                log.debug(f"Skipping IXP refresh: {reason}")
             return False
 
         # Acquire lock and refresh IXP list only
         async with _download_lock:
-            # Double-check in case another worker refreshed
-            try:
-                # Double-check: if another worker already refreshed the IXP file
-                # while we were waiting for the lock, load it regardless of the
-                # general should_refresh flag.
-                if IXP_PICKLE_FILE.exists():
+            # Double-check: if another worker already refreshed the IXP file
+            # while we were waiting for the lock, verify it's actually fresh
+            if IXP_PICKLE_FILE.exists():
+                # Re-check if data is still expired after waiting for lock
+                should_refresh_postlock, reason_postlock = should_refresh_data()
+                if not should_refresh_postlock:
                     try:
                         with open(IXP_PICKLE_FILE, "rb") as f:
                             parsed = pickle.load(f)
+                        if parsed and isinstance(parsed, list) and len(parsed) > 0:
+                            self.ixp_networks = [
+                                (ip_address(net), prefixlen, name)
+                                for net, prefixlen, name in parsed
+                            ]
+                            if Settings.debug:
+                                log.debug(
+                                    f"Another worker refreshed data while waiting for lock: {reason_postlock}"
+                                )
+                            log.info(
+                                f"Loaded {len(self.ixp_networks)} IXP prefixes from fresh pickle (post-lock)"
+                            )
+                            return True
                     except Exception as e:
-                        log.warning(
-                            f"Existing optimized pickle is invalid after lock wait: {e}; will attempt to refresh"
-                        )
-                        parsed = None
-
-                    if not parsed or (isinstance(parsed, list) and len(parsed) == 0):
-                        log.warning(
-                            "Existing optimized pickle is empty after lock wait; will attempt to refresh",
-                        )
-                    else:
-                        self.ixp_networks = [
-                            (ip_address(net), prefixlen, name) for net, prefixlen, name in parsed
-                        ]
-                        log.info(
-                            f"Loaded {len(self.ixp_networks)} IXP prefixes from optimized pickle (post-lock)"
-                        )
-                        return True
-            except Exception:
-                pass
+                        if Settings.debug:
+                            log.debug(f"Failed to load post-lock pickle: {e}")
+                else:
+                    if Settings.debug:
+                        log.debug(f"Data still expired after lock wait: {reason_postlock}")
 
             if not httpx:
                 log.error("httpx not available: cannot download PeeringDB prefixes")
@@ -1142,103 +998,93 @@ class IPEnrichmentService:
 
     async def lookup_ip(self, ip_str: str) -> IPInfo:
         """Lookup an IP address and return ASN or IXP information."""
-        # Try to load IXP data, but continue even if the load fails. We still
-        # want to perform on-demand bgp.tools lookups for IPs when local data
-        # is missing; failing to load the IXP file should not prevent remote
-        # lookups.
         try:
             if not self.ixp_networks:
-                # Attempt a non-blocking pickle load only; don't trigger
-                # downloads or acquire locks while handling requests.
                 self._try_load_pickle()
         except Exception:
-            log.debug("Non-blocking data load failed; continuing with on-demand lookups")
+            if Settings.debug:
+                log.debug("Non-blocking data load failed; continuing with on-demand lookups")
 
-        # Ensure lookup optimization is done
         self._optimize_lookups()
 
-        log.debug(
-            f"Looking up IP {ip_str} - have {len(self.cidr_networks)} CIDR entries, {len(self.asn_info)} ASN entries"
-        )
+        if Settings.debug:
+            log.debug(
+                f"Looking up IP {ip_str} - have {len(self.cidr_networks)} CIDR entries, {len(self.asn_info)} ASN entries"
+            )
 
         try:
             target_ip = ip_address(ip_str)
         except ValueError:
-            log.debug(f"Invalid IP address: {ip_str}")
+            if Settings.debug:
+                log.debug(f"Invalid IP address: {ip_str}")
             return IPInfo(ip_str)
 
-        # Check if it's a private/reserved/loopback address
+        # Check private/reserved addresses
         if target_ip.is_private or target_ip.is_reserved or target_ip.is_loopback:
-            log.debug(f"IP {ip_str} is in private/reserved range - returning AS0 'Private'")
+            if Settings.debug:
+                log.debug(f"IP {ip_str} is in private/reserved range")
             return IPInfo(ip_str, asn=0, asn_name="Private", prefix="Private Network")
 
-        # First check IXP networks (more specific usually)
+        # Check IXP networks first
         for net_addr, prefixlen, ixp_name in self.ixp_networks:
             try:
                 network = ip_network(f"{net_addr}/{prefixlen}", strict=False)
                 if target_ip in network:
-                    log.debug(f"Found IXP match for {ip_str}: {ixp_name}")
+                    if Settings.debug:
+                        log.debug(f"Found IXP match for {ip_str}: {ixp_name}")
                     return IPInfo(ip_str, is_ixp=True, ixp_name=ixp_name)
             except Exception:
                 continue
 
-        # Fast integer-based lookup for ASN
+        # Fast integer-based ASN lookup
         target_int = int(target_ip)
 
         if isinstance(target_ip, IPv4Address):
-            # Use optimized IPv4 lookup
             for net_int, mask_bits, asn, cidr_string in self._ipv4_networks:
                 if (target_int >> mask_bits) == (net_int >> mask_bits):
                     asn_data = self.asn_info.get(asn, {})
                     asn_name = asn_data.get("name", f"AS{asn}")
                     country = asn_data.get("country", "")
-                    log.debug(
-                        f"Found ASN match for {ip_str}: AS{asn} ({asn_name}) in {cidr_string}"
-                    )
+                    if Settings.debug:
+                        log.debug(
+                            f"Found ASN match for {ip_str}: AS{asn} ({asn_name}) in {cidr_string}"
+                        )
                     return IPInfo(
                         ip_str, asn=asn, asn_name=asn_name, prefix=cidr_string, country=country
                     )
-        # Not found in local tables - do an on-demand query to bgp.tools
-        try:
-            asn, asn_name, prefix = await self._query_bgp_tools_for_ip(ip_str)
-            if asn:
-                # Update asn_info cache (best-effort)
-                try:
-                    self.asn_info[int(asn)] = {"name": asn_name or f"AS{asn}", "country": ""}
-                except Exception:
-                    pass
-                return IPInfo(ip_str, asn=asn, asn_name=asn_name, prefix=prefix)
-        except Exception:
-            pass
-        # Not found locally - try one-off query
-        try:
-            asn, asn_name, prefix = asyncio.get_event_loop().run_until_complete(
-                self._query_bgp_tools_for_ip(ip_str)
-            )
-            if asn:
-                try:
-                    self.asn_info[int(asn)] = {"name": asn_name or f"AS{asn}", "country": ""}
-                except Exception:
-                    pass
-                return IPInfo(ip_str, asn=asn, asn_name=asn_name, prefix=prefix)
-        except Exception:
-            pass
         else:
-            # Use optimized IPv6 lookup
             for net_int, mask_bits, asn, cidr_string in self._ipv6_networks:
                 if (target_int >> mask_bits) == (net_int >> mask_bits):
                     asn_data = self.asn_info.get(asn, {})
                     asn_name = asn_data.get("name", f"AS{asn}")
                     country = asn_data.get("country", "")
-                    log.debug(
-                        f"Found ASN match for {ip_str}: AS{asn} ({asn_name}) in {cidr_string}"
-                    )
+                    if Settings.debug:
+                        log.debug(
+                            f"Found ASN match for {ip_str}: AS{asn} ({asn_name}) in {cidr_string}"
+                        )
                     return IPInfo(
                         ip_str, asn=asn, asn_name=asn_name, prefix=cidr_string, country=country
                     )
 
-        # No match found - return AS0 with "Unknown" to indicate missing data
-        log.debug(f"No enrichment data found for {ip_str} - returning AS0 'Unknown'")
+        # Query bgp.tools for unknown IPs
+        try:
+            asn, asn_name, prefix = await self._query_bgp_tools_for_ip(ip_str)
+            if asn:
+                # Cache result
+                try:
+                    self.asn_info[int(asn)] = {"name": asn_name or f"AS{asn}", "country": ""}
+                except Exception:
+                    pass
+                if Settings.debug:
+                    log.debug(f"BGP.tools lookup for {ip_str}: AS{asn} ({asn_name})")
+                return IPInfo(ip_str, asn=asn, asn_name=asn_name, prefix=prefix)
+        except Exception as e:
+            if Settings.debug:
+                log.debug(f"BGP.tools lookup failed for {ip_str}: {e}")
+
+        # No match found
+        if Settings.debug:
+            log.debug(f"No enrichment data found for {ip_str}")
         return IPInfo(ip_str, asn=0, asn_name="Unknown")
 
     async def lookup_asn_name(self, asn: int) -> str:
@@ -1447,9 +1293,9 @@ async def lookup_asns_bulk(asns: t.List[t.Union[str, int]]) -> t.Dict[str, t.Dic
     return results
 
 
-async def refresh_ip_enrichment_data(force: bool = False) -> bool:
+async def refresh_ip_enrichment_data() -> bool:
     """Manually refresh IP enrichment data."""
-    log.info(f"Manual refresh requested (force={force})")
+    log.info("Manual refresh requested")
     # Respect configuration: if IP enrichment is disabled, do not attempt
     # to refresh or download PeeringDB data. This prevents manual or UI-
     # triggered refreshes from hitting the network when the feature is
@@ -1470,7 +1316,7 @@ async def refresh_ip_enrichment_data(force: bool = False) -> bool:
         # avoid silently ignoring an admin's request.
         pass
 
-    return await _service.ensure_data_loaded(force_refresh=force)
+    return await _service.ensure_data_loaded()
 
 
 def get_data_status() -> dict:

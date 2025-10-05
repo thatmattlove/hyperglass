@@ -51,7 +51,11 @@ class MikrotikGarbageOutput(OutputPlugin):
             stripped = line.strip()
 
             # Skip empty lines and interactive paging prompts
-            if not stripped or "-- [Q quit|C-z pause]" in stripped or "-- [Q quit|D dump|C-z pause]" in stripped:
+            if (
+                not stripped
+                or "-- [Q quit|C-z pause]" in stripped
+                or "-- [Q quit|D dump|C-z pause]" in stripped
+            ):
                 continue
 
             # Skip command echo lines
@@ -126,7 +130,9 @@ class MikrotikGarbageOutput(OutputPlugin):
                 else:
                     sent = 0
 
-                is_timeout = "timeout" in row.lower() or ("100%" in row and "timeout" in row.lower())
+                is_timeout = "timeout" in row.lower() or (
+                    "100%" in row and "timeout" in row.lower()
+                )
 
                 # Prefer higher SENT, then prefer non-timeout, then later table (higher ti)
                 pick = False
@@ -150,7 +156,9 @@ class MikrotikGarbageOutput(OutputPlugin):
         # Collapse excessive trailing timeouts into an aggregation line
         trailing_timeouts = 0
         for line in reversed(processed_lines):
-            if ("timeout" in line.lower()) or (sent_re.search(line) and sent_re.search(line).group(1) == "100"):
+            if ("timeout" in line.lower()) or (
+                sent_re.search(line) and sent_re.search(line).group(1) == "100"
+            ):
                 trailing_timeouts += 1
             else:
                 break
@@ -158,13 +166,20 @@ class MikrotikGarbageOutput(OutputPlugin):
         if trailing_timeouts > 3:
             non_trailing = len(processed_lines) - trailing_timeouts
             # Keep first 2 of trailing timeouts and aggregate the rest
-            aggregated = processed_lines[:non_trailing] + processed_lines[non_trailing:non_trailing + 2]
+            aggregated = (
+                processed_lines[:non_trailing] + processed_lines[non_trailing : non_trailing + 2]
+            )
             remaining = trailing_timeouts - 2
-            aggregated.append(f"                                 ... ({remaining} more timeout hops)")
+            aggregated.append(
+                f"                                 ... ({remaining} more timeout hops)"
+            )
             processed_lines = aggregated
 
         # Prepend header line if we have one
-        header_to_use = header_line or "ADDRESS                          LOSS SENT    LAST     AVG    BEST   WORST STD-DEV STATUS"
+        header_to_use = (
+            header_line
+            or "ADDRESS                          LOSS SENT    LAST     AVG    BEST   WORST STD-DEV STATUS"
+        )
         cleaned = [header_to_use] + processed_lines
         return "\n".join(cleaned)
 

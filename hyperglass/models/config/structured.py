@@ -46,13 +46,13 @@ class StructuredIpEnrichment(HyperglassModel):
     to explicitly disable them.
     """
 
-    cache_timeout: int = 86400  # 24 hours in seconds (minimum)
+    cache_timeout: int = 604800  # 7 days in seconds (minimum)
 
     @field_validator("cache_timeout")
     def validate_cache_timeout(cls, value: int) -> int:
-        """Ensure cache timeout is at least 24 hours (86400 seconds)."""
-        if value < 86400:
-            return 86400
+        """Ensure cache timeout is at least 7 days (604800 seconds)."""
+        if value < 604800:
+            return 604800
         return value
 
     enrich_traceroute: bool = True
