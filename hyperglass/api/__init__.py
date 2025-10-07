@@ -22,8 +22,6 @@ from .routes import (
     device,
     devices,
     queries,
-    ip_enrichment_status,
-    ip_enrichment_refresh,
     aspath_enrich,
 )
 from .middleware import COMPRESSION_CONFIG, create_cors_config
@@ -51,8 +49,6 @@ HANDLERS = [
     queries,
     info,
     query,
-    ip_enrichment_status,
-    ip_enrichment_refresh,
     aspath_enrich,
 ]
 
