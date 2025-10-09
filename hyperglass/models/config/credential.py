@@ -21,15 +21,15 @@ class Credential(HyperglassModel, extra="allow"):
     _method: t.Optional[AuthMethod] = None
 
     @model_validator(mode="after")
-    def validate_credential(cls, data: "Credential"):
+    def validate_credential(self) -> "Credential":
         """Ensure either a password or an SSH key is set."""
-        if data.key is None and data.password is None:
+        if self.key is None and self.password is None:
             raise ValueError(
                 "Either a password or an SSH key must be specified for user '{}'".format(
-                    data.username
+                    self.username
                 )
             )
-        return data
+        return self
 
     def __init__(self, **kwargs):
         """Set private attribute _method based on validated model."""

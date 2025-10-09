@@ -21,7 +21,7 @@ For external validation, hyperglass supports two backends:
 
 Additionally, hyperglass provides the ability to control which BGP communities are shown to the end user.
 
-For devices with structured traceroute support (Arista EOS, FRRouting, Huawei VRP, Juniper Junos, and MikroTik RouterOS), hyperglass can enhance the output with IP enrichment data including ASN information, organization names, country codes, and IXP detection using offline data from BGP.tools and PeeringDB.
+For devices with structured traceroute support (Arista EOS, FRRouting, Huawei VRP, Juniper Junos, and MikroTik RouterOS), hyperglass can enhance the output with IP enrichment data including ASN information, organization names, country codes, and IXP detection using real-time lookups from BGP.tools.
 
 | Parameter                         | Type            | Default Value | Description                                                                                                                            |
 | :-------------------------------- | :-------------- | :------------ | :------------------------------------------------------------------------------------------------------------------------------------- |
@@ -31,7 +31,7 @@ For devices with structured traceroute support (Arista EOS, FRRouting, Huawei VR
 | `structured.communities.mode`     | String          | deny          | Use `deny` to deny any communities listed, `permit` to _only_ permit communities listed, or `name` to append friendly names.         |
 | `structured.communities.items`    | List of Strings |               | List of communities to match (used by `deny` and `permit` modes).                                                                     |
 | `structured.communities.names`    | Dict            |               | Dictionary mapping BGP community codes to friendly names (used by `name` mode).                                                       |
-| `structured.ip_enrichment.cache_timeout`    | Integer         | 604800        | Cache timeout in seconds for IP enrichment data (minimum 7 days/604800 seconds).                                                     |
+| `structured.ip_enrichment.cache_timeout`    | Integer         | 604800        | **DEPRECATED:** No longer used with real-time BGP.tools lookups. Kept for backward compatibility only.                               |
 | `structured.ip_enrichment.enrich_traceroute`| Boolean         | true          | When `structured:` is present, enable IP enrichment of traceroute hops (ASN, org, IXP). This must be true for enrichment to run.   |
 | `structured.enable_for_traceroute`| Boolean         | (when structured present) true | When `structured:` is present this controls whether the structured traceroute table output is shown. Set to false to force raw router output. |
 | `structured.enable_for_bgp_route`| Boolean         | (when structured present) true | When `structured:` is present this controls whether the structured BGP route table output is shown. Set to false to force raw router output. |
@@ -118,7 +118,7 @@ structured:
     
     IP enrichment is currently supported for traceroute outputs on supported platforms.
     
-    The system uses offline data from BGP.tools (1.3M+ CIDR entries) and PeeringDB for maximum performance and reliability.
+    The system uses real-time lookups from BGP.tools for maximum accuracy and reliability.
 </Callout>
 
 #### Enable IP Enrichment for Traceroute
@@ -132,22 +132,21 @@ structured:
         enrich_traceroute: true
 ```
 
-#### Enable IP Enrichment with Custom Cache Timeout
-
-```yaml filename="config.yaml" copy {2-5}
-structured:
-    ip_enrichment:
-        enrich_traceroute: true
-        cache_timeout: 172800  # 48 hours
-```
-
-#### Enable IP Enrichment for Traceroute
+#### Enable IP Enrichment
 
 ```yaml filename="config.yaml" copy {2-4}
 structured:
     ip_enrichment:
         enrich_traceroute: true
-        cache_timeout: 86400  # 24 hours (minimum)
+        # cache_timeout is deprecated - real-time lookups are used
+```
+
+#### Enable IP Enrichment for Traceroute
+
+```yaml filename="config.yaml" copy {2-3}
+structured:
+    ip_enrichment:
+        enrich_traceroute: true
 ```
 
 <Callout type="warning" emoji="⚠️">
@@ -189,7 +188,7 @@ structured:
             "65000:2000": "Peer Routes"
     ip_enrichment:
         enrich_traceroute: true
-        cache_timeout: 86400
+        # cache_timeout is deprecated - real-time lookups are used
 ```
 
 #### Structured Traceroute with Cloudflare RPKI

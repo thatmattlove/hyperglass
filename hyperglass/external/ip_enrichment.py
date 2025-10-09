@@ -1,199 +1,16 @@
 """IP enrichment: ASN and IXP lookups for hyperglass.
 
-Uses bgp.tools for ASN lookups and PeeringDB for IXP prefixes.
+Uses bgp.tools for both ASN and IXP lookups.
 Provides lookup_ip, lookup_asn_name and network_info compatibility APIs.
 """
 
 import asyncio
-import time
-import fcntl
-import json
-import csv
-import pickle
 import typing as t
-from datetime import datetime, timedelta
-from ipaddress import ip_address, ip_network, IPv4Address, IPv6Address
-from pathlib import Path
+from ipaddress import ip_address, IPv4Address, IPv6Address
 import socket
 
 from hyperglass.log import log
-from hyperglass.state import use_state
 from hyperglass.settings import Settings
-
-# Process-wide lock to coordinate downloads across worker processes
-_download_lock: t.Optional["_ProcessFileLock"] = None
-
-
-class _ProcessFileLock:
-    """Async-friendly, process-wide filesystem lock."""
-
-    def __init__(self, lock_path: Path, timeout: int = 300, poll_interval: float = 0.1):
-        self.lock_path = lock_path
-        self.timeout = timeout
-        self.poll_interval = poll_interval
-        self._lock_dir: t.Optional[str] = None
-        self._startup_jitter = 0.25  # Reduce thundering herd on startup
-
-    def _acquire_blocking(self) -> None:
-        """Acquire lock using atomic mkdir."""
-        import os
-        import random
-        import json
-        import shutil
-
-        lock_dir = str(self.lock_path) + ".lck"
-        time.sleep(random.uniform(0, self._startup_jitter))
-        start = time.time()
-
-        if Settings.debug:
-            log.debug(f"Attempting to acquire process lock {lock_dir}")
-
-        while True:
-            try:
-                os.mkdir(lock_dir)  # Atomic lock acquisition
-
-                # Write metadata for debugging
-                try:
-                    owner = {"pid": os.getpid(), "created": datetime.now().isoformat()}
-                    with open(os.path.join(lock_dir, "owner.json"), "w") as f:
-                        json.dump(owner, f)
-                except Exception:
-                    pass  # Not critical
-
-                self._lock_dir = lock_dir
-                if Settings.debug:
-                    log.debug(f"Acquired process lock {lock_dir} (pid={os.getpid()})")
-                return
-
-            except FileExistsError:
-                # Check for stale locks
-                try:
-                    owner_file = os.path.join(lock_dir, "owner.json")
-                    mtime = os.path.getmtime(owner_file if os.path.exists(owner_file) else lock_dir)
-
-                    if (time.time() - mtime) >= self.timeout:
-                        if Settings.debug:
-                            log.debug(f"Removing stale lock directory {lock_dir}")
-                        try:
-                            shutil.rmtree(lock_dir)
-                        except Exception:
-                            pass
-                        continue  # Try again after cleanup
-                except Exception:
-                    pass
-
-                if (time.time() - start) >= self.timeout:
-                    raise TimeoutError(f"Timed out waiting for lock {self.lock_path}")
-                time.sleep(self.poll_interval)
-
-    def _release_blocking(self) -> None:
-        """Release the lock by removing the lock directory."""
-        import os
-        import shutil
-
-        if not self._lock_dir:
-            return
-
-        try:
-            # Clean up metadata file
-            owner_file = os.path.join(self._lock_dir, "owner.json")
-            if os.path.exists(owner_file):
-                try:
-                    os.remove(owner_file)
-                except Exception:
-                    pass
-
-            # Remove lock directory
-            try:
-                os.rmdir(self._lock_dir)
-            except Exception:
-                try:
-                    shutil.rmtree(self._lock_dir)
-                except Exception:
-                    if Settings.debug:
-                        log.debug(f"Failed to remove lock dir {self._lock_dir}")
-
-            if Settings.debug:
-                log.debug(f"Released process lock {self._lock_dir}")
-            self._lock_dir = None
-
-        except Exception:
-            if Settings.debug:
-                log.debug(f"Error releasing lock {self._lock_dir}")
-            pass
-
-    async def __aenter__(self):
-        loop = asyncio.get_running_loop()
-        await loop.run_in_executor(None, self._acquire_blocking)
-        return self
-
-    async def __aexit__(self, exc_type, exc, tb):
-        loop = asyncio.get_running_loop()
-        await loop.run_in_executor(None, self._release_blocking)
-
-
-# Optional dependencies
-try:
-    import httpx
-except ImportError:
-    log.warning("httpx not available - IP enrichment will be disabled")
-    httpx = None
-
-try:
-    import aiofiles
-except ImportError:
-    log.warning("aiofiles not available - IP enrichment will use slower sync I/O")
-    aiofiles = None
-
-# File paths and constants
-IP_ENRICHMENT_DATA_DIR = Path("/etc/hyperglass/ip_enrichment")
-IXP_PICKLE_FILE = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle"
-LAST_UPDATE_FILE = IP_ENRICHMENT_DATA_DIR / "last_update.txt"
-DEFAULT_CACHE_DURATION = 7 * 24 * 60 * 60  # 7 days
-
-# Global download lock (initialized when data directory exists)
-_download_lock: t.Optional[_ProcessFileLock] = None
-
-
-def get_cache_duration() -> int:
-    """Get cache duration from config, ensuring minimum of 7 days."""
-    try:
-        from hyperglass.state import use_state
-
-        params = use_state("params")
-        cache_timeout = params.structured.ip_enrichment.cache_timeout
-        return max(cache_timeout, DEFAULT_CACHE_DURATION)
-    except Exception:
-        # Fallback if config not available
-        return DEFAULT_CACHE_DURATION
-
-
-def should_refresh_data() -> tuple[bool, str]:
-    """Check if IXP data needs refreshing based on cache age."""
-    if not IXP_PICKLE_FILE.exists():
-        return True, "No ixp_data.pickle present"
-
-    try:
-        with open(LAST_UPDATE_FILE, "r") as f:
-            cached_time = datetime.fromisoformat(f.read().strip())
-        age_seconds = (datetime.now() - cached_time).total_seconds()
-        cache_duration = get_cache_duration()
-
-        if age_seconds >= cache_duration:
-            age_hours = age_seconds / 3600
-            reason = f"Data expired (age: {age_hours:.1f}h, max: {cache_duration/3600:.1f}h)"
-            if Settings.debug:
-                log.debug(f"IP enrichment cache check: {reason}")
-            return True, reason
-
-    except Exception as e:
-        if Settings.debug:
-            log.debug(f"Failed to read cache timestamp: {e}")
-        return True, f"Failed to read timestamp: {e}"
-
-    if Settings.debug:
-        log.debug("IP enrichment cache is fresh")
-    return False, "Data is fresh"
 
 
 class IPInfo:
@@ -212,361 +29,24 @@ class IPInfo:
         self.ip = ip
         self.asn = asn
         self.asn_name = asn_name
-        self.prefix = prefix  # The CIDR prefix from table.jsonl
-        self.country = country  # Country code from asns.csv
+        self.prefix = prefix
+        self.country = country
         self.is_ixp = is_ixp
         self.ixp_name = ixp_name
 
 
 class IPEnrichmentService:
-    """Main IP enrichment service with optimized lookups and pickle cache."""
+    """Simplified IP enrichment service using only BGP.TOOLS for all lookups."""
 
     def __init__(self):
-        self.cidr_networks: t.List[t.Tuple[t.Union[IPv4Address, IPv6Address], int, int, str]] = (
-            []
-        )  # (network, prefixlen, asn, cidr_string)
-        self.asn_info: t.Dict[int, t.Dict[str, str]] = {}  # asn -> {name, country}
-        self.ixp_networks: t.List[t.Tuple[t.Union[IPv4Address, IPv6Address], int, str]] = (
-            []
-        )  # (network, prefixlen, ixp_name)
-        self.last_update: t.Optional[datetime] = None
-
-        # Optimized lookup structures - populated after data load
-        self._ipv4_networks: t.List[t.Tuple[int, int, int, str]] = (
-            []
-        )  # (net_int, mask_bits, asn, cidr)
-        self._ipv6_networks: t.List[t.Tuple[int, int, int, str]] = (
-            []
-        )  # (net_int, mask_bits, asn, cidr)
-        self._lookup_optimized = False
-
-        # Runtime caches
-        self._combined_cache: t.Optional[t.Dict[str, t.Any]] = None
-        self._per_ip_cache: t.Dict[
-            str, t.Tuple[t.Optional[int], t.Optional[str], t.Optional[str], float]
-        ] = {}
+        # Runtime caches for performance
         self._ip_cache: t.Dict[str, t.Tuple[t.Optional[int], t.Optional[str], t.Optional[str]]] = {}
-        self._ensure_lock = asyncio.Lock()
-
-    def _optimize_lookups(self):
-        """Convert IP networks to integer format for faster lookups."""
-        if self._lookup_optimized:
-            return
-
-        if Settings.debug:
-            log.debug("Optimizing IP lookup structures...")
-        optimize_start = datetime.now()
-
-        self._ipv4_networks = []
-        self._ipv6_networks = []
-
-        for net_addr, prefixlen, asn, cidr_string in self.cidr_networks:
-            if isinstance(net_addr, IPv4Address):
-                net_int = int(net_addr)
-                mask_bits = 32 - prefixlen
-                self._ipv4_networks.append((net_int, mask_bits, asn, cidr_string))
-            else:
-                net_int = int(net_addr)
-                mask_bits = 128 - prefixlen
-                self._ipv6_networks.append((net_int, mask_bits, asn, cidr_string))
-
-        self._ipv4_networks.sort(key=lambda x: x[1])
-        self._ipv6_networks.sort(key=lambda x: x[1])
-
-        optimize_time = (datetime.now() - optimize_start).total_seconds()
-        if Settings.debug:
-            log.debug(
-                f"Optimized lookups: {len(self._ipv4_networks)} IPv4, {len(self._ipv6_networks)} IPv6 (took {optimize_time:.2f}s)"
-            )
-        self._lookup_optimized = True
-
-    def _try_load_pickle(self) -> bool:
-        """Best-effort load of IXP data from pickle without blocking."""
-        try:
-            pickle_path = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle"
-            if pickle_path.exists():
-                with open(pickle_path, "rb") as f:
-                    parsed = pickle.load(f)
-                if parsed and isinstance(parsed, list) and len(parsed) > 0:
-                    self.ixp_networks = [
-                        (ip_address(net), prefixlen, name) for net, prefixlen, name in parsed
-                    ]
-                    if Settings.debug:
-                        log.debug(
-                            f"Loaded {len(self.ixp_networks)} IXP prefixes from pickle (non-blocking)"
-                        )
-                    return True
-        except Exception as e:
-            if Settings.debug:
-                log.debug(f"Non-blocking pickle load failed: {e}")
-        return False
-
-    async def ensure_data_loaded(self) -> bool:
-        """Ensure IXP data is loaded. Downloads from PeeringDB if needed."""
-        IP_ENRICHMENT_DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-        # Initialize download lock
-        global _download_lock
-        if _download_lock is None:
-            _download_lock = _ProcessFileLock(IP_ENRICHMENT_DATA_DIR / "download.lock")
-
-        if self.ixp_networks:
-            return True
-
-        async with self._ensure_lock:
-            if self.ixp_networks:
-                return True
-
-            # Check if refresh is needed first
-            should_refresh, reason = should_refresh_data()
-
-            if not should_refresh:
-                # Try to load existing pickle file if data is fresh
-                try:
-                    pickle_path = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle"
-                    if pickle_path.exists():
-                        with open(pickle_path, "rb") as f:
-                            parsed = pickle.load(f)
-                        if parsed and isinstance(parsed, list) and len(parsed) > 0:
-                            self.ixp_networks = [
-                                (ip_address(net), prefixlen, name)
-                                for net, prefixlen, name in parsed
-                            ]
-                            if Settings.debug:
-                                log.debug(
-                                    f"Loaded {len(self.ixp_networks)} IXP prefixes from pickle"
-                                )
-                            return True
-                        else:
-                            if Settings.debug:
-                                log.debug("Pickle exists but appears empty, will refresh")
-                            should_refresh = True
-                            reason = "Pickle file is empty"
-                except Exception as e:
-                    if Settings.debug:
-                        log.debug(f"Failed to load pickle: {e}")
-                    should_refresh = True
-                    reason = f"Failed to load pickle: {e}"
-
-        if not should_refresh:
-            # Try to build pickle from existing JSON files
-            try:
-                pickle_path = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle"
-                json_paths = [
-                    IP_ENRICHMENT_DATA_DIR / "ixpfx.json",
-                    IP_ENRICHMENT_DATA_DIR / "ixlan.json",
-                    IP_ENRICHMENT_DATA_DIR / "ix.json",
-                ]
-
-                have_all_json = all(p.exists() for p in json_paths)
-                if not pickle_path.exists() and have_all_json and LAST_UPDATE_FILE.exists():
-                    with open(LAST_UPDATE_FILE, "r") as f:
-                        cached_time = datetime.fromisoformat(f.read().strip())
-                    age_seconds = (datetime.now() - cached_time).total_seconds()
-                    cache_duration = get_cache_duration()
-                    if age_seconds < cache_duration:
-                        if Settings.debug:
-                            log.debug("Building pickle from existing JSON files")
-                        loop = asyncio.get_running_loop()
-                        ok = await loop.run_in_executor(None, self._combine_peeringdb_files)
-                        if ok and pickle_path.exists():
-                            with open(pickle_path, "rb") as f:
-                                parsed = pickle.load(f)
-                            self.ixp_networks = [
-                                (ip_address(net), prefixlen, name)
-                                for net, prefixlen, name in parsed
-                            ]
-                            if Settings.debug:
-                                log.debug(
-                                    f"Loaded {len(self.ixp_networks)} IXP prefixes from generated pickle"
-                                )
-                            return True
-            except Exception as e:
-                if Settings.debug:
-                    log.debug(f"Failed to build pickle from JSON: {e}")
-
-            if Settings.debug:
-                log.debug(f"Skipping IXP refresh: {reason}")
-            return False
-
-        # Acquire lock and refresh IXP list only
-        async with _download_lock:
-            # Double-check: if another worker already refreshed the IXP file
-            # while we were waiting for the lock, verify it's actually fresh
-            if IXP_PICKLE_FILE.exists():
-                # Re-check if data is still expired after waiting for lock
-                should_refresh_postlock, reason_postlock = should_refresh_data()
-                if not should_refresh_postlock:
-                    try:
-                        with open(IXP_PICKLE_FILE, "rb") as f:
-                            parsed = pickle.load(f)
-                        if parsed and isinstance(parsed, list) and len(parsed) > 0:
-                            self.ixp_networks = [
-                                (ip_address(net), prefixlen, name)
-                                for net, prefixlen, name in parsed
-                            ]
-                            if Settings.debug:
-                                log.debug(
-                                    f"Another worker refreshed data while waiting for lock: {reason_postlock}"
-                                )
-                            log.info(
-                                f"Loaded {len(self.ixp_networks)} IXP prefixes from fresh pickle (post-lock)"
-                            )
-                            return True
-                    except Exception as e:
-                        if Settings.debug:
-                            log.debug(f"Failed to load post-lock pickle: {e}")
-                else:
-                    if Settings.debug:
-                        log.debug(f"Data still expired after lock wait: {reason_postlock}")
-
-            if not httpx:
-                log.error("httpx not available: cannot download PeeringDB prefixes")
-                return False
-
-            try:
-                async with httpx.AsyncClient(timeout=30) as client:
-                    await self._download_ixp_data(client)
-
-                # After download+combine, ensure we actually have prefixes and
-                # update the last-update marker. The combined pickle is already
-                # written by _combine_peeringdb_files invoked by _download_ixp_data.
-                if not self.ixp_networks or len(self.ixp_networks) == 0:
-                    log.warning(
-                        "Downloaded 0 IXP prefixes; keeping existing optimized pickle if present"
-                    )
-                    # Even if no prefixes were combined, write a last-update
-                    # marker so startup logic can see that a refresh was
-                    # attempted and avoid endless retries.
-                    try:
-                        tmp_last = LAST_UPDATE_FILE.with_name(LAST_UPDATE_FILE.name + ".tmp")
-                        with open(tmp_last, "w") as f:
-                            f.write(datetime.now().isoformat())
-                        import os
-
-                        os.replace(tmp_last, LAST_UPDATE_FILE)
-                        self.last_update = datetime.now()
-                    except Exception:
-                        log.debug("Failed to write last-update marker after empty IXP refresh")
-                    return False
-
-                # Update last update marker
-                tmp_last = LAST_UPDATE_FILE.with_name(LAST_UPDATE_FILE.name + ".tmp")
-                with open(tmp_last, "w") as f:
-                    f.write(datetime.now().isoformat())
-                import os
-
-                os.replace(tmp_last, LAST_UPDATE_FILE)
-
-                self.last_update = datetime.now()
-                log.info("Refreshed and saved {} IXP prefixes (pickle)", len(self.ixp_networks))
-                return True
-            except Exception as e:
-                log.error("Failed to refresh IXP prefixes: {}", e)
-                # No persistent backoff behavior; log and return failure.
-                return False
-
-    # end async with _ensure_lock
-
-    async def _download_ixp_data(self, client) -> None:
-        """Download and combine PeeringDB datasets: ixpfx, ixlan, ix.
-
-        Behavior:
-        - Download each endpoint to {name}.temp (e.g., ixpfx.temp).
-        - If download and JSON parsing succeed, atomically rename to {name}.json.
-        - If any download fails, leave existing {name}.json (if present) in place.
-        - After ensuring all three files exist (new or old), combine them into a
-          list of tuples (str(network_address), prefixlen, ixp_name), sorted by
-          prefixlen descending, and persist as a pickled file for fast loading.
-        """
-        log.info("Downloading PeeringDB datasets: ixpfx, ixlan, ix")
-
-        if not client:
-            log.error("HTTP client not available for PeeringDB downloads")
-            return
-
-        endpoints = {
-            "ixpfx": "https://www.peeringdb.com/api/ixpfx",
-            "ixlan": "https://www.peeringdb.com/api/ixlan",
-            "ix": "https://www.peeringdb.com/api/ix",
-        }
-
-        # Helper: fetch a URL exactly once. Do NOT retry on 429 or other
-        # errors - if PeeringDB is rate limiting the caller should decide
-        # whether to retry later. This prevents the service from reattempting
-        # downloads automatically and potentially worsening global rate limits.
-        async def _fetch_with_backoff(url: str):
-            try:
-                log.debug("Downloading PeeringDB endpoint {} (single attempt)", url)
-                resp = await client.get(url, timeout=30)
-
-                # Do not retry on 429 - treat as a failed download and return None
-                if resp.status_code != 200:
-                    log.warning(
-                        "PeeringDB download failed for {}: HTTP {} - not retrying",
-                        url,
-                        resp.status_code,
-                    )
-                    return None
-
-                try:
-                    return resp.json()
-                except Exception:
-                    log.warning("Failed to parse JSON from {}", url)
-                    return None
-            except Exception as e:
-                log.warning("PeeringDB download error for {}: {} - not retrying", url, e)
-                return None
-
-        # Download each endpoint to .temp -> .json atomically
-        for name, url in endpoints.items():
-            temp_path = IP_ENRICHMENT_DATA_DIR / f"{name}.temp"
-            final_path = IP_ENRICHMENT_DATA_DIR / f"{name}.json"
-            try:
-                data = await _fetch_with_backoff(url)
-                if not data:
-                    log.warning(
-                        "Failed to download {} (no data); will use existing {} if present",
-                        url,
-                        final_path,
-                    )
-                    continue
-
-                # Write to temp file first
-                try:
-                    with open(temp_path, "w") as f:
-                        json.dump(data, f, separators=(",", ":"))
-                    # Atomic replace
-                    import os
-
-                    os.replace(temp_path, final_path)
-                    log.info("Saved PeeringDB dataset {} -> {}", name, final_path)
-                except Exception as e:
-                    log.warning("Failed to write {}: {}", temp_path, e)
-                    try:
-                        if temp_path.exists():
-                            temp_path.unlink()
-                    except Exception:
-                        pass
-            except Exception as e:
-                log.warning(
-                    "Failed to download {}: {}; will use existing {} if present", url, e, final_path
-                )
-
-        # After downloads, combine on-disk JSON files into the optimized pickle
-        # The actual combine logic is implemented in _combine_peeringdb_files so
-        # it can be reused (e.g., when the optimized pickle is missing but the
-        # raw JSON endpoint files are present and still fresh).
-        try:
-            loop = asyncio.get_running_loop()
-            await loop.run_in_executor(None, self._combine_peeringdb_files)
-        except Exception as e:
-            log.warning("Failed to combine PeeringDB datasets after download: {}", e)
+        self.asn_info: t.Dict[int, t.Dict[str, str]] = {}  # asn -> {name, country}
 
     async def _query_bgp_tools_for_ip(
         self, ip_str: str
     ) -> t.Tuple[t.Optional[int], t.Optional[str], t.Optional[str]]:
-        """Query bgp.tools for a single IP. Prefer websocket API; fallback to httpx.
+        """Query bgp.tools for a single IP.
 
         Returns (asn_int, asn_name, prefix) or (None, None, None) on failure.
         """
@@ -574,16 +54,13 @@ class IPEnrichmentService:
         if ip_str in self._ip_cache:
             return self._ip_cache[ip_str]
 
-        # Use TCP WHOIS bulk mode on bgp.tools:43. We'll perform a blocking
-        # socket WHOIS request in a thread executor to keep this function async.
-
+        # Use TCP WHOIS on bgp.tools:43
         def _whois_blocking(
             single_ips: t.List[str],
         ) -> t.Dict[str, t.Tuple[t.Optional[int], t.Optional[str], t.Optional[str]]]:
             out: t.Dict[str, t.Tuple[t.Optional[int], t.Optional[str], t.Optional[str]]] = {}
             host = "bgp.tools"
             port = 43
-            # If a query is numeric-only we should send it as an ASN query (AS12345)
             send_keys = [f"AS{q}" if q.isdigit() else q for q in single_ips]
             payload = "begin\n" + "\n".join(send_keys) + "\nend\n"
             try:
@@ -606,7 +83,6 @@ class IPEnrichmentService:
                         line = line.strip()
                         if not line:
                             continue
-                        # split by pipe if present, else whitespace
                         if "|" in line:
                             cols = [c.strip() for c in line.split("|")]
                             try:
@@ -619,14 +95,13 @@ class IPEnrichmentService:
                             if ipcol:
                                 out[ipcol] = (asn, org, prefix)
                             else:
-                                # ASN-only response (no IP column). Index by ASN too.
                                 if asn is not None:
                                     out_key1 = f"AS{asn}"
                                     out_key2 = str(asn)
                                     out[out_key1] = (asn, org, prefix)
                                     out[out_key2] = (asn, org, prefix)
                         else:
-                            # Fallback parsing: "AS12345 ip prefix org"
+                            # Fallback parsing
                             parts_line = line.split()
                             if len(parts_line) >= 3:
                                 try:
@@ -644,9 +119,8 @@ class IPEnrichmentService:
                                         out_key2 = str(asn)
                                         out[out_key1] = (asn, org, prefix)
                                         out[out_key2] = (asn, org, prefix)
-                    # Map results back to the original query keys. For numeric
-                    # inputs we sent 'AS{n}', but callers may provide 'n'. Ensure
-                    # we return entries keyed by the original queries.
+
+                    # Map results back to original query keys
                     mapped: t.Dict[
                         str, t.Tuple[t.Optional[int], t.Optional[str], t.Optional[str]]
                     ] = {}
@@ -656,7 +130,6 @@ class IPEnrichmentService:
                         elif orig in out:
                             mapped[orig] = out[orig]
                         else:
-                            # Try ASN variants
                             if orig.isdigit():
                                 if f"AS{orig}" in out:
                                     mapped[orig] = out[f"AS{orig}"]
@@ -668,7 +141,6 @@ class IPEnrichmentService:
                                 mapped[orig] = (None, None, None)
                     return mapped
             except Exception:
-                # On any socket/connect error return empties for all requested IPs
                 for ip in single_ips:
                     out[ip] = (None, None, None)
                 return out
@@ -680,143 +152,13 @@ class IPEnrichmentService:
         self._ip_cache[ip_str] = (asn, org, prefix)
         return (asn, org, prefix)
 
-    def _combine_peeringdb_files(self) -> bool:
-        """Combine existing PeeringDB JSON files into the optimized pickle.
-
-        Reads ixpfx.json, ixlan.json, ix.json from the data directory (if
-        present), builds a deduplicated prefix->IXP name mapping, sorts by
-        prefix length (desc) and persists the result to ixp_data.pickle
-        atomically. Returns True on success, False otherwise.
-        """
-        try:
-            ixpfx_data = []
-            ixlan_data = []
-            ix_data = []
-
-            if (IP_ENRICHMENT_DATA_DIR / "ixpfx.json").exists():
-                with open(IP_ENRICHMENT_DATA_DIR / "ixpfx.json", "r") as f:
-                    raw = json.load(f)
-                    if isinstance(raw, dict) and "data" in raw:
-                        ixpfx_data = raw.get("data", [])
-                    elif isinstance(raw, list):
-                        ixpfx_data = raw
-
-            if (IP_ENRICHMENT_DATA_DIR / "ixlan.json").exists():
-                with open(IP_ENRICHMENT_DATA_DIR / "ixlan.json", "r") as f:
-                    raw = json.load(f)
-                    if isinstance(raw, dict) and "data" in raw:
-                        ixlan_data = raw.get("data", [])
-                    elif isinstance(raw, list):
-                        ixlan_data = raw
-
-            if (IP_ENRICHMENT_DATA_DIR / "ix.json").exists():
-                with open(IP_ENRICHMENT_DATA_DIR / "ix.json", "r") as f:
-                    raw = json.load(f)
-                    if isinstance(raw, dict) and "data" in raw:
-                        ix_data = raw.get("data", [])
-                    elif isinstance(raw, list):
-                        ix_data = raw
-
-            # Build mappings: ixlan_id -> ix_id, ix_id -> ix_name
-            ixlan_to_ix = {}
-            for rec in ixlan_data:
-                try:
-                    rid = rec.get("id")
-                    ix_id = rec.get("ix_id")
-                    if rid is not None and ix_id is not None:
-                        ixlan_to_ix[rid] = ix_id
-                except Exception:
-                    continue
-
-            ix_id_to_name = {}
-            for rec in ix_data:
-                try:
-                    ixid = rec.get("id")
-                    name = rec.get("name_long") or rec.get("name")
-                    if ixid is not None and name:
-                        ix_id_to_name[ixid] = name
-                except Exception:
-                    continue
-
-            # Combine prefixes to IXP name
-            prefix_map: dict[str, str] = {}
-            for rec in ixpfx_data:
-                try:
-                    prefix = rec.get("prefix") or rec.get("network")
-                    ixlan_id = rec.get("ixlan_id")
-                    if not prefix:
-                        continue
-                    ix_id = ixlan_to_ix.get(ixlan_id)
-                    ix_name = None
-                    if ix_id is not None:
-                        ix_name = ix_id_to_name.get(ix_id)
-                    # Fallback: some ixpfx entries include ix_name or ixlan name
-                    if not ix_name:
-                        ix_name = rec.get("name") or rec.get("ixp_name")
-                    if not ix_name:
-                        ix_name = "IXP"
-                    # Normalize network
-                    try:
-                        net = ip_network(prefix, strict=False)
-                        prefix_map[str(net)] = ix_name
-                    except Exception:
-                        # store raw prefix if parsing fails
-                        prefix_map[prefix] = ix_name
-                except Exception:
-                    continue
-
-            # Build sorted list of tuples: (network_address_str, prefixlen, ix_name)
-            parsed = []
-            for pfx, name in prefix_map.items():
-                try:
-                    net = ip_network(pfx, strict=False)
-                    parsed.append((str(net.network_address), net.prefixlen, name))
-                except Exception:
-                    # try to skip invalid entries
-                    continue
-
-            # Sort by prefixlen desc
-            parsed.sort(key=lambda x: x[1], reverse=True)
-
-            # Persist parsed mapping as pickle for performance
-            tmp_pickle = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle.tmp"
-            final_pickle = IP_ENRICHMENT_DATA_DIR / "ixp_data.pickle"
-            try:
-                with open(tmp_pickle, "wb") as f:
-                    pickle.dump(parsed, f, protocol=pickle.HIGHEST_PROTOCOL)
-                import os
-
-                os.replace(tmp_pickle, final_pickle)
-                log.info(
-                    "Saved combined IXP prefix mapping (%d prefixes) -> %s",
-                    len(parsed),
-                    final_pickle,
-                )
-                # Also update in-memory list for immediate use
-                self.ixp_networks = [
-                    (ip_address(net), prefixlen, name) for net, prefixlen, name in parsed
-                ]
-                return True
-            except Exception as e:
-                log.warning("Failed to persist optimized pickle: %s", e)
-                return False
-
-        except Exception as e:
-            log.warning("Failed to combine PeeringDB datasets: %s", e)
-            return False
-
     async def _query_bgp_tools_bulk(
         self, ips: t.List[str]
     ) -> t.Dict[str, t.Tuple[t.Optional[int], t.Optional[str], t.Optional[str]]]:
-        """Query bgp.tools for multiple IPs using a single websocket connection when possible.
+        """Query bgp.tools for multiple IPs using a single connection.
 
         Returns a mapping ip -> (asn, asn_name, prefix).
         """
-        results: t.Dict[str, t.Tuple[t.Optional[int], t.Optional[str], t.Optional[str]]] = {}
-
-        # Implement TCP WHOIS bulk mode against bgp.tools:43. Perform the
-        # blocking socket work in a thread executor so async callers are not
-        # blocked.
 
         def _whois_bulk_blocking(
             bulk_ips: t.List[str],
@@ -824,7 +166,6 @@ class IPEnrichmentService:
             host = "bgp.tools"
             port = 43
             out: t.Dict[str, t.Tuple[t.Optional[int], t.Optional[str], t.Optional[str]]] = {}
-            # Normalize numeric-only queries to ASN form for the WHOIS service
             send_keys = [f"AS{q}" if q.isdigit() else q for q in bulk_ips]
             payload = "begin\n" + "\n".join(send_keys) + "\nend\n"
             try:
@@ -839,7 +180,6 @@ class IPEnrichmentService:
                                 break
                             parts.append(chunk)
                             if sum(len(p) for p in parts) > 512 * 1024:
-                                # safety cap 512KB
                                 break
                     except socket.timeout:
                         pass
@@ -858,10 +198,22 @@ class IPEnrichmentService:
                             ipcol = cols[1] if len(cols) > 1 else None
                             prefix = cols[2] if len(cols) > 2 else None
                             org = cols[-1] if len(cols) > 0 else None
+                            # Check if this is an exchange IP (IXP)
+                            is_ixp = any(
+                                keyword in (org or "").lower()
+                                for keyword in ["ix", "exchange", "peering"]
+                            )
                             if ipcol:
-                                out[ipcol] = (asn, org, prefix)
+                                # If it's an IXP, mark it specially
+                                if is_ixp:
+                                    out[ipcol] = (
+                                        None,
+                                        org,
+                                        prefix,
+                                    )  # Use None for ASN to indicate IXP
+                                else:
+                                    out[ipcol] = (asn, org, prefix)
                             else:
-                                # ASN-only response (no IP column). Index by ASN too.
                                 if asn is not None:
                                     out_key1 = f"AS{asn}"
                                     out_key2 = str(asn)
@@ -889,7 +241,6 @@ class IPEnrichmentService:
                         elif orig in out:
                             mapped[orig] = out[orig]
                         else:
-                            # Try ASN variants for numeric orig
                             if orig.isdigit():
                                 if f"AS{orig}" in out:
                                     mapped[orig] = out[f"AS{orig}"]
@@ -910,18 +261,11 @@ class IPEnrichmentService:
         return resp
 
     async def lookup_ips_bulk(self, ips: t.List[str]) -> t.Dict[str, IPInfo]:
-        """Bulk lookup for multiple IPs, using local data first and bgp.tools bulk queries for misses."""
+        """Bulk lookup for multiple IPs using BGP.TOOLS."""
         results: t.Dict[str, IPInfo] = {}
 
-        # Try a fast, non-blocking load of the optimized pickle; do NOT
-        # attempt a network refresh or acquire the download lock here since
-        # this function is called during request handling. If the pickle
-        # cannot be loaded, proceed with bgp.tools lookups only.
-        if not self.ixp_networks:
-            self._try_load_pickle()
-
-        # Prepare misses
-        misses: t.List[str] = []
+        # Prepare list for query
+        query_ips: t.List[str] = []
         for ip in ips:
             try:
                 target_ip = ip_address(ip)
@@ -929,63 +273,25 @@ class IPEnrichmentService:
                 results[ip] = IPInfo(ip)
                 continue
 
-            # private/reserved
+            # Check for private/reserved addresses
             if target_ip.is_private or target_ip.is_reserved or target_ip.is_loopback:
                 results[ip] = IPInfo(ip, asn=0, asn_name="Private", prefix="Private Network")
                 continue
 
-            # check IXP
-            found_ixp = False
-            for net_addr, prefixlen, ixp_name in self.ixp_networks:
-                try:
-                    network = ip_network(f"{net_addr}/{prefixlen}", strict=False)
-                    if target_ip in network:
-                        results[ip] = IPInfo(ip, is_ixp=True, ixp_name=ixp_name)
-                        found_ixp = True
-                        break
-                except Exception:
-                    continue
-            if found_ixp:
-                continue
+            query_ips.append(ip)
 
-            # try local optimized tables
-            if not self._lookup_optimized:
-                self._optimize_lookups()
-
-            matched = False
-            target_int = int(target_ip)
-            if isinstance(target_ip, IPv4Address):
-                for net_int, mask_bits, asn, cidr_string in self._ipv4_networks:
-                    if (target_int >> mask_bits) == (net_int >> mask_bits):
-                        asn_data = self.asn_info.get(asn, {})
-                        asn_name = asn_data.get("name", f"AS{asn}")
-                        country = asn_data.get("country", "")
-                        results[ip] = IPInfo(
-                            ip, asn=asn, asn_name=asn_name, prefix=cidr_string, country=country
-                        )
-                        matched = True
-                        break
-            else:
-                for net_int, mask_bits, asn, cidr_string in self._ipv6_networks:
-                    if (target_int >> mask_bits) == (net_int >> mask_bits):
-                        asn_data = self.asn_info.get(asn, {})
-                        asn_name = asn_data.get("name", f"AS{asn}")
-                        country = asn_data.get("country", "")
-                        results[ip] = IPInfo(
-                            ip, asn=asn, asn_name=asn_name, prefix=cidr_string, country=country
-                        )
-                        matched = True
-                        break
-
-            if not matched:
-                misses.append(ip)
-
-        # Query bgp.tools in bulk for misses
-        if misses:
-            bulk = await self._query_bgp_tools_bulk(misses)
-            for ip in misses:
+        # Query BGP.TOOLS in bulk for all IPs
+        if query_ips:
+            bulk = await self._query_bgp_tools_bulk(query_ips)
+            for ip in query_ips:
                 asn, asn_name, prefix = bulk.get(ip, (None, None, None))
-                if asn:
+
+                # Check if this is an IXP (indicated by None ASN from our parsing)
+                is_ixp = asn is None and asn_name is not None
+
+                if is_ixp:
+                    results[ip] = IPInfo(ip, is_ixp=True, ixp_name=asn_name)
+                elif asn:
                     try:
                         self.asn_info[int(asn)] = {"name": asn_name or f"AS{asn}", "country": ""}
                     except Exception:
@@ -998,19 +304,8 @@ class IPEnrichmentService:
 
     async def lookup_ip(self, ip_str: str) -> IPInfo:
         """Lookup an IP address and return ASN or IXP information."""
-        try:
-            if not self.ixp_networks:
-                self._try_load_pickle()
-        except Exception:
-            if Settings.debug:
-                log.debug("Non-blocking data load failed; continuing with on-demand lookups")
-
-        self._optimize_lookups()
-
         if Settings.debug:
-            log.debug(
-                f"Looking up IP {ip_str} - have {len(self.cidr_networks)} CIDR entries, {len(self.asn_info)} ASN entries"
-            )
+            log.debug(f"Looking up IP {ip_str}")
 
         try:
             target_ip = ip_address(ip_str)
@@ -1025,51 +320,20 @@ class IPEnrichmentService:
                 log.debug(f"IP {ip_str} is in private/reserved range")
             return IPInfo(ip_str, asn=0, asn_name="Private", prefix="Private Network")
 
-        # Check IXP networks first
-        for net_addr, prefixlen, ixp_name in self.ixp_networks:
-            try:
-                network = ip_network(f"{net_addr}/{prefixlen}", strict=False)
-                if target_ip in network:
-                    if Settings.debug:
-                        log.debug(f"Found IXP match for {ip_str}: {ixp_name}")
-                    return IPInfo(ip_str, is_ixp=True, ixp_name=ixp_name)
-            except Exception:
-                continue
-
-        # Fast integer-based ASN lookup
-        target_int = int(target_ip)
-
-        if isinstance(target_ip, IPv4Address):
-            for net_int, mask_bits, asn, cidr_string in self._ipv4_networks:
-                if (target_int >> mask_bits) == (net_int >> mask_bits):
-                    asn_data = self.asn_info.get(asn, {})
-                    asn_name = asn_data.get("name", f"AS{asn}")
-                    country = asn_data.get("country", "")
-                    if Settings.debug:
-                        log.debug(
-                            f"Found ASN match for {ip_str}: AS{asn} ({asn_name}) in {cidr_string}"
-                        )
-                    return IPInfo(
-                        ip_str, asn=asn, asn_name=asn_name, prefix=cidr_string, country=country
-                    )
-        else:
-            for net_int, mask_bits, asn, cidr_string in self._ipv6_networks:
-                if (target_int >> mask_bits) == (net_int >> mask_bits):
-                    asn_data = self.asn_info.get(asn, {})
-                    asn_name = asn_data.get("name", f"AS{asn}")
-                    country = asn_data.get("country", "")
-                    if Settings.debug:
-                        log.debug(
-                            f"Found ASN match for {ip_str}: AS{asn} ({asn_name}) in {cidr_string}"
-                        )
-                    return IPInfo(
-                        ip_str, asn=asn, asn_name=asn_name, prefix=cidr_string, country=country
-                    )
-
-        # Query bgp.tools for unknown IPs
+        # Query bgp.tools for the IP
         try:
             asn, asn_name, prefix = await self._query_bgp_tools_for_ip(ip_str)
-            if asn:
+
+            # Check if this is an IXP (indicated by keywords in organization name)
+            is_ixp = asn_name and any(
+                keyword in asn_name.lower() for keyword in ["ix", "exchange", "peering"]
+            )
+
+            if is_ixp:
+                if Settings.debug:
+                    log.debug(f"Found IXP match for {ip_str}: {asn_name}")
+                return IPInfo(ip_str, is_ixp=True, ixp_name=asn_name)
+            elif asn:
                 # Cache result
                 try:
                     self.asn_info[int(asn)] = {"name": asn_name or f"AS{asn}", "country": ""}
@@ -1089,111 +353,8 @@ class IPEnrichmentService:
 
     async def lookup_asn_name(self, asn: int) -> str:
         """Get the organization name for an ASN."""
-        # Attempt to load data but don't fail if we can't; fall back to
-        # returning the numeric ASN string if we have no cached name.
-        try:
-            await self.ensure_data_loaded()
-        except Exception:
-            log.debug(
-                "ensure_data_loaded raised an exception while getting ASN name; using cached data if present"
-            )
-
         asn_data = self.asn_info.get(asn, {})
         name = asn_data.get("name")
-        if name:
-            return name
-
-        # Fallback: query bgp.tools via WHOIS bulk for ASN (e.g., 'AS12345')
-        try:
-            query = f"AS{asn}"
-            resp = await self._query_bgp_tools_bulk([query])
-            # resp maps 'AS12345' -> (asn_int, org, prefix) or maps '12345' -> ...
-            entry = resp.get(query) or resp.get(str(asn))
-            if entry:
-                a, org, _ = entry
-                if org:
-                    try:
-                        self.asn_info[int(asn)] = {"name": org, "country": ""}
-                    except Exception:
-                        pass
-                    return org
-        except Exception:
-            pass
-
-        return f"AS{asn}"
-
-    async def lookup_asn_country(self, asn: int) -> str:
-        """Get the country code for an ASN."""
-        try:
-            await self.ensure_data_loaded()
-        except Exception:
-            log.debug(
-                "ensure_data_loaded raised an exception while getting ASN country; using cached data if present"
-            )
-
-        asn_data = self.asn_info.get(asn, {})
-        return asn_data.get("country", "")
-
-    def lookup_ip_direct(self, ip_str: str) -> IPInfo:
-        """Direct IP lookup without ensuring data is loaded - for bulk operations."""
-        try:
-            target_ip = ip_address(ip_str)
-        except ValueError as e:
-            log.error(f"Invalid IP address: {ip_str}: {e}")
-            return IPInfo(ip_str)
-
-        # Check if IP is in private/reserved ranges first
-        if target_ip.is_private or target_ip.is_reserved or target_ip.is_loopback:
-            log.debug(f"IP {ip_str} is in private/reserved range - returning AS0 'Private'")
-            return IPInfo(ip_str, asn=0, asn_name="Private", prefix="Private Network")
-
-        # Check IXP networks first
-        for ixp_net, ixp_prefix, ixp_name in self.ixp_networks:
-            try:
-                ixp_network = ip_network(f"{ixp_net}/{ixp_prefix}")
-                if target_ip in ixp_network:
-                    log.debug(f"Found IXP match for {ip_str}: {ixp_name}")
-                    return IPInfo(ip_str, is_ixp=True, ixp_name=ixp_name)
-            except Exception:
-                continue
-
-        # Ensure optimized lookup is ready
-        if not self._lookup_optimized:
-            self._optimize_lookups()
-
-        # Fast integer-based lookup for ASN
-        target_int = int(target_ip)
-
-        if isinstance(target_ip, IPv4Address):
-            # Use optimized IPv4 lookup
-            for net_int, mask_bits, asn, cidr_string in self._ipv4_networks:
-                if (target_int >> mask_bits) == (net_int >> mask_bits):
-                    asn_data = self.asn_info.get(asn, {})
-                    asn_name = asn_data.get("name", f"AS{asn}")
-                    country = asn_data.get("country", "")
-                    log.debug(
-                        f"Found ASN match for {ip_str}: AS{asn} ({asn_name}) in {cidr_string}"
-                    )
-                    return IPInfo(
-                        ip_str, asn=asn, asn_name=asn_name, prefix=cidr_string, country=country
-                    )
-        else:
-            # Use optimized IPv6 lookup
-            for net_int, mask_bits, asn, cidr_string in self._ipv6_networks:
-                if (target_int >> mask_bits) == (net_int >> mask_bits):
-                    asn_data = self.asn_info.get(asn, {})
-                    asn_name = asn_data.get("name", f"AS{asn}")
-                    country = asn_data.get("country", "")
-                    log.debug(
-                        f"Found ASN match for {ip_str}: AS{asn} ({asn_name}) in {cidr_string}"
-                    )
-                    return IPInfo(
-                        ip_str, asn=asn, asn_name=asn_name, prefix=cidr_string, country=country
-                    )
-
-        # No match found - return AS0 with "Unknown" to indicate missing data
-        log.debug(f"No enrichment data found for {ip_str} - returning AS0 'Unknown'")
-        return IPInfo(ip_str, asn=0, asn_name="Unknown")
 
 
 # Global service instance
@@ -1208,7 +369,6 @@ async def lookup_ip(ip_address: str) -> IPInfo:
 
 async def lookup_asn_name(asn: int) -> str:
     """Get the organization name for an ASN number."""
-    # ASN lookups do not require loading PeeringDB data; perform direct lookup
     return await _service.lookup_asn_name(asn)
 
 
@@ -1227,9 +387,6 @@ async def lookup_asns_bulk(asns: t.List[t.Union[str, int]]) -> t.Dict[str, t.Dic
         Dict mapping ASN string to {"name": org_name, "country": country_code}
         Example: {"12345": {"name": "Example ISP", "country": "US"}}
     """
-    # Do NOT load PeeringDB data for ASN-only lookups; these use bgp.tools WHOIS
-    # and the in-memory `_service.asn_info` cache only. This avoids triggering
-    # PeeringDB downloads when callers only need ASN org names.
     results = {}
 
     # Normalize ASN list to strings and filter invalids
@@ -1245,7 +402,6 @@ async def lookup_asns_bulk(asns: t.List[t.Union[str, int]]) -> t.Dict[str, t.Dic
         except (ValueError, TypeError):
             continue
 
-    # Ensure we have the data loaded
     # Identify ASNs missing a human-friendly name so we can attempt a live WHOIS
     missing: list[str] = []
     for asn in requested:
@@ -1296,72 +452,22 @@ async def lookup_asns_bulk(asns: t.List[t.Union[str, int]]) -> t.Dict[str, t.Dic
 async def refresh_ip_enrichment_data() -> bool:
     """Manually refresh IP enrichment data."""
     log.info("Manual refresh requested")
-    # Respect configuration: if IP enrichment is disabled, do not attempt
-    # to refresh or download PeeringDB data. This prevents manual or UI-
-    # triggered refreshes from hitting the network when the feature is
-    # administratively turned off.
-    try:
-        params = use_state("params")
-        if (
-            not getattr(params, "structured", None)
-            or not params.structured.ip_enrichment.enrich_traceroute
-            or getattr(params.structured, "enable_for_traceroute", None) is False
-        ):
-            log.debug(
-                "IP enrichment for traceroute is disabled in configuration; skipping manual refresh"
-            )
-            return False
-    except Exception:
-        # If we can't read config for some reason, proceed with refresh to
-        # avoid silently ignoring an admin's request.
-        pass
-
-    return await _service.ensure_data_loaded()
+    # Since we no longer cache data, just return True to indicate the feature is available
+    return True
 
 
 def get_data_status() -> dict:
     """Get status information about IP enrichment data."""
     status = {
-        "data_directory": str(IP_ENRICHMENT_DATA_DIR),
-        "files_exist": {
-            "ixp_data_pickle": IXP_PICKLE_FILE.exists(),
-            "last_update": LAST_UPDATE_FILE.exists(),
-        },
-        "last_update": None,
-        "age_hours": None,
+        "mode": "real-time",
+        "data_source": "BGP.TOOLS",
+        "cache_enabled": False,
+        "last_update": "Real-time lookups via BGP.TOOLS",
         "data_counts": {
-            # Prefer the in-memory count when available; otherwise try to
-            # inspect the optimized pickle on disk so status is accurate
-            # across multiple worker processes.
-            "ixp_networks": len(_service.ixp_networks) if _service.ixp_networks else None,
+            "cached_ips": len(_service._ip_cache),
+            "cached_asns": len(_service.asn_info),
         },
     }
-
-    if LAST_UPDATE_FILE.exists():
-        try:
-            with open(LAST_UPDATE_FILE, "r") as f:
-                last_update = datetime.fromisoformat(f.read().strip())
-                status["last_update"] = last_update.isoformat()
-                status["age_hours"] = (datetime.now() - last_update).total_seconds() / 3600
-        except Exception:
-            pass
-
-    # If in-memory count is empty (likely this worker hasn't loaded the
-    # pickle), attempt to read the optimized pickle on disk to compute a
-    # reliable count for the status endpoint without mutating service state.
-    if status["data_counts"].get("ixp_networks") in (None, 0) and IXP_PICKLE_FILE.exists():
-        try:
-            with open(IXP_PICKLE_FILE, "rb") as f:
-                parsed = pickle.load(f)
-            if isinstance(parsed, list):
-                status["data_counts"]["ixp_networks"] = len(parsed)
-            else:
-                status["data_counts"]["ixp_networks"] = 0
-        except Exception:
-            # If reading the pickle fails, leave the previously reported
-            # value (None or 0). This avoids crashing the status endpoint.
-            pass
-
     return status
 
 

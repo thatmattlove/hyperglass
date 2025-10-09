@@ -39,29 +39,15 @@ class StructuredRpki(HyperglassModel):
 
 
 class StructuredIpEnrichment(HyperglassModel):
-    """Control IP enrichment for structured data responses.
-
-    Two tri-state flags are provided to allow the presence of a `structured:`
-    config block to imply the features are enabled, while still allowing users
-    to explicitly disable them.
-    """
-
-    cache_timeout: int = 604800  # 7 days in seconds (minimum)
-
-    @field_validator("cache_timeout")
-    def validate_cache_timeout(cls, value: int) -> int:
-        """Ensure cache timeout is at least 7 days (604800 seconds)."""
-        if value < 604800:
-            return 604800
-        return value
+    """Control IP enrichment for structured data responses using real-time BGP.TOOLS lookups."""
 
     enrich_traceroute: bool = True
-    """Enable ASN/org/IP enrichment for traceroute hops.
+    """Enable ASN/org/IP enrichment for traceroute hops using real-time BGP.TOOLS data."""
 
-    This option remains under `structured.ip_enrichment` per-user request and
-    must be True (in addition to top-level structured presence and
-    `structured.enable_for_traceroute` not being False) for enrichment to run.
-    """
+    @field_validator("enrich_traceroute")
+    def validate_enrich_traceroute(cls, value: bool) -> bool:
+        """Validate traceroute enrichment setting."""
+        return value
 
 
 class Structured(HyperglassModel):

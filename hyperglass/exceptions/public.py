@@ -20,32 +20,84 @@ class ScrapeError(
     """Raised when an SSH driver error occurs."""
 
     def __init__(self, *, error: BaseException, device: "Device"):
-        """Initialize parent error."""
-        super().__init__(error=str(error), device=device.name, proxy=device.proxy)
+        """Initialize parent error with sanitized error message."""
+        # Sanitize error message to remove sensitive information like IP/port
+        error_str = str(error)
+        
+        # Remove device settings line that contains IP:port
+        if "Device settings:" in error_str:
+            lines = error_str.split('\n')
+            sanitized_lines = [line for line in lines if not line.strip().startswith("Device settings:")]
+            error_str = '\n'.join(sanitized_lines).strip()
+        
+        # If the error is empty after sanitization, provide a generic message
+        if not error_str or error_str.isspace():
+            error_str = "Connection error occurred"
+            
+        super().__init__(error=error_str, device=device.name, proxy=device.proxy)
 
 
 class AuthError(PublicHyperglassError, template="authentication_error", level="danger"):
     """Raised when authentication to a device fails."""
 
     def __init__(self, *, error: BaseException, device: "Device"):
-        """Initialize parent error."""
-        super().__init__(error=str(error), device=device.name, proxy=device.proxy)
+        """Initialize parent error with sanitized error message."""
+        # Sanitize error message to remove sensitive information like IP/port
+        error_str = str(error)
+        
+        # Remove device settings line that contains IP:port
+        if "Device settings:" in error_str:
+            lines = error_str.split('\n')
+            sanitized_lines = [line for line in lines if not line.strip().startswith("Device settings:")]
+            error_str = '\n'.join(sanitized_lines).strip()
+        
+        # If the error is empty after sanitization, provide a generic message
+        if not error_str or error_str.isspace():
+            error_str = "Authentication failed"
+            
+        super().__init__(error=error_str, device=device.name, proxy=device.proxy)
 
 
 class RestError(PublicHyperglassError, template="connection_error", level="danger"):
     """Raised upon a rest API client error."""
 
     def __init__(self, *, error: BaseException, device: "Device"):
-        """Initialize parent error."""
-        super().__init__(error=str(error), device=device.name)
+        """Initialize parent error with sanitized error message."""
+        # Sanitize error message to remove sensitive information like IP/port
+        error_str = str(error)
+        
+        # Remove device settings line that contains IP:port
+        if "Device settings:" in error_str:
+            lines = error_str.split('\n')
+            sanitized_lines = [line for line in lines if not line.strip().startswith("Device settings:")]
+            error_str = '\n'.join(sanitized_lines).strip()
+        
+        # If the error is empty after sanitization, provide a generic message
+        if not error_str or error_str.isspace():
+            error_str = "REST API connection error"
+            
+        super().__init__(error=error_str, device=device.name)
 
 
 class DeviceTimeout(PublicHyperglassError, template="request_timeout", level="danger"):
     """Raised when the connection to a device times out."""
 
     def __init__(self, *, error: BaseException, device: "Device"):
-        """Initialize parent error."""
-        super().__init__(error=str(error), device=device.name, proxy=device.proxy)
+        """Initialize parent error with sanitized error message."""
+        # Sanitize error message to remove sensitive information like IP/port
+        error_str = str(error)
+        
+        # Remove device settings line that contains IP:port
+        if "Device settings:" in error_str:
+            lines = error_str.split('\n')
+            sanitized_lines = [line for line in lines if not line.strip().startswith("Device settings:")]
+            error_str = '\n'.join(sanitized_lines).strip()
+        
+        # If the error is empty after sanitization, provide a generic message
+        if not error_str or error_str.isspace():
+            error_str = "Connection timed out"
+            
+        super().__init__(error=error_str, device=device.name, proxy=device.proxy)
 
 
 class InvalidQuery(PublicHyperglassError, template="request_timeout"):

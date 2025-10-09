@@ -184,41 +184,44 @@ async def query(_state: HyperglassState, request: Request, data: Query) -> Query
                         structured=data.device.structured_output or False,
                     )
                 else:
-                    # Best-effort: if IP enrichment is enabled, schedule a
-                    # non-blocking background refresh so the service can
-                    # update PeeringDB caches without relying on the client.
-                    try:
-                        from hyperglass.state import use_state
-
-                        params = use_state("params")
-                        if (
-                            getattr(params, "structured", None)
-                            and params.structured.ip_enrichment.enrich_traceroute
-                            and getattr(params.structured, "enable_for_traceroute", None)
-                            is not False
-                        ):
-                            try:
-                                from hyperglass.external.ip_enrichment import (
-                                    refresh_ip_enrichment_data,
-                                )
-
-                                async def _bg_refresh():
-                                    try:
-                                        await refresh_ip_enrichment_data()
-                                    except Exception as e:
-                                        _log.debug("Background IP enrichment refresh failed: {}", e)
-
-                                # Schedule background refresh and don't await it.
-                                asyncio.create_task(_bg_refresh())
-                            except Exception:
-                                # If import or scheduling fails, proceed without refresh
-                                pass
-                    except Exception:
-                        # If we can't access params, skip background refresh
-                        pass
-
-                    # Pass request to execution module
-                    output = await execute(data)
+                    # Pass request to execution module with retry logic for specific platforms
+                    max_retries = 2 if data.device.platform in ("mikrotik_routeros", "mikrotik_switchos", "mikrotik") else 1
+                    retry_count = 0
+                    output = None
+                    
+                    while retry_count < max_retries:
+                        attempt_start = time.time()
+                        output = await execute(data)
+                        attempt_time = round(time.time() - attempt_start, 4)
+                        
+                        # Check if this looks like a failed MikroTik query (empty result + fast execution)
+                        should_retry = False
+                        if retry_count < max_retries - 1 and data.device.platform in ("mikrotik_routeros", "mikrotik_switchos", "mikrotik"):
+                            if is_type(output, OutputDataModel):
+                                try:
+                                    as_json = output.export_json()
+                                    raw_output = json.loads(as_json)
+                                    # Check for empty BGP route table and fast execution (< 5 seconds)
+                                    if (isinstance(raw_output, dict) and 
+                                        "count" in raw_output and "routes" in raw_output and
+                                        raw_output.get("count", 0) == 0 and 
+                                        not raw_output.get("routes") and
+                                        attempt_time < 5.0):
+                                        should_retry = True
+                                        _log.bind(attempt=retry_count + 1, runtime=attempt_time).warning(
+                                            "MikroTik returned empty result with fast execution time - retrying"
+                                        )
+                                except Exception:
+                                    # If we can't parse the output, don't retry
+                                    pass
+                        
+                        if not should_retry:
+                            break
+                            
+                        retry_count += 1
+                        if should_retry:
+                            # Wait a bit before retrying to let the device settle
+                            await asyncio.sleep(2)
 
                 endtime = time.time()
                 elapsedtime = round(endtime - starttime, 4)

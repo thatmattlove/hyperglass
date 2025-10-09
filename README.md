@@ -53,7 +53,7 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 - REST API with automatic, configurable OpenAPI documentation
 - Modern, responsive UI built on [ReactJS](https://reactjs.org/), with [NextJS](https://nextjs.org/) & [Chakra UI](https://chakra-ui.com/), written in [TypeScript](https://www.typescriptlang.org/)
 - **AS path visualization** with interactive flow charts showing organization names
-- **Offline IP enrichment** using BGP.tools bulk data and PeeringDB for maximum performance
+- **Real-time IP enrichment** using BGP.tools for maximum accuracy and up-to-date data
 - Query multiple devices simultaneously
 - **Concurrent processing** with non-blocking operations for improved performance
 - Browser-based DNS-over-HTTPS resolution of FQDN queries
@@ -84,7 +84,6 @@ hyperglass is built entirely on open-source software. Here are some of the aweso
 - [Pydantic](https://docs.pydantic.dev/latest/)
 - [Chakra UI](https://chakra-ui.com/)
 - [React Flow](https://reactflow.dev/) - AS path visualization
-- [BGP.tools](https://bgp.tools/) - IP enrichment data
-- [PeeringDB](https://peeringdb.com/) - Network organization and IXP data
+- [BGP.tools](https://bgp.tools/) - Real-time IP enrichment and IXP data
 
 [![GitHub](https://img.shields.io/github/license/thatmattlove/hyperglass?color=330036&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/blob/main/LICENSE)
