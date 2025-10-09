@@ -1,4 +1,4 @@
-FROM python:3.12.3-alpine as base
+FROM python:3.13-alpine AS base
 WORKDIR /opt/hyperglass
 ENV HYPERGLASS_APP_PATH=/etc/hyperglass
 ENV HYPERGLASS_HOST=0.0.0.0

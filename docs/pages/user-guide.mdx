@@ -1,0 +1,362 @@
+---
+title: User Guide
+description: How to use the hyperglass web interface
+---
+
+import { Callout } from 'nextra/components'
+
+# User Guide
+
+This guide explains how to use the hyperglass web interface from an end-user perspective. If you're looking to configure hyperglass as an administrator, see the [Configuration Guide](/configuration).
+
+## Getting Started
+
+The hyperglass web interface provides an easy-to-use form for performing network diagnostics. Here's how to use it:
+
+### 1. Select a Location
+
+Choose which router/location you want to query from using the location selector. This determines which network device will execute your diagnostic command.
+
+- **Dropdown Mode**: Select from a list of available locations
+- **Gallery Mode**: Choose from a visual grid of location cards (used when there are 5 or fewer locations)
+
+### 2. Choose Query Type
+
+Select the type of network diagnostic you want to perform:
+
+- **Ping**: Test basic connectivity and measure round-trip time
+- **Traceroute**: Show the network path to a destination
+- **BGP Route**: Look up BGP routing information for an IP prefix
+- **BGP Community**: Find routes with specific BGP communities
+- **BGP AS Path**: Find routes traversing specific ASNs
+
+### 3. Enter Your Target
+
+Specify what you want to query. This can be:
+
+- **IP Address**: `8.8.8.8` or `2001:4860:4860::8888`
+- **Hostname**: `google.com` or `www.example.com`
+- **IP Prefix**: `8.8.8.0/24` (for BGP queries)
+- **AS Number**: `AS15169` (for AS path queries)
+
+## Using Hostnames (FQDN Resolution)
+
+<Callout type="info">
+When you enter a hostname like `google.com` instead of an IP address, hyperglass automatically resolves it to IP addresses using secure DNS-over-HTTPS. This happens directly in your browser for privacy and security.
+</Callout>
+
+### How Hostname Resolution Works
+
+1. **Enter a hostname**: Type something like `google.com` in the target field
+2. **Detection**: hyperglass detects this is a hostname (not an IP address)
+3. **DNS Resolution**: A modal opens showing "Resolving hostname..."
+4. **Choose IP**: Select from available IPv4 and/or IPv6 addresses
+5. **Submit Query**: The selected IP address is used for your diagnostic query
+
+### Hostname Resolution Features
+
+- **IPv4 and IPv6**: Get both A and AAAA records when available
+- **Privacy-Focused**: Uses DNS-over-HTTPS (encrypted) instead of plain DNS
+- **Multiple Providers**: Supports Cloudflare DNS, Google DNS, or custom resolvers
+- **Browser-Based**: Resolution happens in your browser, not on the server
+
+### Example: Resolving a Hostname
+
+```
+1. Enter "google.com" as your target
+2. Click Submit
+3. See resolution modal:
+   ┌─────────────────────────────────────┐
+   │ Your browser has resolved google.com to │
+   │                                     │
+   │  [→] 142.250.191.14      (IPv4)     │
+   │  [→] 2607:f8b0:4004:c1b::71 (IPv6)  │
+   │                                     │
+   └─────────────────────────────────────┘
+4. Click your preferred IP address
+5. Query executes using the selected IP
+```
+
+## Using "My IP" Feature
+
+<Callout type="info">
+The "My IP" button automatically detects your public IP address and uses it as the query target. This is useful for testing connectivity or routing to your current location.
+</Callout>
+
+### How "My IP" Works
+
+1. **Click the "My IP" button** (located next to the target input field)
+2. **IP Detection**: A modal opens showing "Detecting your IP address..."
+3. **Choose Version**: Select your IPv4 or IPv6 address (or both if available)
+4. **Auto-Population**: Your selected IP is automatically entered as the target
+
+### When to Use "My IP"
+
+- **Connectivity Testing**: Check if the network can reach your location
+- **Routing Analysis**: See what path traffic takes to reach you
+- **Latency Testing**: Measure round-trip time to your connection
+- **Troubleshooting**: Diagnose connectivity issues from your current network
+
+### Example: Using My IP
+
+```
+1. Click the "My IP" button
+2. See detection modal:
+   ┌─────────────────────────────────────┐
+   │     Select an IP Address            │
+   │                                     │
+   │  [→] 203.0.113.45       (IPv4)      │
+   │  [→] 2001:db8::1        (IPv6)      │
+   │                                     │
+   └─────────────────────────────────────┘
+3. Click your preferred IP version
+4. IP is automatically entered as target
+5. Submit your query as normal
+```
+
+## Query Types Explained
+
+### Ping
+
+Tests basic connectivity and measures round-trip time.
+
+**Use Cases:**
+- Check if a host is reachable
+- Measure network latency
+- Basic connectivity troubleshooting
+
+**Sample Output:**
+```
+PING google.com (142.250.191.14): 56 data bytes
+64 bytes from 142.250.191.14: icmp_seq=0 ttl=58 time=12.345 ms
+64 bytes from 142.250.191.14: icmp_seq=1 ttl=58 time=11.678 ms
+
+--- google.com ping statistics ---
+2 packets transmitted, 2 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 11.678/12.012/12.345/0.334 ms
+```
+
+### Traceroute
+
+Shows the network path packets take to reach a destination.
+
+**Use Cases:**
+- Identify network routing paths
+- Find where connectivity breaks
+- Analyze routing decisions
+- Network troubleshooting
+
+**Sample Output:**
+```
+traceroute to google.com (142.250.191.14), 30 hops max, 60 byte packets
+ 1  gateway.local (192.168.1.1)  1.234 ms  1.456 ms  1.789 ms
+ 2  isp-router.net (203.0.113.1)  5.123 ms  5.234 ms  5.345 ms
+ 3  backbone.net (198.51.100.1)  12.34 ms  12.45 ms  12.56 ms
+ 4  google-peer.net (142.250.191.14)  15.67 ms  15.78 ms  15.89 ms
+```
+
+### BGP Route
+
+Look up BGP routing information for IP prefixes.
+
+**Use Cases:**
+- Check BGP route advertisements
+- Verify RPKI validation status
+- Analyze AS paths and communities
+- Route troubleshooting
+
+**Sample Output:**
+```
+BGP routing table entry for 8.8.8.0/24
+Paths: 1 available
+  15169
+    192.0.2.1 from 192.0.2.1
+      Origin IGP, metric 0, valid, external, best
+      Community: 65000:100 65000:200
+      RPKI validation state: Valid
+      Last update: 2 hours ago
+```
+
+### BGP Community
+
+Find routes with specific BGP communities.
+
+**Use Cases:**
+- Filter routes by community values
+- Analyze traffic engineering policies
+- Debug community-based routing
+
+### BGP AS Path
+
+Find routes traversing specific Autonomous Systems.
+
+**Use Cases:**
+- Analyze internet routing paths
+- Check AS-level connectivity
+- Investigate routing policies
+
+## Understanding Results
+
+### Status Indicators
+
+Results include several status indicators:
+
+- **✓ Success**: Query completed successfully
+- **⚠ Warning**: Query completed with warnings
+- **✗ Error**: Query failed
+- **🕒 Cached**: Result was served from cache
+- **⏱ Time**: Shows how long the query took
+
+### Cache Information
+
+<Callout type="info">
+To improve performance, hyperglass caches query results. Cached results are marked with a clock icon and show when they expire. Fresh queries are automatically run when cache expires.
+</Callout>
+
+When you see cached results:
+- **Cache Timer**: Shows "Results cached for X seconds"
+- **Cache Icon**: Hover to see when the original query was run
+- **Auto-Refresh**: New query runs automatically when cache expires
+
+### RPKI Validation
+
+For BGP queries, routes show RPKI validation status:
+
+- **Valid**: Route has valid ROA (Route Origin Authorization)
+- **Invalid**: Route conflicts with ROA
+- **Unknown**: No ROA exists for this route
+- **Not Verified**: RPKI validation not performed
+
+## Common Use Cases
+
+### Network Troubleshooting
+
+**Scenario**: Website seems slow from your location
+
+1. Use **"My IP"** feature to get your IP address
+2. Run **ping** to measure basic connectivity and latency
+3. Run **traceroute** to see the network path
+4. Check **BGP route** to verify optimal routing
+
+### Connectivity Testing
+
+**Scenario**: Check if a server is reachable
+
+1. Enter the server's **hostname or IP address**
+2. Select multiple **router locations** to test from different points
+3. Use **ping** for basic reachability
+4. Use **traceroute** if ping fails to find where connectivity breaks
+
+### Routing Analysis
+
+**Scenario**: Analyze how traffic reaches a destination
+
+1. Enter the **destination IP or prefix**
+2. Use **BGP route** to see routing table entries
+3. Check **AS path** to understand routing decisions
+4. Verify **RPKI validation** for security
+
+### Multi-Location Testing
+
+**Scenario**: Test connectivity from multiple network locations
+
+1. Choose your **target** (IP, hostname, or prefix)
+2. Select **multiple locations** using Ctrl+Click (or Cmd+Click on Mac)
+3. Submit query to test from **all selected locations simultaneously**
+4. Compare results to identify location-specific issues
+
+## Tips and Best Practices
+
+### Efficient Querying
+
+- **Use hostnames** when you don't know IP addresses - hyperglass will resolve them
+- **Try "My IP"** for connectivity testing from your location
+- **Select multiple locations** to get a broader view of network behavior
+- **Check cached results** first - they may already have the information you need
+
+### Interpreting Results
+
+- **Compare multiple locations** to identify regional issues
+- **Look at RPKI status** for BGP routes to verify security
+- **Check AS paths** to understand routing decisions
+- **Use traceroute** when ping shows connectivity issues
+
+### Privacy and Security
+
+- **DNS resolution** uses encrypted DNS-over-HTTPS for privacy
+- **No logging** of sensitive query details in most configurations
+- **RPKI validation** helps verify route authenticity
+- **Rate limiting** prevents abuse while allowing legitimate use
+
+## Troubleshooting
+
+### Common Issues
+
+**"Unable to resolve hostname"**
+- Check spelling of the hostname
+- Try a different DNS provider in browser settings
+- Use an IP address instead
+
+**"Request timed out"**
+- Target may be unreachable or filtering responses
+- Try a different query type
+- Check from multiple locations
+
+**"No output"**
+- Query completed but returned no results
+- Target may not exist in routing tables
+- Try a broader search (e.g., larger prefix)
+
+**"Target not allowed"**
+- Query target is blocked by policy
+- Contact administrator if you believe this is an error
+- Try a different target
+
+### Getting Help
+
+If you encounter issues:
+
+1. **Check multiple locations** - issue may be location-specific
+2. **Try different query types** - some may work when others don't
+3. **Contact network administrators** - they can review logs and policies
+4. **Report persistent issues** - help improve the service
+
+---
+
+## Advanced Features
+
+### Keyboard Shortcuts
+
+- **Enter**: Submit query
+- **Ctrl/Cmd + Click**: Select multiple locations
+- **Tab**: Navigate between form fields
+- **Escape**: Close modals/popups
+
+### URL Parameters
+
+You can bookmark or share queries using URL parameters:
+
+```
+https://lg.example.com/?location=router1&type=ping&target=8.8.8.8
+```
+
+Parameters:
+- `location`: Router location ID
+- `type`: Query type (ping, traceroute, bgp_route, etc.)
+- `target`: Query target (IP, hostname, prefix, etc.)
+
+### API Access
+
+For programmatic access, use the REST API:
+
+```bash
+curl -X POST https://lg.example.com/api/query \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query_location": "router1",
+    "query_type": "ping", 
+    "query_target": "8.8.8.8"
+  }'
+```
+
+See the [API Documentation](/api/docs) for complete details.

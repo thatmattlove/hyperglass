@@ -1,0 +1,800 @@
+---
+title: Complete Configuration Reference
+description: Comprehensive documentation for all config.yaml parameters with examples
+---
+
+import { Callout } from 'nextra/components'
+import { DocsButton } from '~/components/docs-button'
+
+# Complete Configuration Reference
+
+This is a comprehensive reference for all available configuration options in hyperglass. The configuration is written in YAML format and saved as `config.yaml` in your hyperglass configuration directory.
+
+## Top-Level Parameters
+
+These parameters are configured at the root level of your `config.yaml` file.
+
+### Basic Site Information
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `site_title` | String | `hyperglass` | The name of your hyperglass site. Used in HTML `<title>` tags and API documentation. |
+| `org_name` | String | `Beloved Hyperglass User` | Your organization's name. Used in UI, API documentation, and HTML meta tags for SEO. |
+| `site_description` | String | `{org_name} Network Looking Glass` | Short description of your site. Used for HTML meta description tag. `{org_name}` is automatically replaced. |
+| `primary_asn` | String/Integer | `65001` | Your network's primary ASN. Used for defaults like subtitle and PeeringDB URL. |
+
+#### Example: Basic Site Configuration
+```yaml filename="config.yaml"
+site_title: "ACME Networks Looking Glass"
+org_name: "ACME Networks Inc."
+site_description: "Network diagnostic tools for ACME Networks AS65000"
+primary_asn: 65000
+```
+
+### System Parameters
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `request_timeout` | Integer | `90` | Global timeout in seconds for all requests. Frontend uses this exact value; backend uses value minus 1 second. |
+| `fake_output` | Boolean | `false` | Enable fake static output for development/testing purposes. |
+| `cors_origins` | Array | `[]` | List of allowed CORS hosts. By default, no CORS hosts are allowed. |
+| `plugins` | Array | `[]` | List of paths to custom plugin files. |
+
+#### Example: System Configuration
+```yaml filename="config.yaml"
+request_timeout: 120
+fake_output: false  # Set to true for testing
+cors_origins:
+  - "https://network-tools.example.com"
+  - "https://monitoring.example.com"
+plugins:
+  - "/etc/hyperglass/plugins/custom_validation.py"
+```
+
+---
+
+## Cache Configuration
+
+Controls how hyperglass caches query responses to improve performance.
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `cache.timeout` | Integer | `120` | Cache timeout in seconds. How long responses are cached. |
+| `cache.show_text` | Boolean | `true` | Whether to show cache timeout countdown to users. |
+
+#### Example: Cache Configuration
+```yaml filename="config.yaml"
+cache:
+  timeout: 300      # Cache for 5 minutes
+  show_text: true   # Show "Results cached for X seconds" to users
+```
+
+---
+
+## API Documentation Configuration
+
+Controls the automatically generated API documentation available at `/api/docs`.
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `docs.enable` | Boolean | `true` | Enable or disable API documentation. |
+| `docs.base_url` | String | `https://lg.example.net` | Base URL used in API request samples. |
+| `docs.path` | String | `/api/docs` | HTTP path where API documentation is accessible. |
+| `docs.title` | String | `{site_title} API Documentation` | API documentation title. `{site_title}` is automatically replaced. |
+| `docs.description` | String | `` | Description appearing below the API documentation title. |
+| `docs.mode` | String | `redoc` | Documentation UI style: `redoc` or `swagger`. |
+
+### API Endpoint Documentation
+
+Each API endpoint's documentation can be customized:
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `docs.query.title` | String | Title for the query submission endpoint |
+| `docs.query.description` | String | Description for the query submission endpoint |
+| `docs.query.summary` | String | Summary text for the query submission endpoint |
+| `docs.devices.title` | String | Title for the devices list endpoint |
+| `docs.devices.description` | String | Description for the devices list endpoint |
+| `docs.devices.summary` | String | Summary text for the devices list endpoint |
+| `docs.queries.title` | String | Title for the supported queries endpoint |
+| `docs.queries.description` | String | Description for the supported queries endpoint |
+| `docs.queries.summary` | String | Summary text for the supported queries endpoint |
+| `docs.info.title` | String | Title for the system information endpoint |
+| `docs.info.description` | String | Description for the system information endpoint |
+| `docs.info.summary` | String | Summary text for the system information endpoint |
+
+#### Example: API Documentation Configuration
+```yaml filename="config.yaml"
+docs:
+  enable: true
+  base_url: "https://lg.acmenetworks.com"
+  path: "/api/docs"
+  title: "ACME Networks Looking Glass API"
+  description: "RESTful API for network diagnostic queries"
+  mode: "redoc"
+  
+  # Customize individual endpoints
+  query:
+    title: "Execute Network Query"
+    description: "Submit traceroute, ping, or BGP lookup requests"
+    summary: "Network Diagnostics"
+  
+  devices:
+    title: "Network Locations"
+    description: "Available routers and their capabilities"
+    summary: "Router List"
+```
+
+---
+
+## Logging & Webhooks Configuration
+
+Controls log output, file logging, syslog, and HTTP webhooks for query notifications.
+
+### File Logging
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `logging.directory` | Path | `/tmp` | Directory where log files are stored. |
+| `logging.format` | String | `text` | Log format: `text` or `json`. |
+| `logging.max_size` | Size | `50MB` | Maximum log file size before rotation. |
+
+### Syslog
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `logging.syslog.enable` | Boolean | `true` | Enable syslog logging. |
+| `logging.syslog.host` | String | | Syslog server hostname or IP address. |
+| `logging.syslog.port` | Integer | `514` | Syslog server port. |
+
+### HTTP Webhooks
+
+Send query notifications to external systems (Slack, Teams, custom endpoints).
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `logging.http.enable` | Boolean | `true` | Enable HTTP webhook logging. |
+| `logging.http.provider` | String | `generic` | Webhook provider: `slack`, `msteams`, or `generic`. |
+| `logging.http.host` | URL | | Webhook endpoint URL. |
+| `logging.http.verify_ssl` | Boolean | `true` | Verify SSL certificates for HTTPS webhooks. |
+| `logging.http.timeout` | Number | `5.0` | Webhook request timeout in seconds. |
+| `logging.http.headers` | Object | `{}` | Custom HTTP headers to send with webhooks. |
+| `logging.http.params` | Object | `{}` | Custom URL parameters to send with webhooks. |
+
+#### Authentication for HTTP Webhooks
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `logging.http.authentication.mode` | String | `basic` | Authentication mode: `basic` or `api_key`. |
+| `logging.http.authentication.username` | String | | Username for basic authentication. |
+| `logging.http.authentication.password` | String | | Password for basic auth or API key value. |
+| `logging.http.authentication.header` | String | `x-api-key` | Header name for API key authentication. |
+
+#### Example: Complete Logging Configuration
+```yaml filename="config.yaml"
+logging:
+  directory: "/var/log/hyperglass"
+  format: "json"
+  max_size: "100MB"
+  
+  # Send logs to syslog server
+  syslog:
+    enable: true
+    host: "syslog.example.com"
+    port: 514
+  
+  # Send query notifications to Slack
+  http:
+    enable: true
+    provider: "slack"
+    host: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+    timeout: 10.0
+    verify_ssl: true
+```
+
+#### Example: Custom Webhook with API Key
+```yaml filename="config.yaml"
+logging:
+  http:
+    enable: true
+    provider: "generic"
+    host: "https://monitoring.example.com/webhook"
+    authentication:
+      mode: "api_key"
+      password: "your-secret-api-key"
+      header: "Authorization"
+    headers:
+      "Content-Type": "application/json"
+      "User-Agent": "hyperglass-webhook"
+```
+
+---
+
+## Messages Configuration
+
+Customize error messages and user-facing text shown in the UI and API responses.
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `messages.no_input` | String | `{field} must be specified.` | Shown when required field is missing. `{field}` shows field name. |
+| `messages.target_not_allowed` | String | `{target} is not allowed.` | Shown when query target is denied by rules. `{target}` shows denied target. |
+| `messages.feature_not_enabled` | String | `{feature} is not enabled.` | Shown when disabled query type is requested. `{feature}` shows feature name. |
+| `messages.invalid_input` | String | `{target} is not valid.` | Shown for invalid query target values. `{target}` shows invalid input. |
+| `messages.invalid_query` | String | `{target} is not a valid {query_type} target.` | Shown for query type/target mismatches. |
+| `messages.invalid_field` | String | `{input} is an invalid {field}.` | Shown for invalid field values. |
+| `messages.general` | String | `Something went wrong.` | Generic error message for unexpected errors. |
+| `messages.not_found` | String | `{type} '{name}' not found.` | Shown when configuration object doesn't exist. |
+| `messages.request_timeout` | String | `Request timed out.` | Shown when request exceeds timeout limit. |
+| `messages.connection_error` | String | `Error connecting to {device_name}: {error}` | Shown for device connection failures. |
+| `messages.authentication_error` | String | `Authentication error occurred.` | Shown for device authentication failures. |
+| `messages.no_response` | String | `No response.` | Shown when no output can be read from device. |
+| `messages.no_output` | String | `The query completed, but no matching results were found.` | Shown for successful queries with empty results. |
+
+#### Example: Custom Messages
+```yaml filename="config.yaml"
+messages:
+  no_input: "Please specify a {field} for your query."
+  target_not_allowed: "Sorry, {target} is not permitted by our policy."
+  request_timeout: "Your request took too long and was cancelled."
+  connection_error: "Unable to reach {device_name}: {error}"
+  no_output: "Query executed successfully but returned no results."
+```
+
+---
+
+## Structured Output Configuration
+
+Controls how hyperglass processes and displays structured data from network devices.
+
+### BGP Communities
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `structured.communities.mode` | String | `deny` | How to handle communities: `permit`, `deny`, or `name`. |
+| `structured.communities.items` | Array | `[]` | List of community strings to permit/deny. |
+| `structured.communities.names` | Object | `{}` | Map community values to human-readable names. |
+
+### RPKI Validation
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `structured.rpki.mode` | String | `router` | RPKI validation source: `router` or `external`. |
+| `structured.rpki.backend` | String | `cloudflare` | External RPKI validation backend to use. |
+| `structured.rpki.rpki_server_url` | String | `` | Custom RPKI validation server URL. |
+
+#### Example: Structured Output Configuration
+```yaml filename="config.yaml"
+structured:
+  communities:
+    mode: "name"  # Show human-readable names
+    names:
+      "65000:100": "Customer Routes"
+      "65000:200": "Peer Routes" 
+      "65000:300": "Upstream Routes"
+      "65000:999": "Blackhole"
+  
+  rpki:
+    mode: "external"     # Use external RPKI validation
+    backend: "cloudflare" # Use Cloudflare's RPKI API
+```
+
+---
+
+## Web UI Configuration
+
+Extensive customization options for the web interface appearance and behavior.
+
+### Basic Web Settings
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.location_display_mode` | String | `auto` | Location selector style: `auto`, `dropdown`, or `gallery`. |
+| `web.custom_javascript` | Path | | Path to custom JavaScript file to load. |
+| `web.custom_html` | Path | | Path to custom HTML content to display. |
+
+### DNS over HTTPS
+
+Controls hostname resolution in the browser using DNS-over-HTTPS.
+
+<Callout type="info">
+When users enter hostnames (like `example.com`) instead of IP addresses, hyperglass uses DNS-over-HTTPS to resolve them to IP addresses directly in the user's browser. This provides privacy and security benefits over traditional DNS queries.
+</Callout>
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.dns_provider.name` | String | `cloudflare` | DNS provider: `cloudflare`, `google`, or `custom`. |
+| `web.dns_provider.url` | String | Auto-detected | Custom DNS-over-HTTPS endpoint URL. |
+
+#### Example: DNS Configuration
+```yaml filename="config.yaml"
+web:
+  dns_provider:
+    name: "cloudflare"  # Privacy-focused option
+
+# Or use a custom DNS resolver:
+web:
+  dns_provider:
+    name: "custom"
+    url: "https://dns.example.com/dns-query"
+```
+
+### Logo Configuration
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.logo.light` | Path | Built-in logo | Logo image for light theme. |
+| `web.logo.dark` | Path | Built-in logo | Logo image for dark theme. |
+| `web.logo.favicon` | Path | Built-in icon | Favicon/icon image. |
+| `web.logo.width` | String | `50%` | Logo width (percentage or pixels). |
+| `web.logo.height` | String | | Logo height (percentage or pixels). |
+
+#### Example: Custom Logo
+```yaml filename="config.yaml"
+web:
+  logo:
+    light: "/etc/hyperglass/images/company-logo-light.svg"
+    dark: "/etc/hyperglass/images/company-logo-dark.svg"
+    favicon: "/etc/hyperglass/images/company-icon.svg"
+    width: "200px"
+    height: "60px"
+```
+
+### Greeting Modal
+
+Show a welcome message or terms of service when users first visit.
+
+<Callout type="info">
+The greeting modal is perfect for displaying terms of service, usage policies, or welcome messages. When `required` is set to `true`, users cannot use the looking glass until they acknowledge the greeting.
+</Callout>
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.greeting.enable` | Boolean | `false` | Enable the greeting modal. |
+| `web.greeting.file` | Path | | Path to markdown/text file with greeting content. |
+| `web.greeting.title` | String | `Welcome` | Greeting modal title. |
+| `web.greeting.button` | String | `Continue` | Greeting acknowledgment button text. |
+| `web.greeting.required` | Boolean | `false` | Whether users must acknowledge before using the looking glass. |
+
+#### Example: Terms of Service Greeting
+```yaml filename="config.yaml"
+web:
+  greeting:
+    enable: true
+    title: "Terms of Service"
+    file: "/etc/hyperglass/terms-of-service.md"
+    button: "I Agree"
+    required: true  # Users must agree to proceed
+```
+
+### Text Customization
+
+Customize almost all text displayed in the user interface.
+
+#### Basic Interface Text
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.text.title` | String | `hyperglass` | Main title text. |
+| `web.text.subtitle` | String | `Network Looking Glass` | Subtitle text. |
+| `web.text.query_location` | String | `Location` | Label for location/router selection field. |
+| `web.text.query_type` | String | `Query Type` | Label for query type selection field. |
+| `web.text.query_target` | String | `Target` | Label for target input field. |
+
+#### Title Display Mode
+
+| Parameter | Value | Description |
+| :-------- | :---- | :---------- |
+| `web.text.title_mode` | `logo_only` | Show only logo, hide title and subtitle. |
+| | `text_only` | Show only title and subtitle, hide logo. |
+| | `logo_subtitle` | Show logo and subtitle, hide title. |
+| | `all` | Show logo, title, and subtitle. |
+
+#### Hostname Resolution Text
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.text.fqdn_tooltip` | String | `Use {protocol}` | Tooltip for hostname resolution buttons. `{protocol}` shows IPv4/IPv6. |
+| `web.text.fqdn_message` | String | `Your browser has resolved {fqdn} to` | Message shown during hostname resolution. |
+| `web.text.fqdn_error` | String | `Unable to resolve {fqdn}` | Error message for failed hostname resolution. |
+| `web.text.fqdn_error_button` | String | `Try Again` | Button text for retrying hostname resolution. |
+
+#### "My IP" Feature Text
+
+<Callout type="info">
+The "My IP" button automatically detects the user's public IP address and populates it as the query target. This is useful for users who want to test routing or connectivity to their own location.
+</Callout>
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.text.ip_button` | String | `My IP` | Text for the IP detection button. |
+| `web.text.ip_select` | String | `Select an IP Address` | Prompt for IP address selection. |
+| `web.text.ip_error` | String | `Unable to determine IP Address` | Error when IP detection fails. |
+| `web.text.no_ip` | String | `No {protocol} Address` | Message when specific IP version unavailable. |
+
+#### Results and Status Text
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.text.cache_prefix` | String | `Results cached for ` | Prefix for cache countdown timer. |
+| `web.text.cache_icon` | String | `Cached from {time} UTC` | Tooltip for cached result indicator. |
+| `web.text.complete_time` | String | `Completed in {seconds}` | Tooltip showing query completion time. |
+
+#### BGP/RPKI Status Text
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.text.rpki_valid` | String | `Valid` | Text for RPKI valid routes. |
+| `web.text.rpki_invalid` | String | `Invalid` | Text for RPKI invalid routes. |
+| `web.text.rpki_unknown` | String | `No ROAs Exist` | Text for RPKI unknown routes. |
+| `web.text.rpki_unverified` | String | `Not Verified` | Text for RPKI unverified routes. |
+| `web.text.no_communities` | String | `No Communities` | Text when route has no BGP communities. |
+
+#### Example: Complete Text Customization
+```yaml filename="config.yaml"
+web:
+  text:
+    title_mode: "all"
+    title: "Network Operations Center"
+    subtitle: "AS65000 Looking Glass"
+    
+    # Customize form labels
+    query_location: "Router Location"
+    query_type: "Diagnostic Type"  
+    query_target: "Destination"
+    
+    # Customize "My IP" feature
+    ip_button: "Detect My IP"
+    ip_select: "Choose your IP address"
+    
+    # Customize hostname resolution
+    fqdn_message: "We found these IP addresses for {fqdn}"
+    fqdn_error: "Could not resolve hostname {fqdn}"
+    
+    # Customize status indicators
+    cache_prefix: "Cached result expires in "
+    rpki_valid: "✓ Valid ROA"
+    rpki_invalid: "✗ Invalid ROA"
+```
+
+### Footer Links
+
+Add custom links to the footer for documentation, policies, or external resources.
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.links[].title` | String | | Link text displayed to users. |
+| `web.links[].url` | URL | | Destination URL. Can use `{primary_asn}` placeholder. |
+| `web.links[].show_icon` | Boolean | `true` | Show external link icon. |
+| `web.links[].side` | String | `left` | Footer side: `left` or `right`. |
+| `web.links[].order` | Integer | `0` | Display order (lower numbers first). |
+
+#### Example: Footer Links
+```yaml filename="config.yaml"
+web:
+  links:
+    # Default PeeringDB link (uses primary_asn automatically)
+    - title: "PeeringDB"
+      url: "https://www.peeringdb.com/asn/{primary_asn}"
+      side: "right"
+      order: 1
+      
+    # Company website
+    - title: "Our Website"
+      url: "https://acmenetworks.com"
+      show_icon: false
+      side: "left"
+      order: 0
+      
+    # Network status page
+    - title: "Network Status"
+      url: "https://status.acmenetworks.com"
+      side: "right" 
+      order: 2
+```
+
+### Footer Menus
+
+Add dropdown menus in the footer for longer content like terms of service or help documentation.
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.menus[].title` | String | | Menu title shown to users. |
+| `web.menus[].content` | String | | Menu content (markdown supported) or path to file. |
+| `web.menus[].side` | String | `left` | Footer side: `left` or `right`. |
+| `web.menus[].order` | Integer | `0` | Display order (lower numbers first). |
+
+<Callout type="info">
+For the `content` field, you can either provide the content directly in YAML (for short text) or specify a path to a markdown file (for longer content). Hyperglass automatically detects file paths and loads the content.
+</Callout>
+
+#### Example: Footer Menus
+```yaml filename="config.yaml"
+web:
+  menus:
+    # Load terms from external file
+    - title: "Terms of Service"
+      content: "/etc/hyperglass/legal/terms.md"
+      side: "left"
+      order: 0
+      
+    # Inline help content
+    - title: "Help"
+      content: |
+        ## How to use this looking glass
+        
+        1. Select a router location
+        2. Choose your query type (ping, traceroute, etc.)
+        3. Enter an IP address or hostname
+        4. Click Submit
+        
+        For technical support, email network@example.com
+      side: "right"
+      order: 0
+```
+
+### Theme Customization
+
+Customize colors, fonts, and appearance of the web interface.
+
+#### Colors
+
+You can customize both functional and palette colors:
+
+**Palette Colors:**
+```yaml filename="config.yaml"
+web:
+  theme:
+    colors:
+      # Basic colors
+      black: "#000000"
+      white: "#ffffff"
+      dark: "#010101"
+      light: "#f5f6f7"
+      gray: "#c1c7cc"
+      
+      # Brand colors  
+      red: "#d84b4b"
+      orange: "#ff6b35"
+      yellow: "#edae49"
+      green: "#35b246"
+      blue: "#314cb6"
+      teal: "#35b299"
+      cyan: "#118ab2"
+      pink: "#f2607d"
+      purple: "#8d30b5"
+```
+
+**Functional Colors:**
+```yaml filename="config.yaml"
+web:
+  theme:
+    colors:
+      # Main brand colors
+      primary: "#118ab2"    # Main interactive elements
+      secondary: "#35b299"  # Secondary elements
+      
+      # Status colors
+      success: "#35b246"    # Success states
+      warning: "#edae49"    # Warning states  
+      error: "#d84b4b"      # Error states
+      danger: "#d84b4b"     # Danger states
+```
+
+#### Fonts
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.theme.fonts.body` | String | `Nunito` | Font family for body text. |
+| `web.theme.fonts.mono` | String | `Fira Code` | Font family for monospace text (IPs, commands, etc.). |
+
+#### Default Color Mode
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.theme.default_color_mode` | String | | Default theme: `light` or `dark`. If not set, uses system preference. |
+
+#### Example: Complete Theme Customization
+```yaml filename="config.yaml"
+web:
+  theme:
+    default_color_mode: "dark"
+    
+    colors:
+      # Corporate brand colors
+      primary: "#1e3a8a"      # Corporate blue
+      secondary: "#059669"     # Corporate green
+      
+      # Custom palette
+      blue: "#1e40af"
+      green: "#047857"
+      red: "#dc2626"
+      
+    fonts:
+      body: "Inter"           # Modern sans-serif
+      mono: "JetBrains Mono"  # Developer-friendly monospace
+```
+
+### Output Highlighting
+
+Highlight specific patterns in query results for better visibility.
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.highlight[].pattern` | String | | Regular expression pattern to match. |
+| `web.highlight[].label` | String | | Optional label for the highlight rule. |
+| `web.highlight[].color` | String | `primary` | Theme color to use for highlighting. |
+
+#### Example: Output Highlighting
+```yaml filename="config.yaml"
+web:
+  highlight:
+    # Highlight your own ASN in BGP paths
+    - pattern: "65000"
+      label: "Our ASN"
+      color: "primary"
+      
+    # Highlight private IP ranges
+    - pattern: "192\.168\.\d+\.\d+"
+      label: "RFC 1918"
+      color: "warning"
+      
+    # Highlight packet loss
+    - pattern: "\d+% loss"
+      label: "Packet Loss"
+      color: "error"
+```
+
+### Developer Credit
+
+| Parameter | Type | Default | Description |
+| :-------- | :--- | :------ | :---------- |
+| `web.credit.enable` | Boolean | `true` | Show hyperglass developer credit in footer. |
+
+<Callout emoji="❤️" type="info">
+**Note from the Developer**
+
+If your organization's policy allows, please consider keeping the developer credit enabled. The goal of this project is to get more networks using looking glasses to make all our lives easier. Since it's primarily other network operators who will use your looking glass, it helps them know where they can get their own.
+</Callout>
+
+---
+
+## Complete Example Configuration
+
+Here's a comprehensive example showing how all these options work together:
+
+```yaml filename="config.yaml"
+# Basic site information
+site_title: "ACME Networks Looking Glass"
+org_name: "ACME Networks Inc."  
+site_description: "Network diagnostic tools for ACME Networks AS65000"
+primary_asn: 65000
+
+# System settings
+request_timeout: 120
+fake_output: false
+cors_origins:
+  - "https://network-tools.acmenetworks.com"
+  
+# Performance settings
+cache:
+  timeout: 300
+  show_text: true
+
+# API documentation
+docs:
+  enable: true
+  base_url: "https://lg.acmenetworks.com"
+  title: "ACME Networks Looking Glass API"
+  description: "RESTful API for network diagnostic queries"
+
+# Logging and notifications  
+logging:
+  directory: "/var/log/hyperglass"
+  format: "json"
+  max_size: "100MB"
+  
+  # Send notifications to Slack
+  http:
+    enable: true
+    provider: "slack"
+    host: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+
+# Custom error messages
+messages:
+  no_input: "Please specify a {field} for your query."
+  target_not_allowed: "Sorry, {target} is not permitted by our policy."
+  request_timeout: "Your request took too long and was cancelled."
+
+# Structured data processing
+structured:
+  communities:
+    mode: "name"
+    names:
+      "65000:100": "Customer Routes"
+      "65000:200": "Peer Routes"
+      "65000:999": "Blackhole"
+  rpki:
+    mode: "external" 
+    backend: "cloudflare"
+
+# Web interface customization
+web:
+  # DNS resolution
+  dns_provider:
+    name: "cloudflare"
+    
+  # Custom branding
+  logo:
+    light: "/etc/hyperglass/images/company-logo-light.svg"
+    dark: "/etc/hyperglass/images/company-logo-dark.svg"
+    width: "200px"
+    
+  # Welcome message
+  greeting:
+    enable: true
+    title: "Terms of Service"
+    file: "/etc/hyperglass/legal/terms.md"
+    required: true
+    
+  # Interface text
+  text:
+    title_mode: "all"
+    title: "Network Operations Center"
+    subtitle: "AS65000 Looking Glass"
+    query_location: "Router Location"
+    ip_button: "Detect My IP"
+    
+  # Footer links
+  links:
+    - title: "PeeringDB"
+      url: "https://www.peeringdb.com/asn/{primary_asn}"
+      side: "right"
+    - title: "Network Status"  
+      url: "https://status.acmenetworks.com"
+      side: "right"
+      
+  # Footer menus
+  menus:
+    - title: "Help"
+      content: "/etc/hyperglass/help/user-guide.md"
+      side: "left"
+      
+  # Theme customization
+  theme:
+    default_color_mode: "dark"
+    colors:
+      primary: "#1e3a8a"
+      secondary: "#059669"
+    fonts:
+      body: "Inter"
+      mono: "JetBrains Mono"
+      
+  # Highlight patterns
+  highlight:
+    - pattern: "65000"
+      label: "Our ASN"
+      color: "primary"
+    - pattern: "\d+% loss"
+      label: "Packet Loss" 
+      color: "error"
+      
+  # Developer credit
+  credit:
+    enable: true
+```
+
+---
+
+## Next Steps
+
+<DocsButton href="/configuration/devices">
+**Configure Devices** - Set up routers and network devices
+</DocsButton>
+
+<DocsButton href="/configuration/directives">  
+**Configure Directives** - Define available query types
+</DocsButton>
+
+<DocsButton href="/configuration/examples">
+**See Examples** - View real-world configuration examples
+</DocsButton>

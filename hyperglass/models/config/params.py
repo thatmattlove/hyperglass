@@ -83,12 +83,12 @@ class Params(ParamsPublic, HyperglassModel):
     plugins: t.List[str] = []
 
     # Sub Level Params
-    cache: Cache = Cache()
-    docs: Docs = Docs()
-    logging: Logging = Logging()
-    messages: Messages = Messages()
-    structured: Structured = Structured()
-    web: Web = Web()
+    cache: Cache = Field(default_factory=Cache)
+    docs: Docs = Field(default_factory=Docs)
+    logging: Logging = Field(default_factory=Logging)
+    messages: Messages = Field(default_factory=Messages)
+    structured: t.Optional[Structured] = None
+    web: Web = Field(default_factory=Web)
 
     def __init__(self, **kw: t.Any) -> None:
         return super().__init__(**self.convert_paths(kw))

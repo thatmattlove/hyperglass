@@ -127,21 +127,23 @@ const MenuList = (props: MenuListProps<QueryTypeOption, boolean>): JSX.Element =
   }
   return (
     <components.MenuList {...rest}>
-      <HStack pt={4} px={2} zIndex={2} {...getRootProps()}>
-        <GroupFilter {...getRadioProps({ value: '', onClick: () => handleClick('') })}>
-          None
-        </GroupFilter>
-        {filtered.groups.map(value => {
-          return (
-            <GroupFilter
-              key={value}
-              {...getRadioProps({ value, onClick: () => handleClick(value) })}
-            >
-              {value}
-            </GroupFilter>
-          );
-        })}
-      </HStack>
+      {filtered.groups.length > 0 && (
+        <HStack pt={4} px={2} zIndex={2} {...getRootProps()}>
+          <GroupFilter {...getRadioProps({ value: '', onClick: () => handleClick('') })}>
+            None
+          </GroupFilter>
+          {filtered.groups.map(value => {
+            return (
+              <GroupFilter
+                key={value}
+                {...getRadioProps({ value, onClick: () => handleClick(value) })}
+              >
+                {value}
+              </GroupFilter>
+            );
+          })}
+        </HStack>
+      )}
       {children}
     </components.MenuList>
   );

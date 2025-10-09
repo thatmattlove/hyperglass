@@ -157,6 +157,9 @@ class ThemeColors(HyperglassModel):
     def validate_colors(cls: "ThemeColors", value: str, info: ValidationInfo) -> str:
         """Set default functional color mapping."""
         if value is None:
+            # Skip validation if field_name is None (during class instantiation)
+            if info.field_name is None:
+                return value
             default_color = FUNC_COLOR_MAP[info.field_name]
             value = str(info.data[default_color])
         return value
@@ -176,9 +179,9 @@ class ThemeFonts(HyperglassModel):
 class Theme(HyperglassModel):
     """Validation model for theme variables."""
 
-    colors: ThemeColors = ThemeColors()
+    colors: ThemeColors = Field(default_factory=ThemeColors)
     default_color_mode: t.Optional[ColorMode] = None
-    fonts: ThemeFonts = ThemeFonts()
+    fonts: ThemeFonts = Field(default_factory=ThemeFonts)
 
 
 class DnsOverHttps(HyperglassModel):
@@ -226,8 +229,8 @@ class HighlightPattern(HyperglassModel):
 class Web(HyperglassModel):
     """Validation model for all web/browser-related configuration."""
 
-    credit: Credit = Credit()
-    dns_provider: DnsOverHttps = DnsOverHttps()
+    credit: Credit = Field(default_factory=Credit)
+    dns_provider: DnsOverHttps = Field(default_factory=DnsOverHttps)
     links: t.Sequence[Link] = [
         Link(title="PeeringDB", url="https://www.peeringdb.com/asn/{primary_asn}")
     ]
@@ -235,11 +238,11 @@ class Web(HyperglassModel):
         Menu(title="Terms", content=DEFAULT_TERMS),
         Menu(title="Help", content=DEFAULT_HELP),
     ]
-    greeting: Greeting = Greeting()
-    logo: Logo = Logo()
-    opengraph: OpenGraph = OpenGraph()
-    text: Text = Text()
-    theme: Theme = Theme()
+    greeting: Greeting = Field(default_factory=Greeting)
+    logo: Logo = Field(default_factory=Logo)
+    opengraph: OpenGraph = Field(default_factory=OpenGraph)
+    text: Text = Field(default_factory=Text)
+    theme: Theme = Field(default_factory=Theme)
     location_display_mode: LocationDisplayMode = "auto"
     custom_javascript: t.Optional[FilePath] = None
     custom_html: t.Optional[FilePath] = None

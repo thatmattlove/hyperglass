@@ -123,7 +123,49 @@ class Query(BaseModel):
     @property
     def device(self) -> Device:
         """Get this query's device object by query_location."""
-        return self._state.devices[self.query_location]
+        # Return a proxy around the device so we can override
+        # structured_output per-request without mutating global state.
+        device = self._state.devices[self.query_location]
+
+        # Determine effective structured_output based on global params
+        try:
+            params = use_state("params")
+        except Exception:
+            params = None
+
+        # Decide which top-level structured enable flag to consult
+        feature_flag_name = None
+        if getattr(self, "query_type", None) == "traceroute":
+            feature_flag_name = "enable_for_traceroute"
+        elif getattr(self, "query_type", None) in ("bgp_route", "bgp_routestr"):
+            feature_flag_name = "enable_for_bgp_route"
+
+        effective_structured = bool(getattr(device, "structured_output", False))
+
+        if params is None or not getattr(params, "structured", None):
+            # Global structured block absent => structured disabled
+            effective_structured = False
+        else:
+            # If structured is present, default is enabled; allow opt-out
+            if feature_flag_name is not None:
+                if getattr(params.structured, feature_flag_name, None) is False:
+                    effective_structured = False
+
+        class _DeviceProxy:
+            """Tiny proxy object that delegates to the real device but
+            overrides structured_output."""
+
+            def __init__(self, real, structured_value: bool) -> None:
+                self._real = real
+                self.structured_output = structured_value
+
+            def __getattr__(self, name: str):
+                return getattr(self._real, name)
+
+            def __repr__(self) -> str:  # pragma: no cover - trivial
+                return repr(self._real)
+
+        return _DeviceProxy(device, effective_structured)
 
     @field_validator("query_location")
     def validate_query_location(cls, value):

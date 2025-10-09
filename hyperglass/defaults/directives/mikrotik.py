@@ -15,6 +15,9 @@ __all__ = (
     "Mikrotik_BGPRoute",
     "Mikrotik_Ping",
     "Mikrotik_Traceroute",
+    "MikrotikBGPRouteTable",
+    "MikrotikBGPASPathTable",
+    "MikrotikBGPCommunityTable",
 )
 
 NAME = "Mikrotik"
@@ -27,15 +30,17 @@ Mikrotik_BGPRoute = BuiltinDirective(
         RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
-            command="ip route print where {target} in dst-address",
+            command="routing route print detail without-paging where {target} in dst-address bgp and dst-address !=0.0.0.0/0",
         ),
         RuleWithIPv6(
             condition="::/0",
             action="permit",
-            command="ipv6 route print where {target} in dst-address",
+            command="routing route print detail without-paging where {target} in dst-address bgp and dst-address !=::/0",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
+    plugins=["mikrotik_normalize_input", "mikrotik_garbage_output", "bgp_routestr_mikrotik"],
+    table_output="__hyperglass_mikrotik_bgp_route_table__",
     platforms=PLATFORMS,
 )
 
@@ -53,6 +58,8 @@ Mikrotik_BGPASPath = BuiltinDirective(
         )
     ],
     field=Text(description="AS Path Regular Expression"),
+    plugins=["mikrotik_normalize_input", "mikrotik_garbage_output", "bgp_routestr_mikrotik"],
+    table_output="__hyperglass_mikrotik_bgp_aspath_table__",
     platforms=PLATFORMS,
 )
 
@@ -70,6 +77,8 @@ Mikrotik_BGPCommunity = BuiltinDirective(
         )
     ],
     field=Text(description="BGP Community String"),
+    plugins=["mikrotik_normalize_input", "mikrotik_garbage_output", "bgp_routestr_mikrotik"],
+    table_output="__hyperglass_mikrotik_bgp_community_table__",
     platforms=PLATFORMS,
 )
 
@@ -99,14 +108,69 @@ Mikrotik_Traceroute = BuiltinDirective(
         RuleWithIPv4(
             condition="0.0.0.0/0",
             action="permit",
-            command="tool traceroute src-address={source4} timeout=1 duration=5 count=1 {target}",
+            command="tool traceroute src-address={source4} timeout=1 duration=30 count=3 {target}",
         ),
         RuleWithIPv6(
             condition="::/0",
             action="permit",
-            command="tool traceroute src-address={source6} timeout=1 duration=5 count=1 {target}",
+            command="tool traceroute src-address={source6} timeout=1 duration=30 count=3 {target}",
         ),
     ],
     field=Text(description="IP Address, Prefix, or Hostname"),
+    platforms=PLATFORMS,
+)
+
+# Table Output Directives
+
+MikrotikBGPRouteTable = BuiltinDirective(
+    id="__hyperglass_mikrotik_bgp_route_table__",
+    name="BGP Route",
+    rules=[
+        RuleWithIPv4(
+            condition="0.0.0.0/0",
+            action="permit",
+            command="routing route print detail without-paging where {target} in dst-address bgp and dst-address !=0.0.0.0/0",
+        ),
+        RuleWithIPv6(
+            condition="::/0",
+            action="permit",
+            command="routing route print detail without-paging where {target} in dst-address bgp and dst-address !=::/0",
+        ),
+    ],
+    field=Text(description="IP Address, Prefix, or Hostname"),
+    platforms=PLATFORMS,
+)
+
+MikrotikBGPASPathTable = BuiltinDirective(
+    id="__hyperglass_mikrotik_bgp_aspath_table__",
+    name="BGP AS Path",
+    rules=[
+        RuleWithPattern(
+            condition="*",
+            action="permit",
+            commands=[
+                "routing route print detail without-paging where bgp-as-path~{target}",
+                "routing route print detail without-paging where bgp-as-path~{target}",
+            ],
+        )
+    ],
+    field=Text(description="AS Path Regular Expression"),
+    platforms=PLATFORMS,
+)
+
+MikrotikBGPCommunityTable = BuiltinDirective(
+    id="__hyperglass_mikrotik_bgp_community_table__",
+    name="BGP Community",
+    rules=[
+        RuleWithPattern(
+            condition="*",
+            action="permit",
+            commands=[
+                "routing route print detail without-paging where bgp-communities~{target}",
+                "routing route print detail without-paging where bgp-communities~{target}",
+            ],
+        )
+    ],
+    field=Text(description="BGP Community String"),
     platforms=PLATFORMS,
 )

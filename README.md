@@ -27,6 +27,8 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
 ## Features
 
 - BGP Route, BGP Community, BGP AS Path, Ping, & Traceroute, or [add your own commands](https://hyperglass.dev/configuration/directives).
+- **Structured data output** with rich metadata for supported platforms
+- **Enhanced traceroute** with ASN information, organization names, country codes, and IXP detection
 - Full IPv6 support
 - Customizable everything: features, theme, UI/API text, error messages, commands
 - Built-in support for:
@@ -43,12 +45,17 @@ hyperglass is intended to make implementing a looking glass too easy not to do, 
   - OpenBGPD
   - TNSR
   - VyOS
+- **Structured BGP Route support** for: Arista EOS, FRRouting, Huawei VRP, Juniper Junos, MikroTik RouterOS
+- **Structured Traceroute support** for: Arista EOS, FRRouting, Huawei VRP, Juniper Junos, MikroTik RouterOS/SwitchOS
 - Configurable support for any other [supported platform](https://hyperglass.dev/platforms)
 - Optionally access devices via an SSH proxy/jump server
 - Access-list/prefix-list style query control to whitelist or blacklist query targets
 - REST API with automatic, configurable OpenAPI documentation
 - Modern, responsive UI built on [ReactJS](https://reactjs.org/), with [NextJS](https://nextjs.org/) & [Chakra UI](https://chakra-ui.com/), written in [TypeScript](https://www.typescriptlang.org/)
+- **AS path visualization** with interactive flow charts showing organization names
+- **Real-time IP enrichment** using BGP.tools for maximum accuracy and up-to-date data
 - Query multiple devices simultaneously
+- **Concurrent processing** with non-blocking operations for improved performance
 - Browser-based DNS-over-HTTPS resolution of FQDN queries
 
 *To request support for a specific platform, please [submit a Github Issue](https://github.com/thatmattlove/hyperglass/issues/new) with the **feature** label.*
@@ -76,5 +83,7 @@ hyperglass is built entirely on open-source software. Here are some of the aweso
 - [Litestar](https://litestar.dev)
 - [Pydantic](https://docs.pydantic.dev/latest/)
 - [Chakra UI](https://chakra-ui.com/)
+- [React Flow](https://reactflow.dev/) - AS path visualization
+- [BGP.tools](https://bgp.tools/) - Real-time IP enrichment and IXP data
 
 [![GitHub](https://img.shields.io/github/license/thatmattlove/hyperglass?color=330036&style=for-the-badge)](https://github.com/thatmattlove/hyperglass/blob/main/LICENSE)
